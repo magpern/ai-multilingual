@@ -31,6 +31,10 @@ The schema and interfaces do not block any of them.
 - Canonical URLs and hreflang are not yet emitted; the canonical redirect is
   suppressed for prefixed requests so nothing loops, but correct canonical
   output is Milestone 5.
+- On a site running an SEO plugin that emits its own title tag — Rank Math
+  does — the document `<title>` is not translated, because
+  `document_title_parts` never runs. Headings and body text translate normally.
+  The adapter that fixes this is Milestone 5.
 - Editing content while the plugin is deactivated will not mark translations
   stale, because the hook is not registered. Re-checking hashes on activation is
   a Milestone 2 addition.

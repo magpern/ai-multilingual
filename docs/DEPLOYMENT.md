@@ -58,7 +58,11 @@ shortcode, three `admin_post_*` handlers, and `before_woocommerce_init`.
 
 ### Deploying
 
-1. Back up the database first.
+1. Back up the database first — **to a path outside the web root**. `wp db
+   export` writes wherever it is told, and the WordPress directory is served:
+   a dump left there is a publicly downloadable copy of the entire database,
+   password hashes and customer data included. Export to a directory the web
+   server does not serve, and set the file mode to 600.
 2. Mount the plugin. On a Docker install the bind mount must be added to **both**
    the web and the WP-CLI service, then the stack recreated.
 3. Validate before starting: check the compose configuration parses, bring the
@@ -94,6 +98,29 @@ shortcode, three `admin_post_*` handlers, and `before_woocommerce_init`.
 
 Deactivate `ai-multilingual`, reactivate the previous plugin, flush caches. No
 data is removed by deactivation, so reactivating restores translations exactly.
+
+### Acceptance result — 2026-07-26
+
+Run against WordPress 7.0.2, WooCommerce 10.9.4, Blocksy child theme, Rank Math
+and Elementor Pro active, Redis object cache on.
+
+All sixteen checks passed, with two observations worth recording:
+
+- **The document `<title>` does not translate yet.** On a site running Rank
+  Math, the title tag is emitted by Rank Math rather than through
+  `wp_get_document_title()`, so the `document_title_parts` overlay never runs.
+  The `h1` and body translate correctly. Translating the title tag needs the
+  Rank Math adapter, which is Milestone 5. Without Rank Math the existing
+  overlay would apply.
+- **A default-language prefix redirects rather than 404s.** `/en/<slug>/`
+  returns 301 to `/<slug>/` because the prefix is not recognized and core's
+  canonical redirect then resolves the slug. That is better behaviour than a
+  404 and needs no change. The same applies to a `preview` language for an
+  anonymous visitor: they are redirected to the unprefixed page rather than
+  shown unfinished content.
+
+An acceptance page (`aiml-acceptance-page`) was created for the walkthrough and
+left published so the slice can be viewed. It can be deleted at any time.
 
 ### Known limitations
 
