@@ -1,0 +1,10 @@
+{
+    "byte_identical": true,
+    "sha1_before": "0787c8c517f3f8ee1ad7f5d893ed9162df170b2a",
+    "sha1_after": "0787c8c517f3f8ee1ad7f5d893ed9162df170b2a",
+    "bytes_before": 529,
+    "bytes_after": 529,
+    "conclusive": false,
+    "reason": "Both files were produced via WP-CLI (wp post create \/ wp post update), not a real Gutenberg browser-editor save. Byte equality here demonstrates only that wp post update does not rewrite unchanged content \u2014 it does not exercise, and therefore cannot confirm or refute, editor-JS save-time normalization. See spike\/s5\/corpus\/authored\/PROVENANCE_NOTICE.md.",
+    "requirement_status": "OPEN \u2014 requires re-running this step through the real browser editor."
+}

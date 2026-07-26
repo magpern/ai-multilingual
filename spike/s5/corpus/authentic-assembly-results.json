@@ -1,0 +1,171 @@
+{
+    "parse_and_locate": {
+        "buttons": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 6,
+            "round_trip_byte_ok": true,
+            "content_bytes": 489
+        },
+        "dynamic-block": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 1,
+            "round_trip_byte_ok": true,
+            "content_bytes": 68
+        },
+        "headings-and-paragraphs": {
+            "parse_success": true,
+            "block_count": 8,
+            "chunk_count": 8,
+            "round_trip_byte_ok": true,
+            "content_bytes": 667
+        },
+        "html-block": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 2,
+            "round_trip_byte_ok": true,
+            "content_bytes": 214
+        },
+        "image-caption-alt": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 2,
+            "round_trip_byte_ok": true,
+            "content_bytes": 450
+        },
+        "list-nested": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 14,
+            "round_trip_byte_ok": true,
+            "content_bytes": 711
+        },
+        "nested-group-columns": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 12,
+            "round_trip_byte_ok": true,
+            "content_bytes": 632
+        },
+        "no-op-save-after": {
+            "parse_success": true,
+            "block_count": 8,
+            "chunk_count": 8,
+            "round_trip_byte_ok": true,
+            "content_bytes": 529
+        },
+        "no-op-save-source": {
+            "parse_success": true,
+            "block_count": 8,
+            "chunk_count": 8,
+            "round_trip_byte_ok": true,
+            "content_bytes": 529
+        },
+        "quote-with-citation": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 4,
+            "round_trip_byte_ok": true,
+            "content_bytes": 258
+        },
+        "reusable-block": {
+            "parse_success": true,
+            "block_count": 4,
+            "chunk_count": 2,
+            "round_trip_byte_ok": true,
+            "content_bytes": 66
+        },
+        "separator-between-paragraphs": {
+            "parse_success": true,
+            "block_count": 6,
+            "chunk_count": 6,
+            "round_trip_byte_ok": true,
+            "content_bytes": 398
+        },
+        "synced-pattern": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 1,
+            "round_trip_byte_ok": true,
+            "content_bytes": 33
+        },
+        "table": {
+            "parse_success": true,
+            "block_count": 2,
+            "chunk_count": 2,
+            "round_trip_byte_ok": true,
+            "content_bytes": 454
+        }
+    },
+    "splice_assembly": {
+        "buttons": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "dynamic-block": {
+            "skipped": true,
+            "reason": "no non-empty chunk to target"
+        },
+        "headings-and-paragraphs": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "html-block": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "image-caption-alt": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "list-nested": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "nested-group-columns": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "no-op-save-after": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "no-op-save-source": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "quote-with-citation": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "reusable-block": {
+            "skipped": true,
+            "reason": "no non-empty chunk to target"
+        },
+        "separator-between-paragraphs": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        },
+        "synced-pattern": {
+            "skipped": true,
+            "reason": "no non-empty chunk to target"
+        },
+        "table": {
+            "skipped": false,
+            "splice_ok": true,
+            "untouched_ok": true
+        }
+    }
+}
