@@ -1,0 +1,25 @@
+{
+    "100": {
+        "segment_count": 69,
+        "content_bytes": 14775,
+        "extraction_median_ms": 0.5811,
+        "reconciliation_median_ms": 0.207
+    },
+    "500": {
+        "segment_count": 322,
+        "content_bytes": 68950,
+        "extraction_median_ms": 3.6563,
+        "reconciliation_median_ms": 1.3493
+    },
+    "1000": {
+        "segment_count": 644,
+        "content_bytes": 137900,
+        "extraction_median_ms": 7.4058,
+        "reconciliation_median_ms": 2.6327
+    },
+    "_falsification_test": {
+        "extraction_ratio_1000_over_100": 12.74,
+        "reconciliation_ratio_1000_over_100": 12.72,
+        "threshold": 15
+    }
+}
