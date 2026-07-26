@@ -1,0 +1,8 @@
+{
+    "iterations": 3000,
+    "seed_base": 900000,
+    "max_tree_node_count_seen": 40,
+    "total_leaf_nodes_seen": 9867,
+    "total_empty_containers_seen": 1967,
+    "total_multi_child_containers_seen": 4945
+}

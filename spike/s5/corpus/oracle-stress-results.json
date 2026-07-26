@@ -1,0 +1,150 @@
+{
+    "wide": {
+        "100": {
+            "node_count": 101,
+            "content_bytes": 7287,
+            "serialize_ms": 0.58,
+            "reparse_ms": 0.79,
+            "reserialize_ms": 0.06,
+            "memory_peak_bytes": 91226112,
+            "memory_delta_bytes": 0,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "500": {
+            "node_count": 501,
+            "content_bytes": 36601,
+            "serialize_ms": 0.63,
+            "reparse_ms": 2.47,
+            "reserialize_ms": 0.43,
+            "memory_peak_bytes": 91226112,
+            "memory_delta_bytes": 0,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "1000": {
+            "node_count": 1001,
+            "content_bytes": 73243,
+            "serialize_ms": 1.09,
+            "reparse_ms": 4.79,
+            "reserialize_ms": 1.06,
+            "memory_peak_bytes": 91226112,
+            "memory_delta_bytes": 0,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "2000": {
+            "node_count": 2001,
+            "content_bytes": 147529,
+            "serialize_ms": 2.07,
+            "reparse_ms": 9.65,
+            "reserialize_ms": 1.89,
+            "memory_peak_bytes": 95420416,
+            "memory_delta_bytes": 4194304,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "5000": {
+            "node_count": 5001,
+            "content_bytes": 370387,
+            "serialize_ms": 8.15,
+            "reparse_ms": 22.15,
+            "reserialize_ms": 18.22,
+            "memory_peak_bytes": 103809024,
+            "memory_delta_bytes": 8388608,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "10000": {
+            "node_count": 10001,
+            "content_bytes": 741815,
+            "serialize_ms": 18.38,
+            "reparse_ms": 50.08,
+            "reserialize_ms": 20.19,
+            "memory_peak_bytes": 118489088,
+            "memory_delta_bytes": 14680064,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        }
+    },
+    "deep": {
+        "100": {
+            "node_count": 101,
+            "content_bytes": 7474,
+            "serialize_ms": 0.22,
+            "reparse_ms": 0.58,
+            "reserialize_ms": 0.1,
+            "memory_peak_bytes": 118489088,
+            "memory_delta_bytes": 0,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "500": {
+            "node_count": 501,
+            "content_bytes": 37074,
+            "serialize_ms": 1.34,
+            "reparse_ms": 2.47,
+            "reserialize_ms": 1.01,
+            "memory_peak_bytes": 118489088,
+            "memory_delta_bytes": 0,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "1000": {
+            "node_count": 1001,
+            "content_bytes": 74074,
+            "serialize_ms": 3.84,
+            "reparse_ms": 5.22,
+            "reserialize_ms": 3.38,
+            "memory_peak_bytes": 118489088,
+            "memory_delta_bytes": 0,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "2000": {
+            "node_count": 2001,
+            "content_bytes": 148074,
+            "serialize_ms": 14.09,
+            "reparse_ms": 14.9,
+            "reserialize_ms": 14.91,
+            "memory_peak_bytes": 120586240,
+            "memory_delta_bytes": 2097152,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "5000": {
+            "node_count": 5001,
+            "content_bytes": 370074,
+            "serialize_ms": 73.47,
+            "reparse_ms": 26.53,
+            "reserialize_ms": 84.46,
+            "memory_peak_bytes": 154140672,
+            "memory_delta_bytes": 35651584,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        },
+        "10000": {
+            "node_count": 10001,
+            "content_bytes": 740074,
+            "serialize_ms": 327.55,
+            "reparse_ms": 54.65,
+            "reserialize_ms": 332.68,
+            "memory_peak_bytes": 254803968,
+            "memory_delta_bytes": 132120576,
+            "round_trip_shape_ok": true,
+            "byte_exact": true,
+            "ids_unique": true
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "iterations": 2000,
+    "ops_per_iteration": 8,
+    "actions_applied": {
+        "insert": 2718,
+        "delete": 2267,
+        "reorder": 670,
+        "checkpoint": 2642,
+        "undo": 948,
+        "redo": 220
+    },
+    "undo_verified_count": 948,
+    "redo_verified_count": 220
+}
