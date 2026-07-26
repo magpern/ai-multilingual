@@ -13,11 +13,16 @@
  * whenever it has non-empty wrapper HTML around a nested child, and
  * whitespace sitting between two sibling blocks (outside either one's own
  * delimiters) is itself parsed as a separate `blockName === null` "freeform"
- * chunk (see test_whitespace_between_sibling_blocks_is_its_own_chunk) — both
- * confirmed against real core rather than assumed. Hard-coding total counts
- * would make these tests brittle to those (correct, expected) mechanics
- * without adding to what Phase 0 needs to prove: that every offset is right
- * and document order is preserved.
+ * chunk — both confirmed against real core rather than assumed. Neither is a
+ * translatable segment; both are source ranges/separators that OffsetExtractor
+ * correctly reports because reporting every range is its job. Deciding which
+ * ranges are eligible for translation is a registry/extraction-policy concern
+ * for a later component, not something this offset finder — or these tests —
+ * decide. See test_whitespace_between_sibling_blocks_is_its_own_null_block_name_chunk
+ * for the dedicated proof. Hard-coding total counts would make these tests
+ * brittle to those (correct, expected) mechanics without adding to what
+ * Phase 0 needs to prove: that every offset is right and document order is
+ * preserved.
  *
  * THROWAWAY. Branch spike/s5 only.
  *

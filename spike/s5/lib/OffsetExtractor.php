@@ -1,7 +1,17 @@
 <?php
 /**
- * Spike S5 prototype — locates translatable innerContent chunks by their
+ * Spike S5 prototype — locates every innerContent string chunk by its
  * verbatim byte offset in the original post_content string.
+ *
+ * IMPORTANT SCOPE NOTE: this locates source RANGES, not translatable
+ * SEGMENTS. Every chunk `parse_blocks()` reports — including a bare
+ * whitespace gap between two sibling blocks, a separator's empty wrapper, or
+ * any other structural filler — comes back from `locate_chunks()`. Which of
+ * those ranges are actually eligible for translation (by block type, by
+ * field, by whether the block is dynamic) is a policy decision that belongs
+ * to a later registry/extraction component, not to this low-level offset
+ * finder. This class answers only "where, exactly, is this byte range",
+ * never "should this be offered to a translator".
  *
  * THROWAWAY CODE. Not autoloaded, not covered by phpcs, not merged to main.
  * Exists to prove (or disprove) that assembly can be done by byte-splicing
@@ -34,9 +44,12 @@ namespace AIMultilingual\Spike\S5;
  * newline between "<!-- /wp:paragraph -->" and the following
  * "<!-- wp:paragraph -->" — is parsed by core as its own top-level
  * `blockName === null` ("freeform") block, and therefore surfaces here as its
- * own chunk. A real extractor built on this must filter chunks by
- * `block_name` (via a registry of translatable block types) rather than
- * assuming one chunk per authored block.
+ * own chunk. Such a chunk is a source range/separator, never a translatable
+ * segment — it is deliberately left in this class's output rather than
+ * filtered, because filtering is exactly the eligibility policy described
+ * above and does not belong here. A real extractor must apply that policy
+ * (via a registry of translatable block types, keyed at minimum on
+ * `block_name`) before ever offering a chunk to a translator.
  *
  * Not `final`: FailClosedTest subclasses it to drive the protected walk with
  * a deliberately-violated cursor invariant, proving the defensive guard

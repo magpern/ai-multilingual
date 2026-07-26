@@ -15,6 +15,7 @@
 	<testsuites>
 		<testsuite name="spike-s5">
 			<directory suffix="Test.php">assembly</directory>
+			<directory suffix="Test.php">oracle</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

@@ -26,6 +26,20 @@ namespace AIMultilingual\Tests\Integration;
 /**
  * Confirms serialize_blocks(parse_blocks($c)) === $c does NOT hold in general,
  * and documents exactly where it diverges.
+ *
+ * The "0"-content case, precisely, since an earlier pass at this file
+ * mislocated it: (1) `parse_blocks()` itself OMITS the "0" span from
+ * `innerContent`/`innerHTML` — this is a PARSE-time omission
+ * (`class-wp-block-parser.php:349,373`, `! empty( $html )`), not something
+ * `serialize_blocks()` does. (2) Consequently, no extractor built on
+ * `parse_blocks()` can ever locate or translate that span — the information
+ * is gone before extraction starts, regardless of assembly strategy. (3) That
+ * said, byte-splice assembly (OffsetExtractor + Splicer; see
+ * SpliceAssemblyTest) still preserves the original "0" content correctly
+ * WHEN THAT BLOCK IS NOT ITSELF A TRANSLATION TARGET — splicing only ever
+ * touches the byte ranges it was explicitly told to replace, so a "0" block
+ * sitting untranslated elsewhere in the document survives untouched, exactly
+ * as authored, even though nothing can ever generate a replacement FOR it.
  */
 final class SerializerDivergenceTest extends \WP_UnitTestCase {
 
