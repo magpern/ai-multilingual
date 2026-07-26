@@ -1,9 +1,10 @@
 <?php
 /**
  * Spike S5, Phase 1b: imports every fixture in spike/s5/corpus/authored/
- * through CorpusImporter and records, per fixture, whether it fits the
- * accepted Phase 1a OracleNode container model or exposes the
- * inter-child-separator shape that model cannot represent.
+ * through CorpusImporter and confirms each round-trips through real
+ * parse_blocks() with the exact shape the oracle believes it has, and — for
+ * the three multi-child containers the ORIGINAL container model could not
+ * represent — that the inter-child separator content is preserved byte-exact.
  *
  * This is diagnostic/import-tooling evidence, not Strategy A-G evaluation:
  * no reconciliation, matching, or identity heuristic is exercised here.
@@ -30,86 +31,63 @@ require_once dirname( __DIR__ ) . '/lib/Oracle/CorpusImporter.php';
 use AIMultilingual\Spike\S5\Oracle\CorpusImporter;
 use AIMultilingual\Spike\S5\Oracle\IdGenerator;
 use AIMultilingual\Spike\S5\Oracle\OracleTree;
-use AIMultilingual\Spike\S5\Oracle\UnsupportedContainerShapeException;
 
 final class CorpusImportTest extends \WP_UnitTestCase {
 
 	private const CORPUS_DIR = __DIR__ . '/../corpus/authored';
 
-	/**
-	 * Confirmed fitting: leaves, or containers with at most one child (no
-	 * between-child separator possible with 0 or 1 children).
-	 */
-	private const EXPECTED_FITTING = array(
+	private const ALL_FIXTURES = array(
+		'buttons',
+		'dynamic-block',
 		'headings-and-paragraphs',
 		'html-block',
 		'image-caption-alt',
-		'table',
-		'separator-between-paragraphs',
-		'reusable-block',
-		'synced-pattern',
-		'dynamic-block',
-		'quote-with-citation',
-		'no-op-save-source',
+		'list-nested',
+		'nested-group-columns',
 		'no-op-save-after',
+		'no-op-save-source',
+		'quote-with-citation',
+		'reusable-block',
+		'separator-between-paragraphs',
+		'synced-pattern',
+		'table',
 	);
 
 	/**
-	 * Confirmed NOT fitting: containers with 2+ children carrying a
-	 * Gutenberg-conventional separator chunk between them.
+	 * Every one of the 13 fixtures now imports cleanly. Before the container
+	 * model amendment, buttons/nested-group-columns/list-nested threw
+	 * UnsupportedContainerShapeException because they contain a multi-child
+	 * container with a Gutenberg-conventional separator between siblings.
 	 */
-	private const EXPECTED_UNSUPPORTED = array(
-		'buttons',              // core/buttons has 2 core/button children with a "\n\n" separator.
-		'nested-group-columns', // the inner core/columns has 2 core/column children with a "\n\n" separator.
-		'list-nested',          // both the outer list (3 items) and its nested sub-list (2 items) separate siblings this way.
-	);
-
-	public function test_every_fixture_imports_or_fails_exactly_as_expected(): void {
-		$fitting    = array();
-		$unsupported = array();
+	public function test_all_thirteen_fixtures_import_and_round_trip_cleanly(): void {
+		$imported = array();
 
 		foreach ( glob( self::CORPUS_DIR . '/*.html' ) as $file ) {
 			$slug    = basename( $file, '.html' );
 			$content = (string) file_get_contents( $file );
 			$ids     = new IdGenerator();
 
-			try {
-				$roots = CorpusImporter::from_content( $content, $ids );
-				$tree  = new OracleTree( $roots );
+			$roots = CorpusImporter::from_content( $content, $ids );
+			$tree  = new OracleTree( $roots );
 
-				// A fixture that imports must also round-trip through real
-				// parse_blocks() with the same shape the oracle believes it
-				// has — otherwise the import silently lost information even
-				// though no exception was thrown.
-				$result = $tree->verify_round_trip_shape();
-				$this->assertTrue( $result['ok'], "$slug imported without error but failed shape verification:\n" . var_export( $result, true ) );
+			$result = $tree->verify_round_trip_shape();
+			$this->assertTrue( $result['ok'], "$slug failed shape verification:\n" . var_export( $result, true ) );
 
-				$fitting[] = $slug;
-			} catch ( UnsupportedContainerShapeException $e ) {
-				$unsupported[ $slug ] = $e->getMessage();
-			}
+			// The stronger claim this amendment exists to prove: not just
+			// "the shape matches", but the exact bytes reconstruct.
+			$this->assertSame( $content, $tree->to_content(), "$slug must reconstruct byte-identically." );
+
+			$imported[] = $slug;
 		}
 
-		sort( $fitting );
-		$unsupported_slugs = array_keys( $unsupported );
-		sort( $unsupported_slugs );
+		sort( $imported );
+		$expected = self::ALL_FIXTURES;
+		sort( $expected );
 
-		$expected_fitting = self::EXPECTED_FITTING;
-		sort( $expected_fitting );
-		$expected_unsupported = self::EXPECTED_UNSUPPORTED;
-		sort( $expected_unsupported );
-
-		$this->assertSame( $expected_fitting, $fitting, "Which fixtures import cleanly must match what was confirmed by direct innerContent inspection.\nUnsupported were: " . wp_json_encode( $unsupported, JSON_PRETTY_PRINT ) );
-		$this->assertSame( $expected_unsupported, $unsupported_slugs );
-
-		// The exact reason must name the real mechanism (a separator between
-		// two children), not just "something went wrong".
-		foreach ( $unsupported as $slug => $message ) {
-			$this->assertStringContainsString( 'between its first child', $message, "Fixture $slug's failure reason must be the documented inter-child-separator shape." );
-		}
+		$this->assertSame( $expected, $imported, 'All 13 fixtures must import; none excluded for shape reasons after the model amendment.' );
 	}
 
-	public function test_a_fitting_single_child_container_imports_correctly(): void {
+	public function test_a_single_child_container_still_imports_correctly(): void {
 		$content = (string) file_get_contents( self::CORPUS_DIR . '/quote-with-citation.html' );
 		$ids     = new IdGenerator();
 
@@ -117,21 +95,56 @@ final class CorpusImportTest extends \WP_UnitTestCase {
 		$tree  = new OracleTree( $roots );
 
 		$this->assertTrue( $tree->verify_round_trip_shape()['ok'] );
+		$this->assertSame( $content, $tree->to_content() );
 		$this->assertSame( 'core/quote', $roots[0]->block_name );
 		$this->assertCount( 1, $roots[0]->children );
 		$this->assertSame( 'core/paragraph', $roots[0]->children[0]->block_name );
 	}
 
-	public function test_a_multi_child_container_throws_with_a_precise_reason(): void {
+	/**
+	 * The fixture that used to be the cleanest failure case: core/buttons has
+	 * 2 core/button children separated by "\n\n". Now imports with that exact
+	 * separator preserved as a distinct, byte-exact separators[] entry.
+	 */
+	public function test_buttons_imports_with_its_inter_child_separator_preserved(): void {
 		$content = (string) file_get_contents( self::CORPUS_DIR . '/buttons.html' );
 		$ids     = new IdGenerator();
 
-		try {
-			CorpusImporter::from_content( $content, $ids );
-			$this->fail( 'Expected UnsupportedContainerShapeException.' );
-		} catch ( UnsupportedContainerShapeException $e ) {
-			$this->assertStringContainsString( 'core/buttons', $e->getMessage() );
-			$this->assertStringContainsString( '\n\n', $e->getMessage() );
-		}
+		$roots = CorpusImporter::from_content( $content, $ids );
+		$buttons = $roots[0];
+
+		$this->assertSame( 'core/buttons', $buttons->block_name );
+		$this->assertCount( 2, $buttons->children );
+		$this->assertCount( 3, $buttons->separators, 'count(children)+1.' );
+		$this->assertSame( "\n\n", $buttons->separators[1], 'The separator BETWEEN the two buttons must be exactly what was in the file — "\n\n" here, verified independently via ZZInnerContentDumpTest during the original investigation.' );
+
+		$tree = new OracleTree( $roots );
+		$this->assertSame( $content, $tree->to_content() );
+	}
+
+	/**
+	 * list-nested has both an outer list (3 items, 2 separators) and a nested
+	 * sub-list (2 items, 1 separator) — confirms the amendment handles
+	 * separators correctly at more than one nesting depth simultaneously.
+	 */
+	public function test_list_nested_preserves_separators_at_every_nesting_depth(): void {
+		$content = (string) file_get_contents( self::CORPUS_DIR . '/list-nested.html' );
+		$ids     = new IdGenerator();
+
+		$roots = CorpusImporter::from_content( $content, $ids );
+		$outer_list = $roots[0];
+
+		$this->assertSame( 'core/list', $outer_list->block_name );
+		$this->assertCount( 3, $outer_list->children );
+		$this->assertCount( 4, $outer_list->separators );
+
+		$second_item = $outer_list->children[1];
+		$nested_list = $second_item->children[0];
+		$this->assertSame( 'core/list', $nested_list->block_name );
+		$this->assertCount( 2, $nested_list->children );
+		$this->assertCount( 3, $nested_list->separators );
+
+		$tree = new OracleTree( $roots );
+		$this->assertSame( $content, $tree->to_content() );
 	}
 }

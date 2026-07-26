@@ -462,20 +462,39 @@ final class OracleTree {
 	// -- Internal tree surgery --
 
 	/**
-	 * @param OracleNode[] $siblings
+	 * Removes a node from wherever it lives. When the node is found inside
+	 * some container's children list, that container's `separators` is
+	 * shrunk in lockstep, at the SAME index as the removed child — i.e. the
+	 * separator that sat immediately BEFORE the removed child is discarded,
+	 * and the one that sat after it becomes the new boundary between the
+	 * removed child's former neighbours. This is a modelling choice, not a
+	 * reconstruction of "what a real editor would leave behind": deleting a
+	 * whole block does not tell us which of its two neighbouring gaps a
+	 * human would have kept, and inventing a merge of the two would be
+	 * exactly the "infer missing content" this amendment must not do. The
+	 * root level has no separators at all — inter-root whitespace is its own
+	 * ordinary blockName=null node there, not a separator slot.
+	 *
+	 * @param OracleNode[]     $siblings The list to search at this level.
+	 * @param OracleNode|null  $owner    The container node whose ->children
+	 *                                   IS $siblings, or null at root level.
 	 */
-	private static function remove_node( array &$siblings, int $id ): ?OracleNode {
+	private static function remove_node( array &$siblings, int $id, ?OracleNode $owner = null ): ?OracleNode {
 		foreach ( $siblings as $i => $node ) {
 			if ( $node->id === $id ) {
 				$removed = $node;
 				array_splice( $siblings, $i, 1 );
+
+				if ( null !== $owner ) {
+					array_splice( $owner->separators, $i, 1 );
+				}
 
 				return $removed;
 			}
 		}
 
 		foreach ( $siblings as $node ) {
-			$found = self::remove_node( $node->children, $id );
+			$found = self::remove_node( $node->children, $id, $node );
 
 			if ( null !== $found ) {
 				return $found;
@@ -486,6 +505,15 @@ final class OracleTree {
 	}
 
 	/**
+	 * Inserts a node at an explicit parent/index. When the target parent is a
+	 * container, its `separators` grows in lockstep: a new slot defaulting to
+	 * '' is spliced in at the same index as the newly inserted child. This is
+	 * the counterpart modelling choice to remove_node()'s shrink rule — a
+	 * freshly inserted or pasted block has no pre-existing byte-exact
+	 * separator to preserve, so '' is the only honest default (never
+	 * fabricating whitespace that was not actually there). The root level has
+	 * no separators to grow.
+	 *
 	 * @param OracleNode[] $siblings
 	 */
 	private static function insert_node( array &$siblings, ?int $parent_id, int $index, OracleNode $new_node ): bool {
@@ -498,6 +526,7 @@ final class OracleTree {
 		foreach ( $siblings as $node ) {
 			if ( $node->id === $parent_id ) {
 				array_splice( $node->children, $index, 0, array( $new_node ) );
+				array_splice( $node->separators, $index, 0, array( '' ) );
 
 				return true;
 			}

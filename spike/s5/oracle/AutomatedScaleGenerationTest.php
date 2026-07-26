@@ -9,12 +9,14 @@
  * is WP-CLI-generated, not real editor output; nothing produced here may be
  * cited as evidence about genuine Gutenberg editor serialization behaviour.
  *
- * Excluded from the template cycle, and why:
- *  - buttons, nested-group-columns, list-nested: CorpusImportTest confirms
- *    these contain a container with 2+ children separated by a Gutenberg-
- *    conventional inter-child chunk, a shape the accepted Phase 1a
- *    OracleNode model cannot represent. Documented as a finding, not routed
- *    around.
+ * Uses the COMPLETE eligible corpus following the OracleNode container-model
+ * amendment (see OracleSeparatorTest, CorpusImporter): buttons,
+ * nested-group-columns, and list-nested — previously excluded because their
+ * multi-child containers carry a Gutenberg-conventional inter-child
+ * separator the model could not represent — now import and are included.
+ *
+ * Excluded from the template cycle, and why (this is now the ONLY exclusion,
+ * and it is not a shape limitation):
  *  - no-op-save-after: byte-identical to no-op-save-source (see
  *    PROVENANCE_NOTICE.md — produced via `wp post update`, not a real
  *    editor re-save), so including both would only duplicate one shape in
@@ -44,21 +46,24 @@ use AIMultilingual\Spike\S5\Oracle\IdGenerator;
 use AIMultilingual\Spike\S5\Oracle\OracleTree;
 use AIMultilingual\Spike\S5\Oracle\ScaleDocumentGenerator;
 
-final class AuthenticScaleGenerationTest extends \WP_UnitTestCase {
+final class AutomatedScaleGenerationTest extends \WP_UnitTestCase {
 
 	private const CORPUS_DIR = __DIR__ . '/../corpus/authored';
 
 	private const TEMPLATE_FIXTURES = array(
+		'buttons',
+		'dynamic-block',
 		'headings-and-paragraphs',
 		'html-block',
 		'image-caption-alt',
-		'table',
-		'separator-between-paragraphs',
-		'reusable-block',
-		'synced-pattern',
-		'dynamic-block',
-		'quote-with-citation',
+		'list-nested',
+		'nested-group-columns',
 		'no-op-save-source',
+		'quote-with-citation',
+		'reusable-block',
+		'separator-between-paragraphs',
+		'synced-pattern',
+		'table',
 	);
 
 	/**
@@ -87,7 +92,7 @@ final class AuthenticScaleGenerationTest extends \WP_UnitTestCase {
 	 */
 	public function test_generates_and_verifies_a_scale_document( int $target ): void {
 		$templates = $this->load_templates();
-		$this->assertNotEmpty( $templates, 'Precondition: at least one authentic template must have imported.' );
+		$this->assertNotEmpty( $templates, 'Precondition: at least one automated-corpus template must have imported.' );
 
 		$ids     = new IdGenerator();
 		$variant = static fn( string $text, int $cycle ): string => $text; // no text mutation needed for this measurement; distinct ids alone make repetitions distinguishable.
@@ -108,6 +113,7 @@ final class AuthenticScaleGenerationTest extends \WP_UnitTestCase {
 		$parse_ns = hrtime( true ) - $t1;
 
 		$round_trip = $tree->verify_round_trip_shape();
+		$byte_exact = $content === serialize_blocks( $parsed );
 
 		$reparsed_leaf_and_container_count = self::count_real_blocks( $parsed );
 
@@ -123,6 +129,7 @@ final class AuthenticScaleGenerationTest extends \WP_UnitTestCase {
 			'reparse_time_ms'         => round( $parse_ns / 1e6, 3 ),
 			'memory_delta_bytes'      => $mem_after - $mem_before,
 			'round_trip_shape_ok'     => $round_trip['ok'],
+			'byte_exact_round_trip'   => $byte_exact,
 			'total_ids'               => count( $all_ids ),
 			'unique_ids'              => $unique_ids,
 			'ids_are_unique'          => $unique_ids === count( $all_ids ),
@@ -135,6 +142,7 @@ final class AuthenticScaleGenerationTest extends \WP_UnitTestCase {
 		$this->assertGreaterThanOrEqual( $target, $actual_count, 'Generator must reach at least the target block count.' );
 		$this->assertSame( $actual_count, $reparsed_leaf_and_container_count, 'Every node the oracle believes it created must independently reparse as a real block via parse_blocks() — block count preservation.' );
 		$this->assertTrue( $round_trip['ok'], "Nesting/shape preservation failed for target=$target." );
+		$this->assertTrue( $byte_exact, "Byte-exact round trip failed for target=$target — serialize_blocks(parse_blocks(\$content)) must equal \$content for this generated document." );
 		$this->assertTrue( $record['ids_are_unique'], 'Mapping stability: no id may be assigned twice across the whole generated document.' );
 		$this->assertCount( count( $tree->roots() ), $parsed, 'Every generated root must be independently reparseable as one top-level block (no cross-root corruption at scale).' );
 	}
@@ -162,7 +170,7 @@ final class AuthenticScaleGenerationTest extends \WP_UnitTestCase {
 		$this->assertSame(
 			$tree_a->to_content(),
 			$tree_b->to_content(),
-			'Two independent runs against the same authentic templates must produce byte-identical documents.'
+			'Two independent runs against the same automated-corpus templates must produce byte-identical documents.'
 		);
 	}
 
@@ -189,7 +197,7 @@ final class AuthenticScaleGenerationTest extends \WP_UnitTestCase {
 	 * outside the test run output, not just eyeballed from console text.
 	 */
 	private static function record_result( int $target, array $record ): void {
-		$path  = dirname( __DIR__ ) . '/corpus/authentic-scale-results.json';
+		$path  = dirname( __DIR__ ) . '/corpus/automated-scale-results.json';
 		$all   = file_exists( $path ) ? json_decode( (string) file_get_contents( $path ), true ) : array();
 		$all[ (string) $target ] = $record;
 		ksort( $all );

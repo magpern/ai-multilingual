@@ -1,0 +1,44 @@
+{
+    "100": {
+        "target_block_count": 100,
+        "actual_block_count": 108,
+        "reparsed_block_count": 108,
+        "content_bytes": 14775,
+        "generation_time_ms": 0.168,
+        "reparse_time_ms": 0.472,
+        "memory_delta_bytes": 0,
+        "round_trip_shape_ok": true,
+        "byte_exact_round_trip": true,
+        "total_ids": 108,
+        "unique_ids": 108,
+        "ids_are_unique": true
+    },
+    "500": {
+        "target_block_count": 500,
+        "actual_block_count": 504,
+        "reparsed_block_count": 504,
+        "content_bytes": 68950,
+        "generation_time_ms": 0.487,
+        "reparse_time_ms": 1.997,
+        "memory_delta_bytes": 0,
+        "round_trip_shape_ok": true,
+        "byte_exact_round_trip": true,
+        "total_ids": 504,
+        "unique_ids": 504,
+        "ids_are_unique": true
+    },
+    "1000": {
+        "target_block_count": 1000,
+        "actual_block_count": 1008,
+        "reparsed_block_count": 1008,
+        "content_bytes": 137900,
+        "generation_time_ms": 1.413,
+        "reparse_time_ms": 4.066,
+        "memory_delta_bytes": 0,
+        "round_trip_shape_ok": true,
+        "byte_exact_round_trip": true,
+        "total_ids": 1008,
+        "unique_ids": 1008,
+        "ids_are_unique": true
+    }
+}

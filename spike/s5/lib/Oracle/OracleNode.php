@@ -15,15 +15,29 @@ namespace AIMultilingual\Spike\S5\Oracle;
 
 /**
  * A node is either a LEAF (carries one translatable text span, no children)
- * or a CONTAINER (carries children, no text span of its own). This is
- * narrower than what a real document can contain — Phase 0's
- * OffsetExtractionTest already proved the general case of a container with
- * its OWN text interleaved before/after nested children is located and
- * spliced correctly at the byte level — but the oracle's job is to prove
- * logical-id continuity through editor operations, not to re-litigate offset
- * walking, and every block shape in the corpus checklist (group, columns,
- * column, etc.) is authored as a pure container with no sibling text of its
- * own, so this narrower model matches what the real corpus will look like.
+ * or a CONTAINER (carries children plus arbitrary byte-exact content around
+ * and between them, no text span of its own).
+ *
+ * Model amendment: the automated corpus (spike/s5/corpus/authored/) revealed
+ * that real multi-child Gutenberg containers carry parser-visible content
+ * BETWEEN siblings (a "\n\n" between two core/button or core/list-item
+ * children is the common case), not only before-all/after-all. An earlier
+ * version of this class modelled a container as wrapper_prefix + children +
+ * wrapper_suffix — exactly two slots — which cannot represent that. It is
+ * now `separators`: an array of exactly `count(children) + 1` strings,
+ * `separators[i]` being whatever sits immediately before `children[i]`
+ * (`separators[0]` before the first child, `separators[N]` after the last).
+ * A single-child container is separators=[prefix, suffix], unchanged from
+ * before; a zero-child container is separators=[whatever content the block
+ * has, with no children at all].
+ *
+ * Every byte of every separator is preserved verbatim: never trimmed, never
+ * normalized, never merged into a child's own text, never treated as
+ * translatable, never inferred where absent. `to_parsed_array()` only skips
+ * emitting a literal empty-string entry, matching core's own parser, which
+ * never produces one either — this changes no byte of serialized output
+ * (concatenating "" contributes nothing) and keeps `verify_round_trip_shape()`
+ * comparable against real `parse_blocks()` output.
  *
  * `id` is intentionally never written into `attrs`, and `to_parsed_array()`
  * never emits it into the shape handed to core's serialize_block() — that is
@@ -43,9 +57,13 @@ final class OracleNode {
 	public ?string $text   = null;
 	public ?string $suffix = null;
 
-	// Container-only. Null on a leaf node.
-	public ?string $wrapper_prefix = null;
-	public ?string $wrapper_suffix = null;
+	/**
+	 * Container-only. Empty array on a leaf node. Length is always exactly
+	 * count($children) + 1 — enforced in container(), never inferred.
+	 *
+	 * @var string[]
+	 */
+	public array $separators = array();
 
 	private function __construct( int $id, ?string $block_name, array $attrs ) {
 		$this->id         = $id;
@@ -63,12 +81,29 @@ final class OracleNode {
 
 	/**
 	 * @param OracleNode[] $children
+	 * @param string[]     $separators Exactly count($children) + 1 entries.
+	 *                                 separators[i] is the verbatim content
+	 *                                 immediately before children[i];
+	 *                                 separators[count($children)] is
+	 *                                 whatever follows the last child (or the
+	 *                                 block's entire content, if $children is
+	 *                                 empty).
 	 */
-	public static function container( int $id, ?string $block_name, array $attrs, string $wrapper_prefix, array $children, string $wrapper_suffix ): self {
-		$node                 = new self( $id, $block_name, $attrs );
-		$node->wrapper_prefix = $wrapper_prefix;
-		$node->children       = $children;
-		$node->wrapper_suffix = $wrapper_suffix;
+	public static function container( int $id, ?string $block_name, array $attrs, array $separators, array $children ): self {
+		if ( count( $separators ) !== count( $children ) + 1 ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'A container needs exactly count(children)+1 separators; got %d separators for %d children.',
+					count( $separators ),
+					count( $children )
+				)
+			);
+		}
+
+		$node             = new self( $id, $block_name, $attrs );
+		$node->children   = array_values( $children );
+		$node->separators = array_values( $separators );
+
 		return $node;
 	}
 
@@ -88,7 +123,7 @@ final class OracleNode {
 
 		$children = array_map( static fn( OracleNode $c ) => $c->clone_deep(), $this->children );
 
-		return self::container( $this->id, $this->block_name, $this->attrs, (string) $this->wrapper_prefix, $children, (string) $this->wrapper_suffix );
+		return self::container( $this->id, $this->block_name, $this->attrs, $this->separators, $children );
 	}
 
 	/**
@@ -103,7 +138,7 @@ final class OracleNode {
 
 		$children = array_map( static fn( OracleNode $c ) => $c->clone_with_fresh_ids( $ids ), $this->children );
 
-		return self::container( $ids->next(), $this->block_name, $this->attrs, (string) $this->wrapper_prefix, $children, (string) $this->wrapper_suffix );
+		return self::container( $ids->next(), $this->block_name, $this->attrs, $this->separators, $children );
 	}
 
 	/**
@@ -128,18 +163,19 @@ final class OracleNode {
 
 		$inner_content = array();
 		$inner_blocks  = array();
+		$n             = count( $this->children );
 
-		if ( '' !== $this->wrapper_prefix ) {
-			$inner_content[] = $this->wrapper_prefix;
-		}
+		for ( $i = 0; $i < $n; $i++ ) {
+			if ( '' !== $this->separators[ $i ] ) {
+				$inner_content[] = $this->separators[ $i ];
+			}
 
-		foreach ( $this->children as $child ) {
 			$inner_content[] = null;
-			$inner_blocks[]  = $child->to_parsed_array();
+			$inner_blocks[]  = $this->children[ $i ]->to_parsed_array();
 		}
 
-		if ( '' !== $this->wrapper_suffix ) {
-			$inner_content[] = $this->wrapper_suffix;
+		if ( '' !== $this->separators[ $n ] ) {
+			$inner_content[] = $this->separators[ $n ];
 		}
 
 		return array(

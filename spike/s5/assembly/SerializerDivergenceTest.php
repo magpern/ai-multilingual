@@ -9,7 +9,7 @@
  * reading wp-includes/blocks.php and class-wp-block-parser.php during
  * planning. Once the editor-authored corpus lands (Phase 1b), this evidence
  * set is re-run against it as a SEPARATE, distinctly labelled evidence set —
- * see AuthenticCorpusAssemblyTest.php — before the assembly recommendation is
+ * see AutomatedCorpusAssemblyTest.php — before the assembly recommendation is
  * finalized. Do not conflate the two: a case that never occurs in real editor
  * output is a documented edge case, not a live risk, and the report must say
  * which is which.

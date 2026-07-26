@@ -20,11 +20,12 @@
  * output.
  *
  * Uses OffsetExtractor/Splicer directly on file content strings — NOT
- * OracleNode/OracleTree — so every one of the 13 fixtures applies here,
- * including the 3 CorpusImportTest found unrepresentable by the Phase 1a
- * oracle container model. That model's limitation is specific to the
- * generator/oracle tooling; it does not affect OffsetExtractor/Splicer, which
- * Phase 0 already proved handles arbitrary inter-child interleaving.
+ * OracleNode/OracleTree — so every one of the 13 fixtures applies here. (An
+ * earlier OracleNode container model could not represent 3 of these fixtures'
+ * inter-child separators; that has since been fixed — see CorpusImportTest —
+ * but this file never depended on it in the first place: OffsetExtractor/
+ * Splicer operate on raw content strings and Phase 0 already proved they
+ * handle arbitrary inter-child interleaving.)
  *
  * THROWAWAY. Branch spike/s5 only.
  *
@@ -41,7 +42,7 @@ require_once dirname( __DIR__ ) . '/lib/Splicer.php';
 use AIMultilingual\Spike\S5\OffsetExtractor;
 use AIMultilingual\Spike\S5\Splicer;
 
-final class AuthenticCorpusAssemblyTest extends \WP_UnitTestCase {
+final class AutomatedCorpusAssemblyTest extends \WP_UnitTestCase {
 
 	private const CORPUS_DIR = __DIR__ . '/../corpus/authored';
 
@@ -201,7 +202,7 @@ final class AuthenticCorpusAssemblyTest extends \WP_UnitTestCase {
 	}
 
 	private static function record( string $key, array $results ): void {
-		$path = self::CORPUS_DIR . '/../authentic-assembly-results.json';
+		$path = self::CORPUS_DIR . '/../automated-assembly-results.json';
 		$all  = file_exists( $path ) ? json_decode( (string) file_get_contents( $path ), true ) : array();
 		$all[ $key ] = $results;
 		file_put_contents( $path, wp_json_encode( $all, JSON_PRETTY_PRINT ) );
