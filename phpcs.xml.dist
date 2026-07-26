@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<ruleset name="AIMultilingual">
+	<description>Coding standards for the AI Multilingual plugin.</description>
+
+	<file>ai-multilingual.php</file>
+	<file>uninstall.php</file>
+	<file>src</file>
+	<file>tests</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/tests/tmp/*</exclude-pattern>
+
+	<arg value="sp"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="4"/>
+
+	<config name="minimum_wp_version" value="6.5"/>
+	<config name="testVersion" value="8.1-"/>
+
+	<rule ref="WordPress-Extra">
+		<!-- PSR-4 class files (src/Plugin.php) instead of class-plugin.php. -->
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<rule ref="WooCommerce-Core">
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="ai-multilingual"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="aiml"/>
+				<element value="AIML"/>
+				<element value="AIMultilingual"/>
+			</property>
+		</properties>
+		<!-- "aiml"/"AIML" is the project-approved prefix (docs/); accepted despite being under 4 chars. -->
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+		<!-- The WordPress test-suite config file is required to define core
+		     constants (ABSPATH, DB_NAME, ...) under those exact names; they are
+		     WordPress's, not ours to prefix. -->
+		<exclude-pattern>*/tests/integration/wp-tests-config.php</exclude-pattern>
+	</rule>
+
+	<!-- Test method names are self-describing; don't demand full docblocks
+	     there. Data-provider annotations still require a docblock, so relax the
+	     short-description and param-tag requirements for test files only. -->
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<!-- Tests legitimately fire hooks (apply_filters/do_action) to exercise the
+	     plugin's callbacks, and group methods under short section banner
+	     comments; neither needs a hook docblock or a full function docblock. -->
+	<rule ref="WooCommerce.Commenting.CommentHooks">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Exercising an overlay means invoking the core hook it is attached to,
+	     e.g. apply_filters( 'the_title', ... ). Those are WordPress's hook
+	     names, deliberately unprefixed. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Routing tests set and assert on $_SERVER['REQUEST_URI'] directly; that
+	     is the input under test, not untrusted data being consumed. -->
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.WrongStyle">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Test files legitimately override globals and load files dynamically. -->
+	<rule ref="WordPress.WP.GlobalVariablesOverride">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Test fixtures hold collaborators in self-describing properties; a
+	     docblock per property adds nothing a reader does not already know. -->
+	<rule ref="Squiz.Commenting.VariableComment.Missing">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- Structural guard tests read local source files directly. -->
+	<rule ref="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- The pure-domain layer must run without WordPress loaded (unit tests
+	     bootstrap the autoloader only), so esc_html() is unavailable there.
+	     Exception messages built in these files are developer diagnostics,
+	     never echoed to the browser. -->
+	<rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
+		<exclude-pattern>*src/Language/LanguageResolver.php</exclude-pattern>
+		<exclude-pattern>*src/Language/LanguageContext.php</exclude-pattern>
+	</rule>
+
+	<!-- Custom tables are the core of this plugin's design (ADR-0003). Direct
+	     queries are confined to src/Database/* and the store classes, always
+	     via $wpdb->prepare(); a structural guard test enforces that boundary.
+	     Caching of those reads is handled by src/Cache/Cache.php, not by the
+	     sniff's expected wp_cache_* call adjacency. -->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<exclude-pattern>*src/Database/*</exclude-pattern>
+		<exclude-pattern>*src/Language/Languages.php</exclude-pattern>
+		<exclude-pattern>*src/Translation/Store.php</exclude-pattern>
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+</ruleset>

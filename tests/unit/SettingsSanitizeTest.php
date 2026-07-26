@@ -1,0 +1,112 @@
+<?php
+/**
+ * Settings sanitization.
+ *
+ * @package AIMultilingual
+ */
+
+declare( strict_types=1 );
+
+namespace AIMultilingual\Tests\Unit;
+
+use AIMultilingual\Settings;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Sanitization must be total: any input produces a usable settings array and
+ * nothing throws. A corrupted option should degrade to defaults, never fatal.
+ */
+final class SettingsSanitizeTest extends TestCase {
+
+	public function test_defaults_are_conservative(): void {
+		$defaults = Settings::defaults();
+
+		$this->assertFalse(
+			$defaults['remove_data_on_uninstall'],
+			'Uninstall must retain translation work unless explicitly opted out.'
+		);
+		$this->assertTrue( $defaults['switcher_show_native_name'] );
+		$this->assertFalse( $defaults['switcher_hide_current'] );
+		$this->assertSame( Settings::SCHEMA_VERSION, $defaults['schema_version'] );
+	}
+
+	/**
+	 * @dataProvider provide_garbage
+	 *
+	 * @param mixed $input Arbitrary stored value.
+	 */
+	public function test_garbage_input_yields_defaults( $input ): void {
+		$this->assertSame( Settings::defaults(), Settings::sanitize( $input ) );
+	}
+
+	/**
+	 * @return array<string, array{0: mixed}>
+	 */
+	public function provide_garbage(): array {
+		return array(
+			'null'   => array( null ),
+			'string' => array( 'not-an-array' ),
+			'int'    => array( 42 ),
+			'float'  => array( 1.5 ),
+			'bool'   => array( true ),
+			'object' => array( new \stdClass() ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_truthy
+	 *
+	 * @param mixed $value    Raw checkbox-ish value.
+	 * @param bool  $expected Interpreted boolean.
+	 */
+	public function test_loose_booleans_are_interpreted( $value, bool $expected ): void {
+		$clean = Settings::sanitize( array( 'remove_data_on_uninstall' => $value ) );
+
+		$this->assertSame( $expected, $clean['remove_data_on_uninstall'] );
+	}
+
+	/**
+	 * @return array<string, array{0: mixed, 1: bool}>
+	 */
+	public function provide_truthy(): array {
+		return array(
+			'checkbox on'  => array( '1', true ),
+			'string true'  => array( 'true', true ),
+			'string yes'   => array( 'YES', true ),
+			'string on'    => array( ' on ', true ),
+			'bool true'    => array( true, true ),
+			'int one'      => array( 1, true ),
+			'string zero'  => array( '0', false ),
+			'empty string' => array( '', false ),
+			'string off'   => array( 'off', false ),
+			'bool false'   => array( false, false ),
+			'int zero'     => array( 0, false ),
+			'array'        => array( array(), false ),
+		);
+	}
+
+	public function test_unknown_keys_are_dropped(): void {
+		$clean = Settings::sanitize(
+			array(
+				'remove_data_on_uninstall' => true,
+				'unexpected_key'           => 'value',
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'unexpected_key', $clean );
+		$this->assertTrue( $clean['remove_data_on_uninstall'] );
+	}
+
+	public function test_schema_version_is_always_current(): void {
+		$clean = Settings::sanitize( array( 'schema_version' => 99 ) );
+
+		$this->assertSame( Settings::SCHEMA_VERSION, $clean['schema_version'] );
+	}
+
+	public function test_settings_can_be_constructed_in_memory(): void {
+		$settings = new Settings( array( 'remove_data_on_uninstall' => '1' ) );
+
+		$this->assertTrue( $settings->remove_data_on_uninstall() );
+		$this->assertTrue( $settings->switcher_show_native_name() );
+	}
+}
