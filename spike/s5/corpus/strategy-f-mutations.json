@@ -1,0 +1,18 @@
+{
+    "duplicate_uuid": {
+        "real": false,
+        "broken": true
+    },
+    "no_validation": {
+        "real": false
+    },
+    "unknown_uuid": {
+        "real": false
+    },
+    "block_type": {
+        "real": false
+    },
+    "stale_hash": {
+        "real": false
+    }
+}

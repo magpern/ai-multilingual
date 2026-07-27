@@ -1,0 +1,48 @@
+{
+    "no_uuids": {
+        "generated": 1,
+        "content_changed": true,
+        "segment_count": 1
+    },
+    "second_pass": {
+        "first_changed": true,
+        "second_changed": false,
+        "preserved": 1
+    },
+    "duplicate_siblings": {
+        "regenerated": 1,
+        "duplicate_after": {
+            "9fa78fdb-2f6e-485f-af3c-fd76891e4562": 1,
+            "0a10485e-9002-4788-938b-03ec1fcff010": 1
+        }
+    },
+    "malformed": {
+        "malformed_replaced": 1,
+        "valid_after": true
+    },
+    "delete_insert_identical": {
+        "rendered_false_positive": 0,
+        "correctly_rendered": 0,
+        "source_fallbacks": 1,
+        "successful_identity_preservation": 0,
+        "stale_suppressions": 0,
+        "missing_uuid_suppressions": 0,
+        "malformed_uuid_suppressions": 0,
+        "duplicate_uuid_suppressions": 0,
+        "unknown_uuid_suppressions": 1,
+        "orphan_suppressions": 0,
+        "uuids_generated": 2,
+        "uuids_preserved": 0,
+        "uuids_regenerated": 0,
+        "rows_orphaned": 2,
+        "rows_restored": 0,
+        "reviewed_translations_preserved": 0,
+        "reviewed_translations_lost": 1,
+        "content_mutations": 2,
+        "serialized_byte_changes": 110,
+        "idempotence_failures": 0,
+        "collisions": 0,
+        "incorrect_continuity_decisions": 0,
+        "spurious_new": 1
+    }
+}

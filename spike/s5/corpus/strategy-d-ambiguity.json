@@ -1,0 +1,79 @@
+{
+    "two_orphans_identical_hash": {
+        "successful_rematch": 0,
+        "failed_rematch": 0,
+        "ambiguous_rematch": 2,
+        "rematch_map": [],
+        "active_keys": []
+    },
+    "one_orphan_two_new_candidates": {
+        "successful_rematch": 0,
+        "failed_rematch": 0,
+        "ambiguous_rematch": 2,
+        "rematch_map": [],
+        "active_keys": []
+    },
+    "two_candidates_one_orphan": {
+        "successful_rematch": 0,
+        "failed_rematch": 1,
+        "ambiguous_rematch": 1,
+        "rematch_map": [],
+        "active_keys": [
+            "b:0:core\/paragraph:content"
+        ]
+    },
+    "duplicate_paragraphs_reorder": {
+        "successful_rematch": 0,
+        "failed_rematch": 0,
+        "ambiguous_rematch": 0,
+        "rematch_map": [],
+        "active_keys": [
+            "b:0:core\/paragraph:content",
+            "b:1:core\/paragraph:content"
+        ],
+        "observed": "keys unchanged; identical hash at each path \u2192 false continuity via direct key, not rematch"
+    },
+    "duplicate_headings_swap": {
+        "successful_rematch": 0,
+        "failed_rematch": 0,
+        "ambiguous_rematch": 0,
+        "rematch_map": [],
+        "active_keys": [
+            "b:0:core\/heading:content",
+            "b:1:core\/heading:content"
+        ]
+    },
+    "duplicate_buttons_swap": {
+        "successful_rematch": 0,
+        "failed_rematch": 0,
+        "ambiguous_rematch": 0,
+        "rematch_map": [],
+        "active_keys": [
+            "b:0.0:core\/button:content",
+            "b:0.1:core\/button:content"
+        ]
+    },
+    "duplicate_subtrees_swap": {
+        "successful_rematch": 0,
+        "failed_rematch": 0,
+        "ambiguous_rematch": 0,
+        "rematch_map": [],
+        "active_keys": [
+            "b:0.0:core\/paragraph:content",
+            "b:1.0:core\/paragraph:content"
+        ]
+    },
+    "unique_rematch_on_path_shift": {
+        "successful_rematch": 2,
+        "failed_rematch": 0,
+        "ambiguous_rematch": 0,
+        "rematch_map": {
+            "b:0:core\/paragraph:content": "b:2:core\/paragraph:content",
+            "b:1:core\/paragraph:content": "b:3:core\/paragraph:content"
+        },
+        "active_keys": [
+            "b:2:core\/paragraph:content",
+            "b:3:core\/paragraph:content"
+        ]
+    }
+}

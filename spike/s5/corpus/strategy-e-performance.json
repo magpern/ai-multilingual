@@ -1,0 +1,36 @@
+{
+    "100": {
+        "eligible_block_count": 69,
+        "unique_segment_key_count": 69,
+        "key_collision_count": 0,
+        "tree_extraction_median_ms": 1.2303,
+        "reconciliation_median_ms": 0.2524,
+        "render_gate_median_ms": 0.2652,
+        "total_median_ms": 1.7731,
+        "rendered_false_positives": 0
+    },
+    "500": {
+        "eligible_block_count": 322,
+        "unique_segment_key_count": 322,
+        "key_collision_count": 0,
+        "tree_extraction_median_ms": 5.9421,
+        "reconciliation_median_ms": 1.1804,
+        "render_gate_median_ms": 1.1797,
+        "total_median_ms": 8.4477,
+        "rendered_false_positives": 0
+    },
+    "1000": {
+        "eligible_block_count": 644,
+        "unique_segment_key_count": 644,
+        "key_collision_count": 0,
+        "tree_extraction_median_ms": 16.5183,
+        "reconciliation_median_ms": 3.0278,
+        "render_gate_median_ms": 3.2327,
+        "total_median_ms": 22.1531,
+        "rendered_false_positives": 0
+    },
+    "_falsification_test": {
+        "total_ratio_1000_over_100": 12.49,
+        "threshold": 15
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "100": {
+        "eligible_block_count": 69,
+        "unique_segment_key_count": 69,
+        "bytes_added_on_backfill": 3777,
+        "parse_median_ms": 0.5411,
+        "uuid_injection_median_ms": 2.6305,
+        "reconciliation_median_ms": 0.0625,
+        "render_gate_median_ms": 0.0494,
+        "total_median_ms": 3.3302,
+        "rendered_false_positives": 0
+    },
+    "500": {
+        "eligible_block_count": 322,
+        "unique_segment_key_count": 322,
+        "bytes_added_on_backfill": 17626,
+        "parse_median_ms": 2.9854,
+        "uuid_injection_median_ms": 14.0967,
+        "reconciliation_median_ms": 0.3061,
+        "render_gate_median_ms": 0.2618,
+        "total_median_ms": 17.6341,
+        "rendered_false_positives": 0
+    },
+    "1000": {
+        "eligible_block_count": 644,
+        "unique_segment_key_count": 644,
+        "bytes_added_on_backfill": 35252,
+        "parse_median_ms": 6.6428,
+        "uuid_injection_median_ms": 34.5882,
+        "reconciliation_median_ms": 0.6255,
+        "render_gate_median_ms": 0.6001,
+        "total_median_ms": 43.0799,
+        "rendered_false_positives": 0
+    },
+    "_falsification_test": {
+        "total_ratio_1000_over_100": 12.94,
+        "threshold": 15
+    }
+}

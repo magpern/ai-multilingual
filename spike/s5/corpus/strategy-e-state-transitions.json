@@ -1,0 +1,20 @@
+{
+    "reviewed_stale_suppressed": {
+        "reason": "displaced_at_key",
+        "renders": false
+    },
+    "reviewed_orphan_suppressed": {
+        "reason": "ignored_orphaned"
+    },
+    "reviewed_rematched_rendered": {
+        "renders": true,
+        "status": "reviewed"
+    },
+    "reviewed_ambiguous_suppressed": {
+        "reason": "no_translation_row"
+    },
+    "key_reuse_suppressed": {
+        "reason": "displaced_at_key",
+        "renders": false
+    }
+}
