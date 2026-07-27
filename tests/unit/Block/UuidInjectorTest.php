@@ -112,7 +112,7 @@ final class UuidInjectorTest extends TestCase {
 		$this->assertArrayNotHasKey( Contract::ATTR_NAME, $blocks[0]['attrs'] );
 	}
 
-	public function test_detects_duplicate_uuid_without_repairing(): void {
+	public function test_repairs_duplicate_uuid_with_first_wins_policy(): void {
 		$uuid   = '550e8400-e29b-41d4-a716-446655440000';
 		$blocks = array(
 			$this->paragraph_block( 'One', array( Contract::ATTR_NAME => $uuid ) ),
@@ -122,9 +122,10 @@ final class UuidInjectorTest extends TestCase {
 		$result = $this->injector->inject_blocks( $blocks );
 
 		$this->assertSame( 1, $result->stats['uuid_duplicate_detected'] );
+		$this->assertSame( 1, $result->stats['uuid_duplicate_repaired'] );
 		$this->assertSame( $uuid, $blocks[0]['attrs'][ Contract::ATTR_NAME ] );
-		$this->assertSame( $uuid, $blocks[1]['attrs'][ Contract::ATTR_NAME ] );
-		$this->assertSame( array( $uuid => 2 ), $result->duplicates );
+		$this->assertNotSame( $uuid, $blocks[1]['attrs'][ Contract::ATTR_NAME ] );
+		$this->assertSame( array(), $result->duplicates );
 	}
 
 	public function test_injects_nested_eligible_blocks(): void {
@@ -158,7 +159,11 @@ final class UuidInjectorTest extends TestCase {
 	}
 
 	/**
-	 * @param array<string, mixed> $attrs Block attributes.
+	 * Build a minimal block array for tests.
+	 *
+	 * @param string               $text       Inner HTML text.
+	 * @param array<string, mixed> $attrs      Block attributes.
+	 * @param string               $block_name Block name.
 	 * @return array<string, mixed>
 	 */
 	private function paragraph_block( string $text, array $attrs = array(), string $block_name = 'core/paragraph' ): array {

@@ -28,9 +28,16 @@ final class UuidGeneratorTest extends TestCase {
 	}
 
 	public function test_generates_unique_values(): void {
-		$first  = UuidGenerator::v4();
-		$second = UuidGenerator::v4();
+		$this->assertNotSame( UuidGenerator::v4(), UuidGenerator::v4() );
+	}
 
-		$this->assertNotSame( $first, $second );
+	public function test_generates_unique_uuid_within_document(): void {
+		$claimed = array();
+		$attempt = 0;
+		$uuid    = UuidGenerator::claim_unique( $claimed, static fn (): string => UuidGenerator::v4(), $attempt );
+
+		$this->assertNotNull( $uuid );
+		$this->assertTrue( UuidValidator::is_valid_non_empty( $uuid ) );
+		$this->assertTrue( $claimed[ $uuid ] );
 	}
 }

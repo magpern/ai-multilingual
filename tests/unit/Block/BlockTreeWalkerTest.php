@@ -53,6 +53,10 @@ final class BlockTreeWalkerTest extends TestCase {
 	}
 
 	/**
+	 * Builds a minimal block array for walker tests.
+	 *
+	 * @param string                     $name         Block name.
+	 * @param string                     $inner_html   Inner HTML.
 	 * @param list<array<string, mixed>> $inner_blocks Nested blocks.
 	 * @return array<string, mixed>
 	 */

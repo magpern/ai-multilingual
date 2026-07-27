@@ -240,6 +240,29 @@ final class UuidPersistenceTest extends AimlTestCase {
 		$this->assertNotSame( $matches[1][0], $matches[1][1] );
 	}
 
+	public function test_duplicate_uuids_are_repaired_on_canonical_save(): void {
+		$uuid    = '550e8400-e29b-41d4-a716-446655440000';
+		$content = sprintf(
+			'<!-- wp:paragraph {"%1$s":"%2$s"} --><p>First</p><!-- /wp:paragraph -->' . "\n\n" .
+			'<!-- wp:paragraph {"%1$s":"%2$s"} --><p>Second</p><!-- /wp:paragraph -->',
+			Contract::ATTR_NAME,
+			$uuid
+		);
+
+		$injector = new UuidInjector( new BlockRegistry(), new BlockIdentityLogger() );
+		$result   = $injector->inject_content( $content );
+
+		$this->assertTrue( $result->successful );
+		preg_match_all(
+			'/\"' . preg_quote( Contract::ATTR_NAME, '/' ) . '\":\"([^\"]+)\"/',
+			$result->content,
+			$matches
+		);
+		$this->assertCount( 2, $matches[1] );
+		$this->assertSame( $uuid, $matches[1][0] );
+		$this->assertNotSame( $uuid, $matches[1][1] );
+	}
+
 	public function test_recursion_guard_prevents_reentry(): void {
 		$pipeline = $this->enabled_pipeline();
 		SavePipeline::reset_guard_for_tests();

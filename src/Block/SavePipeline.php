@@ -26,6 +26,8 @@ final class SavePipeline {
 	private static bool $injecting = false;
 
 	/**
+	 * Constructs the save pipeline.
+	 *
 	 * @param Settings     $settings  Plugin settings.
 	 * @param UuidInjector $injector  UUID persistence pipeline.
 	 * @param Extractor    $extractor Body storage classifier.
@@ -66,6 +68,10 @@ final class SavePipeline {
 			$content = isset( $data['post_content'] ) ? (string) $data['post_content'] : '';
 			$result  = $this->injector->inject_content( $content );
 
+			if ( ! $result->successful ) {
+				return $data;
+			}
+
 			if ( $result->changed ) {
 				$data['post_content'] = $result->content;
 			}
@@ -77,6 +83,8 @@ final class SavePipeline {
 	}
 
 	/**
+	 * Determines whether UUID injection should run for this save.
+	 *
 	 * @param array<string, mixed> $data    Sanitized post data.
 	 * @param array<string, mixed> $postarr Raw post data.
 	 */
@@ -130,6 +138,8 @@ final class SavePipeline {
 	}
 
 	/**
+	 * Returns true when the save targets a revision or autosave.
+	 *
 	 * @param array<string, mixed> $data    Sanitized post data.
 	 * @param array<string, mixed> $postarr Raw post data.
 	 */
@@ -160,6 +170,8 @@ final class SavePipeline {
 	}
 
 	/**
+	 * Returns true when the post body is stored in Elementor format.
+	 *
 	 * @param array<string, mixed> $data    Sanitized post data.
 	 * @param array<string, mixed> $postarr Raw post data.
 	 */
@@ -180,6 +192,8 @@ final class SavePipeline {
 	}
 
 	/**
+	 * Returns true when the current user may edit or create the post.
+	 *
 	 * @param array<string, mixed> $data    Sanitized post data.
 	 * @param array<string, mixed> $postarr Raw post data.
 	 */
