@@ -310,7 +310,42 @@ wp aiml block status [--format=table|json] [--post-type=page] [--sample-size=20]
 
 **Default mode:** Cheap counts + `--sample-size=20` compliance estimate. `--full-scan` flag for migration planning (explicit, slow).
 
-**Implementation note:** [`Store.php`](../../src/Translation/Store.php) currently has no aggregate count helpers; F8 must add read-only count methods (or scoped queries in `BlockHealthService`).
+**Implementation note:** [`Store.php`](../../src/Translation/Store.php) exposes read-only health count helpers consumed by `BlockHealthService` (WP2). Duplicate segment identity rows are not detectable at runtime because `segment_identity` is UNIQUE.
+
+### 5.3 BlockHealthSnapshot fields (WP2)
+
+`BlockHealthService::scan()` returns `BlockHealthSnapshot` with:
+
+| Field | Meaning |
+|---|---|
+| `generated_at` | ISO-8601 UTC timestamp |
+| `scan_mode` | `sample` (default) or `full` |
+| `requested_sample_size` | Normalized sample size (default **100**, max **1000**) |
+| `scanned_post_count` | Posts inspected in this scan |
+| `eligible_post_count` | Structural population count (`WP_Query` + allowed statuses) |
+| `compliant_post_count` | Scanned posts with valid document-unique UUIDs on eligible blocks |
+| `non_compliant_post_count` | Scanned eligible posts failing UUID compliance |
+| `skipped_post_count` | Scanned posts skipped by `BlockMigrationEligibility` |
+| `skip_reason_counts` | Tallies keyed by eligibility reason |
+| `posts_with_missing_uuids` | Posts with eligible blocks lacking UUIDs |
+| `posts_with_malformed_uuids` | Posts with invalid UUID values |
+| `posts_with_duplicate_uuids` | Posts with duplicate UUIDs among eligible blocks |
+| `total_block_segments` | Store `count_block_segments()` |
+| `translated_block_segments` | Store `count_translated_block_segments()` |
+| `renderable_block_segments` | Store `count_renderable_block_segments()` (aligned with `BlockTranslationLookup`) |
+| `stale_block_segments` | Store `count_stale_block_segments()` |
+| `orphaned_block_segments` | Store rows with `status=ignored` and `error_code=orphaned` |
+| `duplicate_segment_rows` | `null` — not detectable (`segment_identity` UNIQUE) |
+| `duplicate_segment_rows_detectable` | Always `false` with current schema |
+| `errors` | Stable codes (`translations_table_missing`, `store_count_failed`, `post_scan_failed`, …) |
+| `limitations` | e.g. `sample_incomplete`, `duplicate_segment_rows_not_detectable` |
+| `incomplete` | `true` when scan or store counts are partial |
+| `sampled` | `true` when post compliance scan is sample-bounded |
+| `elapsed_ms` | Wall-clock milliseconds for the scan |
+
+**Caching:** eligible-post count transient (5 min) deferred to WP3/WP4 — WP2 performs live queries only.
+
+**Default mode:** Sample size **100**, full scan opt-in only. WP3 CLI may expose a smaller default (`--sample-size=20`) atop the same service.
 
 ---
 
