@@ -1,0 +1,52 @@
+{
+    "post_id": 4986,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:52:02",
+    "content_bytes": 579,
+    "content_sha1": "a913a148246f7ecbc29baf80cbbaef837cb5741a",
+    "eligible_blocks": 3,
+    "blocks": [
+        {
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/button",
+            "text_sha1": "7252788a058cf13483a77542421004918f9913ed"
+        },
+        {
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/button",
+            "text_sha1": "7252788a058cf13483a77542421004918f9913ed"
+        },
+        {
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/button",
+            "text_sha1": "0d76774be1d85987bb5da63fc16e45af1d021666"
+        }
+    ],
+    "uuid_counts": [],
+    "duplicate_uuids": [],
+    "has_aimlBlockId": false,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/dup-button-baseline-post-4986.html",
+    "baseline_post_id": null,
+    "content_byte_diff": 56,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "b252ad98-c122-4967-b417-5613716b3e03",
+            "block_name": "core\/button",
+            "text_sha1": "7252788a058cf13483a77542421004918f9913ed"
+        },
+        {
+            "uuid": "839eede1-832e-4b30-be4c-16242afa6899",
+            "block_name": "core\/button",
+            "text_sha1": "0d76774be1d85987bb5da63fc16e45af1d021666"
+        }
+    ],
+    "uuid_preservation": [
+        "removed",
+        "removed",
+        "new_block"
+    ]
+}

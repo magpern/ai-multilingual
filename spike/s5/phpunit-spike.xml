@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+	Spike S5 harness. Throwaway configuration for branch spike/s5 only — not
+	referenced by composer.json, CI, or bin/build-zip.sh.
+
+	Reuses the real integration bootstrap (real WordPress 7.0.2, real
+	parse_blocks()/serialize_blocks()), per the ground rule that conclusions
+	are drawn only from real block output, never simplified mocks.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+	bootstrap="../../tests/integration/bootstrap.php"
+	colors="true"
+	>
+	<testsuites>
+		<testsuite name="spike-s5">
+			<directory suffix="Test.php">assembly</directory>
+			<directory suffix="Test.php">oracle</directory>
+			<directory suffix="Test.php">strategy</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

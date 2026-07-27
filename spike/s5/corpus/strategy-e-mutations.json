@@ -1,0 +1,30 @@
+{
+    "mutation_hash_mismatch": {
+        "real_renders": false,
+        "broken_renders": true
+    },
+    "mutation_stale": {
+        "real_renders": false
+    },
+    "mutation_ambiguous": {
+        "real_renders": false
+    },
+    "mutation_block_name": {
+        "real_renders": false
+    },
+    "mutation_displaced": {
+        "real_renders": false
+    },
+    "mutation_first_match": {
+        "broken_rematched": true,
+        "real_rematched": true
+    },
+    "mutation_fail_rematch": {
+        "real_rematched": true,
+        "broken_rematched": true
+    },
+    "mutation_source_fallback": {
+        "real_source_fallback": true,
+        "broken_source_fallback": false
+    }
+}

@@ -1,0 +1,38 @@
+{
+    "100": {
+        "eligible_block_count": 69,
+        "unique_segment_key_count": 23,
+        "key_collision_count": 46,
+        "content_bytes": 14775,
+        "extraction_median_ms": 0.7208,
+        "key_generation_median_ms": 0.7503,
+        "reconciliation_median_ms": 0.0583,
+        "peak_memory_median_bytes": 955252736
+    },
+    "500": {
+        "eligible_block_count": 322,
+        "unique_segment_key_count": 23,
+        "key_collision_count": 299,
+        "content_bytes": 68950,
+        "extraction_median_ms": 3.5152,
+        "key_generation_median_ms": 3.7713,
+        "reconciliation_median_ms": 0.0843,
+        "peak_memory_median_bytes": 955252736
+    },
+    "1000": {
+        "eligible_block_count": 644,
+        "unique_segment_key_count": 23,
+        "key_collision_count": 621,
+        "content_bytes": 137900,
+        "extraction_median_ms": 10.0377,
+        "key_generation_median_ms": 9.8926,
+        "reconciliation_median_ms": 0.1015,
+        "peak_memory_median_bytes": 955252736
+    },
+    "_falsification_test": {
+        "extraction_ratio_1000_over_100": 13.93,
+        "key_generation_ratio_1000_over_100": 13.18,
+        "reconciliation_ratio_1000_over_100": 1.74,
+        "threshold": 15
+    }
+}

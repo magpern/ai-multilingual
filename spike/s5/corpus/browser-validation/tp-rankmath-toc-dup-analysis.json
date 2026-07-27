@@ -1,0 +1,35 @@
+{
+    "post_id": 5018,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-27 00:14:01",
+    "content_bytes": 320,
+    "content_sha1": "50d52c12269ac4c4a1755e7c8d6ab0ab7e22fd49",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "7674bbed-2bf3-45c1-a67f-82ddf62c8456",
+            "valid_uuid": true,
+            "block_name": "rank-math\/toc-block",
+            "text_sha1": "29440a02883c1b85eced34b20aefdd103e1b2a55"
+        }
+    ],
+    "uuid_counts": {
+        "7674bbed-2bf3-45c1-a67f-82ddf62c8456": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/tp-rankmath-toc-dup-baseline-post-5018.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "7674bbed-2bf3-45c1-a67f-82ddf62c8456",
+            "block_name": "rank-math\/toc-block",
+            "text_sha1": "29440a02883c1b85eced34b20aefdd103e1b2a55"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "scenario": "two sessions duplicate the same registered-attribute block; session A saves, session B saves after (lost-update overwrite)",
+    "lost_update_observed": true,
+    "duplicate_uuids_before_repair": {
+        "66666666-6666-4666-8666-666666666666": 2
+    },
+    "duplicate_uuids_after_repair": [],
+    "repair_idempotent": true,
+    "rendered_false_positive_after_repair": 0
+}

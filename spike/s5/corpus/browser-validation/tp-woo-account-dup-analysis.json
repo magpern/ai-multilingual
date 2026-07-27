@@ -1,0 +1,33 @@
+{
+    "post_id": 5022,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-27 00:21:27",
+    "content_bytes": 159,
+    "content_sha1": "9b12fc088f0cd55575228b39aa647d9b3e994a7c",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/paragraph",
+            "text_sha1": "506e0a2c1bcfc59d1e8c690974a577d66a25436f"
+        }
+    ],
+    "uuid_counts": [],
+    "duplicate_uuids": [],
+    "has_aimlBlockId": false,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/tp-woo-account-dup-baseline-post-5022.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -69,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "6309ebef-e439-4f1e-8192-7540d73460f7",
+            "block_name": "core\/paragraph",
+            "text_sha1": "506e0a2c1bcfc59d1e8c690974a577d66a25436f"
+        }
+    ],
+    "uuid_preservation": [
+        "removed"
+    ]
+}

@@ -1,0 +1,46 @@
+{
+    "100": {
+        "eligible_block_count": 69,
+        "unique_segment_key_count": 69,
+        "key_collision_count": 0,
+        "content_bytes": 14775,
+        "tree_traversal_median_ms": 0.6072,
+        "path_generation_median_ms": 0.6326,
+        "key_generation_median_ms": 0.6581,
+        "extraction_median_ms": 0.6329,
+        "reconciliation_median_ms": 0.2333,
+        "peak_memory_median_bytes": 955252736
+    },
+    "500": {
+        "eligible_block_count": 322,
+        "unique_segment_key_count": 322,
+        "key_collision_count": 0,
+        "content_bytes": 68950,
+        "tree_traversal_median_ms": 2.9031,
+        "path_generation_median_ms": 2.8192,
+        "key_generation_median_ms": 2.7398,
+        "extraction_median_ms": 2.9394,
+        "reconciliation_median_ms": 1.0477,
+        "peak_memory_median_bytes": 955252736
+    },
+    "1000": {
+        "eligible_block_count": 644,
+        "unique_segment_key_count": 644,
+        "key_collision_count": 0,
+        "content_bytes": 137900,
+        "tree_traversal_median_ms": 6.99,
+        "path_generation_median_ms": 6.0916,
+        "key_generation_median_ms": 6.5437,
+        "extraction_median_ms": 7.1962,
+        "reconciliation_median_ms": 2.4074,
+        "peak_memory_median_bytes": 955252736
+    },
+    "_falsification_test": {
+        "tree_traversal_ratio_1000_over_100": 11.51,
+        "path_generation_ratio_1000_over_100": 9.63,
+        "key_generation_ratio_1000_over_100": 9.94,
+        "extraction_ratio_1000_over_100": 11.37,
+        "reconciliation_ratio_1000_over_100": 10.32,
+        "threshold": 15
+    }
+}

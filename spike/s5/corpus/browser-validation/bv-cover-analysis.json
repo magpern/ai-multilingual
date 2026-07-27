@@ -1,0 +1,35 @@
+{
+    "post_id": 4940,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:44:53",
+    "content_bytes": 887,
+    "content_sha1": "c4db6b1d10691885e150211d239d49fd5a3c7754",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "dd0e8db3-8e47-4dca-a5fd-25ec55f1d30c",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "953834299025a54140f04671ee03719c0e0797b2"
+        }
+    ],
+    "uuid_counts": {
+        "dd0e8db3-8e47-4dca-a5fd-25ec55f1d30c": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-cover-baseline-post-4940.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "dd0e8db3-8e47-4dca-a5fd-25ec55f1d30c",
+            "block_name": "core\/paragraph",
+            "text_sha1": "953834299025a54140f04671ee03719c0e0797b2"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved"
+    ]
+}

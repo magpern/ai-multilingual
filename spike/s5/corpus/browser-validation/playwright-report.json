@@ -1,0 +1,1764 @@
+{
+  "config": {
+    "configFile": "/app/spike/s5/browser-validation/playwright.config.ts",
+    "rootDir": "/app/spike/s5/browser-validation/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/app/spike/s5/corpus/browser-validation/playwright-report.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/app/spike/s5/corpus/browser-validation/playwright-html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/app/spike/s5/browser-validation/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "",
+        "name": "",
+        "testDir": "/app/spike/s5/browser-validation/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.51.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "block-coverage.spec.ts",
+      "file": "block-coverage.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Strategy F block coverage",
+          "file": "block-coverage.spec.ts",
+          "line": 34,
+          "column": 6,
+          "specs": [
+            {
+              "title": "bv-paragraph: core/paragraph (leaf) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-3954a22ed64054c46cbc",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-heading: core/heading (leaf) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-85a67ef22f372cebd786",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-list: core/list (container) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-3519c936b2cd86aca0a1",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-buttons: core/button (leaf) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-8a75969fb5ebbe210cd6",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-group: core/group (container) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-7a6c2fc01338caa990ed",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-columns: core/paragraph (leaf) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-b7eac5e0376a6880e1ec",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-quote: core/quote (leaf) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-3dbebbad00a3d99cae6c",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-separator: core/paragraph (leaf) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-763b4625d82dffccfb2d",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            },
+            {
+              "title": "bv-html: core/html (leaf) preserves aimlBlockId on save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "6a84a7545297a0b76e0b-dfcbd1a031d4fe5d7fa3",
+              "file": "block-coverage.spec.ts",
+              "line": 46,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "concurrent-edit.spec.ts",
+      "file": "concurrent-edit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "concurrent edit: two sessions duplicate the same block, A saves then B saves",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "9690d4bc5d2f0a622d9e-c692bb558b7a45de3301",
+          "file": "concurrent-edit.spec.ts",
+          "line": 22,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "diagnostic.spec.ts",
+      "file": "diagnostic.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "diagnostic: cover block recovery confound check (untagged, no aimlBlockId)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-50aca6b3c6810e736ddb",
+          "file": "diagnostic.spec.ts",
+          "line": 10,
+          "column": 5
+        },
+        {
+          "title": "diagnostic: rank-math toc recovery confound check (untagged)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-849e56ac34c54effa05d",
+          "file": "diagnostic.spec.ts",
+          "line": 24,
+          "column": 5
+        },
+        {
+          "title": "diagnostic: capture canonical rank-math toc markup via save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-376fb448315561f347af",
+          "file": "diagnostic.spec.ts",
+          "line": 36,
+          "column": 5
+        },
+        {
+          "title": "diagnostic: toolbar buttons",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-f13e8ded53fcfed957ee",
+          "file": "diagnostic.spec.ts",
+          "line": 43,
+          "column": 5
+        },
+        {
+          "title": "diagnostic: header inserter toggle button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-9cc1261e8b9fe2233bcc",
+          "file": "diagnostic.spec.ts",
+          "line": 67,
+          "column": 5
+        },
+        {
+          "title": "diagnostic: inserter panel after click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-6259295eee9d5614af0d",
+          "file": "diagnostic.spec.ts",
+          "line": 77,
+          "column": 5
+        },
+        {
+          "title": "diagnostic: REST read/write, autosave, export/import UUID checks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-3d474bd1daa7204812dc",
+          "file": "diagnostic.spec.ts",
+          "line": 88,
+          "column": 5
+        },
+        {
+          "title": "diagnostic: pattern search result item structure",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "92257fb6bc5544758cc3-b706339762a58bcf6a66",
+          "file": "diagnostic.spec.ts",
+          "line": 132,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "manifest-driven.spec.ts",
+      "file": "manifest-driven.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Strategy F browser validation (manifest-driven)",
+          "file": "manifest-driven.spec.ts",
+          "line": 43,
+          "column": 6,
+          "specs": [
+            {
+              "title": "bv-paragraph: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-eac0648562d334f50990",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-heading: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-d243715280ee14192629",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-list: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-4a182f17bf6cf0015b10",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-buttons: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-6123dcd2eb882f6603da",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-group: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-6ad7581b540e6d3007ad",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-columns: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-0e6f13f38fd28a1170ce",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-quote: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-2428eaa53ba230f34a86",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-separator: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-a7dafbb55ba9c183dba3",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-html: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-f138cd96a9dc93a35fe8",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-pullquote: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-258fac8d8d99807f4740",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-table: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-27879659c812c2d9d1f1",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-spacer: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-afb26ebd9ab4ffe85e0b",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-shortcode: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-37365a6e5b9da3a20a96",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-image: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-d0db2bc6c4705ffd4403",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-cover: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-3b7b4b85c4dbfadcf66a",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-media-text: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-218c3bda9dabc18d5e31",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-noop-cycles: noop_save_x3",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-1dadf3eba8ff38b8b117",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "bv-nested: noop_save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-e0965dd7dfa2b9f7d4b0",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-text-edit: text_edit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-c411a74468970e99edc1",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-full-rewrite: full_rewrite",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-45cd92164c194ff38c72",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-duplicate: duplicate_block",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-5d4370c5ddaa21d89a50",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-duplicate-button: duplicate_button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-094cb1d9d6131b691cce",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-duplicate-nested: duplicate_nested_subtree",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-0d8509d8f77ac6de00d5",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-copy-paste-same: copy_paste_same_post",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-9cc01c26b39b6bbbf803",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-reorder-adjacent: reorder_adjacent",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-c3204a9f3230fae9d2e6",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-reorder-nonadjacent: reorder_nonadjacent",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-8de750c0407701d8c32a",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-wrap-group: wrap_in_group",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-d5f76689b8ec3c0ec58b",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-unwrap-group: unwrap_from_group",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-05e036fd05b4bf0a1f0c",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-move-into-columns: move_between_columns",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-7e7c19c048ffa77a9ddb",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-transform-p2h: transform_p2h",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-f8442f8066c7f01e3e96",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-transform-p2q: transform_p2q",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-e97d860de68f90439f0c",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-transform-h2p: transform_h2p",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-79f0b528467974584267",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-split: split_paragraph",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-ac62e06096b2c5102bc9",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-merge: merge_paragraphs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-165920288de914861ca3",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-undo-redo: undo_redo_text_edit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-7579cc8364608dd98175",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "op-delete-undo: delete_then_undo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-79d605057028815e4498",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "dup-paragraph: duplicate_block",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-b83572e5d00432bd5618",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "dup-button: duplicate_button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-fe4a749b2bc3dc9f31fd",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "dup-group-subtree: duplicate_nested_subtree",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-07d4952121de748f41ed",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "dup-identical-content: duplicate_block",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-251e134583cd41adcc11",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            },
+            {
+              "title": "dup-modified-content: duplicate_then_edit_copy",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "0a06049610da04637c86-ba85a3018707a6cfd59d",
+              "file": "manifest-driven.spec.ts",
+              "line": 48,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "noop-save.spec.ts",
+      "file": "noop-save.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "three no-op save cycles measure revision and byte stability",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "6d3c711e9691ef04fdc5-3e24c2aa48db86b3e4fd",
+          "file": "noop-save.spec.ts",
+          "line": 11,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "operations-matrix.spec.ts",
+      "file": "operations-matrix.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Strategy F Tier-1 operations matrix (browser-authored)",
+          "file": "operations-matrix.spec.ts",
+          "line": 51,
+          "column": 6,
+          "specs": [
+            {
+              "title": "op-text-edit: full text rewrite changes text_sha1, preserves UUID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-834045b9fec7c71c904c",
+              "file": "operations-matrix.spec.ts",
+              "line": 62,
+              "column": 7
+            },
+            {
+              "title": "op-duplicate: duplicate block copies UUID (pre-repair evidence)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-15ad25303693699fc52e",
+              "file": "operations-matrix.spec.ts",
+              "line": 98,
+              "column": 7
+            },
+            {
+              "title": "op-duplicate-nested-subtree: duplicating a Group copies all descendant UUIDs",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-b30d587125e5cf692af2",
+              "file": "operations-matrix.spec.ts",
+              "line": 135,
+              "column": 7
+            },
+            {
+              "title": "op-copy-paste-same-post: copy block then paste at end within same post",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-639c0b4b1ac913e6e822",
+              "file": "operations-matrix.spec.ts",
+              "line": 164,
+              "column": 7
+            },
+            {
+              "title": "op-reorder-adjacent: move block down swaps document order, UUIDs travel with content",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-4d1d8bee3e117dbd3a7b",
+              "file": "operations-matrix.spec.ts",
+              "line": 194,
+              "column": 7
+            },
+            {
+              "title": "op-reorder-nonadjacent: move first block down twice (non-adjacent reorder)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-97590752c1052012d4c5",
+              "file": "operations-matrix.spec.ts",
+              "line": 228,
+              "column": 7
+            },
+            {
+              "title": "op-wrap-in-group: wrapping a paragraph in a Group preserves its UUID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-e6894e5b33676430d788",
+              "file": "operations-matrix.spec.ts",
+              "line": 259,
+              "column": 7
+            },
+            {
+              "title": "op-unwrap-from-group: ungrouping preserves child paragraph UUID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-39c088b95c0901dda2da",
+              "file": "operations-matrix.spec.ts",
+              "line": 286,
+              "column": 7
+            },
+            {
+              "title": "op-transform-paragraph-to-heading: block-type conversion",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-fe6b6942021fce9c5e59",
+              "file": "operations-matrix.spec.ts",
+              "line": 315,
+              "column": 7
+            },
+            {
+              "title": "op-transform-paragraph-to-quote: block-type conversion",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-8a8f34b4fa028464f7d9",
+              "file": "operations-matrix.spec.ts",
+              "line": 343,
+              "column": 7
+            },
+            {
+              "title": "op-split-paragraph: splitting produces two blocks, verify UUID distribution",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-c4c273f8ea3e86a113d0",
+              "file": "operations-matrix.spec.ts",
+              "line": 370,
+              "column": 7
+            },
+            {
+              "title": "op-merge-paragraphs: merging two blocks into one, verify surviving UUID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-ae55bf68f9fb557f969e",
+              "file": "operations-matrix.spec.ts",
+              "line": 403,
+              "column": 7
+            },
+            {
+              "title": "op-undo-redo: undo restores prior state, redo reapplies edit",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-d15362c3627b45af225a",
+              "file": "operations-matrix.spec.ts",
+              "line": 439,
+              "column": 7
+            },
+            {
+              "title": "op-delete-then-undo: delete followed by undo restores the block and its UUID",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "540761165d096e2d310d-be6797b33c37f1a6c68f",
+              "file": "operations-matrix.spec.ts",
+              "line": 475,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "pattern-workflow.spec.ts",
+      "file": "pattern-workflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "pattern workflow: create synced pattern from tagged block",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "621d131d1f7b1bd2f6cc-20ffa92eb37e03a93cce",
+          "file": "pattern-workflow.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "pattern workflow: insert synced pattern into another post (reference only)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "621d131d1f7b1bd2f6cc-04de93af99a133e53f7f",
+          "file": "pattern-workflow.spec.ts",
+          "line": 42,
+          "column": 5
+        },
+        {
+          "title": "pattern workflow: insert then detach synced pattern",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "621d131d1f7b1bd2f6cc-bc94c31b480e579f4067",
+          "file": "pattern-workflow.spec.ts",
+          "line": 51,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "tier2-tier3-gaps.spec.ts",
+      "file": "tier2-tier3-gaps.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "tier1: copy block in source post, paste into a different post",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "b69b10477f23ba63e36d-7cdb9248b6505a9d4e18",
+          "file": "tier2-tier3-gaps.spec.ts",
+          "line": 33,
+          "column": 5
+        },
+        {
+          "title": "tier2: create non-synced pattern, insert into another post",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "b69b10477f23ba63e36d-6421f48ee32ad9346159",
+          "file": "tier2-tier3-gaps.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "tier2: duplicate a pattern-derived subtree (the wp:block reference)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "b69b10477f23ba63e36d-95c009a5a96678ede51a",
+          "file": "tier2-tier3-gaps.spec.ts",
+          "line": 59,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-07-27T01:29:08.860Z",
+    "duration": 861.7059999999997,
+    "expected": 0,
+    "skipped": 80,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

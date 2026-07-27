@@ -1,0 +1,48 @@
+{
+    "post_id": 4946,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:46:42",
+    "content_bytes": 330,
+    "content_sha1": "9b580fb0b38b89f04b00daecf4b30ae83abbd24f",
+    "eligible_blocks": 2,
+    "blocks": [
+        {
+            "uuid": "2bd1415e-091a-4847-9a94-cfea80e94365",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "3b43328bc3d3d348d9b697afae0e77059bf0e03a"
+        },
+        {
+            "uuid": "6988f5d2-ad55-4ee7-b723-26627bc18681",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "fcdc953de5d476d0894d8e98940463f32e3c336d"
+        }
+    ],
+    "uuid_counts": {
+        "2bd1415e-091a-4847-9a94-cfea80e94365": 1,
+        "6988f5d2-ad55-4ee7-b723-26627bc18681": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-nested-baseline-post-4946.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "2bd1415e-091a-4847-9a94-cfea80e94365",
+            "block_name": "core\/paragraph",
+            "text_sha1": "3b43328bc3d3d348d9b697afae0e77059bf0e03a"
+        },
+        {
+            "uuid": "6988f5d2-ad55-4ee7-b723-26627bc18681",
+            "block_name": "core\/paragraph",
+            "text_sha1": "fcdc953de5d476d0894d8e98940463f32e3c336d"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved",
+        "preserved"
+    ]
+}

@@ -6,3 +6,6 @@
 
 # Machine-specific notes (Docker commands, local paths); never committed.
 /CLAUDE.local.md
+
+# Spike S5 browser validation — generated WP auth cookies (never commit).
+spike/s5/corpus/browser-validation/auth-cookies.json

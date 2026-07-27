@@ -1,0 +1,178 @@
+{
+    "minor_text_edit": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 0,
+        "stale_correct": 1,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "full_rewrite": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 0,
+        "stale_correct": 1,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "type_conversion_in_place": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "insertion_at_end": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "undo_after_mutation": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 2,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "transform_then_exact_inverse": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 3,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "reorder_swap": {
+        "false_positive": 2,
+        "rendered_false_positive": 2,
+        "correct_reattach": 0,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "insertion_in_middle": {
+        "false_positive": 1,
+        "rendered_false_positive": 1,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "deletion_shifts_trailing_content": {
+        "false_positive": 1,
+        "rendered_false_positive": 1,
+        "correct_reattach": 0,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 1,
+        "spurious_new": 0
+    },
+    "duplication_shifts_trailing_content": {
+        "false_positive": 1,
+        "rendered_false_positive": 1,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "duplicate_then_edit_one_copy": {
+        "false_positive": 1,
+        "rendered_false_positive": 1,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "nested_movement_order_preserved": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 0,
+        "stale_correct": 2,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "nested_movement_order_changed": {
+        "false_positive": 2,
+        "rendered_false_positive": 2,
+        "correct_reattach": 0,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "copy_paste_within_document": {
+        "false_positive": 1,
+        "rendered_false_positive": 1,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "copy_paste_from_another_document": {
+        "false_positive": 1,
+        "rendered_false_positive": 1,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 1
+    },
+    "reorder_plus_edit": {
+        "false_positive": 2,
+        "rendered_false_positive": 2,
+        "correct_reattach": 0,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "swap_plus_edit_both": {
+        "false_positive": 2,
+        "rendered_false_positive": 2,
+        "correct_reattach": 0,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "delete_plus_insert_similar": {
+        "false_positive": 1,
+        "rendered_false_positive": 1,
+        "correct_reattach": 0,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "delete_restore_net_noop_within_one_save": {
+        "false_positive": 0,
+        "rendered_false_positive": 0,
+        "correct_reattach": 1,
+        "stale_correct": 0,
+        "stale_missed": 0,
+        "orphaned": 0,
+        "spurious_new": 0
+    },
+    "delete_save_restore_save_two_saves": {
+        "row_status_after_restore_and_second_save": "ignored",
+        "renders": false,
+        "finding": "Confirms the already-anticipated un-orphaning gap; not a new discovery, its first concrete reproduction."
+    }
+}

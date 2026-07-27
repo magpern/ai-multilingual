@@ -1,0 +1,48 @@
+{
+    "post_id": 4926,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:43:09",
+    "content_bytes": 284,
+    "content_sha1": "649edfdfeaa8b06c3a08af49761cdf588f066bd4",
+    "eligible_blocks": 2,
+    "blocks": [
+        {
+            "uuid": "64d1f830-6341-42e1-961a-e90a5bfcfa4f",
+            "valid_uuid": true,
+            "block_name": "core\/separator",
+            "text_sha1": "da40530677c67fafebfbd443eb180d9c2478665d"
+        },
+        {
+            "uuid": "853e2af8-03fe-480d-9988-aa473fc54fe6",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "9059b9603c6bafbd7c3c8c7fd93a73946c97dea0"
+        }
+    ],
+    "uuid_counts": {
+        "64d1f830-6341-42e1-961a-e90a5bfcfa4f": 1,
+        "853e2af8-03fe-480d-9988-aa473fc54fe6": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-separator-baseline-post-4926.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "64d1f830-6341-42e1-961a-e90a5bfcfa4f",
+            "block_name": "core\/separator",
+            "text_sha1": "da40530677c67fafebfbd443eb180d9c2478665d"
+        },
+        {
+            "uuid": "853e2af8-03fe-480d-9988-aa473fc54fe6",
+            "block_name": "core\/paragraph",
+            "text_sha1": "9059b9603c6bafbd7c3c8c7fd93a73946c97dea0"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved",
+        "preserved"
+    ]
+}

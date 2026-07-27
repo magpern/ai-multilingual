@@ -1,0 +1,34 @@
+[
+  {
+    "slug": "reg-text-edit",
+    "title": "S5 Attr-Reg \u2014 Text edit",
+    "fixture": "core-paragraph.html",
+    "operation": "text_edit",
+    "post_id": 4900,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/reg-text-edit-baseline-post-4900.html"
+  },
+  {
+    "slug": "reg-duplicate",
+    "title": "S5 Attr-Reg \u2014 Duplicate",
+    "fixture": "duplicate-single.html",
+    "operation": "duplicate_block",
+    "post_id": 4902,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/reg-duplicate-baseline-post-4902.html"
+  },
+  {
+    "slug": "reg-transform-p2h",
+    "title": "S5 Attr-Reg \u2014 Transform p2h",
+    "fixture": "core-paragraph.html",
+    "operation": "transform_p2h",
+    "post_id": 4904,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/reg-transform-p2h-baseline-post-4904.html"
+  },
+  {
+    "slug": "reg-heading-edit",
+    "title": "S5 Attr-Reg \u2014 Heading text edit",
+    "fixture": "core-heading.html",
+    "operation": "text_edit_heading",
+    "post_id": 4906,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/reg-heading-edit-baseline-post-4906.html"
+  }
+]

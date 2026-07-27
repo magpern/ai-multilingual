@@ -1,0 +1,35 @@
+{
+    "post_id": 4924,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:42:53",
+    "content_bytes": 203,
+    "content_sha1": "99d8ef1a18ad26aeb6cb3318406ef99a6d21bd1c",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "700626c5-7398-4aee-9578-1ee657116277",
+            "valid_uuid": true,
+            "block_name": "core\/quote",
+            "text_sha1": "be07f69ecf3520768f35516caf957d44ab5a4f7b"
+        }
+    ],
+    "uuid_counts": {
+        "700626c5-7398-4aee-9578-1ee657116277": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-quote-baseline-post-4924.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "700626c5-7398-4aee-9578-1ee657116277",
+            "block_name": "core\/quote",
+            "text_sha1": "be07f69ecf3520768f35516caf957d44ab5a4f7b"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved"
+    ]
+}

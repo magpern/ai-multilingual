@@ -1,0 +1,48 @@
+{
+    "post_id": 4918,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:53:24",
+    "content_bytes": 522,
+    "content_sha1": "1fea95b4299a671c96fbe48763ed7c9828fc45d3",
+    "eligible_blocks": 2,
+    "blocks": [
+        {
+            "uuid": "a357ae1a-f7bd-4ff5-b019-588e3fc2aa86",
+            "valid_uuid": true,
+            "block_name": "core\/button",
+            "text_sha1": "7252788a058cf13483a77542421004918f9913ed"
+        },
+        {
+            "uuid": "9ea0c9b9-a5c6-4f2e-b5d3-ce5839bb9fa5",
+            "valid_uuid": true,
+            "block_name": "core\/button",
+            "text_sha1": "0d76774be1d85987bb5da63fc16e45af1d021666"
+        }
+    ],
+    "uuid_counts": {
+        "a357ae1a-f7bd-4ff5-b019-588e3fc2aa86": 1,
+        "9ea0c9b9-a5c6-4f2e-b5d3-ce5839bb9fa5": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-buttons-baseline-post-4918.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "a357ae1a-f7bd-4ff5-b019-588e3fc2aa86",
+            "block_name": "core\/button",
+            "text_sha1": "7252788a058cf13483a77542421004918f9913ed"
+        },
+        {
+            "uuid": "9ea0c9b9-a5c6-4f2e-b5d3-ce5839bb9fa5",
+            "block_name": "core\/button",
+            "text_sha1": "0d76774be1d85987bb5da63fc16e45af1d021666"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved",
+        "preserved"
+    ]
+}

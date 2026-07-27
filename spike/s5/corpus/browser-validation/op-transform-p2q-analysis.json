@@ -1,0 +1,33 @@
+{
+    "post_id": 4972,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:50:06",
+    "content_bytes": 187,
+    "content_sha1": "87d5fea90d40af5559297a9a729f016364e2c8bd",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/paragraph",
+            "text_sha1": "ecbf5886e0880b192c900c4209808ad3b49be7aa"
+        }
+    ],
+    "uuid_counts": [],
+    "duplicate_uuids": [],
+    "has_aimlBlockId": false,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/op-transform-p2q-baseline-post-4972.html",
+    "baseline_post_id": null,
+    "content_byte_diff": 28,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "b9240b0a-df39-458a-b249-c47005d6919c",
+            "block_name": "core\/paragraph",
+            "text_sha1": "ecbf5886e0880b192c900c4209808ad3b49be7aa"
+        }
+    ],
+    "uuid_preservation": [
+        "removed"
+    ]
+}

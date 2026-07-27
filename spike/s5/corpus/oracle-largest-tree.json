@@ -1,0 +1,119 @@
+{
+    "wide": {
+        "largest_successful_tree_nodes": 320000,
+        "stopped_reason": "ceiling_reached",
+        "ceiling_configured": 500000,
+        "history": [
+            {
+                "size": 10000,
+                "total_ms": 202.5,
+                "node_count": 10001,
+                "content_bytes": 741815,
+                "serialize_ms": 33.03,
+                "reparse_ms": 62.43,
+                "reserialize_ms": 9.63,
+                "memory_peak_bytes": 143654912,
+                "memory_delta_bytes": 4194304,
+                "round_trip_shape_ok": true,
+                "byte_exact": true,
+                "ids_unique": true
+            },
+            {
+                "size": 20000,
+                "total_ms": 352.7,
+                "node_count": 20001,
+                "content_bytes": 1494673,
+                "serialize_ms": 34.33,
+                "reparse_ms": 91.01,
+                "reserialize_ms": 17.32,
+                "memory_peak_bytes": 166723584,
+                "memory_delta_bytes": 27262976,
+                "round_trip_shape_ok": true,
+                "byte_exact": true,
+                "ids_unique": true
+            },
+            {
+                "size": 40000,
+                "total_ms": 809,
+                "node_count": 40001,
+                "content_bytes": 3000387,
+                "serialize_ms": 105.72,
+                "reparse_ms": 208.21,
+                "reserialize_ms": 41.68,
+                "memory_peak_bytes": 223879168,
+                "memory_delta_bytes": 57155584,
+                "round_trip_shape_ok": true,
+                "byte_exact": true,
+                "ids_unique": true
+            },
+            {
+                "size": 80000,
+                "total_ms": 1688,
+                "node_count": 80001,
+                "content_bytes": 6011815,
+                "serialize_ms": 208.7,
+                "reparse_ms": 382.6,
+                "reserialize_ms": 152.74,
+                "memory_peak_bytes": 350265344,
+                "memory_delta_bytes": 129007616,
+                "round_trip_shape_ok": true,
+                "byte_exact": true,
+                "ids_unique": true
+            },
+            {
+                "size": 160000,
+                "total_ms": 3668.7,
+                "node_count": 160001,
+                "content_bytes": 12094673,
+                "serialize_ms": 447.61,
+                "reparse_ms": 770.5,
+                "reserialize_ms": 326.9,
+                "memory_peak_bytes": 600875008,
+                "memory_delta_bytes": 255885312,
+                "round_trip_shape_ok": true,
+                "byte_exact": true,
+                "ids_unique": true
+            },
+            {
+                "size": 320000,
+                "total_ms": 7744.4,
+                "node_count": 320001,
+                "content_bytes": 24300387,
+                "serialize_ms": 877.65,
+                "reparse_ms": 1770.43,
+                "reserialize_ms": 645.87,
+                "memory_peak_bytes": 1106292736,
+                "memory_delta_bytes": 515936256,
+                "round_trip_shape_ok": true,
+                "byte_exact": true,
+                "ids_unique": true
+            }
+        ]
+    },
+    "deep": {
+        "largest_successful_tree_nodes": 10000,
+        "stopped_reason": "recursion_depth_limit_reached: Error: Maximum call stack size of 8339456 bytes (zend.max_allowed_stack_size - zend.reserved_stack_size) reached. Infinite recursion?",
+        "ceiling_configured": 500000,
+        "history": [
+            {
+                "size": 10000,
+                "total_ms": 2385.6,
+                "node_count": 10001,
+                "content_bytes": 740074,
+                "serialize_ms": 746.17,
+                "reparse_ms": 54.89,
+                "reserialize_ms": 657.91,
+                "memory_peak_bytes": 1053818880,
+                "memory_delta_bytes": 121634816,
+                "round_trip_shape_ok": true,
+                "byte_exact": true,
+                "ids_unique": true
+            },
+            {
+                "size": 20000,
+                "total_ms": 7293.3,
+                "error": "Error: Maximum call stack size of 8339456 bytes (zend.max_allowed_stack_size - zend.reserved_stack_size) reached. Infinite recursion?"
+            }
+        ]
+    }
+}

@@ -1,0 +1,724 @@
+{
+  "bv-paragraph": {
+    "post_id": 4912,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "1de01e0cb93207d6eb79749b02a6f33df93d2b87",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-paragraph-baseline-post-4912.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-heading": {
+    "post_id": 4914,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "8c3fbadd47337b99f49069ef3cc51b9dce38b1e8",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-heading-baseline-post-4914.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-list": {
+    "post_id": 4916,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "9260cfb9abb1f257c4a34e536a5a3ac502ed4fa2",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-list-baseline-post-4916.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-buttons": {
+    "post_id": 4918,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved",
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "1fea95b4299a671c96fbe48763ed7c9828fc45d3",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-buttons-baseline-post-4918.html",
+    "block_count_before": 2,
+    "block_count_after": 2,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-group": {
+    "post_id": 4920,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "0fc299cee6613f9b1fe04607aa66fa159a950c8d",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-group-baseline-post-4920.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-columns": {
+    "post_id": 4922,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved",
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "de8cf305685d82ead8f344a508412129c9e3ae32",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-columns-baseline-post-4922.html",
+    "block_count_before": 2,
+    "block_count_after": 2,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-quote": {
+    "post_id": 4924,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "99d8ef1a18ad26aeb6cb3318406ef99a6d21bd1c",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-quote-baseline-post-4924.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-separator": {
+    "post_id": 4926,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved",
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "649edfdfeaa8b06c3a08af49761cdf588f066bd4",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-separator-baseline-post-4926.html",
+    "block_count_before": 2,
+    "block_count_after": 2,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-html": {
+    "post_id": 4928,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "345362a25ad789aba92b940b65d4428802fb0f4a",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-html-baseline-post-4928.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-pullquote": {
+    "post_id": 4930,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "be280daf6dd6a9991ad7f4fb20de6828f3ff530f",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-pullquote-baseline-post-4930.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-table": {
+    "post_id": 4932,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "fc8be30c22e8aba555b413b607d1a0b8714db632",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-table-baseline-post-4932.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-spacer": {
+    "post_id": 4934,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "102d2cbd41ef35079489380cd702626f16607680",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-spacer-baseline-post-4934.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-shortcode": {
+    "post_id": 4936,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "086f6743da460bb0990eb53b818ff5c192c0eaec",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-shortcode-baseline-post-4936.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-image": {
+    "post_id": 4938,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "a12604cbb1d633b52d73e7296b98db716286e11d",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-image-baseline-post-4938.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-cover": {
+    "post_id": 4940,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "c4db6b1d10691885e150211d239d49fd5a3c7754",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-cover-baseline-post-4940.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-media-text": {
+    "post_id": 4942,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "0e1826208ddf3eaa5041bb44ad2387eb613a6993",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-media-text-baseline-post-4942.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-noop-cycles": {
+    "post_id": 4944,
+    "operation": "noop_save_x3",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved",
+      "preserved",
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "d092b9efc4a1dbd53cd900de73515bfd0fa7b1e2",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-noop-cycles-baseline-post-4944.html",
+    "block_count_before": 3,
+    "block_count_after": 3,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "bv-nested": {
+    "post_id": 4946,
+    "operation": "noop_save",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved",
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "9b580fb0b38b89f04b00daecf4b30ae83abbd24f",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/bv-nested-baseline-post-4946.html",
+    "block_count_before": 2,
+    "block_count_after": 2,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-text-edit": {
+    "post_id": 4948,
+    "operation": "text_edit",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "ed7d38190b625c760fa9ee261b74d9a6d64100c5",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-text-edit-baseline-post-4948.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-full-rewrite": {
+    "post_id": 4950,
+    "operation": "full_rewrite",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "4edd3c573b5803967743be5ad8a2e7926eb454d4",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-full-rewrite-baseline-post-4950.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-duplicate": {
+    "post_id": 4952,
+    "operation": "duplicate_block",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "d1ac6810746a7ee31ba4957ef049481d39e198b7",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-duplicate-baseline-post-4952.html",
+    "block_count_before": 1,
+    "block_count_after": 2,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-duplicate-button": {
+    "post_id": 4954,
+    "operation": "duplicate_button",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "a913a148246f7ecbc29baf80cbbaef837cb5741a",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-duplicate-button-baseline-post-4954.html",
+    "block_count_before": 2,
+    "block_count_after": 3,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-duplicate-nested": {
+    "post_id": 4956,
+    "operation": "duplicate_nested_subtree",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "640a6fbc85e394652d8ff16ffe1aaa811846488b",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-duplicate-nested-baseline-post-4956.html",
+    "block_count_before": 2,
+    "block_count_after": 3,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-copy-paste-same": {
+    "post_id": 4958,
+    "operation": "copy_paste_same_post",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "46a93760ef4857777c6682c1233f1f1dabc811af",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-copy-paste-same-baseline-post-4958.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-reorder-adjacent": {
+    "post_id": 4960,
+    "operation": "reorder_adjacent",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed",
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "8c550aff41167f34710f139a903f07b9a2901f9b",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-reorder-adjacent-baseline-post-4960.html",
+    "block_count_before": 3,
+    "block_count_after": 3,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-reorder-nonadjacent": {
+    "post_id": 4962,
+    "operation": "reorder_nonadjacent",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed",
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "d393cb09a6f8d70633d33b39fdcb11a6c0dbea6b",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-reorder-nonadjacent-baseline-post-4962.html",
+    "block_count_before": 3,
+    "block_count_after": 3,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-wrap-group": {
+    "post_id": 4964,
+    "operation": "wrap_in_group",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "242a3c5657e822e6159e59d2f0cd5d992c795286",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-wrap-group-baseline-post-4964.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-unwrap-group": {
+    "post_id": 4966,
+    "operation": "unwrap_from_group",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "d7bf191e496e6f016593963756654eaef77de73b",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-unwrap-group-baseline-post-4966.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-move-into-columns": {
+    "post_id": 4968,
+    "operation": "move_between_columns",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "a8def277dc45617afdda68ae0f0b1ef4022b0a58",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-move-into-columns-baseline-post-4968.html",
+    "block_count_before": 2,
+    "block_count_after": 2,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-transform-p2h": {
+    "post_id": 4970,
+    "operation": "transform_p2h",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "f83738f44b983a0ae39c596f991d4354276f9ea9",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-transform-p2h-baseline-post-4970.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-transform-p2q": {
+    "post_id": 4972,
+    "operation": "transform_p2q",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "87d5fea90d40af5559297a9a729f016364e2c8bd",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-transform-p2q-baseline-post-4972.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-transform-h2p": {
+    "post_id": 4974,
+    "operation": "transform_h2p",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "f3a5a42e1e2fff06a7ecdf6218851caa7165bb17",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-transform-h2p-baseline-post-4974.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-split": {
+    "post_id": 4976,
+    "operation": "split_paragraph",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "02a519b12e05c963efd03a778b51c755751a89e7",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-split-baseline-post-4976.html",
+    "block_count_before": 1,
+    "block_count_after": 2,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-merge": {
+    "post_id": 4978,
+    "operation": "merge_paragraphs",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "7e3932a6691c4f62fa5e7695bebdd64045261ebd",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-merge-baseline-post-4978.html",
+    "block_count_before": 3,
+    "block_count_after": 2,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-undo-redo": {
+    "post_id": 4980,
+    "operation": "undo_redo_text_edit",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed"
+    ],
+    "content_identical": false,
+    "content_sha1": "617de42bf4336d8ae6a67e47b4dc90c295db5dda",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-undo-redo-baseline-post-4980.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "op-delete-undo": {
+    "post_id": 4982,
+    "operation": "delete_then_undo",
+    "has_aimlBlockId": true,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "preserved"
+    ],
+    "content_identical": false,
+    "content_sha1": "fefc3cecfcfcabaf9a2c6a760956086e3a6da008",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/op-delete-undo-baseline-post-4982.html",
+    "block_count_before": 1,
+    "block_count_after": 1,
+    "block_count_changed": false,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "dup-paragraph": {
+    "post_id": 4984,
+    "operation": "duplicate_block",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "d1ac6810746a7ee31ba4957ef049481d39e198b7",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/dup-paragraph-baseline-post-4984.html",
+    "block_count_before": 1,
+    "block_count_after": 2,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "dup-button": {
+    "post_id": 4986,
+    "operation": "duplicate_button",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "a913a148246f7ecbc29baf80cbbaef837cb5741a",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/dup-button-baseline-post-4986.html",
+    "block_count_before": 2,
+    "block_count_after": 3,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "dup-group-subtree": {
+    "post_id": 4988,
+    "operation": "duplicate_nested_subtree",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "640a6fbc85e394652d8ff16ffe1aaa811846488b",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/dup-group-subtree-baseline-post-4988.html",
+    "block_count_before": 2,
+    "block_count_after": 3,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "dup-identical-content": {
+    "post_id": 4990,
+    "operation": "duplicate_block",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "d1ac6810746a7ee31ba4957ef049481d39e198b7",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/dup-identical-content-baseline-post-4990.html",
+    "block_count_before": 1,
+    "block_count_after": 2,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  },
+  "dup-modified-content": {
+    "post_id": 4992,
+    "operation": "duplicate_then_edit_copy",
+    "has_aimlBlockId": false,
+    "duplicate_uuids": [],
+    "uuid_preservation": [
+      "removed",
+      "new_block"
+    ],
+    "content_identical": false,
+    "content_sha1": "b3e2c9a321734bcb276bfd41b7dfada60754f792",
+    "baseline_source": "file:/aiml/spike/s5/corpus/browser-validation/dup-modified-content-baseline-post-4992.html",
+    "block_count_before": 1,
+    "block_count_after": 2,
+    "block_count_changed": true,
+    "text_actually_changed": false,
+    "duplicate_uuid_detected": false
+  }
+}

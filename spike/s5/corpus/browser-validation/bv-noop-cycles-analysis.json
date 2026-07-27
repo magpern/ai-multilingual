@@ -1,0 +1,61 @@
+{
+    "post_id": 4944,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:46:30",
+    "content_bytes": 409,
+    "content_sha1": "d092b9efc4a1dbd53cd900de73515bfd0fa7b1e2",
+    "eligible_blocks": 3,
+    "blocks": [
+        {
+            "uuid": "8c8cf3e0-dc78-4b5a-8369-c78c145a91ba",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "ebcd16846dfa7f0aa0777f8ed9b6055af7c1d497"
+        },
+        {
+            "uuid": "c985ec2d-f1e8-4adc-91b2-a9cb4e3cb948",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "f0faa98c6525489f32d1ec0fee867a9a62f5bea1"
+        },
+        {
+            "uuid": "414cf882-bfda-45cd-874f-f9f8aa9f3d41",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "17df9dc9de995b4c7e8ac520ebace77c8bb8b531"
+        }
+    ],
+    "uuid_counts": {
+        "8c8cf3e0-dc78-4b5a-8369-c78c145a91ba": 1,
+        "c985ec2d-f1e8-4adc-91b2-a9cb4e3cb948": 1,
+        "414cf882-bfda-45cd-874f-f9f8aa9f3d41": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-noop-cycles-baseline-post-4944.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "8c8cf3e0-dc78-4b5a-8369-c78c145a91ba",
+            "block_name": "core\/paragraph",
+            "text_sha1": "ebcd16846dfa7f0aa0777f8ed9b6055af7c1d497"
+        },
+        {
+            "uuid": "c985ec2d-f1e8-4adc-91b2-a9cb4e3cb948",
+            "block_name": "core\/paragraph",
+            "text_sha1": "f0faa98c6525489f32d1ec0fee867a9a62f5bea1"
+        },
+        {
+            "uuid": "414cf882-bfda-45cd-874f-f9f8aa9f3d41",
+            "block_name": "core\/paragraph",
+            "text_sha1": "17df9dc9de995b4c7e8ac520ebace77c8bb8b531"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved",
+        "preserved",
+        "preserved"
+    ]
+}
