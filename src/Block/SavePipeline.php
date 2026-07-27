@@ -26,6 +26,13 @@ final class SavePipeline {
 	private static bool $injecting = false;
 
 	/**
+	 * Suppresses injection while explicit migration persists content.
+	 *
+	 * @var bool
+	 */
+	private static bool $migration_suspended = false;
+
+	/**
 	 * Constructs the save pipeline.
 	 *
 	 * @param Settings     $settings  Plugin settings.
@@ -54,7 +61,7 @@ final class SavePipeline {
 	 * @return array<string, mixed>
 	 */
 	public function filter_insert_post_data( array $data, array $postarr ): array {
-		if ( self::$injecting ) {
+		if ( self::$injecting || self::$migration_suspended ) {
 			return $data;
 		}
 
@@ -131,10 +138,25 @@ final class SavePipeline {
 	}
 
 	/**
+	 * Suspends save-time injection while migration persists content explicitly.
+	 */
+	public static function suspend_for_migration(): void {
+		self::$migration_suspended = true;
+	}
+
+	/**
+	 * Resumes save-time injection after migration completes.
+	 */
+	public static function resume_after_migration(): void {
+		self::$migration_suspended = false;
+	}
+
+	/**
 	 * Resets the recursion guard between tests.
 	 */
 	public static function reset_guard_for_tests(): void {
-		self::$injecting = false;
+		self::$injecting           = false;
+		self::$migration_suspended = false;
 	}
 
 	/**

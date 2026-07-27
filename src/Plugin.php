@@ -15,6 +15,8 @@ use AIMultilingual\Block\AdapterRegistry;
 use AIMultilingual\Block\AttributeRegistrar;
 use AIMultilingual\Block\BlockExtractionLogger;
 use AIMultilingual\Block\BlockIdentityLogger;
+use AIMultilingual\Block\BlockIdentityMigration;
+use AIMultilingual\Block\BlockMigrationLogger;
 use AIMultilingual\Block\BlockRegistry;
 use AIMultilingual\Block\BlockRenderLogger;
 use AIMultilingual\Block\SavePipeline;
@@ -148,7 +150,24 @@ final class Plugin {
 		}
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			Cli::register( $languages, $store, $extractor );
+			$migration = new BlockIdentityMigration(
+				$uuid_injector,
+				$extractor,
+				new Extractor(
+					new Settings(
+						array(
+							'block_attr_registration_enabled' => true,
+							'block_uuid_injection_enabled' => true,
+							'block_extraction_enabled'     => true,
+						)
+					),
+					$block_extractor
+				),
+				$store,
+				new BlockMigrationLogger()
+			);
+
+			Cli::register( $languages, $store, $extractor, $migration );
 		}
 	}
 
@@ -198,6 +217,10 @@ final class Plugin {
 		add_action(
 			'save_post',
 			static function ( $post_id, $post ) use ( $extractor, $store ) {
+				if ( BlockIdentityMigration::is_active() ) {
+					return;
+				}
+
 				if ( ! $post instanceof WP_Post ) {
 					return;
 				}
