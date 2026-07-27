@@ -106,15 +106,16 @@ final class BlockAdapterTest extends TestCase {
 	}
 
 	public function test_paragraph_apply_translation_preserves_block_attrs(): void {
-		$adapter = new ParagraphAdapter();
-		$block   = $this->block(
+		$adapter      = new ParagraphAdapter();
+		$attrs        = array(
+			Contract::ATTR_NAME => self::UUID,
+			'className'         => 'intro',
+			'anchor'            => 'intro',
+		);
+		$block        = $this->block(
 			'core/paragraph',
 			'<p class="intro">Hello</p>',
-			array(
-				Contract::ATTR_NAME => self::UUID,
-				'className'         => 'intro',
-				'anchor'            => 'intro',
-			)
+			$attrs
 		);
 		$attrs_before = $block['attrs'];
 

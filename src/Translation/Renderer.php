@@ -49,6 +49,20 @@ final class Renderer {
 	private Store $store;
 
 	/**
+	 * Body classifier for block vs classic content routing.
+	 *
+	 * @var Extractor|null
+	 */
+	private ?Extractor $extractor;
+
+	/**
+	 * Strategy F gated block renderer.
+	 *
+	 * @var BlockFrontendRenderer|null
+	 */
+	private ?BlockFrontendRenderer $block_frontend;
+
+	/**
 	 * Guards against a filter re-entering itself.
 	 *
 	 * @var bool
@@ -58,12 +72,21 @@ final class Renderer {
 	/**
 	 * Builds the overlay renderer.
 	 *
-	 * @param LanguageContext $context Request language state.
-	 * @param Store           $store   Segment store.
+	 * @param LanguageContext            $context        Request language state.
+	 * @param Store                      $store          Segment store.
+	 * @param Extractor|null             $extractor      Body classifier.
+	 * @param BlockFrontendRenderer|null $block_frontend Strategy F block renderer.
 	 */
-	public function __construct( LanguageContext $context, Store $store ) {
-		$this->context = $context;
-		$this->store   = $store;
+	public function __construct(
+		LanguageContext $context,
+		Store $store,
+		?Extractor $extractor = null,
+		?BlockFrontendRenderer $block_frontend = null,
+	) {
+		$this->context        = $context;
+		$this->store          = $store;
+		$this->extractor      = $extractor;
+		$this->block_frontend = $block_frontend;
 	}
 
 	/**
@@ -125,6 +148,22 @@ final class Renderer {
 
 		// Only substitute when this really is the queried post's stored body.
 		if ( $content !== $post->post_content ) {
+			return $content;
+		}
+
+		if ( null !== $this->extractor && null !== $this->block_frontend ) {
+			if ( Extractor::BODY_BLOCKS === $this->extractor->body_status( $post ) ) {
+				$this->rendering = true;
+
+				try {
+					return $this->block_frontend->render( $post, $content );
+				} finally {
+					$this->rendering = false;
+				}
+			}
+		}
+
+		if ( null !== $this->extractor && ! $this->extractor->can_translate_body( $post ) ) {
 			return $content;
 		}
 

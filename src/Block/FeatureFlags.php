@@ -34,6 +34,8 @@ final class FeatureFlags {
 
 	public const RENDER = 'block_render_enabled';
 
+	public const FRONTEND_RENDER = 'block_frontend_rendering_enabled';
+
 	public const RENDERER_PROOF = 'block_renderer_proof_mode';
 
 	public const MIGRATION = 'block_migration_enabled';
@@ -68,6 +70,13 @@ final class FeatureFlags {
 			$flags[ self::RENDER ] = false;
 		}
 
+		if ( self::is_enabled( $flags, self::FRONTEND_RENDER )
+			&& ( ! self::is_enabled( $flags, self::EXTRACTION )
+				|| ! self::is_enabled( $flags, self::INJECTION )
+				|| ! self::is_enabled( $flags, self::REGISTRATION ) ) ) {
+			$flags[ self::FRONTEND_RENDER ] = false;
+		}
+
 		if ( self::is_enabled( $flags, self::AUTOSAVE_INJECT ) && ! self::is_enabled( $flags, self::INJECTION ) ) {
 			$flags[ self::AUTOSAVE_INJECT ] = false;
 		}
@@ -83,7 +92,7 @@ final class FeatureFlags {
 	public static function has_prohibited_combination( array $flags ): bool {
 		$sanitized = self::validate_dependencies( $flags );
 
-		foreach ( array( self::REPAIR, self::INJECTION, self::EXTRACTION, self::RENDER, self::AUTOSAVE_INJECT ) as $key ) {
+		foreach ( array( self::REPAIR, self::INJECTION, self::EXTRACTION, self::RENDER, self::FRONTEND_RENDER, self::AUTOSAVE_INJECT ) as $key ) {
 			if ( self::is_enabled( $flags, $key ) && ! self::is_enabled( $sanitized, $key ) ) {
 				return true;
 			}

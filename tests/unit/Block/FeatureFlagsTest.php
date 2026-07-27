@@ -76,4 +76,18 @@ final class FeatureFlagsTest extends TestCase {
 
 		$this->assertFalse( $sanitized[ FeatureFlags::REPAIR ] );
 	}
+
+	public function test_frontend_render_requires_extraction_injection_and_registration(): void {
+		$flags = array(
+			FeatureFlags::REGISTRATION    => true,
+			FeatureFlags::INJECTION       => false,
+			FeatureFlags::EXTRACTION      => true,
+			FeatureFlags::FRONTEND_RENDER => true,
+		);
+
+		$sanitized = FeatureFlags::validate_dependencies( $flags );
+
+		$this->assertFalse( $sanitized[ FeatureFlags::FRONTEND_RENDER ] );
+		$this->assertTrue( FeatureFlags::has_prohibited_combination( $flags ) );
+	}
 }

@@ -16,6 +16,7 @@ use AIMultilingual\Block\AttributeRegistrar;
 use AIMultilingual\Block\BlockExtractionLogger;
 use AIMultilingual\Block\BlockIdentityLogger;
 use AIMultilingual\Block\BlockRegistry;
+use AIMultilingual\Block\BlockRenderLogger;
 use AIMultilingual\Block\SavePipeline;
 use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
@@ -26,6 +27,12 @@ use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\BlockExtractor;
+use AIMultilingual\Translation\BlockFrontendRenderer;
+use AIMultilingual\Translation\BlockFrontendRenderLogger;
+use AIMultilingual\Translation\BlockRenderGate;
+use AIMultilingual\Translation\BlockRenderer;
+use AIMultilingual\Translation\BlockTranslationLookup;
+use AIMultilingual\Translation\BlockTranslationSanitizer;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
@@ -105,9 +112,20 @@ final class Plugin {
 			new BlockExtractionLogger()
 		);
 		$extractor        = new Extractor( $settings, $block_extractor );
+		$block_renderer   = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
+		$block_frontend   = new BlockFrontendRenderer(
+			new BlockRenderGate(),
+			new BlockTranslationLookup( $store ),
+			new BlockTranslationSanitizer(),
+			$block_renderer,
+			new BlockFrontendRenderLogger(),
+			$settings,
+			$context,
+			$extractor
+		);
 
 		( new Router( $languages, $resolver, $context ) )->register();
-		( new Renderer( $context, $store ) )->register();
+		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
 
 		( new AttributeRegistrar( $settings, $block_registry ) )->register();
