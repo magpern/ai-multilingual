@@ -33,17 +33,45 @@ final class BlockRegistryTest extends TestCase {
 		);
 	}
 
-	public function test_supported_blocks_are_eligible(): void {
+	public function test_supported_blocks_are_eligible_leaves(): void {
 		foreach ( BlockRegistry::SUPPORTED_BLOCKS as $block_name ) {
 			$this->assertTrue( $this->registry->is_supported( $block_name ) );
 			$this->assertTrue(
 				$this->registry->is_eligible(
 					array(
-						'blockName' => $block_name,
+						'blockName'   => $block_name,
+						'innerBlocks' => array(),
+						'innerHTML'   => '<p>Text</p>',
 					)
 				)
 			);
 		}
+	}
+
+	public function test_containers_and_dynamic_blocks_are_ineligible(): void {
+		$this->assertFalse(
+			$this->registry->is_eligible(
+				array(
+					'blockName'   => 'core/group',
+					'innerBlocks' => array(
+						array(
+							'blockName' => 'core/paragraph',
+						),
+					),
+					'innerHTML'   => '<div></div>',
+				)
+			)
+		);
+
+		$this->assertFalse(
+			$this->registry->is_eligible(
+				array(
+					'blockName'   => 'core/block',
+					'innerBlocks' => array(),
+					'innerHTML'   => '<p>Text</p>',
+				)
+			)
+		);
 	}
 
 	public function test_unsupported_blocks_are_rejected(): void {

@@ -12,7 +12,10 @@ namespace AIMultilingual;
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\SettingsPage;
 use AIMultilingual\Block\AttributeRegistrar;
+use AIMultilingual\Block\BlockIdentityLogger;
 use AIMultilingual\Block\BlockRegistry;
+use AIMultilingual\Block\SavePipeline;
+use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
 use AIMultilingual\Frontend\Switcher;
@@ -94,7 +97,12 @@ final class Plugin {
 		( new Renderer( $context, $store ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
 
-		( new AttributeRegistrar( $settings, new BlockRegistry() ) )->register();
+		$block_registry = new BlockRegistry();
+		$block_logger   = new BlockIdentityLogger();
+		$uuid_injector  = new UuidInjector( $block_registry, $block_logger );
+
+		( new AttributeRegistrar( $settings, $block_registry ) )->register();
+		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 

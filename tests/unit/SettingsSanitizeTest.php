@@ -28,6 +28,7 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertTrue( $defaults['switcher_show_native_name'] );
 		$this->assertFalse( $defaults['switcher_hide_current'] );
 		$this->assertFalse( $defaults['block_attr_registration_enabled'] );
+		$this->assertFalse( $defaults['block_uuid_injection_enabled'] );
 		$this->assertSame( Settings::SCHEMA_VERSION, $defaults['schema_version'] );
 	}
 
@@ -104,11 +105,23 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertSame( Settings::SCHEMA_VERSION, $clean['schema_version'] );
 	}
 
+	public function test_injection_without_registration_is_coerced_off(): void {
+		$clean = Settings::sanitize(
+			array(
+				'block_attr_registration_enabled' => false,
+				'block_uuid_injection_enabled'    => true,
+			)
+		);
+
+		$this->assertFalse( $clean['block_uuid_injection_enabled'] );
+	}
+
 	public function test_settings_can_be_constructed_in_memory(): void {
 		$settings = new Settings( array( 'remove_data_on_uninstall' => '1' ) );
 
 		$this->assertTrue( $settings->remove_data_on_uninstall() );
 		$this->assertTrue( $settings->switcher_show_native_name() );
 		$this->assertFalse( $settings->block_attr_registration_enabled() );
+		$this->assertFalse( $settings->block_uuid_injection_enabled() );
 	}
 }

@@ -10,14 +10,12 @@ declare( strict_types=1 );
 namespace AIMultilingual\Block;
 
 /**
- * Allowlist of block types eligible for Strategy F identity (F1 scope).
- *
- * Extraction, injection, and rendering are implemented in later milestones.
+ * Allowlist and eligibility policy for Strategy F block identity.
  */
 final class BlockRegistry {
 
 	/**
-	 * Initial F1 proof and adapter allowlist.
+	 * Initial proof and adapter allowlist.
 	 *
 	 * @var list<string>
 	 */
@@ -25,6 +23,20 @@ final class BlockRegistry {
 		'core/paragraph',
 		'core/heading',
 		'core/button',
+	);
+
+	/**
+	 * Dynamic blocks whose saved innerHTML is not authoritative.
+	 *
+	 * @var list<string>
+	 */
+	public const DYNAMIC_BLOCK_NAMES = array(
+		'core/latest-posts',
+		'core/block',
+		'core/query',
+		'core/post-title',
+		'core/navigation',
+		'core/template-part',
 	);
 
 	/**
@@ -37,16 +49,44 @@ final class BlockRegistry {
 	}
 
 	/**
-	 * Whether a block instance is eligible for Strategy F identity.
+	 * Whether a block type is dynamic and therefore ineligible for UUID injection.
 	 *
-	 * F1 uses the allowlist only; tree-shape rules arrive with F2/F4.
+	 * @param string $block_name Block type name.
+	 */
+	public function is_dynamic( string $block_name ): bool {
+		return in_array( $block_name, self::DYNAMIC_BLOCK_NAMES, true );
+	}
+
+	/**
+	 * Whether a parsed block instance should receive a persistent UUID.
 	 *
 	 * @param array<string, mixed> $block Parsed block array.
 	 */
 	public function is_eligible( array $block ): bool {
-		$name = isset( $block['blockName'] ) ? (string) $block['blockName'] : '';
+		if ( null === ( $block['blockName'] ?? null ) ) {
+			return false;
+		}
 
-		return $this->is_supported( $name );
+		$name = (string) $block['blockName'];
+
+		if ( ! $this->is_supported( $name ) ) {
+			return false;
+		}
+
+		if ( $this->is_dynamic( $name ) ) {
+			return false;
+		}
+
+		$inner = $block['innerBlocks'] ?? array();
+		if ( is_array( $inner ) && array() !== $inner ) {
+			return false;
+		}
+
+		if ( '' === trim( (string) ( $block['innerHTML'] ?? '' ) ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

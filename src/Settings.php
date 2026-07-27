@@ -81,6 +81,14 @@ final class Settings {
 			 * post-rollout kill switch (see Strategy F plan §2.2).
 			 */
 			'block_attr_registration_enabled' => false,
+
+			/*
+			 * Strategy F (F2): save-time UUID injection on canonical posts.
+			 *
+			 * Requires attribute registration. Default off so production
+			 * behavior is unchanged until deliberately enabled.
+			 */
+			'block_uuid_injection_enabled'    => false,
 		);
 	}
 
@@ -101,7 +109,7 @@ final class Settings {
 
 		$clean = $defaults;
 
-		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled' ) as $key ) {
+		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled' ) as $key ) {
 			if ( array_key_exists( $key, $raw ) ) {
 				$clean[ $key ] = self::to_bool( $raw[ $key ] );
 			}
@@ -190,5 +198,14 @@ final class Settings {
 	 */
 	public function block_attr_registration_enabled(): bool {
 		return (bool) $this->get()['block_attr_registration_enabled'];
+	}
+
+	/**
+	 * Whether Strategy F UUID injection runs on canonical post saves.
+	 *
+	 * Requires {@see self::block_attr_registration_enabled()}.
+	 */
+	public function block_uuid_injection_enabled(): bool {
+		return (bool) $this->get()['block_uuid_injection_enabled'];
 	}
 }
