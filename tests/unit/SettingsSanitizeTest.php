@@ -29,6 +29,7 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertFalse( $defaults['switcher_hide_current'] );
 		$this->assertFalse( $defaults['block_attr_registration_enabled'] );
 		$this->assertFalse( $defaults['block_uuid_injection_enabled'] );
+		$this->assertFalse( $defaults['block_extraction_enabled'] );
 		$this->assertSame( Settings::SCHEMA_VERSION, $defaults['schema_version'] );
 	}
 
@@ -114,6 +115,18 @@ final class SettingsSanitizeTest extends TestCase {
 		);
 
 		$this->assertFalse( $clean['block_uuid_injection_enabled'] );
+	}
+
+	public function test_extraction_without_injection_is_coerced_off(): void {
+		$clean = Settings::sanitize(
+			array(
+				'block_attr_registration_enabled' => true,
+				'block_uuid_injection_enabled'    => false,
+				'block_extraction_enabled'        => true,
+			)
+		);
+
+		$this->assertFalse( $clean['block_extraction_enabled'] );
 	}
 
 	public function test_settings_can_be_constructed_in_memory(): void {

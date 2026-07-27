@@ -11,7 +11,9 @@ namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\SettingsPage;
+use AIMultilingual\Block\AdapterRegistry;
 use AIMultilingual\Block\AttributeRegistrar;
+use AIMultilingual\Block\BlockExtractionLogger;
 use AIMultilingual\Block\BlockIdentityLogger;
 use AIMultilingual\Block\BlockRegistry;
 use AIMultilingual\Block\SavePipeline;
@@ -23,6 +25,7 @@ use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\Router;
+use AIMultilingual\Translation\BlockExtractor;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
@@ -91,15 +94,21 @@ final class Plugin {
 		$resolver  = new LanguageResolver();
 		$context   = new LanguageContext();
 		$store     = new Store( $cache );
-		$extractor = new Extractor();
+
+		$adapter_registry = new AdapterRegistry();
+		$block_registry   = new BlockRegistry( $adapter_registry );
+		$block_logger     = new BlockIdentityLogger();
+		$uuid_injector    = new UuidInjector( $block_registry, $block_logger );
+		$block_extractor  = new BlockExtractor(
+			$adapter_registry,
+			$block_registry,
+			new BlockExtractionLogger()
+		);
+		$extractor        = new Extractor( $settings, $block_extractor );
 
 		( new Router( $languages, $resolver, $context ) )->register();
 		( new Renderer( $context, $store ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
-
-		$block_registry = new BlockRegistry();
-		$block_logger   = new BlockIdentityLogger();
-		$uuid_injector  = new UuidInjector( $block_registry, $block_logger );
 
 		( new AttributeRegistrar( $settings, $block_registry ) )->register();
 		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();

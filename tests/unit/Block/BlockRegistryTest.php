@@ -92,7 +92,13 @@ final class BlockRegistryTest extends TestCase {
 		}
 	}
 
-	public function test_adapter_lookup_is_not_implemented_in_f1(): void {
-		$this->assertNull( $this->registry->get_adapter( 'core/paragraph' ) );
+	public function test_adapter_lookup_returns_production_adapters(): void {
+		$registry = new BlockRegistry( new \AIMultilingual\Block\AdapterRegistry() );
+
+		$this->assertInstanceOf(
+			\AIMultilingual\Block\Adapter\ParagraphAdapter::class,
+			$registry->get_adapter( 'core/paragraph' )
+		);
+		$this->assertNull( $registry->get_adapter( 'core/group' ) );
 	}
 }

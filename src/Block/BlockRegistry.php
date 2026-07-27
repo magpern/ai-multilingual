@@ -15,6 +15,22 @@ namespace AIMultilingual\Block;
 final class BlockRegistry {
 
 	/**
+	 * Optional adapter registry for lookup delegation.
+	 *
+	 * @var AdapterRegistry|null
+	 */
+	private ?AdapterRegistry $adapters = null;
+
+	/**
+	 * Builds the block registry.
+	 *
+	 * @param AdapterRegistry|null $adapters Adapter registry for lookup.
+	 */
+	public function __construct( ?AdapterRegistry $adapters = null ) {
+		$this->adapters = $adapters;
+	}
+
+	/**
 	 * Initial proof and adapter allowlist.
 	 *
 	 * @var list<string>
@@ -119,8 +135,10 @@ final class BlockRegistry {
 	 * @param string $block_name Block type name.
 	 */
 	public function get_adapter( string $block_name ): ?TranslatableBlockAdapter {
-		unset( $block_name );
+		if ( null === $this->adapters ) {
+			return null;
+		}
 
-		return null;
+		return $this->adapters->get( $block_name );
 	}
 }
