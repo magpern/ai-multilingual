@@ -513,6 +513,9 @@ Proposed — see §21).
 
 ## 20. Production prerequisites
 
+Detailed implementation sequencing, module layout, migration design, rollout
+stages, and open decisions: [`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md).
+
 1. ~~Extended browser validation (duplicate, paste, patterns)~~ — **done**
    (Phase 3, all mandatory gates; minor non-blocking gaps listed in §18).
 2. Decide and implement `aimlBlockId` registration strategy

@@ -160,6 +160,9 @@ equivalent heuristics (see cost analysis in S5 report).
 
 ## Rollout prerequisites
 
+Production implementation plan (planning only, no code):
+[`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md).
+
 - [x] Extended browser validation matrix (Phase 3 — Tier 1/2/3 mandatory
   operations, duplicate repair against real browser content, concurrent-edit
   simulation, autosave/REST/export/import; remaining minor gaps are
