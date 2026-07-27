@@ -4,7 +4,7 @@
 real Gutenberg editor. I cannot drive a browser, and hand-written block markup
 is explicitly disallowed as a substitute — the whole point of this corpus is
 that it is genuine editor output, quirks included (see
-`docs/spikes/S5-gutenberg-segment-identity.md` once drafted, and the corpus
+`S5-gutenberg-segment-identity.md` once drafted, and the corpus
 rule in the accepted plan: "every block in the corpus originates from a real
 editor save").
 

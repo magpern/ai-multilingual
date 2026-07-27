@@ -40,5 +40,5 @@ provenance claim differs.
 ## Status
 
 The authentic-corpus architecture gate (real browser-editor output) remains
-**open**. This batch does not satisfy it. See `spike/s5/corpus/CHECKLIST.md`
+**open**. This batch does not satisfy it. See [`docs/spike-s5/CHECKLIST.md`](../../../../docs/spike-s5/CHECKLIST.md)
 in the repository for what real editor authoring still needs to happen.

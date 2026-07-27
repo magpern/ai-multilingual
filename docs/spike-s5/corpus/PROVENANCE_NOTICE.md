@@ -6,7 +6,7 @@ created through the real Gutenberg editor... None of this markup was
 hand-written." **That claim is false for every row currently in this
 manifest.**
 
-`CHECKLIST.md` required these 13 pages to be authored by a human at the
+[CHECKLIST.md](../CHECKLIST.md) required these 13 pages to be authored by a human at the
 real wp-admin block editor, specifically because hand-written or
 API-synthesized block markup cannot reproduce the editor's own
 serialization/normalization behavior, and because the whole point of this
@@ -46,5 +46,5 @@ Treat this batch as "best-effort synthetic, structurally valid Gutenberg
 documents" rather than "genuine editor output." If Phase 1c conclusions
 depend on editor-specific quirks (exact attribute defaults, whitespace,
 class lists, or actual save-time normalization behavior), re-run the
-original CHECKLIST.md process by hand at least for a representative subset
+original [CHECKLIST.md](../CHECKLIST.md) process by hand at least for a representative subset
 and compare against this batch before relying on it.
