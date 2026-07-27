@@ -27,6 +27,10 @@ final class SettingsSanitizeTest extends TestCase {
 		);
 		$this->assertTrue( $defaults['switcher_show_native_name'] );
 		$this->assertFalse( $defaults['switcher_hide_current'] );
+		$this->assertFalse( $defaults['block_attr_registration_enabled'] );
+		$this->assertFalse( $defaults['block_uuid_injection_enabled'] );
+		$this->assertFalse( $defaults['block_extraction_enabled'] );
+		$this->assertFalse( $defaults['block_frontend_rendering_enabled'] );
 		$this->assertSame( Settings::SCHEMA_VERSION, $defaults['schema_version'] );
 	}
 
@@ -103,10 +107,48 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertSame( Settings::SCHEMA_VERSION, $clean['schema_version'] );
 	}
 
+	public function test_injection_without_registration_is_coerced_off(): void {
+		$clean = Settings::sanitize(
+			array(
+				'block_attr_registration_enabled' => false,
+				'block_uuid_injection_enabled'    => true,
+			)
+		);
+
+		$this->assertFalse( $clean['block_uuid_injection_enabled'] );
+	}
+
+	public function test_extraction_without_injection_is_coerced_off(): void {
+		$clean = Settings::sanitize(
+			array(
+				'block_attr_registration_enabled' => true,
+				'block_uuid_injection_enabled'    => false,
+				'block_extraction_enabled'        => true,
+			)
+		);
+
+		$this->assertFalse( $clean['block_extraction_enabled'] );
+	}
+
+	public function test_frontend_rendering_without_extraction_dependency_is_coerced_off(): void {
+		$clean = Settings::sanitize(
+			array(
+				'block_attr_registration_enabled'  => true,
+				'block_uuid_injection_enabled'     => true,
+				'block_extraction_enabled'         => false,
+				'block_frontend_rendering_enabled' => true,
+			)
+		);
+
+		$this->assertFalse( $clean['block_frontend_rendering_enabled'] );
+	}
+
 	public function test_settings_can_be_constructed_in_memory(): void {
 		$settings = new Settings( array( 'remove_data_on_uninstall' => '1' ) );
 
 		$this->assertTrue( $settings->remove_data_on_uninstall() );
 		$this->assertTrue( $settings->switcher_show_native_name() );
+		$this->assertFalse( $settings->block_attr_registration_enabled() );
+		$this->assertFalse( $settings->block_uuid_injection_enabled() );
 	}
 }

@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace AIMultilingual;
 
+use AIMultilingual\Block\FeatureFlags;
+
 /**
  * Sole owner of the `aiml_settings` option.
  *
@@ -57,18 +59,53 @@ final class Settings {
 	 */
 	public static function defaults(): array {
 		return array(
-			'schema_version'            => self::SCHEMA_VERSION,
+			'schema_version'                   => self::SCHEMA_VERSION,
 
 			/*
 			 * Data retention on uninstall. Default off: translation work is
 			 * expensive to recreate and deleting it must be a deliberate act
 			 * (invariant I5).
 			 */
-			'remove_data_on_uninstall'  => false,
+			'remove_data_on_uninstall'         => false,
 
 			// Language switcher presentation.
-			'switcher_show_native_name' => true,
-			'switcher_hide_current'     => false,
+			'switcher_show_native_name'        => true,
+			'switcher_hide_current'            => false,
+
+			/*
+			 * Strategy F (F1): block attribute registration.
+			 *
+			 * Default off so production behavior is unchanged until deliberately
+			 * enabled in pre-rollout environments. After UUID rollout begins,
+			 * registration becomes a compatibility requirement — not a normal
+			 * post-rollout kill switch (see Strategy F plan §2.2).
+			 */
+			'block_attr_registration_enabled'  => false,
+
+			/*
+			 * Strategy F (F2): save-time UUID injection on canonical posts.
+			 *
+			 * Requires attribute registration. Default off so production
+			 * behavior is unchanged until deliberately enabled.
+			 */
+			'block_uuid_injection_enabled'     => false,
+
+			/*
+			 * Strategy F (F4): block-level extraction for sync_source reconciliation.
+			 *
+			 * Requires attribute registration and UUID injection. Default off so
+			 * production behavior is unchanged until deliberately enabled.
+			 */
+			'block_extraction_enabled'         => false,
+
+			/*
+			 * Strategy F (F6): gated frontend block rendering.
+			 *
+			 * Requires attribute registration, UUID injection, and block
+			 * extraction. Default off so production behavior is unchanged until
+			 * deliberately enabled.
+			 */
+			'block_frontend_rendering_enabled' => false,
 		);
 	}
 
@@ -89,11 +126,13 @@ final class Settings {
 
 		$clean = $defaults;
 
-		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current' ) as $key ) {
+		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled', 'block_extraction_enabled', 'block_frontend_rendering_enabled' ) as $key ) {
 			if ( array_key_exists( $key, $raw ) ) {
 				$clean[ $key ] = self::to_bool( $raw[ $key ] );
 			}
 		}
+
+		$clean = FeatureFlags::validate_dependencies( $clean );
 
 		$clean['schema_version'] = self::SCHEMA_VERSION;
 
@@ -166,5 +205,45 @@ final class Settings {
 	 */
 	public function switcher_hide_current(): bool {
 		return (bool) $this->get()['switcher_hide_current'];
+	}
+
+	/**
+	 * Whether Strategy F block attribute registration is active.
+	 *
+	 * Pre-rollout environments may disable this flag. After production UUID
+	 * rollout, registration must remain enabled as a compatibility requirement.
+	 */
+	public function block_attr_registration_enabled(): bool {
+		return (bool) $this->get()['block_attr_registration_enabled'];
+	}
+
+	/**
+	 * Whether Strategy F UUID injection runs on canonical post saves.
+	 *
+	 * Requires {@see self::block_attr_registration_enabled()}.
+	 */
+	public function block_uuid_injection_enabled(): bool {
+		return (bool) $this->get()['block_uuid_injection_enabled'];
+	}
+
+	/**
+	 * Whether Strategy F block extraction runs during sync_source reconciliation.
+	 *
+	 * Requires {@see self::block_attr_registration_enabled()} and
+	 * {@see self::block_uuid_injection_enabled()}.
+	 */
+	public function block_extraction_enabled(): bool {
+		return (bool) $this->get()['block_extraction_enabled'];
+	}
+
+	/**
+	 * Whether Strategy F frontend block rendering is active.
+	 *
+	 * Requires {@see self::block_attr_registration_enabled()},
+	 * {@see self::block_uuid_injection_enabled()}, and
+	 * {@see self::block_extraction_enabled()}.
+	 */
+	public function block_frontend_rendering_enabled(): bool {
+		return (bool) $this->get()['block_frontend_rendering_enabled'];
 	}
 }

@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace AIMultilingual;
 
+use AIMultilingual\Block\BlockIdentityMigration;
+use AIMultilingual\Block\BlockMigrationOptions;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
@@ -33,11 +35,17 @@ final class Cli {
 	/**
 	 * Registers the commands.
 	 *
-	 * @param Languages $languages Language configuration.
-	 * @param Store     $store     Segment store.
-	 * @param Extractor $extractor Source extractor.
+	 * @param Languages              $languages Language configuration.
+	 * @param Store                  $store     Segment store.
+	 * @param Extractor              $extractor Source extractor.
+	 * @param BlockIdentityMigration $migration Block identity migration service.
 	 */
-	public static function register( Languages $languages, Store $store, Extractor $extractor ): void {
+	public static function register(
+		Languages $languages,
+		Store $store,
+		Extractor $extractor,
+		BlockIdentityMigration $migration,
+	): void {
 		if ( ! class_exists( WP_CLI::class ) ) {
 			return;
 		}
@@ -129,6 +137,61 @@ final class Cli {
 				),
 			)
 		);
+
+		WP_CLI::add_command(
+			'aiml block migrate',
+			static function ( array $args, array $assoc ) use ( $migration ): void {
+				self::block_migrate( $migration, $assoc );
+			},
+			array(
+				'shortdesc' => 'Migrates Strategy F block identity on canonical posts.',
+				'synopsis'  => array(
+					array(
+						'type'        => 'assoc',
+						'name'        => 'post-id',
+						'optional'    => true,
+						'description' => 'Migrate one canonical post by id.',
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'post-type',
+						'optional'    => true,
+						'description' => 'Migrate a bounded batch for one post type.',
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'batch-size',
+						'optional'    => true,
+						'description' => 'Batch size when using --post-type (max 100).',
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'offset',
+						'optional'    => true,
+						'description' => 'Batch offset when using --post-type.',
+					),
+					array(
+						'type'        => 'flag',
+						'name'        => 'dry-run',
+						'optional'    => true,
+						'description' => 'Analyze without writing posts or reconciling.',
+					),
+					array(
+						'type'        => 'flag',
+						'name'        => 'refresh-extraction',
+						'optional'    => true,
+						'description' => 'Run extraction reconciliation even when identity is already compliant.',
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'format',
+						'optional'    => true,
+						'options'     => array( 'table', 'json' ),
+						'description' => 'Output format. Defaults to table.',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -158,6 +221,86 @@ final class Cli {
 	}
 
 	// -- Commands --
+
+	/**
+	 * Runs Strategy F block identity migration.
+	 *
+	 * @param BlockIdentityMigration $migration Migration service.
+	 * @param array<string, mixed>   $assoc     Associative arguments.
+	 */
+	private static function block_migrate( BlockIdentityMigration $migration, array $assoc ): void {
+		if ( ! isset( $assoc['post-id'] ) && ! isset( $assoc['post-type'] ) ) {
+			WP_CLI::error( 'Pass --post-id=<id> or --post-type=<type>.' );
+		}
+
+		if ( isset( $assoc['post-id'] ) && isset( $assoc['post-type'] ) ) {
+			WP_CLI::error( 'Pass only one selector: --post-id or --post-type.' );
+		}
+
+		$options = new BlockMigrationOptions(
+			! empty( $assoc['dry-run'] ),
+			! empty( $assoc['refresh-extraction'] )
+		);
+		$format  = (string) ( $assoc['format'] ?? 'table' );
+
+		if ( isset( $assoc['post-id'] ) ) {
+			$post_id = (int) $assoc['post-id'];
+			if ( $post_id <= 0 ) {
+				WP_CLI::error( 'Invalid --post-id value.' );
+			}
+
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				WP_CLI::error( 'You do not have permission to migrate that post.' );
+			}
+
+			$result  = $migration->migrate_post( $post_id, $options );
+			$payload = array( 'posts' => array( $result->to_array() ) );
+		} else {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				WP_CLI::error( 'Batch migration requires the manage_options capability.' );
+			}
+
+			$post_type  = (string) $assoc['post-type'];
+			$batch_size = isset( $assoc['batch-size'] ) ? (int) $assoc['batch-size'] : 20;
+			$offset     = isset( $assoc['offset'] ) ? (int) $assoc['offset'] : 0;
+			$batch      = $migration->migrate_batch( $post_type, $batch_size, $offset, $options );
+			$payload    = $batch->to_array();
+		}
+
+		if ( 'json' === $format ) {
+			WP_CLI::print_value( $payload, array( 'format' => 'json' ) );
+
+			return;
+		}
+
+		$rows = isset( $batch ) ? $payload['results'] : $payload['posts'];
+		WP_CLI\Utils\format_items(
+			'table',
+			$rows,
+			array(
+				'post_id',
+				'post_type',
+				'status',
+				'skip_reason',
+				'content_changed',
+				'created_count',
+				'duplicate_repaired_count',
+				'segment_count',
+				'failure_reason',
+			)
+		);
+
+		if ( isset( $batch ) ) {
+			WP_CLI::log(
+				sprintf(
+					'Batch complete. next_offset=%d has_more=%s elapsed_ms=%d',
+					(int) $payload['next_offset'],
+					$payload['has_more'] ? 'true' : 'false',
+					(int) $payload['elapsed_ms']
+				)
+			);
+		}
+	}
 
 	/**
 	 * Prints the language table.

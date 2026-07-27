@@ -89,7 +89,8 @@ final class PluginGuardTest extends AimlTestCase {
 				'wp_delete_post(',
 				'wp_insert_attachment(',
 			),
-			'Translations are overlays; there is exactly one canonical object and the plugin never writes it (I1-I3).'
+			'Translations are overlays; there is exactly one canonical object and the plugin never writes it (I1-I3).',
+			array( 'src/Block/BlockIdentityMigration.php' )
 		);
 	}
 

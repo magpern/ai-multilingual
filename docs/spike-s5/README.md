@@ -4,12 +4,17 @@ Research spike for Milestone 2: stable block identity and segment reconciliation
 
 ## Status
 
+- **Spike S5:** **Complete**
+- **Selected strategy:** Strategy F (`aimlBlockId`, key grammar `b:<uuid>:<field>`; initial field `content`)
+- **Spike evidence baseline:** `42237bd` (merged via PR #1)
+- **Production-plan baseline:** `ea5af19` (amended on `spike/s5` before F1)
 - **Strategies A–F:** PHP spike complete. **F passes exit gate.**
 - **Browser validation:** Phase 3 mandatory gates closed (see below).
-  Strategy F remains **conditionally accepted**, not production-approved.
+- **Production planning:** **Allowed** — see [`../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)
+- **Production implementation:** **Not started**
+- **Production readiness:** **Not approved**
 - **Strategy G:** cost analysis only — not implemented.
-- **Production:** not ready — see `docs/spikes/S5-gutenberg-segment-identity.md`.
-- **ADR-0013:** still **Proposed/Draft** — not Accepted.
+- **ADR-0013:** **Proposed** — not Accepted.
 
 ## Key documents
 
@@ -19,6 +24,7 @@ Research spike for Milestone 2: stable block identity and segment reconciliation
 | [IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md) | Per-strategy results A–F + Phase 2/3 browser validation |
 | [../spikes/S5-gutenberg-segment-identity.md](../spikes/S5-gutenberg-segment-identity.md) | **Final spike decision report** |
 | [../adr/0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) | Draft ADR (conditional F adoption) |
+| [../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) | **Production implementation plan** (planning only) |
 
 ## Evidence
 
@@ -39,6 +45,6 @@ Research spike for Milestone 2: stable block identity and segment reconciliation
   autosave/REST/export, concurrent-edit gates) — **complete**; see
   IMPLEMENTATION_LOG.md "Browser validation (Phase 3 — closing the mandatory
   gaps)" for the full results table
-- Production implementation — **not started**
+- Production implementation — **not started** (F1 not begun; see [`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) milestones F1–F11)
 - Strategy G — **not implemented** (costed only)
 - ADR-0013 — **Proposed**, not Accepted

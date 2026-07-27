@@ -1,0 +1,104 @@
+<?php
+/**
+ * Strategy F block registry allowlist.
+ *
+ * @package AIMultilingual
+ */
+
+declare( strict_types=1 );
+
+namespace AIMultilingual\Tests\Unit\Block;
+
+use AIMultilingual\Block\BlockRegistry;
+use AIMultilingual\Block\Contract;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Strategy F block registry allowlist.
+ */
+final class BlockRegistryTest extends TestCase {
+
+	private BlockRegistry $registry;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->registry = new BlockRegistry();
+	}
+
+	public function test_initial_allowlist_contains_proof_blocks(): void {
+		$this->assertSame(
+			array( 'core/paragraph', 'core/heading', 'core/button' ),
+			BlockRegistry::SUPPORTED_BLOCKS
+		);
+	}
+
+	public function test_supported_blocks_are_eligible_leaves(): void {
+		foreach ( BlockRegistry::SUPPORTED_BLOCKS as $block_name ) {
+			$this->assertTrue( $this->registry->is_supported( $block_name ) );
+			$this->assertTrue(
+				$this->registry->is_eligible(
+					array(
+						'blockName'   => $block_name,
+						'innerBlocks' => array(),
+						'innerHTML'   => '<p>Text</p>',
+					)
+				)
+			);
+		}
+	}
+
+	public function test_containers_and_dynamic_blocks_are_ineligible(): void {
+		$this->assertFalse(
+			$this->registry->is_eligible(
+				array(
+					'blockName'   => 'core/group',
+					'innerBlocks' => array(
+						array(
+							'blockName' => 'core/paragraph',
+						),
+					),
+					'innerHTML'   => '<div></div>',
+				)
+			)
+		);
+
+		$this->assertFalse(
+			$this->registry->is_eligible(
+				array(
+					'blockName'   => 'core/block',
+					'innerBlocks' => array(),
+					'innerHTML'   => '<p>Text</p>',
+				)
+			)
+		);
+	}
+
+	public function test_unsupported_blocks_are_rejected(): void {
+		$this->assertFalse( $this->registry->is_supported( 'core/group' ) );
+		$this->assertFalse(
+			$this->registry->is_eligible(
+				array(
+					'blockName' => 'core/group',
+				)
+			)
+		);
+	}
+
+	public function test_content_field_is_supported_for_allowlisted_blocks(): void {
+		foreach ( BlockRegistry::SUPPORTED_BLOCKS as $block_name ) {
+			$this->assertTrue( $this->registry->supports_field( $block_name, Contract::FIELD_CONTENT ) );
+			$this->assertSame( array( 'content' ), $this->registry->get_supported_fields( $block_name ) );
+		}
+	}
+
+	public function test_adapter_lookup_returns_production_adapters(): void {
+		$registry = new BlockRegistry( new \AIMultilingual\Block\AdapterRegistry() );
+
+		$this->assertInstanceOf(
+			\AIMultilingual\Block\Adapter\ParagraphAdapter::class,
+			$registry->get_adapter( 'core/paragraph' )
+		);
+		$this->assertNull( $registry->get_adapter( 'core/group' ) );
+	}
+}

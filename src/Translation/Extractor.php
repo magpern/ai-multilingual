@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Translation;
 
+use AIMultilingual\Settings;
 use WP_Post;
 
 /**
@@ -33,6 +34,18 @@ use WP_Post;
  * both extend this class rather than replacing it.
  */
 final class Extractor {
+
+	/**
+	 * Builds the extractor.
+	 *
+	 * @param Settings|null       $settings        Plugin settings.
+	 * @param BlockExtractor|null $block_extractor Block segment extractor.
+	 */
+	public function __construct(
+		private ?Settings $settings = null,
+		private ?BlockExtractor $block_extractor = null,
+	) {
+	}
 
 	/**
 	 * Field keys.
@@ -154,8 +167,15 @@ final class Extractor {
 		$segments = array();
 
 		foreach ( self::fields() as $field_key => $spec ) {
-			if ( self::FIELD_CONTENT === $field_key && ! $this->can_translate_body( $post ) ) {
-				continue;
+			if ( self::FIELD_CONTENT === $field_key ) {
+				if ( $this->should_extract_blocks( $post ) ) {
+					$segments = array_merge( $segments, $this->block_extractor->extract_post( $post ) );
+					continue;
+				}
+
+				if ( ! $this->can_translate_body( $post ) ) {
+					continue;
+				}
 			}
 
 			$source = (string) $post->{$field_key};
@@ -175,5 +195,22 @@ final class Extractor {
 		}
 
 		return $segments;
+	}
+
+	/**
+	 * Whether block-level extraction should run for this post.
+	 *
+	 * @param WP_Post $post Canonical post.
+	 */
+	private function should_extract_blocks( WP_Post $post ): bool {
+		if ( null === $this->settings || null === $this->block_extractor ) {
+			return false;
+		}
+
+		if ( ! $this->settings->block_extraction_enabled() ) {
+			return false;
+		}
+
+		return self::BODY_BLOCKS === $this->body_status( $post );
 	}
 }

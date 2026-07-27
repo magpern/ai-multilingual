@@ -11,6 +11,16 @@ namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\SettingsPage;
+use AIMultilingual\Block\AdapterRegistry;
+use AIMultilingual\Block\AttributeRegistrar;
+use AIMultilingual\Block\BlockExtractionLogger;
+use AIMultilingual\Block\BlockIdentityLogger;
+use AIMultilingual\Block\BlockIdentityMigration;
+use AIMultilingual\Block\BlockMigrationLogger;
+use AIMultilingual\Block\BlockRegistry;
+use AIMultilingual\Block\BlockRenderLogger;
+use AIMultilingual\Block\SavePipeline;
+use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
 use AIMultilingual\Frontend\Switcher;
@@ -18,6 +28,13 @@ use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\Router;
+use AIMultilingual\Translation\BlockExtractor;
+use AIMultilingual\Translation\BlockFrontendRenderer;
+use AIMultilingual\Translation\BlockFrontendRenderLogger;
+use AIMultilingual\Translation\BlockRenderGate;
+use AIMultilingual\Translation\BlockRenderer;
+use AIMultilingual\Translation\BlockTranslationLookup;
+use AIMultilingual\Translation\BlockTranslationSanitizer;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
@@ -86,11 +103,35 @@ final class Plugin {
 		$resolver  = new LanguageResolver();
 		$context   = new LanguageContext();
 		$store     = new Store( $cache );
-		$extractor = new Extractor();
+
+		$adapter_registry = new AdapterRegistry();
+		$block_registry   = new BlockRegistry( $adapter_registry );
+		$block_logger     = new BlockIdentityLogger();
+		$uuid_injector    = new UuidInjector( $block_registry, $block_logger );
+		$block_extractor  = new BlockExtractor(
+			$adapter_registry,
+			$block_registry,
+			new BlockExtractionLogger()
+		);
+		$extractor        = new Extractor( $settings, $block_extractor );
+		$block_renderer   = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
+		$block_frontend   = new BlockFrontendRenderer(
+			new BlockRenderGate(),
+			new BlockTranslationLookup( $store ),
+			new BlockTranslationSanitizer(),
+			$block_renderer,
+			new BlockFrontendRenderLogger(),
+			$settings,
+			$context,
+			$extractor
+		);
 
 		( new Router( $languages, $resolver, $context ) )->register();
-		( new Renderer( $context, $store ) )->register();
+		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
+
+		( new AttributeRegistrar( $settings, $block_registry ) )->register();
+		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 
@@ -109,7 +150,24 @@ final class Plugin {
 		}
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			Cli::register( $languages, $store, $extractor );
+			$migration = new BlockIdentityMigration(
+				$uuid_injector,
+				$extractor,
+				new Extractor(
+					new Settings(
+						array(
+							'block_attr_registration_enabled' => true,
+							'block_uuid_injection_enabled' => true,
+							'block_extraction_enabled'     => true,
+						)
+					),
+					$block_extractor
+				),
+				$store,
+				new BlockMigrationLogger()
+			);
+
+			Cli::register( $languages, $store, $extractor, $migration );
 		}
 	}
 
@@ -159,6 +217,10 @@ final class Plugin {
 		add_action(
 			'save_post',
 			static function ( $post_id, $post ) use ( $extractor, $store ) {
+				if ( BlockIdentityMigration::is_active() ) {
+					return;
+				}
+
 				if ( ! $post instanceof WP_Post ) {
 					return;
 				}

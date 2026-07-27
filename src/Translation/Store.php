@@ -64,6 +64,11 @@ final class Store {
 	public const KIND_FIELD = 'field';
 
 	/**
+	 * Block-level segment kind (Strategy F).
+	 */
+	public const KIND_BLOCK = 'block';
+
+	/**
 	 * Source types.
 	 */
 	public const SOURCE_POST = 'post';
