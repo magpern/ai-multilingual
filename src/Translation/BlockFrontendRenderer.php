@@ -64,9 +64,10 @@ final class BlockFrontendRenderer {
 		}
 
 		$this->rendering = true;
+		$started         = hrtime( true );
 
 		try {
-			return $this->render_inner( $post, $content );
+			return $this->render_inner( $post, $content, $started );
 		} finally {
 			$this->rendering = false;
 		}
@@ -77,8 +78,9 @@ final class BlockFrontendRenderer {
 	 *
 	 * @param WP_Post $post    Source post.
 	 * @param string  $content Canonical post_content string.
+	 * @param int     $started Monotonic start time from {@see hrtime()}.
 	 */
-	private function render_inner( WP_Post $post, string $content ): string {
+	private function render_inner( WP_Post $post, string $content, int $started ): string {
 		$context  = RenderGateContext::from_request(
 			$this->settings,
 			$this->language,
@@ -167,6 +169,7 @@ final class BlockFrontendRenderer {
 					$meta,
 					array(
 						'failure_reason' => 'renderer_no_change',
+						'elapsed_ms'     => $this->elapsed_ms( $started ),
 					)
 				)
 			);
@@ -180,6 +183,7 @@ final class BlockFrontendRenderer {
 				$meta,
 				array(
 					'translated_count' => count( $sanitized ),
+					'elapsed_ms'       => $this->elapsed_ms( $started ),
 				)
 			)
 		);
@@ -199,5 +203,14 @@ final class BlockFrontendRenderer {
 			'post_type'       => (string) $post->post_type,
 			'target_language' => $this->language->current_id(),
 		);
+	}
+
+	/**
+	 * Elapsed milliseconds since a monotonic start timestamp.
+	 *
+	 * @param int $started {@see hrtime()} value captured at render entry.
+	 */
+	private function elapsed_ms( int $started ): int {
+		return max( 0, (int) round( ( hrtime( true ) - $started ) / 1_000_000 ) );
 	}
 }

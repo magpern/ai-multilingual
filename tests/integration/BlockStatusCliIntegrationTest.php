@@ -13,6 +13,7 @@ use AIMultilingual\Block\BlockHealthScanOptions;
 use AIMultilingual\Block\BlockHealthService;
 use AIMultilingual\Block\BlockHealthSnapshot;
 use AIMultilingual\Block\BlockIdentityAnalyzer;
+use AIMultilingual\Block\BlockMetricsAggregator;
 use AIMultilingual\Block\BlockRegistry;
 use AIMultilingual\Block\Contract;
 use AIMultilingual\Cli;
@@ -28,16 +29,19 @@ final class BlockStatusCliIntegrationTest extends AimlTestCase {
 
 	private BlockHealthService $health;
 
+	private BlockMetricsAggregator $metrics;
+
 	protected function setUp(): void {
 		parent::setUp();
 
 		wp_set_current_user( 1 );
 
-		$this->health = new BlockHealthService(
+		$this->health  = new BlockHealthService(
 			$this->store,
 			$this->extractor,
 			new BlockIdentityAnalyzer( new BlockRegistry() )
 		);
+		$this->metrics = new BlockMetricsAggregator();
 
 		WpCliTestDouble::reset();
 	}
@@ -97,6 +101,8 @@ final class BlockStatusCliIntegrationTest extends AimlTestCase {
 		$this->assertIsArray( $decoded );
 		$this->assertArrayHasKey( 'generated_at', $decoded );
 		$this->assertArrayHasKey( 'scanned_post_count', $decoded );
+		$this->assertArrayHasKey( 'metrics', $decoded );
+		$this->assertArrayHasKey( 'counters', $decoded['metrics'] );
 		$this->assertArrayNotHasKey( 'post_results', $decoded );
 	}
 
@@ -110,6 +116,7 @@ final class BlockStatusCliIntegrationTest extends AimlTestCase {
 		$this->assertStringContainsString( 'UUID', $output );
 		$this->assertStringContainsString( 'Segments', $output );
 		$this->assertStringContainsString( 'Status', $output );
+		$this->assertStringContainsString( 'Metrics', $output );
 		$this->assertStringContainsString( 'N/A (UNIQUE constraint)', $output );
 	}
 
@@ -174,6 +181,19 @@ final class BlockStatusCliIntegrationTest extends AimlTestCase {
 		$this->assertFalse( $options->full_scan );
 	}
 
+	public function test_zero_metrics_are_valid_in_json_output(): void {
+		$this->invoke_status(
+			array(
+				'format'      => 'json',
+				'source-type' => 'page',
+			)
+		);
+
+		$decoded = json_decode( (string) WpCliTestDouble::$printed, true );
+		$this->assertIsArray( $decoded );
+		$this->assertSame( 0, $decoded['metrics']['render_count'] );
+	}
+
 	/**
 	 * Invokes the private CLI handler and returns the produced snapshot.
 	 *
@@ -186,7 +206,7 @@ final class BlockStatusCliIntegrationTest extends AimlTestCase {
 		try {
 			$method = new ReflectionMethod( Cli::class, 'block_status' );
 			$method->setAccessible( true );
-			$method->invoke( null, $this->health, $assoc );
+			$method->invoke( null, $this->health, $this->metrics, $assoc );
 		} catch ( \RuntimeException $exception ) {
 			throw $exception;
 		}

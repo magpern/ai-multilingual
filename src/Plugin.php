@@ -18,6 +18,7 @@ use AIMultilingual\Block\BlockIdentityLogger;
 use AIMultilingual\Block\BlockHealthService;
 use AIMultilingual\Block\BlockIdentityAnalyzer;
 use AIMultilingual\Block\BlockIdentityMigration;
+use AIMultilingual\Block\BlockMetricsAggregator;
 use AIMultilingual\Block\BlockMigrationLogger;
 use AIMultilingual\Block\BlockRegistry;
 use AIMultilingual\Block\BlockRenderLogger;
@@ -135,6 +136,9 @@ final class Plugin {
 		( new AttributeRegistrar( $settings, $block_registry ) )->register();
 		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();
 
+		$metrics = new BlockMetricsAggregator();
+		$metrics->register();
+
 		$this->register_stale_detection( $extractor, $store );
 
 		if ( is_admin() ) {
@@ -174,7 +178,7 @@ final class Plugin {
 				new BlockIdentityAnalyzer( $block_registry )
 			);
 
-			Cli::register( $languages, $store, $extractor, $migration, $health );
+			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics );
 		}
 	}
 

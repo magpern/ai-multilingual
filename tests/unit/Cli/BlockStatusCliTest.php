@@ -70,6 +70,20 @@ final class BlockStatusCliTest extends TestCase {
 		$source = $this->cli_source();
 
 		$this->assertStringContainsString( '$snapshot->to_array()', $source );
+		$this->assertStringContainsString( "'metrics' => \$metrics_snapshot->to_array()", $source );
+	}
+
+	public function test_table_output_includes_metrics_section(): void {
+		$source = $this->cli_source();
+
+		$this->assertStringContainsString( "\$sections['Metrics']", $source );
+		$this->assertStringContainsString( 'metrics completeness', $source );
+	}
+
+	public function test_cli_delegates_metrics_to_aggregator_snapshot(): void {
+		$source = $this->cli_source();
+
+		$this->assertStringContainsString( '$metrics->snapshot()', $source );
 	}
 
 	public function test_duplicate_rows_display_when_not_detectable(): void {
@@ -82,8 +96,10 @@ final class BlockStatusCliTest extends TestCase {
 	public function test_plugin_wires_block_health_service_for_cli_only(): void {
 		$source = $this->plugin_source();
 
+		$this->assertStringContainsString( 'new BlockMetricsAggregator', $source );
 		$this->assertStringContainsString( 'new BlockHealthService', $source );
-		$this->assertStringContainsString( 'Cli::register( $languages, $store, $extractor, $migration, $health )', $source );
+		$this->assertStringContainsString( '$metrics->register()', $source );
+		$this->assertStringContainsString( 'Cli::register( $languages, $store, $extractor, $migration, $health, $metrics )', $source );
 		$this->assertDoesNotMatchRegularExpression(
 			'/BlockHealthService.*->scan\s*\(/s',
 			$source

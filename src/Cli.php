@@ -13,6 +13,8 @@ use AIMultilingual\Block\BlockHealthScanOptions;
 use AIMultilingual\Block\BlockHealthService;
 use AIMultilingual\Block\BlockHealthSnapshot;
 use AIMultilingual\Block\BlockIdentityMigration;
+use AIMultilingual\Block\BlockMetricsAggregator;
+use AIMultilingual\Block\BlockMetricsSnapshot;
 use AIMultilingual\Block\BlockMigrationOptions;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Translation\Extractor;
@@ -43,6 +45,7 @@ final class Cli {
 	 * @param Extractor              $extractor Source extractor.
 	 * @param BlockIdentityMigration $migration Block identity migration service.
 	 * @param BlockHealthService     $health    Block health diagnostics service.
+	 * @param BlockMetricsAggregator $metrics   Request-scoped metrics aggregator.
 	 */
 	public static function register(
 		Languages $languages,
@@ -50,6 +53,7 @@ final class Cli {
 		Extractor $extractor,
 		BlockIdentityMigration $migration,
 		BlockHealthService $health,
+		BlockMetricsAggregator $metrics,
 	): void {
 		if ( ! class_exists( WP_CLI::class ) ) {
 			return;
@@ -200,8 +204,8 @@ final class Cli {
 
 		WP_CLI::add_command(
 			'aiml block status',
-			static function ( array $args, array $assoc ) use ( $health ): void {
-				self::block_status( $health, $assoc );
+			static function ( array $args, array $assoc ) use ( $health, $metrics ): void {
+				self::block_status( $health, $metrics, $assoc );
 			},
 			array(
 				'shortdesc' => 'Reports Strategy F block health (read-only).',
@@ -279,10 +283,11 @@ final class Cli {
 	/**
 	 * Runs Strategy F block health diagnostics.
 	 *
-	 * @param BlockHealthService   $health Block health service.
-	 * @param array<string, mixed> $assoc  Associative arguments.
+	 * @param BlockHealthService     $health  Block health service.
+	 * @param BlockMetricsAggregator $metrics Request-scoped metrics aggregator.
+	 * @param array<string, mixed>   $assoc   Associative arguments.
 	 */
-	private static function block_status( BlockHealthService $health, array $assoc ): void {
+	private static function block_status( BlockHealthService $health, BlockMetricsAggregator $metrics, array $assoc ): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			WP_CLI::error( 'Block status requires the manage_options capability.' );
 		}
@@ -292,16 +297,25 @@ final class Cli {
 			WP_CLI::error( 'Unsupported --format value. Use table or json.' );
 		}
 
-		$options  = self::block_status_options( $assoc );
-		$snapshot = $health->scan( $options );
+		$options          = self::block_status_options( $assoc );
+		$snapshot         = $health->scan( $options );
+		$metrics_snapshot = $metrics->snapshot();
 
 		if ( 'json' === $format ) {
-			WP_CLI::print_value( $snapshot->to_array(), array( 'format' => 'json' ) );
+			WP_CLI::print_value(
+				array_merge(
+					$snapshot->to_array(),
+					array(
+						'metrics' => $metrics_snapshot->to_array(),
+					)
+				),
+				array( 'format' => 'json' )
+			);
 
 			return;
 		}
 
-		self::render_block_status_table( $snapshot );
+		self::render_block_status_table( $snapshot, $metrics_snapshot );
 	}
 
 	/**
@@ -348,9 +362,10 @@ final class Cli {
 	/**
 	 * Prints operator-focused block health table output.
 	 *
-	 * @param BlockHealthSnapshot $snapshot Health snapshot.
+	 * @param BlockHealthSnapshot  $snapshot Health snapshot.
+	 * @param BlockMetricsSnapshot $metrics  Metrics snapshot.
 	 */
-	private static function render_block_status_table( BlockHealthSnapshot $snapshot ): void {
+	private static function render_block_status_table( BlockHealthSnapshot $snapshot, BlockMetricsSnapshot $metrics ): void {
 		$duplicate_rows = $snapshot->duplicate_segment_rows_detectable
 			? (string) ( $snapshot->duplicate_segment_rows ?? 0 )
 			: 'N/A (UNIQUE constraint)';
@@ -450,10 +465,89 @@ final class Cli {
 			),
 		);
 
+		$metric_rows = array(
+			array(
+				'metric' => 'render count',
+				'value'  => (string) $metrics->render_count,
+			),
+			array(
+				'metric' => 'render total ms',
+				'value'  => (string) $metrics->render_total_elapsed_ms,
+			),
+			array(
+				'metric' => 'render average ms',
+				'value'  => (string) $metrics->render_average_elapsed_ms,
+			),
+			array(
+				'metric' => 'render maximum ms',
+				'value'  => (string) $metrics->render_max_elapsed_ms,
+			),
+			array(
+				'metric' => 'ignored event count',
+				'value'  => (string) $metrics->ignored_event_count,
+			),
+			array(
+				'metric' => 'metrics completeness',
+				'value'  => $metrics->incomplete ? 'incomplete' : 'complete',
+			),
+		);
+
+		foreach ( self::metrics_counter_groups() as $group => $keys ) {
+			foreach ( $keys as $key ) {
+				$metric_rows[] = array(
+					'metric' => $group . ': ' . $key,
+					'value'  => (string) ( $metrics->counters[ $key ] ?? 0 ),
+				);
+			}
+		}
+
+		$sections['Metrics'] = $metric_rows;
+
 		foreach ( $sections as $title => $rows ) {
 			WP_CLI::log( $title );
 			WP_CLI\Utils\format_items( 'table', $rows, array( 'metric', 'value' ) );
 		}
+	}
+
+	/**
+	 * Counter groups for metrics table output.
+	 *
+	 * @return array<string, list<string>>
+	 */
+	private static function metrics_counter_groups(): array {
+		return array(
+			'uuid'       => array(
+				BlockMetricsAggregator::COUNTER_UUID_CREATED,
+				BlockMetricsAggregator::COUNTER_MALFORMED_UUID_DETECTED,
+				BlockMetricsAggregator::COUNTER_DUPLICATE_UUID_DETECTED,
+				BlockMetricsAggregator::COUNTER_UUID_REPAIRED,
+				BlockMetricsAggregator::COUNTER_UUID_REPAIR_FAILED,
+			),
+			'extraction' => array(
+				BlockMetricsAggregator::COUNTER_EXTRACTION_STARTED,
+				BlockMetricsAggregator::COUNTER_EXTRACTION_COMPLETED,
+				BlockMetricsAggregator::COUNTER_FIELDS_EXTRACTED,
+				BlockMetricsAggregator::COUNTER_FIELDS_SKIPPED,
+				BlockMetricsAggregator::COUNTER_EXTRACTION_FAILED,
+			),
+			'render'     => array(
+				BlockMetricsAggregator::COUNTER_RENDER_ATTEMPTED,
+				BlockMetricsAggregator::COUNTER_RENDER_COMPLETED,
+				BlockMetricsAggregator::COUNTER_RENDER_SKIPPED,
+				BlockMetricsAggregator::COUNTER_RENDER_FAILED,
+			),
+			'migration'  => array(
+				BlockMetricsAggregator::COUNTER_POSTS_SCANNED,
+				BlockMetricsAggregator::COUNTER_POSTS_MIGRATED,
+				BlockMetricsAggregator::COUNTER_POSTS_ALREADY_COMPLIANT,
+				BlockMetricsAggregator::COUNTER_POSTS_SKIPPED,
+				BlockMetricsAggregator::COUNTER_MIGRATIONS_FAILED,
+				BlockMetricsAggregator::COUNTER_CONCURRENT_MODIFICATIONS,
+			),
+			'settings'   => array(
+				BlockMetricsAggregator::COUNTER_FEATURE_FLAGS_CHANGED,
+			),
+		);
 	}
 
 	/**

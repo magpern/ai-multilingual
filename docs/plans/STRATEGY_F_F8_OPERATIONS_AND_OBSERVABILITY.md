@@ -247,33 +247,75 @@ All events emit via `do_action` hooks; **never log body text, translated text, o
 
 ---
 
-## 4. Metrics
+## 4. Metrics (WP4)
 
-**F8 implementation:** Hook-based in-process aggregator (`BlockMetricsAggregator`) listening to the five log hooks. Expose totals via `wp aiml block status` and optional admin diagnostics panel. **No DB persistence, no external TSDB in F8** (defer F10).
+**Implementation:** Hook-based in-process `BlockMetricsAggregator` (no DB persistence, no transients, no background jobs). Snapshot exposed via `wp aiml block status` under top-level JSON key `metrics` and a **Metrics** table section.
 
-| Metric | Type | Source events | Labels (low cardinality) | Alert threshold (staging) |
-|---|---|---|---|---|
-| `aiml_block_migration_posts_scanned` | counter | batch_complete | `post_type`, `dry_run` | — |
-| `aiml_block_migration_posts_complete` | counter | post_complete | `post_type` | — |
-| `aiml_block_migration_posts_failed` | counter | post_failed | `post_type`, `failure_reason` | >5% of batch |
-| `aiml_block_migration_concurrent_skips` | counter | concurrent_modification | `post_type` | >10/hour during batch |
-| `aiml_block_uuid_created_total` | counter | uuid_created | — | — |
-| `aiml_block_uuid_malformed_replaced_total` | counter | uuid_replaced_invalid | — | spike > baseline 3x |
-| `aiml_block_uuid_duplicate_repaired_total` | counter | uuid_duplicate_repaired | — | — |
-| `aiml_block_extraction_segments_total` | counter | block_extracted | `block_name` | — |
-| `aiml_block_lookup_success_total` | counter | lookup_complete | `post_type` | — |
-| `aiml_block_lookup_failure_total` | counter | lookup_failed | `failure_reason` | >1% of lookups |
-| `aiml_block_render_gate_allowed_total` | counter | gate_allowed | `post_type` | — |
-| `aiml_block_render_gate_denied_total` | counter | gate_denied | `denial_reason` | — |
-| `aiml_block_render_complete_total` | counter | render_complete | `post_type` | — |
-| `aiml_block_render_failed_total` | counter | render_failed | `failure_reason` | **>0.1% of allowed** |
-| `aiml_block_translation_rejected_total` | counter | translation_rejected | `reason` | spike > baseline 3x |
-| `aiml_block_cross_post_rejection_total` | counter | derived from lookup rejected rows | — | **>0 alarm** |
-| `aiml_block_render_latency_ms` | histogram | render_complete | `post_type` | p95 > 50ms |
-| `aiml_block_migration_batch_duration_ms` | histogram | batch_complete | `post_type` | p95 > 30s for batch-size=20 |
-| `aiml_block_source_fallback_ratio` | derived | `fallback_count / segment_count` from lookup_complete | `post_type` | >50% sustained |
+### 4.1 Hook sources
 
-**Cardinality limits:** Max ~20 label values per dimension; no `post_id`, `uuid`, or `segment_key` labels.
+| Hook | Handler |
+|---|---|
+| `aiml_block_identity_log` | UUID lifecycle counters |
+| `aiml_block_extraction_log` | Extraction counters |
+| `aiml_block_frontend_render_log` | Frontend render counters + timing |
+| `aiml_block_migration_log` | Migration counters |
+| `aiml_settings_flag_changed` | `feature_flags_changed` |
+
+F5 proof hook `aiml_block_render_log` is **not** aggregated in WP4 (frontend path only).
+
+### 4.2 Counter names (`BlockMetricsSnapshot.counters`)
+
+| Counter | Source event(s) |
+|---|---|
+| `uuid_created` | `uuid_created` |
+| `malformed_uuid_detected` | `uuid_replaced_invalid` |
+| `duplicate_uuid_detected` | `uuid_duplicate_detected` |
+| `uuid_repaired` | `uuid_duplicate_repaired` |
+| `uuid_repair_failed` | `uuid_repair_failed` |
+| `extraction_started` | *(no hook — reserved, always 0)* |
+| `extraction_completed` | *(no hook — reserved, always 0)* |
+| `fields_extracted` | `block_extracted` |
+| `fields_skipped` | `field_skipped` |
+| `extraction_failed` | `adapter_missing` |
+| `render_attempted` | `block_render_gate_allowed` |
+| `render_completed` | `block_frontend_render_complete` |
+| `render_skipped` | `block_render_gate_denied` |
+| `render_failed` | `block_frontend_render_failed` |
+| `posts_scanned` | `block_migration_started`, `block_migration_batch_complete.processed` |
+| `posts_migrated` | `block_migration_post_complete` |
+| `posts_already_compliant` | `block_migration_skipped` + `skip_reason=already_compliant` |
+| `posts_skipped` | `block_migration_skipped` |
+| `migrations_failed` | `block_migration_post_failed` |
+| `concurrent_modifications` | `block_migration_concurrent_modification` |
+| `feature_flags_changed` | `aiml_settings_flag_changed` |
+
+### 4.3 Render timing
+
+- Measured in `BlockFrontendRenderer::render()` with `hrtime(true)` from entry through completion/failure.
+- `elapsed_ms` (non-negative integer) included in `block_frontend_render_complete` and `block_frontend_render_failed` event context only.
+- Aggregator exposes: `render_count`, `render_total_elapsed_ms`, `render_average_elapsed_ms`, `render_max_elapsed_ms`.
+
+### 4.4 BlockMetricsSnapshot schema
+
+| Field | Meaning |
+|---|---|
+| `generated_at` | ISO-8601 UTC timestamp |
+| `counters` | Stable counter map (see §4.2) |
+| `render_count` | Timed render complete/failed events |
+| `render_total_elapsed_ms` | Sum of valid `elapsed_ms` values |
+| `render_average_elapsed_ms` | `total / count` (0 when count is 0) |
+| `render_max_elapsed_ms` | Maximum valid `elapsed_ms` |
+| `ignored_event_count` | Malformed hook payloads skipped |
+| `incomplete` | `true` when any event was ignored |
+
+Malformed payloads increment `ignored_event_count`, set `incomplete=true`, and do not throw.
+
+### 4.5 Status CLI metrics output
+
+- **JSON:** health keys unchanged; adds `"metrics": { ... }` sibling key.
+- **Table:** **Metrics** section after **Status** with timing totals and grouped counters.
+
+**Deferred:** histograms/percentiles, cross-post rejection counter (no dedicated event), persistent TSDB (F10).
 
 ---
 
