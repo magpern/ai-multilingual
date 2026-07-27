@@ -1,0 +1,33 @@
+{
+    "post_id": 4980,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:51:17",
+    "content_bytes": 87,
+    "content_sha1": "617de42bf4336d8ae6a67e47b4dc90c295db5dda",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/paragraph",
+            "text_sha1": "a331edcb70c5f199a9fac1b1a06f23cc989dc817"
+        }
+    ],
+    "uuid_counts": [],
+    "duplicate_uuids": [],
+    "has_aimlBlockId": false,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/op-undo-redo-baseline-post-4980.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -72,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "25c9cddb-2cec-4cdc-aed2-338787e020eb",
+            "block_name": "core\/paragraph",
+            "text_sha1": "ecbf5886e0880b192c900c4209808ad3b49be7aa"
+        }
+    ],
+    "uuid_preservation": [
+        "removed"
+    ]
+}

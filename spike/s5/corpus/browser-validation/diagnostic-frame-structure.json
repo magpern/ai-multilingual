@@ -1,0 +1,19 @@
+{
+  "frames": [
+    {
+      "name": "",
+      "url": "https://dev.biopentra.eu/wp-admin/post.php?post=4642&action=edit"
+    },
+    {
+      "name": "editor-canvas",
+      "url": "blob:https://dev.biopentra.eu/6ef9b8d0-0966-4e96-bcd3-36b942f206b9"
+    }
+  ],
+  "hasIframeCanvas": 1,
+  "directParagraphCount": 0,
+  "iframeParagraphCount": 1,
+  "toolbarInMainDoc": 2,
+  "toolbarInIframe": 0,
+  "optionsButtonInMainDoc": 2,
+  "iframeHtmlSnippet": "<div aria-hidden=\"true\" style=\"position: absolute; inset: 0px; pointer-events: none; opacity: 0; overflow: hidden; z-index: -1;\"></div><div class=\"block-canvas-cover\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; pointer-events: none;\"><div class=\"collaborators-overlay-full\"><style>\n.editor-avatar {\n\tposition: relative;\n\tdisplay: inline-flex;\n\talign-items: center;\n\tborder-radius: 9999px;\n\tflex-shrink: 0;\n\tbox-shadow: 0 0 0 var(--wp-admin-border-width-focus, 2px) #fff"
+}

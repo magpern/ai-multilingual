@@ -1,0 +1,10 @@
+{
+  "rest_nonce_found": true,
+  "rest_read_status": 200,
+  "rest_read_raw_has_uuid": true,
+  "rest_read_raw_snippet": "<!-- wp:paragraph {\"aimlBlockId\":\"44444444-4444-4444-8444-444444444444\"} -->\n<p>REST-written paragraph.</p>\n<!-- /wp:paragraph -->",
+  "rest_write_status": 200,
+  "rest_write_roundtrip_has_uuid": true,
+  "autosave_status": 200,
+  "autosave_roundtrip_has_uuid": true
+}

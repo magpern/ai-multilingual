@@ -1,0 +1,33 @@
+{
+    "post_id": 4964,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:49:06",
+    "content_bytes": 207,
+    "content_sha1": "242a3c5657e822e6159e59d2f0cd5d992c795286",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/paragraph",
+            "text_sha1": "ecbf5886e0880b192c900c4209808ad3b49be7aa"
+        }
+    ],
+    "uuid_counts": [],
+    "duplicate_uuids": [],
+    "has_aimlBlockId": false,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/op-wrap-group-baseline-post-4964.html",
+    "baseline_post_id": null,
+    "content_byte_diff": 48,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "94eb8413-f14f-430f-89a9-cd8b39d7ab03",
+            "block_name": "core\/paragraph",
+            "text_sha1": "ecbf5886e0880b192c900c4209808ad3b49be7aa"
+        }
+    ],
+    "uuid_preservation": [
+        "removed"
+    ]
+}

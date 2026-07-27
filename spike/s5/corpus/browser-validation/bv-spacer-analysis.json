@@ -1,0 +1,35 @@
+{
+    "post_id": 4934,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:44:05",
+    "content_bytes": 187,
+    "content_sha1": "102d2cbd41ef35079489380cd702626f16607680",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "48a430dd-c5ed-4bd4-9e3c-b0964bb79737",
+            "valid_uuid": true,
+            "block_name": "core\/spacer",
+            "text_sha1": "e4730e28f41343c5c0882062d3dd041840a96c82"
+        }
+    ],
+    "uuid_counts": {
+        "48a430dd-c5ed-4bd4-9e3c-b0964bb79737": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-spacer-baseline-post-4934.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "48a430dd-c5ed-4bd4-9e3c-b0964bb79737",
+            "block_name": "core\/spacer",
+            "text_sha1": "e4730e28f41343c5c0882062d3dd041840a96c82"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved"
+    ]
+}

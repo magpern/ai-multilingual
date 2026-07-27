@@ -1,0 +1,330 @@
+[
+  {
+    "slug": "bv-paragraph",
+    "title": "S5 BV \u2014 Paragraph",
+    "fixture": "core-paragraph.html",
+    "operation": "noop_save",
+    "post_id": 5055,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-paragraph-baseline-post-5055.html"
+  },
+  {
+    "slug": "bv-heading",
+    "title": "S5 BV \u2014 Heading",
+    "fixture": "core-heading.html",
+    "operation": "noop_save",
+    "post_id": 5057,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-heading-baseline-post-5057.html"
+  },
+  {
+    "slug": "bv-list",
+    "title": "S5 BV \u2014 List",
+    "fixture": "core-list.html",
+    "operation": "noop_save",
+    "post_id": 5059,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-list-baseline-post-5059.html"
+  },
+  {
+    "slug": "bv-buttons",
+    "title": "S5 BV \u2014 Buttons",
+    "fixture": "core-buttons.html",
+    "operation": "noop_save",
+    "post_id": 5061,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-buttons-baseline-post-5061.html"
+  },
+  {
+    "slug": "bv-group",
+    "title": "S5 BV \u2014 Group",
+    "fixture": "core-group.html",
+    "operation": "noop_save",
+    "post_id": 5063,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-group-baseline-post-5063.html"
+  },
+  {
+    "slug": "bv-columns",
+    "title": "S5 BV \u2014 Columns",
+    "fixture": "core-columns.html",
+    "operation": "noop_save",
+    "post_id": 5065,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-columns-baseline-post-5065.html"
+  },
+  {
+    "slug": "bv-quote",
+    "title": "S5 BV \u2014 Quote",
+    "fixture": "core-quote.html",
+    "operation": "noop_save",
+    "post_id": 5067,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-quote-baseline-post-5067.html"
+  },
+  {
+    "slug": "bv-separator",
+    "title": "S5 BV \u2014 Separator",
+    "fixture": "core-separator.html",
+    "operation": "noop_save",
+    "post_id": 5069,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-separator-baseline-post-5069.html"
+  },
+  {
+    "slug": "bv-html",
+    "title": "S5 BV \u2014 HTML",
+    "fixture": "core-html.html",
+    "operation": "noop_save",
+    "post_id": 5071,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-html-baseline-post-5071.html"
+  },
+  {
+    "slug": "bv-pullquote",
+    "title": "S5 BV \u2014 Pullquote",
+    "fixture": "core-pullquote.html",
+    "operation": "noop_save",
+    "post_id": 5073,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-pullquote-baseline-post-5073.html"
+  },
+  {
+    "slug": "bv-table",
+    "title": "S5 BV \u2014 Table",
+    "fixture": "core-table.html",
+    "operation": "noop_save",
+    "post_id": 5075,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-table-baseline-post-5075.html"
+  },
+  {
+    "slug": "bv-spacer",
+    "title": "S5 BV \u2014 Spacer",
+    "fixture": "core-spacer.html",
+    "operation": "noop_save",
+    "post_id": 5077,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-spacer-baseline-post-5077.html"
+  },
+  {
+    "slug": "bv-shortcode",
+    "title": "S5 BV \u2014 Shortcode",
+    "fixture": "core-shortcode.html",
+    "operation": "noop_save",
+    "post_id": 5079,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-shortcode-baseline-post-5079.html"
+  },
+  {
+    "slug": "bv-image",
+    "title": "S5 BV \u2014 Image",
+    "fixture": "core-image.html",
+    "operation": "noop_save",
+    "post_id": 5081,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-image-baseline-post-5081.html"
+  },
+  {
+    "slug": "bv-cover",
+    "title": "S5 BV \u2014 Cover",
+    "fixture": "core-cover.html",
+    "operation": "noop_save",
+    "post_id": 5083,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-cover-baseline-post-5083.html"
+  },
+  {
+    "slug": "bv-media-text",
+    "title": "S5 BV \u2014 Media text",
+    "fixture": "core-media-text.html",
+    "operation": "noop_save",
+    "post_id": 5085,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-media-text-baseline-post-5085.html"
+  },
+  {
+    "slug": "bv-noop-cycles",
+    "title": "S5 BV \u2014 No-op cycles",
+    "fixture": "operations-multi-paragraph.html",
+    "operation": "noop_save_x3",
+    "post_id": 5087,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-noop-cycles-baseline-post-5087.html"
+  },
+  {
+    "slug": "bv-nested",
+    "title": "S5 BV \u2014 Nested subtree",
+    "fixture": "nested-subtree.html",
+    "operation": "noop_save",
+    "post_id": 5089,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/bv-nested-baseline-post-5089.html"
+  },
+  {
+    "slug": "op-text-edit",
+    "title": "S5 Ops \u2014 Text edit",
+    "fixture": "core-paragraph.html",
+    "operation": "text_edit",
+    "post_id": 5091,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-text-edit-baseline-post-5091.html"
+  },
+  {
+    "slug": "op-full-rewrite",
+    "title": "S5 Ops \u2014 Full rewrite",
+    "fixture": "core-paragraph.html",
+    "operation": "full_rewrite",
+    "post_id": 5093,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-full-rewrite-baseline-post-5093.html"
+  },
+  {
+    "slug": "op-duplicate",
+    "title": "S5 Ops \u2014 Duplicate",
+    "fixture": "duplicate-single.html",
+    "operation": "duplicate_block",
+    "post_id": 5095,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-duplicate-baseline-post-5095.html"
+  },
+  {
+    "slug": "op-duplicate-button",
+    "title": "S5 Ops \u2014 Duplicate button",
+    "fixture": "core-buttons.html",
+    "operation": "duplicate_button",
+    "post_id": 5097,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-duplicate-button-baseline-post-5097.html"
+  },
+  {
+    "slug": "op-duplicate-nested",
+    "title": "S5 Ops \u2014 Duplicate nested subtree",
+    "fixture": "nested-subtree.html",
+    "operation": "duplicate_nested_subtree",
+    "post_id": 5099,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-duplicate-nested-baseline-post-5099.html"
+  },
+  {
+    "slug": "op-copy-paste-same",
+    "title": "S5 Ops \u2014 Copy paste same post",
+    "fixture": "core-paragraph.html",
+    "operation": "copy_paste_same_post",
+    "post_id": 5101,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-copy-paste-same-baseline-post-5101.html"
+  },
+  {
+    "slug": "op-reorder-adjacent",
+    "title": "S5 Ops \u2014 Reorder adjacent",
+    "fixture": "operations-multi-paragraph.html",
+    "operation": "reorder_adjacent",
+    "post_id": 5103,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-reorder-adjacent-baseline-post-5103.html"
+  },
+  {
+    "slug": "op-reorder-nonadjacent",
+    "title": "S5 Ops \u2014 Reorder non-adjacent",
+    "fixture": "operations-multi-paragraph.html",
+    "operation": "reorder_nonadjacent",
+    "post_id": 5105,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-reorder-nonadjacent-baseline-post-5105.html"
+  },
+  {
+    "slug": "op-wrap-group",
+    "title": "S5 Ops \u2014 Wrap in group",
+    "fixture": "core-paragraph.html",
+    "operation": "wrap_in_group",
+    "post_id": 5107,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-wrap-group-baseline-post-5107.html"
+  },
+  {
+    "slug": "op-unwrap-group",
+    "title": "S5 Ops \u2014 Unwrap from group",
+    "fixture": "core-group.html",
+    "operation": "unwrap_from_group",
+    "post_id": 5109,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-unwrap-group-baseline-post-5109.html"
+  },
+  {
+    "slug": "op-move-into-columns",
+    "title": "S5 Ops \u2014 Move between columns",
+    "fixture": "core-columns.html",
+    "operation": "move_between_columns",
+    "post_id": 5111,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-move-into-columns-baseline-post-5111.html"
+  },
+  {
+    "slug": "op-transform-p2h",
+    "title": "S5 Ops \u2014 Transform paragraph to heading",
+    "fixture": "core-paragraph.html",
+    "operation": "transform_p2h",
+    "post_id": 5113,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-transform-p2h-baseline-post-5113.html"
+  },
+  {
+    "slug": "op-transform-p2q",
+    "title": "S5 Ops \u2014 Transform paragraph to quote",
+    "fixture": "core-paragraph.html",
+    "operation": "transform_p2q",
+    "post_id": 5115,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-transform-p2q-baseline-post-5115.html"
+  },
+  {
+    "slug": "op-transform-h2p",
+    "title": "S5 Ops \u2014 Transform heading to paragraph",
+    "fixture": "core-heading.html",
+    "operation": "transform_h2p",
+    "post_id": 5117,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-transform-h2p-baseline-post-5117.html"
+  },
+  {
+    "slug": "op-split",
+    "title": "S5 Ops \u2014 Split paragraph",
+    "fixture": "core-paragraph.html",
+    "operation": "split_paragraph",
+    "post_id": 5119,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-split-baseline-post-5119.html"
+  },
+  {
+    "slug": "op-merge",
+    "title": "S5 Ops \u2014 Merge paragraphs",
+    "fixture": "operations-multi-paragraph.html",
+    "operation": "merge_paragraphs",
+    "post_id": 5121,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-merge-baseline-post-5121.html"
+  },
+  {
+    "slug": "op-undo-redo",
+    "title": "S5 Ops \u2014 Undo redo",
+    "fixture": "core-paragraph.html",
+    "operation": "undo_redo_text_edit",
+    "post_id": 5123,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-undo-redo-baseline-post-5123.html"
+  },
+  {
+    "slug": "op-delete-undo",
+    "title": "S5 Ops \u2014 Delete then undo",
+    "fixture": "core-paragraph.html",
+    "operation": "delete_then_undo",
+    "post_id": 5125,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/op-delete-undo-baseline-post-5125.html"
+  },
+  {
+    "slug": "dup-paragraph",
+    "title": "S5 Dup \u2014 Paragraph",
+    "fixture": "duplicate-single.html",
+    "operation": "duplicate_block",
+    "post_id": 5127,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/dup-paragraph-baseline-post-5127.html"
+  },
+  {
+    "slug": "dup-button",
+    "title": "S5 Dup \u2014 Button",
+    "fixture": "core-buttons.html",
+    "operation": "duplicate_button",
+    "post_id": 5129,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/dup-button-baseline-post-5129.html"
+  },
+  {
+    "slug": "dup-group-subtree",
+    "title": "S5 Dup \u2014 Group subtree",
+    "fixture": "nested-subtree.html",
+    "operation": "duplicate_nested_subtree",
+    "post_id": 5131,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/dup-group-subtree-baseline-post-5131.html"
+  },
+  {
+    "slug": "dup-identical-content",
+    "title": "S5 Dup \u2014 Identical content",
+    "fixture": "duplicate-single.html",
+    "operation": "duplicate_block",
+    "post_id": 5133,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/dup-identical-content-baseline-post-5133.html"
+  },
+  {
+    "slug": "dup-modified-content",
+    "title": "S5 Dup \u2014 Modified content",
+    "fixture": "duplicate-single.html",
+    "operation": "duplicate_then_edit_copy",
+    "post_id": 5135,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/dup-modified-content-baseline-post-5135.html"
+  }
+]

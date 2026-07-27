@@ -1,0 +1,35 @@
+{
+    "post_id": 4916,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-26 23:36:05",
+    "content_bytes": 180,
+    "content_sha1": "9260cfb9abb1f257c4a34e536a5a3ac502ed4fa2",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "a4b16d3b-4cde-41d4-8f46-06b601b95d8e",
+            "valid_uuid": true,
+            "block_name": "core\/list",
+            "text_sha1": "2c6489fe968fba93248bd32416423adf69b354d5"
+        }
+    ],
+    "uuid_counts": {
+        "a4b16d3b-4cde-41d4-8f46-06b601b95d8e": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/bv-list-baseline-post-4916.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "a4b16d3b-4cde-41d4-8f46-06b601b95d8e",
+            "block_name": "core\/list",
+            "text_sha1": "2c6489fe968fba93248bd32416423adf69b354d5"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved"
+    ]
+}

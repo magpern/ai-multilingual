@@ -1,0 +1,35 @@
+{
+    "post_id": 5020,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-27 00:17:57",
+    "content_bytes": 227,
+    "content_sha1": "12419608d3b65dbb50de24cce11edb8663a325f4",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "a69fc229-6988-4708-b3bc-b0f2ecb2256a",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "506e0a2c1bcfc59d1e8c690974a577d66a25436f"
+        }
+    ],
+    "uuid_counts": {
+        "a69fc229-6988-4708-b3bc-b0f2ecb2256a": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/spike\/s5\/corpus\/browser-validation\/tp-woo-account-noop-baseline-post-5020.html",
+    "baseline_post_id": null,
+    "content_byte_diff": -1,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "uuid": "a69fc229-6988-4708-b3bc-b0f2ecb2256a",
+            "block_name": "core\/paragraph",
+            "text_sha1": "506e0a2c1bcfc59d1e8c690974a577d66a25436f"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved"
+    ]
+}

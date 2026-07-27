@@ -1,0 +1,34 @@
+[
+  {
+    "slug": "tp-rankmath-toc-noop",
+    "title": "S5 3P \u2014 Rank Math TOC noop",
+    "fixture": "thirdparty-rankmath-toc.html",
+    "operation": "noop_save",
+    "post_id": 5016,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/tp-rankmath-toc-noop-baseline-post-5016.html"
+  },
+  {
+    "slug": "tp-rankmath-toc-dup",
+    "title": "S5 3P \u2014 Rank Math TOC duplicate",
+    "fixture": "thirdparty-rankmath-toc.html",
+    "operation": "duplicate_thirdparty_toc",
+    "post_id": 5018,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/tp-rankmath-toc-dup-baseline-post-5018.html"
+  },
+  {
+    "slug": "tp-woo-account-noop",
+    "title": "S5 3P \u2014 Woo customer-account noop",
+    "fixture": "thirdparty-woo-customer-account.html",
+    "operation": "noop_save",
+    "post_id": 5020,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/tp-woo-account-noop-baseline-post-5020.html"
+  },
+  {
+    "slug": "tp-woo-account-dup",
+    "title": "S5 3P \u2014 Woo customer-account duplicate",
+    "fixture": "thirdparty-woo-customer-account.html",
+    "operation": "duplicate_thirdparty_woo",
+    "post_id": 5022,
+    "baseline_container_path": "/aiml/spike/s5/corpus/browser-validation/tp-woo-account-dup-baseline-post-5022.html"
+  }
+]

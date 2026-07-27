@@ -1,0 +1,21 @@
+{
+    "post_id": 5075,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-07-27 01:36:24",
+    "content_bytes": 225,
+    "content_sha1": "33053f7d379fdabad8777a3e2175781f7bfaec62",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "uuid": "60692d9e-7396-4e68-b642-677946bc8cec",
+            "valid_uuid": true,
+            "block_name": "core\/table",
+            "text_sha1": "440d95cd34bb09e2543ce2cd102862567f3c2a95"
+        }
+    ],
+    "uuid_counts": {
+        "60692d9e-7396-4e68-b642-677946bc8cec": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true
+}
