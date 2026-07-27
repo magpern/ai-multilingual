@@ -12,6 +12,7 @@ namespace AIMultilingual\Tests\Integration;
 use AIMultilingual\Block\BlockIdentityLogger;
 use AIMultilingual\Block\BlockMetricsAggregator;
 use AIMultilingual\Block\Contract;
+use AIMultilingual\Block\FeatureFlags;
 use AIMultilingual\Settings;
 use AIMultilingual\Translation\BlockFrontendRenderLogger;
 
@@ -33,6 +34,22 @@ final class BlockMetricsIntegrationTest extends AimlTestCase {
 		$this->metrics->reset();
 
 		parent::tearDown();
+	}
+
+	public function test_hook_registration_accumulates_rejected_flag_combo_events(): void {
+		do_action(
+			'aiml_settings_operational_log',
+			\AIMultilingual\SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED,
+			array(
+				'event'         => 'flag_combo_rejected',
+				'dropped_flags' => array( FeatureFlags::INJECTION ),
+			)
+		);
+
+		$this->assertSame(
+			1,
+			$this->metrics->snapshot()->counters[ BlockMetricsAggregator::COUNTER_FLAG_COMBINATIONS_REJECTED ]
+		);
 	}
 
 	public function test_hook_registration_accumulates_identity_events(): void {

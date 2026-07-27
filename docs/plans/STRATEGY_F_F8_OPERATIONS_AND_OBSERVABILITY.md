@@ -238,7 +238,7 @@ All events emit via `do_action` hooks; **never log body text, translated text, o
 | Issue | Resolution in F8 plan |
 |---|---|
 | Master plan §14 lists `uuid_generated` | Code uses `uuid_created` — **standardize on code names** |
-| No `flag_combo_rejected` event | **Add in F8 impl** on `Settings::save()` when `has_prohibited_combination()` |
+| No `flag_combo_rejected` event | **Implemented in F8 WP5** via `aiml_settings_operational_log` |
 | No `registration_compat_mode` event | Defer; health check covers state |
 | No render latency field | **Add `elapsed_ms` to render_complete/failed** in F8 impl |
 | No cross-post leakage event | Lookup rejects wrong `source_id` silently (`++$rejected`); **add `cross_post_row_rejected` counter** in metrics aggregator |
@@ -260,6 +260,7 @@ All events emit via `do_action` hooks; **never log body text, translated text, o
 | `aiml_block_frontend_render_log` | Frontend render counters + timing |
 | `aiml_block_migration_log` | Migration counters |
 | `aiml_settings_flag_changed` | `feature_flags_changed` |
+| `aiml_settings_operational_log` (`flag_combo_rejected`) | `flag_combinations_rejected` |
 
 F5 proof hook `aiml_block_render_log` is **not** aggregated in WP4 (frontend path only).
 
@@ -288,6 +289,7 @@ F5 proof hook `aiml_block_render_log` is **not** aggregated in WP4 (frontend pat
 | `migrations_failed` | `block_migration_post_failed` |
 | `concurrent_modifications` | `block_migration_concurrent_modification` |
 | `feature_flags_changed` | `aiml_settings_flag_changed` |
+| `flag_combinations_rejected` | `aiml_settings_operational_log` / `flag_combo_rejected` |
 
 ### 4.3 Render timing
 
@@ -525,7 +527,44 @@ docker compose run --rm wpcli wp aiml block migrate --post-id=123 --format=json
 | `timestamp` | int | Unix timestamp from `current_time( 'timestamp' )` |
 | `source` | string | Change origin; admin saves use `admin_settings` |
 
-One action fires per changed production flag. No persistence in WP1. The `flag_combo_rejected` structured log event remains deferred to WP5.
+One action fires per changed production flag. No persistence in WP1. The `flag_combo_rejected` structured log event is implemented in WP5 (see §7.1).
+
+### 7.1 Rejected flag-combination audit (`flag_combo_rejected`)
+
+**Hook:** `aiml_settings_operational_log` (event name as first argument).
+
+**Emission:** Exactly once per rejected admin settings save when submitted production flags differ from the previous stored state and dependency validation drops one or more requested flags. Not emitted for valid combinations, unchanged valid submissions, or saves outside the admin settings sanitize callback.
+
+**Payload contract:**
+
+| Field | Type | Description |
+|---|---|---|
+| `event` | string | Always `flag_combo_rejected` |
+| `submitted` | array<string, bool> | Production-flag states the admin requested |
+| `effective` | array<string, bool> | Production-flag states after dependency validation |
+| `dropped_flags` | list<string> | Flag keys removed by validation |
+| `prerequisite_map` | array<string, string> | Dropped flag → first missing prerequisite key |
+| `user_id` | int | Current user ID at save time (0 if unavailable) |
+| `timestamp` | int | Unix timestamp |
+| `source` | string | `admin_settings` |
+
+The admin notice transient uses the same normalized payload fields (`dropped`, `submitted`, `effective`) from `FeatureFlags::flag_rejection_payload()`.
+
+**Metrics:** Request-scoped counter `flag_combinations_rejected` increments once per rejected submission.
+
+### 7.2 Frontend rendering kill switch
+
+**Kill switch:** `block_frontend_rendering_enabled = false` (valid when upstream prerequisites remain enabled).
+
+**Contract when disabled:**
+
+- `BlockRenderGate` denies with `frontend_rendering_disabled` before Store lookup or block tree mutation.
+- Frontend renderer returns canonical `post_content` unchanged.
+- No translation row writes, no post writes, no UUID injection/repair on the render path.
+- Structured event: `block_render_gate_denied` (not `block_frontend_render_failed`).
+- Disabling via admin settings emits `aiml_settings_flag_changed` only (`old=true`, `new=false`); no `flag_combo_rejected`.
+
+**Rollback verification:** Integration tests confirm immediate source fallback, preserved translation rows, and restored translated output when re-enabled without migration or re-extraction.
 
 ---
 
@@ -593,10 +632,10 @@ Estimated ~1 reviewable PR:
 2. **`wp aiml block status`** command + `BlockHealthService`
 3. **`BlockMetricsAggregator`** — hook listener, in-memory counters
 4. **`aiml_settings_flag_changed`** audit action
-5. **`flag_combo_rejected` log** on prohibited save attempt
-6. **Render `elapsed_ms`** in frontend logger
-7. **Integration tests** — settings dependency UI, status command, kill switch, metrics hook
-8. **Ops:** Execute live CLI validation on dev.biopentra.eu; log in `F8_CLI_VALIDATION_LOG.md`
+5. **`flag_combo_rejected` log** on prohibited save attempt — **WP5 complete**
+6. **Render `elapsed_ms`** in frontend logger — **WP4 complete**
+7. **Integration tests** — settings dependency UI, status command, kill switch, metrics hook — **WP5 kill-switch tests added**
+8. **Ops:** Execute live CLI validation on dev.biopentra.eu; log in `F8_CLI_VALIDATION_LOG.md` — **WP6**
 
 ### Deferred to F9
 - Browser sign-off (Playwright)

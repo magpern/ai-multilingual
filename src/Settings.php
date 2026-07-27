@@ -244,6 +244,23 @@ final class Settings {
 	}
 
 	/**
+	 * Emits {@see SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED} once per rejected save.
+	 *
+	 * @param array<string, mixed> $payload Bounded rejection audit payload.
+	 */
+	public static function emit_flag_combo_rejected( array $payload ): void {
+		if ( ! function_exists( 'do_action' ) ) {
+			return;
+		}
+
+		$logger = new SettingsOperationalLogger();
+		$logger->log(
+			SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED,
+			$payload
+		);
+	}
+
+	/**
 	 * Whether uninstall should remove all plugin data.
 	 */
 	public function remove_data_on_uninstall(): bool {

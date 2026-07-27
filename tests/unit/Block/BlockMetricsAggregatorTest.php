@@ -147,6 +147,30 @@ final class BlockMetricsAggregatorTest extends TestCase {
 		$this->assertSame( 1, $this->metrics->snapshot()->counters[ BlockMetricsAggregator::COUNTER_FEATURE_FLAGS_CHANGED ] );
 	}
 
+	public function test_flag_combinations_rejected_counter(): void {
+		$this->metrics->on_settings_operational_log(
+			\AIMultilingual\SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED,
+			array(
+				'event'         => 'flag_combo_rejected',
+				'dropped_flags' => array( 'block_uuid_injection_enabled' ),
+			)
+		);
+
+		$this->assertSame(
+			1,
+			$this->metrics->snapshot()->counters[ BlockMetricsAggregator::COUNTER_FLAG_COMBINATIONS_REJECTED ]
+		);
+	}
+
+	public function test_malformed_rejected_event_is_ignored(): void {
+		$this->metrics->on_settings_operational_log( 123, array() );
+
+		$snapshot = $this->metrics->snapshot();
+
+		$this->assertSame( 0, $snapshot->counters[ BlockMetricsAggregator::COUNTER_FLAG_COMBINATIONS_REJECTED ] );
+		$this->assertSame( 1, $snapshot->ignored_event_count );
+	}
+
 	public function test_malformed_payloads_are_ignored_safely(): void {
 		$this->metrics->on_identity_log( 123, array() );
 		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_BLOCK_EXTRACTED, 'bad' );

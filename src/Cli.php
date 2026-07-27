@@ -546,6 +546,7 @@ final class Cli {
 			),
 			'settings'   => array(
 				BlockMetricsAggregator::COUNTER_FEATURE_FLAGS_CHANGED,
+				BlockMetricsAggregator::COUNTER_FLAG_COMBINATIONS_REJECTED,
 			),
 		);
 	}

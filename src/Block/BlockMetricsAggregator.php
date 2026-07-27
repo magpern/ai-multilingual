@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Block;
 
+use AIMultilingual\SettingsOperationalLogger;
 use AIMultilingual\Translation\BlockFrontendRenderLogger;
 
 /**
@@ -16,27 +17,28 @@ use AIMultilingual\Translation\BlockFrontendRenderLogger;
  */
 final class BlockMetricsAggregator {
 
-	public const COUNTER_UUID_CREATED             = 'uuid_created';
-	public const COUNTER_MALFORMED_UUID_DETECTED  = 'malformed_uuid_detected';
-	public const COUNTER_DUPLICATE_UUID_DETECTED  = 'duplicate_uuid_detected';
-	public const COUNTER_UUID_REPAIRED            = 'uuid_repaired';
-	public const COUNTER_UUID_REPAIR_FAILED       = 'uuid_repair_failed';
-	public const COUNTER_EXTRACTION_STARTED       = 'extraction_started';
-	public const COUNTER_EXTRACTION_COMPLETED     = 'extraction_completed';
-	public const COUNTER_FIELDS_EXTRACTED         = 'fields_extracted';
-	public const COUNTER_FIELDS_SKIPPED           = 'fields_skipped';
-	public const COUNTER_EXTRACTION_FAILED        = 'extraction_failed';
-	public const COUNTER_RENDER_ATTEMPTED         = 'render_attempted';
-	public const COUNTER_RENDER_COMPLETED         = 'render_completed';
-	public const COUNTER_RENDER_SKIPPED           = 'render_skipped';
-	public const COUNTER_RENDER_FAILED            = 'render_failed';
-	public const COUNTER_POSTS_SCANNED            = 'posts_scanned';
-	public const COUNTER_POSTS_MIGRATED           = 'posts_migrated';
-	public const COUNTER_POSTS_ALREADY_COMPLIANT  = 'posts_already_compliant';
-	public const COUNTER_POSTS_SKIPPED            = 'posts_skipped';
-	public const COUNTER_MIGRATIONS_FAILED        = 'migrations_failed';
-	public const COUNTER_CONCURRENT_MODIFICATIONS = 'concurrent_modifications';
-	public const COUNTER_FEATURE_FLAGS_CHANGED    = 'feature_flags_changed';
+	public const COUNTER_UUID_CREATED               = 'uuid_created';
+	public const COUNTER_MALFORMED_UUID_DETECTED    = 'malformed_uuid_detected';
+	public const COUNTER_DUPLICATE_UUID_DETECTED    = 'duplicate_uuid_detected';
+	public const COUNTER_UUID_REPAIRED              = 'uuid_repaired';
+	public const COUNTER_UUID_REPAIR_FAILED         = 'uuid_repair_failed';
+	public const COUNTER_EXTRACTION_STARTED         = 'extraction_started';
+	public const COUNTER_EXTRACTION_COMPLETED       = 'extraction_completed';
+	public const COUNTER_FIELDS_EXTRACTED           = 'fields_extracted';
+	public const COUNTER_FIELDS_SKIPPED             = 'fields_skipped';
+	public const COUNTER_EXTRACTION_FAILED          = 'extraction_failed';
+	public const COUNTER_RENDER_ATTEMPTED           = 'render_attempted';
+	public const COUNTER_RENDER_COMPLETED           = 'render_completed';
+	public const COUNTER_RENDER_SKIPPED             = 'render_skipped';
+	public const COUNTER_RENDER_FAILED              = 'render_failed';
+	public const COUNTER_POSTS_SCANNED              = 'posts_scanned';
+	public const COUNTER_POSTS_MIGRATED             = 'posts_migrated';
+	public const COUNTER_POSTS_ALREADY_COMPLIANT    = 'posts_already_compliant';
+	public const COUNTER_POSTS_SKIPPED              = 'posts_skipped';
+	public const COUNTER_MIGRATIONS_FAILED          = 'migrations_failed';
+	public const COUNTER_CONCURRENT_MODIFICATIONS   = 'concurrent_modifications';
+	public const COUNTER_FEATURE_FLAGS_CHANGED      = 'feature_flags_changed';
+	public const COUNTER_FLAG_COMBINATIONS_REJECTED = 'flag_combinations_rejected';
 
 	/**
 	 * In-process counter values keyed by stable metric name.
@@ -122,6 +124,7 @@ final class BlockMetricsAggregator {
 			self::COUNTER_MIGRATIONS_FAILED,
 			self::COUNTER_CONCURRENT_MODIFICATIONS,
 			self::COUNTER_FEATURE_FLAGS_CHANGED,
+			self::COUNTER_FLAG_COMBINATIONS_REJECTED,
 		);
 	}
 
@@ -140,6 +143,7 @@ final class BlockMetricsAggregator {
 		add_action( 'aiml_block_frontend_render_log', array( $this, 'on_frontend_render_log' ), 10, 2 );
 		add_action( 'aiml_block_migration_log', array( $this, 'on_migration_log' ), 10, 2 );
 		add_action( 'aiml_settings_flag_changed', array( $this, 'on_flag_changed' ), 10, 1 );
+		add_action( 'aiml_settings_operational_log', array( $this, 'on_settings_operational_log' ), 10, 2 );
 	}
 
 	/**
@@ -319,6 +323,24 @@ final class BlockMetricsAggregator {
 		}
 
 		$this->increment( self::COUNTER_FEATURE_FLAGS_CHANGED );
+	}
+
+	/**
+	 * Handles settings operational log events.
+	 *
+	 * @param mixed $event   Event name.
+	 * @param mixed $context Event context.
+	 */
+	public function on_settings_operational_log( $event, $context ): void {
+		if ( ! is_string( $event ) || ! is_array( $context ) ) {
+			$this->ignore_event();
+
+			return;
+		}
+
+		if ( SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED === $event ) {
+			$this->increment( self::COUNTER_FLAG_COMBINATIONS_REJECTED );
+		}
 	}
 
 	/**

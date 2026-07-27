@@ -155,9 +155,34 @@ final class SettingsPage {
 		$previous = Settings::sanitize( get_option( Settings::OPTION, Settings::defaults() ) );
 		Settings::emit_flag_change_audit( $previous, $clean, 'admin_settings' );
 
-		$this->maybe_queue_flag_rejection_notice( $raw, $clean );
+		$this->handle_strategy_f_submission( $raw, $clean, $previous );
 
 		return $clean;
+	}
+
+	/**
+	 * Records rejected Strategy F flag combinations and queues the admin notice.
+	 *
+	 * @param array<string, mixed> $raw      Raw submitted settings.
+	 * @param array<string, mixed> $clean    Sanitized settings.
+	 * @param array<string, mixed> $previous Sanitized settings before save.
+	 */
+	private function handle_strategy_f_submission( array $raw, array $clean, array $previous ): void {
+		if ( ! FeatureFlags::production_flags_submission_changed( $raw, $previous ) ) {
+			$this->clear_flag_rejection_notice();
+
+			return;
+		}
+
+		$payload = FeatureFlags::flag_rejection_payload( $raw, $clean );
+		if ( null === $payload ) {
+			$this->clear_flag_rejection_notice();
+
+			return;
+		}
+
+		Settings::emit_flag_combo_rejected( $payload );
+		$this->queue_flag_rejection_notice( $payload );
 	}
 
 	// -- Screens --
@@ -644,13 +669,10 @@ final class SettingsPage {
 	}
 
 	/**
-	 * Queues an admin notice when submitted production flags were normalized away.
-	 *
-	 * @param array<string, mixed> $raw   Raw submitted settings.
-	 * @param array<string, mixed> $clean Sanitized settings.
+	 * Clears any queued Strategy F rejection notice for the current user.
 	 */
-	private function maybe_queue_flag_rejection_notice( array $raw, array $clean ): void {
-		if ( ! function_exists( 'get_current_user_id' ) || ! function_exists( 'set_transient' ) ) {
+	private function clear_flag_rejection_notice(): void {
+		if ( ! function_exists( 'get_current_user_id' ) || ! function_exists( 'delete_transient' ) ) {
 			return;
 		}
 
@@ -659,27 +681,31 @@ final class SettingsPage {
 			return;
 		}
 
-		$submitted = FeatureFlags::production_flags_from_raw( $raw );
-		$dropped   = FeatureFlags::flags_dropped_by_validation( $submitted );
+		delete_transient( self::FLAG_NOTICE_TRANSIENT . '_' . $user_id );
+	}
 
-		if ( array() === $dropped ) {
-			delete_transient( self::FLAG_NOTICE_TRANSIENT . '_' . $user_id );
-
+	/**
+	 * Queues an admin notice when submitted production flags were normalized away.
+	 *
+	 * @param array<string, mixed> $payload Shared rejection audit payload.
+	 */
+	private function queue_flag_rejection_notice( array $payload ): void {
+		if ( ! function_exists( 'get_current_user_id' ) || ! function_exists( 'set_transient' ) ) {
 			return;
 		}
 
-		$effective = array();
-		foreach ( FeatureFlags::PRODUCTION_FLAGS as $flag ) {
-			$effective[ $flag ] = ! empty( $clean[ $flag ] );
+		$user_id = (int) get_current_user_id();
+		if ( $user_id <= 0 || empty( $payload['dropped_flags'] ) ) {
+			return;
 		}
 
 		set_transient(
 			self::FLAG_NOTICE_TRANSIENT . '_' . $user_id,
 			array(
 				'id'        => self::FLAG_NOTICE_ID,
-				'dropped'   => $dropped,
-				'submitted' => $submitted,
-				'effective' => $effective,
+				'dropped'   => $payload['dropped_flags'],
+				'submitted' => $payload['submitted'],
+				'effective' => $payload['effective'],
 			),
 			MINUTE_IN_SECONDS
 		);

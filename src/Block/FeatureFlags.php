@@ -9,7 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Block;
 
-use AIMultilingual\Settings;
+use AIMultilingual\SettingsOperationalLogger;
 
 /**
  * Validates Strategy F flag combinations.
@@ -122,6 +122,98 @@ final class FeatureFlags {
 		}
 
 		return $dropped;
+	}
+
+	/**
+	 * Whether submitted production-flag checkboxes differ from stored settings.
+	 *
+	 * @param array<string, mixed> $raw      Raw settings form post body.
+	 * @param array<string, mixed> $previous Sanitized settings before save.
+	 */
+	public static function production_flags_submission_changed( array $raw, array $previous ): bool {
+		$submitted = self::production_flags_from_raw( $raw );
+
+		foreach ( self::PRODUCTION_FLAGS as $flag ) {
+			$old = self::is_enabled( $previous, $flag );
+			$new = $submitted[ $flag ];
+
+			if ( $old !== $new ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Builds a bounded audit payload when submitted production flags were normalized away.
+	 *
+	 * @param array<string, mixed> $raw   Raw settings form post body.
+	 * @param array<string, mixed> $clean Sanitized settings after dependency validation.
+	 * @return array<string, mixed>|null Audit payload, or null when no rejection occurred.
+	 */
+	public static function flag_rejection_payload( array $raw, array $clean ): ?array {
+		$submitted = self::production_flags_from_raw( $raw );
+		$dropped   = self::flags_dropped_by_validation( $submitted );
+
+		if ( array() === $dropped ) {
+			return null;
+		}
+
+		$submitted_states = array();
+		$effective_states = array();
+		$prerequisite_map = array();
+
+		foreach ( self::PRODUCTION_FLAGS as $flag ) {
+			$submitted_states[ $flag ] = $submitted[ $flag ];
+			$effective_states[ $flag ] = self::is_enabled( $clean, $flag );
+		}
+
+		foreach ( $dropped as $flag ) {
+			$prerequisite_map[ $flag ] = self::missing_prerequisite_key( $flag, $submitted_states );
+		}
+
+		return array(
+			'event'            => SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED,
+			'submitted'        => $submitted_states,
+			'effective'        => $effective_states,
+			'dropped_flags'    => $dropped,
+			'prerequisite_map' => $prerequisite_map,
+			'user_id'          => function_exists( 'get_current_user_id' ) ? (int) get_current_user_id() : 0,
+			'timestamp'        => time(),
+			'source'           => 'admin_settings',
+		);
+	}
+
+	/**
+	 * Returns the first missing prerequisite for one dropped production flag.
+	 *
+	 * @param string              $flag      Dropped production flag key.
+	 * @param array<string, bool> $submitted Submitted production-flag intent map.
+	 */
+	public static function missing_prerequisite_key( string $flag, array $submitted ): string {
+		switch ( $flag ) {
+			case self::INJECTION:
+				return self::REGISTRATION;
+			case self::EXTRACTION:
+				if ( empty( $submitted[ self::REGISTRATION ] ) ) {
+					return self::REGISTRATION;
+				}
+
+				return self::INJECTION;
+			case self::FRONTEND_RENDER:
+				if ( empty( $submitted[ self::REGISTRATION ] ) ) {
+					return self::REGISTRATION;
+				}
+
+				if ( empty( $submitted[ self::INJECTION ] ) ) {
+					return self::INJECTION;
+				}
+
+				return self::EXTRACTION;
+			default:
+				return '';
+		}
 	}
 
 	/**

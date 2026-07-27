@@ -150,6 +150,196 @@ final class StrategyFSettingsTest extends AimlTestCase {
 		$this->assertContains( FeatureFlags::INJECTION, $payload['dropped'] );
 	}
 
+	public function test_invalid_combination_emits_flag_combo_rejected_once(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		update_option( Settings::OPTION, Settings::defaults() );
+
+		$events = array();
+		add_action(
+			'aiml_settings_operational_log',
+			static function ( string $event, array $context ) use ( &$events ): void {
+				$events[] = array(
+					'event'   => $event,
+					'context' => $context,
+				);
+			},
+			10,
+			2
+		);
+
+		$this->page->sanitize_settings(
+			array(
+				FeatureFlags::FRONTEND_RENDER => '1',
+			)
+		);
+
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'flag_combo_rejected', $events[0]['event'] );
+	}
+
+	public function test_valid_combination_emits_no_flag_combo_rejected(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$events = array();
+		add_action(
+			'aiml_settings_operational_log',
+			static function ( string $event, array $context ) use ( &$events ): void {
+				$events[] = array(
+					'event'   => $event,
+					'context' => $context,
+				);
+			},
+			10,
+			2
+		);
+
+		$this->page->sanitize_settings(
+			array(
+				FeatureFlags::REGISTRATION => '1',
+				FeatureFlags::INJECTION    => '1',
+				FeatureFlags::EXTRACTION   => '1',
+			)
+		);
+
+		$this->assertSame( array(), $events );
+	}
+
+	public function test_unchanged_valid_values_emit_no_flag_combo_rejected(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		update_option(
+			Settings::OPTION,
+			Settings::sanitize(
+				array(
+					FeatureFlags::REGISTRATION => true,
+					FeatureFlags::INJECTION    => true,
+				)
+			)
+		);
+
+		$events = array();
+		add_action(
+			'aiml_settings_operational_log',
+			static function ( string $event, array $context ) use ( &$events ): void {
+				$events[] = array(
+					'event'   => $event,
+					'context' => $context,
+				);
+			},
+			10,
+			2
+		);
+
+		$this->page->sanitize_settings(
+			array(
+				FeatureFlags::REGISTRATION => '1',
+				FeatureFlags::INJECTION    => '1',
+			)
+		);
+
+		$this->assertSame( array(), $events );
+	}
+
+	public function test_flag_combo_rejected_payload_contains_required_fields(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		update_option( Settings::OPTION, Settings::defaults() );
+
+		$payload = null;
+		add_action(
+			'aiml_settings_operational_log',
+			static function ( string $event, array $context ) use ( &$payload ): void {
+				if ( 'flag_combo_rejected' === $event ) {
+					$payload = $context;
+				}
+			},
+			10,
+			2
+		);
+
+		$this->page->sanitize_settings(
+			array(
+				FeatureFlags::INJECTION => '1',
+			)
+		);
+
+		$this->assertIsArray( $payload );
+		$this->assertSame( 'flag_combo_rejected', $payload['event'] );
+		$this->assertTrue( $payload['submitted'][ FeatureFlags::INJECTION ] );
+		$this->assertFalse( $payload['effective'][ FeatureFlags::INJECTION ] );
+		$this->assertContains( FeatureFlags::INJECTION, $payload['dropped_flags'] );
+		$this->assertSame( FeatureFlags::REGISTRATION, $payload['prerequisite_map'][ FeatureFlags::INJECTION ] );
+		$this->assertSame( $admin_id, $payload['user_id'] );
+		$this->assertIsInt( $payload['timestamp'] );
+		$this->assertSame( 'admin_settings', $payload['source'] );
+	}
+
+	public function test_flag_combo_rejected_payload_excludes_request_secrets(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$payload = null;
+		add_action(
+			'aiml_settings_operational_log',
+			static function ( string $event, array $context ) use ( &$payload ): void {
+				if ( 'flag_combo_rejected' === $event ) {
+					$payload = $context;
+				}
+			},
+			10,
+			2
+		);
+
+		$this->page->sanitize_settings(
+			array(
+				FeatureFlags::FRONTEND_RENDER => '1',
+				'_wpnonce'                    => 'secret-nonce-value',
+				'option_page'                 => 'aiml_settings_group',
+			)
+		);
+
+		$encoded = json_encode( $payload ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		$this->assertIsString( $encoded );
+		$this->assertStringNotContainsString( 'secret-nonce-value', $encoded );
+		$this->assertArrayNotHasKey( '_wpnonce', $payload );
+	}
+
+	public function test_notice_and_event_share_normalized_rejection_result(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$event_payload = null;
+		add_action(
+			'aiml_settings_operational_log',
+			static function ( string $event, array $context ) use ( &$event_payload ): void {
+				if ( 'flag_combo_rejected' === $event ) {
+					$event_payload = $context;
+				}
+			},
+			10,
+			2
+		);
+
+		$this->page->sanitize_settings(
+			array(
+				FeatureFlags::EXTRACTION => '1',
+			)
+		);
+
+		$notice_payload = get_transient( SettingsPage::FLAG_NOTICE_TRANSIENT . '_' . $admin_id );
+
+		$this->assertIsArray( $event_payload );
+		$this->assertIsArray( $notice_payload );
+		$this->assertSame( $event_payload['dropped_flags'], $notice_payload['dropped'] );
+		$this->assertSame( $event_payload['submitted'], $notice_payload['submitted'] );
+		$this->assertSame( $event_payload['effective'], $notice_payload['effective'] );
+	}
+
 	public function test_flag_audit_action_fires_once_per_changed_flag(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
