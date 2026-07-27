@@ -74,7 +74,7 @@ all production prerequisites pass:
    registered** in block metadata; this is evidence *for* production
    registration, not evidence against Strategy F.
 2. ADR-0013 attribute contract ratified: `aimlBlockId`, RFC 4122 v4,
-   segment key `b:<uuid>:content`.
+   segment key grammar `b:<uuid>:<field>` (initial field: `content` only).
 3. Save-time UUID injection implemented as editor/server filter (not manual
    WP-CLI backfill), **and** `aimlBlockId` registered via
    `block_type_metadata`/`block.json` for every eligible core and supported
@@ -163,16 +163,41 @@ equivalent heuristics (see cost analysis in S5 report).
 Production implementation plan (planning only, no code):
 [`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md).
 
+**Baselines:** spike evidence `42237bd`; production-plan baseline `ea5af19`
+(amended on `spike/s5` before F1).
+
 - [x] Extended browser validation matrix (Phase 3 — Tier 1/2/3 mandatory
   operations, duplicate repair against real browser content, concurrent-edit
   simulation, autosave/REST/export/import; remaining minor gaps are
   explicitly listed in IMPLEMENTATION_LOG.md and do not block this checkbox)
 - [ ] Decide and implement `aimlBlockId` registration strategy
   (`block_type_metadata`/`block.json`) for production — Phase 3 evidence
-  shows this is required for survival through ordinary edits
+  shows this is required for survival through ordinary edits; after any
+  production UUID exists, registration becomes a **compatibility requirement**
+  (not a normal post-rollout kill switch — see plan §2.2, §15.4)
 - [ ] Production UUID injection hook (not spike WP-CLI tools)
-- [ ] Migration runbook + revision policy
-- [ ] Architect/PO sign-off on `post_content` mutation
-- [ ] Architect/PO sign-off on excluding synced-pattern-referenced content
-  from tagging (translate pattern entities as their own documents instead)
-- [ ] Promote this ADR to `Accepted (Milestone 2)` after prerequisites
+- [ ] Block adapter model + initial allowlist (`core/paragraph`, `core/heading`,
+  `core/button`; field `content` only) — plan §1.2, §3
+- [ ] Renderer proof gate (F5) passed before general rendering (F6) — plan §18
+- [ ] Migration runbook + canonical-only backfill + autosave/revision policy
+  (plan §6.4, §9)
+- [ ] Cross-post UUID ownership policy accepted (plan §4.2)
+- [ ] Feature-flag dependency rules + ordered rollback accepted (plan §15)
+
+## Human approval checklist (required before Accepted)
+
+ADR-0013 must remain **Proposed** until each item is explicitly approved:
+
+- [ ] `post_content` mutation approved
+- [ ] Permanent registration compatibility requirement approved (post-rollout)
+- [ ] Key grammar `b:<uuid>:<field>` approved (initial field: `content`)
+- [ ] Initial block adapter allowlist approved (paragraph, heading, button)
+- [ ] Synced-pattern exclusion approved
+- [ ] Autosave/revision semantics approved (plan §6.4)
+- [ ] Renderer proof (F5) completed and accepted
+- [ ] Frontend metadata / structured sanitizer policy approved
+- [ ] Rollout cohort approved
+- [ ] Rollback behavior approved (plan §15.4)
+
+Do **not** promote this ADR to Accepted until all checklist items pass and
+Strategy F milestones F1–F11 prerequisites are met.

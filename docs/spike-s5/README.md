@@ -5,7 +5,9 @@ Research spike for Milestone 2: stable block identity and segment reconciliation
 ## Status
 
 - **Spike S5:** **Complete**
-- **Selected strategy:** Strategy F (`aimlBlockId`, `b:<uuid>:content`)
+- **Selected strategy:** Strategy F (`aimlBlockId`, key grammar `b:<uuid>:<field>`; initial field `content`)
+- **Spike evidence baseline:** `42237bd` (merged via PR #1)
+- **Production-plan baseline:** `ea5af19` (amended on `spike/s5` before F1)
 - **Strategies A–F:** PHP spike complete. **F passes exit gate.**
 - **Browser validation:** Phase 3 mandatory gates closed (see below).
 - **Production planning:** **Allowed** — see [`../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)
@@ -43,6 +45,6 @@ Research spike for Milestone 2: stable block identity and segment reconciliation
   autosave/REST/export, concurrent-edit gates) — **complete**; see
   IMPLEMENTATION_LOG.md "Browser validation (Phase 3 — closing the mandatory
   gaps)" for the full results table
-- Production implementation — **not started** (see [`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md))
+- Production implementation — **not started** (F1 not begun; see [`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) milestones F1–F11)
 - Strategy G — **not implemented** (costed only)
 - ADR-0013 — **Proposed**, not Accepted

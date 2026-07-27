@@ -24,7 +24,8 @@ failed for distinct, evidenced reasons. Strategy E's render gate is necessary
 but insufficient without persistent identity.
 
 **Strategy F** injects `aimlBlockId` (RFC 4122 v4) into Gutenberg block JSON,
-segment key `b:<uuid>:content`, with UUID-direct reconciliation and a render
+segment key grammar `b:<uuid>:<field>` (spike used `content` only), with
+UUID-direct reconciliation and a render
 gate. PHP spike: **0 rendered false positives** across 39 operations,
 adversarial corpus, and scale benchmarks.
 
@@ -497,8 +498,10 @@ isolation, post duplication copying map rows — **very large** effort. See §11
 - Attribute: `aimlBlockId` (RFC 4122 v4), **registered** via
   `block_type_metadata`/`block.json` for every eligible block type
   (Phase 3 finding: required for survival through ordinary edits)
-- Key: `b:<uuid>:content`
-- Reconciliation: UUID direct match only
+- Key grammar: `b:<uuid>:<field>` (spike evidence: `content` field only;
+  production plan freezes grammar and adds `TranslatableBlockAdapter` — see
+  production plan §1.2)
+- Reconciliation: UUID direct match only (no fuzzy rematch)
 - Repair: first-wins on duplicate UUID (proven against real
   browser-produced duplicates, including under a concurrent-edit race)
 - Render gate: Strategy E safety rules adapted for UUID reasons
@@ -513,23 +516,31 @@ Proposed — see §21).
 
 ## 20. Production prerequisites
 
-Detailed implementation sequencing, module layout, migration design, rollout
-stages, and open decisions: [`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md).
+Detailed implementation sequencing (milestones **F1–F11**), module layout,
+`TranslatableBlockAdapter` model, registration lifecycle, renderer proof gate,
+cross-post ownership, autosave/revision semantics, migration design, rollout
+stages, and open decisions:
+[`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md).
+
+**Baselines:** spike evidence `42237bd`; production-plan baseline `ea5af19`.
 
 1. ~~Extended browser validation (duplicate, paste, patterns)~~ — **done**
    (Phase 3, all mandatory gates; minor non-blocking gaps listed in §18).
-2. Decide and implement `aimlBlockId` registration strategy
-   (`block_type_metadata`/`block.json`) — Phase 3 evidence shows this is
-   required, not optional, if ordinary-edit survival matters.
-3. Production save-time inject filter (not spike WP-CLI tooling).
-4. Explicit architectural decision to exclude synced-pattern references from
-   tagging (translate pattern entities separately if needed).
-5. Migration/backfill runbook, including revision-entry impact of first
-   backfill.
-6. Architect/PO sign-off on `post_content` mutation and on the WooCommerce
-   frontend-leakage risk (§18.4).
-7. ADR-0013 accepted.
-8. M1 regression suite unchanged.
+2. Decide and implement `aimlBlockId` registration strategy — required for
+   edit survival; becomes a **compatibility requirement** after production
+   UUID rollout (not a normal kill switch).
+3. Production save-time inject filter with canonical vs autosave/revision
+   branching (plan §6.4).
+4. Block adapter allowlist (initial: paragraph, heading, button; `content`
+   field) and F5 renderer proof before F6 general rendering.
+5. Cross-post UUID policy: preserve strings; no automatic translation-row
+   transfer (plan §4.2).
+6. Exclude synced-pattern references from tagging (translate pattern entities
+   separately if needed).
+7. Migration/backfill runbook (canonical posts; revisions excluded by default).
+8. ADR-0013 human approval checklist complete (ADR remains Proposed until
+   then).
+9. Milestone 1 regression suite unchanged.
 
 ---
 

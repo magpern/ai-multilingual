@@ -1,13 +1,14 @@
 # Strategy F — Production Implementation Plan
 
-**Status:** Planning only — no production code, hooks, migrations, or schema changes in this document.  
-**Spike:** S5 complete (branch `spike/s5`, HEAD `42237bd`).  
-**Selected model:** Strategy F — `aimlBlockId` attribute, segment key `b:<uuid>:content`.  
-**ADR-0013:** Proposed — not Accepted.  
-**Production implementation:** Not started.  
+**Status:** Planning only — no production code, hooks, migrations, or schema changes in this document.
+**Spike evidence baseline:** `42237bd` (S5 complete; merged to `main` via PR #1).
+**Production-plan baseline:** `ea5af19` (initial plan; amended by subsequent docs commits on `spike/s5`).
+**Selected model:** Strategy F — `aimlBlockId` attribute, segment key grammar `b:<uuid>:<field>`.
+**ADR-0013:** Proposed — not Accepted.
+**Production implementation:** Not started (F1 not begun).
 **Production readiness:** Not approved.
 
-This plan translates spike evidence into implementable Milestone 2 work packages. It does **not** supersede [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md); it **specializes** the block-identity portion that Rev 3 deferred to Spike S5 (§5.2 segment key grammar, `block:N` drift note).
+This plan translates spike evidence into implementable Strategy F work packages (F1–F11). It does **not** supersede [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md); it **specializes** the block-identity portion Rev 3 deferred to Spike S5 (§5.2 segment key grammar, `block:N` drift note).
 
 **Evidence sources:** [`docs/spikes/S5-gutenberg-segment-identity.md`](../spikes/S5-gutenberg-segment-identity.md), [`docs/adr/0013-gutenberg-segment-identity.md`](../adr/0013-gutenberg-segment-identity.md), [`docs/spike-s5/IMPLEMENTATION_LOG.md`](../spike-s5/IMPLEMENTATION_LOG.md), spike reference code under `spike/s5/lib/Strategy/`.
 
@@ -19,72 +20,100 @@ This plan translates spike evidence into implementable Milestone 2 work packages
 
 | Component | Responsibility | Likely module |
 |---|---|---|
-| **Attribute contract** | `aimlBlockId` name, UUID v4 regex, segment key shape | `src/Block/Contract.php` |
-| **Attribute registration** | Declare `aimlBlockId` on eligible block types (PHP + JS parity) | `src/Block/AttributeRegistrar.php`, `assets/block-editor.js` |
-| **Block registry / eligibility** | Which block types and instances receive UUIDs | `src/Block/BlockRegistry.php` |
-| **UUID generation** | RFC 4122 v4, cryptographically suitable randomness | `src/Block/UuidGenerator.php` |
-| **UUID validation** | Format check, length cap, reject non-string | `src/Block/UuidValidator.php` |
+| **Attribute contract** | `aimlBlockId` name, UUID v4 regex, segment key grammar | `src/Block/Contract.php` |
+| **Attribute registration** | Declare `aimlBlockId` on adapter-approved block types (PHP + JS parity) | `src/Block/AttributeRegistrar.php`, `assets/block-editor.js` |
+| **Block adapter registry** | Maps block names → `TranslatableBlockAdapter` implementations | `src/Block/AdapterRegistry.php` |
+| **TranslatableBlockAdapter** | Per-block (or per-family) extract/apply/sanitize contract | `src/Block/Adapter/*.php` |
+| **UUID generation / validation** | RFC 4122 v4; format and length checks | `src/Block/UuidGenerator.php`, `UuidValidator.php` |
 | **Block tree walker** | Document-order traversal over `parse_blocks()` output | `src/Block/BlockTreeWalker.php` |
 | **UUID injection + repair** | Assign missing UUIDs, first-wins duplicate repair, serialize only if changed | `src/Block/UuidInjector.php` |
-| **Save-time persistence** | Hook orchestration, recursion guard, permission checks | `src/Block/SavePipeline.php` |
-| **Block extraction** | Eligible leaf blocks → segment rows (`field_key=post_content`, `segment_key=b:…`) | `src/Translation/BlockExtractor.php` |
-| **Segment-key builder** | `b:<uuid>:content` from block attrs | `src/Block/SegmentKey.php` |
-| **Reconciliation** | Match rows by segment key; mark orphaned/stale; no fuzzy rematch | `Store::sync_source()` + block-aware extractor |
+| **Save-time persistence** | Hook orchestration, autosave/revision guards, recursion guard | `src/Block/SavePipeline.php` |
+| **Block extraction** | Adapters → segment rows (`field_key=post_content`, `segment_key=b:…`) | `src/Translation/BlockExtractor.php` |
+| **Segment-key builder** | `b:<uuid>:<field>` from block attrs + adapter field id | `src/Block/SegmentKey.php` |
+| **Reconciliation** | Match rows by segment key; mark orphaned/stale; **no fuzzy rematch** | `Store::sync_source()` + block-aware extractor |
 | **Render gate** | Suppress translation unless continuity provable | `src/Translation/BlockRenderGate.php` |
-| **Block renderer** | Replace leaf innerHTML/text at render time (overlay model) | `src/Translation/BlockRenderer.php` |
-| **Frontend sanitizer** | Strip `aimlBlockId` / `data-aiml-block-id` from public HTML where needed | `src/Block/FrontendSanitizer.php` |
-| **Migration / backfill** | Batch inject UUIDs into existing `post_content` | `src/Migration/UuidBackfillCommand.php` |
-| **Feature flags** | Independent toggles per capability | extend `src/Settings.php` |
+| **Block renderer (proof then general)** | Adapter-driven field overlay at render time | `src/Translation/BlockRenderer.php` |
+| **Frontend sanitizer** | Block-specific / structured-boundary stripping of leaked attrs | `src/Block/FrontendSanitizer.php` |
+| **Migration / backfill** | Batch inject UUIDs into canonical posts only | `src/Migration/UuidBackfillCommand.php` |
+| **Feature flags** | Independent toggles with **dependency rules** (§15) | extend `src/Settings.php` |
 | **Observability** | Structured logs + counters (no source/translated text) | `src/Observability/BlockIdentityLogger.php` |
 
 Spike classes (`RealBlockWalker`, `UuidInjector`, `StrategyFRenderGate`, etc.) are **reference implementations** to port — not imported at runtime.
 
-### 1.2 End-to-end data flow
+### 1.2 TranslatableBlockAdapter (conceptual contract)
+
+Production must **not** assume every eligible block has exactly one translatable `innerHTML` field mapped to `b:<uuid>:content`. Instead, each supported block type (or family) implements an adapter.
+
+**Illustrative interface (documentation only — not production code):**
+
+```
+TranslatableBlockAdapter
+├── get_block_names(): string[]
+├── is_translatable_instance( block ): bool
+├── extract_fields( block ): TranslatableField[]
+│     └── TranslatableField { field_id, source_text, text_format }
+├── apply_translation( block, field_id, translated_text ): block
+├── validate_block_structure( block ): ValidationResult
+├── get_segment_key( uuid, field_id ): string   // b:<uuid>:<field_id>
+└── get_frontend_sanitization_requirements(): SanitizationSpec
+```
+
+**Initial rollout:** adapters may expose only `field_id = content`. Future fields (`caption`, `label`, `title`, …) use the same grammar without schema change:
+
+| Segment key example | Block / field |
+|---|---|
+| `b:<uuid>:content` | paragraph innerHTML, heading content, button label text |
+| `b:<uuid>:caption` | (future) image/cover caption |
+| `b:<uuid>:label` | (future) multi-attribute blocks |
+
+**Unsupported adapter → source fallback always.** No row renders when adapter missing, field unsupported, or `validate_block_structure()` fails.
+
+### 1.3 End-to-end data flow
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ SAVE PATH (mutates post_content when injection enabled)                 │
+│ CANONICAL POST SAVE (not autosave, not revision CPT)                    │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Editor / REST / WP-CLI / import                                       │
-│   → wp_insert_post_data (recommended primary hook)                    │
+│ Editor / REST / WP-CLI / import → canonical post                        │
+│   → wp_insert_post_data (primary hook)                                  │
 │       → parse_blocks( post_content )                                    │
-│       → validate existing aimlBlockId (format, length)                  │
-│       → assign missing UUIDs on eligible leaves only                    │
-│       → detect duplicate UUIDs (document order)                         │
-│       → repair duplicates (first-wins; regenerate later occurrences)    │
-│       → serialize_blocks() only if tree changed                         │
-│       → return modified post_content to core save                       │
-│   → save_post (existing, priority ≥ injection)                          │
-│       → BlockExtractor::extract( post )                                 │
-│       → Store::sync_source( segments )  // stale/orphan, no fuzzy match │
+│       → per adapter: validate UUIDs, inject missing, repair duplicates  │
+│       → serialize_blocks() only if changed                              │
+│   → save_post (priority ≥ injection, canonical only)                    │
+│       → BlockExtractor via adapters → segment map                       │
+│       → Store::sync_source()  // orphan/stale; NO fuzzy match           │
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ LOAD / RENDER PATH (read-only overlay — invariant I1–I3)                │
+│ AUTOSAVE (see §6.4)                                                     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Preserve existing UUIDs; optional inject-missing (flag)                 │
+│ NEVER run sync_source against autosave object                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ RENDER PATH (read-only overlay — invariant I1–I3)                       │
 ├─────────────────────────────────────────────────────────────────────────┤
 │ the_content @ priority 1 (before do_blocks)                             │
-│   → parse_blocks( post_content )                                        │
-│   → for each eligible leaf with aimlBlockId:                            │
-│       segment_key = b:<uuid>:content                                    │
-│       row = Store::get( source_post, language, segment_key )            │
-│       BlockRenderGate::resolve( row, block, repair_context )            │
-│         → translation innerHTML OR source fallback                      │
-│   → serialize_blocks() → HTML pipeline continues                      │
+│   → parse_blocks → for each block with adapter + allowlisted render:     │
+│       for each extracted field:                                         │
+│         segment_key = b:<uuid>:<field>                                    │
+│         BlockRenderGate::resolve( row scoped to source_id, … )          │
+│         adapter.apply_translation OR source fallback                      │
+│   → serialize_blocks → core HTML pipeline                               │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 1.3 Operations that mutate `post_content`
+### 1.4 Operations that mutate `post_content`
 
 | Operation | Mutates content? | Plan |
 |---|---|---|
-| First UUID backfill / migration batch | **Yes** | `wp aiml blocks backfill` |
-| Save-time injection (flag on) | **Yes**, when UUIDs added/repaired | `wp_insert_post_data` |
-| Duplicate repair on save | **Yes**, when duplicates detected | same pipeline |
-| Malformed UUID replacement | **Yes** | same pipeline |
-| Block editor text edit | Yes (editor) — UUID preserved if registered | no plugin write |
+| Backfill / migration (canonical posts) | **Yes** | F7 CLI; revisions excluded by default |
+| Save-time injection (canonical) | **Yes** when UUIDs added/repaired | F2 pipeline |
+| Autosave (optional inject-missing) | **Maybe** | F2; never reconciles rows |
+| Revision CPT rows | **No** injection/reconcile | snapshot only |
 | Translation render | **No** | overlay only |
-| Reconciliation (`sync_source`) | **No** | DB rows only |
-| Rollback (rendering off) | **No** | flags only; leave UUIDs in content |
+| Rollback of render/extract/inject | **No** | flags; UUIDs + registration retained |
 
 ---
 
@@ -92,165 +121,162 @@ Spike classes (`RealBlockWalker`, `UuidInjector`, `StrategyFRenderGate`, etc.) a
 
 ### 2.1 Recommendation: server-first, editor-mirrored
 
-**Primary:** PHP `block_type_metadata` filter (evidence: spike mu-plugin used this successfully).
+**Primary:** PHP `block_type_metadata` filter (Phase 3 spike evidence).
+**Secondary:** Editor script mirroring the same attribute definition for blocks with client-side definitions.
 
-**Secondary:** Block editor script registering the same attribute on client for blocks that ship JS definitions — required so Gutenberg's serializer preserves attrs through edits, duplicate, and paste.
+Registration applies to **adapter-approved block names**, not “every block in the universe.”
 
-| Approach | Pros | Cons |
+### 2.2 Registration lifecycle (compatibility requirement)
+
+| Phase | Registration flag | Rule |
 |---|---|---|
-| PHP `block_type_metadata` only | Single source; covers dynamic blocks without JS | Editor may not show attr in UI (acceptable — attr is internal) |
-| PHP + `@wordpress/blocks` filter in editor | Full edit/duplicate survival (Phase 3 proved) | Must keep PHP/JS attribute defs in sync |
-| Per-block `block.json` patches | Explicit for third-party | Impractical at scale; many blocks lack local json |
+| **Pre-rollout** (no production `aimlBlockId` in DB) | May be off for dev/staging tests | Safe — Gutenberg strips unregistered attrs on edit (Phase 3) |
+| **After first production UUID** in any canonical `post_content` | **Compatibility requirement** | Registration **must remain enabled** even if rendering, extraction, injection, or repair are rolled back |
+| **Production kill switch?** | **No** — not documented as a normal post-rollout rollback lever | Disabling registration after UUIDs exist causes silent attr stripping on edit → identity loss |
 
-**Recommendation:** **Global PHP registration** via filtered metadata for all registry-approved block types, plus a **minimal editor bootstrap** that registers `aimlBlockId: { type: 'string' }` for the same allowlist (generated from PHP export or shared JSON manifest).
+The `block_attr_registration_enabled` flag exists for **development and pre-rollout** only. After UUID rollout begins, operational runbooks treat registration as **always-on** unless executing a documented emergency content strip (out of scope for normal rollback).
 
-### 2.2 Block categories
+### 2.3 Block categories (registration vs adapter)
 
-| Category | Registration | UUID injection | Notes |
+| Category | Register attr? | Adapter / inject? | Render? |
 |---|---|---|---|
-| Core static leaves (paragraph, heading, …) | PHP + JS | Yes | Phase 3 noop-save stable |
-| Core containers (group, columns) | Register attr | **No UUID on container** | Spike eligibility: leaves only |
-| `core/block` (synced reference) | Optional register | **No** | Out of scope for post-local identity |
-| Dynamic core (`latest-posts`, `query`, …) | Skip or register without inject | **No** | Saved innerHTML not authoritative |
-| WooCommerce blocks | Per-block allowlist after audit | If allowlisted | `customer-account` leaks to frontend — sanitizer required |
-| Rank Math / other plugins | Allowlist after audit | If allowlisted | Pre-existing validation quirks documented |
-| `core/html`, `core/shortcode` | Allowlist with caution | If allowlisted | Serializer differs; test per block |
-
-### 2.3 Unsupported / problematic blocks
-
-- **Default:** register attribute but **exclude from injection/extraction** until explicitly allowlisted.
-- **Stripping behavior:** unregistered → Gutenberg strips on edit (Phase 3); registered → survives edits.
-- **Frontend exposure:** blocks using Interactivity API may emit `data-aiml-block-id` — see §12.
+| F1 proof blocks: `core/paragraph`, `core/heading`, `core/button` | Yes | Yes (F4+) | After F5 proof only |
+| Other core static leaves | Yes when allowlisted | When adapter exists | Allowlist-driven |
+| Containers | Optional register | No UUID on container | No |
+| `core/block` (synced ref) | No | No | No |
+| Dynamic blocks | No (default) | No | No — source fallback |
+| WooCommerce / third-party | Per audit | Only with dedicated adapter + proof | Only after adapter proof |
 
 ---
 
 ## 3. Eligible-block policy
 
-**Recommendation:** adopt spike **eligible-leaf** policy as production default, with explicit exclusions.
+Eligibility is **two-layer**:
 
-| Block shape | Receives `aimlBlockId`? | Extracted as segment? | Rationale |
+1. **Tree policy** (from spike): leaf vs container vs dynamic vs empty — determines UUID injection candidacy.
+2. **Adapter policy**: block must have a registered `TranslatableBlockAdapter` to extract, reconcile, or render.
+
+| Block shape | UUID inject? | Extract/reconcile? | Render? |
 |---|---|---|---|
-| Translatable leaf (paragraph, heading, button, list-item text, …) | Yes | Yes | Spike + browser evidence |
-| Nested leaves inside containers | Yes | Yes | Each leaf own UUID |
-| Container (group, columns, quote wrapper) | No | No | Spike: container innerHTML not eligible |
-| Empty leaf (trim innerHTML '') | No | No | Matches `Extractor` empty skip |
-| Dynamic block (`DYNAMIC_BLOCK_NAMES`) | No | No | innerHTML not render truth |
-| `core/block` reference | No | No | Phase 3 pattern gate |
-| Synced pattern entity (`wp_block` CPT) | Separate doc scope | Separate object | Not post-local |
-| Detached / non-synced materialized copy | Yes | Yes | Post-local after materialization |
-| `core/separator`, `core/spacer` | No | No | No meaningful text |
-| `core/html`, `core/shortcode` | Allowlist decision | If allowlisted | Product decision |
-| WooCommerce / plugin blocks | Allowlist only | If allowlisted | Third-party audit |
+| Adapter-supported leaf (initial: paragraph, heading, button) | Yes | Yes | After F5 proof + F6 allowlist |
+| Leaf without adapter | Maybe inject if tree-eligible | **No** | **No** — source fallback |
+| Container | No | No | No |
+| Empty leaf | No | No | No |
+| Dynamic block | No | No | No |
+| `core/block` reference | No | No | No |
+| WC / plugin blocks | Only with adapter proof | Only with adapter | Only with adapter proof |
 
-Initial dynamic list (from spike `StructuralPathWalker::DYNAMIC_BLOCK_NAMES`):
-
-`core/latest-posts`, `core/block`, `core/query`, `core/post-title`, `core/navigation`, `core/template-part`
-
-Production registry must be **extensible** (filter `aiml_block_dynamic_block_names`).
+Initial **adapter allowlist** (F4–F6): `core/paragraph`, `core/heading`, `core/button` only. Expand only after adapter + renderer proof per block family.
 
 ---
 
 ## 4. UUID scope and ownership
 
-### 4.1 Semantic layers
+### 4.1 Four distinct layers (do not conflate)
 
-| Layer | Rule |
-|---|---|
-| **UUID format** | Globally unique RFC 4122 v4 string (collision probability negligible) |
-| **Semantic identity** | Document-local: `(source_type, source_id, segment_key)` |
-| **Database uniqueness** | Existing `segment_identity (source_type, source_id, segment_hash, language_id)` — `segment_hash = sha1(field_key ␟ segment_key)` |
-| **Translation ownership** | Row belongs to exactly one `(source_type, source_id, language_id)`; render gate verifies object match |
+| Layer | Definition | Cross-post behavior |
+|---|---|---|
+| **1. UUID format uniqueness** | RFC 4122 v4 string; globally unique in practice | Same string may appear in multiple posts |
+| **2. Document-local semantic identity** | `(source_type, source_id, segment_key)` where `segment_key = b:<uuid>:<field>` | Independent per post |
+| **3. Translation-row ownership** | Row keyed by `(source_type, source_id, segment_hash, language_id)` | Rows **never** auto-transfer with UUID strings |
+| **4. Translation continuity** | Whether a row's translation applies to live content | Requires same object + segment key + valid gate checks; **never** inferred from UUID string alone |
 
-**Cross-post safety:** the same UUID string in two posts creates **two independent segment keys** scoped by `source_id`. No cross-post continuity. Render gate must verify `source_id` on row lookup (already implicit in `Store::get`).
+### 4.2 Definitive cross-post policy
 
-### 4.2 Transfer scenarios
+**Default (binding for production planning):**
 
-| Scenario | UUID in content | Translation rows | Policy |
+- UUID strings **may be preserved** during cross-post copy, XML import, or whole-post duplication plugins.
+- Identity ownership remains **document-local** — scoped by `source_id`.
+- Translation rows are scoped by `(source_type, source_id, language_id, segment_key)`.
+- **Translation continuity is never transferred across objects automatically.**
+- A copied post with unique UUID strings does **not** require regenerating every UUID.
+- **Same-post** duplicate UUIDs **must** be repaired (first-wins).
+- Translation rows must **never** be copied merely because UUID strings match.
+
+**Optional product policy (not a safety requirement):** a duplication plugin *may* choose to regenerate all UUIDs for editorial clarity — document as optional, not mandatory.
+
+### 4.3 Transfer scenarios
+
+| Scenario | UUID in target content | Translation rows | Policy |
 |---|---|---|---|
-| Same-post duplicate (registered attr) | Copied → repair regenerates later copy | Original row matches first occurrence; regenerated UUID → no row → source fallback | First-wins repair |
-| Cross-post copy/paste | Attribute stripped (unregistered) or copied (registered) | Target post rows independent | Repair on target save; no row inheritance |
-| Native post duplication | Not tested (no core feature) | N/A | If plugin duplicates: treat as new object, repair all UUIDs or regenerate all |
-| XML import | UUID preserved (Phase 3) | Import as new `source_id` | Rows do not auto-migrate; backfill/re-translate |
-| Revision restore | Byte snapshot restores UUIDs (inferred) | Rows unchanged until sync | `sync_source` marks stale if text differs |
-| Pattern detach | Materialized blocks have no entity UUID | New post-local segments after inject | Inject on first save after detach |
+| Same-post duplicate (registered attr) | Copied → **repair** first-wins | Original row → first block; regenerated UUID → no row | Gate suppresses false render |
+| Cross-post copy/paste / import | May preserve UUID strings | **None auto-copied**; target starts with no matching rows unless explicitly imported | Source fallback until translated |
+| Whole-post duplication plugin | May preserve UUIDs | **Do not copy** `aiml_translations` rows by UUID match | New `source_id` scope |
+| XML import (Phase 3) | Preserved in content | New post IDs; rows not auto-linked | Backfill + re-translate |
+| Revision restore | Snapshot restores UUIDs | Reconcile on **canonical** object after restore (§6.4) | Normal stale/orphan rules |
+
+### 4.4 Adversarial tests (required)
+
+- Same UUID string in two different posts — each renders only its own rows
+- Copied post without copied translation rows — source fallback only
+- Copied translation rows with wrong `source_id` — gate `object_mismatch` suppresses
+- Import preserving UUID strings — no cross-object row attachment
+- Same-post duplication vs cross-post duplication — repair applies only same-post
 
 ---
 
 ## 5. Synced patterns
 
-Phase 3 conclusions are **binding** for production:
+Unchanged from spike Phase 3 (binding):
 
-| Entity | Tag with `aimlBlockId`? | Translate how? |
+| Entity | UUID / adapter? | Translate how? |
 |---|---|---|
-| `wp:block` reference in post | **No** | N/A — no materialized content in post |
-| Synced pattern entity (`wp_block` CPT) | **Not in post save pipeline** | Optional future: treat `wp_block` as its own `source_type`/`source_id` |
-| Central pattern edit | Propagates to all references live | Post rows unaffected |
-| Non-synced pattern insertion | Materialized local blocks | Inject UUIDs on post save after insertion |
-| Detached copy | Post-local blocks | Inject + extract normally |
-
-**Production rule:** `BlockRegistry::is_eligible()` returns false for `core/block` regardless of registration.
+| `wp:block` reference in post | **No** | N/A |
+| Synced pattern entity (`wp_block` CPT) | Out of post save pipeline | Optional future separate object |
+| Non-synced materialized copy | Yes — post-local adapters | Normal F pipeline |
+| Detached copy | Yes — post-local | Inject on first canonical save |
 
 ---
 
 ## 6. Save-time integration
 
-### 6.1 Recommended architecture: **pre-insert filter (primary) + REST guard**
+### 6.1 Recommended architecture
 
-| Hook | Role |
-|---|---|
-| `wp_insert_post_data` (priority 5–10) | **Primary** — mutate `post_content` before DB write; covers block editor, classic, most programmatic saves |
-| `rest_pre_insert_{post_type}` | Validate/sanitize for REST-only edge cases if filter insufficient |
-| `content_save_pre` | Legacy classic fallback if needed |
+**Primary:** `wp_insert_post_data` for canonical content mutation.
+**Guard:** detect autosave and revision objects and branch (§6.4).
 
-**Not recommended as primary:** post-save `wp_update_post` loop (recursion risk, extra revision).
+### 6.2 Canonical save pipeline
 
-**Autosaves / revisions:** apply injection on autosave content if flag enabled (Phase 3 proved UUID survives autosave REST). Skip injection on revision rows if they would multiply noise — **product decision** (see Open Decisions).
-
-### 6.2 Save pipeline (required behavior)
-
-1. Guard: feature flag, capability, `wp_is_post_revision`, recursion static.
-2. Skip if post has Elementor body (`Extractor::body_status === elementor`) — unchanged M1 guard extended later in M6.
-3. Skip if no blocks (`has_blocks` false).
-4. `parse_blocks`.
-5. Validate / normalize malformed UUIDs (replace with new v4, log `malformed_replaced`).
-6. Assign UUIDs on eligible leaves missing attr.
-7. Count duplicates → repair first-wins.
-8. `serialize_blocks` — compare to input; set `post_content` only if changed.
-9. Do **not** call `wp_update_post` again from within hook.
+1. Guard: flags, capability, **not** autosave/revision CPT, recursion static.
+2. Skip Elementor bodies; skip non-block content.
+3. `parse_blocks` → adapter-aware validate/inject/repair.
+4. `serialize_blocks` only if changed.
+5. After DB write: `save_post` on **canonical** post → extract → `sync_source`.
 
 ### 6.3 Entry points
 
-| Entry | Handled by |
-|---|---|
-| Gutenberg save | `wp_insert_post_data` |
-| REST `POST /wp/v2/posts` | same |
-| Autosaves | same (if not excluded by flag) |
-| WP-CLI `wp post update` | same |
-| Imports | backfill command + save hook |
-| WooCommerce products | only if `post_content` block body — product description path separate in M4 |
+| Entry | Injection | Reconciliation |
+|---|---|---|
+| Gutenberg canonical save | Yes (F2) | Yes (F4) |
+| REST canonical save | Yes | Yes |
+| REST autosave endpoint | Preserve; optional inject-missing | **Never** |
+| WP-CLI canonical update | Yes | Yes |
+| Import / backfill | Yes (canonical) | On next canonical save |
+| Revision CPT | **No** | **No** |
 
-### 6.4 Failure handling
+### 6.4 Autosave and revision semantics (resolved)
 
-- Parse failure → leave content unchanged, log error, do not block save.
-- Injection exception → leave content unchanged, log, optional admin notice for editors with `aiml_translate`.
-- Permission: injection runs only when user can edit post; analysis-only mode can run without write.
+| Path | UUID handling | Reconciliation |
+|---|---|---|
+| **Canonical post save** | Validate, inject, repair, persist | **Yes** — `sync_source` on canonical object |
+| **Autosave** (`wp_is_post_autosave`, REST `/autosaves`) | **Preserve** existing UUIDs; optionally inject missing UUIDs if `block_uuid_autosave_inject_enabled` (editor recovery) | **Never** — autosave is not a translation source |
+| **Revision creation** (`wp_is_post_revision`) | Store WordPress snapshot as-is; **no** inject/repair/extract | **Never** |
+| **Revision restore** | User action restores content → flows through **canonical save path** on the parent post | **Yes** — after restore, validate/inject/repair on canonical object, then `sync_source`; stale/orphan rules apply normally |
+| **Backfill** | Canonical published/draft posts only by default | Deferred until next canonical save unless `--reconcile` explicitly added later |
+
+**REST autosave:** same rules as core autosave — preserve UUIDs; optional inject-missing; no `sync_source`.
+
+**Tests required:** canonical save, autosave preserve, autosave inject-missing optional, revision create skips pipeline, revision restore reconciles canonical parent, backfill skips revision posts.
 
 ---
 
 ## 7. Duplicate repair
 
-**Policy:** `first_wins` (spike default, browser-verified). Document-order first eligible occurrence keeps UUID; later occurrences get new v4 UUIDs.
+**Policy:** first-wins (spike-evidenced). Applies to **same-post** duplicate UUIDs only.
 
-| Concern | Behavior |
-|---|---|
-| Traversal order | Depth-first pre-order (same as spike `UuidBlockWalker`) |
-| Detection | Count UUID occurrences while walking |
-| Regenerated blocks | Added to `regenerated_uuids` context for render gate |
-| Translation state | Regenerated UUID → no row → `unknown_uuid` / source fallback — **never inherit** |
-| Original block | Row unchanged if UUID + hash match |
-| Idempotence | Second pass: 0 duplicates, 0 content change |
-| Concurrency | Last save wins; repair runs on each save — maintains `rendered_false_positive == 0` |
-| Tampering | Invalid format → replace; duplicate → repair |
+Cross-post UUID reuse is **not** a duplicate-repair case — objects are scoped independently.
+
+Regenerated UUIDs → render gate `regenerated_uuid` / `unknown_uuid` → source fallback. **No fuzzy matching.**
 
 ---
 
@@ -258,312 +284,260 @@ Phase 3 conclusions are **binding** for production:
 
 ### 8.1 Current schema (repository evidence)
 
-From `src/Database/Schema.php` — **no new tables required** for Strategy F.
+From `src/Database/Schema.php` — **no schema change required** for Strategy F MVP.
 
-**`aiml_translations` key columns:**
+- `segment_key` VARCHAR(191) — supports `b:<uuid>:<field>` (~50 chars for content field)
+- `segment_identity` UNIQUE `(source_type, source_id, segment_hash, language_id)`
+- `segment_hash = sha1(field_key . "\x1f" . segment_key)`
 
-- `segment_identity`: UNIQUE `(source_type, source_id, segment_hash, language_id)`
-- `segment_hash`: `sha1(field_key . "\x1f" . segment_key)` (`Store::segment_hash`)
-- `segment_key`: VARCHAR(191) — `b:<uuid>:content` fits (~48 chars)
-- `field_key`: `post_content` for block segments
-- `source_hash`: staleness detection (normalized text hash)
-- `status`: includes `ignored` for orphans
-- `is_stale`: separate freshness axis
+Multiple fields per block (future) → multiple rows with same UUID, different `<field>` suffix. No collision if field ids differ.
 
-### 8.2 Schema impact recommendation
+### 8.2 Schema impact
 
 | Change | Required? |
 |---|---|
 | New tables | **No** |
 | New columns | **No** for MVP |
-| Index changes | **No** — existing indexes sufficient |
-| `segment_kind` value `block` | **Optional** — use `field` initially for simplicity (M1 pattern) or add `Store::KIND_BLOCK` constant |
+| Index changes | **No** |
+| Optional diagnostic column | **Defer** — not proven necessary |
 
-**Optional M2 enhancement:** add `block_uuid CHAR(36)` column for diagnostics — **defer** unless query patterns require it; segment_key already embeds UUID.
+### 8.3 Reconciliation
 
-### 8.3 Reconciliation (existing `Store::sync_source`)
+Adapter extraction produces map keyed by `b:<uuid>:<field>`. `sync_source`:
 
-Block extraction produces segment map keyed by `b:<uuid>:content`. `sync_source`:
-
-- Row key missing in extract → `status=ignored`, `error_code=orphaned`
-- Key present, hash differs → `is_stale=1`, update `source_text`/`source_hash`
-- **No fuzzy matching, no path rematch, no position inference**
-
-Render-time lookup uses `(source_type, source_id, language_id, segment_key)` — prevents cross-object joins even if UUID string collides across posts.
+- Missing key → `status=ignored`, `error_code=orphaned`
+- Key present, hash differs → `is_stale=1`
+- **No fuzzy matching, no path rematch, no UUID-only row lookup across objects**
 
 ---
 
 ## 9. Migration and backfill
 
-### 9.1 Discovery queries (volume estimates — run on target DB)
-
-```sql
--- Posts with block content (candidates)
-SELECT post_type, post_status, COUNT(*) AS cnt
-FROM wp_posts
-WHERE post_content LIKE '%<!-- wp:%'
-  AND post_status IN ('publish','draft','private','pending')
-GROUP BY post_type, post_status;
-
--- Posts without aimlBlockId yet
-SELECT COUNT(*) FROM wp_posts
-WHERE post_content LIKE '%<!-- wp:%'
-  AND post_content NOT LIKE '%"aimlBlockId"%';
-
--- Approximate eligible block density (after deploy: WP-CLI)
--- wp aiml blocks analyze --dry-run --post_type=page
-```
-
-WP-CLI command `wp aiml blocks analyze` (M6 dry-run) reports: post count, eligible leaf count, estimated bytes/post (~55 B/block from spike).
-
-### 9.2 Backfill design
-
-| Property | Design |
-|---|---|
-| Discovery | Query posts with `has_blocks`; skip Elementor |
-| Dry run | `--dry-run` logs stats, no writes |
-| Batching | `--batch-size=100`, `--offset=` cursor |
-| Resumability | Checkpoint option `aiml_backfill_cursor` or id-range args |
-| Idempotence | Inject pipeline skips existing valid UUIDs |
-| Locking | `GET_LOCK('aiml_uuid_backfill')` or option flag |
-| Revisions | **Default:** update canonical post only; optional `--include-revisions` |
-| Cache | `Store` invalidate per touched post |
-| Rollback | Stop command; UUIDs remain harmless in content |
-
-### 9.3 Impact types (not site-specific counts)
-
-| Impact | Expectation |
-|---|---|
-| Serialized bytes | ~55 bytes × eligible leaves per post (spike measured) |
-| Revision growth | One revision per backfilled save if hook fires; batch tool should use `$wp_db->update` + `wp_save_post_revision` policy explicitly |
-| DB writes | One post row update per backfilled post + `sync_source` row touches on next edit |
-| Processing time | O(n) blocks — spike ~35ms/1000 blocks inject |
+- **Canonical posts only** by default (not revision/autosave CPT rows).
+- Discovery SQL documented in prior revision (unchanged).
+- Idempotent inject; checkpoint cursor; dry-run first.
+- After backfill: registration compatibility requirement applies (§2.2).
 
 ---
 
 ## 10. Existing translation migration
 
-M1 may have `post_content` field-level rows (`segment_key = post_content`). M2 block segmentation **changes key grammar**.
-
-| Legacy row | Treatment |
-|---|---|
-| `segment_key = post_content` (field-level body) | **Retain as legacy** — do not render once block rendering enabled (whole-field overlay disabled for block posts) |
-| No proof of block mapping | **Do not fuzzy rematch** |
-| Positional `block:N` rows (if any experimental) | Mark `ignored` or leave orphaned — **no automatic migration** |
-| Reviewed translations | Preserved in DB; human re-link only via re-translation workflow |
-
-**Mandatory:** block render gate + feature flag ensures unproven rows never render (`rendered_false_positive == 0`).
+Legacy `segment_key = post_content` field-level rows: retain, do not render for block posts once F6 enabled. **No fuzzy rematch.** Unproven continuity → source fallback mandatory.
 
 ---
 
 ## 11. Render gate
 
-Port spike `StrategyFRenderGate` + `StrategyFSuppressionReason` to production.
+Port spike gate + add adapter/field checks.
 
-| Check | Suppression reason | Action |
-|---|---|---|
-| Feature flag off | `feature_disabled` | Source |
-| UUID missing on block | `missing_uuid` | Source |
-| Malformed UUID | `malformed_uuid` | Source |
-| Duplicate UUID in document (pre-repair context) | `duplicate_uuid` | Source |
-| UUID was regenerated this save | `regenerated_uuid` | Source |
-| No translation row | `unknown_uuid` | Source |
-| Row status `ignored` | `orphaned_row` | Source |
-| Block type mismatch row vs live | `block_type_mismatch` | Source |
-| `source_hash` mismatch | `stale_hash` | Source |
-| Empty translation | `empty_translation` | Source |
-| Row `source_id` ≠ current post | `object_mismatch` | Source (add in production) |
-| Language mismatch | implicit in lookup | Source |
+| Check | Suppression reason |
+|---|---|
+| Feature flag off / unsafe flag combo | `feature_disabled` |
+| No adapter for block | `unsupported_block` |
+| Unsupported field | `unsupported_field` |
+| Adapter structure validation failed | `invalid_block_structure` |
+| UUID missing / malformed / duplicate / regenerated | `missing_uuid`, etc. |
+| No row / orphaned / object mismatch | `unknown_uuid`, `orphaned_row`, `object_mismatch` |
+| Block type mismatch | `block_type_mismatch` |
+| Stale hash | `stale_hash` |
+| Empty translation | `empty_translation` |
 
-**Invariant:** uncertainty → source fallback, never wrong translation.
+**Invariant:** uncertainty → source fallback; `rendered_false_positive == 0`.
+
+**No row may render when:** adapter unsupported, field unsupported, structure invalid, wrong object scope, stale hash, duplicated/malformed UUID, or unsafe flag combination (§15).
 
 ---
 
 ## 12. Frontend metadata exposure
 
-Phase 3: WooCommerce `customer-account` emits `data-aiml-block-id`.
+Phase 3: WooCommerce `customer-account` may leak `data-aiml-block-id`.
 
-| Mitigation | Apply when |
-|---|---|
-| `render_block` filter strips unknown data attributes | Global default for production |
-| Block-specific denylist | Known Interactivity API blocks |
-| Do not register attr on blocks that cannot be sanitized | Last resort |
+**Rules:**
 
-Serialized `aimlBlockId` in block comment JSON **must remain** for identity; only **frontend HTML** is sanitized.
+- **Do not** use broad regex replacement over arbitrary HTML strings.
+- Sanitize at **trusted structured boundaries**: `render_block` filter with block-name-specific logic, adapter-declared `SanitizationSpec`, or DOM-aware removal of known leakage patterns for proven blocks.
+- Serialized block-comment JSON **retains** `aimlBlockId`; only public HTML output is sanitized.
+- Unsupported blocks: source fallback; sanitizer still runs if block renders at all.
 
 ---
 
 ## 13. Concurrency
 
-| Scenario | Behavior |
-|---|---|
-| Two editors, last-write-wins | WordPress core semantics; later save replaces content |
-| Both duplicate same block | Duplicate UUID until save repair — gate suppresses false render |
-| Post locks | Respect core lock UI; no custom merge |
-| Stale session save after repair | Repair runs again on save |
-
-**Goal:** `rendered_false_positive == 0` under adversarial save order — **not** full OT/CRDT editing.
+Last-write-wins (WordPress core). Repair on each canonical save maintains gate safety. Does not solve collaborative editing.
 
 ---
 
 ## 14. Observability
 
-Structured log event names (no source/translated text):
-
-`uuid_generated`, `uuid_preserved`, `uuid_malformed_replaced`, `duplicate_detected`, `duplicate_repaired`, `post_content_mutated`, `backfill_post_ok`, `backfill_post_fail`, `render_suppressed`, `render_applied`, `migration_batch_complete`
-
-Diagnostic fields: `post_id`, `post_type`, `block_name`, `uuid` (identifier only), `suppression_reason`, `bytes_added`, `batch_id`, `user_id`.
-
-Metrics (if available): counters per suppression reason, injection latency histogram.
+Structured events (no body text): `uuid_generated`, `uuid_preserved`, `duplicate_detected`, `duplicate_repaired`, `registration_compat_mode`, `render_suppressed`, `adapter_missing`, `flag_combo_rejected`, etc.
 
 ---
 
-## 15. Feature flags and rollout
+## 15. Feature flags, dependencies, and rollout
 
-Extend `Settings` (or dedicated option keys):
+### 15.1 Flags
 
-| Flag | Purpose |
+| Flag | Purpose | Post-rollout kill switch? |
+|---|---|---|
+| `block_attr_registration_enabled` | Register `aimlBlockId` | **No** (after UUIDs exist) — dev/pre-rollout only |
+| `block_uuid_analysis_enabled` | Parse/report only | Yes |
+| `block_uuid_injection_enabled` | Mutate canonical content | Yes (step 3 rollback) |
+| `block_uuid_repair_enabled` | Duplicate repair | Yes (subordinate to injection) |
+| `block_uuid_autosave_inject_enabled` | Inject missing on autosave | Yes |
+| `block_extraction_enabled` | `sync_source` segments | Yes (step 2 rollback) |
+| `block_render_enabled` | Overlay rendering | Yes (step 1 rollback) |
+| `block_renderer_proof_mode` | F5 narrow proof logging | Dev/staging |
+| `block_migration_enabled` | Backfill writes | Yes (step 4 rollback) |
+| `block_diagnostics_enabled` | Verbose logs | Yes |
+
+### 15.2 Valid dependencies
+
+| Flag | Requires |
 |---|---|
-| `block_attr_registration_enabled` | Register aimlBlockId |
-| `block_uuid_analysis_enabled` | Parse/report only |
-| `block_uuid_injection_enabled` | Mutate post_content on save |
-| `block_uuid_repair_enabled` | Duplicate repair (sub-flag of injection) |
-| `block_extraction_enabled` | Block-level sync_source segments |
-| `block_render_enabled` | Block overlay rendering |
-| `block_migration_enabled` | WP-CLI backfill writes |
-| `block_diagnostics_enabled` | Verbose logging |
+| `block_uuid_injection_enabled` | registration **on** |
+| `block_uuid_repair_enabled` | injection **on** |
+| `block_extraction_enabled` | injection **on**, registration **on** |
+| `block_render_enabled` | extraction **on**, registration **on**, F5 proof **accepted** |
 
-### Rollout stages
+### 15.3 Prohibited combinations (must fail closed)
 
-| Stage | Flags | Entry | Success metric | Stop / rollback |
-|---|---|---|---|---|
-| 1 Deploy disabled | all off | Code merged | No user-visible change | N/A |
-| 2 Observation | analysis on | Internal | Parse reports stable | Disable analysis |
-| 3 Dry-run backfill | analysis + migration dry-run | Staging | Counts match manual audit | Fix parser |
-| 4 Internal content | injection on, render off | Team posts | UUID coverage 100% eligible | Disable injection |
-| 5 Cohort | + extraction | Selected post types | sync_source stable | Disable extraction |
-| 6 Backfill prod | migration batch | Off-peak window | Checkpoint progress | Stop batch |
-| 7 Render pilot | render on cohort | 1 language | 0 FP reports | Disable render flag |
-| 8 General | all on | PO sign-off | ADR Accepted + metrics | Rollback §16 |
+| Combination | Why unsafe |
+|---|---|
+| Render **on**, extraction **off** | Rows not updated; stale/wrong render risk |
+| Render **on**, registration **off** (post-rollout) | Attr stripping → silent identity drift |
+| Extraction **on**, injection **off** (post-rollout) | Segment keys drift from content |
+| Render **on** without adapter allowlist entry | Unsupported block render path |
+
+Runtime must reject prohibited combos (settings save + runtime guard).
+
+### 15.4 Rollback order (production)
+
+1. **Disable block rendering** (`block_render_enabled`)
+2. **Disable block extraction/reconciliation** (`block_extraction_enabled`)
+3. **Disable UUID injection and duplicate repair** (`block_uuid_injection_enabled`, repair sub-flag)
+4. **Stop migration/backfill** (`block_migration_enabled`)
+5. **Retain attribute registration** (compatibility requirement — do not disable post-rollout)
+6. **Leave existing UUID metadata in `post_content`**
+
+### 15.5 Rollout stages
+
+| Stage | Flags | Notes |
+|---|---|---|
+| 1 Deploy | all off | Code present |
+| 2 Observation | analysis on | No mutation |
+| 3 Dry-run backfill | analysis + migration dry-run | Staging |
+| 4 Registration + inject internal | registration on, injection on, render off | Compatibility clock starts |
+| 5 Extraction cohort | + extraction | sync_source |
+| 6 F5 renderer proof | proof mode on staging | **Gate before F6** |
+| 7 Render pilot | render on allowlist | paragraph/heading/button |
+| 8 General rollout | expand adapters deliberately | PO sign-off |
 
 ---
 
-## 16. Rollback
+## 16. Rollback (summary)
 
-| Layer | Rollback |
-|---|---|
-| Rendering | Flag off — immediate source-only display |
-| Extraction | Flag off — field-level stale detection only |
-| Injection | Flag off — no new mutations; existing UUIDs harmless |
-| Repair | Flag off — duplicates possible if editors duplicate; gate still suppresses |
-| Migration | Stop batch; no automatic UUID removal |
-| Translation rows | Never auto-delete on rollback |
-| Schema | No rollback needed (no schema change) |
-
-**Prefer leaving UUID metadata in content** unless legal/compliance requires removal (then dedicated `wp aiml blocks strip-uuids` maintenance command — out of scope for initial rollout).
+See §15.4 for ordered rollback. Translation rows never auto-deleted. Schema unchanged. UUID strip commands out of scope for normal ops.
 
 ---
 
 ## 17. Security
 
-| Threat | Mitigation |
-|---|---|
-| Malicious UUID in content | Validate format + length ≤ 36; replace if invalid |
-| Oversized attr | Reject/replace strings > 36 chars |
-| Cross-post UUID injection | Row scoped by `source_id`; gate checks object |
-| REST exposure | Attribute in edit context only; sanitizer on render |
-| Frontend leakage | §12 |
-| Migration CLI | `manage_options` or dedicated cap; `--dry-run` default on prod |
-| CSRF | Existing admin nonces; REST nonces |
-| Logging PII | Never log post body text |
-
-UUIDs are **identifiers**, not auth tokens.
+UUIDs are identifiers, not secrets. Validate format/length. Object-scope rows on render. No body text in logs. Migration CLI capability-gated.
 
 ---
 
 ## 18. Test strategy
 
 ### Unit
-- `UuidGenerator`, `UuidValidator`, `SegmentKey`
-- `BlockRegistry` eligibility matrix
-- `UuidInjector` inject/repair/idempotence (port spike tests)
-- `BlockRenderGate` truth table (port spike tests)
-- Synced pattern exclusion
+- Segment key grammar `b:<uuid>:<field>`
+- Adapters (extract/apply/validate) for paragraph, heading, button
+- Inject/repair/idempotence
+- Render gate including adapter/field/structure suppressions
+- Flag dependency validator
 
 ### Integration
-- Save post → content gains UUIDs
-- REST save round-trip
-- Revision/autosave UUID preservation
-- `sync_source` orphan/stale
-- Duplicate save → repair → render gate
-- Import XML
-- WooCommerce block allowlist + sanitizer
+- Canonical save vs autosave vs revision paths (§6.4)
+- Cross-post UUID preservation without row transfer
+- Import with preserved UUIDs
+- Revision restore → reconcile canonical parent
 
-### Browser (reuse spike harness patterns)
-- Edit, duplicate, paste, transform, split/merge, patterns, concurrent-edit smoke
+### Renderer proof (F5 — gate before F6)
+Narrow scope: `core/paragraph`, `core/heading`, `core/button` only.
+
+Must validate:
+- `parse_blocks` / `serialize_blocks` round-trip
+- Nested placement; `innerContent` null placeholders; multi-fragment innerContent
+- Block attributes consistent with markup
+- No editor invalid-block warning after save
+- Frontend output correct; escaped content safe
+- Source fallback unchanged when gate suppresses
+- Translated content does not leak to adjacent blocks
+- `rendered_false_positive == 0`
+
+Dynamic blocks and WooCommerce: **no generic renderer** until block-specific adapter proof exists.
+
+### Browser
+- Reuse spike harness patterns for proof blocks; expand after F6
 
 ### Adversarial
-- Duplicate render bypass attempts
-- Stale hash with reviewed row
-- Cross-post same UUID string
-- Tampered UUID in raw content
-
-**Exit invariant:** `rendered_false_positive == 0`
+- Same UUID two posts; wrong-source_id row; same-post vs cross-post duplicate; tampered UUID; adapter bypass attempts
 
 ---
 
-## 19. Implementation milestones
+## 19. Implementation milestones (F1–F11)
 
-| Milestone | Scope | Modules | Depends | Tests | Acceptance | Effort | Rollback |
-|---|---|---|---|---|---|---|---|
-| **M1** Attribute contract + registration | Contract, AttributeRegistrar, editor script, flags stub | `Block/*` | — | Unit + browser noop save | Attr survives edit on paragraph | S | Disable registration flag |
-| **M2** UUID inject + repair pipeline | UuidInjector, SavePipeline, BlockTreeWalker | `Block/*` | M1 | Unit + integration save | Inject idempotent; repair 22-case replay equivalent | M | Disable injection flag |
-| **M3** Duplicate repair hardening | Logging, tamper handling | M2 | M2 | Adversarial unit | 0 duplicates after save | S | Disable repair flag |
-| **M4** Block extraction | BlockExtractor, extend save_post sync | `Translation/*` | M2 | Integration sync_source | Orphan/stale without fuzzy match | M | Disable extraction flag |
-| **M5** Render gate + block renderer | BlockRenderGate, BlockRenderer | `Translation/*` | M4 | Unit + integration + browser | 0 FP on spike replay corpus | L | Disable render flag |
-| **M6** Migration / backfill CLI | `UuidBackfillCommand`, analyze | `Migration/*`, `Cli.php` | M2 | Integration dry-run | Batch idempotent | M | Stop CLI |
-| **M7** Observability + flags UI | Settings, logger | `Settings`, `Observability` | M1 | Unit | Flags independent | S | All off |
-| **M8** Integration + browser sign-off | Full matrix subset | — | M5 | Playwright CI subset | Phase 3 parity | M | — |
-| **M9** Limited rollout | Cohort config | — | M7 | Production monitoring | Stage 5–7 metrics | S | Flags |
-| **M10** General rollout | Documentation, ADR Accepted | — | PO sign-off | — | Production approved | S | §16 |
+Strategy F milestones use **F-prefix** to avoid collision with project Milestone 1/2/3.
+
+| Milestone | Scope | Depends | Acceptance / rollback |
+|---|---|---|---|
+| **F1** Attribute contract + registration | Contract, AttributeRegistrar, editor mirror, flag stub | — | Attr survives edit on proof blocks; registration lifecycle documented | Pre-rollout: flag off OK |
+| **F2** UUID persistence pipeline | UuidInjector, SavePipeline, canonical vs autosave branching | F1 | Idempotent inject; autosave rules §6.4 | Disable injection flag |
+| **F3** Duplicate repair hardening | Logging, tamper paths | F2 | 0 same-post duplicates after save | Disable repair sub-flag |
+| **F4** Block adapters + extraction | `TranslatableBlockAdapter`, paragraph/heading/button, BlockExtractor, sync | F2 | Extract `b:<uuid>:content` only; no fuzzy match | Disable extraction |
+| **F5** Renderer proof | Narrow BlockRenderer proof for 3 blocks; **no general render flag** | F4 | **Formal gate:** all proof criteria §18 pass; else F6 blocked | Proof mode off |
+| **F6** Render gate + allowlisted rendering | BlockRenderGate, render flag for proof allowlist only | **F5 accepted** | 0 FP; unsupported → source | Disable render (rollback step 1) |
+| **F7** Migration and backfill | analyze + backfill CLI; canonical only | F2 | Idempotent batch; registration compat | Stop migration (step 4) |
+| **F8** Observability + feature controls | Settings UI, dependency validator, logger | F1 | Prohibited combos rejected | Diagnostics off |
+| **F9** Integration + browser sign-off | CI + Playwright subset | F6 | Phase 3 parity on proof blocks | — |
+| **F10** Limited rollout | Cohort flags | F8, F6 | Stage metrics | §15.4 rollback |
+| **F11** General rollout + ADR acceptance | Expand adapters; PO sign-off | F10 + ADR checklist | Production approved | §15.4 |
+
+**Renderer architecture acceptance:** F6 must not begin until F5 proof is explicitly accepted and recorded.
 
 ---
 
 ## 20. Open decisions register
 
-| ID | Decision | Class | Recommendation |
+| ID | Decision | Class | Status |
 |---|---|---|---|
-| D-ADR | Promote ADR-0013 to Accepted | Architectural | After PO + architect review of this plan |
-| D-ATTR | Attribute contract frozen | Architectural | `aimlBlockId`, RFC 4122 v4, key `b:<uuid>:content` — evidenced |
-| D-SCOPE | UUID semantic scope | Architectural | Document-local via `(source_id, segment_key)` — evidenced |
-| D-BLOCKS | Supported block allowlist | Product | Start core leaves from Phase 3 matrix; WC/RMath explicit allow |
-| D-PATTERN | Synced pattern translation | Architectural | Exclude `core/block` refs; optional future `wp_block` object — evidenced |
-| D-SAVE | Save hook architecture | Architectural | `wp_insert_post_data` primary — recommendation |
-| D-DUP | Duplicate policy | Evidenced | First-wins — evidenced |
-| D-LEGACY | Legacy `post_content` field rows | Product | Retain, do not render for block posts |
-| D-FRONT | Frontend metadata policy | Product | Global `render_block` sanitizer + WC denylist |
-| D-REV | UUID on autosaves/revisions | Operational | Inject on autosave; skip revision CPT rows by default |
-| D-COHORT | Rollout cohort | Product | TBD with PO |
-| D-ROLLBACK | Strip UUIDs on rollback | Operational | Prefer retain — recommendation |
+| D-ADR | Promote ADR-0013 | Architectural | Pending human checklist (ADR) |
+| D-ATTR | Contract: `aimlBlockId`, v4, `b:<uuid>:<field>` | Architectural | Evidenced — pending approval |
+| D-REG-LIFE | Registration compatibility after UUID rollout | Architectural | **Recommendation in §2.2** — pending approval |
+| D-ADAPTER | Initial adapter allowlist (paragraph, heading, button) | Product | Recommendation — pending approval |
+| D-PATTERN | Exclude `core/block` refs | Architectural | Evidenced — pending approval |
+| D-SAVE | Canonical vs autosave vs revision (§6.4) | Architectural | **Resolved in plan** — pending approval |
+| D-CROSSPOST | Cross-post UUID policy (§4.2) | Architectural | **Resolved in plan** — pending approval |
+| D-RENDER-PROOF | F5 gate before F6 | Architectural | **Resolved in plan** — pending proof execution |
+| D-FRONT | Structured sanitizer policy (§12) | Product | Pending approval |
+| D-COHORT | Rollout cohort | Product | TBD |
+| D-ROLLBACK | Ordered rollback §15.4 | Operational | Pending approval |
 
 ---
 
 ## 21. Risk register
 
-| Risk | L | I | Evidence | Mitigation | Owner | Blocking? |
-|---|---|---|---|---|---|---|
-| Third-party strips attr | M | H | Phase 3 | Allowlist + registration | Dev | No — suppress render |
-| Transform drops UUID | H | M | Phase 3 | New UUID on inject; gate suppresses | Dev | No |
-| Duplicate UUIDs | M | H | Phase 3 repair | First-wins on save | Dev | No |
-| Cross-post copy | L | M | Phase 3 | Object-scoped rows | Dev | No |
-| Synced pattern confusion | M | H | Phase 3 gate | Exclude `core/block` | Architect | **Yes** for pattern policy sign-off |
-| Frontend leakage | M | M | WC block | Sanitizer §12 | Dev | No |
-| Revision growth | M | M | Spike size est. | Batch policy, PO acceptance | Ops | No |
-| Save recursion | L | H | Design | Pre-insert filter only | Dev | No |
-| Concurrent saves | M | M | Phase 3 sim | Repair + gate | Dev | No |
-| Migration failure mid-batch | M | M | — | Checkpoint + idempotence | Ops | No |
-| Legacy row loss | L | M | M1 field keys | No fuzzy migration | PO | No |
-| Rollback complexity | L | L | — | Flag-based | Ops | No |
+| Risk | L | I | Evidence | Mitigation | Blocking? |
+|---|---|---|---|---|---|
+| Registration disabled post-rollout | L | **H** | Phase 3 strip-on-edit | Compatibility requirement §2.2; rollback order | **Yes** — ops sign-off |
+| Unsupported block rendered | M | H | — | Adapter allowlist; gate | No |
+| Generic renderer assumption | H | H | — | F5 proof gate | **Yes** — before F6 |
+| Cross-post row attachment | L | H | — | Object-scoped rows §4.2 | No |
+| Same-post duplicate UUID | M | H | Phase 3 | First-wins repair | No |
+| Frontend regex sanitizer | M | M | WC leak | Structured sanitizer §12 | No |
+| Unsafe flag combination | M | H | — | Dependency validator §15.3 | No |
+| Synced pattern confusion | M | H | Phase 3 | Exclude `core/block` | Pattern sign-off |
+| Autosave reconcile drift | M | M | — | Never sync autosave §6.4 | No |
+| Third-party attr strip | M | H | Phase 3 | Registration + allowlist | No |
 
 ---
 
@@ -571,10 +545,10 @@ UUIDs are **identifiers**, not auth tokens.
 
 | Item | State |
 |---|---|
-| Spike S5 | **Complete** |
+| Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **Not started** |
+| Production implementation | **Not started** (F1 not begun) |
 | Production readiness | **Not approved** |
 | ADR-0013 | **Proposed** |
 
@@ -584,5 +558,5 @@ UUIDs are **identifiers**, not auth tokens.
 
 - Spike report: [`docs/spikes/S5-gutenberg-segment-identity.md`](../spikes/S5-gutenberg-segment-identity.md)
 - ADR: [`docs/adr/0013-gutenberg-segment-identity.md`](../adr/0013-gutenberg-segment-identity.md)
-- Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2 (segment keys)
-- Production code (M1 today): `src/Translation/Store.php`, `Extractor.php`, `Renderer.php`, `Plugin.php`
+- Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2
+- Production code today (Milestone 1): `src/Translation/Store.php`, `Extractor.php`, `Renderer.php`, `Plugin.php`
