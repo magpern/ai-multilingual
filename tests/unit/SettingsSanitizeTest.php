@@ -27,6 +27,7 @@ final class SettingsSanitizeTest extends TestCase {
 		);
 		$this->assertTrue( $defaults['switcher_show_native_name'] );
 		$this->assertFalse( $defaults['switcher_hide_current'] );
+		$this->assertFalse( $defaults['block_attr_registration_enabled'] );
 		$this->assertSame( Settings::SCHEMA_VERSION, $defaults['schema_version'] );
 	}
 
@@ -108,5 +109,6 @@ final class SettingsSanitizeTest extends TestCase {
 
 		$this->assertTrue( $settings->remove_data_on_uninstall() );
 		$this->assertTrue( $settings->switcher_show_native_name() );
+		$this->assertFalse( $settings->block_attr_registration_enabled() );
 	}
 }

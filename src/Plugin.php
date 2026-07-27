@@ -11,6 +11,8 @@ namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\SettingsPage;
+use AIMultilingual\Block\AttributeRegistrar;
+use AIMultilingual\Block\BlockRegistry;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
 use AIMultilingual\Frontend\Switcher;
@@ -91,6 +93,8 @@ final class Plugin {
 		( new Router( $languages, $resolver, $context ) )->register();
 		( new Renderer( $context, $store ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
+
+		( new AttributeRegistrar( $settings, new BlockRegistry() ) )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 
