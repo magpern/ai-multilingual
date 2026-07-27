@@ -54,7 +54,7 @@ flowchart TB
 - No Strategy F controls in [`src/Admin/SettingsPage.php`](../../src/Admin/SettingsPage.php) yet (switcher/uninstall only).
 - Migration is CLI-only ([`src/Cli.php`](../../src/Cli.php) `wp aiml block migrate`); **not** gated by `block_migration_enabled` (constant exists but unwired).
 - F6 render flag is `block_frontend_rendering_enabled`, not master-plan `block_render_enabled`.
-- No metrics persistence, no `wp aiml block status`, no flag-change audit hook today.
+- No metrics persistence, no `wp aiml block status`. Flag-change audit hook `aiml_settings_flag_changed` added in F8 WP1.
 
 ---
 
@@ -401,7 +401,20 @@ docker compose run --rm wpcli wp aiml block migrate --post-id=123 --format=json
 
 **Audit data available today:** Migration JSON (`original_hash`, `migrated_hash`, counts), migration log events, DB backup.
 
-**F8 impl adds:** `aiml_settings_flag_changed` action logging `{flag, old, new, user_id, timestamp}` — no content.
+**F8 impl adds:** `aiml_settings_flag_changed` action logging `{flag, old, new, user_id, timestamp, source}` — no content. Implemented in WP1 (`Settings::emit_flag_change_audit()` on admin settings save).
+
+**Audit payload contract (`aiml_settings_flag_changed`):**
+
+| Field | Type | Description |
+|---|---|---|
+| `flag` | string | Production flag key (`block_*_enabled`) |
+| `old` | bool | Previous sanitized value |
+| `new` | bool | New sanitized value |
+| `user_id` | int | Current user ID at save time (0 if unavailable) |
+| `timestamp` | int | Unix timestamp from `current_time( 'timestamp' )` |
+| `source` | string | Change origin; admin saves use `admin_settings` |
+
+One action fires per changed production flag. No persistence in WP1. The `flag_combo_rejected` structured log event remains deferred to WP5.
 
 ---
 

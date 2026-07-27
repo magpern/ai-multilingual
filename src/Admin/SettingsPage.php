@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Admin;
 
+use AIMultilingual\Block\FeatureFlags;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Settings;
 use WP_Error;
@@ -43,6 +44,16 @@ final class SettingsPage {
 	private const OPTION_GROUP = 'aiml_settings_group';
 
 	/**
+	 * Transient key prefix for Strategy F dependency rejection notices.
+	 */
+	public const FLAG_NOTICE_TRANSIENT = 'aiml_strategy_f_flag_combo_rejected';
+
+	/**
+	 * Admin notice identifier for rejected flag combinations.
+	 */
+	public const FLAG_NOTICE_ID = 'aiml_strategy_f_flag_combo_rejected';
+
+	/**
 	 * Plugin settings.
 	 *
 	 * @var Settings
@@ -73,6 +84,7 @@ final class SettingsPage {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_menus' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_notices', array( $this, 'render_strategy_f_admin_notices' ) );
 
 		add_action( 'admin_post_aiml_save_language', array( $this, 'handle_save_language' ) );
 		add_action( 'admin_post_aiml_delete_language', array( $this, 'handle_delete_language' ) );
@@ -120,10 +132,32 @@ final class SettingsPage {
 			Settings::OPTION,
 			array(
 				'type'              => 'array',
-				'sanitize_callback' => array( Settings::class, 'sanitize' ),
+				'sanitize_callback' => array( $this, 'sanitize_settings' ),
 				'default'           => Settings::defaults(),
 			)
 		);
+	}
+
+	/**
+	 * Sanitizes settings submitted from the admin form and records Strategy F audit events.
+	 *
+	 * @param mixed $input Raw option value from the Settings API.
+	 * @return array<string, mixed>
+	 */
+	public function sanitize_settings( $input ): array {
+		$raw   = is_array( $input ) ? $input : array();
+		$clean = Settings::sanitize( $input );
+
+		if ( ! is_array( $input ) ) {
+			return $clean;
+		}
+
+		$previous = Settings::sanitize( get_option( Settings::OPTION, Settings::defaults() ) );
+		Settings::emit_flag_change_audit( $previous, $clean, 'admin_settings' );
+
+		$this->maybe_queue_flag_rejection_notice( $raw, $clean );
+
+		return $clean;
 	}
 
 	// -- Screens --
@@ -254,6 +288,8 @@ final class SettingsPage {
 		);
 
 		echo '</tbody></table>';
+
+		$this->render_strategy_f_settings( $current );
 
 		submit_button();
 
@@ -415,6 +451,289 @@ final class SettingsPage {
 			esc_attr( $key ),
 			checked( $checked, true, false ),
 			esc_html( $description )
+		);
+	}
+
+	/**
+	 * Renders the Strategy F production flag controls and settings-state diagnostics.
+	 *
+	 * @param array<string, mixed> $current Saved settings.
+	 */
+	private function render_strategy_f_settings( array $current ): void {
+		$effective = FeatureFlags::validate_dependencies( $current );
+		$valid     = ! FeatureFlags::has_prohibited_combination( $current );
+
+		echo '<h2>' . esc_html__( 'Strategy F — Gutenberg block translation', 'ai-multilingual' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Pre-rollout controls for persistent block identity and gated frontend rendering. All flags default to off.', 'ai-multilingual' ) . '</p>';
+
+		echo '<table class="form-table" role="presentation"><tbody>';
+
+		$this->strategy_f_checkbox_row(
+			FeatureFlags::REGISTRATION,
+			__( 'Attribute registration', 'ai-multilingual' ),
+			__( 'Registers aimlBlockId in block metadata so Gutenberg preserves UUIDs on edit. Required before any other Strategy F behavior.', 'ai-multilingual' ),
+			(bool) $current[ FeatureFlags::REGISTRATION ],
+			true,
+			''
+		);
+
+		$this->strategy_f_checkbox_row(
+			FeatureFlags::INJECTION,
+			__( 'UUID injection', 'ai-multilingual' ),
+			__( 'Assigns and repairs block UUIDs on canonical post saves.', 'ai-multilingual' ),
+			(bool) $current[ FeatureFlags::INJECTION ],
+			! empty( $effective[ FeatureFlags::REGISTRATION ] ),
+			FeatureFlags::REGISTRATION
+		);
+
+		$this->strategy_f_checkbox_row(
+			FeatureFlags::EXTRACTION,
+			__( 'Block extraction', 'ai-multilingual' ),
+			__( 'Extracts block segments and reconciles the translation store on canonical saves.', 'ai-multilingual' ),
+			(bool) $current[ FeatureFlags::EXTRACTION ],
+			! empty( $effective[ FeatureFlags::REGISTRATION ] ) && ! empty( $effective[ FeatureFlags::INJECTION ] ),
+			FeatureFlags::INJECTION
+		);
+
+		$this->strategy_f_checkbox_row(
+			FeatureFlags::FRONTEND_RENDER,
+			__( 'Frontend rendering', 'ai-multilingual' ),
+			__( 'Overlays translated block content on public pages. Disabling this flag is the immediate kill switch.', 'ai-multilingual' ),
+			(bool) $current[ FeatureFlags::FRONTEND_RENDER ],
+			! empty( $effective[ FeatureFlags::REGISTRATION ] )
+				&& ! empty( $effective[ FeatureFlags::INJECTION ] )
+				&& ! empty( $effective[ FeatureFlags::EXTRACTION ] ),
+			FeatureFlags::EXTRACTION,
+			true
+		);
+
+		echo '</tbody></table>';
+
+		$this->render_strategy_f_diagnostics( $current, $effective, $valid );
+
+		$this->render_strategy_f_confirmation_script();
+	}
+
+	/**
+	 * Renders one Strategy F flag checkbox with dependency metadata.
+	 *
+	 * @param string $key                 Settings flag key.
+	 * @param string $label               Field label.
+	 * @param string $description         Help text.
+	 * @param bool   $checked             Saved state.
+	 * @param bool   $enabled             Whether the control is interactive.
+	 * @param string $missing_prerequisite Prerequisite flag key when disabled.
+	 * @param bool   $requires_confirm    Whether enabling requires explicit confirmation.
+	 */
+	private function strategy_f_checkbox_row(
+		string $key,
+		string $label,
+		string $description,
+		bool $checked,
+		bool $enabled,
+		string $missing_prerequisite = '',
+		bool $requires_confirm = false
+	): void {
+		$input_id = 'aiml-' . $key;
+		$deps     = FeatureFlags::prerequisite_label( $key );
+
+		echo '<tr><th scope="row">' . esc_html( $label ) . '</th><td>';
+		echo '<label for="' . esc_attr( $input_id ) . '">';
+		printf(
+			'<input type="checkbox" id="%1$s" name="%2$s[%3$s]" value="1" class="aiml-strategy-f-flag"%4$s%5$s%6$s />',
+			esc_attr( $input_id ),
+			esc_attr( Settings::OPTION ),
+			esc_attr( $key ),
+			checked( $checked, true, false ),
+			$enabled ? '' : ' disabled="disabled"',
+			$requires_confirm ? ' data-aiml-requires-confirm="1"' : ''
+		);
+		echo ' ' . esc_html( $description ) . '</label>';
+
+		if ( '' !== $deps ) {
+			echo '<p class="description">' . esc_html(
+				sprintf(
+					/* translators: %s: prerequisite flag key(s) */
+					__( 'Requires: %s', 'ai-multilingual' ),
+					$deps
+				)
+			) . '</p>';
+		}
+
+		if ( ! $enabled && '' !== $missing_prerequisite ) {
+			echo '<p class="description">' . esc_html(
+				sprintf(
+					/* translators: %s: prerequisite flag key */
+					__( 'Enable %s first.', 'ai-multilingual' ),
+					$missing_prerequisite
+				)
+			) . '</p>';
+		}
+
+		echo '</td></tr>';
+	}
+
+	/**
+	 * Renders saved/effective Strategy F flag state without health queries.
+	 *
+	 * @param array<string, mixed> $saved     Persisted settings.
+	 * @param array<string, mixed> $effective Dependency-validated settings.
+	 * @param bool                 $valid     Whether the saved combination is valid.
+	 */
+	private function render_strategy_f_diagnostics( array $saved, array $effective, bool $valid ): void {
+		echo '<div class="aiml-strategy-f-diagnostics" style="margin:1.5em 0;padding:1em;border:1px solid #ccd0d4;background:#fff;">';
+		echo '<h3 style="margin-top:0;">' . esc_html__( 'Strategy F diagnostics (settings state only)', 'ai-multilingual' ) . '</h3>';
+		echo '<table class="widefat striped"><thead><tr>';
+		echo '<th>' . esc_html__( 'Flag', 'ai-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Saved', 'ai-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Effective', 'ai-multilingual' ) . '</th>';
+		echo '</tr></thead><tbody>';
+
+		foreach ( FeatureFlags::PRODUCTION_FLAGS as $flag ) {
+			printf(
+				'<tr><td><code>%1$s</code></td><td>%2$s</td><td>%3$s</td></tr>',
+				esc_html( $flag ),
+				esc_html( $this->flag_state_label( ! empty( $saved[ $flag ] ) ) ),
+				esc_html( $this->flag_state_label( ! empty( $effective[ $flag ] ) ) )
+			);
+		}
+
+		echo '</tbody></table>';
+		printf(
+			'<p><strong>%1$s</strong> %2$s<br /><strong>%3$s</strong> %4$s</p>',
+			esc_html__( 'Combination valid:', 'ai-multilingual' ),
+			esc_html( $valid ? __( 'Yes', 'ai-multilingual' ) : __( 'No', 'ai-multilingual' ) ),
+			esc_html__( 'Frontend rendering active:', 'ai-multilingual' ),
+			esc_html( $this->flag_state_label( ! empty( $effective[ FeatureFlags::FRONTEND_RENDER ] ) ) )
+		);
+		echo '</div>';
+	}
+
+	/**
+	 * Inline confirmation guard for enabling frontend rendering.
+	 */
+	private function render_strategy_f_confirmation_script(): void {
+		$message = __(
+			'Enabling frontend rendering may show translated block content to site visitors. Prerequisites must already be enabled. Disabling this flag is the immediate kill switch. Continue?',
+			'ai-multilingual'
+		);
+
+		printf(
+			'<script>
+			(function () {
+				var box = document.getElementById(%1$s);
+				if (!box) { return; }
+				box.addEventListener("change", function () {
+					if (!box.checked || !box.hasAttribute("data-aiml-requires-confirm")) { return; }
+					if (!window.confirm(%2$s)) { box.checked = false; }
+				});
+			}());
+			</script>',
+			wp_json_encode( 'aiml-' . FeatureFlags::FRONTEND_RENDER ),
+			wp_json_encode( $message )
+		);
+	}
+
+	/**
+	 * Human-readable on/off label for diagnostics output.
+	 *
+	 * @param bool $enabled Flag state.
+	 */
+	private function flag_state_label( bool $enabled ): string {
+		return $enabled ? __( 'On', 'ai-multilingual' ) : __( 'Off', 'ai-multilingual' );
+	}
+
+	/**
+	 * Queues an admin notice when submitted production flags were normalized away.
+	 *
+	 * @param array<string, mixed> $raw   Raw submitted settings.
+	 * @param array<string, mixed> $clean Sanitized settings.
+	 */
+	private function maybe_queue_flag_rejection_notice( array $raw, array $clean ): void {
+		if ( ! function_exists( 'get_current_user_id' ) || ! function_exists( 'set_transient' ) ) {
+			return;
+		}
+
+		$user_id = (int) get_current_user_id();
+		if ( $user_id <= 0 ) {
+			return;
+		}
+
+		$submitted = FeatureFlags::production_flags_from_raw( $raw );
+		$dropped   = FeatureFlags::flags_dropped_by_validation( $submitted );
+
+		if ( array() === $dropped ) {
+			delete_transient( self::FLAG_NOTICE_TRANSIENT . '_' . $user_id );
+
+			return;
+		}
+
+		$effective = array();
+		foreach ( FeatureFlags::PRODUCTION_FLAGS as $flag ) {
+			$effective[ $flag ] = ! empty( $clean[ $flag ] );
+		}
+
+		set_transient(
+			self::FLAG_NOTICE_TRANSIENT . '_' . $user_id,
+			array(
+				'id'        => self::FLAG_NOTICE_ID,
+				'dropped'   => $dropped,
+				'submitted' => $submitted,
+				'effective' => $effective,
+			),
+			MINUTE_IN_SECONDS
+		);
+	}
+
+	/**
+	 * Prints Strategy F dependency rejection notices after settings save.
+	 */
+	public function render_strategy_f_admin_notices(): void {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+		if ( null === $screen || 'settings_page_' . self::SETTINGS_SLUG !== $screen->id ) {
+			return;
+		}
+
+		if ( ! function_exists( 'get_current_user_id' ) || ! function_exists( 'get_transient' ) ) {
+			return;
+		}
+
+		$user_id = (int) get_current_user_id();
+		if ( $user_id <= 0 ) {
+			return;
+		}
+
+		$payload = get_transient( self::FLAG_NOTICE_TRANSIENT . '_' . $user_id );
+		if ( ! is_array( $payload ) || empty( $payload['dropped'] ) ) {
+			return;
+		}
+
+		delete_transient( self::FLAG_NOTICE_TRANSIENT . '_' . $user_id );
+
+		$messages = array();
+		foreach ( (array) $payload['dropped'] as $flag ) {
+			if ( ! is_string( $flag ) ) {
+				continue;
+			}
+
+			$prerequisite = FeatureFlags::prerequisite_label( $flag );
+			$messages[]   = sprintf(
+				/* translators: 1: flag key, 2: prerequisite flag key(s) */
+				__( '%1$s could not be enabled because prerequisite %2$s is off.', 'ai-multilingual' ),
+				$flag,
+				$prerequisite
+			);
+		}
+
+		printf(
+			'<div class="notice notice-warning is-dismissible" data-notice-id="%1$s"><p><strong>%2$s</strong> %3$s</p></div>',
+			esc_attr( self::FLAG_NOTICE_ID ),
+			esc_html__( 'Strategy F flag combination adjusted.', 'ai-multilingual' ),
+			esc_html( implode( ' ', $messages ) )
 		);
 	}
 

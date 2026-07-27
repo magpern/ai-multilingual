@@ -89,9 +89,9 @@ final class AdminAuthorizationTest extends AimlTestCase {
 
 		$this->assertArrayHasKey( \AIMultilingual\Settings::OPTION, (array) $wp_registered_settings );
 		$this->assertSame(
-			array( \AIMultilingual\Settings::class, 'sanitize' ),
+			array( $page, 'sanitize_settings' ),
 			$wp_registered_settings[ \AIMultilingual\Settings::OPTION ]['sanitize_callback'],
-			'Settings must be sanitized by the class that owns them.'
+			'Settings must be sanitized through the admin settings page callback.'
 		);
 	}
 

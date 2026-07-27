@@ -43,6 +43,18 @@ final class FeatureFlags {
 	public const DIAGNOSTICS = 'block_diagnostics_enabled';
 
 	/**
+	 * Production Strategy F flags exposed in admin settings (F8).
+	 *
+	 * @var list<string>
+	 */
+	public const PRODUCTION_FLAGS = array(
+		self::REGISTRATION,
+		self::INJECTION,
+		self::EXTRACTION,
+		self::FRONTEND_RENDER,
+	);
+
+	/**
 	 * Enforces safe flag combinations by disabling dependent flags when prerequisites are off.
 	 *
 	 * @param array<string, mixed> $flags Flag map keyed by {@see self} constants.
@@ -90,15 +102,62 @@ final class FeatureFlags {
 	 * @param array<string, mixed> $flags Flag map keyed by {@see self} constants.
 	 */
 	public static function has_prohibited_combination( array $flags ): bool {
+		return array() !== self::flags_dropped_by_validation( $flags );
+	}
+
+	/**
+	 * Production flags the submitter requested but dependency validation removed.
+	 *
+	 * @param array<string, mixed> $flags Flag map reflecting submitted intent.
+	 * @return list<string> Flag keys dropped by {@see self::validate_dependencies()}.
+	 */
+	public static function flags_dropped_by_validation( array $flags ): array {
 		$sanitized = self::validate_dependencies( $flags );
+		$dropped   = array();
 
 		foreach ( array( self::REPAIR, self::INJECTION, self::EXTRACTION, self::RENDER, self::FRONTEND_RENDER, self::AUTOSAVE_INJECT ) as $key ) {
 			if ( self::is_enabled( $flags, $key ) && ! self::is_enabled( $sanitized, $key ) ) {
-				return true;
+				$dropped[] = $key;
 			}
 		}
 
-		return false;
+		return $dropped;
+	}
+
+	/**
+	 * Interprets submitted production-flag checkboxes from a settings form post.
+	 *
+	 * Unchecked boxes are omitted from the post body and treated as off.
+	 *
+	 * @param array<string, mixed> $raw Raw settings array from the form.
+	 * @return array<string, bool> Production flag intent map.
+	 */
+	public static function production_flags_from_raw( array $raw ): array {
+		$flags = array();
+
+		foreach ( self::PRODUCTION_FLAGS as $key ) {
+			$flags[ $key ] = array_key_exists( $key, $raw ) && self::to_bool( $raw[ $key ] );
+		}
+
+		return $flags;
+	}
+
+	/**
+	 * Human-readable prerequisite label for a production flag key.
+	 *
+	 * @param string $flag Flag key from {@see self::PRODUCTION_FLAGS}.
+	 */
+	public static function prerequisite_label( string $flag ): string {
+		switch ( $flag ) {
+			case self::INJECTION:
+				return self::REGISTRATION;
+			case self::EXTRACTION:
+				return self::INJECTION . ' + ' . self::REGISTRATION;
+			case self::FRONTEND_RENDER:
+				return self::EXTRACTION . ' + ' . self::INJECTION . ' + ' . self::REGISTRATION;
+			default:
+				return '';
+		}
 	}
 
 	/**
