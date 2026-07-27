@@ -279,13 +279,47 @@ All events emit via `do_action` hooks; **never log body text, translated text, o
 
 ## 5. Health diagnostics — `wp aiml block status`
 
-### 5.1 Command spec (F8 implementation)
+### 5.1 Command spec (WP3)
 
 ```
-wp aiml block status [--format=table|json] [--post-type=page] [--sample-size=20]
+wp aiml block status [--format=table|json] [--sample-size=<n>] [--full-scan] [--source-type=<post_type>] [--source-id=<id>]
 ```
 
 **Capability:** `manage_options`
+
+**Purpose:** Read-only Strategy F health snapshot for operators and automation. Presentation only — all logic lives in `BlockHealthService`.
+
+| Option | Default | Notes |
+|---|---|---|
+| `--sample-size` | `100` | Bounded 1–1000; ignored with warning when `--full-scan` is set |
+| `--full-scan` | off | Scans all eligible posts (explicit opt-in) |
+| `--source-type` | all supported | WP post type filter (`page`, `post`, …) |
+| `--source-id` | none | Scope scan to one canonical post id |
+| `--format` | `table` | `table` or `json` only |
+
+**Examples:**
+
+```bash
+wp aiml block status
+wp aiml block status --full-scan
+wp aiml block status --format=json
+wp aiml block status --sample-size=250
+wp aiml block status --source-type=page --source-id=42
+```
+
+**Table output sections:** Health (scan counts), UUID (post tallies), Segments (Store aggregates), Status (complete/incomplete, limitations, error count). Duplicate segment rows display `N/A (UNIQUE constraint)` when not detectable.
+
+**JSON output:** `BlockHealthSnapshot::to_array()` — stable keys, no post bodies or translation text.
+
+**Exit codes:**
+
+| Condition | Exit |
+|---|---|
+| Success (including recoverable health issues / incomplete snapshots) | `0` |
+| Invalid option, invalid sample size, unsupported format | non-zero |
+| Unexpected exception | non-zero |
+
+**Wiring:** `BlockHealthService` constructed in `Plugin.php` only when `WP_CLI` is defined. No runtime scans outside CLI invocation.
 
 ### 5.2 Output fields
 
@@ -343,9 +377,9 @@ wp aiml block status [--format=table|json] [--post-type=page] [--sample-size=20]
 | `sampled` | `true` when post compliance scan is sample-bounded |
 | `elapsed_ms` | Wall-clock milliseconds for the scan |
 
-**Caching:** eligible-post count transient (5 min) deferred to WP3/WP4 — WP2 performs live queries only.
+**Caching:** eligible-post count transient (5 min) deferred to WP4 — WP2/WP3 perform live queries only.
 
-**Default mode:** Sample size **100**, full scan opt-in only. WP3 CLI may expose a smaller default (`--sample-size=20`) atop the same service.
+**Default mode:** Sample size **100**, full scan opt-in only.
 
 ---
 

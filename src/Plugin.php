@@ -15,6 +15,8 @@ use AIMultilingual\Block\AdapterRegistry;
 use AIMultilingual\Block\AttributeRegistrar;
 use AIMultilingual\Block\BlockExtractionLogger;
 use AIMultilingual\Block\BlockIdentityLogger;
+use AIMultilingual\Block\BlockHealthService;
+use AIMultilingual\Block\BlockIdentityAnalyzer;
 use AIMultilingual\Block\BlockIdentityMigration;
 use AIMultilingual\Block\BlockMigrationLogger;
 use AIMultilingual\Block\BlockRegistry;
@@ -166,8 +168,13 @@ final class Plugin {
 				$store,
 				new BlockMigrationLogger()
 			);
+			$health    = new BlockHealthService(
+				$store,
+				$extractor,
+				new BlockIdentityAnalyzer( $block_registry )
+			);
 
-			Cli::register( $languages, $store, $extractor, $migration );
+			Cli::register( $languages, $store, $extractor, $migration, $health );
 		}
 	}
 
