@@ -498,7 +498,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | **F6** Render gate + allowlisted rendering | BlockRenderGate, render flag for proof allowlist only | **F5 accepted** | 0 FP; unsupported → source | Disable render (rollback step 1) |
 | **F7** Migration and backfill | analyze + backfill CLI; canonical only | F2 | Idempotent batch; registration compat | Stop migration (step 4) |
 | **F8** Observability + feature controls | See [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) — Settings UI, `wp aiml block status`, metrics aggregator, runbooks | F1–F7 | Prohibited combos rejected; health check green | Disable diagnostics; render kill switch §15.4 step 1 |
-| **F9** Integration + browser sign-off | CI + Playwright subset | F6 | Phase 3 parity on proof blocks | — |
+| **F9** Integration + browser sign-off | See [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — Playwright acceptance on production plugin; Phase 3 parity on proof blocks | F6, F8 | `rendered_false_positive == 0`; ADR checklist evidence | — |
 | **F10** Limited rollout | Cohort flags | F8, F6 | Stage metrics | §15.4 rollback |
 | **F11** General rollout + ADR acceptance | Expand adapters; PO sign-off | F10 + ADR checklist | Production approved | §15.4 |
 
@@ -559,6 +559,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - Spike report: [`docs/spikes/S5-gutenberg-segment-identity.md`](../spikes/S5-gutenberg-segment-identity.md)
 - ADR: [`docs/adr/0013-gutenberg-segment-identity.md`](../adr/0013-gutenberg-segment-identity.md)
 - F8 operations: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md)
+- F9 browser acceptance: [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md)
 - F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2
 - Production code today (Milestone 1): `src/Translation/Store.php`, `Extractor.php`, `Renderer.php`, `Plugin.php`
