@@ -187,6 +187,80 @@ final class Settings {
 	}
 
 	/**
+	 * Production Strategy F flag keys owned by {@see Settings::OPTION}.
+	 *
+	 * @return list<string>
+	 */
+	public static function production_flag_keys(): array {
+		return FeatureFlags::PRODUCTION_FLAGS;
+	}
+
+	/**
+	 * Emits {@see 'aiml_settings_flag_changed'} for each changed production flag.
+	 *
+	 * @param array<string, mixed> $previous Sanitized settings before save.
+	 * @param array<string, mixed> $next     Sanitized settings after save.
+	 * @param string               $source   Change origin identifier.
+	 */
+	public static function emit_flag_change_audit( array $previous, array $next, string $source = 'admin_settings' ): void {
+		if ( ! function_exists( 'do_action' ) ) {
+			return;
+		}
+
+		foreach ( self::production_flag_keys() as $flag ) {
+			$old = ! empty( $previous[ $flag ] );
+			$new = ! empty( $next[ $flag ] );
+
+			if ( $old === $new ) {
+				continue;
+			}
+
+			/**
+			 * Fires when a Strategy F production flag changes.
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param array{
+			 *     flag: string,
+			 *     old: bool,
+			 *     new: bool,
+			 *     user_id: int,
+			 *     timestamp: int,
+			 *     source: string
+			 * } $payload Audit payload (no content or secrets).
+			 */
+			do_action(
+				'aiml_settings_flag_changed',
+				array(
+					'flag'      => $flag,
+					'old'       => $old,
+					'new'       => $new,
+					'user_id'   => function_exists( 'get_current_user_id' ) ? (int) get_current_user_id() : 0,
+					'timestamp' => time(),
+					'source'    => $source,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Emits {@see SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED} once per rejected save.
+	 *
+	 * @param array<string, mixed> $payload Bounded rejection audit payload.
+	 */
+	public static function emit_flag_combo_rejected( array $payload ): void {
+		if ( ! function_exists( 'do_action' ) ) {
+			return;
+		}
+
+		$logger = new SettingsOperationalLogger();
+		$logger->log(
+			SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED,
+			$payload
+		);
+	}
+
+	/**
 	 * Whether uninstall should remove all plugin data.
 	 */
 	public function remove_data_on_uninstall(): bool {

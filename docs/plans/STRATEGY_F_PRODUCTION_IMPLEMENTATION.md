@@ -1,12 +1,12 @@
 # Strategy F — Production Implementation Plan
 
-**Status:** Planning only — no production code, hooks, migrations, or schema changes in this document.
+**Status:** Planning + production implementation in progress (F1–F7 merged to `main`; F8 complete on `feature/f8-operations` @ `55ee542`).
 **Spike evidence baseline:** `42237bd` (S5 complete; merged to `main` via PR #1).
 **Production-plan baseline:** `ea5af19` (initial plan; amended by subsequent docs commits on `spike/s5`).
 **Selected model:** Strategy F — `aimlBlockId` attribute, segment key grammar `b:<uuid>:<field>`.
 **ADR-0013:** Proposed — not Accepted.
-**Production implementation:** Not started (F1 not begun).
-**Production readiness:** Not approved.
+**Production implementation:** F1–F7 merged (`strategy-f-phase1-f1-f7`); F8 operational controls complete on `feature/f8-operations` (see [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)).
+**Production readiness:** Not approved (F9+ pending).
 
 This plan translates spike evidence into implementable Strategy F work packages (F1–F11). It does **not** supersede [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md); it **specializes** the block-identity portion Rev 3 deferred to Spike S5 (§5.2 segment key grammar, `block:N` drift note).
 
@@ -369,7 +369,7 @@ Last-write-wins (WordPress core). Repair on each canonical save maintains gate s
 
 ## 14. Observability
 
-Structured events (no body text): `uuid_generated`, `uuid_preserved`, `duplicate_detected`, `duplicate_repaired`, `registration_compat_mode`, `render_suppressed`, `adapter_missing`, `flag_combo_rejected`, etc.
+Structured events (no body text): `uuid_created`, `uuid_preserved`, `uuid_duplicate_detected`, `uuid_duplicate_repaired`, `adapter_missing`, `block_render_gate_denied`, `block_frontend_render_complete`, `block_migration_post_complete`, `flag_combo_rejected`, etc. Full inventory: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) §3.
 
 ---
 
@@ -385,7 +385,7 @@ Structured events (no body text): `uuid_generated`, `uuid_preserved`, `duplicate
 | `block_uuid_repair_enabled` | Duplicate repair | Yes (subordinate to injection) |
 | `block_uuid_autosave_inject_enabled` | Inject missing on autosave | Yes |
 | `block_extraction_enabled` | `sync_source` segments | Yes (step 2 rollback) |
-| `block_render_enabled` | Overlay rendering | Yes (step 1 rollback) |
+| `block_frontend_rendering_enabled` | Overlay rendering (F6) | Yes (step 1 rollback) |
 | `block_renderer_proof_mode` | F5 narrow proof logging | Dev/staging |
 | `block_migration_enabled` | Backfill writes | Yes (step 4 rollback) |
 | `block_diagnostics_enabled` | Verbose logs | Yes |
@@ -397,7 +397,7 @@ Structured events (no body text): `uuid_generated`, `uuid_preserved`, `duplicate
 | `block_uuid_injection_enabled` | registration **on** |
 | `block_uuid_repair_enabled` | injection **on** |
 | `block_extraction_enabled` | injection **on**, registration **on** |
-| `block_render_enabled` | extraction **on**, registration **on**, F5 proof **accepted** |
+| `block_frontend_rendering_enabled` | extraction **on**, injection **on**, registration **on** |
 
 ### 15.3 Prohibited combinations (must fail closed)
 
@@ -412,7 +412,7 @@ Runtime must reject prohibited combos (settings save + runtime guard).
 
 ### 15.4 Rollback order (production)
 
-1. **Disable block rendering** (`block_render_enabled`)
+1. **Disable block rendering** (`block_frontend_rendering_enabled`)
 2. **Disable block extraction/reconciliation** (`block_extraction_enabled`)
 3. **Disable UUID injection and duplicate repair** (`block_uuid_injection_enabled`, repair sub-flag)
 4. **Stop migration/backfill** (`block_migration_enabled`)
@@ -497,7 +497,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | **F5** Renderer proof | Narrow BlockRenderer proof for 3 blocks; **no general render flag** | F4 | **Formal gate:** all proof criteria §18 pass; else F6 blocked | Proof mode off |
 | **F6** Render gate + allowlisted rendering | BlockRenderGate, render flag for proof allowlist only | **F5 accepted** | 0 FP; unsupported → source | Disable render (rollback step 1) |
 | **F7** Migration and backfill | analyze + backfill CLI; canonical only | F2 | Idempotent batch; registration compat | Stop migration (step 4) |
-| **F8** Observability + feature controls | Settings UI, dependency validator, logger | F1 | Prohibited combos rejected | Diagnostics off |
+| **F8** Observability + feature controls | See [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) — Settings UI, `wp aiml block status`, metrics aggregator, runbooks | F1–F7 | Prohibited combos rejected; health check green | Disable diagnostics; render kill switch §15.4 step 1 |
 | **F9** Integration + browser sign-off | CI + Playwright subset | F6 | Phase 3 parity on proof blocks | — |
 | **F10** Limited rollout | Cohort flags | F8, F6 | Stage metrics | §15.4 rollback |
 | **F11** General rollout + ADR acceptance | Expand adapters; PO sign-off | F10 + ADR checklist | Production approved | §15.4 |
@@ -548,8 +548,8 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **Not started** (F1 not begun) |
-| Production readiness | **Not approved** |
+| Production implementation | **F1–F7 merged** (`strategy-f-phase1-f1-f7` on `main`); **F8 complete** on `feature/f8-operations` @ `55ee542` |
+| Production readiness | **Not approved** (F9 browser sign-off pending) |
 | ADR-0013 | **Proposed** |
 
 ---
@@ -558,5 +558,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 
 - Spike report: [`docs/spikes/S5-gutenberg-segment-identity.md`](../spikes/S5-gutenberg-segment-identity.md)
 - ADR: [`docs/adr/0013-gutenberg-segment-identity.md`](../adr/0013-gutenberg-segment-identity.md)
+- F8 operations: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md)
+- F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2
 - Production code today (Milestone 1): `src/Translation/Store.php`, `Extractor.php`, `Renderer.php`, `Plugin.php`

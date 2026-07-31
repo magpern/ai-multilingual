@@ -331,6 +331,234 @@ final class Store {
 		return $summary;
 	}
 
+	/**
+	 * Provenance states eligible for frontend block rendering.
+	 *
+	 * Keep aligned with {@see BlockTranslationLookup}.
+	 *
+	 * @var list<string>
+	 */
+	public const RENDERABLE_STATUSES = array(
+		self::STATUS_MACHINE_TRANSLATED,
+		self::STATUS_MANUALLY_EDITED,
+		self::STATUS_REVIEWED,
+	);
+
+	/**
+	 * Whether the translations table exists.
+	 */
+	public function translations_table_exists(): bool {
+		global $wpdb;
+
+		$table = Schema::translations();
+
+		return $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	}
+
+	/**
+	 * Whether duplicate segment identity rows can be detected reliably.
+	 *
+	 * The schema enforces UNIQUE segment_identity, so duplicate rows should not
+	 * exist without bypassing the store write path.
+	 */
+	public function duplicate_segment_rows_detectable(): bool {
+		return false;
+	}
+
+	/**
+	 * Counts block-kind segments scoped by source type and optional ids.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Optional source object id.
+	 * @param int    $language_id Optional language id.
+	 */
+	public function count_block_segments( string $source_type, int $source_id = 0, int $language_id = 0 ): int {
+		return $this->health_count_block_segments(
+			$source_type,
+			$source_id,
+			$language_id,
+			''
+		);
+	}
+
+	/**
+	 * Counts translated block segments with non-empty text.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Optional source object id.
+	 * @param int    $language_id Optional language id.
+	 */
+	public function count_translated_block_segments( string $source_type, int $source_id = 0, int $language_id = 0 ): int {
+		return $this->health_count_block_segments(
+			$source_type,
+			$source_id,
+			$language_id,
+			' AND status NOT IN (%s, %s) AND TRIM(translated_text) <> %s',
+			array(
+				self::STATUS_MISSING,
+				self::STATUS_IGNORED,
+				'',
+			)
+		);
+	}
+
+	/**
+	 * Counts renderable block segments aligned with frontend lookup rules.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Optional source object id.
+	 * @param int    $language_id Optional language id.
+	 */
+	public function count_renderable_block_segments( string $source_type, int $source_id = 0, int $language_id = 0 ): int {
+		$status_placeholders = implode( ', ', array_fill( 0, count( self::RENDERABLE_STATUSES ), '%s' ) );
+
+		return $this->health_count_block_segments(
+			$source_type,
+			$source_id,
+			$language_id,
+			' AND is_stale = 0 AND status IN (' . $status_placeholders . ') AND TRIM(translated_text) <> %s',
+			array_merge( self::RENDERABLE_STATUSES, array( '' ) )
+		);
+	}
+
+	/**
+	 * Counts stale block-kind segments.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Optional source object id.
+	 * @param int    $language_id Optional language id.
+	 */
+	public function count_stale_block_segments( string $source_type, int $source_id = 0, int $language_id = 0 ): int {
+		return $this->health_count_block_segments(
+			$source_type,
+			$source_id,
+			$language_id,
+			' AND is_stale = 1'
+		);
+	}
+
+	/**
+	 * Counts orphaned block segments reconciled by sync_source.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Optional source object id.
+	 * @param int    $language_id Optional language id.
+	 */
+	public function count_orphaned_block_segments( string $source_type, int $source_id = 0, int $language_id = 0 ): int {
+		return $this->health_count_block_segments(
+			$source_type,
+			$source_id,
+			$language_id,
+			' AND status = %s AND error_code = %s',
+			array(
+				self::STATUS_IGNORED,
+				'orphaned',
+			)
+		);
+	}
+
+	/**
+	 * Counts duplicate segment identity rows when detectable.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Optional source object id.
+	 */
+	public function count_duplicate_segment_rows( string $source_type, int $source_id = 0 ): int {
+		if ( ! $this->duplicate_segment_rows_detectable() ) {
+			return 0;
+		}
+
+		global $wpdb;
+
+		if ( ! $this->translations_table_exists() ) {
+			return 0;
+		}
+
+		$scope = $this->health_scope_sql( $source_type, $source_id, 0 );
+		$sql   = 'SELECT COALESCE(SUM(dup_count - 1), 0) FROM ('
+			. 'SELECT COUNT(*) AS dup_count FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL
+			. ' WHERE segment_kind = %s AND segment_key LIKE %s' . $scope['sql']
+			. ' GROUP BY source_type, source_id, segment_hash, language_id HAVING COUNT(*) > 1'
+			. ') AS duplicates';
+
+		$count = $wpdb->get_var( $wpdb->prepare( $sql, ...array_merge( array( self::KIND_BLOCK, 'b:%' ), $scope['args'] ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+		return $this->normalize_health_count( $count );
+	}
+
+	/**
+	 * Executes a scoped block-segment count query.
+	 *
+	 * @param string           $source_type Source type.
+	 * @param int              $source_id   Optional source object id.
+	 * @param int              $language_id Optional language id.
+	 * @param string           $extra_where Additional WHERE clause with placeholders.
+	 * @param list<string|int> $extra_args  Placeholder values for the extra clause.
+	 */
+	private function health_count_block_segments(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $extra_where,
+		array $extra_args = array()
+	): int {
+		global $wpdb;
+
+		if ( ! $this->translations_table_exists() ) {
+			return 0;
+		}
+
+		$scope = $this->health_scope_sql( $source_type, $source_id, $language_id );
+		$sql   = 'SELECT COUNT(*) FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL
+			. ' WHERE segment_kind = %s AND segment_key LIKE %s' . $scope['sql'] . $extra_where;
+
+		$args  = array_merge( array( self::KIND_BLOCK, 'b:%' ), $scope['args'], $extra_args );
+		$count = $wpdb->get_var( $wpdb->prepare( $sql, ...$args ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+		return $this->normalize_health_count( $count );
+	}
+
+	/**
+	 * Builds optional source and language scope SQL fragments.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Optional source object id.
+	 * @param int    $language_id Optional language id.
+	 * @return array{sql: string, args: list<string|int>}
+	 */
+	private function health_scope_sql( string $source_type, int $source_id, int $language_id ): array {
+		$sql  = ' AND source_type = %s';
+		$args = array( $source_type );
+
+		if ( $source_id > 0 ) {
+			$sql   .= ' AND source_id = %d';
+			$args[] = $source_id;
+		}
+
+		if ( $language_id > 0 ) {
+			$sql   .= ' AND language_id = %d';
+			$args[] = $language_id;
+		}
+
+		return array(
+			'sql'  => $sql,
+			'args' => $args,
+		);
+	}
+
+	/**
+	 * Normalizes count query results to non-negative integers.
+	 *
+	 * @param mixed $count Raw query result.
+	 */
+	private function normalize_health_count( $count ): int {
+		if ( null === $count || false === $count ) {
+			return 0;
+		}
+
+		return max( 0, (int) $count );
+	}
+
 	// -- Writes --
 
 	/**

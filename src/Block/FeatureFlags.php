@@ -9,7 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Block;
 
-use AIMultilingual\Settings;
+use AIMultilingual\SettingsOperationalLogger;
 
 /**
  * Validates Strategy F flag combinations.
@@ -41,6 +41,18 @@ final class FeatureFlags {
 	public const MIGRATION = 'block_migration_enabled';
 
 	public const DIAGNOSTICS = 'block_diagnostics_enabled';
+
+	/**
+	 * Production Strategy F flags exposed in admin settings (F8).
+	 *
+	 * @var list<string>
+	 */
+	public const PRODUCTION_FLAGS = array(
+		self::REGISTRATION,
+		self::INJECTION,
+		self::EXTRACTION,
+		self::FRONTEND_RENDER,
+	);
 
 	/**
 	 * Enforces safe flag combinations by disabling dependent flags when prerequisites are off.
@@ -90,15 +102,154 @@ final class FeatureFlags {
 	 * @param array<string, mixed> $flags Flag map keyed by {@see self} constants.
 	 */
 	public static function has_prohibited_combination( array $flags ): bool {
+		return array() !== self::flags_dropped_by_validation( $flags );
+	}
+
+	/**
+	 * Production flags the submitter requested but dependency validation removed.
+	 *
+	 * @param array<string, mixed> $flags Flag map reflecting submitted intent.
+	 * @return list<string> Flag keys dropped by {@see self::validate_dependencies()}.
+	 */
+	public static function flags_dropped_by_validation( array $flags ): array {
 		$sanitized = self::validate_dependencies( $flags );
+		$dropped   = array();
 
 		foreach ( array( self::REPAIR, self::INJECTION, self::EXTRACTION, self::RENDER, self::FRONTEND_RENDER, self::AUTOSAVE_INJECT ) as $key ) {
 			if ( self::is_enabled( $flags, $key ) && ! self::is_enabled( $sanitized, $key ) ) {
+				$dropped[] = $key;
+			}
+		}
+
+		return $dropped;
+	}
+
+	/**
+	 * Whether submitted production-flag checkboxes differ from stored settings.
+	 *
+	 * @param array<string, mixed> $raw      Raw settings form post body.
+	 * @param array<string, mixed> $previous Sanitized settings before save.
+	 */
+	public static function production_flags_submission_changed( array $raw, array $previous ): bool {
+		$submitted = self::production_flags_from_raw( $raw );
+
+		foreach ( self::PRODUCTION_FLAGS as $flag ) {
+			$old = self::is_enabled( $previous, $flag );
+			$new = $submitted[ $flag ];
+
+			if ( $old !== $new ) {
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Builds a bounded audit payload when submitted production flags were normalized away.
+	 *
+	 * @param array<string, mixed> $raw   Raw settings form post body.
+	 * @param array<string, mixed> $clean Sanitized settings after dependency validation.
+	 * @return array<string, mixed>|null Audit payload, or null when no rejection occurred.
+	 */
+	public static function flag_rejection_payload( array $raw, array $clean ): ?array {
+		$submitted = self::production_flags_from_raw( $raw );
+		$dropped   = self::flags_dropped_by_validation( $submitted );
+
+		if ( array() === $dropped ) {
+			return null;
+		}
+
+		$submitted_states = array();
+		$effective_states = array();
+		$prerequisite_map = array();
+
+		foreach ( self::PRODUCTION_FLAGS as $flag ) {
+			$submitted_states[ $flag ] = $submitted[ $flag ];
+			$effective_states[ $flag ] = self::is_enabled( $clean, $flag );
+		}
+
+		foreach ( $dropped as $flag ) {
+			$prerequisite_map[ $flag ] = self::missing_prerequisite_key( $flag, $submitted_states );
+		}
+
+		return array(
+			'event'            => SettingsOperationalLogger::EVENT_FLAG_COMBO_REJECTED,
+			'submitted'        => $submitted_states,
+			'effective'        => $effective_states,
+			'dropped_flags'    => $dropped,
+			'prerequisite_map' => $prerequisite_map,
+			'user_id'          => function_exists( 'get_current_user_id' ) ? (int) get_current_user_id() : 0,
+			'timestamp'        => time(),
+			'source'           => 'admin_settings',
+		);
+	}
+
+	/**
+	 * Returns the first missing prerequisite for one dropped production flag.
+	 *
+	 * @param string              $flag      Dropped production flag key.
+	 * @param array<string, bool> $submitted Submitted production-flag intent map.
+	 */
+	public static function missing_prerequisite_key( string $flag, array $submitted ): string {
+		switch ( $flag ) {
+			case self::INJECTION:
+				return self::REGISTRATION;
+			case self::EXTRACTION:
+				if ( empty( $submitted[ self::REGISTRATION ] ) ) {
+					return self::REGISTRATION;
+				}
+
+				return self::INJECTION;
+			case self::FRONTEND_RENDER:
+				if ( empty( $submitted[ self::REGISTRATION ] ) ) {
+					return self::REGISTRATION;
+				}
+
+				if ( empty( $submitted[ self::INJECTION ] ) ) {
+					return self::INJECTION;
+				}
+
+				return self::EXTRACTION;
+			default:
+				return '';
+		}
+	}
+
+	/**
+	 * Interprets submitted production-flag checkboxes from a settings form post.
+	 *
+	 * Unchecked boxes are omitted from the post body and treated as off.
+	 *
+	 * @param array<string, mixed> $raw Raw settings array from the form.
+	 * @return array<string, bool> Production flag intent map.
+	 */
+	public static function production_flags_from_raw( array $raw ): array {
+		$flags = array();
+
+		foreach ( self::PRODUCTION_FLAGS as $key ) {
+			$flags[ $key ] = array_key_exists( $key, $raw ) && self::to_bool( $raw[ $key ] );
+		}
+
+		return $flags;
+	}
+
+	/**
+	 * Human-readable prerequisite label for a production flag key.
+	 *
+	 * @param string $flag Flag key from {@see self::PRODUCTION_FLAGS}.
+	 */
+	public static function prerequisite_label( string $flag ): string {
+		switch ( $flag ) {
+			case self::INJECTION:
+				return self::REGISTRATION;
+			case self::EXTRACTION:
+				return self::INJECTION . ' + ' . self::REGISTRATION;
+			case self::FRONTEND_RENDER:
+				return self::EXTRACTION . ' + ' . self::INJECTION . ' + ' . self::REGISTRATION;
+			default:
+				return '';
+		}
 	}
 
 	/**
