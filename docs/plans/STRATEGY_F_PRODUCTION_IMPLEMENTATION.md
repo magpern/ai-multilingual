@@ -1,12 +1,12 @@
 # Strategy F — Production Implementation Plan
 
-**Status:** Planning only — no production code, hooks, migrations, or schema changes in this document.
+**Status:** Planning + production implementation in progress (F1–F7 merged to `main`; F8 complete on `feature/f8-operations` @ `55ee542`).
 **Spike evidence baseline:** `42237bd` (S5 complete; merged to `main` via PR #1).
 **Production-plan baseline:** `ea5af19` (initial plan; amended by subsequent docs commits on `spike/s5`).
 **Selected model:** Strategy F — `aimlBlockId` attribute, segment key grammar `b:<uuid>:<field>`.
 **ADR-0013:** Proposed — not Accepted.
-**Production implementation:** Not started (F1 not begun).
-**Production readiness:** Not approved.
+**Production implementation:** F1–F7 merged (`strategy-f-phase1-f1-f7`); F8 operational controls complete on `feature/f8-operations` (see [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)).
+**Production readiness:** Not approved (F9+ pending).
 
 This plan translates spike evidence into implementable Strategy F work packages (F1–F11). It does **not** supersede [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md); it **specializes** the block-identity portion Rev 3 deferred to Spike S5 (§5.2 segment key grammar, `block:N` drift note).
 
@@ -369,7 +369,7 @@ Last-write-wins (WordPress core). Repair on each canonical save maintains gate s
 
 ## 14. Observability
 
-Structured events (no body text): `uuid_created`, `uuid_preserved`, `uuid_duplicate_detected`, `uuid_duplicate_repaired`, `adapter_missing`, `block_render_gate_denied`, `block_frontend_render_complete`, `block_migration_post_complete`, etc. Full inventory: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) §3. Planned F8 additions include `flag_combo_rejected`.
+Structured events (no body text): `uuid_created`, `uuid_preserved`, `uuid_duplicate_detected`, `uuid_duplicate_repaired`, `adapter_missing`, `block_render_gate_denied`, `block_frontend_render_complete`, `block_migration_post_complete`, `flag_combo_rejected`, etc. Full inventory: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) §3.
 
 ---
 
@@ -548,8 +548,8 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **Not started** (F1 not begun) |
-| Production readiness | **Not approved** |
+| Production implementation | **F1–F7 merged** (`strategy-f-phase1-f1-f7` on `main`); **F8 complete** on `feature/f8-operations` @ `55ee542` |
+| Production readiness | **Not approved** (F9 browser sign-off pending) |
 | ADR-0013 | **Proposed** |
 
 ---
@@ -559,5 +559,6 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - Spike report: [`docs/spikes/S5-gutenberg-segment-identity.md`](../spikes/S5-gutenberg-segment-identity.md)
 - ADR: [`docs/adr/0013-gutenberg-segment-identity.md`](../adr/0013-gutenberg-segment-identity.md)
 - F8 operations: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md)
+- F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2
 - Production code today (Milestone 1): `src/Translation/Store.php`, `Extractor.php`, `Renderer.php`, `Plugin.php`

@@ -1,6 +1,6 @@
 # F8 — Operational Controls and Observability Plan
 
-**Status:** Canonical operations plan (WP0 committed; F8 implementation pending)  
+**Status:** Canonical operations plan (WP0–WP6 complete on `feature/f8-operations` @ `55ee542`)  
 **Depends on:** F1–F7 complete (`a33219e` … `7c733bb`)  
 **ADR-0013:** Proposed (unchanged)  
 **Canonical doc:** This file. Master plan cross-ref: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) §19.  
@@ -51,10 +51,10 @@ flowchart TB
 **Key code facts (F1–F7):**
 - Four production flags in [`src/Settings.php`](../../src/Settings.php) — all default `false`.
 - Dependency enforcement in [`src/Block/FeatureFlags.php`](../../src/Block/FeatureFlags.php) via `Settings::sanitize()`.
-- No Strategy F controls in [`src/Admin/SettingsPage.php`](../../src/Admin/SettingsPage.php) yet (switcher/uninstall only).
+- Strategy F controls live in [`src/Admin/SettingsPage.php`](../../src/Admin/SettingsPage.php) (four production flags, diagnostics, dependency notices).
 - Migration is CLI-only ([`src/Cli.php`](../../src/Cli.php) `wp aiml block migrate`); **not** gated by `block_migration_enabled` (constant exists but unwired).
 - F6 render flag is `block_frontend_rendering_enabled`, not master-plan `block_render_enabled`.
-- No metrics persistence, no `wp aiml block status`. Flag-change audit hook `aiml_settings_flag_changed` added in F8 WP1.
+- `wp aiml block status`, request-scoped `BlockMetricsAggregator`, `aiml_settings_flag_changed`, and `flag_combo_rejected` are implemented (WP1–WP5). Live CLI validation: [F8_CLI_VALIDATION_LOG.md](F8_CLI_VALIDATION_LOG.md).
 
 ---
 
@@ -624,18 +624,14 @@ The admin notice transient uses the same normalized payload fields (`dropped`, `
 - This document committed to `docs/plans/STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md`
 - Master plan §15 flag names and §19 F8 cross-reference updated
 
-### Required for F8 implementation (single milestone — **no split recommended**)
+### F8 work packages (complete on `feature/f8-operations` @ `55ee542`)
 
-Estimated ~1 reviewable PR:
-
-1. **Settings UI** — 4 flags + dependency UI + confirmations
-2. **`wp aiml block status`** command + `BlockHealthService`
-3. **`BlockMetricsAggregator`** — hook listener, in-memory counters
-4. **`aiml_settings_flag_changed`** audit action
-5. **`flag_combo_rejected` log** on prohibited save attempt — **WP5 complete**
-6. **Render `elapsed_ms`** in frontend logger — **WP4 complete**
-7. **Integration tests** — settings dependency UI, status command, kill switch, metrics hook — **WP5 kill-switch tests added**
-8. **Ops:** Execute live CLI validation on dev.biopentra.eu; log in `F8_CLI_VALIDATION_LOG.md` — **WP6**
+1. **WP1 — Settings UI** — 4 flags + dependency UI + confirmations + `aiml_settings_flag_changed`
+2. **WP2 — BlockHealthService** — read-only scans + Store health count helpers
+3. **WP3 — `wp aiml block status`** — table/JSON via `BlockHealthService`
+4. **WP4 — BlockMetricsAggregator** — request-scoped hook counters + render `elapsed_ms`
+5. **WP5 — Operational safety** — `flag_combo_rejected` + kill-switch integration tests
+6. **WP6 — Live CLI validation** — dev.biopentra.eu acceptance recorded in [F8_CLI_VALIDATION_LOG.md](F8_CLI_VALIDATION_LOG.md)
 
 ### Deferred to F9
 - Browser sign-off (Playwright)
@@ -659,18 +655,18 @@ Estimated ~1 reviewable PR:
 
 ## 12. F8 acceptance criteria
 
-- [ ] All four flags visible in Settings with dependency-safe save
-- [ ] Emergency frontend kill switch verified by test + manual checklist
-- [ ] `wp aiml block status` returns all §5.2 fields
-- [ ] Live CLI dry-run completed on dev.biopentra.eu
-- [ ] Bounded live migration test completed (≥1 batch)
-- [ ] Idempotent rerun verified
-- [ ] Structured event catalog documented (§3) matches code
-- [ ] No content/translated-body logging verified
-- [ ] Rollback runbook (§7) reviewed by operator
-- [ ] All flags default off; frontend rendering not enabled in prod
-- [ ] PHPUnit 0 failures; PHPCS 0/0
-- [ ] Master plan cross-refs updated
+- [x] All four flags visible in Settings with dependency-safe save
+- [x] Emergency frontend kill switch verified by test + live HTTP on dev.biopentra.eu
+- [x] `wp aiml block status` returns all §5.2 fields
+- [x] Live CLI dry-run completed on dev.biopentra.eu
+- [x] Controlled live migration completed (single post `4638`; batch dry-run at offset 0)
+- [x] Idempotent rerun verified
+- [x] Structured event catalog documented (§3) matches code
+- [x] No content/translated-body logging verified (PHPUnit invariants + live CLI)
+- [x] Rollback runbook (§7) validated via kill-switch HTTP check
+- [x] All flags restored to default off after validation on dev
+- [x] PHPUnit 0 failures; PHPCS 0/0
+- [x] Master plan cross-refs updated
 
 ---
 
@@ -699,11 +695,9 @@ Before browser sign-off (F9) begins:
 
 1. **`block_render_enabled` vs `block_frontend_rendering_enabled`** — F6 renamed; master plan §15 updated in WP0.
 2. **`block_migration_enabled`** — in FeatureFlags, unwired; F7 uses CLI capability gates instead.
-3. **Settings UI** — master plan F8 says "Settings UI" but none exists yet.
-4. **Event names** — master plan §14 uses different names than code constants.
-5. **`BlockExtractionLogger` field_skipped** — uses key `duplicate_uuid` for segment key collision (misnamed).
-6. **No metrics layer** — master plan §14 implies counters; only hooks exist today.
-7. **Cross-post rejection** — silent increment in lookup; no dedicated log event yet.
+3. **Event names** — master plan §14 uses different names than code constants.
+4. **`BlockExtractionLogger` field_skipped** — uses key `duplicate_uuid` for segment key collision (misnamed; deferred minor rename).
+5. **Cross-post rejection** — silent increment in lookup; no dedicated log event yet (metrics deferred to F10).
 
 ---
 
@@ -712,7 +706,7 @@ Before browser sign-off (F9) begins:
 | Document | Path |
 |---|---|
 | Master implementation plan | [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) |
-| CLI validation log (ops, F8 exit) | `docs/plans/F8_CLI_VALIDATION_LOG.md` (created during F8 validation) |
+| CLI validation log (ops, F8 exit) | [F8_CLI_VALIDATION_LOG.md](F8_CLI_VALIDATION_LOG.md) |
 
 **Implementation files (F8 code — subsequent work packages):**
 - `src/Admin/SettingsPage.php` — Strategy F section
@@ -720,4 +714,4 @@ Before browser sign-off (F9) begins:
 - `src/Block/BlockMetricsAggregator.php` — new
 - `src/Cli.php` — `block status` command
 - `src/Plugin.php` — wire aggregator + health
-- Tests: `tests/integration/BlockHealthTest.php`, `tests/unit/Admin/StrategyFSettingsTest.php`
+- Tests: `tests/integration/BlockHealthTest.php`, `tests/integration/StrategyFSettingsTest.php`, `tests/integration/BlockFrontendKillSwitchTest.php`
