@@ -12,8 +12,8 @@ import {
   deletePost,
   enableStrategyFlags,
   exportPost,
-  getSettings,
   httpGet,
+  fetchPublicHtml,
   migratePost,
   publishPost,
   restoreStrategyFlags,
@@ -52,13 +52,11 @@ test.describe('F9 frontend language translation migration', () => {
   for (const c of fr1Cases) {
     test(`FR-1: ${c.slug} renders Swedish overlay`, async ({ page }) => {
       test.setTimeout(600000);
-      enableStrategyFlags(true);
       const postId = await bootstrapProductionPost(page, creds, c.slug, `F9 FR ${c.slug}`, c.fixture);
-      enableStrategyFlags(true);
       publishPost(postId, c.slug);
       saveTranslationForPost(postId, `${c.slug}-pub`, c.sv);
 
-      const html = httpGet(`${creds.baseUrl}/sv/${c.slug}/?t=${Date.now()}`);
+      const html = fetchPublicHtml(`/sv/${c.slug}/`);
       expect(html, c.slug).toContain(c.marker);
 
       results[`fr1_${c.slug}`] = { post_id: postId, pass: true };
@@ -67,14 +65,13 @@ test.describe('F9 frontend language translation migration', () => {
   }
 
   test('FR-2/FR-3: kill switch and re-enable', async ({ page }) => {
-    enableStrategyFlags(true);
+    test.setTimeout(600000);
     const slug = 'f9-killswitch';
     const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Kill switch', 'core-paragraph.html');
-    enableStrategyFlags(true);
     publishPost(postId, slug);
     saveTranslationForPost(postId, `${slug}-pub`, '<p>Hej av</p>');
 
-    let html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    let html = fetchPublicHtml(`/sv/${slug}/`);
     expect(html).toContain('Hej av');
 
     enableStrategyFlags(false);
@@ -82,8 +79,7 @@ test.describe('F9 frontend language translation migration', () => {
     expect(html).toContain(FIXTURE_PARAGRAPH_SOURCE);
     expect(html).not.toContain('Hej av');
 
-    enableStrategyFlags(true);
-    html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    html = fetchPublicHtml(`/sv/${slug}/`);
     expect(html).toContain('Hej av');
 
     results.kill_switch = { post_id: postId, pass: true };
@@ -91,15 +87,15 @@ test.describe('F9 frontend language translation migration', () => {
   });
 
   test('LS-1/LS-2: language prefix routing without cookie dependency', async ({ page }) => {
-    enableStrategyFlags(true);
+    test.setTimeout(600000);
     const slug = 'f9-lang-route';
     const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Lang route', 'core-paragraph.html');
-    enableStrategyFlags(true);
     publishPost(postId, slug);
     saveTranslationForPost(postId, `${slug}-pub`, '<p>Svenska</p>');
 
-    const en = httpGet(`${creds.baseUrl}/${slug}/?t=${Date.now()}`);
-    const sv = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    enableStrategyFlags(true);
+    const en = fetchPublicHtml(`/${slug}/`);
+    const sv = fetchPublicHtml(`/sv/${slug}/`);
     expect(en).toContain(FIXTURE_PARAGRAPH_SOURCE);
     expect(sv).toContain('Svenska');
 
@@ -108,21 +104,20 @@ test.describe('F9 frontend language translation migration', () => {
   });
 
   test('TR-1/TR-2: store segment_key and stale after edit', async ({ page }) => {
-    enableStrategyFlags(true);
+    test.setTimeout(600000);
     const slug = 'f9-tr-stale';
     const postId = await bootstrapProductionPost(page, creds, slug, 'F9 TR stale', 'core-paragraph.html');
-    enableStrategyFlags(true);
     publishPost(postId, slug);
     saveTranslationForPost(postId, `${slug}-pub`, '<p>Gammal</p>');
 
-    let html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    let html = fetchPublicHtml(`/sv/${slug}/`);
     expect(html).toContain('Gammal');
 
     await openBlockEditor(page, creds, postId);
     await editBlockText(page, 0, 'Changed source text.');
     await savePost(page);
 
-    html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    html = fetchPublicHtml(`/sv/${slug}/`);
     expect(html).toContain('Changed source text.');
     expect(html).not.toContain('Gammal');
 
@@ -141,7 +136,7 @@ test.describe('F9 frontend language translation migration', () => {
     enableStrategyFlags(true);
     const uuidA = saveTranslationForPost(idA, `${slugA}-pub`, '<p>Only A</p>');
 
-    const htmlB = httpGet(`${creds.baseUrl}/sv/${slugB}/?t=${Date.now()}`);
+    const htmlB = fetchPublicHtml(`/sv/${slugB}/`);
     expect(htmlB).not.toContain('Only A');
 
     results.cross_post_scope = { post_a: idA, post_b: idB, uuid_a: uuidA, pass: true };
@@ -207,15 +202,14 @@ test.describe('F9 frontend language translation migration', () => {
     saveTranslationForPost(postId, `${slug}-pub`, '<p>Hej rb</p>');
     const hashAtStart = contentSha256(postId);
 
-    let html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    let html = fetchPublicHtml(`/sv/${slug}/`);
     expect(html).toContain('Hej rb');
 
     enableStrategyFlags(false);
     html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
     expect(html).toContain(FIXTURE_PARAGRAPH_SOURCE);
 
-    enableStrategyFlags(true);
-    html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    html = fetchPublicHtml(`/sv/${slug}/`);
     expect(html).toContain('Hej rb');
 
     expect(contentSha256(postId)).toBe(hashAtStart);

@@ -71,6 +71,16 @@ $frontend = new BlockFrontendRenderer(
 $content  = (string) $post->post_content;
 $rendered = $frontend->render( $post, $content );
 
+$gate_context = RenderGateContext::from_request(
+	$settings,
+	$context,
+	$extractor,
+	$post,
+	$content,
+	false
+);
+$gate_decision = ( new BlockRenderGate() )->evaluate( $gate_context );
+
 $false_positives = 0;
 $checks          = 0;
 
@@ -120,7 +130,8 @@ echo wp_json_encode(
 		'post_id'               => $post_id,
 		'checks'                => $checks,
 		'rendered_false_positive' => $false_positives,
-		'gate_allowed'          => $settings->block_frontend_rendering_enabled(),
+		'gate_allowed'          => $gate_decision->allowed,
+		'gate_reason'           => $gate_decision->allowed ? '' : $gate_decision->reason,
 	),
 	JSON_PRETTY_PRINT
 ) . "\n";

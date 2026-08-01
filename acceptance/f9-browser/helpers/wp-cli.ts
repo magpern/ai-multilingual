@@ -27,11 +27,20 @@ $flags["block_attr_registration_enabled"] = true;
 $flags["block_uuid_injection_enabled"] = true;
 $flags["block_extraction_enabled"] = true;
 $flags["block_frontend_rendering_enabled"] = ${frontend};
+$flags = AIMultilingual\\Settings::sanitize( $flags );
 update_option( AIMultilingual\\Settings::OPTION, $flags );
 if ( function_exists( "wp_cache_flush" ) ) { wp_cache_flush(); }
-echo "ok";
+echo (int) $flags["block_frontend_rendering_enabled"];
 ' --user=1`
   );
+
+  const settings = getSettings();
+  if (includeFrontend && !settings.block_frontend_rendering_enabled) {
+    throw new Error('enableStrategyFlags(true) did not persist block_frontend_rendering_enabled');
+  }
+  if (!settings.block_attr_registration_enabled || !settings.block_uuid_injection_enabled || !settings.block_extraction_enabled) {
+    throw new Error('enableStrategyFlags() did not persist prerequisite Strategy F flags');
+  }
 }
 
 export function restoreStrategyFlags(): void {
@@ -64,6 +73,17 @@ export function createDraftPost(slug: string, title: string, fixtureFile: string
 
 export function publishPost(postId: number, slug: string): void {
   wp(`post update ${postId} --post_status=publish --post_name=${slug} --user=1`);
+  const status = wp(`post get ${postId} --field=status --user=1`);
+  if ('publish' !== status) {
+    throw new Error(`publishPost(${postId}) expected publish, got ${status}`);
+  }
+}
+
+/** Enable frontend rendering and fetch a public URL (cache-busted). */
+export function fetchPublicHtml(path: string): string {
+  enableStrategyFlags(true);
+  const base = process.env.WP_BASE_URL ?? 'https://dev.biopentra.eu';
+  return httpGet(`${base}${path}${path.includes('?') ? '&' : '?'}t=${Date.now()}`);
 }
 
 export function toContainerPath(hostPath: string): string {
