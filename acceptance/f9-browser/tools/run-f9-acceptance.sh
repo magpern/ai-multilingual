@@ -126,18 +126,20 @@ Artifacts: \`acceptance/f9-browser/artifacts/\` (working) and \`docs/plans/f9-ar
 
 | ID | Severity | Description | Resolution |
 |---|---|---|---|
-| D1 | High | Editor omits `aimlBlockId` after server inject; re-save mints new UUID | Fixed in `SavePipeline.php` + `assets/block-editor.js` |
-| D2 | Medium | `replay-render-gate.php` used wrong Store lookup shape | Fixed lookup access in harness tool |
-| D3 | Medium | Playwright container could not invoke WP-CLI without docker.sock mount | Fixed in `run-f9-acceptance.sh` |
-| D4 | Medium | `wp eval` escaping broke Strategy F flag helpers | Fixed in `wp-cli.ts`; added eval-file for FF-3 |
-| D5 | Low | Bootstrap disabled frontend flags before HTTP overlay checks | Fixed `fetchPublicHtml()` re-enable before assertions |
-| D6 | Low | Stale slug pages from aborted runs caused collisions | Fixed `deletePostsBySlug()` in harness |
-| D7 | Medium | Strategy F admin rejection notice used wrong settings screen ID | Fixed in `SettingsPage.php` (D8) |
-| D8 | Medium | `wp_cache_flush()` immediately after notice queue cleared transient | Removed flush from invalid-flag submit tool |
-| D9 | Low | `replay-render-gate.php` missing `RenderGateContext` import | Fixed import; gate evaluation restored |
-| D10 | Low | Firefox save button click blocked by document bar shortcut overlay | Fixed `savePost()` force click in harness |
-| D11 | Low | Tier 1 mobile spec missing `saveTranslationForPost` import | Fixed import + `fetchPublicHtml()` |
+| D1 | High | Editor omits aimlBlockId after server inject; re-save mints new UUID | Fixed in SavePipeline.php + block-editor.js |
+| D2 | Medium | replay-render-gate.php used wrong Store lookup shape | Fixed lookup access in harness tool |
+| D3 | Medium | Playwright container could not invoke WP-CLI without docker.sock mount | Fixed in run-f9-acceptance.sh |
+| D4 | Medium | wp eval escaping broke Strategy F flag helpers | Fixed in wp-cli.ts; added eval-file for FF-3 |
+| D5 | Low | Bootstrap disabled frontend flags before HTTP overlay checks | Fixed fetchPublicHtml() re-enable before assertions |
+| D6 | Low | Stale slug pages from aborted runs caused collisions | Fixed deletePostsBySlug() in harness |
+| D7 | Medium | Strategy F admin rejection notice used wrong settings screen ID | Fixed in SettingsPage.php |
+| D8 | Medium | wp_cache_flush() immediately after notice queue cleared transient | Removed flush from invalid-flag submit tool |
+| D9 | Low | replay-render-gate.php missing RenderGateContext import | Fixed import; gate evaluation restored |
+| D10 | Low | Firefox save button click blocked by document bar shortcut overlay | Fixed savePost() force click in harness |
+| D11 | Low | Tier 1 mobile spec missing saveTranslationForPost import | Fixed import + fetchPublicHtml() |
 | D12 | Low | Undo/redo matrix cell saved after undo when editor already clean | Skip redundant save after undo in harness |
+| D13 | Low | Bootstrap second editor navigation caused intermittent goto flake | Verify UUID via exportPost after first save only |
+| D14 | Low | Firefox duplicate/ungroup menu clicks intermittently blocked | Force-click + poll block count before save |
 
 ## Remaining limitations
 

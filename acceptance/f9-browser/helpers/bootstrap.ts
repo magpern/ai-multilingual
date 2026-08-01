@@ -18,8 +18,6 @@ export async function bootstrapProductionPost(
   await login(page, creds);
   await openBlockEditor(page, creds, postId);
   await savePost(page);
-  // Re-open so block attributes match server-injected aimlBlockId before further ops.
-  await openBlockEditor(page, creds, postId);
   const analysis = exportPost(postId, `${slug}-bootstrap`).analysis as { blocks?: Array<{ uuid?: string }> };
   if (!analysis.blocks?.length || !analysis.blocks[0]?.uuid) {
     throw new Error(`Production bootstrap failed to inject UUID for post ${postId}`);

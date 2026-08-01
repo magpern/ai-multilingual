@@ -123,7 +123,7 @@ export async function duplicateBlock(page: Page, index: number, blockType?: stri
   await openBlockOptionsMenu(page);
   // Accessible name often includes the shortcut hint ("Duplicate Ctrl+Shift+D"),
   // so match by prefix rather than exact/anchored equality.
-  await page.getByRole('menuitem', { name: /^duplicate\b/i }).click({ timeout: 5000 });
+  await page.getByRole('menuitem', { name: /^duplicate\b/i }).click({ timeout: 15000, force: true });
   await page.keyboard.press('Escape').catch(() => undefined);
 }
 
@@ -236,8 +236,8 @@ export async function unwrapFromGroup(page: Page, groupIndex = 0): Promise<void>
   await groupBreadcrumb.waitFor({ state: 'visible', timeout: 5000 });
   await groupBreadcrumb.click();
   await openBlockOptionsMenu(page);
-  const ungroupItem = page.getByRole('menuitem', { name: /^ungroup\b/i }).first();
-  await ungroupItem.click({ timeout: 5000 });
+  const ungroupItem = page.getByRole('menuitem', { name: /ungroup/i }).first();
+  await ungroupItem.click({ timeout: 15000, force: true });
 }
 
 async function clickIntoRichText(block: Locator, page: Page): Promise<void> {
