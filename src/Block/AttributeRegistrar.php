@@ -90,7 +90,7 @@ final class AttributeRegistrar {
 		wp_enqueue_script(
 			self::SCRIPT_HANDLE,
 			plugins_url( 'assets/block-editor.js', AIML_PLUGIN_FILE ),
-			array( 'wp-blocks', 'wp-hooks' ),
+			array( 'wp-blocks', 'wp-hooks', 'wp-data', 'wp-block-editor' ),
 			(string) filemtime( $script_path ),
 			true
 		);

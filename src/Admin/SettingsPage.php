@@ -715,12 +715,8 @@ final class SettingsPage {
 	 * Prints Strategy F dependency rejection notices after settings save.
 	 */
 	public function render_strategy_f_admin_notices(): void {
-		if ( ! function_exists( 'get_current_screen' ) ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( null === $screen || 'settings_page_' . self::SETTINGS_SLUG !== $screen->id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing.
+		if ( ! isset( $_GET['page'] ) || self::SETTINGS_SLUG !== (string) $_GET['page'] ) {
 			return;
 		}
 

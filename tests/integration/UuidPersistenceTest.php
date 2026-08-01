@@ -146,6 +146,32 @@ final class UuidPersistenceTest extends AimlTestCase {
 		$this->assertStringContainsString( $uuid, $result->content );
 	}
 
+	public function test_save_pipeline_preserves_uuid_when_editor_omits_attribute(): void {
+		$pipeline = $this->enabled_pipeline();
+		$post_id  = self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'draft',
+				'post_content' => '<!-- wp:paragraph {"aimlBlockId":"550e8400-e29b-41d4-a716-446655440000"} --><p>Hello</p><!-- /wp:paragraph -->',
+			)
+		);
+
+		$edited = '<!-- wp:paragraph --><p>Hello edited</p><!-- /wp:paragraph -->';
+		$result = $pipeline->apply_with_guard(
+			array(
+				'post_content' => $edited,
+				'post_type'    => 'page',
+			),
+			array(
+				'ID'        => $post_id,
+				'post_type' => 'page',
+			)
+		);
+
+		$this->assertStringContainsString( '550e8400-e29b-41d4-a716-446655440000', $result['post_content'] );
+		$this->assertStringContainsString( 'Hello edited', $result['post_content'] );
+	}
+
 	public function test_injection_disabled_when_flags_off(): void {
 		$pipeline = new SavePipeline(
 			new Settings(
