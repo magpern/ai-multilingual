@@ -235,5 +235,8 @@ echo $store->count_block_segments( AIMultilingual\\Translation\\Store::SOURCE_PO
 }
 
 export function httpGet(url: string): string {
-  return execSync(`curl -sL "${url}"`, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
+  return execSync(
+    `curl -sL -H "Cache-Control: no-cache" -H "Pragma: no-cache" "${url}"`,
+    { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }
+  );
 }

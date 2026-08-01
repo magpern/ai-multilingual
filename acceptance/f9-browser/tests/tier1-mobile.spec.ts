@@ -5,11 +5,10 @@ import { test, expect } from '@playwright/test';
 import { loadCredentials } from '../helpers/env';
 import {
   deletePost,
-  enableStrategyFlags,
   exportPost,
-  httpGet,
+  fetchPublicHtml,
   publishPost,
-  saveBlockTranslation,
+  saveTranslationForPost,
 } from '../helpers/wp-cli';
 import { duplicateBlock, editBlockText, login, openBlockEditor, savePost } from '../helpers/editor';
 import { Analysis, bootstrapProductionPost } from '../helpers/bootstrap';
@@ -44,13 +43,11 @@ test.describe('F9 Tier 1 mobile', () => {
 
   test('frontend spot-check on mobile', async ({ page }) => {
     const slug = 'f9-mobile-fe';
-    enableStrategyFlags(true);
     const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Mobile FE', 'core-paragraph.html');
-    enableStrategyFlags(true);
     publishPost(postId, slug);
     saveTranslationForPost(postId, `${slug}-pub`, '<p>Hej mobil</p>');
 
-    const html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    const html = fetchPublicHtml(`/sv/${slug}/`);
     expect(html).toContain('Hej mobil');
     deletePost(postId);
   });

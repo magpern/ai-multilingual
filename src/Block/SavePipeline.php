@@ -82,7 +82,7 @@ final class SavePipeline {
 				}
 			}
 
-			$result  = $this->injector->inject_content( $content );
+			$result = $this->injector->inject_content( $content );
 
 			if ( ! $result->successful ) {
 				return $data;
@@ -236,8 +236,10 @@ final class SavePipeline {
 	}
 
 	/**
-	 * @param array<int, array<string, mixed>> $blocks Parsed block tree.
-	 * @param BlockRegistry                  $registry Block eligibility policy.
+	 * Collects eligible blocks in document order.
+	 *
+	 * @param array<int, array<string, mixed>> $blocks   Parsed block tree.
+	 * @param BlockRegistry                    $registry Block eligibility policy.
 	 * @return list<array<string, mixed>>
 	 */
 	private function eligible_blocks_in_order( array $blocks, BlockRegistry $registry ): array {

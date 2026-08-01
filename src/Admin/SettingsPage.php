@@ -716,7 +716,8 @@ final class SettingsPage {
 	 */
 	public function render_strategy_f_admin_notices(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing.
-		if ( ! isset( $_GET['page'] ) || self::SETTINGS_SLUG !== (string) $_GET['page'] ) {
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['page'] ) ) : '';
+		if ( self::SETTINGS_SLUG !== $page ) {
 			return;
 		}
 

@@ -27,6 +27,7 @@ use AIMultilingual\Translation\BlockRenderGate;
 use AIMultilingual\Translation\BlockTranslationLookup;
 use AIMultilingual\Translation\BlockTranslationSanitizer;
 use AIMultilingual\Translation\Extractor;
+use AIMultilingual\Translation\RenderGateContext;
 use AIMultilingual\Translation\Store;
 
 $post_id = isset( $args[0] ) ? (int) $args[0] : 0;

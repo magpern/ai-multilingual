@@ -298,7 +298,7 @@ export async function savePost(page: Page): Promise<void> {
     { timeout: 20000 }
   ).catch(() => null);
 
-  await save.click();
+  await save.click({ force: true });
   const response = await responsePromise;
 
   if (response) {

@@ -111,7 +111,6 @@ test.describe('F9 UUID matrix (production plugin)', () => {
     await openBlockEditor(page, creds, postId);
     await editBlockText(page, 0, 'Temporary edit.');
     await undo(page);
-    await savePost(page);
     const afterUndo = exportPost(postId, slug).analysis as unknown as Analysis;
     expect(afterUndo.blocks[0]?.uuid).toBe(before.blocks[0]?.uuid);
     await editBlockText(page, 0, 'Redo path edit.');

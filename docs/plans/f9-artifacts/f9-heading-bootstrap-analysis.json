@@ -1,0 +1,22 @@
+{
+    "post_id": 5757,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-08-01 03:40:53",
+    "content_bytes": 155,
+    "content_sha1": "3775927aa2f35d7d1569a2eba59535d074573b3c",
+    "eligible_blocks": 1,
+    "blocks": [
+        {
+            "index": 0,
+            "uuid": "2178eb00-16dd-4ed9-9915-a6ded8e8b80d",
+            "valid_uuid": true,
+            "block_name": "core\/heading",
+            "text_sha1": "6099ea0c065d3ff8b53bdc8c05b8c6cbad5d10d8"
+        }
+    ],
+    "uuid_counts": {
+        "2178eb00-16dd-4ed9-9915-a6ded8e8b80d": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true
+}
