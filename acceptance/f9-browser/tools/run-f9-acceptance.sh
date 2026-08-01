@@ -14,6 +14,134 @@ COMMIT="$(git -C "$AIML_ROOT" rev-parse HEAD)"
 BRANCH="$(git -C "$AIML_ROOT" branch --show-current)"
 TS="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
+LOCK_FILE="/tmp/biopentra-browser-acceptance.lock"
+VMSTAT_LOG="/tmp/f9-vmstat.log"
+DOCKER_STATS_LOG="/tmp/f9-docker-stats.log"
+SNAP_BEFORE="/tmp/f9-resource-before.log"
+SNAP_AFTER="/tmp/f9-resource-after.log"
+
+VMSTAT_PID=""
+DOCKER_STATS_PID=""
+TELEMETRY_STARTED=0
+AFTER_SNAPSHOT_DONE=0
+LOCK_FD=200
+
+capture_resource_snapshot() {
+  local label="$1"
+  local file="$2"
+  {
+    echo "=== ${label} @ $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+    echo "--- free -h ---"
+    free -h || true
+    echo "--- docker ps ---"
+    docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' || true
+    echo "--- docker stats --no-stream ---"
+    docker stats --no-stream || true
+  } >>"$file" 2>&1 || true
+}
+
+start_telemetry() {
+  TELEMETRY_STARTED=1
+  : >"$VMSTAT_LOG" 2>/dev/null || true
+  : >"$DOCKER_STATS_LOG" 2>/dev/null || true
+
+  if command -v vmstat >/dev/null 2>&1; then
+    vmstat 5 >>"$VMSTAT_LOG" 2>&1 &
+    VMSTAT_PID=$!
+  else
+    echo "vmstat unavailable" >>"$VMSTAT_LOG" 2>&1 || true
+  fi
+
+  (
+    while true; do
+      {
+        echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+        docker stats --no-stream 2>/dev/null || echo "docker stats unavailable"
+      } >>"$DOCKER_STATS_LOG" 2>&1 || true
+      sleep 30
+    done
+  ) &
+  DOCKER_STATS_PID=$!
+}
+
+stop_telemetry() {
+  if [[ "$TELEMETRY_STARTED" -ne 1 ]]; then
+    return 0
+  fi
+  if [[ -n "$VMSTAT_PID" ]]; then
+    kill "$VMSTAT_PID" 2>/dev/null || true
+    wait "$VMSTAT_PID" 2>/dev/null || true
+    VMSTAT_PID=""
+  fi
+  if [[ -n "$DOCKER_STATS_PID" ]]; then
+    kill "$DOCKER_STATS_PID" 2>/dev/null || true
+    wait "$DOCKER_STATS_PID" 2>/dev/null || true
+    DOCKER_STATS_PID=""
+  fi
+}
+
+cleanup() {
+  stop_telemetry
+  if [[ "$TELEMETRY_STARTED" -eq 1 && "$AFTER_SNAPSHOT_DONE" -eq 0 ]]; then
+    capture_resource_snapshot "after" "$SNAP_AFTER"
+  fi
+}
+
+acquire_browser_acceptance_lock() {
+  eval "exec ${LOCK_FD}>\"${LOCK_FILE}\""
+  if ! flock -n "$LOCK_FD"; then
+    echo "ERROR: browser acceptance lock busy: ${LOCK_FILE}" >&2
+    echo "Another browser acceptance suite is running or did not release the lock." >&2
+    if [[ -r "$LOCK_FILE" && -s "$LOCK_FILE" ]]; then
+      echo "Lock holder metadata:" >&2
+      cat "$LOCK_FILE" >&2 || true
+      local holder_pid=""
+      holder_pid="$(sed -n 's/^pid=//p' "$LOCK_FILE" | head -1 || true)"
+      if [[ -n "$holder_pid" && -r "/proc/${holder_pid}/cmdline" ]]; then
+        echo "Holder cmdline:" >&2
+        tr '\0' ' ' <"/proc/${holder_pid}/cmdline" >&2 || true
+        echo >&2
+      fi
+    fi
+    exit 2
+  fi
+  printf 'pid=%s ppid=%s user=%s cmd=%s commit=%s started_utc=%s\n' \
+    "$$" "$PPID" "$(id -un)" "$0" "$COMMIT" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >&${LOCK_FD}
+  echo "Acquired browser acceptance lock: ${LOCK_FILE} (pid=$$)"
+}
+
+assert_no_foreign_playwright_workloads() {
+  local foreign=""
+  foreign="$(
+    pgrep -af 'playwright test|browser-validation' 2>/dev/null \
+      | rg -v "pgrep -af|run-f9-acceptance\\.sh|pid=$$" \
+      || true
+  )"
+  if [[ -n "$foreign" ]]; then
+    echo "ERROR: another Playwright/browser acceptance workload is active on this host." >&2
+    echo "Stop unrelated suites before F9, or wait for them to finish." >&2
+    echo "$foreign" >&2
+    exit 3
+  fi
+
+  local foreign_containers=""
+  foreign_containers="$(
+    docker ps --format '{{.Names}}\t{{.Image}}\t{{.Command}}' 2>/dev/null \
+      | rg -i 'mcr\\.microsoft\\.com/playwright|playwright test' \
+      || true
+  )"
+  if [[ -n "$foreign_containers" ]]; then
+    echo "ERROR: Playwright Docker container(s) already running:" >&2
+    echo "$foreign_containers" >&2
+    exit 3
+  fi
+}
+
+trap cleanup EXIT INT TERM
+
+acquire_browser_acceptance_lock
+assert_no_foreign_playwright_workloads
+
 mkdir -p "$ARTIFACTS" "$ARCHIVE"
 chmod +x "$F9_DIR/tools/"*.sh "$AIML_ROOT/spike/s5/tools/wp-auth-cookies.sh" 2>/dev/null || true
 
@@ -26,8 +154,13 @@ bash "$F9_DIR/tools/write-auth-cookies-json.sh"
   docker compose run --rm -T wpcli wp eval 'update_option( AIMultilingual\Settings::OPTION, AIMultilingual\Settings::defaults() ); if ( function_exists( "wp_cache_flush" ) ) { wp_cache_flush(); } echo "flags_reset";' --user=1
 )
 
+capture_resource_snapshot "before" "$SNAP_BEFORE"
+start_telemetry
+echo "Resource telemetry: vmstat=${VMSTAT_LOG} docker_stats=${DOCKER_STATS_LOG} before=${SNAP_BEFORE} after=${SNAP_AFTER}"
+
 PW_EXIT=0
 docker run --rm \
+  --shm-size=1g \
   -v /opt/biopentra:/opt/biopentra \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /usr/libexec/docker/cli-plugins/docker-compose:/usr/lib/docker/cli-plugins/docker-compose:ro \
@@ -38,6 +171,10 @@ docker run --rm \
   -w /opt/biopentra/dev/ai-multilingual/acceptance/f9-browser \
   "$PLAYWRIGHT_IMAGE" \
   bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update -qq && apt-get install -y -qq docker.io >/dev/null && npm install && npx playwright test' || PW_EXIT=$?
+
+stop_telemetry
+capture_resource_snapshot "after" "$SNAP_AFTER"
+AFTER_SNAPSHOT_DONE=1
 
 # Restore flags after browser session
 (
@@ -85,6 +222,8 @@ Operational acceptance record for Strategy F milestone F9 (browser acceptance).
 | PHP | \`$PHP_VERSION\` |
 | Playwright | \`1.51.0\` (\`$PLAYWRIGHT_IMAGE\`) |
 | ADR-0013 | Proposed (not promoted by F9) |
+| Acceptance lock | \`${LOCK_FILE}\` |
+| Resource telemetry | \`${VMSTAT_LOG}\`, \`${DOCKER_STATS_LOG}\`, \`${SNAP_BEFORE}\`, \`${SNAP_AFTER}\` |
 
 ## Browser matrix
 
@@ -159,5 +298,6 @@ F10 may begin planning **only if F9 PASS** and stakeholder review of §22 limita
 EOF
 
 echo "Wrote $LOG"
+echo "Resource telemetry preserved: ${VMSTAT_LOG} ${DOCKER_STATS_LOG} ${SNAP_BEFORE} ${SNAP_AFTER}"
 echo "F9 result: $OVERALL (playwright=$PW_EXIT unit=$UNIT_EXIT integration=$INT_EXIT phpcs=$PHPCS_EXIT)"
 exit $([ "$OVERALL" = PASS ] && echo 0 || echo 1)
