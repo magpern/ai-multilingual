@@ -8,7 +8,6 @@ import {
   blockCount,
   deleteBlock,
   duplicateBlock,
-  duplicateBlockViaShortcut,
   editBlockText,
   login,
   openBlockEditor,
@@ -35,30 +34,15 @@ test.describe('F9 Tier 1 cross-browser', () => {
     deletePost(postId);
   });
 
-  test('duplicate repairs UUID collisions', async ({ page, browserName }) => {
+  test('duplicate repairs UUID collisions', async ({ page }) => {
     test.setTimeout(600000);
     const slug = 'f9-tier1-dup';
     const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Tier1 Dup', 'duplicate-single.html');
     await openBlockEditor(page, creds, postId);
-    if ('firefox' === browserName) {
-      await duplicateBlockViaShortcut(page, 0, 'core/paragraph');
-    } else {
-      await duplicateBlock(page, 0, 'core/paragraph');
-    }
+    await duplicateBlock(page, 0, 'core/paragraph');
     await expect.poll(async () => blockCount(page, 'core/paragraph'), { timeout: 60000 }).toBeGreaterThan(1);
     await savePost(page);
-    let after = exportPost(postId, slug).analysis as unknown as Analysis;
-    if (Object.keys(after.duplicate_uuids).length > 0) {
-      await editBlockText(page, 1, 'Duplicate tail for repair.');
-      await savePost(page);
-      after = exportPost(postId, slug).analysis as unknown as Analysis;
-    }
-    if (after.eligible_blocks <= 1) {
-      await duplicateBlockViaShortcut(page, 0, 'core/paragraph');
-      await expect.poll(async () => blockCount(page, 'core/paragraph'), { timeout: 60000 }).toBeGreaterThan(1);
-      await savePost(page);
-      after = exportPost(postId, slug).analysis as unknown as Analysis;
-    }
+    const after = exportPost(postId, slug).analysis as unknown as Analysis;
     expect(after.eligible_blocks).toBeGreaterThan(1);
     expect(Object.keys(after.duplicate_uuids)).toHaveLength(0);
     deletePost(postId);
