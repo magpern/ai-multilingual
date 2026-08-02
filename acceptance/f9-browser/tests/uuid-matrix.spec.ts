@@ -13,6 +13,7 @@ import {
 } from '../helpers/wp-cli';
 import {
   assertNoBlockRecovery,
+  closeEditorSession,
   copyBlock,
   deleteBlock,
   duplicateBlock,
@@ -24,9 +25,11 @@ import {
   pasteAsNewBlockAfterLast,
   redo,
   savePost,
+  selectBlock,
   splitParagraph,
   transformBlock,
   undo,
+  waitForDocumentDirty,
   wrapInGroup,
   unwrapFromGroup,
 } from '../helpers/editor';
@@ -45,6 +48,10 @@ test.describe('F9 UUID matrix (production plugin)', () => {
       path.join(ARTIFACTS_DIR, 'uuid-matrix-results.json'),
       JSON.stringify(matrixResults, null, 2)
     );
+  });
+
+  test.afterEach(async ({ page }) => {
+    await closeEditorSession(page, creds);
   });
 
   test('create: first save injects valid UUID', async ({ page }) => {
@@ -105,6 +112,7 @@ test.describe('F9 UUID matrix (production plugin)', () => {
   });
 
   test('undo-redo: UUID tracks edit stack', async ({ page }) => {
+    await closeEditorSession(page, creds);
     const slug = 'f9-undo-redo';
     const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Undo redo', 'core-paragraph.html');
     const before = exportPost(postId, `${slug}-t0`).analysis as unknown as Analysis;
@@ -157,6 +165,8 @@ test.describe('F9 UUID matrix (production plugin)', () => {
     await wrapInGroup(page, 0, 'core/paragraph');
     await savePost(page);
     await unwrapFromGroup(page, 0);
+    await selectBlock(page, 0, 'core/paragraph');
+    await waitForDocumentDirty(page);
     await savePost(page);
     const after = exportPost(postId, slug).analysis as unknown as Analysis;
     matrixResults.group = { uuid, after_uuid: after.blocks[0]?.uuid };

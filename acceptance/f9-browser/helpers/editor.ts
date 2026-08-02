@@ -5,6 +5,41 @@ import { Page, FrameLocator, Locator, expect } from '@playwright/test';
 import { WpCredentials, authCookieFile } from './env';
 import fs from 'fs';
 
+const F9_DIAG = process.env.F9_DIAG === '1';
+
+function f9Diag(phase: string, detail: Record<string, unknown> = {}): void {
+  if (!F9_DIAG) {
+    return;
+  }
+  console.log(`[f9-editor] ${phase}`, JSON.stringify(detail));
+}
+
+export function ensurePageAlive(page: Page, label: string): void {
+  if (page.isClosed()) {
+    throw new Error(`[f9-editor] ${label}: page is closed`);
+  }
+}
+
+/** Leave the block editor so the next test starts from a clean navigation target. */
+export async function closeEditorSession(page: Page, creds?: WpCredentials): Promise<void> {
+  if (page.isClosed()) {
+    f9Diag('closeEditorSession:skip', { reason: 'page_closed' });
+    return;
+  }
+  f9Diag('closeEditorSession:start', { url: page.url() });
+  const adminList = creds ? `${creds.baseUrl}/wp-admin/edit.php?post_type=page` : 'about:blank';
+  try {
+    await page.goto(adminList, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  } catch {
+    try {
+      await page.goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 10000 });
+    } catch {
+      f9Diag('closeEditorSession:failed', { url: page.url() });
+    }
+  }
+  f9Diag('closeEditorSession:done', { url: page.url() });
+}
+
 export function canvas(page: Page): FrameLocator {
   return page.frameLocator('iframe[name="editor-canvas"]');
 }
@@ -33,19 +68,23 @@ export async function login(page: Page, creds: WpCredentials): Promise<void> {
 }
 
 export async function openBlockEditor(page: Page, creds: WpCredentials, postId: number): Promise<void> {
+  ensurePageAlive(page, 'openBlockEditor');
   // page.goto occasionally times out against the dev host under load (observed:
   // intermittent single-navigation stalls unrelated to Gutenberg/editor state —
   // no mutation has happened yet at this point, so a retry here is always safe
   // and never risks double-applying an operation).
   const url = `${creds.baseUrl}/wp-admin/post.php?post=${postId}&action=edit`;
+  f9Diag('openBlockEditor:goto', { postId, url });
   let lastError: unknown;
   for (let attempt = 0; attempt < 3; attempt++) {
+    ensurePageAlive(page, `openBlockEditor:attempt${attempt}`);
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
       lastError = undefined;
       break;
     } catch (err) {
       lastError = err;
+      f9Diag('openBlockEditor:goto-retry', { postId, attempt, error: String(err) });
     }
   }
   if (lastError) {
@@ -125,6 +164,51 @@ export async function duplicateBlock(page: Page, index: number, blockType?: stri
   // so match by prefix rather than exact/anchored equality.
   await page.getByRole('menuitem', { name: /^duplicate\b/i }).click({ timeout: 15000, force: true });
   await page.keyboard.press('Escape').catch(() => undefined);
+}
+
+/**
+ * Duplicate until the editor block list reaches minCount, retrying browser-specific
+ * menu/shortcut paths when the first attempt does not materialize a sibling block.
+ */
+export async function duplicateBlockReliable(
+  page: Page,
+  index: number,
+  blockType = 'core/paragraph',
+  minCount = 2,
+  maxAttempts = 5
+): Promise<void> {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const before = await blockCount(page, blockType);
+    if (before >= minCount) {
+      f9Diag('duplicateBlockReliable:already', { before, minCount });
+      return;
+    }
+
+    f9Diag('duplicateBlockReliable:attempt', { attempt, before, minCount });
+    await selectBlock(page, index, blockType);
+
+    if (attempt % 2 === 0) {
+      await duplicateBlockViaShortcut(page, index, blockType);
+    } else {
+      await duplicateBlock(page, index, blockType);
+    }
+
+    try {
+      await expect.poll(async () => blockCount(page, blockType), { timeout: 30000 }).toBeGreaterThan(before);
+    } catch {
+      continue;
+    }
+
+    const after = await blockCount(page, blockType);
+    if (after >= minCount) {
+      await selectBlock(page, Math.min(index + 1, after - 1), blockType);
+      await canvas(page).locator('body').click({ position: { x: 5, y: 5 }, force: true }).catch(() => undefined);
+      f9Diag('duplicateBlockReliable:success', { after, minCount });
+      return;
+    }
+  }
+
+  throw new Error(`duplicateBlockReliable: expected >= ${minCount} ${blockType} blocks after ${maxAttempts} attempts`);
 }
 
 /** Duplicate via keyboard shortcut only (used to test both entry points). */
@@ -238,6 +322,34 @@ export async function unwrapFromGroup(page: Page, groupIndex = 0): Promise<void>
   await openBlockOptionsMenu(page);
   const ungroupItem = page.getByRole('menuitem', { name: /ungroup/i }).first();
   await ungroupItem.click({ timeout: 15000, force: true });
+  await page.keyboard.press('Escape').catch(() => undefined);
+  await expect.poll(async () => canvas(page).locator('[data-type="core/group"]').count(), { timeout: 15000 }).toBe(0);
+  const ungrouped = canvas(page).locator('[data-type="core/paragraph"], [data-block]').first();
+  await ungrouped.waitFor({ state: 'visible', timeout: 10000 });
+  await ungrouped.click({ position: { x: 5, y: 5 }, force: true });
+  await page.locator('.block-editor-block-toolbar, .block-editor-block-contextual-toolbar').first()
+    .waitFor({ state: 'visible', timeout: 10000 }).catch(() => undefined);
+}
+
+/** Wait until Gutenberg exposes a save affordance after a structural edit. */
+export async function waitForDocumentDirty(page: Page): Promise<void> {
+  const save = page.locator(
+    'button.editor-post-save-draft, button.editor-post-publish-button, .editor-post-save-draft, button[aria-label="Save"], button:has-text("Save draft")'
+  ).first();
+  for (let tick = 0; tick < 40; tick++) {
+    if (await save.isVisible().catch(() => false)) {
+      if (await save.isEnabled().catch(() => false)) {
+        return;
+      }
+    }
+    const saving = page.locator('text=/^Saving/i').first();
+    if (await saving.isVisible({ timeout: 200 }).catch(() => false)) {
+      await saving.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => undefined);
+      return;
+    }
+    await page.waitForTimeout(500);
+  }
+  await save.waitFor({ state: 'visible', timeout: 10000 });
 }
 
 async function clickIntoRichText(block: Locator, page: Page): Promise<void> {
@@ -288,8 +400,9 @@ export async function redo(page: Page): Promise<void> {
  * (e.g. optimistic UI). No arbitrary sleeps are used as the primary signal.
  */
 export async function savePost(page: Page): Promise<void> {
+  ensurePageAlive(page, 'savePost');
   const save = page.locator(
-    'button.editor-post-save-draft, button.editor-post-publish-button, .editor-post-save-draft'
+    'button.editor-post-save-draft, button.editor-post-publish-button, .editor-post-save-draft, button[aria-label="Save"], button:has-text("Save draft")'
   ).first();
   await save.waitFor({ state: 'visible', timeout: 30000 });
 

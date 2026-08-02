@@ -4,7 +4,7 @@
 import { Page } from '@playwright/test';
 import { WpCredentials } from './env';
 import { createDraftPost, enableStrategyFlags, exportPost } from './wp-cli';
-import { login, openBlockEditor, savePost } from './editor';
+import { closeEditorSession, ensurePageAlive, login, openBlockEditor, savePost } from './editor';
 
 export async function bootstrapProductionPost(
   page: Page,
@@ -13,6 +13,8 @@ export async function bootstrapProductionPost(
   title: string,
   fixtureFile: string
 ): Promise<number> {
+  ensurePageAlive(page, 'bootstrapProductionPost');
+  await closeEditorSession(page, creds);
   enableStrategyFlags(false);
   const postId = createDraftPost(slug, title, fixtureFile);
   await login(page, creds);

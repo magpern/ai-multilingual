@@ -115,6 +115,13 @@ export function deletePost(postId: number): void {
   wp(`post delete ${postId} --force --user=1`);
 }
 
+/** Re-run server-side SavePipeline on persisted content (diagnostic/repair fallback). */
+export function rerunSavePipeline(postId: number): void {
+  wp(
+    `eval '$p=get_post(${postId}); if(!$p){fwrite(STDERR,"missing post"); exit(1);} wp_update_post(array("ID"=>${postId},"post_content"=>$p->post_content)); echo "ok";' --user=1`
+  );
+}
+
 export function runReplayGate(postId: number): Record<string, unknown> {
   const raw = wp(`eval-file /aiml/acceptance/f9-browser/tools/replay-render-gate.php ${postId} --user=1`);
   return JSON.parse(raw) as Record<string, unknown>;

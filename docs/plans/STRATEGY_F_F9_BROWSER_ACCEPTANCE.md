@@ -1,6 +1,6 @@
 # F9 — Browser Acceptance Plan
 
-**Status:** Canonical browser acceptance plan (planning only — no F9 implementation started)  
+**Status:** Canonical browser acceptance plan — F9 harness implemented on `feature/f9-browser-acceptance`; Tier 2 stabilization in progress @ `46c3934`  
 **Depends on:** F1–F8 merged to `main` @ `795cb1f`; tag `strategy-f-f8-operations-complete`  
 **ADR-0013:** Proposed — F9 informs acceptance; does not auto-promote ADR  
 **Canonical doc:** This file. Master plan cross-ref: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) §18, §19.  
@@ -480,7 +480,30 @@ F9 explicitly excludes:
 
 ---
 
-## 24. Final F9 exit gate
+## 25. Browser test tier policy
+
+F9 browser acceptance uses **tiered Playwright execution**. The full 35-test matrix is expensive (~2 hours on dev.biopentra.eu) and must **not** run after every harness or feature edit.
+
+| Tier | Scope | When to run |
+|---|---|---|
+| **Tier 1 — smoke** | Small critical subset (admin flags FF-1, one FR-1 case, one UUID matrix cell) | During normal development |
+| **Tier 2 — feature-targeted** | Only tests related to the behavior under change | After a harness fix or localized feature change |
+| **Tier 3 — full acceptance** | Complete 35-test matrix via `acceptance/f9-browser/tools/run-f9-acceptance.sh` | Only after all targeted failures pass; before F9 merge; before release candidate; after changes to shared editor/browser orchestration |
+
+**Policy:** The full Playwright suite must not be run after every implementation pass. CI must not run the full suite on every commit.
+
+**Targeted examples (Tier 2):**
+
+```bash
+cd acceptance/f9-browser
+npx playwright test tests/uuid-matrix.spec.ts -g "undo-redo" --project=chromium-desktop
+npx playwright test tests/uuid-matrix.spec.ts -g "group-ungroup" --project=chromium-desktop
+npx playwright test tests/tier1-cross-browser.spec.ts -g "duplicate" --project=firefox-desktop
+```
+
+Require three consecutive targeted passes per failing test before Tier 3.
+
+---
 
 F9 milestone closes when **all** are true:
 
@@ -498,12 +521,12 @@ F9 milestone closes when **all** are true:
 
 ---
 
-## Work packages (execution outline — not started)
+## Work packages (execution outline)
 
 | WP | Deliverable | Notes |
 |---|---|---|
-| WP0 | F9 harness bootstrap | Adapt spike Playwright helpers; production auth; multi-browser projects |
-| WP1 | UUID matrix execution | §9 F9-R cells; corpus export |
+| WP0 | F9 harness bootstrap | **Complete** |
+| WP1 | UUID matrix execution | **Complete** — 3 harness failures remain @ `46c3934` |
 | WP2 | Frontend + language HTTP/browser | §10, §12 |
 | WP3 | Translation + save-path Store proof | §11 TR-7; addresses F8 observation |
 | WP4 | Admin flag UI browser tests | §14 |
