@@ -1181,11 +1181,18 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] GET segments includes ranked TM suggestions
-- [ ] WorkspaceService does not call TMS or providers directly
-- [ ] TM provider returns `NormalizedSuggestion` with `rank_tier`
+- [x] GET segments includes ranked TM suggestions
+- [x] WorkspaceService does not call TMS or providers directly
+- [x] TM provider returns `NormalizedSuggestion` with `rank_tier`
 
 **Dependencies:** WP2
+
+### WP3 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `SuggestionProvider`, `NormalizedSuggestion`, `TranslationMemorySuggestionProvider`, `TranslationSuggestionService`; `meta.suggestions` on GET segments |
+| **Tests** | Unit ranking/provider + `WorkspaceTmSuggestionsTest` |
 
 ---
 

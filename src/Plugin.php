@@ -38,6 +38,8 @@ use AIMultilingual\Rest\WorkspaceController;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\AI\NullAIProvider;
 use AIMultilingual\Translation\BlockExtractor;
+use AIMultilingual\Translation\Memory\TMRepository;
+use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\BlockFrontendRenderer;
 use AIMultilingual\Translation\BlockFrontendRenderLogger;
 use AIMultilingual\Translation\BlockRenderGate;
@@ -49,8 +51,10 @@ use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\PreviewService;
 use AIMultilingual\Workspace\SegmentAssembler;
+use AIMultilingual\Workspace\Suggestion\TranslationMemorySuggestionProvider;
 use AIMultilingual\Workspace\TranslationService;
 use AIMultilingual\Workspace\TranslationStatusCalculator;
+use AIMultilingual\Workspace\TranslationSuggestionService;
 use AIMultilingual\Workspace\WorkspaceService;
 use WP_Post;
 
@@ -120,11 +124,11 @@ final class Plugin {
 
 		$this->settings = new Settings();
 		$settings       = $this->settings;
-		$cache     = new Cache();
-		$languages = new Languages( $cache );
-		$resolver  = new LanguageResolver();
-		$context   = new LanguageContext();
-		$store     = new Store( $cache );
+		$cache          = new Cache();
+		$languages      = new Languages( $cache );
+		$resolver       = new LanguageResolver();
+		$context        = new LanguageContext();
+		$store          = new Store( $cache );
 
 		$adapter_registry = new AdapterRegistry();
 		$block_registry   = new BlockRegistry( $adapter_registry );
@@ -153,23 +157,30 @@ final class Plugin {
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
 
-		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
-		$status_calculator = new TranslationStatusCalculator( $store );
-		$translation       = new TranslationService(
+		$assembler          = new SegmentAssembler( $extractor, $store, $block_registry );
+		$status_calculator  = new TranslationStatusCalculator( $store );
+		$translation        = new TranslationService(
 			$store,
 			$assembler,
 			$languages,
 			new NullAIProvider()
 		);
-		$preview           = new PreviewService( $languages, $context, $router );
-		$workspace         = new WorkspaceService(
+		$preview            = new PreviewService( $languages, $context, $router );
+		$tm_service         = new TranslationMemoryService( new TMRepository() );
+		$suggestion_service = new TranslationSuggestionService(
+			array(
+				new TranslationMemorySuggestionProvider( $tm_service ),
+			)
+		);
+		$workspace          = new WorkspaceService(
 			$assembler,
 			$status_calculator,
 			$translation,
 			$preview,
 			$languages,
 			$store,
-			$extractor
+			$extractor,
+			$suggestion_service
 		);
 
 		( new WorkspaceController(

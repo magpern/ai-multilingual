@@ -81,15 +81,23 @@ final class WorkspaceService {
 	private Extractor $extractor;
 
 	/**
+	 * Injected dependency.
+	 *
+	 * @var TranslationSuggestionService
+	 */
+	private TranslationSuggestionService $suggestions;
+
+	/**
 	 * Builds the collaborator.
 	 *
-	 * @param SegmentAssembler            $assembler           Segment assembly.
-	 * @param TranslationStatusCalculator $status_calculator   Status aggregation.
-	 * @param TranslationService          $translation         Auto-translate boundary.
-	 * @param PreviewService              $preview             Preview URLs.
-	 * @param Languages                   $languages           Language registry.
-	 * @param Store                       $store               Segment store.
-	 * @param Extractor                   $extractor           Source extractor.
+	 * @param SegmentAssembler             $assembler           Segment assembly.
+	 * @param TranslationStatusCalculator  $status_calculator   Status aggregation.
+	 * @param TranslationService           $translation         Auto-translate boundary.
+	 * @param PreviewService               $preview             Preview URLs.
+	 * @param Languages                    $languages           Language registry.
+	 * @param Store                        $store               Segment store.
+	 * @param Extractor                    $extractor           Source extractor.
+	 * @param TranslationSuggestionService $suggestions         Suggestion orchestration.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -98,7 +106,8 @@ final class WorkspaceService {
 		PreviewService $preview,
 		Languages $languages,
 		Store $store,
-		Extractor $extractor
+		Extractor $extractor,
+		TranslationSuggestionService $suggestions
 	) {
 		$this->assembler         = $assembler;
 		$this->status_calculator = $status_calculator;
@@ -107,6 +116,7 @@ final class WorkspaceService {
 		$this->languages         = $languages;
 		$this->store             = $store;
 		$this->extractor         = $extractor;
+		$this->suggestions       = $suggestions;
 		$this->batch             = new BatchOperationCoordinator( $this, $translation );
 	}
 
@@ -194,7 +204,9 @@ final class WorkspaceService {
 	public function load_segments( WP_Post $post, int $language_id ): array {
 		$this->assert_supported_post( $post );
 
-		return $this->assembler->assemble_for_post( $post, $language_id );
+		$segments = $this->assembler->assemble_for_post( $post, $language_id );
+
+		return $this->attach_suggestions( $segments, $language_id );
 	}
 
 	/**
@@ -310,7 +322,9 @@ final class WorkspaceService {
 			throw new \RuntimeException( 'Saved segment could not be reloaded.' );
 		}
 
-		return $refreshed;
+		$with_suggestions = $this->attach_suggestions( array( $refreshed ), $language_id );
+
+		return $with_suggestions[0];
 	}
 
 	/**
@@ -382,6 +396,32 @@ final class WorkspaceService {
 		}
 
 		return $post;
+	}
+
+	/**
+	 * Attaches ranked suggestions via TranslationSuggestionService (never TMS).
+	 *
+	 * @param list<array<string, mixed>> $segments    Assembled segment DTOs.
+	 * @param int                        $language_id Target language id.
+	 * @return list<array<string, mixed>>
+	 */
+	private function attach_suggestions( array $segments, int $language_id ): array {
+		$default = $this->languages->default();
+		$context = array(
+			'source_language_id' => $default ? (int) $default->language_id : 0,
+			'target_language_id' => $language_id,
+		);
+
+		$by_key = $this->suggestions->suggestions_for_batch( $segments, $context );
+
+		foreach ( $segments as $index => $segment ) {
+			$key                        = (string) ( $segment['segment_key'] ?? '' );
+			$meta                       = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
+			$meta['suggestions']        = $by_key[ $key ] ?? array();
+			$segments[ $index ]['meta'] = $meta;
+		}
+
+		return $segments;
 	}
 
 	/**
