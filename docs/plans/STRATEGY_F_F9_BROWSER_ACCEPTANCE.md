@@ -555,6 +555,44 @@ F9 closed under **engineering acceptance**, not formal all-green Tier 3 Playwrig
 
 ---
 
+## 26. Suite-level fixture environment (post-harness stabilization)
+
+F9 browser acceptance uses a **three-layer fixture model** implemented in `acceptance/f9-browser/helpers/`:
+
+| Layer | Module | Responsibility |
+|---|---|---|
+| Suite environment | `suite-environment.ts`, `global-setup.ts` | Lock, auth cookies, WP-CLI pool, settings baseline, corpus seed/validate — **once per suite** |
+| Canonical corpus | `fixture-corpus.ts`, `fixture-manifest.ts` | 13 immutable `f9-corpus-*` fixtures + manifest checksum |
+| Per-test clones | `cloneFixtureForTest()` | `f9-clone-*` posts for mutating tests; deleted after each test |
+
+### Fixture modes
+
+| Mode | When | Behavior |
+|---|---|---|
+| `F9_FIXTURE_MODE=fresh` | Tier 3 orchestrator (default in `run-f9-acceptance.sh`) | Recreate corpus, new manifest, teardown deletes corpus |
+| `F9_FIXTURE_MODE=reuse` | Tier 1/2 targeted runs | Validate manifest hashes/IDs; fail on stale checksum |
+
+### Browser-operation boundary
+
+WP-CLI prepares initial state (create, clone, publish, translate, migrate). Gutenberg still performs every operation under test (edit, duplicate, undo, first-save create, etc.).
+
+### Policy unchanged
+
+Full Playwright matrix remains **milestone-only** via `run-f9-acceptance.sh`. Targeted `--grep` runs use `reuse` mode by default.
+
+### Measured impact (dev.biopentra.eu, Aug 2026)
+
+| Metric | Before fixture env | After fixture env |
+|---|---|---|
+| `listPostIdsBySlugPrefix` (teardown scope test) | ~16 min | ~29 s |
+| Suite seed (`fixture_seed` phase) | N/A (per-test bootstrap) | ~17 min fresh (13 corpus posts; dominated by `export-f9-post.sh` compose spin-up) |
+| WP-CLI calls (12-test smoke run) | — | 127 total (pool + eval-based slug listing) |
+| Per-test clone (paragraph draft) | — | ~55 s (eval `wp_insert_post` + pipeline) |
+
+Smoke validation: `npm run test:fixture-smoke` with `F9_FIXTURE_MODE=fresh` — 12/12 pass including reuse validation, clone isolation, read-only overlay, mutating editor clone, settings restore, instrumentation.
+
+---
+
 F9 milestone closes when **all** are true:
 
 | Gate | Requirement |

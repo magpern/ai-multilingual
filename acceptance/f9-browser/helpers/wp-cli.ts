@@ -5,22 +5,44 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { ARTIFACTS_DIR, SPIKE_FIXTURES, TOOLS_DIR } from './env';
+import { incrementWpCliCalls } from './fixture-instrumentation';
 
 const WORDPRESS_COMPOSE = '/opt/biopentra/apps/wordpress';
 const AIML_ROOT = '/opt/biopentra/dev/ai-multilingual';
 const WPCLI_MARKER = path.join(ARTIFACTS_DIR, '.f9-wpcli-container');
+const SETTINGS_BASELINE_FILE = path.join(ARTIFACTS_DIR, 'f9-settings-baseline.json');
+const SESSION_CLONES_FILE = path.join(ARTIFACTS_DIR, 'f9-session-clones.json');
+
+export const F9_CORPUS_PREFIX = 'f9-corpus-';
+export const F9_CLONE_PREFIX = 'f9-clone-';
 
 function wpcliContainer(): string {
-  if (process.env.F9_WPCLI_CONTAINER) {
-    return process.env.F9_WPCLI_CONTAINER;
+  const name =
+    process.env.F9_WPCLI_CONTAINER ||
+    (fs.existsSync(WPCLI_MARKER) ? fs.readFileSync(WPCLI_MARKER, 'utf8').trim() : '');
+  if (!name) {
+    return '';
+  }
+  try {
+    const running = execSync(`docker inspect -f '{{.State.Running}}' ${name}`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (running === 'true') {
+      return name;
+    }
+  } catch {
+    // stale marker or removed container
   }
   if (fs.existsSync(WPCLI_MARKER)) {
-    return fs.readFileSync(WPCLI_MARKER, 'utf8').trim();
+    fs.unlinkSync(WPCLI_MARKER);
   }
+  delete process.env.F9_WPCLI_CONTAINER;
   return '';
 }
 
 function wp(args: string, input?: string): string {
+  incrementWpCliCalls();
   const pooled = wpcliContainer();
   if (pooled) {
     const cmd = `docker exec -i ${pooled} wp ${args} --path=/var/www/html`;
@@ -267,4 +289,133 @@ export function httpGet(url: string): string {
     `curl -sL -H "Cache-Control: no-cache" -H "Pragma: no-cache" "${url}"`,
     { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }
   );
+}
+
+export function getWpCoreVersion(): string {
+  return wp('core version');
+}
+
+export function postExists(postId: number): boolean {
+  try {
+    const raw = wp(`post get ${postId} --field=ID --user=1`).trim();
+    return raw === String(postId);
+  } catch {
+    return false;
+  }
+}
+
+export function getPostSlug(postId: number): string {
+  return wp(`post get ${postId} --field=post_name --user=1`).trim();
+}
+
+export function listPostIdsBySlugPrefix(prefix: string): number[] {
+  const raw = wp(
+    `eval '
+$prefix = ${JSON.stringify(prefix)};
+$posts = get_posts( array( "post_type" => "page", "post_status" => "any", "posts_per_page" => -1, "fields" => "ids" ) );
+$ids = array();
+foreach ( $posts as $id ) {
+  $slug = get_post_field( "post_name", $id );
+  if ( is_string( $slug ) && str_starts_with( $slug, $prefix ) ) {
+    $ids[] = (int) $id;
+  }
+}
+echo implode( " ", $ids );
+' --user=1`
+  ).trim();
+  if (!raw) {
+    return [];
+  }
+  return raw.split(/\s+/).map((id) => parseInt(id, 10));
+}
+
+export function deleteF9PostsByPrefix(prefix: string): number {
+  const ids = listPostIdsBySlugPrefix(prefix);
+  for (const id of ids) {
+    deletePost(id);
+  }
+  return ids.length;
+}
+
+export function clonePost(sourcePostId: number, slug: string, title: string): number {
+  deletePostsBySlug(slug);
+  const titlePhp = JSON.stringify(title);
+  const slugPhp = JSON.stringify(slug);
+  const newIdRaw = wp(
+    `eval '
+$source_id = ${sourcePostId};
+$source = get_post( $source_id );
+if ( ! $source instanceof WP_Post ) {
+  fwrite( STDERR, "Source post not found: " . $source_id . PHP_EOL );
+  exit( 1 );
+}
+$new_id = wp_insert_post(
+  array(
+    "post_type"    => "page",
+    "post_status"  => "draft",
+    "post_title"   => ${titlePhp},
+    "post_name"    => ${slugPhp},
+    "post_content" => $source->post_content,
+    "post_excerpt" => $source->post_excerpt,
+  ),
+  true
+);
+if ( is_wp_error( $new_id ) ) {
+  fwrite( STDERR, $new_id->get_error_message() . PHP_EOL );
+  exit( 1 );
+}
+echo (int) $new_id;
+' --user=1`
+  ).trim();
+  const newId = parseInt(newIdRaw, 10);
+  if (!Number.isFinite(newId) || newId <= 0) {
+    throw new Error(`clonePost failed for source ${sourcePostId}: ${newIdRaw}`);
+  }
+  rerunSavePipeline(newId);
+  return newId;
+}
+
+export function saveSettingsBaseline(): Record<string, unknown> {
+  const settings = getSettings();
+  fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
+  fs.writeFileSync(SETTINGS_BASELINE_FILE, JSON.stringify(settings, null, 2));
+  return settings;
+}
+
+export function restoreSettingsBaseline(): void {
+  if (!fs.existsSync(SETTINGS_BASELINE_FILE)) {
+    restoreStrategyFlags();
+    return;
+  }
+  const settings = JSON.parse(fs.readFileSync(SETTINGS_BASELINE_FILE, 'utf8')) as Record<string, unknown>;
+  wp(
+    `eval 'update_option( AIMultilingual\\Settings::OPTION, json_decode( ${JSON.stringify(JSON.stringify(settings))}, true ) ); if ( function_exists( "wp_cache_flush" ) ) { wp_cache_flush(); } echo "ok";' --user=1`
+  );
+}
+
+export function trackSessionClone(postId: number): void {
+  const existing = fs.existsSync(SESSION_CLONES_FILE)
+    ? (JSON.parse(fs.readFileSync(SESSION_CLONES_FILE, 'utf8')) as number[])
+    : [];
+  if (!existing.includes(postId)) {
+    existing.push(postId);
+    fs.writeFileSync(SESSION_CLONES_FILE, JSON.stringify(existing, null, 2));
+  }
+}
+
+export function listSessionClones(): number[] {
+  if (!fs.existsSync(SESSION_CLONES_FILE)) {
+    return [];
+  }
+  return JSON.parse(fs.readFileSync(SESSION_CLONES_FILE, 'utf8')) as number[];
+}
+
+export function clearSessionClones(): void {
+  if (fs.existsSync(SESSION_CLONES_FILE)) {
+    fs.unlinkSync(SESSION_CLONES_FILE);
+  }
+}
+
+export function countTranslationsForPost(postId: number): number {
+  return countBlockTranslations(postId);
 }

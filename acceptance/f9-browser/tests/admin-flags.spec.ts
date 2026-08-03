@@ -5,7 +5,7 @@ import { test, expect } from '../fixtures/f9-test';
 import fs from 'fs';
 import path from 'path';
 import { ARTIFACTS_DIR, loadCredentials } from '../helpers/env';
-import { getSettings, restoreStrategyFlags, submitInvalidStrategyFlagCombo } from '../helpers/wp-cli';
+import { getSettings, restoreSettingsBaseline, submitInvalidStrategyFlagCombo } from '../helpers/wp-cli';
 import { login } from '../helpers/editor';
 
 const creds = { ...loadCredentials(), password: '' };
@@ -35,11 +35,11 @@ async function saveSettings(page: import('@playwright/test').Page): Promise<void
 
 test.describe('F9 admin flag UI', () => {
   test.beforeEach(() => {
-    restoreStrategyFlags();
+    restoreSettingsBaseline();
   });
 
   test.afterEach(() => {
-    restoreStrategyFlags();
+    restoreSettingsBaseline();
   });
 
   test('FF-1: four Strategy F checkboxes visible in dependency order', async ({ page }) => {

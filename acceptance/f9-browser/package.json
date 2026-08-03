@@ -5,6 +5,7 @@
   "scripts": {
     "test": "playwright test",
     "test:chromium": "playwright test --project=chromium-desktop",
+    "test:fixture-smoke": "playwright test --project=f9-fixture-smoke",
     "test:tier1": "playwright test --project=firefox-desktop --project=webkit-desktop --project=chromium-mobile",
     "report": "playwright show-report"
   },

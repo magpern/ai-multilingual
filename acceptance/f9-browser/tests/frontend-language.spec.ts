@@ -6,24 +6,27 @@ import fs from 'fs';
 import path from 'path';
 import { ARTIFACTS_DIR, loadCredentials } from '../helpers/env';
 import {
+  Analysis,
+  cloneFixtureForTest,
+  deleteTrackedClone,
+  getSharedFixture,
+} from '../helpers/bootstrap';
+import {
   contentSha256,
   countBlockTranslations,
-  createDraftPost,
-  deletePost,
   enableStrategyFlags,
   exportPost,
-  httpGet,
   fetchPublicHtml,
+  getPostSlug,
+  httpGet,
   migratePost,
   publishPost,
-  restoreStrategyFlags,
+  restoreSettingsBaseline,
   runReplayGate,
-  saveBlockTranslation,
   saveTranslationForPost,
 } from '../helpers/wp-cli';
-import { editBlockText, login, openBlockEditor, savePost } from '../helpers/editor';
+import { editBlockText, openBlockEditor, savePost } from '../helpers/editor';
 import { endTestLifecycle } from '../helpers/lifecycle';
-import { Analysis, bootstrapProductionPost } from '../helpers/bootstrap';
 
 const creds = { ...loadCredentials(), password: '' };
 const FIXTURE_PARAGRAPH_SOURCE = 'Strategy F browser validation — paragraph block.';
@@ -35,7 +38,7 @@ test.describe('F9 frontend language translation migration', () => {
   });
 
   test.afterAll(() => {
-    restoreStrategyFlags();
+    restoreSettingsBaseline();
     fs.writeFileSync(path.join(ARTIFACTS_DIR, 'frontend-language-results.json'), JSON.stringify(results, null, 2));
   });
 
@@ -44,181 +47,148 @@ test.describe('F9 frontend language translation migration', () => {
   });
 
   const fr1Cases = [
-    { slug: 'f9-fr-para', fixture: 'core-paragraph.html', sv: '<p>Hej stycke</p>', marker: 'Hej stycke' },
-    { slug: 'f9-fr-head', fixture: 'core-heading.html', sv: '<h2 class="wp-block-heading">Hej rubrik</h2>', marker: 'Hej rubrik' },
-    {
-      slug: 'f9-fr-btn',
-      fixture: 'core-buttons.html',
-      sv: '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://example.com/a">Klicka</a></div>',
-      marker: 'Klicka',
-    },
+    { key: 'paragraph_translated_pub' as const, marker: 'Hej stycke' },
+    { key: 'heading_translated_pub' as const, marker: 'Hej rubrik' },
+    { key: 'button_translated_pub' as const, marker: 'Klicka' },
   ] as const;
 
   for (const c of fr1Cases) {
-    test(`FR-1: ${c.slug} renders Swedish overlay`, async ({ page }) => {
+    test(`FR-1: ${c.key} renders Swedish overlay`, async () => {
       test.setTimeout(600000);
-      const postId = await bootstrapProductionPost(page, creds, c.slug, `F9 FR ${c.slug}`, c.fixture);
-      publishPost(postId, c.slug);
-      saveTranslationForPost(postId, `${c.slug}-pub`, c.sv);
-
-      const html = fetchPublicHtml(`/sv/${c.slug}/`);
-      expect(html, c.slug).toContain(c.marker);
-
-      results[`fr1_${c.slug}`] = { post_id: postId, pass: true };
-      deletePost(postId);
+      const fixture = getSharedFixture(c.key);
+      const html = fetchPublicHtml(`/sv/${fixture.slug}/`);
+      expect(html, fixture.slug).toContain(c.marker);
+      results[`fr1_${fixture.slug}`] = { post_id: fixture.post_id, pass: true };
     });
   }
 
-  test('FR-2/FR-3: kill switch and re-enable', async ({ page }) => {
+  test('FR-2/FR-3: kill switch and re-enable', async () => {
     test.setTimeout(600000);
-    const slug = 'f9-killswitch';
-    const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Kill switch', 'core-paragraph.html');
-    publishPost(postId, slug);
-    saveTranslationForPost(postId, `${slug}-pub`, '<p>Hej av</p>');
+    const fixture = getSharedFixture('paragraph_translated_pub');
 
-    let html = fetchPublicHtml(`/sv/${slug}/`);
-    expect(html).toContain('Hej av');
+    let html = fetchPublicHtml(`/sv/${fixture.slug}/`);
+    expect(html).toContain('Hej stycke');
 
     enableStrategyFlags(false);
-    html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    html = httpGet(`${creds.baseUrl}/sv/${fixture.slug}/?t=${Date.now()}`);
     expect(html).toContain(FIXTURE_PARAGRAPH_SOURCE);
-    expect(html).not.toContain('Hej av');
+    expect(html).not.toContain('Hej stycke');
 
-    html = fetchPublicHtml(`/sv/${slug}/`);
-    expect(html).toContain('Hej av');
+    html = fetchPublicHtml(`/sv/${fixture.slug}/`);
+    expect(html).toContain('Hej stycke');
 
-    results.kill_switch = { post_id: postId, pass: true };
-    deletePost(postId);
+    results.kill_switch = { post_id: fixture.post_id, pass: true };
   });
 
-  test('LS-1/LS-2: language prefix routing without cookie dependency', async ({ page }) => {
+  test('LS-1/LS-2: language prefix routing without cookie dependency', async () => {
     test.setTimeout(600000);
-    const slug = 'f9-lang-route';
-    const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Lang route', 'core-paragraph.html');
-    publishPost(postId, slug);
-    saveTranslationForPost(postId, `${slug}-pub`, '<p>Svenska</p>');
+    const fixture = getSharedFixture('paragraph_translated_pub');
 
-    enableStrategyFlags(true);
-    const en = fetchPublicHtml(`/${slug}/`);
-    const sv = fetchPublicHtml(`/sv/${slug}/`);
+    const en = fetchPublicHtml(`/${fixture.slug}/`);
+    const sv = fetchPublicHtml(`/sv/${fixture.slug}/`);
     expect(en).toContain(FIXTURE_PARAGRAPH_SOURCE);
-    expect(sv).toContain('Svenska');
+    expect(sv).toContain('Hej stycke');
 
-    results.language_routing = { post_id: postId, pass: true };
-    deletePost(postId);
+    results.language_routing = { post_id: fixture.post_id, pass: true };
   });
 
-  test('TR-1/TR-2: store segment_key and stale after edit', async ({ page }) => {
+  test('TR-1/TR-2: store segment_key and stale after edit', async ({ page }, testInfo) => {
     test.setTimeout(600000);
-    const slug = 'f9-tr-stale';
-    const postId = await bootstrapProductionPost(page, creds, slug, 'F9 TR stale', 'core-paragraph.html');
-    publishPost(postId, slug);
-    saveTranslationForPost(postId, `${slug}-pub`, '<p>Gammal</p>');
+    const postId = cloneFixtureForTest('paragraph_stale_pub', testInfo);
 
-    let html = fetchPublicHtml(`/sv/${slug}/`);
-    expect(html).toContain('Gammal');
+    try {
+      publishPost(postId, getPostSlug(postId));
+      saveTranslationForPost(postId, `${getPostSlug(postId)}-pub`, '<p>Gammal</p>');
 
-    await openBlockEditor(page, creds, postId);
-    await editBlockText(page, 0, 'Changed source text.');
-    await savePost(page);
+      let html = fetchPublicHtml(`/sv/${getPostSlug(postId)}/`);
+      expect(html).toContain('Gammal');
 
-    html = fetchPublicHtml(`/sv/${slug}/`);
-    expect(html).toContain('Changed source text.');
-    expect(html).not.toContain('Gammal');
+      await openBlockEditor(page, creds, postId);
+      await editBlockText(page, 0, 'Changed source text.');
+      await savePost(page);
 
-    results.translation_stale = { post_id: postId, pass: true };
-    deletePost(postId);
+      html = fetchPublicHtml(`/sv/${getPostSlug(postId)}/`);
+      expect(html).toContain('Changed source text.');
+      expect(html).not.toContain('Gammal');
+
+      results.translation_stale = { post_id: postId, pass: true };
+    } finally {
+      deleteTrackedClone(postId);
+    }
   });
 
-  test('TR-5: cross-post UUID scope — no foreign row attachment', async ({ page }) => {
-    enableStrategyFlags(true);
-    const slugA = 'f9-tr-scope-a';
-    const slugB = 'f9-tr-scope-b';
-    const idA = await bootstrapProductionPost(page, creds, slugA, 'F9 Scope A', 'core-paragraph.html');
-    const idB = await bootstrapProductionPost(page, creds, slugB, 'F9 Scope B', 'core-paragraph.html');
-    publishPost(idA, slugA);
-    publishPost(idB, slugB);
-    enableStrategyFlags(true);
-    const uuidA = saveTranslationForPost(idA, `${slugA}-pub`, '<p>Only A</p>');
+  test('TR-5: cross-post UUID scope — no foreign row attachment', async () => {
+    const fixtureA = getSharedFixture('scope_a_pub');
+    const fixtureB = getSharedFixture('scope_b_pub');
 
-    const htmlB = fetchPublicHtml(`/sv/${slugB}/`);
+    const htmlB = fetchPublicHtml(`/sv/${fixtureB.slug}/`);
     expect(htmlB).not.toContain('Only A');
 
-    results.cross_post_scope = { post_a: idA, post_b: idB, uuid_a: uuidA, pass: true };
-    deletePost(idA);
-    deletePost(idB);
+    results.cross_post_scope = { post_a: fixtureA.post_id, post_b: fixtureB.post_id, pass: true };
   });
 
-  test('MG-1..MG-3: migration dry-run, live, idempotent', async () => {
-    restoreStrategyFlags();
-    const slug = 'f9-migrate';
-    const postId = createDraftPost(slug, 'F9 Migrate', 'core-paragraph.html');
-    enableStrategyFlags(false);
-    const hashBefore = contentSha256(postId);
+  test('MG-1..MG-3: migration dry-run, live, idempotent', async ({}, testInfo) => {
+    const postId = cloneFixtureForTest('migration_raw_draft', testInfo);
+    try {
+      const hashBefore = contentSha256(postId);
 
-    const dry = migratePost(postId, true);
-    expect(dry.dry_run).toBe(true);
-    expect(contentSha256(postId)).toBe(hashBefore);
+      const dry = migratePost(postId, true);
+      expect(dry.dry_run).toBe(true);
+      expect(contentSha256(postId)).toBe(hashBefore);
 
-    const live1 = migratePost(postId, false);
-    expect(['complete', 'skipped']).toContain(live1.status);
-    if ('skipped' === live1.status) {
-      expect(live1.skip_reason).toBe('already_compliant');
+      const live1 = migratePost(postId, false);
+      expect(['complete', 'skipped']).toContain(live1.status);
+      if ('skipped' === live1.status) {
+        expect(live1.skip_reason).toBe('already_compliant');
+      }
+
+      const live2 = migratePost(postId, false);
+      expect(live2.status).toBe('skipped');
+      expect(live2.skip_reason).toBe('already_compliant');
+
+      const analysis = exportPost(postId, `f9-clone-migrate-${testInfo.testId.slice(0, 8)}`).analysis as unknown as Analysis;
+      expect(analysis.blocks[0]?.valid_uuid).toBe(true);
+
+      results.migration = { post_id: postId, dry, live1_status: live1.status, live2_status: live2.status };
+    } finally {
+      deleteTrackedClone(postId);
     }
-
-    const live2 = migratePost(postId, false);
-    expect(live2.status).toBe('skipped');
-    expect(live2.skip_reason).toBe('already_compliant');
-
-    const analysis = exportPost(postId, slug).analysis as unknown as Analysis;
-    expect(analysis.blocks[0]?.valid_uuid).toBe(true);
-
-    results.migration = { post_id: postId, dry, live1_status: live1.status, live2_status: live2.status };
-    deletePost(postId);
   });
 
-  test('MG-4: browser edit after migration preserves keys', async ({ page }) => {
-    enableStrategyFlags(false);
-    const slug = 'f9-migrate-edit';
-    const postId = createDraftPost(slug, 'F9 Migrate edit', 'core-paragraph.html');
-    migratePost(postId, false);
+  test('MG-4: browser edit after migration preserves keys', async ({ page }, testInfo) => {
+    const postId = cloneFixtureForTest('migration_done_draft', testInfo);
+    try {
+      await openBlockEditor(page, creds, postId);
+      await editBlockText(page, 0, 'Post-migration edit.');
+      await savePost(page);
 
-    await login(page, creds);
-    await openBlockEditor(page, creds, postId);
-    await editBlockText(page, 0, 'Post-migration edit.');
-    await savePost(page);
+      const after = exportPost(postId, `f9-clone-migrate-edit-${testInfo.testId.slice(0, 8)}`).analysis as unknown as Analysis;
+      expect(after.blocks[0]?.valid_uuid).toBe(true);
+      expect(Object.keys(after.duplicate_uuids)).toHaveLength(0);
+      const replay = runReplayGate(postId);
+      expect(replay.rendered_false_positive).toBe(0);
 
-    const after = exportPost(postId, slug).analysis as unknown as Analysis;
-    expect(after.blocks[0]?.valid_uuid).toBe(true);
-    expect(Object.keys(after.duplicate_uuids)).toHaveLength(0);
-    const replay = runReplayGate(postId);
-    expect(replay.rendered_false_positive).toBe(0);
-
-    results.migration_browser_edit = { post_id: postId, segments: countBlockTranslations(postId) };
-    deletePost(postId);
+      results.migration_browser_edit = { post_id: postId, segments: countBlockTranslations(postId) };
+    } finally {
+      deleteTrackedClone(postId);
+    }
   });
 
-  test('RB-1..RB-5: rollback via flags preserves post_content hash', async ({ page }) => {
-    enableStrategyFlags(true);
-    const slug = 'f9-rollback';
-    const postId = await bootstrapProductionPost(page, creds, slug, 'F9 Rollback', 'core-paragraph.html');
-    enableStrategyFlags(true);
-    publishPost(postId, slug);
-    saveTranslationForPost(postId, `${slug}-pub`, '<p>Hej rb</p>');
-    const hashAtStart = contentSha256(postId);
+  test('RB-1..RB-5: rollback via flags preserves post_content hash', async () => {
+    const fixture = getSharedFixture('paragraph_translated_pub');
+    const hashAtStart = contentSha256(fixture.post_id);
 
-    let html = fetchPublicHtml(`/sv/${slug}/`);
-    expect(html).toContain('Hej rb');
+    let html = fetchPublicHtml(`/sv/${fixture.slug}/`);
+    expect(html).toContain('Hej stycke');
 
     enableStrategyFlags(false);
-    html = httpGet(`${creds.baseUrl}/sv/${slug}/?t=${Date.now()}`);
+    html = httpGet(`${creds.baseUrl}/sv/${fixture.slug}/?t=${Date.now()}`);
     expect(html).toContain(FIXTURE_PARAGRAPH_SOURCE);
 
-    html = fetchPublicHtml(`/sv/${slug}/`);
-    expect(html).toContain('Hej rb');
+    html = fetchPublicHtml(`/sv/${fixture.slug}/`);
+    expect(html).toContain('Hej stycke');
 
-    expect(contentSha256(postId)).toBe(hashAtStart);
-    results.rollback = { post_id: postId, content_unchanged: true };
-    deletePost(postId);
+    expect(contentSha256(fixture.post_id)).toBe(hashAtStart);
+    results.rollback = { post_id: fixture.post_id, content_unchanged: true };
   });
 });

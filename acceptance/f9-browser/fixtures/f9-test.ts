@@ -24,9 +24,6 @@ export const test = base.extend({
 
     await endTestLifecycle(page);
     unregisterF9PageRef(testInfo.testId);
-    if (!page.isClosed()) {
-      await page.close().catch(() => undefined);
-    }
     f9LifecycleDiag('fixture:done', { testId: testInfo.testId });
   },
 });

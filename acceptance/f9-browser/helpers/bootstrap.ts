@@ -1,9 +1,10 @@
 /**
- * Bootstrap a draft page through production SavePipeline (first canonical save).
+ * Bootstrap helpers — browser first-save and legacy production bootstrap.
  */
-import { Page } from '@playwright/test';
+import { Page, TestInfo } from '@playwright/test';
 import { WpCredentials } from './env';
-import { createDraftPost, enableStrategyFlags, exportPost } from './wp-cli';
+import { sanitizeTestId } from './fixture-corpus';
+import { createDraftPost, enableStrategyFlags, exportPost, F9_CLONE_PREFIX, trackSessionClone } from './wp-cli';
 import { closeEditorSession, login, openBlockEditor, savePost } from './editor';
 import { resolveF9Page } from './lifecycle';
 
@@ -25,7 +26,19 @@ export async function bootstrapProductionPost(
   if (!analysis.blocks?.length || !analysis.blocks[0]?.uuid) {
     throw new Error(`Production bootstrap failed to inject UUID for post ${postId}`);
   }
+  trackSessionClone(postId);
   return postId;
+}
+
+/** Browser-driven first save — only for the create matrix cell. */
+export async function createBrowserFirstSaveFixture(
+  page: Page,
+  creds: WpCredentials,
+  testInfo: Pick<TestInfo, 'testId' | 'title'>,
+  fixtureFile: string
+): Promise<number> {
+  const slug = `${F9_CLONE_PREFIX}create-${sanitizeTestId(testInfo.testId)}-${Date.now()}`;
+  return bootstrapProductionPost(page, creds, slug, `F9 Create ${testInfo.title}`, fixtureFile);
 }
 
 export type Analysis = {
@@ -37,3 +50,6 @@ export type Analysis = {
   has_aimlBlockId: boolean;
   uuid_preservation?: Record<string, string>;
 };
+
+export { cloneFixtureForTest, deleteTrackedClone, getSharedFixture } from './fixture-corpus';
+export type { CorpusKey } from './fixture-manifest';

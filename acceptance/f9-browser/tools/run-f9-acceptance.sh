@@ -137,6 +137,9 @@ run_playwright_in_docker() {
     -v /opt/biopentra/apps/wordpress/.admin-credentials:/run/secrets/wp-credentials:ro \
     -e WP_BASE_URL="${WP_BASE_URL:-https://dev.biopentra.eu}" \
     -e WP_CREDENTIALS_FILE=/run/secrets/wp-credentials \
+    -e F9_FIXTURE_MODE="${F9_FIXTURE_MODE:-fresh}" \
+    -e F9_TRACE="${F9_TRACE:-1}" \
+    -e F9_GIT_COMMIT="${COMMIT}" \
     -e HOME=/tmp \
     -w /opt/biopentra/dev/ai-multilingual/acceptance/f9-browser \
     "$PLAYWRIGHT_IMAGE" \
