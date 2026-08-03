@@ -284,7 +284,11 @@ final class WorkspaceController {
 				'language_id' => (int) $language->language_id,
 				'segments'    => $this->segment_serializer->many_to_arrays( $segments ),
 				'status'      => $this->status_serializer->from_dto(
-					$this->workspace->page_status( $post, (int) $language->language_id )
+					$this->workspace->page_status_for_segments(
+						$post,
+						(int) $language->language_id,
+						$segments
+					)
 				)->to_array(),
 			)
 		);

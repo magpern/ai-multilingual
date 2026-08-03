@@ -207,7 +207,25 @@ final class WorkspaceService {
 	public function page_status( WP_Post $post, int $language_id ): array {
 		$this->assert_supported_post( $post );
 
-		return $this->status_calculator->for_post( $post, $language_id );
+		return $this->page_status_for_segments(
+			$post,
+			$language_id,
+			$this->assembler->assemble_for_post( $post, $language_id )
+		);
+	}
+
+	/**
+	 * Page status derived from already-assembled segment DTOs.
+	 *
+	 * @param WP_Post                          $post        Canonical post.
+	 * @param int                              $language_id Target language id.
+	 * @param array<int, array<string, mixed>> $segments    Assembled segment DTOs.
+	 * @return array<string, mixed>
+	 */
+	public function page_status_for_segments( WP_Post $post, int $language_id, array $segments ): array {
+		$this->assert_supported_post( $post );
+
+		return $this->status_calculator->for_segments( $post, $language_id, $segments );
 	}
 
 	/**

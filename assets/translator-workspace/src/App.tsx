@@ -12,13 +12,20 @@ import {
 } from './api/workspace-api';
 import LanguageSelect from './components/LanguageSelect';
 import PostSelect from './components/PostSelect';
+import PublishContext from './components/PublishContext';
+import SegmentFilterBar from './components/SegmentFilterBar';
 import SegmentTable from './components/SegmentTable';
+import StatusFooter from './components/StatusFooter';
 import type { SegmentRow } from './types/segment-row';
 import type {
 	LanguageOption,
 	WorkspacePageSummary,
 	WorkspaceTranslationStatus,
 } from './types/view-models';
+import {
+	matchesSegmentFilter,
+	type SegmentFilter,
+} from './utils/segment-status';
 import {
 	applyConflict,
 	applyReloadFromServer,
@@ -67,8 +74,16 @@ export default function App() {
 	const [ error, setError ] = useState( '' );
 	const [ previewError, setPreviewError ] = useState( '' );
 	const [ batchMessage, setBatchMessage ] = useState( '' );
+	const [ segmentFilter, setSegmentFilter ] = useState< SegmentFilter >( 'all' );
 
 	const dirtyCount = useMemo( () => countDirtyRows( rows ), [ rows ] );
+	const filteredRows = useMemo(
+		() =>
+			rows.filter( ( row ) =>
+				matchesSegmentFilter( row.server, segmentFilter )
+			),
+		[ rows, segmentFilter ]
+	);
 
 	const loadSegments = useCallback( async () => {
 		if ( ! postId || ! languageCode ) {
@@ -85,6 +100,7 @@ export default function App() {
 			const response = await fetchSegments( postId, languageCode );
 			setRows( createRowsFromSegments( response.segments ) );
 			setStatus( response.status );
+			setSegmentFilter( 'all' );
 		} catch {
 			setError(
 				__(
@@ -330,6 +346,7 @@ export default function App() {
 								setLanguageCode( code );
 								setPostId( null );
 								setPostSummary( null );
+								setSegmentFilter( 'all' );
 							} }
 						/>
 						<PostSelect
@@ -397,8 +414,25 @@ export default function App() {
 				</PanelBody>
 			</Panel>
 
+			{ status && postId && (
+				<PublishContext
+					status={ status }
+					onPreview={ handlePreview }
+					previewDisabled={ ! languageCode }
+				/>
+			) }
+
+			{ rows.length > 0 && (
+				<SegmentFilterBar
+					value={ segmentFilter }
+					visibleCount={ filteredRows.length }
+					totalCount={ rows.length }
+					onChange={ setSegmentFilter }
+				/>
+			) }
+
 			<SegmentTable
-				rows={ rows }
+				rows={ filteredRows }
 				loading={ loading }
 				error={ error }
 				batchMessage={ batchMessage }
@@ -407,19 +441,7 @@ export default function App() {
 				onReload={ handleReloadRow }
 			/>
 
-			{ status && (
-				<div className="aiml-workspace-footer">
-					<strong>{ __( 'Page status', 'ai-multilingual' ) }</strong>
-					{ ': ' }
-					{ status.overall_state }
-					{ ' · ' }
-					{ status.translated_count }
-					{ '/' }
-					{ status.total_segments }
-					{ ' ' }
-					{ __( 'translated', 'ai-multilingual' ) }
-				</div>
-			) }
+			{ status && <StatusFooter status={ status } /> }
 		</div>
 	);
 }

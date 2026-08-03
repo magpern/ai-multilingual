@@ -34,6 +34,57 @@ final class TranslationStatusCalculator {
 	}
 
 	/**
+	 * Summary counts for one post and language from merged segment DTOs.
+	 *
+	 * @param WP_Post                          $post        Canonical post.
+	 * @param int                              $language_id Target language id.
+	 * @param array<int, array<string, mixed>> $segments    Assembled segment DTOs.
+	 * @return array<string, mixed>
+	 */
+	public function for_segments( WP_Post $post, int $language_id, array $segments ): array {
+		$missing    = 0;
+		$stale      = 0;
+		$translated = 0;
+		$reviewed   = 0;
+
+		foreach ( $segments as $row ) {
+			$status = (string) ( $row['status'] ?? Store::STATUS_MISSING );
+			if ( Store::STATUS_MISSING === $status ) {
+				++$missing;
+				continue;
+			}
+
+			if ( ! empty( $row['is_stale'] ) ) {
+				++$stale;
+			}
+
+			if ( Store::STATUS_REVIEWED === $status ) {
+				++$reviewed;
+			} elseif ( Store::STATUS_MISSING !== $status && Store::STATUS_IGNORED !== $status ) {
+				++$translated;
+			}
+		}
+
+		$total = count( $segments );
+
+		return array(
+			'post_id'          => (int) $post->ID,
+			'post_title'       => (string) $post->post_title,
+			'post_status'      => (string) $post->post_status,
+			'post_type'        => (string) $post->post_type,
+			'language_id'      => $language_id,
+			'total_segments'   => $total,
+			'missing_count'    => $missing,
+			'stale_count'      => $stale,
+			'translated_count' => $translated,
+			'reviewed_count'   => $reviewed,
+			'overall_state'    => $this->overall_state( $total, $missing, $stale, $reviewed ),
+			'is_published'     => 'publish' === $post->post_status,
+			'edit_link'        => (string) get_edit_post_link( (int) $post->ID, 'raw' ),
+		);
+	}
+
+	/**
 	 * Summary counts for one post and language.
 	 *
 	 * @param WP_Post $post        Canonical post.

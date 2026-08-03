@@ -2,27 +2,13 @@ import { Button, Notice, TextareaControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
 import type { SegmentRow } from '../types/segment-row';
+import { segmentStatusLabel } from '../utils/segment-status';
 
 interface SegmentRowViewProps {
 	row: SegmentRow;
 	onDraftChange: ( segmentKey: string, value: string ) => void;
 	onSave: ( segmentKey: string ) => void;
 	onReload: ( segmentKey: string ) => void;
-}
-
-function statusLabel( status: string ): string {
-	switch ( status ) {
-		case 'missing':
-			return __( 'Missing', 'ai-multilingual' );
-		case 'manually_edited':
-			return __( 'Edited', 'ai-multilingual' );
-		case 'reviewed':
-			return __( 'Reviewed', 'ai-multilingual' );
-		case 'ignored':
-			return __( 'Ignored', 'ai-multilingual' );
-		default:
-			return status;
-	}
 }
 
 function rowStateLabel( row: SegmentRow ): string {
@@ -152,8 +138,15 @@ export default function SegmentRowView( {
 				) }
 			</td>
 			<td>
-				<span className="aiml-workspace-status-text">
-					{ statusLabel( server.status ) }
+				<span
+					className="aiml-workspace-status-badge"
+					aria-label={ sprintf(
+						/* translators: %s: workflow status */
+						__( 'Workflow status: %s', 'ai-multilingual' ),
+						segmentStatusLabel( server.status )
+					) }
+				>
+					{ segmentStatusLabel( server.status ) }
 				</span>
 				<span className="aiml-workspace-row-state" aria-live="polite">
 					{ rowStateLabel( row ) }

@@ -976,6 +976,17 @@ Translation progress visibility; publish context.
 
 Translator understands page completion without WP-CLI.
 
+### WP4 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Status footer, publish context, segment filters, canonical status badges |
+| **Status aggregation** | `TranslationStatusCalculator` + `WorkspaceTranslationStatusViewModel`; sync before aggregate |
+| **Filters** | Client-side: all, missing, stale, translated, reviewed |
+| **Publish context** | Post title/type/status, Edit in WordPress link, preview action |
+| **Tests** | `TranslationStatusCalculatorTest`, `WorkspaceStatusTest`, `segment-status.test.ts` |
+| **Validation** | Tier 0 gates |
+
 ---
 
 ## 22. F10.5 — Retranslate + bulk actions
@@ -1139,7 +1150,7 @@ F10 closes when **all** are true:
 | WP1 | F10.1 | WorkspaceService + REST + ViewModels + tests | WP0 |
 | WP2 | F10.2 | Workspace shell UI | WP1 |
 | WP3 | F10.3 | Manual save + 409 handling | WP2 | **Complete** |
-| WP4 | F10.4 | Status + publish UX | WP3 |
+| WP4 | F10.4 | Status + publish UX | WP3 | **Complete** |
 | WP5 | F10.5 | Bulk actions | WP4 |
 | WP6 | F10.6 | AI provider stub | WP5 |
 | WP7 | — | `F10_TRANSLATOR_VALIDATION_LOG.md` + tags | WP3 min / WP6 full |
