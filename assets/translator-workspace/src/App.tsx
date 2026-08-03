@@ -4,11 +4,13 @@ import { __, sprintf } from '@wordpress/i18n';
 
 import {
 	WorkspaceConflictError,
+	WorkspaceQABlockedError,
 	configureWorkspaceApi,
 	fetchPreviewUrl,
 	fetchSegments,
 	saveBatch,
 	saveSegment,
+	suggestSegment,
 	translateBatch,
 } from './api/workspace-api';
 import BulkToolbar from './components/BulkToolbar';
@@ -39,6 +41,7 @@ import {
 	mergeSegmentsIntoRows,
 	updateDraftText,
 } from './utils/segment-rows';
+import { aggregateQaSummary } from './utils/meta';
 import {
 	allVisibleSelected,
 	clearSelection,
@@ -91,6 +94,7 @@ export default function App() {
 	const [ selectedKeys, setSelectedKeys ] = useState< Set< string > >(
 		() => new Set()
 	);
+	const [ suggestingKey, setSuggestingKey ] = useState< string | null >( null );
 
 	const dirtyCount = useMemo( () => countDirtyRows( rows ), [ rows ] );
 	const filteredRows = useMemo(
@@ -251,6 +255,36 @@ export default function App() {
 				return;
 			}
 
+			if ( unknownError instanceof WorkspaceQABlockedError ) {
+				const message = sprintf(
+					/* translators: %d: error count */
+					__(
+						'Save blocked by %d quality error(s). Fix QA issues and try again.',
+						'ai-multilingual'
+					),
+					unknownError.qa.summary.errors
+				);
+				setRows( ( current ) =>
+					current.map( ( candidate ) =>
+						candidate.segmentKey === segmentKey
+							? {
+									...candidate,
+									rowState: 'error',
+									errorMessage: message,
+									server: {
+										...candidate.server,
+										meta: {
+											...candidate.server.meta,
+											qa: unknownError.qa,
+										},
+									},
+							  }
+							: candidate
+					)
+				);
+				return;
+			}
+
 			const message =
 				unknownError instanceof Error
 					? unknownError.message
@@ -270,6 +304,40 @@ export default function App() {
 						: candidate
 				)
 			);
+		}
+	};
+
+	const handleSuggestProfile = async (
+		segmentKey: string,
+		profile: string
+	) => {
+		if ( ! postId || ! languageCode ) {
+			return;
+		}
+
+		setSuggestingKey( segmentKey );
+		setBatchMessage( '' );
+		try {
+			const updated = await suggestSegment(
+				postId,
+				languageCode,
+				segmentKey,
+				profile
+			);
+			setRows( ( current ) =>
+				mergeSegmentsIntoRows( current, [ updated ] )
+			);
+		} catch ( unknownError ) {
+			const message =
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not request AI suggestions.',
+							'ai-multilingual'
+					  );
+			setBatchMessage( message );
+		} finally {
+			setSuggestingKey( null );
 		}
 	};
 
@@ -543,9 +611,18 @@ export default function App() {
 				onDraftChange={ handleDraftChange }
 				onSave={ handleSaveRow }
 				onReload={ handleReloadRow }
+				onSuggestProfile={ handleSuggestProfile }
+				suggestingKey={ suggestingKey }
 			/>
 
-			{ status && <StatusFooter status={ status } /> }
+			{ status && (
+				<StatusFooter
+					status={ status }
+					qaSummary={ aggregateQaSummary(
+						rows.map( ( row ) => row.server )
+					) }
+				/>
+			) }
 		</div>
 	);
 }

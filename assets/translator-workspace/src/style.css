@@ -141,3 +141,90 @@
 .aiml-translator-workspace .aiml-workspace-conflict-source {
 	margin-top: 0.5rem;
 }
+
+.aiml-translator-workspace .aiml-panel-title {
+	font-size: 13px;
+	margin: 0.75rem 0 0.35rem;
+}
+
+.aiml-translator-workspace .aiml-suggestion-panel,
+.aiml-translator-workspace .aiml-qa-panel {
+	margin-top: 0.75rem;
+	padding-top: 0.5rem;
+	border-top: 1px solid #dcdcde;
+}
+
+.aiml-translator-workspace .aiml-suggestion-profiles {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin-bottom: 0.5rem;
+}
+
+.aiml-translator-workspace .aiml-suggestion-list,
+.aiml-translator-workspace .aiml-qa-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.aiml-translator-workspace .aiml-suggestion-item {
+	padding: 0.5rem;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+}
+
+.aiml-translator-workspace .aiml-suggestion-meta {
+	display: flex;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 0.35rem;
+	font-size: 12px;
+}
+
+.aiml-translator-workspace .aiml-suggestion-text {
+	white-space: pre-wrap;
+	margin: 0 0 0.5rem;
+	font-family: inherit;
+	font-size: 13px;
+}
+
+.aiml-translator-workspace .aiml-suggestion-confidence--exact {
+	color: #008a20;
+	font-weight: 600;
+}
+
+.aiml-translator-workspace .aiml-suggestion-confidence--fuzzy {
+	color: #996800;
+	font-weight: 600;
+}
+
+.aiml-translator-workspace .aiml-suggestion-confidence--ai {
+	color: #1d4f91;
+	font-weight: 600;
+}
+
+.aiml-translator-workspace .aiml-qa-item {
+	display: grid;
+	gap: 0.15rem;
+	font-size: 12px;
+	padding: 0.35rem 0.5rem;
+	border-left: 3px solid #dcdcde;
+}
+
+.aiml-translator-workspace .aiml-qa-severity--error {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}
+
+.aiml-translator-workspace .aiml-qa-severity--warning {
+	border-left-color: #dba617;
+	background: #fcf9e8;
+}
+
+.aiml-translator-workspace .aiml-qa-severity--info {
+	border-left-color: #72aee6;
+	background: #f0f6fc;
+}

@@ -1453,11 +1453,18 @@ Parallel tracks after WP0: TM (WP1–WP3), provider/prompts (WP4–WP5), QA (WP7
 
 **Acceptance criteria:**
 
-- [ ] Unified suggestion panel
-- [ ] QA panel with severity
-- [ ] Consistent with F10 layout
+- [x] Unified suggestion panel
+- [x] QA panel with severity
+- [x] Consistent with F10 layout
 
 **Dependencies:** WP6, WP8
+
+### WP9 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `SuggestionPanel`, `QAPanel`, typed `meta.suggestions`/`meta.qa`, footer QA counts, suggest API client |
+| **Tests** | `meta.test.ts` |
 
 ---
 
