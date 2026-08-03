@@ -1,0 +1,28 @@
+.aiml-translator-workspace .aiml-workspace-toolbar {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	margin-bottom: 1rem;
+}
+
+.aiml-translator-workspace .aiml-workspace-toolbar-actions {
+	display: flex;
+	align-items: flex-end;
+	gap: 0.5rem;
+}
+
+.aiml-translator-workspace .aiml-workspace-meta {
+	color: #646970;
+	font-size: 12px;
+	margin-top: 0.25rem;
+}
+
+.aiml-translator-workspace .aiml-workspace-source {
+	white-space: pre-wrap;
+}
+
+.aiml-translator-workspace .aiml-workspace-footer {
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid #dcdcde;
+}

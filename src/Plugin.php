@@ -11,6 +11,7 @@ namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\SettingsPage;
+use AIMultilingual\Admin\TranslatorWorkspace;
 use AIMultilingual\Block\AdapterRegistry;
 use AIMultilingual\Block\AttributeRegistrar;
 use AIMultilingual\Block\BlockExtractionLogger;
@@ -183,6 +184,7 @@ final class Plugin {
 		if ( is_admin() ) {
 			( new SettingsPage( $settings, $languages ) )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
+			( new TranslatorWorkspace( $languages ) )->register();
 
 			// Bind-mount deployments update files in place and never fire the
 			// activation hook, so schema drift has to be caught on its own.
