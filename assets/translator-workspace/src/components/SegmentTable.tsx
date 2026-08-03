@@ -1,4 +1,4 @@
-import { Notice, Spinner, Table } from '@wordpress/components';
+import { Notice, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 import type { SegmentRow } from '../types/segment-row';
@@ -70,7 +70,7 @@ export default function SegmentTable( {
 					{ batchMessage }
 				</Notice>
 			) }
-			<Table className="aiml-workspace-segment-table">
+			<table className="aiml-workspace-segment-table widefat striped">
 				<thead>
 					<tr>
 						<th scope="col">
@@ -108,7 +108,7 @@ export default function SegmentTable( {
 						/>
 					) ) }
 				</tbody>
-			</Table>
+			</table>
 		</>
 	);
 }

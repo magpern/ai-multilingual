@@ -71,7 +71,8 @@ final class TranslatorWorkspace {
 			return;
 		}
 
-		$asset_file = AIML_PLUGIN_FILE . '/assets/translator-workspace/build/index.asset.php';
+		$plugin_dir = plugin_dir_path( AIML_PLUGIN_FILE );
+		$asset_file = $plugin_dir . 'assets/translator-workspace/build/index.asset.php';
 		if ( ! is_readable( $asset_file ) ) {
 			return;
 		}
@@ -88,7 +89,7 @@ final class TranslatorWorkspace {
 			true
 		);
 
-		if ( is_readable( AIML_PLUGIN_FILE . '/assets/translator-workspace/build/style-index.css' ) ) {
+		if ( is_readable( $plugin_dir . 'assets/translator-workspace/build/style-index.css' ) ) {
 			wp_enqueue_style(
 				self::STYLE_HANDLE,
 				plugins_url( 'assets/translator-workspace/build/style-index.css', AIML_PLUGIN_FILE ),
@@ -123,7 +124,7 @@ final class TranslatorWorkspace {
 		echo '<div class="wrap">';
 		echo '<h1>' . esc_html__( 'Translator workspace', 'ai-multilingual' ) . '</h1>';
 
-		if ( ! is_readable( AIML_PLUGIN_FILE . '/assets/translator-workspace/build/index.js' ) ) {
+		if ( ! is_readable( plugin_dir_path( AIML_PLUGIN_FILE ) . 'assets/translator-workspace/build/index.js' ) ) {
 			echo '<div class="notice notice-error"><p>';
 			esc_html_e(
 				'The workspace bundle is not built. Run npm run build in assets/translator-workspace/.',
