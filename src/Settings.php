@@ -121,6 +121,7 @@ final class Settings {
 			'ai_provider'                      => '',
 			'ai_model'                         => '',
 			'ai_api_key_encrypted'             => '',
+			'qa_block_on_error'                => true,
 		);
 	}
 
@@ -141,7 +142,7 @@ final class Settings {
 
 		$clean = $defaults;
 
-		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled', 'block_extraction_enabled', 'block_frontend_rendering_enabled', 'ai_enabled' ) as $key ) {
+		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled', 'block_extraction_enabled', 'block_frontend_rendering_enabled', 'ai_enabled', 'qa_block_on_error' ) as $key ) {
 			if ( array_key_exists( $key, $raw ) ) {
 				$clean[ $key ] = self::to_bool( $raw[ $key ] );
 			}

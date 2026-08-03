@@ -1316,10 +1316,17 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-5 satisfied for all text origins
-- [ ] Save blocked on error when policy enabled
+- [x] AC-5 satisfied for all text origins
+- [x] Save blocked on error when policy enabled
 
 **Dependencies:** WP7
+
+### WP8 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `meta.qa` on GET/save; save gate via `WorkspaceQAException`; `qa_block_on_error` setting |
+| **Tests** | `WorkspaceQARestTest` |
 
 ---
 

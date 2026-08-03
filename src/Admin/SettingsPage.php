@@ -338,6 +338,13 @@ final class SettingsPage {
 			(bool) $current['remove_data_on_uninstall']
 		);
 
+		$this->checkbox_row(
+			'qa_block_on_error',
+			__( 'Block saves on QA errors', 'ai-multilingual' ),
+			__( 'When enabled, workspace saves that fail structural quality checks (placeholders, empty translation, HTML tags) are rejected. Warnings never block saves.', 'ai-multilingual' ),
+			(bool) ( $current['qa_block_on_error'] ?? true )
+		);
+
 		echo '</tbody></table>';
 
 		$this->render_strategy_f_settings( $current );

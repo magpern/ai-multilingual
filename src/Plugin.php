@@ -54,6 +54,7 @@ use AIMultilingual\Translation\BlockTranslationSanitizer;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\PreviewService;
 use AIMultilingual\Workspace\SegmentAssembler;
 use AIMultilingual\Workspace\Suggestion\AISuggestionProvider;
@@ -186,6 +187,10 @@ final class Plugin {
 				new AISuggestionProvider( $translation ),
 			)
 		);
+		$qa_engine          = new QAEngine(
+			null,
+			! empty( $this->settings->get()['qa_block_on_error'] )
+		);
 		$workspace          = new WorkspaceService(
 			$assembler,
 			$status_calculator,
@@ -194,7 +199,8 @@ final class Plugin {
 			$languages,
 			$store,
 			$extractor,
-			$suggestion_service
+			$suggestion_service,
+			$qa_engine
 		);
 
 		( new WorkspaceController(

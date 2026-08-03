@@ -14,6 +14,7 @@ use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
 use AIMultilingual\Workspace\WorkspaceConflictException;
+use AIMultilingual\Workspace\WorkspaceQAException;
 use AIMultilingual\Workspace\WorkspaceService;
 use WP_Error;
 use WP_REST_Request;
@@ -412,6 +413,15 @@ final class WorkspaceController {
 					'segments' => $this->segment_serializer->many_to_arrays( $conflict->segments() ),
 				),
 				409
+			);
+		} catch ( WorkspaceQAException $qa_exception ) {
+			return new WP_REST_Response(
+				array(
+					'code'    => 'aiml_qa_blocked',
+					'message' => $qa_exception->getMessage(),
+					'qa'      => $qa_exception->qa()->to_array(),
+				),
+				422
 			);
 		} catch ( \InvalidArgumentException $exception ) {
 			return new WP_Error(

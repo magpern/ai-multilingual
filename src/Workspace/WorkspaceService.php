@@ -13,6 +13,7 @@ use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\QA\QAEngine;
 use WP_Error;
 use WP_Post;
 use WP_Query;
@@ -88,6 +89,13 @@ final class WorkspaceService {
 	private TranslationSuggestionService $suggestions;
 
 	/**
+	 * Injected dependency.
+	 *
+	 * @var QAEngine
+	 */
+	private QAEngine $qa;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param SegmentAssembler             $assembler           Segment assembly.
@@ -98,6 +106,7 @@ final class WorkspaceService {
 	 * @param Store                        $store               Segment store.
 	 * @param Extractor                    $extractor           Source extractor.
 	 * @param TranslationSuggestionService $suggestions         Suggestion orchestration.
+	 * @param QAEngine                     $qa                  Quality assurance engine.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -107,7 +116,8 @@ final class WorkspaceService {
 		Languages $languages,
 		Store $store,
 		Extractor $extractor,
-		TranslationSuggestionService $suggestions
+		TranslationSuggestionService $suggestions,
+		QAEngine $qa
 	) {
 		$this->assembler         = $assembler;
 		$this->status_calculator = $status_calculator;
@@ -117,6 +127,7 @@ final class WorkspaceService {
 		$this->store             = $store;
 		$this->extractor         = $extractor;
 		$this->suggestions       = $suggestions;
+		$this->qa                = $qa;
 		$this->batch             = new BatchOperationCoordinator( $this, $translation );
 	}
 
@@ -206,7 +217,7 @@ final class WorkspaceService {
 
 		$segments = $this->assembler->assemble_for_post( $post, $language_id );
 
-		return $this->attach_suggestions( $segments, $language_id );
+		return $this->attach_meta( $segments, $language_id );
 	}
 
 	/**
@@ -264,6 +275,7 @@ final class WorkspaceService {
 	 * @param string  $status          Optional workflow status.
 	 * @return array<string, mixed>
 	 * @throws WorkspaceConflictException When source_hash mismatches.
+	 * @throws WorkspaceQAException When QA errors block the save.
 	 * @throws \InvalidArgumentException When the segment cannot be saved.
 	 * @throws \RuntimeException When the saved segment cannot be reloaded.
 	 */
@@ -289,6 +301,17 @@ final class WorkspaceService {
 		if ( '' !== $source_hash && (string) ( $current['source_hash'] ?? '' ) !== $source_hash ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- conflict payload is structured data, not exception text.
 			throw new WorkspaceConflictException( array( $current ) );
+		}
+
+		$format = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+		$qa     = $this->qa->evaluate(
+			(string) ( $current['source_text'] ?? '' ),
+			$translated_text,
+			$format
+		);
+		if ( $this->qa->should_block_save( $qa ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- QA payload is structured data, not exception text.
+			throw new WorkspaceQAException( $qa );
 		}
 
 		$save_status = '' !== $status ? $status : Store::STATUS_MANUALLY_EDITED;
@@ -322,9 +345,9 @@ final class WorkspaceService {
 			throw new \RuntimeException( 'Saved segment could not be reloaded.' );
 		}
 
-		$with_suggestions = $this->attach_suggestions( array( $refreshed ), $language_id );
+		$with_meta = $this->attach_meta( array( $refreshed ), $language_id );
 
-		return $with_suggestions[0];
+		return $with_meta[0];
 	}
 
 	/**
@@ -361,6 +384,11 @@ final class WorkspaceService {
 		$suggestions         = $this->suggestions->request_suggestions( $segment, $context );
 		$meta                = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
 		$meta['suggestions'] = $suggestions;
+		$meta['qa']          = $this->qa->evaluate(
+			(string) ( $segment['source_text'] ?? '' ),
+			(string) ( $segment['translated_text'] ?? '' ),
+			(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN )
+		)->to_array();
 		$segment['meta']     = $meta;
 
 		return $segment;
@@ -438,13 +466,13 @@ final class WorkspaceService {
 	}
 
 	/**
-	 * Attaches ranked suggestions via TranslationSuggestionService (never TMS).
+	 * Attaches ranked suggestions and QA via dedicated services.
 	 *
 	 * @param list<array<string, mixed>> $segments    Assembled segment DTOs.
 	 * @param int                        $language_id Target language id.
 	 * @return list<array<string, mixed>>
 	 */
-	private function attach_suggestions( array $segments, int $language_id ): array {
+	private function attach_meta( array $segments, int $language_id ): array {
 		$default = $this->languages->default();
 		$context = array(
 			'source_language_id' => $default ? (int) $default->language_id : 0,
@@ -457,6 +485,11 @@ final class WorkspaceService {
 			$key                        = (string) ( $segment['segment_key'] ?? '' );
 			$meta                       = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
 			$meta['suggestions']        = $by_key[ $key ] ?? array();
+			$meta['qa']                 = $this->qa->evaluate(
+				(string) ( $segment['source_text'] ?? '' ),
+				(string) ( $segment['translated_text'] ?? '' ),
+				(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN )
+			)->to_array();
 			$segments[ $index ]['meta'] = $meta;
 		}
 
