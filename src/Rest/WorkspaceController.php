@@ -187,6 +187,35 @@ final class WorkspaceController {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)/suggest',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'suggest_segment' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => array(
+					'post_id'     => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'segment_key' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'language'    => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'profile'     => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)',
 			array(
 				'methods'             => 'POST',
@@ -364,7 +393,7 @@ final class WorkspaceController {
 		if ( array() === $params ) {
 			$params = (array) $request->get_body_params();
 		}
-		$key    = rawurldecode( (string) $request->get_param( 'segment_key' ) );
+		$key = rawurldecode( (string) $request->get_param( 'segment_key' ) );
 
 		try {
 			$dto = $this->workspace->save_segment(
@@ -383,6 +412,49 @@ final class WorkspaceController {
 					'segments' => $this->segment_serializer->many_to_arrays( $conflict->segments() ),
 				),
 				409
+			);
+		} catch ( \InvalidArgumentException $exception ) {
+			return new WP_Error(
+				'aiml_invalid_segment',
+				$exception->getMessage(),
+				array( 'status' => 422 )
+			);
+		}
+
+		return $this->respond( $this->segment_serializer->from_dto( $dto )->to_array() );
+	}
+
+	/**
+	 * Requests AI/TM suggestions for one segment without persisting.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function suggest_segment( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+
+		$params = (array) $request->get_json_params();
+		if ( array() === $params ) {
+			$params = (array) $request->get_body_params();
+		}
+
+		$key     = rawurldecode( (string) $request->get_param( 'segment_key' ) );
+		$profile = sanitize_key( (string) ( $params['profile'] ?? $request->get_param( 'profile' ) ?? '' ) );
+
+		try {
+			$dto = $this->workspace->request_suggestions(
+				$post,
+				(int) $language->language_id,
+				$key,
+				$profile
 			);
 		} catch ( \InvalidArgumentException $exception ) {
 			return new WP_Error(
@@ -416,7 +488,7 @@ final class WorkspaceController {
 		if ( array() === $params ) {
 			$params = (array) $request->get_body_params();
 		}
-		$items  = is_array( $params['segments'] ?? null ) ? $params['segments'] : array();
+		$items = is_array( $params['segments'] ?? null ) ? $params['segments'] : array();
 
 		$result = $this->workspace->save_batch( $post, (int) $language->language_id, $items );
 		if ( $result instanceof WP_Error ) {
@@ -453,8 +525,8 @@ final class WorkspaceController {
 		if ( array() === $params ) {
 			$params = (array) $request->get_body_params();
 		}
-		$keys   = is_array( $params['segment_keys'] ?? null ) ? array_map( 'strval', $params['segment_keys'] ) : array();
-		$mode   = (string) ( $params['mode'] ?? 'sync' );
+		$keys = is_array( $params['segment_keys'] ?? null ) ? array_map( 'strval', $params['segment_keys'] ) : array();
+		$mode = (string) ( $params['mode'] ?? 'sync' );
 
 		$result = $this->workspace->translate( $post, (int) $language->language_id, $keys, $mode );
 		if ( $result instanceof WP_Error ) {

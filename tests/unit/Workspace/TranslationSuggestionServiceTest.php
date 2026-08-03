@@ -103,5 +103,36 @@ final class TranslationSuggestionServiceTest extends TestCase {
 
 		$service = new TranslationSuggestionService( array( $provider ) );
 		$this->assertSame( array(), $service->suggestions_for_segment( array(), array() ) );
+		$this->assertSame( 1, $service->rejection_diagnostics()['language_mismatch'] ?? 0 );
+		$this->assertSame( 1, $service->empty_diagnostics()['no_tm_match'] ?? 0 );
+	}
+
+	public function test_ai_tier_ranks_after_tm(): void {
+		$provider = new class() implements SuggestionProvider {
+			public function get_id(): string {
+				return 'mixed';
+			}
+
+			public function is_available( array $segment_dto, array $context ): bool {
+				return true;
+			}
+
+			public function get_unavailable_reason(): ?string {
+				return null;
+			}
+
+			public function get_suggestions( array $segment_dto, array $context ): array {
+				return array(
+					new NormalizedSuggestion( 'ai', 'AI text', 90.0, 6 ),
+					new NormalizedSuggestion( 'tm', 'TM text', 80.0, 1 ),
+				);
+			}
+		};
+
+		$service = new TranslationSuggestionService( array( $provider ) );
+		$ranked  = $service->suggestions_for_segment( array( 'segment_key' => 'a' ), array() );
+
+		$this->assertSame( 'TM text', $ranked[0]['target_text'] );
+		$this->assertSame( 'AI text', $ranked[1]['target_text'] );
 	}
 }

@@ -1268,12 +1268,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-11, AC-12 satisfied
-- [ ] AI suggest read-only; translate persists
-- [ ] Unified ranked list merges TM + AI per policy §2.6
-- [ ] `GlossarySuggestionProvider` reserved in docs only (§2.5)
+- [x] AC-11, AC-12 satisfied
+- [x] AI suggest read-only; translate persists
+- [x] Unified ranked list merges TM + AI per policy §2.6
+- [x] `GlossarySuggestionProvider` reserved in docs only (§2.5)
 
 **Dependencies:** WP3, WP4, WP5
+
+### WP6 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `AISuggestionProvider`, `TranslationService::suggest_segment`, REST `.../suggest`, diagnostics hooks |
+| **Tests** | Ranking/AI tier unit + `WorkspaceSuggestionsRestTest` |
 
 ---
 

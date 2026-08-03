@@ -12,8 +12,11 @@ namespace AIMultilingual\Workspace;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Translation\AI\AIProviderInterface;
 use AIMultilingual\Translation\AI\NullAIProvider;
+use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderResult;
 use AIMultilingual\Translation\AI\ProviderSegment;
+use AIMultilingual\Translation\AI\ResponseValidator;
+use AIMultilingual\Translation\AI\SegmentConstraintAnalyzer;
 use AIMultilingual\Translation\AI\TranslationBatch;
 use AIMultilingual\Translation\Store;
 use WP_Error;
@@ -53,23 +56,43 @@ final class TranslationService {
 	private AIProviderInterface $provider;
 
 	/**
+	 * Prompt profiles.
+	 *
+	 * @var PromptProfileRegistry
+	 */
+	private PromptProfileRegistry $profiles;
+
+	/**
+	 * Structural response validator.
+	 *
+	 * @var ResponseValidator
+	 */
+	private ResponseValidator $validator;
+
+	/**
 	 * Builds the collaborator.
 	 *
-	 * @param Store               $store     Segment store.
-	 * @param SegmentAssembler    $assembler Segment assembler.
-	 * @param Languages           $languages Language registry.
-	 * @param AIProviderInterface $provider  AI provider boundary.
+	 * @param Store                      $store     Segment store.
+	 * @param SegmentAssembler           $assembler Segment assembler.
+	 * @param Languages                  $languages Language registry.
+	 * @param AIProviderInterface        $provider  AI provider boundary.
+	 * @param PromptProfileRegistry|null $profiles Prompt profiles.
+	 * @param ResponseValidator|null     $validator Response validator.
 	 */
 	public function __construct(
 		Store $store,
 		SegmentAssembler $assembler,
 		Languages $languages,
-		AIProviderInterface $provider
+		AIProviderInterface $provider,
+		?PromptProfileRegistry $profiles = null,
+		?ResponseValidator $validator = null
 	) {
 		$this->store     = $store;
 		$this->assembler = $assembler;
 		$this->languages = $languages;
 		$this->provider  = $provider;
+		$this->profiles  = $profiles ?? new PromptProfileRegistry();
+		$this->validator = $validator ?? new ResponseValidator( new SegmentConstraintAnalyzer() );
 	}
 
 	/**
@@ -118,8 +141,8 @@ final class TranslationService {
 		$batch = new TranslationBatch(
 			(string) $source->locale,
 			(string) $target->locale,
-			'workspace',
-			'1',
+			PromptProfileRegistry::TRANSLATE,
+			PromptProfileRegistry::VERSION,
 			'',
 			array(
 				new ProviderSegment(
@@ -127,7 +150,8 @@ final class TranslationService {
 					(string) ( $current['source_text'] ?? '' ),
 					(string) ( $current['text_format'] ?? Store::FORMAT_PLAIN )
 				),
-			)
+			),
+			TranslationBatch::OPERATION_TRANSLATE
 		);
 
 		$result = $this->provider->translate_batch( $batch );
@@ -139,12 +163,108 @@ final class TranslationService {
 	}
 
 	/**
+	 * Suggests a translation without persisting (F11 suggest mode).
+	 *
+	 * @param WP_Post $post           Canonical post.
+	 * @param int     $language_id    Target language id.
+	 * @param string  $segment_key    Segment key.
+	 * @param string  $prompt_profile Profile id.
+	 * @return SuggestionResult|WP_Error
+	 */
+	public function suggest_segment( WP_Post $post, int $language_id, string $segment_key, string $prompt_profile ) {
+		$profile = $this->profiles->get( $prompt_profile );
+		if ( null === $profile ) {
+			return new WP_Error(
+				'aiml_invalid_profile',
+				__( 'Unknown prompt profile.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		if ( ! $this->provider->get_capabilities()->supports_profile( $prompt_profile ) ) {
+			return new WP_Error(
+				'aiml_provider_unavailable',
+				__( 'The active provider does not support this profile.', 'ai-multilingual' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		$current = $this->assembler->assemble_one( $post, $language_id, $segment_key );
+		if ( null === $current ) {
+			return new WP_Error(
+				'aiml_invalid_segment',
+				__( 'Unknown segment key for this post.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$target = $this->languages->find( $language_id );
+		$source = $this->languages->default();
+		if ( null === $target || null === $source ) {
+			return new WP_Error(
+				'aiml_invalid_language',
+				__( 'Unknown language code.', 'ai-multilingual' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$source_text = (string) ( $current['source_text'] ?? '' );
+		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+		$existing    = (string) ( $current['translated_text'] ?? '' );
+
+		$batch = new TranslationBatch(
+			(string) $source->locale,
+			(string) $target->locale,
+			$profile->id,
+			$profile->version,
+			'',
+			array(
+				new ProviderSegment( $segment_key, $source_text, $format, $existing ),
+			),
+			TranslationBatch::OPERATION_SUGGEST,
+			$profile->constraints
+		);
+
+		$result = $this->provider->translate_batch( $batch );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		$translated = '';
+		foreach ( $result->segments as $segment ) {
+			if ( (string) ( $segment['segment_key'] ?? '' ) === $segment_key ) {
+				$translated = (string) ( $segment['translated_text'] ?? '' );
+				break;
+			}
+		}
+
+		$validation = $this->validator->validate( $source_text, $translated, $format, $profile->constraints );
+		if ( ! $validation->valid ) {
+			return new WP_Error(
+				(string) ( $validation->code ?? ResponseValidator::CODE_EMPTY_TARGET ),
+				'' !== $validation->message ? $validation->message : __( 'Provider response failed structural validation.', 'ai-multilingual' ),
+				array(
+					'status' => 422,
+					'data'   => $validation->data,
+				)
+			);
+		}
+
+		return new SuggestionResult(
+			$translated,
+			$profile->id,
+			$profile->version,
+			$result->model
+		);
+	}
+
+	/**
 	 * Persists provider output through the Store write path.
 	 *
-	 * @param WP_Post                    $post        Canonical post.
-	 * @param int                        $language_id Target language id.
-	 * @param array<string, mixed>       $current     Current segment DTO.
-	 * @param ProviderResult             $result      Provider outcome.
+	 * @param WP_Post              $post        Canonical post.
+	 * @param int                  $language_id Target language id.
+	 * @param array<string, mixed> $current     Current segment DTO.
+	 * @param ProviderResult       $result      Provider outcome.
 	 * @return array<string, mixed>|WP_Error
 	 */
 	private function persist_provider_result(

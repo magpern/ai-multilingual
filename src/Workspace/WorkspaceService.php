@@ -328,6 +328,45 @@ final class WorkspaceService {
 	}
 
 	/**
+	 * Requests ranked suggestions for one segment (TM + optional AI profile).
+	 *
+	 * @param WP_Post $post           Canonical post.
+	 * @param int     $language_id    Target language id.
+	 * @param string  $segment_key    Segment key.
+	 * @param string  $prompt_profile Prompt profile id.
+	 * @return array<string, mixed>
+	 * @throws \InvalidArgumentException When the segment is unknown.
+	 */
+	public function request_suggestions(
+		WP_Post $post,
+		int $language_id,
+		string $segment_key,
+		string $prompt_profile
+	): array {
+		$this->assert_supported_post( $post );
+
+		$segment = $this->assembler->assemble_one( $post, $language_id, $segment_key );
+		if ( null === $segment ) {
+			throw new \InvalidArgumentException( 'Unknown segment key for this post.' );
+		}
+
+		$default = $this->languages->default();
+		$context = array(
+			'source_language_id' => $default ? (int) $default->language_id : 0,
+			'target_language_id' => $language_id,
+			'prompt_profile'     => $prompt_profile,
+			'post'               => $post,
+		);
+
+		$suggestions         = $this->suggestions->request_suggestions( $segment, $context );
+		$meta                = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
+		$meta['suggestions'] = $suggestions;
+		$segment['meta']     = $meta;
+
+		return $segment;
+	}
+
+	/**
 	 * Operation handler.
 	 *
 	 * @param WP_Post                          $post        Canonical post.

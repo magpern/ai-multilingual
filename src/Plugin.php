@@ -56,6 +56,7 @@ use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\PreviewService;
 use AIMultilingual\Workspace\SegmentAssembler;
+use AIMultilingual\Workspace\Suggestion\AISuggestionProvider;
 use AIMultilingual\Workspace\Suggestion\TranslationMemorySuggestionProvider;
 use AIMultilingual\Workspace\TranslationService;
 use AIMultilingual\Workspace\TranslationStatusCalculator;
@@ -174,13 +175,15 @@ final class Plugin {
 			$store,
 			$assembler,
 			$languages,
-			$provider_registry->active()
+			$provider_registry->active(),
+			$profiles
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$tm_service         = new TranslationMemoryService( new TMRepository() );
 		$suggestion_service = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),
+				new AISuggestionProvider( $translation ),
 			)
 		);
 		$workspace          = new WorkspaceService(
