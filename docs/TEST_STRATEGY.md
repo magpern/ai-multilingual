@@ -106,3 +106,20 @@ Files created inside containers are root-owned; git reads them fine.
 
 CI runs the same four gates: phpcs, unit, integration against a `mariadb:11.4`
 service, and a packaging build.
+
+## Strategy F browser acceptance (F9+)
+
+F9 closed under **engineering acceptance** — formal 35/35 Tier 3 Playwright PASS
+was not achieved; see [F9_BROWSER_VALIDATION_LOG.md](plans/F9_BROWSER_VALIDATION_LOG.md).
+
+### Tier policy (ongoing)
+
+| Tier | Scope | When |
+|---|---|---|
+| **Tier 0 (default)** | PHPUnit unit, PHPUnit integration, PHPCS, WP-CLI | Every merge and F10 work package |
+| **Tier 1/2** | Targeted Playwright `--grep` or single spec | Editor, overlay, or cross-browser behavior under change |
+| **Tier 3** | Full 35-test matrix (`acceptance/f9-browser/tools/run-f9-acceptance.sh`) | Milestone/release gate only; **explicit operator approval required** |
+
+Full Playwright must **not** run automatically during F10 ordinary work. See
+[STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](plans/STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) §25
+and [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](plans/STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) §16.

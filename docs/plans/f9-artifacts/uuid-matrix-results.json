@@ -1,0 +1,28 @@
+{
+  "transform": {
+    "block_name": "core/heading",
+    "uuid": "8b2423f0-d155-475f-9f10-a2080152b451"
+  },
+  "move": {
+    "first_uuid": "cb048b4f-f660-4aa6-8309-4ec80dc24906",
+    "after_first_uuid": "cb048b4f-f660-4aa6-8309-4ec80dc24906"
+  },
+  "group": {
+    "uuid": "65de427b-c311-4923-99f4-639653dca77f",
+    "after_uuid": "65de427b-c311-4923-99f4-639653dca77f"
+  },
+  "split_merge": {
+    "blocks": 1
+  },
+  "delete_undo": {
+    "uuid": "df33cd1b-6375-4eee-9708-7e4dedd7dab4",
+    "after_uuid": "df33cd1b-6375-4eee-9708-7e4dedd7dab4"
+  },
+  "noop_save": {
+    "stable": true
+  },
+  "allowlist_blocks": {
+    "heading": "core/heading",
+    "button": "core/button"
+  }
+}

@@ -672,7 +672,7 @@ The admin notice transient uses the same normalized payload fields (`dropped`, `
 
 ## 13. F9 entry gate
 
-Before browser sign-off (F9) begins:
+Before browser sign-off (F9) begins — canonical plan: [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md):
 
 | Gate | Required state |
 |---|---|
@@ -707,6 +707,7 @@ Before browser sign-off (F9) begins:
 |---|---|
 | Master implementation plan | [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) |
 | CLI validation log (ops, F8 exit) | [F8_CLI_VALIDATION_LOG.md](F8_CLI_VALIDATION_LOG.md) |
+| Browser acceptance plan (F9) | [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) |
 
 **Implementation files (F8 code — subsequent work packages):**
 - `src/Admin/SettingsPage.php` — Strategy F section

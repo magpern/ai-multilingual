@@ -1,0 +1,42 @@
+{
+    "post_id": 5726,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-08-01 03:15:25",
+    "content_bytes": 166,
+    "content_sha1": "d1ac6810746a7ee31ba4957ef049481d39e198b7",
+    "eligible_blocks": 2,
+    "blocks": [
+        {
+            "index": 0,
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/paragraph",
+            "text_sha1": "6d38687bc2b1f8958797ac7141f0b92ac52d0f99"
+        },
+        {
+            "index": 1,
+            "uuid": "",
+            "valid_uuid": false,
+            "block_name": "core\/paragraph",
+            "text_sha1": "6d38687bc2b1f8958797ac7141f0b92ac52d0f99"
+        }
+    ],
+    "uuid_counts": [],
+    "duplicate_uuids": [],
+    "has_aimlBlockId": false,
+    "baseline_source": "file:\/aiml\/acceptance\/f9-browser\/artifacts\/f9-duplicate-baseline-post-5726.html",
+    "content_byte_diff": 27,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "index": 0,
+            "uuid": "23c41780-8d38-4e42-9861-be153675ae50",
+            "block_name": "core\/paragraph",
+            "text_sha1": "6d38687bc2b1f8958797ac7141f0b92ac52d0f99"
+        }
+    ],
+    "uuid_preservation": [
+        "removed",
+        "new_block"
+    ]
+}

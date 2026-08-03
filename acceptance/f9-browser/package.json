@@ -1,0 +1,14 @@
+{
+  "name": "strategy-f-f9-browser-acceptance",
+  "private": true,
+  "description": "F9 browser acceptance harness for production Strategy F on dev.biopentra.eu",
+  "scripts": {
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium-desktop",
+    "test:tier1": "playwright test --project=firefox-desktop --project=webkit-desktop --project=chromium-mobile",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.51.0"
+  }
+}

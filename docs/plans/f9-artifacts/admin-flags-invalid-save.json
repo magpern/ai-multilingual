@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "remove_data_on_uninstall": false,
+  "switcher_show_native_name": true,
+  "switcher_hide_current": false,
+  "block_attr_registration_enabled": false,
+  "block_uuid_injection_enabled": false,
+  "block_extraction_enabled": false,
+  "block_frontend_rendering_enabled": false,
+  "block_uuid_repair_enabled": false
+}

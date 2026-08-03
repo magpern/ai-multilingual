@@ -73,15 +73,22 @@ final class SavePipeline {
 
 		try {
 			$content = isset( $data['post_content'] ) ? (string) $data['post_content'] : '';
-			$result  = $this->injector->inject_content( $content );
+			$post_id = (int) ( $postarr['ID'] ?? 0 );
+
+			if ( $post_id > 0 ) {
+				$existing = get_post( $post_id );
+				if ( $existing instanceof WP_Post && '' !== $existing->post_content ) {
+					$content = $this->merge_uuids_from_previous( $content, (string) $existing->post_content );
+				}
+			}
+
+			$result = $this->injector->inject_content( $content );
 
 			if ( ! $result->successful ) {
 				return $data;
 			}
 
-			if ( $result->changed ) {
-				$data['post_content'] = $result->content;
-			}
+			$data['post_content'] = $result->content;
 		} finally {
 			self::$injecting = false;
 		}
@@ -157,6 +164,97 @@ final class SavePipeline {
 	public static function reset_guard_for_tests(): void {
 		self::$injecting           = false;
 		self::$migration_suspended = false;
+	}
+
+	/**
+	 * Copies aimlBlockId values from previous saved content when the editor omits them.
+	 *
+	 * Gutenberg may serialize eligible blocks without aimlBlockId even when registration
+	 * is enabled (first save injects server-side only). Reconcile by document order and
+	 * block type before UUID injection runs.
+	 *
+	 * @param string $incoming Incoming post content.
+	 * @param string $previous Previously persisted post content.
+	 */
+	private function merge_uuids_from_previous( string $incoming, string $previous ): string {
+		if ( ! function_exists( 'parse_blocks' ) || ! function_exists( 'serialize_blocks' ) || ! function_exists( 'has_blocks' ) ) {
+			return $incoming;
+		}
+
+		if ( ! has_blocks( $incoming ) || ! has_blocks( $previous ) ) {
+			return $incoming;
+		}
+
+		$incoming_blocks = parse_blocks( $incoming );
+		$registry        = new BlockRegistry();
+		$previous_blocks = $this->eligible_blocks_in_order( parse_blocks( $previous ), $registry );
+		$changed         = false;
+		$index           = 0;
+
+		( new BlockTreeWalker() )->walk(
+			$incoming_blocks,
+			function ( array &$block ) use ( &$index, $previous_blocks, $registry, &$changed ): void {
+				if ( ! $registry->is_eligible( $block ) ) {
+					return;
+				}
+
+				$previous_block = $previous_blocks[ $index ] ?? null;
+				++$index;
+
+				if ( null === $previous_block ) {
+					return;
+				}
+
+				$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+				$uuid  = isset( $attrs[ Contract::ATTR_NAME ] ) ? (string) $attrs[ Contract::ATTR_NAME ] : '';
+
+				if ( '' !== $uuid ) {
+					return;
+				}
+
+				$prev_attrs = is_array( $previous_block['attrs'] ?? null ) ? $previous_block['attrs'] : array();
+				$prev_uuid  = isset( $prev_attrs[ Contract::ATTR_NAME ] ) ? (string) $prev_attrs[ Contract::ATTR_NAME ] : '';
+
+				if ( ! UuidValidator::is_valid_non_empty( $prev_uuid ) ) {
+					return;
+				}
+
+				if ( (string) ( $block['blockName'] ?? '' ) !== (string) ( $previous_block['blockName'] ?? '' ) ) {
+					return;
+				}
+
+				if ( ! is_array( $block['attrs'] ?? null ) ) {
+					$block['attrs'] = array();
+				}
+
+				$block['attrs'][ Contract::ATTR_NAME ] = $prev_uuid;
+				$changed                               = true;
+			}
+		);
+
+		return $changed ? serialize_blocks( $incoming_blocks ) : $incoming;
+	}
+
+	/**
+	 * Collects eligible blocks in document order.
+	 *
+	 * @param array<int, array<string, mixed>> $blocks   Parsed block tree.
+	 * @param BlockRegistry                    $registry Block eligibility policy.
+	 * @return list<array<string, mixed>>
+	 */
+	private function eligible_blocks_in_order( array $blocks, BlockRegistry $registry ): array {
+		$eligible = array();
+
+		( new BlockTreeWalker() )->walk(
+			$blocks,
+			static function ( array $block ) use ( &$eligible, $registry ): void {
+				if ( $registry->is_eligible( $block ) ) {
+					$eligible[] = $block;
+				}
+			}
+		);
+
+		return $eligible;
 	}
 
 	/**

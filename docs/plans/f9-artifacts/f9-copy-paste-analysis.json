@@ -1,0 +1,45 @@
+{
+    "post_id": 5732,
+    "post_status": "draft",
+    "post_modified_gmt": "2026-08-01 03:18:36",
+    "content_bytes": 316,
+    "content_sha1": "719096c4f204bb12ef019001237cf925f0e05d07",
+    "eligible_blocks": 2,
+    "blocks": [
+        {
+            "index": 0,
+            "uuid": "132f82bc-3640-4c4f-aa7f-88603bf0aa0c",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "e8c738ff8e2ad2e5df15e2d90bb2a8c6377d508f"
+        },
+        {
+            "index": 1,
+            "uuid": "fcb7d084-e05d-49a9-aff0-0258b8f3fb3d",
+            "valid_uuid": true,
+            "block_name": "core\/paragraph",
+            "text_sha1": "e8c738ff8e2ad2e5df15e2d90bb2a8c6377d508f"
+        }
+    ],
+    "uuid_counts": {
+        "132f82bc-3640-4c4f-aa7f-88603bf0aa0c": 1,
+        "fcb7d084-e05d-49a9-aff0-0258b8f3fb3d": 1
+    },
+    "duplicate_uuids": [],
+    "has_aimlBlockId": true,
+    "baseline_source": "file:\/aiml\/acceptance\/f9-browser\/artifacts\/f9-copy-paste-baseline-post-5732.html",
+    "content_byte_diff": 157,
+    "content_identical": false,
+    "baseline_blocks": [
+        {
+            "index": 0,
+            "uuid": "132f82bc-3640-4c4f-aa7f-88603bf0aa0c",
+            "block_name": "core\/paragraph",
+            "text_sha1": "e8c738ff8e2ad2e5df15e2d90bb2a8c6377d508f"
+        }
+    ],
+    "uuid_preservation": [
+        "preserved",
+        "new_block"
+    ]
+}
