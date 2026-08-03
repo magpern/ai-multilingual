@@ -1204,11 +1204,18 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Six profiles defined
-- [ ] Validator rejects structurally invalid provider output
-- [ ] Validator is not QA — documented separation
+- [x] Six profiles defined
+- [x] Validator rejects structurally invalid provider output
+- [x] Validator is not QA — documented separation
 
 **Dependencies:** WP0
+
+### WP4 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `PromptProfileRegistry` (6 profiles), `PromptProfile`, `SegmentConstraintAnalyzer`, `ResponseValidator`; additive `TranslationBatch`/`ProviderSegment` fields |
+| **Tests** | `PromptProfileRegistryTest`, `ResponseValidatorTest` |
 
 ---
 
