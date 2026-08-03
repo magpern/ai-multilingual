@@ -1,6 +1,6 @@
 # F10 — Translator Workspace MVP Plan
 
-**Status:** Canonical implementation plan (not started)  
+**Status:** Canonical implementation plan — WP0–WP3 complete on `feature/f10-translator-workspace`
 **Architecture:** Includes the approved pre-implementation architecture refinement pass (collaborators, query/command split, REST v1 contract, reserved hooks and signed preview — documentation only; no F10 code started).  
 **Depends on:** F1–F9 complete; F9 engineering closure @ `91785cd` on `feature/f9-browser-acceptance`  
 **ADR-0013:** Proposed (unchanged; F10 does not promote ADR)  
@@ -921,8 +921,22 @@ First translator-visible value: edit target, save with optimistic locking.
 
 ### Acceptance criteria
 
-- [ ] AC-1, AC-3, AC-8 satisfied
-- [ ] Manual save sets `STATUS_MANUALLY_EDITED`
+- [x] AC-1, AC-3, AC-8 satisfied (WP3 @ `feature/f10-translator-workspace`)
+- [x] Manual save sets `STATUS_MANUALLY_EDITED`
+- [x] Empty translation reverts to `STATUS_MISSING` (Store semantics)
+- [x] HTTP 409 conflict preserves local draft; explicit reload required
+- [x] M1 Editor deferral notice + workspace deep link for block posts
+
+### WP3 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Inline target editing, dirty tracking, single/batch save, 409 UX, stale badges, M1 deferral |
+| **Save semantics** | POST single/batch with `translated_text`, `source_hash`, `status=manually_edited`; empty → `missing` |
+| **409 UX** | Row `conflict` state; preserved draft; refreshed ViewModel in `conflictServer`; reload action |
+| **Legacy editor** | Block posts show warning + link to `aiml-translator?post_id=&language=`; title/excerpt unchanged |
+| **Tests** | `WorkspaceRestTest`, `WorkspaceBatchTest`, `WorkspaceConflictTest`, `WorkspaceStaleTest`, `WorkspacePermissionsTest`, `EditorWorkspaceDeferralTest`, `segment-rows.test.ts` |
+| **Validation** | Tier 0: PHPUnit unit + integration, PHPCS, TypeScript build + Jest, `git diff --check` |
 
 ### Testing strategy
 
@@ -1124,7 +1138,7 @@ F10 closes when **all** are true:
 | WP0 | — | This plan committed | F9 merge |
 | WP1 | F10.1 | WorkspaceService + REST + ViewModels + tests | WP0 |
 | WP2 | F10.2 | Workspace shell UI | WP1 |
-| WP3 | F10.3 | Manual save + 409 handling | WP2 |
+| WP3 | F10.3 | Manual save + 409 handling | WP2 | **Complete** |
 | WP4 | F10.4 | Status + publish UX | WP3 |
 | WP5 | F10.5 | Bulk actions | WP4 |
 | WP6 | F10.6 | AI provider stub | WP5 |

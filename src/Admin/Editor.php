@@ -290,7 +290,9 @@ final class Editor {
 
 		echo '<h2>' . esc_html( get_the_title( $post ) ) . '</h2>';
 
-		if ( Extractor::BODY_OK !== $body_state ) {
+		if ( $this->extractor->uses_block_workspace( $post ) ) {
+			$this->render_workspace_deferral_notice( $post, $language_id );
+		} elseif ( Extractor::BODY_OK !== $body_state ) {
 			printf(
 				'<div class="notice notice-info"><p>%s</p></div>',
 				esc_html( Extractor::body_notice( $body_state ) )
@@ -423,6 +425,41 @@ final class Editor {
 
 		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
 		exit;
+	}
+
+	/**
+	 * Directs translators to the workspace for block-managed posts.
+	 *
+	 * @param WP_Post $post        Canonical post.
+	 * @param int     $language_id Target language id.
+	 */
+	private function render_workspace_deferral_notice( WP_Post $post, int $language_id ): void {
+		$language = $this->languages->find( $language_id );
+		$code     = null !== $language ? (string) $language->code : '';
+
+		$workspace_url = admin_url(
+			add_query_arg(
+				array(
+					'page'     => TranslatorWorkspace::MENU_SLUG,
+					'post_id'  => (int) $post->ID,
+					'language' => $code,
+				),
+				'admin.php'
+			)
+		);
+
+		echo '<div class="notice notice-warning"><p>';
+		echo esc_html__(
+			'Block translations for this post are managed in the Translator Workspace. Use the workspace to edit block segments so changes stay aligned with Strategy F extraction.',
+			'ai-multilingual'
+		);
+		echo '</p><p>';
+		printf(
+			'<a class="button button-primary" href="%1$s">%2$s</a>',
+			esc_url( $workspace_url ),
+			esc_html__( 'Open Translator Workspace', 'ai-multilingual' )
+		);
+		echo '</p></div>';
 	}
 
 	/**

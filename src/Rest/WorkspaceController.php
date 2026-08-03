@@ -166,6 +166,27 @@ final class WorkspaceController {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/batch',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'save_batch' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => array(
+					'post_id'  => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'language' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)',
 			array(
 				'methods'             => 'POST',
@@ -182,27 +203,6 @@ final class WorkspaceController {
 						'required' => true,
 					),
 					'language'    => array(
-						'type'     => 'string',
-						'required' => true,
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			self::REST_NAMESPACE,
-			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/batch',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( $this, 'save_batch' ),
-				'permission_callback' => array( $this, 'can_edit_post' ),
-				'args'                => array(
-					'post_id'  => array(
-						'type'              => 'integer',
-						'required'          => true,
-						'sanitize_callback' => 'absint',
-					),
-					'language' => array(
 						'type'     => 'string',
 						'required' => true,
 					),

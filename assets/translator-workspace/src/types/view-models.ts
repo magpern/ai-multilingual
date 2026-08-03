@@ -68,6 +68,8 @@ export interface TranslatorWorkspaceConfig {
 	restNamespace: string;
 	nonce: string;
 	languages: LanguageOption[];
+	initialPostId?: number;
+	initialLanguageCode?: string;
 }
 
 declare global {

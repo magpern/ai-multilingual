@@ -8,6 +8,7 @@
 .aiml-translator-workspace .aiml-workspace-toolbar-actions {
 	display: flex;
 	align-items: flex-end;
+	flex-wrap: wrap;
 	gap: 0.5rem;
 }
 
@@ -17,12 +18,40 @@
 	margin-top: 0.25rem;
 }
 
-.aiml-translator-workspace .aiml-workspace-source {
+.aiml-translator-workspace .aiml-workspace-source,
+.aiml-translator-workspace .aiml-workspace-readonly {
 	white-space: pre-wrap;
+	width: 100%;
+}
+
+.aiml-translator-workspace .aiml-workspace-row-state {
+	display: block;
+	font-size: 12px;
+	margin-top: 0.25rem;
+}
+
+.aiml-translator-workspace .aiml-workspace-stale-badge {
+	font-weight: 600;
+}
+
+.aiml-translator-workspace .aiml-workspace-row--conflict {
+	background: #fff8e5;
+}
+
+.aiml-translator-workspace .aiml-workspace-row--dirty {
+	background: #f6f7f7;
+}
+
+.aiml-translator-workspace .aiml-workspace-row--stale .aiml-workspace-stale-badge {
+	color: #8a4b00;
 }
 
 .aiml-translator-workspace .aiml-workspace-footer {
 	margin-top: 1rem;
 	padding-top: 1rem;
 	border-top: 1px solid #dcdcde;
+}
+
+.aiml-translator-workspace .aiml-workspace-conflict-source {
+	margin-top: 0.5rem;
 }

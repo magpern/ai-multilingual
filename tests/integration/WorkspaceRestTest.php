@@ -116,6 +116,96 @@ final class WorkspaceRestTest extends AimlTestCase {
 		$this->assertNotEmpty( $response->get_data()['items'] );
 	}
 
+	public function test_empty_translation_becomes_missing(): void {
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		wp_set_current_user( $this->create_translator() );
+
+		$load = new WP_REST_Request(
+			'GET',
+			'/aiml/v1/workspace/' . (int) $post->ID . '/segments'
+		);
+		$load->set_param( 'language', 'sv' );
+		$segment = $this->first_block_segment( rest_do_request( $load )->get_data()['segments'] );
+
+		$save = $this->workspace_save_request(
+			(int) $post->ID,
+			$segment,
+			array(
+				'translated_text' => 'Temporary text',
+				'source_hash'     => $segment['source_hash'],
+				'status'          => Store::STATUS_MANUALLY_EDITED,
+			)
+		);
+		$this->assertSame( 200, rest_do_request( $save )->get_status() );
+
+		$clear = $this->workspace_save_request(
+			(int) $post->ID,
+			$segment,
+			array(
+				'translated_text' => '   ',
+				'source_hash'     => $segment['source_hash'],
+			)
+		);
+
+		$response = rest_do_request( $clear );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( Store::STATUS_MISSING, $response->get_data()['status'] );
+		$this->assertSame( '', $response->get_data()['translated_text'] );
+	}
+
+	public function test_save_rejects_unknown_language(): void {
+		$this->add_language();
+		$post = $this->create_block_page();
+		wp_set_current_user( $this->create_translator() );
+
+		$load = new WP_REST_Request(
+			'GET',
+			'/aiml/v1/workspace/' . (int) $post->ID . '/segments'
+		);
+		$load->set_param( 'language', 'sv' );
+		$segment = $this->first_block_segment( rest_do_request( $load )->get_data()['segments'] );
+
+		$save = $this->workspace_save_request(
+			(int) $post->ID,
+			$segment,
+			array(
+				'translated_text' => 'Hej',
+				'source_hash'     => $segment['source_hash'],
+			)
+		);
+		$save->set_param( 'language', 'de' );
+
+		$response = rest_do_request( $save );
+		$this->assertSame( 404, $response->get_status() );
+	}
+
+	public function test_cross_post_segment_save_is_rejected(): void {
+		$this->add_language();
+		$post_a = $this->create_block_page( 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' );
+		$post_b = $this->create_block_page( 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' );
+		wp_set_current_user( $this->create_translator() );
+
+		$load = new WP_REST_Request(
+			'GET',
+			'/aiml/v1/workspace/' . (int) $post_a->ID . '/segments'
+		);
+		$load->set_param( 'language', 'sv' );
+		$segment = $this->first_block_segment( rest_do_request( $load )->get_data()['segments'] );
+
+		$save = $this->workspace_save_request(
+			(int) $post_b->ID,
+			$segment,
+			array(
+				'translated_text' => 'Wrong post',
+				'source_hash'     => $segment['source_hash'],
+			)
+		);
+
+		$response = rest_do_request( $save );
+		$this->assertSame( 422, $response->get_status() );
+	}
+
 	public function test_response_includes_api_version_header(): void {
 		wp_set_current_user( $this->create_translator() );
 

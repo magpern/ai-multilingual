@@ -57,4 +57,31 @@ final class WorkspacePermissionsTest extends AimlTestCase {
 		$response = rest_do_request( $request );
 		$this->assertSame( 403, $response->get_status() );
 	}
+
+	public function test_subscriber_cannot_save_segment(): void {
+		$this->add_language();
+		$post = $this->create_block_page();
+		wp_set_current_user( $this->create_translator() );
+
+		$load = new WP_REST_Request(
+			'GET',
+			'/aiml/v1/workspace/' . (int) $post->ID . '/segments'
+		);
+		$load->set_param( 'language', 'sv' );
+		$segment = $this->first_block_segment( rest_do_request( $load )->get_data()['segments'] );
+
+		wp_set_current_user( (int) self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$save = $this->workspace_save_request(
+			(int) $post->ID,
+			$segment,
+			array(
+				'translated_text' => 'Blocked',
+				'source_hash'     => $segment['source_hash'],
+			)
+		);
+
+		$response = rest_do_request( $save );
+		$this->assertSame( 403, $response->get_status() );
+	}
 }

@@ -9,10 +9,15 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Tests\Integration;
 
+use AIMultilingual\Block\AdapterRegistry;
+use AIMultilingual\Block\BlockExtractionLogger;
+use AIMultilingual\Block\BlockRegistry;
 use AIMultilingual\Block\Contract;
 use AIMultilingual\Block\SegmentKey;
 use AIMultilingual\Plugin;
 use AIMultilingual\Settings;
+use AIMultilingual\Translation\BlockExtractor;
+use AIMultilingual\Translation\Extractor;
 use WP_REST_Request;
 
 /**
@@ -112,6 +117,72 @@ trait WorkspaceTestHelpers {
 		}
 
 		return $request;
+	}
+
+	/**
+	 * Builds an extractor with Strategy F block extraction enabled.
+	 */
+	protected function strategy_f_extractor(): Extractor {
+		$settings = new Settings(
+			array(
+				'block_attr_registration_enabled' => true,
+				'block_uuid_injection_enabled'    => true,
+				'block_extraction_enabled'        => true,
+				'block_frontend_rendering_enabled' => true,
+			)
+		);
+		$registry = new AdapterRegistry();
+
+		return new Extractor(
+			$settings,
+			new BlockExtractor(
+				$registry,
+				new BlockRegistry( $registry ),
+				new BlockExtractionLogger()
+			)
+		);
+	}
+
+	/**
+	 * Builds a POST request for a batch segment save.
+	 *
+	 * @param int                              $post_id  Post id.
+	 * @param array<int, array<string, mixed>> $items    Batch items.
+	 * @param string                           $language Language code.
+	 * @return WP_REST_Request
+	 */
+	protected function workspace_batch_save_request(
+		int $post_id,
+		array $items,
+		string $language = 'sv'
+	): WP_REST_Request {
+		$request = new WP_REST_Request(
+			'POST',
+			sprintf( '/aiml/v1/workspace/%d/segments/batch', $post_id )
+		);
+		$request->set_url_params( array( 'post_id' => $post_id ) );
+		$request->set_param( 'language', $language );
+		$request->set_param( 'segments', $items );
+
+		return $request;
+	}
+
+	/**
+	 * Creates a page with two Strategy F block paragraphs.
+	 *
+	 * @return \WP_Post
+	 */
+	protected function create_two_block_page(): \WP_Post {
+		return $this->create_page(
+			'Two block segments',
+			sprintf(
+				'<!-- wp:paragraph {"%1$s":"%2$s"} --><p>First block</p><!-- /wp:paragraph -->'
+				. '<!-- wp:paragraph {"%1$s":"%3$s"} --><p>Second block</p><!-- /wp:paragraph -->',
+				Contract::ATTR_NAME,
+				'550e8400-e29b-41d4-a716-446655440000',
+				'660e8400-e29b-41d4-a716-446655440001'
+			)
+		);
 	}
 
 	protected function tearDown(): void {
