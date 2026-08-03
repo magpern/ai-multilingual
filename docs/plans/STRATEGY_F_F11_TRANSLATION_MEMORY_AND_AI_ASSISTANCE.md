@@ -1292,12 +1292,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-14 satisfied
-- [ ] Same checks for manual, TM-accepted, AI-accepted text
-- [ ] New check registrable without modifying existing checks
-- [ ] Blocking policy configurable
+- [x] AC-14 satisfied
+- [x] Same checks for manual, TM-accepted, AI-accepted text
+- [x] New check registrable without modifying existing checks
+- [x] Blocking policy configurable
 
 **Dependencies:** WP0
+
+### WP7 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `QAEngine` + nine check classes; `QAIssue`/`QAResult`; block-on-error policy |
+| **Tests** | `QAEngineTest` |
 
 ---
 
