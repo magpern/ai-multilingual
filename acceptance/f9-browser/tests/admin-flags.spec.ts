@@ -1,7 +1,7 @@
 /**
  * Admin Strategy F flag UI validation (F9 §14).
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/f9-test';
 import fs from 'fs';
 import path from 'path';
 import { ARTIFACTS_DIR, loadCredentials } from '../helpers/env';

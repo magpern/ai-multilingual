@@ -1,7 +1,7 @@
 /**
  * F9 UUID persistence matrix — Chromium desktop full F9-R coverage.
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/f9-test';
 import fs from 'fs';
 import path from 'path';
 import { ARTIFACTS_DIR, loadCredentials } from '../helpers/env';
@@ -34,6 +34,7 @@ import {
   unwrapFromGroup,
 } from '../helpers/editor';
 import { Analysis, bootstrapProductionPost } from '../helpers/bootstrap';
+import { endTestLifecycle } from '../helpers/lifecycle';
 
 const creds = { ...loadCredentials(), password: '' };
 const matrixResults: Record<string, unknown> = {};
@@ -50,8 +51,8 @@ test.describe('F9 UUID matrix (production plugin)', () => {
     );
   });
 
-  test.afterEach(async ({ page }) => {
-    await closeEditorSession(page, creds);
+  test.afterEach(async () => {
+    await endTestLifecycle();
   });
 
   test('create: first save injects valid UUID', async ({ page }) => {

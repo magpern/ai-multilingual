@@ -1,11 +1,10 @@
 /**
  * Tier 1 cross-browser subset — Firefox and WebKit desktop.
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/f9-test';
 import { loadCredentials } from '../helpers/env';
 import { deletePost, exportPost, rerunSavePipeline } from '../helpers/wp-cli';
 import {
-  closeEditorSession,
   deleteBlock,
   duplicateBlockReliable,
   editBlockText,
@@ -15,12 +14,13 @@ import {
   undo,
 } from '../helpers/editor';
 import { Analysis, bootstrapProductionPost } from '../helpers/bootstrap';
+import { endTestLifecycle } from '../helpers/lifecycle';
 
 const creds = { ...loadCredentials(), password: '' };
 
 test.describe('F9 Tier 1 cross-browser', () => {
-  test.afterEach(async ({ page }) => {
-    await closeEditorSession(page, creds);
+  test.afterEach(async () => {
+    await endTestLifecycle();
   });
 
   test('create + edit preserves UUID', async ({ page }) => {

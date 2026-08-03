@@ -3,6 +3,7 @@
  */
 import { Page, FrameLocator, Locator, expect } from '@playwright/test';
 import { WpCredentials, authCookieFile } from './env';
+import { closeEditorSessionSafe, resolveF9Page } from './lifecycle';
 import fs from 'fs';
 
 const F9_DIAG = process.env.F9_DIAG === '1';
@@ -14,6 +15,7 @@ function f9Diag(phase: string, detail: Record<string, unknown> = {}): void {
   console.log(`[f9-editor] ${phase}`, JSON.stringify(detail));
 }
 
+/** @deprecated use resolveF9Page — kept for diagnostics in legacy call sites */
 export function ensurePageAlive(page: Page, label: string): void {
   if (page.isClosed()) {
     throw new Error(`[f9-editor] ${label}: page is closed`);
@@ -22,22 +24,7 @@ export function ensurePageAlive(page: Page, label: string): void {
 
 /** Leave the block editor so the next test starts from a clean navigation target. */
 export async function closeEditorSession(page: Page, creds?: WpCredentials): Promise<void> {
-  if (page.isClosed()) {
-    f9Diag('closeEditorSession:skip', { reason: 'page_closed' });
-    return;
-  }
-  f9Diag('closeEditorSession:start', { url: page.url() });
-  const adminList = creds ? `${creds.baseUrl}/wp-admin/edit.php?post_type=page` : 'about:blank';
-  try {
-    await page.goto(adminList, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  } catch {
-    try {
-      await page.goto('about:blank', { waitUntil: 'domcontentloaded', timeout: 10000 });
-    } catch {
-      f9Diag('closeEditorSession:failed', { url: page.url() });
-    }
-  }
-  f9Diag('closeEditorSession:done', { url: page.url() });
+  await closeEditorSessionSafe(page, creds);
 }
 
 export function canvas(page: Page): FrameLocator {
@@ -68,7 +55,7 @@ export async function login(page: Page, creds: WpCredentials): Promise<void> {
 }
 
 export async function openBlockEditor(page: Page, creds: WpCredentials, postId: number): Promise<void> {
-  ensurePageAlive(page, 'openBlockEditor');
+  page = await resolveF9Page(page);
   // page.goto occasionally times out against the dev host under load (observed:
   // intermittent single-navigation stalls unrelated to Gutenberg/editor state —
   // no mutation has happened yet at this point, so a retry here is always safe
@@ -77,7 +64,7 @@ export async function openBlockEditor(page: Page, creds: WpCredentials, postId: 
   f9Diag('openBlockEditor:goto', { postId, url });
   let lastError: unknown;
   for (let attempt = 0; attempt < 3; attempt++) {
-    ensurePageAlive(page, `openBlockEditor:attempt${attempt}`);
+    page = await resolveF9Page(page);
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
       lastError = undefined;
@@ -400,7 +387,7 @@ export async function redo(page: Page): Promise<void> {
  * (e.g. optimistic UI). No arbitrary sleeps are used as the primary signal.
  */
 export async function savePost(page: Page): Promise<void> {
-  ensurePageAlive(page, 'savePost');
+  page = await resolveF9Page(page);
   const save = page.locator(
     'button.editor-post-save-draft, button.editor-post-publish-button, .editor-post-save-draft, button[aria-label="Save"], button:has-text("Save draft")'
   ).first();

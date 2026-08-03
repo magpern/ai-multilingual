@@ -5,6 +5,8 @@ const artifactsDir = path.join(__dirname, 'artifacts');
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: path.join(__dirname, 'global-setup.ts'),
+  globalTeardown: path.join(__dirname, 'global-teardown.ts'),
   timeout: 300000,
   expect: { timeout: 30000 },
   fullyParallel: false,

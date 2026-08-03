@@ -1,7 +1,7 @@
 /**
  * Frontend rendering, language routing, translation, migration, rollback (F9 §10–§13, §21).
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/f9-test';
 import fs from 'fs';
 import path from 'path';
 import { ARTIFACTS_DIR, loadCredentials } from '../helpers/env';
@@ -22,6 +22,7 @@ import {
   saveTranslationForPost,
 } from '../helpers/wp-cli';
 import { editBlockText, login, openBlockEditor, savePost } from '../helpers/editor';
+import { endTestLifecycle } from '../helpers/lifecycle';
 import { Analysis, bootstrapProductionPost } from '../helpers/bootstrap';
 
 const creds = { ...loadCredentials(), password: '' };
@@ -36,6 +37,10 @@ test.describe('F9 frontend language translation migration', () => {
   test.afterAll(() => {
     restoreStrategyFlags();
     fs.writeFileSync(path.join(ARTIFACTS_DIR, 'frontend-language-results.json'), JSON.stringify(results, null, 2));
+  });
+
+  test.afterEach(async () => {
+    await endTestLifecycle();
   });
 
   const fr1Cases = [

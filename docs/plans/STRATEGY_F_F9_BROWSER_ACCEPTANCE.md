@@ -482,15 +482,45 @@ F9 explicitly excludes:
 
 ## 25. Browser test tier policy
 
-F9 browser acceptance uses **tiered Playwright execution**. The full 35-test matrix is expensive (~2 hours on dev.biopentra.eu) and must **not** run after every harness or feature edit.
+F9 browser acceptance uses **tiered Playwright execution**. The full 35-test matrix is expensive on dev.biopentra.eu and must **not** run after every harness or feature edit.
+
+### Development loop (default)
+
+| Loop | Tool | When |
+|---|---|---|
+| **Primary** | PHPUnit + WP-CLI (`vendor/bin/phpunit`, `wp eval`) | Every implementation pass |
+| **Browser-targeted (Tier 2)** | Playwright `--grep` / single spec | Only for editor, overlay, or cross-browser behavior |
+| **Full acceptance (Tier 3)** | `acceptance/f9-browser/tools/run-f9-acceptance.sh` | Milestone gate only — after Tier 2 stability |
+
+**Policy:** A full Playwright run must **not** be repeated while failures can be reproduced with Tier 2 tests. CI must not run the full suite on every commit.
+
+### Runtime reporting
+
+Orchestrator wall clock and Playwright `stats.duration` measure different things:
+
+| Metric | Meaning |
+|---|---|
+| **Orchestrator total** | Host script start → finish (auth, Playwright container, PHPUnit, PHPCS, artifacts) |
+| **Playwright wall clock** | Docker Playwright container only (includes global-setup WP-CLI pool + all browser tests) |
+| **Playwright stats.duration** | Playwright-reported active test-worker time — **not** full wall clock; excludes much failed-test timeout burn and external WP-CLI wait |
+
+Always report orchestrator total and Playwright wall clock separately in validation logs. Do not cite `stats.duration` alone as total runtime.
+
+The previous ~2h45m Tier 3 run @ `7b39063` broke down approximately as:
+
+| Phase | ~Minutes | Cause |
+|---|---|---|
+| Playwright wall clock | ~164 | 35 serialized tests + WP-CLI docker compose spin-up per call (444 containers) + 50 min failed-test timeouts |
+| Playwright stats.duration | ~20 | Sum of passed-test active intervals only (misleading if cited alone) |
+| PHPUnit + PHPCS + host setup | ~2 | Negligible vs browser phase |
+
+After harness fixes: persistent WP-CLI pool (global-setup), skip redundant apt-get/npm in container, lifecycle recovery, and phase timing in `run-f9-acceptance.sh`.
 
 | Tier | Scope | When to run |
 |---|---|---|
 | **Tier 1 — smoke** | Small critical subset (admin flags FF-1, one FR-1 case, one UUID matrix cell) | During normal development |
 | **Tier 2 — feature-targeted** | Only tests related to the behavior under change | After a harness fix or localized feature change |
 | **Tier 3 — full acceptance** | Complete 35-test matrix via `acceptance/f9-browser/tools/run-f9-acceptance.sh` | Only after all targeted failures pass; before F9 merge; before release candidate; after changes to shared editor/browser orchestration |
-
-**Policy:** The full Playwright suite must not be run after every implementation pass. CI must not run the full suite on every commit.
 
 **Targeted examples (Tier 2):**
 

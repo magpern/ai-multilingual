@@ -1,7 +1,7 @@
 /**
  * Tier 1 mobile subset — iPhone 12 viewport.
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/f9-test';
 import { loadCredentials } from '../helpers/env';
 import {
   deletePost,

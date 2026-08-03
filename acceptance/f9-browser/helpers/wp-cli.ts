@@ -8,8 +8,29 @@ import { ARTIFACTS_DIR, SPIKE_FIXTURES, TOOLS_DIR } from './env';
 
 const WORDPRESS_COMPOSE = '/opt/biopentra/apps/wordpress';
 const AIML_ROOT = '/opt/biopentra/dev/ai-multilingual';
+const WPCLI_MARKER = path.join(ARTIFACTS_DIR, '.f9-wpcli-container');
+
+function wpcliContainer(): string {
+  if (process.env.F9_WPCLI_CONTAINER) {
+    return process.env.F9_WPCLI_CONTAINER;
+  }
+  if (fs.existsSync(WPCLI_MARKER)) {
+    return fs.readFileSync(WPCLI_MARKER, 'utf8').trim();
+  }
+  return '';
+}
 
 function wp(args: string, input?: string): string {
+  const pooled = wpcliContainer();
+  if (pooled) {
+    const cmd = `docker exec -i ${pooled} wp ${args} --path=/var/www/html`;
+    return execSync(cmd, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      input,
+    }).trim();
+  }
+
   const cmd = `cd ${WORDPRESS_COMPOSE} && docker compose run --rm -T -v ${AIML_ROOT}:/aiml:ro wpcli wp ${args}`;
   return execSync(cmd, {
     encoding: 'utf8',

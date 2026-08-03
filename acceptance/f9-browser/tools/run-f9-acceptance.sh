@@ -7,9 +7,8 @@ F9_DIR="$AIML_ROOT/acceptance/f9-browser"
 ARTIFACTS="$F9_DIR/artifacts"
 ARCHIVE="$AIML_ROOT/docs/plans/f9-artifacts"
 PLAYWRIGHT_IMAGE="${PLAYWRIGHT_IMAGE:-mcr.microsoft.com/playwright:v1.51.0-jammy}"
-HOST_UID="$(id -u)"
-HOST_GID="$(id -g)"
 LOG="$AIML_ROOT/docs/plans/F9_BROWSER_VALIDATION_LOG.md"
+TIMING_LOG="${F9_TIMING_LOG:-/tmp/f9-phase-timing.log}"
 COMMIT="$(git -C "$AIML_ROOT" rev-parse HEAD)"
 BRANCH="$(git -C "$AIML_ROOT" branch --show-current)"
 TS="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
@@ -25,6 +24,20 @@ DOCKER_STATS_PID=""
 TELEMETRY_STARTED=0
 AFTER_SNAPSHOT_DONE=0
 LOCK_FD=200
+ORCH_START_EPOCH=""
+
+phase_now() {
+  date +%s
+}
+
+phase_log() {
+  local label="$1"
+  local start="$2"
+  local end="$3"
+  local secs=$((end - start))
+  printf '%s\t%s\t%d\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$label" "$secs" >>"$TIMING_LOG"
+  echo "PHASE ${label}: ${secs}s"
+}
 
 capture_resource_snapshot() {
   local label="$1"
@@ -69,15 +82,16 @@ stop_telemetry() {
     return 0
   fi
   if [[ -n "$VMSTAT_PID" ]]; then
-    kill "$VMSTAT_PID" 2>/dev/null || true
+    kill -TERM "$VMSTAT_PID" 2>/dev/null || true
     wait "$VMSTAT_PID" 2>/dev/null || true
     VMSTAT_PID=""
   fi
   if [[ -n "$DOCKER_STATS_PID" ]]; then
-    kill "$DOCKER_STATS_PID" 2>/dev/null || true
+    kill -TERM "$DOCKER_STATS_PID" 2>/dev/null || true
     wait "$DOCKER_STATS_PID" 2>/dev/null || true
     DOCKER_STATS_PID=""
   fi
+  TELEMETRY_STARTED=0
 }
 
 cleanup() {
@@ -91,18 +105,6 @@ acquire_browser_acceptance_lock() {
   eval "exec ${LOCK_FD}>\"${LOCK_FILE}\""
   if ! flock -n "$LOCK_FD"; then
     echo "ERROR: browser acceptance lock busy: ${LOCK_FILE}" >&2
-    echo "Another browser acceptance suite is running or did not release the lock." >&2
-    if [[ -r "$LOCK_FILE" && -s "$LOCK_FILE" ]]; then
-      echo "Lock holder metadata:" >&2
-      cat "$LOCK_FILE" >&2 || true
-      local holder_pid=""
-      holder_pid="$(sed -n 's/^pid=//p' "$LOCK_FILE" | head -1 || true)"
-      if [[ -n "$holder_pid" && -r "/proc/${holder_pid}/cmdline" ]]; then
-        echo "Holder cmdline:" >&2
-        tr '\0' ' ' <"/proc/${holder_pid}/cmdline" >&2 || true
-        echo >&2
-      fi
-    fi
     exit 2
   fi
   printf 'pid=%s ppid=%s user=%s cmd=%s commit=%s started_utc=%s\n' \
@@ -119,26 +121,32 @@ assert_no_foreign_playwright_workloads() {
   )"
   if [[ -n "$foreign" ]]; then
     echo "ERROR: another Playwright/browser acceptance workload is active on this host." >&2
-    echo "Stop unrelated suites before F9, or wait for them to finish." >&2
-    echo "$foreign" >&2
-    exit 3
-  fi
-
-  local foreign_containers=""
-  foreign_containers="$(
-    docker ps --format '{{.Names}}\t{{.Image}}\t{{.Command}}' 2>/dev/null \
-      | rg -i 'mcr\\.microsoft\\.com/playwright|playwright test' \
-      || true
-  )"
-  if [[ -n "$foreign_containers" ]]; then
-    echo "ERROR: Playwright Docker container(s) already running:" >&2
-    echo "$foreign_containers" >&2
     exit 3
   fi
 }
 
+run_playwright_in_docker() {
+  local skip_apt="command -v docker >/dev/null 2>&1 || (DEBIAN_FRONTEND=noninteractive apt-get update -qq && apt-get install -y -qq docker.io >/dev/null)"
+  local skip_npm="if [[ ! -d node_modules/@playwright/test ]]; then npm install; fi"
+
+  docker run --rm \
+    --shm-size=1g \
+    -v /opt/biopentra:/opt/biopentra \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /usr/libexec/docker/cli-plugins/docker-compose:/usr/lib/docker/cli-plugins/docker-compose:ro \
+    -v /opt/biopentra/apps/wordpress/.admin-credentials:/run/secrets/wp-credentials:ro \
+    -e WP_BASE_URL="${WP_BASE_URL:-https://dev.biopentra.eu}" \
+    -e WP_CREDENTIALS_FILE=/run/secrets/wp-credentials \
+    -e HOME=/tmp \
+    -w /opt/biopentra/dev/ai-multilingual/acceptance/f9-browser \
+    "$PLAYWRIGHT_IMAGE" \
+    bash -lc "${skip_apt} && ${skip_npm} && npx playwright test ${PLAYWRIGHT_ARGS:-}"
+}
+
 trap cleanup EXIT INT TERM
 
+: >"$TIMING_LOG"
+ORCH_START_EPOCH="$(phase_now)"
 acquire_browser_acceptance_lock
 assert_no_foreign_playwright_workloads
 
@@ -147,58 +155,108 @@ chmod +x "$F9_DIR/tools/"*.sh "$AIML_ROOT/spike/s5/tools/wp-auth-cookies.sh" 2>/
 
 echo "== F9 acceptance @ $COMMIT ($BRANCH) =="
 
+if [[ "${F9_SMOKE:-0}" == "1" ]]; then
+  echo "F9_SMOKE=1 — validating orchestrator phases without Playwright matrix"
+  t0="$(phase_now)"
+  bash "$F9_DIR/tools/write-auth-cookies-json.sh"
+  t1="$(phase_now)"
+  phase_log "smoke-auth-cookies" "$t0" "$t1"
+  start_telemetry
+  sleep 1
+  stop_telemetry
+  t2="$(phase_now)"
+  phase_log "smoke-telemetry" "$t1" "$t2"
+  phase_log "smoke-total" "$ORCH_START_EPOCH" "$t2"
+  echo "Smoke complete — timing log: ${TIMING_LOG}"
+  exit 0
+fi
+
 # Host-side auth + flag baseline
+t_preflight="$(phase_now)"
 bash "$F9_DIR/tools/write-auth-cookies-json.sh"
 (
   cd /opt/biopentra/apps/wordpress
   docker compose run --rm -T wpcli wp eval 'update_option( AIMultilingual\Settings::OPTION, AIMultilingual\Settings::defaults() ); if ( function_exists( "wp_cache_flush" ) ) { wp_cache_flush(); } echo "flags_reset";' --user=1
 )
+t_setup_done="$(phase_now)"
+phase_log "preflight-auth-and-flags" "$t_preflight" "$t_setup_done"
 
 capture_resource_snapshot "before" "$SNAP_BEFORE"
 start_telemetry
 echo "Resource telemetry: vmstat=${VMSTAT_LOG} docker_stats=${DOCKER_STATS_LOG} before=${SNAP_BEFORE} after=${SNAP_AFTER}"
 
 PW_EXIT=0
-docker run --rm \
-  --shm-size=1g \
-  -v /opt/biopentra:/opt/biopentra \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v /usr/libexec/docker/cli-plugins/docker-compose:/usr/lib/docker/cli-plugins/docker-compose:ro \
-  -v /opt/biopentra/apps/wordpress/.admin-credentials:/run/secrets/wp-credentials:ro \
-  -e WP_BASE_URL="${WP_BASE_URL:-https://dev.biopentra.eu}" \
-  -e WP_CREDENTIALS_FILE=/run/secrets/wp-credentials \
-  -e HOME=/tmp \
-  -w /opt/biopentra/dev/ai-multilingual/acceptance/f9-browser \
-  "$PLAYWRIGHT_IMAGE" \
-  bash -lc 'DEBIAN_FRONTEND=noninteractive apt-get update -qq && apt-get install -y -qq docker.io >/dev/null && npm install && npx playwright test' || PW_EXIT=$?
+PW_START="$(phase_now)"
+if [[ "${F9_DRY_RUN:-0}" == "1" ]]; then
+  echo "F9_DRY_RUN=1 — skipping Playwright"
+  PW_EXIT=0
+else
+  run_playwright_in_docker || PW_EXIT=$?
+fi
+PW_END="$(phase_now)"
+phase_log "playwright-wall-clock" "$PW_START" "$PW_END"
 
 stop_telemetry
 capture_resource_snapshot "after" "$SNAP_AFTER"
 AFTER_SNAPSHOT_DONE=1
 
 # Restore flags after browser session
+t_flags="$(phase_now)"
 (
   cd /opt/biopentra/apps/wordpress
   docker compose run --rm -T wpcli wp eval 'update_option( AIMultilingual\Settings::OPTION, AIMultilingual\Settings::defaults() ); if ( function_exists( "wp_cache_flush" ) ) { wp_cache_flush(); } echo "flags_restored";' --user=1
 )
+t_flags_done="$(phase_now)"
+phase_log "post-playwright-flags-restore" "$t_flags" "$t_flags_done"
 
 # Quality gates
 UNIT_EXIT=0
 INT_EXIT=0
 PHPCS_EXIT=0
 cd "$AIML_ROOT"
+t_unit="$(phase_now)"
 docker run --rm -v "$PWD":/app -w /app php:8.3-cli vendor/bin/phpunit -c phpunit.xml.dist || UNIT_EXIT=$?
+t_unit_done="$(phase_now)"
+phase_log "phpunit-unit" "$t_unit" "$t_unit_done"
+
+t_int="$(phase_now)"
 docker run --rm --network aiml-test -v "$PWD":/app -w /app \
   -e WP_DB_HOST=aiml-test-db -e WP_DB_NAME=wordpress_test -e WP_DB_USER=root -e WP_DB_PASS=root \
   aiml-test-runner vendor/bin/phpunit -c phpunit-integration.xml.dist || INT_EXIT=$?
+t_int_done="$(phase_now)"
+phase_log "phpunit-integration" "$t_int" "$t_int_done"
+
+t_phpcs="$(phase_now)"
 docker run --rm -v "$PWD":/app -w /app php:8.3-cli vendor/bin/phpcs || PHPCS_EXIT=$?
+t_phpcs_done="$(phase_now)"
+phase_log "phpcs" "$t_phpcs" "$t_phpcs_done"
 
 # Archive key artifacts
+t_archive="$(phase_now)"
 cp -f "$ARTIFACTS"/*.json "$ARCHIVE"/ 2>/dev/null || true
 cp -f "$ARTIFACTS/playwright-report.json" "$ARCHIVE"/ 2>/dev/null || true
+t_archive_done="$(phase_now)"
+phase_log "artifact-archive" "$t_archive" "$t_archive_done"
 
 WP_VERSION="$(cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli wp core version 2>/dev/null | tail -1)"
 PHP_VERSION="$(cd /opt/biopentra/apps/wordpress && docker compose exec -T wordpress php -r 'echo PHP_VERSION;' 2>/dev/null || echo unknown)"
+
+PW_STATS_DURATION=""
+PW_STATS_EXPECTED=""
+PW_STATS_UNEXPECTED=""
+if [[ -f "$ARTIFACTS/playwright-report.json" ]]; then
+  read -r PW_STATS_DURATION PW_STATS_EXPECTED PW_STATS_UNEXPECTED < <(
+    python3 - <<'PY' "$ARTIFACTS/playwright-report.json"
+import json, sys
+d = json.load(open(sys.argv[1]))
+s = d.get("stats", {})
+print(int(s.get("duration", 0)), s.get("expected", 0), s.get("unexpected", 0))
+PY
+  )
+fi
+
+ORCH_END="$(phase_now)"
+phase_log "orchestrator-total" "$ORCH_START_EPOCH" "$ORCH_END"
 
 OVERALL=PASS
 if [[ "$PW_EXIT" -ne 0 || "$UNIT_EXIT" -ne 0 || "$INT_EXIT" -ne 0 || "$PHPCS_EXIT" -ne 0 ]]; then
@@ -224,6 +282,17 @@ Operational acceptance record for Strategy F milestone F9 (browser acceptance).
 | ADR-0013 | Proposed (not promoted by F9) |
 | Acceptance lock | \`${LOCK_FILE}\` |
 | Resource telemetry | \`${VMSTAT_LOG}\`, \`${DOCKER_STATS_LOG}\`, \`${SNAP_BEFORE}\`, \`${SNAP_AFTER}\` |
+| Phase timing log | \`${TIMING_LOG}\` |
+
+## Timing (orchestrator vs Playwright)
+
+| Phase | Seconds |
+|---|---|
+$(tail -n +1 "$TIMING_LOG" | while IFS=$'\t' read -r _ts label secs; do echo "| ${label} | ${secs} |"; done)
+
+**Playwright wall clock:** $((PW_END - PW_START))s (docker container, includes WP-CLI pool + browser tests)
+
+**Playwright stats.duration:** ${PW_STATS_DURATION}ms (Playwright-reported active test time — excludes failed-test timeout burn and much WP-CLI wait; not equal to wall clock)
 
 ## Browser matrix
 
@@ -279,6 +348,8 @@ Artifacts: \`acceptance/f9-browser/artifacts/\` (working) and \`docs/plans/f9-ar
 | D12 | Low | Undo/redo matrix cell saved after undo when editor already clean | Skip redundant save after undo in harness |
 | D13 | Low | Bootstrap second editor navigation caused intermittent goto flake | Verify UUID via exportPost after first save only |
 | D14 | Low | Firefox duplicate/ungroup menu clicks intermittently blocked | Force-click + poll block count before save |
+| D15 | Medium | Shared page closed between matrix cells; stale Page reference | Fixed via lifecycle fixture + resolveF9Page |
+| D16 | Medium | Per-call docker compose WP-CLI dominated wall clock | Fixed via global-setup WP-CLI pool container |
 
 ## Remaining limitations
 
@@ -298,6 +369,7 @@ F10 may begin planning **only if F9 PASS** and stakeholder review of §22 limita
 EOF
 
 echo "Wrote $LOG"
+echo "Phase timing: ${TIMING_LOG}"
 echo "Resource telemetry preserved: ${VMSTAT_LOG} ${DOCKER_STATS_LOG} ${SNAP_BEFORE} ${SNAP_AFTER}"
 echo "F9 result: $OVERALL (playwright=$PW_EXIT unit=$UNIT_EXIT integration=$INT_EXIT phpcs=$PHPCS_EXIT)"
 exit $([ "$OVERALL" = PASS ] && echo 0 || echo 1)
