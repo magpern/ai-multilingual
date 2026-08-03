@@ -1157,12 +1157,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Exact match returns confidence 100
-- [ ] Fuzzy returns ranked candidates
-- [ ] Write-back respects §3.6 policy
-- [ ] Machine persist does not trigger write-back
+- [x] Exact match returns confidence 100
+- [x] Fuzzy returns ranked candidates
+- [x] Write-back respects §3.6 policy
+- [x] Machine persist does not trigger write-back
 
 **Dependencies:** WP1
+
+### WP2 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `TranslationMemoryService` with exact/fuzzy lookup, ADR-F11-004 write-back, usage |
+| **Tests** | Unit policy/scoring + integration lookup/write-back |
 
 ---
 
