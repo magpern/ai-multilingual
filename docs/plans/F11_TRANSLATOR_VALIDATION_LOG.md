@@ -8,7 +8,7 @@ Operational acceptance record for Strategy F milestone F11 (TM + AI suggestions 
 |---|---|
 | Host | `https://dev.biopentra.eu` (`169.58.7.116`) |
 | Branch | `feature/f11-translation-memory-ai` |
-| Commit | a551bbb51b22356d3805d51f20aba5a803c84349 (tag strategy-f-f11-tm-ai-complete) |
+| Commit | 151072d6820efe6e58eff0a5c264370c9a7ccabe (tag strategy-f-f11-tm-ai-complete) |
 | Plugin | AI Multilingual `0.1.0` (`AIML_VERSION`) |
 | Plugin mount | `/opt/biopentra/dev/ai-multilingual` → `wp-content/plugins/ai-multilingual` |
 | WordPress | `7.0.2` |
