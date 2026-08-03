@@ -50,6 +50,6 @@ milestones. As of 2026-08-03:
 |---|---|
 | F1–F9 | Engineering complete on `main` |
 | **F10** Translator Workspace MVP | **Complete** — merged to `main`; see [F10 validation log](plans/F10_TRANSLATOR_VALIDATION_LOG.md) |
-| **F11** Translation Memory & AI Assistance | Planned — [canonical plan](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md); not started |
+| **F11** Translation Memory & AI Assistance | **Complete** — [canonical plan](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md); [validation log](plans/F11_TRANSLATOR_VALIDATION_LOG.md) PASS; tag `strategy-f-f11-tm-ai-complete` |
 | **F12** Limited rollout | Planned |
 | **F13** General rollout + ADR acceptance | Planned |

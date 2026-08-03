@@ -33,9 +33,9 @@ trait WorkspaceTestHelpers {
 			Settings::OPTION,
 			Settings::sanitize(
 				array(
-					'block_attr_registration_enabled' => true,
-					'block_uuid_injection_enabled'    => true,
-					'block_extraction_enabled'        => true,
+					'block_attr_registration_enabled'  => true,
+					'block_uuid_injection_enabled'     => true,
+					'block_extraction_enabled'         => true,
 					'block_frontend_rendering_enabled' => true,
 				)
 			)
@@ -125,9 +125,9 @@ trait WorkspaceTestHelpers {
 	protected function strategy_f_extractor(): Extractor {
 		$settings = new Settings(
 			array(
-				'block_attr_registration_enabled' => true,
-				'block_uuid_injection_enabled'    => true,
-				'block_extraction_enabled'        => true,
+				'block_attr_registration_enabled'  => true,
+				'block_uuid_injection_enabled'     => true,
+				'block_extraction_enabled'         => true,
 				'block_frontend_rendering_enabled' => true,
 			)
 		);
@@ -185,6 +185,7 @@ trait WorkspaceTestHelpers {
 		);
 	}
 
+	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- PHPUnit lifecycle hook.
 	protected function tearDown(): void {
 		update_option( Settings::OPTION, Settings::sanitize( Settings::defaults() ) );
 		Plugin::instance()->reload_settings();

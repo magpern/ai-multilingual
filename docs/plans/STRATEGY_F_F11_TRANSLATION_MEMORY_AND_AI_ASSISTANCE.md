@@ -1,6 +1,6 @@
 # F11 — Translation Memory & AI Assistance Plan
 
-**Status:** Canonical implementation plan — **architecture frozen** for implementation on `feature/f11-translation-memory-ai`
+**Status:** Canonical implementation plan — **F11 complete** (PASS) on `feature/f11-translation-memory-ai`; see [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md)
 **Architecture:** Includes approved refinement pass: `SuggestionProvider` abstraction, `TranslationSuggestionService` orchestration, deterministic ranking, modular `QAEngine`, provider capability discovery, human-approved TM write-back, source-independent QA, TM provenance, productivity metrics (diagnostics only)
 **Governance:** Changes that affect architecture, public APIs, milestone scope, service boundaries, or workflows require an ADR or an explicit architecture revision. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.
 **Depends on:** F1–F9 complete; F10 Translator Workspace complete (`strategy-f-f10-translator-complete`)
@@ -1498,10 +1498,15 @@ Parallel tracks after WP0: TM (WP1–WP3), provider/prompts (WP4–WP5), QA (WP7
 
 **Acceptance criteria:**
 
-- [ ] AC-1 through AC-15 satisfied
-- [ ] PHPUnit + PHPCS green
+- [x] AC-1 through AC-15 satisfied
+- [x] PHPUnit + PHPCS green
 
 **Dependencies:** All
+
+| Item | Detail |
+|---|---|
+| **Completed** | Validation log PASS; frozen API doc; Architecture Freeze Review; tag `strategy-f-f11-tm-ai-complete` |
+| **Evidence** | [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md), [F11_FROZEN_API.md](F11_FROZEN_API.md) |
 
 ---
 
