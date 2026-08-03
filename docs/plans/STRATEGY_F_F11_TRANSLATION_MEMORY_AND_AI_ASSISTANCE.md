@@ -12,6 +12,34 @@
 
 ---
 
+## Architecture Freeze
+
+F11 architecture is **frozen**.
+
+Implementation **must not** change any of the following without an architectural change process:
+
+| Frozen surface | Rule |
+|---|---|
+| Service boundaries | Application/domain/presentation layers and collaborator ownership stay as documented |
+| Public REST contracts | F10/F11 workspace endpoints remain backwards compatible; additive optional fields only |
+| Database schema | `aiml_tm` and related F11 schema as specified; no silent column/table redesign |
+| `TranslationSuggestionService` responsibilities | Sole orchestrator for TM + AI suggestion combination |
+| `SuggestionProvider` architecture | Normalized providers; no source-specific logic in the orchestrator |
+| `QAEngine` architecture | Modular independent checks; source-independent |
+| Translation Memory model | Separate `aiml_tm` table; human-approved write-back; provenance |
+| `ProviderRegistry` responsibilities | Sole registration and resolution of AI providers |
+| Prompt profile identifiers | Frozen public IDs listed in §4.4 |
+| QA issue codes | Frozen public codes listed in §6.2 / `meta.qa` |
+
+**Architectural changes require:**
+
+- an ADR, **or**
+- an approved revision of this document
+
+**Still allowed without architecture revision:** implementation details, tests, bug fixes, and internal refactoring that do not alter the frozen surfaces above.
+
+---
+
 ### Milestone renumbering (master plan)
 
 F10 inserted the Translator Workspace and renumbered rollout milestones. **This document defines F11 as translator productivity (TM + AI + QA).**
@@ -283,13 +311,21 @@ SuggestionProvider
 
 **NormalizedSuggestion (common contract):**
 
-| Field | Purpose |
-|---|---|
-| `provider_id` | Source provider (`tm`, `ai`, …) |
-| `target_text` | Suggested translation text |
-| `confidence` | 0–100 normalized score |
-| `rank_tier` | Deterministic tier for policy (§2.6) |
-| `metadata` | Provider-specific display hints (match type, profile, origin) |
+`NormalizedSuggestion` is the **canonical suggestion DTO**. It is a frozen public contract for F11.
+
+| Field | Purpose | F11 rule |
+|---|---|---|
+| `provider_id` | Source provider (`tm`, `ai`, …) | Core — must not change |
+| `target_text` | Suggested translation text | Core — must not change |
+| `confidence` | 0–100 normalized score | Core — must not change |
+| `rank_tier` | Deterministic tier for policy (§2.6) | Core — must not change |
+| `metadata` | Provider-specific display hints (match type, profile, origin) | **Only** extension point for future providers |
+
+**Contract freeze:**
+
+- Core fields must remain unchanged throughout F11.
+- Future providers may extend **only** through the `metadata` field.
+- No provider-specific DTOs may leak outside provider implementations (not into `TranslationSuggestionService`, REST ViewModels, or React as alternate shapes).
 
 #### F11 providers (implemented)
 
@@ -611,7 +647,7 @@ F11 activates the ADR-0010 boundary with a **provider framework**:
 | Component | Role |
 |---|---|
 | `AIProviderInterface` | Domain contract: `test_connection`, `list_models`, `translate_batch` |
-| `ProviderRegistry` | Discovery, registration, active provider resolution |
+| `ProviderRegistry` | Discovery, registration, active provider resolution — see §4.5 governance |
 | `PromptProfileRegistry` | Domain prompt profiles → provider-agnostic instructions |
 | `ProviderConfiguration` | Encrypted credentials, model selection, enable flags (server-side only) |
 | First implementation | May be OpenAI; swappable without service changes |
@@ -667,6 +703,8 @@ Two operation classes — both provider-neutral:
 | `formal` | More formal register | source + current target |
 | `casual` | More casual register | source + current target |
 
+**Public contract freeze:** The six profile IDs above (`translate`, `improve`, `rewrite`, `shorten`, `formal`, `casual`) are **frozen public contracts**. Future profiles may only be **added**. Existing identifiers must **never** change during F11 (or in later milestones without an ADR).
+
 Each profile defines: `system_instructions`, `constraints[]` (placeholders, HTML, numbers), `version`.
 
 Provider implementations map profiles to vendor prompts internally. **Nothing vendor-shaped in the interface.**
@@ -687,6 +725,18 @@ WP5 delivers infrastructure — not a vendor milestone:
 4. **Provider registration** — composition root wires implementations in [`Plugin.php`](../../src/Plugin.php)
 5. **First provider implementation** — one class implementing `AIProviderInterface` (OpenAI may ship first)
 6. **`NullAIProvider`** — remains fallback when unconfigured; reports zero capabilities
+
+#### ProviderRegistry governance (frozen)
+
+`ProviderRegistry` is the **only** place where AI providers are registered and resolved.
+
+Providers must **never**:
+
+- instantiate other providers
+- discover providers
+- contain provider-selection logic
+
+`WorkspaceService`, `TranslationSuggestionService`, and REST controllers must obtain providers **exclusively** through `ProviderRegistry` (directly or via `TranslationService` / `AISuggestionProvider` that themselves resolve through the registry). No bypass registration lists in controllers or React.
 
 ### 4.6 Structural constraint validation (not QA)
 
@@ -881,6 +931,8 @@ QACheck
 | `PunctuationCheck` | `punctuation_delta` | warning |
 | `UnsupportedMarkupCheck` | `unsupported_markup` | warning |
 | `LengthRatioCheck` | `length_ratio` | warning |
+
+**QA issue-code contract freeze:** The Check ID / `meta.qa.issues[].code` values above are a **stable public contract** between backend and React. Existing identifiers must **not** change during F11. New issue codes may only be **added** (via new check classes + registration). Frontend must not hard-code severity by inventing codes outside this list.
 
 **Rules:**
 
@@ -1078,6 +1130,50 @@ Inherit F10 §15 plus:
 
 ---
 
+## Implementation Invariants
+
+These rules are mandatory throughout every F11 work package.
+
+1. Existing Strategy F components (Store, UUID system, extraction, routing, rendering, migration) are frozen and must not be modified except for strictly required extension points.
+
+2. F10 public REST contracts must remain backwards compatible. Existing endpoints may only receive additive optional fields.
+
+3. `TranslationSuggestionService` is the only orchestration layer for combining Translation Memory and AI suggestions. No component may bypass it.
+
+4. `WorkspaceService` must remain a thin orchestration service. New business logic belongs in focused collaborators, never directly inside `WorkspaceService`.
+
+5. AI providers must only implement `AIProviderInterface`. No OpenAI-specific logic may leak into `WorkspaceService`, REST controllers, ViewModels, or React.
+
+6. Translation Memory remains the canonical source of approved translations. AI suggestions never become Translation Memory entries automatically.
+
+7. Every work package must end with:
+   - PHPCS
+   - PHPUnit unit
+   - PHPUnit integration
+   - TypeScript build (when applicable)
+   - Documentation update
+   - Git commit
+   - Push
+   - Progress report
+
+8. Browser tests are NOT part of normal implementation.
+   - Use Tier 0 validation after every work package.
+   - Use targeted browser tests only when implementing browser behaviour.
+   - Run the complete browser acceptance suite only once during milestone closure.
+
+9. No work package may silently refactor unrelated code. If architectural improvements outside F11 scope are discovered, document them as technical debt instead of implementing them.
+
+10. Before closing F11, perform an Architecture Freeze Review:
+    - verify public interfaces
+    - verify REST contracts
+    - verify provider abstraction
+    - verify Translation Memory contracts
+    - document the frozen F11 APIs for future milestones.
+
+11. **No speculative optimization.** Implementation must follow the documented architecture. Do not introduce additional abstractions, extension points, service layers, optimization frameworks, or future-proofing unless explicitly described in this document. Ideas discovered during implementation must be recorded as technical debt or future ADR candidates — not implemented silently.
+
+---
+
 ## 15. Implementation breakdown — work packages
 
 ### Execution outline
@@ -1096,6 +1192,25 @@ Inherit F10 §15 plus:
 | WP9 | F11.9 | Workspace UX panels | WP6, WP8 |
 | WP10 | F11.10 | Batch productivity | WP6, WP8 |
 | WP11 | F11.11 | Validation + log | All |
+
+### Work package dependency diagram
+
+Do **not** start a work package before its dependencies are complete.
+
+```text
+WP0
+ │
+ ├── WP1 ── WP2 ── WP3
+ │
+ ├── WP4 ── WP5 ──┐
+ │                ├── WP6 ──┐
+ │                │         │
+ ├── WP7 ── WP8 ────────────┼── WP9 ── WP10 ── WP11
+ │                          │
+ └──────────────────────────┘
+```
+
+Parallel tracks after WP0: TM (WP1–WP3), provider/prompts (WP4–WP5), QA (WP7–WP8). WP6 joins TM + provider tracks. WP9 requires WP6 and WP8. WP10 requires WP6 and WP8. WP11 requires all.
 
 ---
 
@@ -1473,6 +1588,26 @@ F11 explicitly excludes:
 
 ---
 
+## Definition of Done
+
+F11 is complete only when **all** of the following are true:
+
+- every work package WP1–WP11 completed
+- every acceptance criterion AC-1–AC-15 satisfied
+- PHPUnit unit green
+- PHPUnit integration green
+- PHPCS green
+- Browser validation complete
+- Validation log committed
+- Architecture Freeze Review passed
+- Documentation updated
+- Branch pushed
+- Ready for merge
+
+This is the **canonical completion checklist**. Milestone closure gates (§20) expand individual verification items; the Definition of Done is the single pass/fail bar for declaring F11 complete.
+
+---
+
 ## 20. F11 milestone closure gates
 
 | Gate | Requirement |
@@ -1486,6 +1621,8 @@ F11 explicitly excludes:
 | G7 | Provider swappable via registry; capabilities adapt UI |
 | G8 | Deterministic ranking §2.6 verified |
 | G9 | Tag `strategy-f-f11-tm-ai-complete` on merge |
+| G10 | **Architecture Freeze Review** complete (see Implementation Invariants §10): public interfaces, REST contracts, provider abstraction, TM contracts, frozen F11 API doc for future milestones |
+| G11 | **Definition of Done** checklist above fully satisfied |
 
 ---
 
