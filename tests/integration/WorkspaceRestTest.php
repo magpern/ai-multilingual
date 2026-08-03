@@ -1,0 +1,131 @@
+<?php
+/**
+ * Workspace REST integration tests.
+ *
+ * @package AIMultilingual
+ */
+
+declare( strict_types=1 );
+
+namespace AIMultilingual\Tests\Integration;
+
+use AIMultilingual\Rest\WorkspaceController;
+use AIMultilingual\Translation\Store;
+use WP_REST_Request;
+
+/**
+ * REST surface for translator workspace (F10.1).
+ */
+final class WorkspaceRestTest extends AimlTestCase {
+
+	use WorkspaceTestHelpers;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->enable_strategy_f_flags();
+	}
+
+	public function test_workspace_routes_are_registered_under_aiml_v1(): void {
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( '/aiml/v1/workspace/posts', $routes );
+		$this->assertArrayHasKey( '/aiml/v1/workspace/(?P<post_id>\d+)/segments', $routes );
+	}
+
+	public function test_get_segments_returns_view_models_only(): void {
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		$user_id  = $this->create_translator();
+		wp_set_current_user( $user_id );
+
+		$request = new WP_REST_Request(
+			'GET',
+			'/aiml/v1/workspace/' . (int) $post->ID . '/segments'
+		);
+		$request->set_param( 'language', 'sv' );
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'segments', $data );
+		$this->assertNotEmpty( $data['segments'] );
+
+		$row = $data['segments'][0];
+		foreach ( array(
+			'segment_key',
+			'field_key',
+			'block_name',
+			'uuid',
+			'segment_order',
+			'source_text',
+			'source_hash',
+			'translated_text',
+			'status',
+			'is_stale',
+			'text_format',
+			'can_edit',
+			'meta',
+		) as $field ) {
+			$this->assertArrayHasKey( $field, $row, "Missing ViewModel field {$field}" );
+		}
+
+		$this->assertStringStartsWith( 'b:', (string) $row['segment_key'] );
+		$this->assertArrayNotHasKey( 'translation_id', $row );
+	}
+
+	public function test_save_segment_persists_manual_translation(): void {
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		$user_id  = $this->create_translator();
+		wp_set_current_user( $user_id );
+
+		$load = new WP_REST_Request(
+			'GET',
+			'/aiml/v1/workspace/' . (int) $post->ID . '/segments'
+		);
+		$load->set_param( 'language', 'sv' );
+		$segment = $this->first_block_segment( rest_do_request( $load )->get_data()['segments'] );
+
+		$save = $this->workspace_save_request(
+			(int) $post->ID,
+			$segment,
+			array(
+				'translated_text' => 'Hej workspace',
+				'source_hash'     => $segment['source_hash'],
+				'status'          => Store::STATUS_MANUALLY_EDITED,
+			)
+		);
+
+		$response = rest_do_request( $save );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'Hej workspace', $response->get_data()['translated_text'] );
+		$this->assertSame( Store::STATUS_MANUALLY_EDITED, $response->get_data()['status'] );
+	}
+
+	public function test_list_posts_returns_summaries(): void {
+		$language = $this->add_language();
+		$this->create_block_page();
+		wp_set_current_user( $this->create_translator() );
+
+		$request = new WP_REST_Request( 'GET', '/aiml/v1/workspace/posts' );
+		$request->set_param( 'language', 'sv' );
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertNotEmpty( $response->get_data()['items'] );
+	}
+
+	public function test_response_includes_api_version_header(): void {
+		wp_set_current_user( $this->create_translator() );
+
+		$request  = new WP_REST_Request( 'GET', '/aiml/v1/workspace/posts' );
+		$response = rest_do_request( $request );
+
+		$headers = $response->get_headers();
+		$this->assertSame(
+			'1',
+			$headers['X-AIML-Workspace-Api-Version'][0] ?? $headers['x-aiml-workspace-api-version'][0] ?? ''
+		);
+	}
+}

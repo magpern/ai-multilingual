@@ -60,6 +60,13 @@ final class Languages {
 	private ?array $memo = null;
 
 	/**
+	 * Global cache epoch observed when the memo was populated.
+	 *
+	 * @var int|null
+	 */
+	private ?int $memo_epoch = null;
+
+	/**
 	 * Builds the language store.
 	 *
 	 * @param Cache $cache Object cache wrapper.
@@ -153,13 +160,17 @@ final class Languages {
 	 * @return object[]
 	 */
 	public function all(): array {
-		if ( null !== $this->memo ) {
+		$epoch = (int) get_option( Cache::VERSION_OPTION, 0 );
+		if ( null !== $this->memo && $this->memo_epoch === $epoch ) {
 			return $this->memo;
 		}
 
+		$this->memo = null;
+
 		$cached = $this->cache->get( self::CACHE_KEY, 0 );
 		if ( is_array( $cached ) ) {
-			$this->memo = $cached;
+			$this->memo       = $cached;
+			$this->memo_epoch = $epoch;
 
 			return $this->memo;
 		}
@@ -170,7 +181,8 @@ final class Languages {
 			'SELECT * FROM ' . Schema::languages() . ' ORDER BY sort_order ASC, code ASC' // phpcs:ignore WordPress.DB.PreparedSQL
 		);
 
-		$this->memo = array_map( array( $this, 'hydrate' ), (array) $rows );
+		$this->memo       = array_map( array( $this, 'hydrate' ), (array) $rows );
+		$this->memo_epoch = $epoch;
 
 		$this->cache->set( self::CACHE_KEY, 0, $this->memo );
 
@@ -462,7 +474,8 @@ final class Languages {
 	 * the global cache epoch rather than one language counter.
 	 */
 	public function flush(): void {
-		$this->memo = null;
+		$this->memo       = null;
+		$this->memo_epoch = null;
 
 		$this->cache->flush_all();
 	}

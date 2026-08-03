@@ -163,7 +163,8 @@ final class PluginGuardTest extends AimlTestCase {
 	public function test_no_rest_routes_are_registered(): void {
 		$this->assert_absent(
 			array( 'register_rest_route', 'WP_REST_Controller', 'rest_api_init' ),
-			'Milestone 1 uses conventional admin forms; REST arrives with the segment editor.'
+			'REST is confined to the translator workspace controller under aiml/v1.',
+			array( 'src/Rest/WorkspaceController.php' )
 		);
 	}
 

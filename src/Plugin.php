@@ -30,6 +30,10 @@ use AIMultilingual\Frontend\Switcher;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
+use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
+use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
+use AIMultilingual\Rest\WorkspaceController;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\BlockExtractor;
 use AIMultilingual\Translation\BlockFrontendRenderer;
@@ -41,6 +45,11 @@ use AIMultilingual\Translation\BlockTranslationSanitizer;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\PreviewService;
+use AIMultilingual\Workspace\SegmentAssembler;
+use AIMultilingual\Workspace\TranslationService;
+use AIMultilingual\Workspace\TranslationStatusCalculator;
+use AIMultilingual\Workspace\WorkspaceService;
 use WP_Post;
 
 /**
@@ -80,6 +89,13 @@ final class Plugin {
 	private bool $booted = false;
 
 	/**
+	 * Plugin settings shared across the composition root.
+	 *
+	 * @var Settings|null
+	 */
+	private ?Settings $settings = null;
+
+	/**
 	 * Returns the shared plugin instance.
 	 */
 	public static function instance(): Plugin {
@@ -100,7 +116,8 @@ final class Plugin {
 
 		$this->booted = true;
 
-		$settings  = new Settings();
+		$this->settings = new Settings();
+		$settings       = $this->settings;
 		$cache     = new Cache();
 		$languages = new Languages( $cache );
 		$resolver  = new LanguageResolver();
@@ -129,9 +146,31 @@ final class Plugin {
 			$extractor
 		);
 
-		( new Router( $languages, $resolver, $context ) )->register();
+		$router = new Router( $languages, $resolver, $context );
+		$router->register();
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
+
+		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
+		$status_calculator = new TranslationStatusCalculator( $store );
+		$translation       = new TranslationService( $store, $assembler );
+		$preview           = new PreviewService( $languages, $context, $router );
+		$workspace         = new WorkspaceService(
+			$assembler,
+			$status_calculator,
+			$translation,
+			$preview,
+			$languages,
+			$store,
+			$extractor
+		);
+
+		( new WorkspaceController(
+			$workspace,
+			new WorkspaceSegmentSerializer(),
+			new WorkspacePageSummarySerializer(),
+			new WorkspaceTranslationStatusSerializer()
+		) )->register();
 
 		( new AttributeRegistrar( $settings, $block_registry ) )->register();
 		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();
@@ -180,6 +219,13 @@ final class Plugin {
 
 			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics );
 		}
+	}
+
+	/**
+	 * Reloads settings from the database for long-lived processes and tests.
+	 */
+	public function reload_settings(): void {
+		$this->settings?->reload();
 	}
 
 	/**

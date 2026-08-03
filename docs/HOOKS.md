@@ -70,6 +70,27 @@ reachable while logged out.
 |---|---|---|
 | `aiml_switcher_in_menu` | `false` | Whether to append the language switcher to a given nav menu. Receives the `wp_nav_menu()` args. |
 
+## Translator workspace REST — `src/Rest/WorkspaceController.php`
+
+| Hook | Purpose |
+|---|---|
+| `rest_api_init` | Registers `aiml/v1/workspace/*` routes for the translator workspace (F10). |
+
+All routes require `aiml_translate`. Post-scoped routes additionally require
+`edit_post` for the requested canonical post. Responses include
+`X-AIML-Workspace-Api-Version: 1` and serialize ViewModels only — controllers
+delegate to `WorkspaceService` and never touch `Store` directly.
+
+| Method | Route |
+|---|---|
+| GET | `/aiml/v1/workspace/posts` |
+| GET | `/aiml/v1/workspace/{post_id}/segments?language=` |
+| GET | `/aiml/v1/workspace/{post_id}/status?language=` |
+| GET | `/aiml/v1/workspace/{post_id}/preview-url?language=` |
+| POST | `/aiml/v1/workspace/{post_id}/segments/{segment_key}?language=` |
+| POST | `/aiml/v1/workspace/{post_id}/segments/batch?language=` |
+| POST | `/aiml/v1/workspace/{post_id}/translate?language=` |
+
 ## Deliberately not hooked
 
 - **No rewrite rules.** `add_rewrite_rule`, `add_rewrite_tag` and
@@ -77,8 +98,8 @@ reachable while logged out.
   there is no rewrite state to manage.
 - **No cookie.** The URL is the only language authority in this milestone, so
   front-end responses carry no `Set-Cookie` and stay cacheable at the edge.
-- **No REST routes.** Milestone 1 uses conventional admin forms; REST arrives
-  with the segment editor that needs it.
+- **No REST routes outside the workspace.** Only `src/Rest/WorkspaceController.php`
+  registers REST endpoints under `aiml/v1`.
 - **No deactivation hook.** Deactivation must remove nothing, so there is
   nothing for it to do.
 - **No WooCommerce hooks yet** beyond the compatibility declaration.
