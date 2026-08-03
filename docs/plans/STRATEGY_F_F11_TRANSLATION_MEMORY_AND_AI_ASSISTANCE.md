@@ -1,8 +1,9 @@
 # F11 — Translation Memory & AI Assistance Plan
 
-**Status:** Canonical implementation plan — final architecture refinement pass (documentation only; no F11 code started)
+**Status:** Canonical implementation plan — **architecture frozen** for implementation on `feature/f11-translation-memory-ai`
 **Architecture:** Includes approved refinement pass: `SuggestionProvider` abstraction, `TranslationSuggestionService` orchestration, deterministic ranking, modular `QAEngine`, provider capability discovery, human-approved TM write-back, source-independent QA, TM provenance, productivity metrics (diagnostics only)
-**Depends on:** F1–F9 complete; F10 Translator Workspace complete (assumed successful)
+**Governance:** Changes that affect architecture, public APIs, milestone scope, service boundaries, or workflows require an ADR or an explicit architecture revision. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.
+**Depends on:** F1–F9 complete; F10 Translator Workspace complete (`strategy-f-f10-translator-complete`)
 **ADR-0010:** Accepted — F11 introduces first production provider via `AIProviderInterface`; architecture remains vendor-neutral
 **ADR-0009:** Accepted — TM in separate `aiml_tm` table
 **Canonical doc:** This file. Master plan cross-ref: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)
@@ -1106,13 +1107,21 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] All §2 architectural decisions documented (ADR-F11-001 through ADR-F11-008)
-- [ ] Diagrams include `SuggestionProvider` abstraction and `QAEngine`
-- [ ] Deterministic ranking policy §2.6 explicit
-- [ ] TM write-back policy ADR-F11-004 explicit
-- [ ] Provider-neutral language throughout
+- [x] All §2 architectural decisions documented (ADR-F11-001 through ADR-F11-008)
+- [x] Diagrams include `SuggestionProvider` abstraction and `QAEngine`
+- [x] Deterministic ranking policy §2.6 explicit
+- [x] TM write-back policy ADR-F11-004 explicit
+- [x] Provider-neutral language throughout
 
 **Validation:** Stakeholder review; no code.
+
+### WP0 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Architecture freeze recorded; governance rule committed |
+| **Branch** | `feature/f11-translation-memory-ai` |
+| **Code** | None (documentation only) |
 
 ---
 
