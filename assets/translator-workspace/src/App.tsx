@@ -5,9 +5,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import {
 	WorkspaceConflictError,
 	WorkspaceQABlockedError,
+	acceptTmSuggestions,
 	configureWorkspaceApi,
 	fetchPreviewUrl,
 	fetchSegments,
+	runQaBatch,
 	saveBatch,
 	saveSegment,
 	suggestSegment,
@@ -454,6 +456,92 @@ export default function App() {
 		}
 	};
 
+	const handleAcceptTmExact = async () => {
+		if ( ! postId || ! languageCode || selectedKeys.size === 0 ) {
+			return;
+		}
+
+		const uniqueKeys = selectedEditableKeys( rows, selectedKeys );
+		if ( uniqueKeys.length === 0 ) {
+			setBatchMessage(
+				__(
+					'Select at least one editable segment to accept TM matches.',
+					'ai-multilingual'
+				)
+			);
+			return;
+		}
+
+		setBatchSaving( true );
+		setBatchMessage( __( 'Accepting exact TM suggestions…', 'ai-multilingual' ) );
+
+		try {
+			const result = await acceptTmSuggestions(
+				postId,
+				languageCode,
+				uniqueKeys
+			);
+			if ( result.updated.length > 0 ) {
+				setRows( ( current ) =>
+					mergeSegmentsIntoRows( current, result.updated )
+				);
+			}
+			setBatchMessage(
+				sprintf(
+					/* translators: %d: accepted count */
+					__( 'Accepted %d exact TM suggestion(s).', 'ai-multilingual' ),
+					result.updated.length
+				)
+			);
+		} catch ( unknownError ) {
+			setBatchMessage(
+				unknownError instanceof Error
+					? unknownError.message
+					: __( 'Could not accept TM suggestions.', 'ai-multilingual' )
+			);
+		} finally {
+			setBatchSaving( false );
+		}
+	};
+
+	const handleRunQa = async () => {
+		if ( ! postId || ! languageCode || selectedKeys.size === 0 ) {
+			return;
+		}
+
+		const uniqueKeys = selectedEditableKeys( rows, selectedKeys );
+		setBatchSaving( true );
+		setBatchMessage( __( 'Running quality checks…', 'ai-multilingual' ) );
+
+		try {
+			const result = await runQaBatch( postId, languageCode, uniqueKeys );
+			if ( result.segments.length > 0 ) {
+				setRows( ( current ) =>
+					mergeSegmentsIntoRows( current, result.segments )
+				);
+			}
+			setBatchMessage(
+				sprintf(
+					/* translators: 1: errors, 2: warnings */
+					__(
+						'QA complete — errors: %1$d, warnings: %2$d.',
+						'ai-multilingual'
+					),
+					result.summary.errors,
+					result.summary.warnings
+				)
+			);
+		} catch ( unknownError ) {
+			setBatchMessage(
+				unknownError instanceof Error
+					? unknownError.message
+					: __( 'Could not run QA.', 'ai-multilingual' )
+			);
+		} finally {
+			setBatchSaving( false );
+		}
+	};
+
 	const handleToggleSelect = ( segmentKey: string, checked: boolean ) => {
 		setSelectedKeys( ( current ) =>
 			toggleSelection( current, segmentKey, checked )
@@ -594,6 +682,8 @@ export default function App() {
 				busy={ batchSaving }
 				onSaveSelected={ handleSaveSelected }
 				onTranslateSelected={ handleTranslateSelected }
+				onAcceptTmExact={ handleAcceptTmExact }
+				onRunQa={ handleRunQa }
 				onClearSelection={ () => setSelectedKeys( clearSelection() ) }
 			/>
 

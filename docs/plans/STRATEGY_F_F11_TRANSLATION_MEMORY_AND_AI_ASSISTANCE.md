@@ -1476,10 +1476,17 @@ Parallel tracks after WP0: TM (WP1–WP3), provider/prompts (WP4–WP5), QA (WP7
 
 **Acceptance criteria:**
 
-- [ ] AC-7, AC-10 satisfied
-- [ ] Partial success unchanged
+- [x] AC-7, AC-10 satisfied
+- [x] Partial success unchanged
 
 **Dependencies:** WP6, WP8
+
+### WP10 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `accept_tm_exact_batch`, `qa_batch`, REST accept/QA, bulk toolbar actions |
+| **Tests** | `WorkspaceBatchProductivityTest` |
 
 ---
 

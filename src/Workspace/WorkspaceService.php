@@ -14,6 +14,8 @@ use AIMultilingual\Plugin;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\QA\QAEngine;
+use AIMultilingual\Workspace\QA\QAIssue;
+use AIMultilingual\Workspace\QA\QAResult;
 use WP_Error;
 use WP_Post;
 use WP_Query;
@@ -309,6 +311,20 @@ final class WorkspaceService {
 			$translated_text,
 			$format
 		);
+
+		// Clearing a translation (blank target) is an allowed workspace action;
+		// empty_translation must not block that path.
+		if ( '' === trim( $translated_text ) ) {
+			$qa = new \AIMultilingual\Workspace\QA\QAResult(
+				array_values(
+					array_filter(
+						$qa->issues,
+						static fn( \AIMultilingual\Workspace\QA\QAIssue $issue ): bool => 'empty_translation' !== $issue->code
+					)
+				)
+			);
+		}
+
 		if ( $this->qa->should_block_save( $qa ) ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- QA payload is structured data, not exception text.
 			throw new WorkspaceQAException( $qa );
@@ -463,6 +479,133 @@ final class WorkspaceService {
 		}
 
 		return $post;
+	}
+
+	/**
+	 * Accepts exact TM suggestions for selected segments via save_batch.
+	 *
+	 * @param WP_Post            $post         Canonical post.
+	 * @param int                $language_id  Target language id.
+	 * @param array<int, string> $segment_keys Segment keys (empty = all with exact TM).
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function accept_tm_exact_batch( WP_Post $post, int $language_id, array $segment_keys = array() ) {
+		$this->assert_supported_post( $post );
+
+		$segments = $this->load_segments( $post, $language_id );
+		$wanted   = array();
+		foreach ( $segment_keys as $key ) {
+			$wanted[ (string) $key ] = true;
+		}
+
+		$items = array();
+		foreach ( $segments as $segment ) {
+			$key = (string) ( $segment['segment_key'] ?? '' );
+			if ( array() !== $wanted && ! isset( $wanted[ $key ] ) ) {
+				continue;
+			}
+
+			if ( ! (bool) ( $segment['can_edit'] ?? false ) ) {
+				continue;
+			}
+
+			$exact = $this->first_exact_tm_suggestion( $segment );
+			if ( null === $exact ) {
+				continue;
+			}
+
+			$items[] = array(
+				'segment_key'     => $key,
+				'translated_text' => $exact,
+				'source_hash'     => (string) ( $segment['source_hash'] ?? '' ),
+				'status'          => Store::STATUS_MANUALLY_EDITED,
+			);
+		}
+
+		if ( array() === $items ) {
+			return array(
+				'status'   => 'completed',
+				'segments' => array(),
+				'errors'   => array(),
+			);
+		}
+
+		return $this->batch->save_batch( $post, $language_id, $items );
+	}
+
+	/**
+	 * Runs read-only QA for selected or all segments.
+	 *
+	 * @param WP_Post            $post         Canonical post.
+	 * @param int                $language_id  Target language id.
+	 * @param array<int, string> $segment_keys Segment keys (empty = all).
+	 * @return array<string, mixed>
+	 */
+	public function qa_batch( WP_Post $post, int $language_id, array $segment_keys = array() ): array {
+		$this->assert_supported_post( $post );
+
+		$segments = $this->load_segments( $post, $language_id );
+		$wanted   = array();
+		foreach ( $segment_keys as $key ) {
+			$wanted[ (string) $key ] = true;
+		}
+
+		$out      = array();
+		$errors   = 0;
+		$warnings = 0;
+		$info     = 0;
+
+		foreach ( $segments as $segment ) {
+			$key = (string) ( $segment['segment_key'] ?? '' );
+			if ( array() !== $wanted && ! isset( $wanted[ $key ] ) ) {
+				continue;
+			}
+
+			$qa        = is_array( $segment['meta']['qa'] ?? null ) ? $segment['meta']['qa'] : array();
+			$summary   = is_array( $qa['summary'] ?? null ) ? $qa['summary'] : array();
+			$errors   += (int) ( $summary['errors'] ?? 0 );
+			$warnings += (int) ( $summary['warnings'] ?? 0 );
+			$info     += (int) ( $summary['info'] ?? 0 );
+			$out[]     = $segment;
+		}
+
+		return array(
+			'segments' => $out,
+			'summary'  => array(
+				'errors'   => $errors,
+				'warnings' => $warnings,
+				'info'     => $info,
+			),
+		);
+	}
+
+	/**
+	 * Returns the top exact TM suggestion text, if any.
+	 *
+	 * @param array<string, mixed> $segment Segment DTO with meta.suggestions.
+	 */
+	private function first_exact_tm_suggestion( array $segment ): ?string {
+		$suggestions = is_array( $segment['meta']['suggestions'] ?? null )
+			? $segment['meta']['suggestions']
+			: array();
+
+		foreach ( $suggestions as $suggestion ) {
+			if ( ! is_array( $suggestion ) ) {
+				continue;
+			}
+			if ( 'tm' !== (string) ( $suggestion['provider_id'] ?? '' ) ) {
+				continue;
+			}
+			$tier  = (int) ( $suggestion['rank_tier'] ?? 0 );
+			$meta  = is_array( $suggestion['metadata'] ?? null ) ? $suggestion['metadata'] : array();
+			$match = (string) ( $meta['match_type'] ?? '' );
+			if ( 1 === $tier || 'exact' === $match ) {
+				$text = (string) ( $suggestion['target_text'] ?? '' );
+				return '' !== $text ? $text : null;
+			}
+		}
+
+		return null;
 	}
 
 	/**

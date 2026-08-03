@@ -311,4 +311,59 @@ export async function translateBatch(
 	}
 }
 
+export async function acceptTmSuggestions(
+	postId: number,
+	languageCode: string,
+	segmentKeys: string[]
+): Promise< BatchSaveResult > {
+	try {
+		const response = await apiFetch< BatchSaveResult & {
+			segments: WorkspaceSegment[];
+		} >( {
+			path: path(
+				`workspace/${ postId }/suggestions/accept?language=${ encodeURIComponent(
+					languageCode
+				) }`
+			),
+			method: 'POST',
+			data: {
+				segment_keys: segmentKeys,
+			},
+		} );
+
+		return {
+			status: response.status,
+			updated: response.segments ?? [],
+			errors: response.errors ?? [],
+		};
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function runQaBatch(
+	postId: number,
+	languageCode: string,
+	segmentKeys: string[]
+): Promise< {
+	segments: WorkspaceSegment[];
+	summary: { errors: number; warnings: number; info: number };
+} > {
+	try {
+		return await apiFetch( {
+			path: path(
+				`workspace/${ postId }/qa?language=${ encodeURIComponent(
+					languageCode
+				) }`
+			),
+			method: 'POST',
+			data: {
+				segment_keys: segmentKeys,
+			},
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
 export { userMessageFromError };
