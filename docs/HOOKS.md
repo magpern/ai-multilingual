@@ -103,3 +103,11 @@ delegate to `WorkspaceService` and never touch `Store` directly.
 - **No deactivation hook.** Deactivation must remove nothing, so there is
   nothing for it to do.
 - **No WooCommerce hooks yet** beyond the compatibility declaration.
+
+## Workspace auto-translate — `src/Workspace/TranslationService.php`
+
+F10 routes all automatic translation through `TranslationService`, which builds
+domain `TranslationBatch` payloads and delegates to `AIProviderInterface`
+(`src/Translation/AI/`). Production wiring uses `NullAIProvider`, which returns
+the stable `aiml_ai_not_configured` error without external network calls.
+Controllers and `BatchOperationCoordinator` never call providers directly.

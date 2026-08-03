@@ -1045,10 +1045,19 @@ Wire ADR-0010 interface; M3 swaps implementation without REST changes.
 3. TranslationService delegates to provider.
 4. Settings placeholder copy for M3.
 
+### WP6 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `AIProviderInterface`, `TranslationBatch`, `ProviderResult`, `NullAIProvider` |
+| **Delegation** | `TranslationService` builds batches and persists machine translations via Store |
+| **REST** | Unchanged translate contract; stable `aiml_ai_not_configured` per item |
+| **Tests** | `WorkspaceProviderTest` |
+
 ### Acceptance criteria
 
-- [ ] Provider injectable in tests
-- [ ] REST translate contract unchanged when provider added
+- [x] Provider injectable in tests
+- [x] REST translate contract unchanged when provider added
 
 ### Definition of done
 
@@ -1161,7 +1170,7 @@ F10 closes when **all** are true:
 | WP3 | F10.3 | Manual save + 409 handling | WP2 | **Complete** |
 | WP4 | F10.4 | Status + publish UX | WP3 | **Complete** |
 | WP5 | F10.5 | Bulk actions | WP4 | **Complete** |
-| WP6 | F10.6 | AI provider stub | WP5 |
+| WP6 | F10.6 | AI provider stub | WP5 | **Complete** |
 | WP7 | — | `F10_TRANSLATOR_VALIDATION_LOG.md` + tags | WP3 min / WP6 full |
 
 ---

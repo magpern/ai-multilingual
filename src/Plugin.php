@@ -36,6 +36,7 @@ use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
 use AIMultilingual\Rest\WorkspaceController;
 use AIMultilingual\Routing\Router;
+use AIMultilingual\Translation\AI\NullAIProvider;
 use AIMultilingual\Translation\BlockExtractor;
 use AIMultilingual\Translation\BlockFrontendRenderer;
 use AIMultilingual\Translation\BlockFrontendRenderLogger;
@@ -154,7 +155,12 @@ final class Plugin {
 
 		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
 		$status_calculator = new TranslationStatusCalculator( $store );
-		$translation       = new TranslationService( $store, $assembler );
+		$translation       = new TranslationService(
+			$store,
+			$assembler,
+			$languages,
+			new NullAIProvider()
+		);
 		$preview           = new PreviewService( $languages, $context, $router );
 		$workspace         = new WorkspaceService(
 			$assembler,
