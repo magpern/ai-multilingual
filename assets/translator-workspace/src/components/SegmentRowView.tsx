@@ -6,6 +6,8 @@ import { segmentStatusLabel } from '../utils/segment-status';
 
 interface SegmentRowViewProps {
 	row: SegmentRow;
+	selected: boolean;
+	onToggleSelect: ( segmentKey: string, checked: boolean ) => void;
 	onDraftChange: ( segmentKey: string, value: string ) => void;
 	onSave: ( segmentKey: string ) => void;
 	onReload: ( segmentKey: string ) => void;
@@ -30,6 +32,8 @@ function rowStateLabel( row: SegmentRow ): string {
 
 export default function SegmentRowView( {
 	row,
+	selected,
+	onToggleSelect,
 	onDraftChange,
 	onSave,
 	onReload,
@@ -47,13 +51,49 @@ export default function SegmentRowView( {
 	const isSaving = row.rowState === 'saving';
 	const isDirty = row.rowState === 'dirty' || row.rowState === 'conflict';
 	const showSave = editable && isDirty && row.rowState !== 'conflict';
+	const selectId = `aiml-select-${ server.segment_key.replace(
+		/[^a-z0-9_-]/gi,
+		'-'
+	) }`;
 
 	return (
 		<tr
 			className={ `aiml-workspace-row aiml-workspace-row--${ row.rowState }${
 				server.is_stale ? ' aiml-workspace-row--stale' : ''
-			}` }
+			}${ selected ? ' aiml-workspace-row--selected' : '' }` }
 		>
+			<td>
+				{ editable ? (
+					<>
+						<label htmlFor={ selectId } className="screen-reader-text">
+							{ sprintf(
+								/* translators: %s: segment key */
+								__( 'Select segment %s', 'ai-multilingual' ),
+								server.segment_key
+							) }
+						</label>
+						<input
+							id={ selectId }
+							type="checkbox"
+							checked={ selected }
+							disabled={ isSaving }
+							onChange={ ( event ) =>
+								onToggleSelect(
+									row.segmentKey,
+									event.target.checked
+								)
+							}
+						/>
+					</>
+				) : (
+					<span className="screen-reader-text">
+						{ __(
+							'Read-only segment cannot be selected',
+							'ai-multilingual'
+						) }
+					</span>
+				) }
+			</td>
 			<td>{ server.segment_order }</td>
 			<td>
 				<label htmlFor={ sourceId } className="screen-reader-text">

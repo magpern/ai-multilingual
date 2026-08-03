@@ -9,7 +9,9 @@ import {
 	fetchSegments,
 	saveBatch,
 	saveSegment,
+	translateBatch,
 } from './api/workspace-api';
+import BulkToolbar from './components/BulkToolbar';
 import LanguageSelect from './components/LanguageSelect';
 import PostSelect from './components/PostSelect';
 import PublishContext from './components/PublishContext';
@@ -27,6 +29,7 @@ import {
 	type SegmentFilter,
 } from './utils/segment-status';
 import {
+	applyBatchSaveResults,
 	applyConflict,
 	applyReloadFromServer,
 	applySaveSuccess,
@@ -36,6 +39,16 @@ import {
 	mergeSegmentsIntoRows,
 	updateDraftText,
 } from './utils/segment-rows';
+import {
+	allVisibleSelected,
+	clearSelection,
+	deselectAllVisible,
+	selectAllVisible,
+	selectedDirtyRows,
+	selectedEditableKeys,
+	selectableRows,
+	toggleSelection,
+} from './utils/row-selection';
 
 configureWorkspaceApi();
 
@@ -75,6 +88,9 @@ export default function App() {
 	const [ previewError, setPreviewError ] = useState( '' );
 	const [ batchMessage, setBatchMessage ] = useState( '' );
 	const [ segmentFilter, setSegmentFilter ] = useState< SegmentFilter >( 'all' );
+	const [ selectedKeys, setSelectedKeys ] = useState< Set< string > >(
+		() => new Set()
+	);
 
 	const dirtyCount = useMemo( () => countDirtyRows( rows ), [ rows ] );
 	const filteredRows = useMemo(
@@ -84,6 +100,68 @@ export default function App() {
 			),
 		[ rows, segmentFilter ]
 	);
+	const dirtySelectedCount = useMemo(
+		() => selectedDirtyRows( rows, selectedKeys ).length,
+		[ rows, selectedKeys ]
+	);
+	const visibleAllSelected = useMemo(
+		() => allVisibleSelected( filteredRows, selectedKeys ),
+		[ filteredRows, selectedKeys ]
+	);
+	const hasSelectableVisible = useMemo(
+		() => selectableRows( filteredRows ).length > 0,
+		[ filteredRows ]
+	);
+
+	const runBatchSave = async (
+		dirtyRows: SegmentRow[],
+		inFlightMessage: string,
+		successMessage: string,
+		partialMessage: string
+	) => {
+		if ( ! postId || ! languageCode || dirtyRows.length === 0 ) {
+			return;
+		}
+
+		setBatchSaving( true );
+		setBatchMessage( inFlightMessage );
+
+		try {
+			const result = await saveBatch(
+				postId,
+				languageCode,
+				dirtyRows.map( ( row ) => ( {
+					segment_key: row.segmentKey,
+					translated_text: row.draftText,
+					source_hash: row.server.source_hash,
+					status: 'manually_edited',
+				} ) )
+			);
+
+			setRows( ( current ) =>
+				applyBatchSaveResults( current, result, dirtyRows )
+			);
+
+			if ( result.status === 'partial' ) {
+				setBatchMessage(
+					sprintf( partialMessage, result.errors.length )
+				);
+			} else {
+				setBatchMessage( successMessage );
+			}
+		} catch ( unknownError ) {
+			setBatchMessage(
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Batch save failed. Please try again.',
+							'ai-multilingual'
+					  )
+			);
+		} finally {
+			setBatchSaving( false );
+		}
+	};
 
 	const loadSegments = useCallback( async () => {
 		if ( ! postId || ! languageCode ) {
@@ -101,6 +179,7 @@ export default function App() {
 			setRows( createRowsFromSegments( response.segments ) );
 			setStatus( response.status );
 			setSegmentFilter( 'all' );
+			setSelectedKeys( clearSelection() );
 		} catch {
 			setError(
 				__(
@@ -207,94 +286,90 @@ export default function App() {
 	};
 
 	const handleSaveAllDirty = async () => {
-		if ( ! postId || ! languageCode || dirtyCount === 0 ) {
+		await runBatchSave(
+			dirtyRowsInOrder(
+				rows.filter( ( row ) => row.rowState !== 'conflict' )
+			),
+			__( 'Saving all changed segments…', 'ai-multilingual' ),
+			__( 'All changed segments were saved.', 'ai-multilingual' ),
+			/* translators: %d: number of failed segments */
+			__(
+				'Some segments could not be saved. %d segment(s) still need attention.',
+				'ai-multilingual'
+			)
+		);
+	};
+
+	const handleSaveSelected = async () => {
+		await runBatchSave(
+			dirtyRowsInOrder(
+				selectedDirtyRows(
+					rows.filter( ( row ) => row.rowState !== 'conflict' ),
+					selectedKeys
+				)
+			),
+			__( 'Saving selected segments…', 'ai-multilingual' ),
+			__( 'Selected segments were saved.', 'ai-multilingual' ),
+			/* translators: %d: number of failed segments */
+			__(
+				'Some selected segments could not be saved. %d segment(s) still need attention.',
+				'ai-multilingual'
+			)
+		);
+	};
+
+	const handleTranslateSelected = async () => {
+		if ( ! postId || ! languageCode || selectedKeys.size === 0 ) {
+			return;
+		}
+
+		const uniqueKeys = selectedEditableKeys( rows, selectedKeys );
+		if ( uniqueKeys.length === 0 ) {
+			setBatchMessage(
+				__(
+					'Select at least one editable segment to translate.',
+					'ai-multilingual'
+				)
+			);
 			return;
 		}
 
 		setBatchSaving( true );
 		setBatchMessage(
-			__(
-				'Saving all changed segments…',
-				'ai-multilingual'
-			)
-		);
-
-		const dirtyRows = dirtyRowsInOrder(
-			rows.filter( ( row ) => row.rowState !== 'conflict' )
+			__( 'Requesting automatic translation…', 'ai-multilingual' )
 		);
 
 		try {
-			const result = await saveBatch(
+			const result = await translateBatch(
 				postId,
 				languageCode,
-				dirtyRows.map( ( row ) => ( {
-					segment_key: row.segmentKey,
-					translated_text: row.draftText,
-					source_hash: row.server.source_hash,
-					status: 'manually_edited',
-				} ) )
+				uniqueKeys
 			);
 
-			let nextRows = mergeSegmentsIntoRows( rows, result.updated );
-
-			for ( const item of result.errors ) {
-				const preserved = dirtyRows.find(
-					( row ) => row.segmentKey === item.segment_key
-				);
-				if ( ! preserved ) {
-					continue;
-				}
-
-				if ( item.code === 'aiml_source_hash_mismatch' ) {
-					const refreshed = item.segments?.find(
-						( segment ) => segment.segment_key === item.segment_key
-					);
-					nextRows = applyConflict(
-						nextRows,
-						item.segment_key,
-						refreshed,
-						preserved.draftText,
-						item.message ||
-							__(
-								'The source text changed since this segment was loaded.',
-								'ai-multilingual'
-							)
-					);
-					continue;
-				}
-
-				nextRows = nextRows.map( ( row ) =>
-					row.segmentKey === item.segment_key
-						? {
-								...row,
-								rowState: 'error',
-								errorMessage:
-									item.message ||
-									__(
-										'The translation could not be saved. Please try again.',
-										'ai-multilingual'
-									),
-						  }
-						: row
+			if ( result.updated.length > 0 ) {
+				setRows( ( current ) =>
+					mergeSegmentsIntoRows( current, result.updated )
 				);
 			}
 
-			setRows( nextRows );
-
-			if ( result.status === 'partial' ) {
+			if ( result.status === 'failed' ) {
 				setBatchMessage(
-					sprintf(
-						/* translators: %d: number of failed segments */
+					result.errors[ 0 ]?.message ||
 						__(
-							'Some segments could not be saved. %d segment(s) still need attention.',
+							'Automatic translation is not configured.',
 							'ai-multilingual'
-						),
-						result.errors.length
+						)
+				);
+			} else if ( result.status === 'partial' ) {
+				setBatchMessage(
+					__(
+						'Some selected segments could not be translated automatically.',
+						'ai-multilingual'
 					)
 				);
 			} else {
 				setBatchMessage(
-					__( 'All changed segments were saved.', 'ai-multilingual' )
+					__( 'Selected segments were translated.', 'ai-multilingual' )
 				);
 			}
 		} catch ( unknownError ) {
@@ -302,13 +377,27 @@ export default function App() {
 				unknownError instanceof Error
 					? unknownError.message
 					: __(
-							'Batch save failed. Please try again.',
+							'Automatic translation is not configured.',
 							'ai-multilingual'
 					  )
 			);
 		} finally {
 			setBatchSaving( false );
 		}
+	};
+
+	const handleToggleSelect = ( segmentKey: string, checked: boolean ) => {
+		setSelectedKeys( ( current ) =>
+			toggleSelection( current, segmentKey, checked )
+		);
+	};
+
+	const handleToggleSelectAll = ( checked: boolean ) => {
+		setSelectedKeys( ( current ) =>
+			checked
+				? selectAllVisible( current, filteredRows )
+				: deselectAllVisible( current, filteredRows )
+		);
 	};
 
 	const handlePreview = async () => {
@@ -431,11 +520,26 @@ export default function App() {
 				/>
 			) }
 
+			<BulkToolbar
+				selectedCount={ selectedKeys.size }
+				dirtySelectedCount={ dirtySelectedCount }
+				busy={ batchSaving }
+				onSaveSelected={ handleSaveSelected }
+				onTranslateSelected={ handleTranslateSelected }
+				onClearSelection={ () => setSelectedKeys( clearSelection() ) }
+			/>
+
 			<SegmentTable
 				rows={ filteredRows }
 				loading={ loading }
 				error={ error }
 				batchMessage={ batchMessage }
+				filterActive={ segmentFilter !== 'all' }
+				selectedKeys={ selectedKeys }
+				allVisibleSelected={ visibleAllSelected }
+				hasSelectableVisible={ hasSelectableVisible }
+				onToggleSelect={ handleToggleSelect }
+				onToggleSelectAll={ handleToggleSelectAll }
 				onDraftChange={ handleDraftChange }
 				onSave={ handleSaveRow }
 				onReload={ handleReloadRow }

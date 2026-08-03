@@ -1,3 +1,4 @@
+import type { BatchSaveResult } from '../types/segment-row';
 import type { SegmentRow, SegmentRowState } from '../types/segment-row';
 import type { WorkspaceSegment } from '../types/view-models';
 
@@ -162,4 +163,49 @@ export function dirtyRowsInOrder( rows: SegmentRow[] ): SegmentRow[] {
 				left.server.segment_order - right.server.segment_order ||
 				left.segmentKey.localeCompare( right.segmentKey )
 		);
+}
+
+export function applyBatchSaveResults(
+	currentRows: SegmentRow[],
+	result: BatchSaveResult,
+	sourceRows: SegmentRow[]
+): SegmentRow[] {
+	let nextRows = mergeSegmentsIntoRows( currentRows, result.updated );
+
+	for ( const item of result.errors ) {
+		const preserved = sourceRows.find(
+			( row ) => row.segmentKey === item.segment_key
+		);
+		if ( ! preserved ) {
+			continue;
+		}
+
+		if ( item.code === 'aiml_source_hash_mismatch' ) {
+			const refreshed = item.segments?.find(
+				( segment ) => segment.segment_key === item.segment_key
+			);
+			nextRows = applyConflict(
+				nextRows,
+				item.segment_key,
+				refreshed,
+				preserved.draftText,
+				item.message || 'The source text changed since this segment was loaded.'
+			);
+			continue;
+		}
+
+		nextRows = nextRows.map( ( row ) =>
+			row.segmentKey === item.segment_key
+				? {
+						...row,
+						rowState: 'error' as SegmentRowState,
+						errorMessage:
+							item.message ||
+							'The translation could not be saved. Please try again.',
+				  }
+				: row
+		);
+	}
+
+	return nextRows;
 }

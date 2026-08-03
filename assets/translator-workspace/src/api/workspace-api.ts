@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 
-import type { BatchSaveResult } from '../types/segment-row';
+import type { BatchSaveResult, BatchTranslateResult } from '../types/segment-row';
 import type {
 	WorkspacePostsResponse,
 	WorkspaceSegment,
@@ -202,6 +202,38 @@ export async function saveBatch(
 			status: response.status,
 			updated: response.segments,
 			errors: response.errors ?? [],
+		};
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function translateBatch(
+	postId: number,
+	languageCode: string,
+	segmentKeys: string[]
+): Promise< BatchTranslateResult > {
+	try {
+		const response = await apiFetch< BatchTranslateResult & {
+			segments: WorkspaceSegment[];
+		} >( {
+			path: path(
+				`workspace/${ postId }/translate?language=${ encodeURIComponent(
+					languageCode
+				) }`
+			),
+			method: 'POST',
+			data: {
+				segment_keys: segmentKeys,
+				mode: 'sync',
+			},
+		} );
+
+		return {
+			status: response.status,
+			updated: response.segments ?? [],
+			errors: response.errors ?? [],
+			job_id: response.job_id ?? null,
 		};
 	} catch ( error ) {
 		throw new WorkspaceRequestError( userMessageFromError( error ) );

@@ -9,6 +9,12 @@ interface SegmentTableProps {
 	loading: boolean;
 	error: string;
 	batchMessage: string;
+	filterActive: boolean;
+	selectedKeys: Set< string >;
+	allVisibleSelected: boolean;
+	hasSelectableVisible: boolean;
+	onToggleSelect: ( segmentKey: string, checked: boolean ) => void;
+	onToggleSelectAll: ( checked: boolean ) => void;
 	onDraftChange: ( segmentKey: string, value: string ) => void;
 	onSave: ( segmentKey: string ) => void;
 	onReload: ( segmentKey: string ) => void;
@@ -19,6 +25,12 @@ export default function SegmentTable( {
 	loading,
 	error,
 	batchMessage,
+	filterActive,
+	selectedKeys,
+	allVisibleSelected,
+	hasSelectableVisible,
+	onToggleSelect,
+	onToggleSelectAll,
 	onDraftChange,
 	onSave,
 	onReload,
@@ -38,10 +50,15 @@ export default function SegmentTable( {
 	if ( rows.length === 0 ) {
 		return (
 			<Notice status="info" isDismissible={ false }>
-				{ __(
-					'Select a post to load its segments.',
-					'ai-multilingual'
-				) }
+				{ filterActive
+					? __(
+							'No segments match the current filter.',
+							'ai-multilingual'
+					  )
+					: __(
+							'Select a post to load its segments.',
+							'ai-multilingual'
+					  ) }
 			</Notice>
 		);
 	}
@@ -56,6 +73,20 @@ export default function SegmentTable( {
 			<Table className="aiml-workspace-segment-table">
 				<thead>
 					<tr>
+						<th scope="col">
+							<label className="screen-reader-text" htmlFor="aiml-select-all-visible">
+								{ __( 'Select all visible editable segments', 'ai-multilingual' ) }
+							</label>
+							<input
+								id="aiml-select-all-visible"
+								type="checkbox"
+								checked={ allVisibleSelected }
+								disabled={ ! hasSelectableVisible }
+								onChange={ ( event ) =>
+									onToggleSelectAll( event.target.checked )
+								}
+							/>
+						</th>
 						<th scope="col">{ __( 'Order', 'ai-multilingual' ) }</th>
 						<th scope="col">{ __( 'Source', 'ai-multilingual' ) }</th>
 						<th scope="col">{ __( 'Target', 'ai-multilingual' ) }</th>
@@ -69,6 +100,8 @@ export default function SegmentTable( {
 						<SegmentRowView
 							key={ row.segmentKey }
 							row={ row }
+							selected={ selectedKeys.has( row.segmentKey ) }
+							onToggleSelect={ onToggleSelect }
 							onDraftChange={ onDraftChange }
 							onSave={ onSave }
 							onReload={ onReload }

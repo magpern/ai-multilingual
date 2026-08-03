@@ -132,24 +132,46 @@ final class BatchOperationCoordinator {
 			);
 		}
 
-		$not_configured = $this->translation->translate_segment( $post, $language_id, (string) ( $segment_keys[0] ?? '' ) );
-		if ( $not_configured instanceof WP_Error ) {
-			return array(
-				'status'   => 'failed',
-				'segments' => array(),
-				'errors'   => array(
-					array(
-						'code'    => $not_configured->get_error_code(),
-						'message' => $not_configured->get_error_message(),
-					),
-				),
-			);
+		$succeeded = array();
+		$failed    = array();
+
+		foreach ( $segment_keys as $segment_key ) {
+			$key = (string) $segment_key;
+			if ( '' === $key ) {
+				$failed[] = array(
+					'segment_key' => '',
+					'code'        => 'aiml_invalid_segment',
+					'message'     => __( 'Segment key is required.', 'ai-multilingual' ),
+				);
+				continue;
+			}
+
+			$result = $this->translation->translate_segment( $post, $language_id, $key );
+			if ( $result instanceof WP_Error ) {
+				$failed[] = array(
+					'segment_key' => $key,
+					'code'        => $result->get_error_code(),
+					'message'     => $result->get_error_message(),
+				);
+				continue;
+			}
+
+			$succeeded[] = $result;
+		}
+
+		if ( array() === $failed ) {
+			$status = 'completed';
+		} elseif ( array() === $succeeded ) {
+			$status = 'failed';
+		} else {
+			$status = 'partial';
 		}
 
 		return array(
-			'status'   => 'completed',
-			'segments' => array(),
-			'errors'   => array(),
+			'status'   => $status,
+			'job_id'   => null,
+			'segments' => $succeeded,
+			'errors'   => $failed,
 		);
 	}
 }

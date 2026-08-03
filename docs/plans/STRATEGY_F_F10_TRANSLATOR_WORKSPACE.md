@@ -1021,6 +1021,15 @@ Bulk POST routes delegate to `WorkspaceService`, which forwards iteration to `Ba
 
 Bulk paths tested; no provider required.
 
+### WP5 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Row selection, bulk toolbar, save selected, translate selected, per-item batch translate |
+| **Selection** | Visible editable rows only; hidden selections preserved across filters |
+| **Batch translate** | Per-item `aiml_ai_not_configured` errors; reserved `job_id` in response |
+| **Tests** | `WorkspaceTranslateTest`, `row-selection.test.ts`, batch save reuse via `applyBatchSaveResults` |
+
 ---
 
 ## 23. F10.6 — Auto-translate provider hook
@@ -1151,7 +1160,7 @@ F10 closes when **all** are true:
 | WP2 | F10.2 | Workspace shell UI | WP1 |
 | WP3 | F10.3 | Manual save + 409 handling | WP2 | **Complete** |
 | WP4 | F10.4 | Status + publish UX | WP3 | **Complete** |
-| WP5 | F10.5 | Bulk actions | WP4 |
+| WP5 | F10.5 | Bulk actions | WP4 | **Complete** |
 | WP6 | F10.6 | AI provider stub | WP5 |
 | WP7 | — | `F10_TRANSLATOR_VALIDATION_LOG.md` + tags | WP3 min / WP6 full |
 

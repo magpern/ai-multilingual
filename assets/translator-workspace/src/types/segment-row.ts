@@ -27,3 +27,14 @@ export interface BatchSaveResult {
 	}>;
 	status: 'completed' | 'partial';
 }
+
+export interface BatchTranslateResult {
+	updated: WorkspaceSegment[];
+	errors: Array<{
+		segment_key?: string;
+		code?: string;
+		message?: string;
+	}>;
+	status: 'completed' | 'partial' | 'failed';
+	job_id?: string | null;
+}
