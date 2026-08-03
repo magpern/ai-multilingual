@@ -12,6 +12,7 @@ namespace AIMultilingual\Admin;
 use AIMultilingual\Block\FeatureFlags;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Settings;
+use AIMultilingual\Translation\AI\CredentialVault;
 use WP_Error;
 
 /**
@@ -68,14 +69,23 @@ final class SettingsPage {
 	private Languages $languages;
 
 	/**
+	 * Credential vault for AI API keys.
+	 *
+	 * @var CredentialVault
+	 */
+	private CredentialVault $vault;
+
+	/**
 	 * Builds the settings and language screens.
 	 *
-	 * @param Settings  $settings  Plugin settings.
-	 * @param Languages $languages Language configuration.
+	 * @param Settings             $settings  Plugin settings.
+	 * @param Languages            $languages Language configuration.
+	 * @param CredentialVault|null $vault     Credential vault.
 	 */
-	public function __construct( Settings $settings, Languages $languages ) {
+	public function __construct( Settings $settings, Languages $languages, ?CredentialVault $vault = null ) {
 		$this->settings  = $settings;
 		$this->languages = $languages;
+		$this->vault     = $vault ?? new CredentialVault();
 	}
 
 	/**
@@ -145,14 +155,30 @@ final class SettingsPage {
 	 * @return array<string, mixed>
 	 */
 	public function sanitize_settings( $input ): array {
-		$raw   = is_array( $input ) ? $input : array();
-		$clean = Settings::sanitize( $input );
+		$raw      = is_array( $input ) ? $input : array();
+		$previous = Settings::sanitize( get_option( Settings::OPTION, Settings::defaults() ) );
+
+		// Map plaintext API key field into encrypted storage before sanitize.
+		if ( isset( $raw['ai_api_key'] ) ) {
+			$submitted = trim( (string) wp_unslash( $raw['ai_api_key'] ) );
+			if ( '********' === $submitted ) {
+				$raw['ai_api_key_encrypted'] = (string) ( $previous['ai_api_key_encrypted'] ?? '' );
+			} elseif ( '' === $submitted ) {
+				$raw['ai_api_key_encrypted'] = '';
+			} else {
+				$raw['ai_api_key_encrypted'] = $this->vault->encrypt( $submitted );
+			}
+			unset( $raw['ai_api_key'] );
+		} elseif ( ! isset( $raw['ai_api_key_encrypted'] ) ) {
+			$raw['ai_api_key_encrypted'] = (string) ( $previous['ai_api_key_encrypted'] ?? '' );
+		}
+
+		$clean = Settings::sanitize( $raw );
 
 		if ( ! is_array( $input ) ) {
 			return $clean;
 		}
 
-		$previous = Settings::sanitize( get_option( Settings::OPTION, Settings::defaults() ) );
 		Settings::emit_flag_change_audit( $previous, $clean, 'admin_settings' );
 
 		$this->handle_strategy_f_submission( $raw, $clean, $previous );
@@ -316,12 +342,52 @@ final class SettingsPage {
 
 		$this->render_strategy_f_settings( $current );
 
-		echo '<h2>' . esc_html__( 'Automatic translation', 'ai-multilingual' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'AI provider configuration (OpenAI and other vendors) will be available in a future milestone. The translator workspace supports manual editing now; automatic translation remains unavailable until a provider is configured.', 'ai-multilingual' ) . '</p>';
+		$this->render_ai_provider_settings( $current );
 
 		submit_button();
 
 		echo '</form></div>';
+	}
+
+	/**
+	 * Renders AI provider configuration (server-side secrets only).
+	 *
+	 * @param array<string, mixed> $current Current settings.
+	 */
+	private function render_ai_provider_settings( array $current ): void {
+		$has_key = '' !== (string) ( $current['ai_api_key_encrypted'] ?? '' );
+
+		echo '<h2>' . esc_html__( 'Automatic translation', 'ai-multilingual' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Configure a provider for automatic translation and AI suggestions. API keys are encrypted at rest and never sent to the browser or translator workspace JavaScript.', 'ai-multilingual' ) . '</p>';
+		echo '<table class="form-table" role="presentation"><tbody>';
+
+		$this->checkbox_row(
+			'ai_enabled',
+			__( 'Enable AI provider', 'ai-multilingual' ),
+			__( 'When enabled and a provider is selected with a valid API key, workspace auto-translate and AI suggest use that provider.', 'ai-multilingual' ),
+			(bool) ( $current['ai_enabled'] ?? false )
+		);
+
+		$provider = (string) ( $current['ai_provider'] ?? '' );
+		echo '<tr><th scope="row"><label for="aiml_ai_provider">' . esc_html__( 'Provider', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<select name="' . esc_attr( Settings::OPTION . '[ai_provider]' ) . '" id="aiml_ai_provider">';
+		echo '<option value=""' . selected( $provider, '', false ) . '>' . esc_html__( 'None', 'ai-multilingual' ) . '</option>';
+		echo '<option value="openai"' . selected( $provider, 'openai', false ) . '>' . esc_html__( 'OpenAI', 'ai-multilingual' ) . '</option>';
+		echo '</select>';
+		echo '<p class="description">' . esc_html__( 'Additional providers can be registered without changing workspace services.', 'ai-multilingual' ) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="aiml_ai_model">' . esc_html__( 'Model', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<input name="' . esc_attr( Settings::OPTION . '[ai_model]' ) . '" type="text" id="aiml_ai_model" value="' . esc_attr( (string) ( $current['ai_model'] ?? '' ) ) . '" class="regular-text" />';
+		echo '<p class="description">' . esc_html__( 'Optional model id (for example gpt-4o-mini). Leave blank for the provider default.', 'ai-multilingual' ) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="aiml_ai_api_key">' . esc_html__( 'API key', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<input name="' . esc_attr( Settings::OPTION . '[ai_api_key]' ) . '" type="password" id="aiml_ai_api_key" value="' . esc_attr( $has_key ? '********' : '' ) . '" class="regular-text" autocomplete="new-password" />';
+		echo '<p class="description">' . esc_html__( 'Leave as dots to keep the existing key. Clear and save to remove. Never exposed to JavaScript.', 'ai-multilingual' ) . '</p>';
+		echo '</td></tr>';
+
+		echo '</tbody></table>';
 	}
 
 	// -- Form handlers --

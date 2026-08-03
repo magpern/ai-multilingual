@@ -1234,15 +1234,22 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Active provider resolved via registry
-- [ ] Capability methods declared; workspace adapts without vendor branching (AC-13)
-- [ ] Swapping provider requires no service signature changes
-- [ ] API key encrypted; never exposed to JS
-- [ ] `test_connection` and `list_models` work for configured provider
+- [x] Active provider resolved via registry
+- [x] Capability methods declared; workspace adapts without vendor branching (AC-13)
+- [x] Swapping provider requires no service signature changes
+- [x] API key encrypted; never exposed to JS
+- [x] `test_connection` and `list_models` work for configured provider
 
 **Dependencies:** WP4
 
 **Risks:** Vendor API drift — mitigated by ADR-0010 normalization inside provider class.
+
+### WP5 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `ProviderCapabilities`, `ProviderRegistry`, `CredentialVault`, `OpenAIProvider`, `ProviderController`, settings UI |
+| **Tests** | `ProviderFrameworkTest`, `ProviderCapabilitiesTest` |
 
 ---
 

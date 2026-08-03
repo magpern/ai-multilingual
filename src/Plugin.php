@@ -31,12 +31,17 @@ use AIMultilingual\Frontend\Switcher;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Rest\ProviderController;
 use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
 use AIMultilingual\Rest\WorkspaceController;
 use AIMultilingual\Routing\Router;
+use AIMultilingual\Translation\AI\CredentialVault;
 use AIMultilingual\Translation\AI\NullAIProvider;
+use AIMultilingual\Translation\AI\PromptProfileRegistry;
+use AIMultilingual\Translation\AI\ProviderFactory;
+use AIMultilingual\Translation\AI\ProviderRegistry;
 use AIMultilingual\Translation\BlockExtractor;
 use AIMultilingual\Translation\Memory\TMRepository;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
@@ -157,13 +162,19 @@ final class Plugin {
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
 
-		$assembler          = new SegmentAssembler( $extractor, $store, $block_registry );
-		$status_calculator  = new TranslationStatusCalculator( $store );
+		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
+		$status_calculator = new TranslationStatusCalculator( $store );
+		$vault             = new CredentialVault();
+		$profiles          = new PromptProfileRegistry();
+		$provider_registry = new ProviderRegistry( $this->settings, new NullAIProvider() );
+		$provider_registry->register(
+			ProviderFactory::openai_from_settings( $this->settings, $vault, $profiles )
+		);
 		$translation        = new TranslationService(
 			$store,
 			$assembler,
 			$languages,
-			new NullAIProvider()
+			$provider_registry->active()
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$tm_service         = new TranslationMemoryService( new TMRepository() );
@@ -190,6 +201,8 @@ final class Plugin {
 			new WorkspaceTranslationStatusSerializer()
 		) )->register();
 
+		( new ProviderController( $provider_registry ) )->register();
+
 		( new AttributeRegistrar( $settings, $block_registry ) )->register();
 		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();
 
@@ -199,7 +212,7 @@ final class Plugin {
 		$this->register_stale_detection( $extractor, $store );
 
 		if ( is_admin() ) {
-			( new SettingsPage( $settings, $languages ) )->register();
+			( new SettingsPage( $settings, $languages, $vault ) )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
 			( new TranslatorWorkspace( $languages ) )->register();
 

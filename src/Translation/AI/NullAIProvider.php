@@ -1,6 +1,6 @@
 <?php
 /**
- * Null AI provider for F10 workspace stub behavior.
+ * Null AI provider for unconfigured sites.
  *
  * @package AIMultilingual
  */
@@ -17,12 +17,31 @@ use WP_Error;
 final class NullAIProvider implements AIProviderInterface {
 
 	/**
+	 * Provider id.
+	 */
+	public const ID = 'null';
+
+	/**
 	 * Stable error code surfaced to REST and UI layers.
 	 */
 	public const ERROR_CODE = 'aiml_ai_not_configured';
 
 	/**
-	 * Builds the null provider.
+	 * {@inheritdoc}
+	 */
+	public function get_id(): string {
+		return self::ID;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function get_capabilities(): ProviderCapabilities {
+		return ProviderCapabilities::none();
+	}
+
+	/**
+	 * {@inheritdoc}
 	 */
 	public function test_connection() {
 		return new WP_Error(
@@ -33,7 +52,7 @@ final class NullAIProvider implements AIProviderInterface {
 	}
 
 	/**
-	 * Builds the null provider.
+	 * {@inheritdoc}
 	 *
 	 * @return array<int, string>|WP_Error
 	 */
@@ -46,7 +65,7 @@ final class NullAIProvider implements AIProviderInterface {
 	}
 
 	/**
-	 * Builds the null provider.
+	 * {@inheritdoc}
 	 *
 	 * @param TranslationBatch $batch Domain batch payload.
 	 * @return ProviderResult|WP_Error

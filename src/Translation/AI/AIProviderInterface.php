@@ -17,6 +17,16 @@ use WP_Error;
 interface AIProviderInterface {
 
 	/**
+	 * Stable provider id (null, openai, …) — never used for capability branching in services.
+	 */
+	public function get_id(): string;
+
+	/**
+	 * Declared capabilities for workspace adaptation.
+	 */
+	public function get_capabilities(): ProviderCapabilities;
+
+	/**
 	 * Verifies provider credentials and connectivity.
 	 *
 	 * @return true|WP_Error
