@@ -1,6 +1,6 @@
 # F10 — Translator Workspace MVP Plan
 
-**Status:** Canonical implementation plan — WP0–WP3 complete on `feature/f10-translator-workspace`
+**Status:** Canonical implementation plan — **F10 complete** on `feature/f10-translator-workspace`
 **Architecture:** Includes the approved pre-implementation architecture refinement pass (collaborators, query/command split, REST v1 contract, reserved hooks and signed preview — documentation only; no F10 code started).  
 **Depends on:** F1–F9 complete; F9 engineering closure @ `91785cd` on `feature/f9-browser-acceptance`  
 **ADR-0013:** Proposed (unchanged; F10 does not promote ADR)  
@@ -1171,7 +1171,7 @@ F10 closes when **all** are true:
 | WP4 | F10.4 | Status + publish UX | WP3 | **Complete** |
 | WP5 | F10.5 | Bulk actions | WP4 | **Complete** |
 | WP6 | F10.6 | AI provider stub | WP5 | **Complete** |
-| WP7 | — | `F10_TRANSLATOR_VALIDATION_LOG.md` + tags | WP3 min / WP6 full |
+| WP7 | — | `F10_TRANSLATOR_VALIDATION_LOG.md` + tags | WP3 min / WP6 full | **Complete** |
 
 ---
 

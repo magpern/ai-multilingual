@@ -499,7 +499,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | **F7** Migration and backfill | analyze + backfill CLI; canonical only | F2 | Idempotent batch; registration compat | Stop migration (step 4) |
 | **F8** Observability + feature controls | See [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) — Settings UI, `wp aiml block status`, metrics aggregator, runbooks | F1–F7 | Prohibited combos rejected; health check green | Disable diagnostics; render kill switch §15.4 step 1 |
 | **F9** Integration + browser sign-off | See [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — **Closed: engineering acceptance** @ `91785cd`; [F9_BROWSER_VALIDATION_LOG.md](F9_BROWSER_VALIDATION_LOG.md) | F6, F8 | `rendered_false_positive == 0`; no known product defect in supported scope; formal 35/35 Tier 3 waived (TID-1) | — |
-| **F10** Translator Workspace MVP | See [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) — REST workspace + translator UI on Strategy F segments | F9 | AC-1–AC-13 in F10 plan | — |
+| **F10** Translator Workspace MVP | See [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) — **Complete** on `feature/f10-translator-workspace`; [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md) PASS | F9 | AC-1–AC-13 in F10 plan | — |
 | **F11** Limited rollout | Cohort flags (former master-plan F10) | F8, F10 | Stage metrics | §15.4 rollback |
 | **F12** General rollout + ADR acceptance | Expand adapters; PO sign-off (former master-plan F11) | F11 + ADR checklist | Production approved | §15.4 |
 
@@ -549,8 +549,9 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **F1–F8 merged** on `main`; **F9 closed** (engineering acceptance @ `91785cd`); **F10** Translator Workspace MVP next |
+| Production implementation | **F1–F8 merged** on `main`; **F9 closed** (engineering acceptance @ `91785cd`); **F10 complete** on `feature/f10-translator-workspace` — merge pending |
 | Production readiness | **Not approved** (F11/F12 rollout + ADR acceptance pending) |
+| Next milestone | **F11** Limited rollout |
 | ADR-0013 | **Proposed** |
 
 ---
@@ -563,6 +564,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - F9 browser acceptance: [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — **Closed: engineering acceptance**
 - F9 validation log: [F9_BROWSER_VALIDATION_LOG.md](plans/F9_BROWSER_VALIDATION_LOG.md)
 - F10 Translator Workspace: [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](plans/STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md)
+- F10 validation log: [F10_TRANSLATOR_VALIDATION_LOG.md](plans/F10_TRANSLATOR_VALIDATION_LOG.md)
 - F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2
 - Production code today (Milestone 1): `src/Translation/Store.php`, `Extractor.php`, `Renderer.php`, `Plugin.php`

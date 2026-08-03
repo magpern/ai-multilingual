@@ -40,3 +40,14 @@ The schema and interfaces do not block any of them.
   a Milestone 2 addition.
 - One translation write invalidates the whole language's cache. Correct, and
   deliberately simple at this content scale.
+
+## Strategy F production track
+
+Block-identity production work (F1–F12) runs in parallel with roadmap
+milestones. As of 2026-08-03:
+
+| Milestone | Status |
+|---|---|
+| F1–F9 | Engineering complete on `main` |
+| **F10** Translator Workspace MVP | **Complete** on `feature/f10-translator-workspace` — see [F10 validation log](plans/F10_TRANSLATOR_VALIDATION_LOG.md) |
+| **F11** | Next — limited rollout |
