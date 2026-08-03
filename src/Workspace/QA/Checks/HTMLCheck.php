@@ -68,9 +68,15 @@ final class HTMLCheck implements QACheck {
 
 		$issues = array();
 		if ( array() !== $missing ) {
+			// Plain-text targets for HTML sources are common in the workspace
+			// editor — warn rather than hard-block; incomplete HTML still errors.
+			$severity = array() === $target_tags
+				? QAIssue::SEVERITY_WARNING
+				: $this->default_severity();
+
 			$issues[] = new QAIssue(
 				'html_tag_mismatch',
-				$this->default_severity(),
+				$severity,
 				'HTML tags missing in target.',
 				array( 'missing' => $missing )
 			);

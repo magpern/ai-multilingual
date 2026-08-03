@@ -28,7 +28,7 @@ final class EmptyTranslationCheck implements QACheck {
 	 * {@inheritdoc}
 	 */
 	public function default_severity(): string {
-		return QAIssue::SEVERITY_ERROR;
+		return QAIssue::SEVERITY_WARNING;
 	}
 
 	/**

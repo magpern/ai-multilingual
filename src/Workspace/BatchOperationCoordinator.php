@@ -95,6 +95,13 @@ final class BatchOperationCoordinator {
 					'message'     => $conflict->getMessage(),
 					'segments'    => $conflict->segments(),
 				);
+			} catch ( WorkspaceQAException $qa_exception ) {
+				$failed[] = array(
+					'segment_key' => $key,
+					'code'        => 'aiml_qa_blocked',
+					'message'     => $qa_exception->getMessage(),
+					'qa'          => $qa_exception->qa()->to_array(),
+				);
 			} catch ( \InvalidArgumentException $exception ) {
 				$failed[] = array(
 					'segment_key' => $key,
