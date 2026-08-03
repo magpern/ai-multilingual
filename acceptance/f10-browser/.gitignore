@@ -1,3 +1,4 @@
 node_modules/
 test-results/
 artifacts/f10-smoke-report.json
+artifacts/auth-cookies.json
