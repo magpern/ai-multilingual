@@ -1092,6 +1092,10 @@ Inherit F10 §15 plus:
 | No origin filter UI | Provenance recorded; filtering deferred |
 | Productivity metrics | Documented §18; not implemented F11 |
 | Single provider in settings UI | Registry supports many; multiple simultaneous providers deferred |
+| TM write-back on save not wired | Policy + service methods exist; workspace save path does not call `write_back`/`record_usage` yet — see [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md) D1 |
+| TM translate pre-fill | Plan §3.7 optional path; not implemented — debt D2 |
+| QA severity vs plan table | `empty_translation` and plain-HTML targets use warnings for workspace compatibility — frozen API §6 |
+| CLI TM stats | Deferred (plan §10); not delivered in WP11 |
 
 ---
 
@@ -1755,3 +1759,7 @@ Former master-plan F11 scope:
 - `block_diagnostics_enabled` admin toggle
 
 F12 planning begins after F11 PASS + stakeholder review of §12 limitations.
+
+**F12 scope boundary (operational only):** feature/cohort flags, rollout strategy, telemetry, monitoring, performance baselines, caching, production confidence, operational diagnostics. **Do not** add translator features (glossary, review workflow, comments, jobs, version history) in F12 — those remain post-F12 / Roadmap M3+.
+
+See also: [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md), [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md).

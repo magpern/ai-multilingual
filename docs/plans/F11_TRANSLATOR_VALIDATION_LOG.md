@@ -87,9 +87,10 @@ Operational acceptance record for Strategy F milestone F11 (TM + AI suggestions 
 
 | Check | Evidence | Result |
 |---|---|---|
-| Machine persist excluded | `TranslationMemoryServiceTest::test_machine_persist_is_not_write_back_eligible`; integration write-back test | **PASS** |
-| Human / ai_accepted included | `test_human_write_back_persists_and_machine_is_skipped`; `test_ai_accepted_write_back_uses_ai_origin` | **PASS** |
-| Accept TM exact → save | `WorkspaceBatchProductivityTest::test_accept_tm_exact_saves_match` | **PASS** |
+| Machine persist excluded (policy) | `TranslationMemoryServiceTest::test_machine_persist_is_not_write_back_eligible`; integration write-back test | **PASS** |
+| Human / ai_accepted eligible (policy) | `test_human_write_back_persists_and_machine_is_skipped`; `test_ai_accepted_write_back_uses_ai_origin` | **PASS** |
+| Accept TM exact → Store save | `WorkspaceBatchProductivityTest::test_accept_tm_exact_saves_match` | **PASS** |
+| Workspace save invokes `write_back` / `record_usage` | Code review at merge readiness | **GAP** — service ready; save-path wiring deferred (D1 in [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md)) |
 
 ## SuggestionService / ranking / capabilities
 
@@ -112,7 +113,7 @@ Operational acceptance record for Strategy F milestone F11 (TM + AI suggestions 
 | Public interfaces | **PASS** — see [F11_FROZEN_API.md](F11_FROZEN_API.md) |
 | REST contracts additive | **PASS** |
 | Provider abstraction | **PASS** |
-| TM contracts | **PASS** |
+| TM contracts | **PASS** (policy); save-path wiring **GAP** (D1) |
 | Frozen API doc committed | **PASS** |
 
 ## Acceptance criteria (§11)
@@ -128,7 +129,7 @@ Operational acceptance record for Strategy F milestone F11 (TM + AI suggestions 
 | AC-7 | Batch partial success unchanged | Batch + productivity tests | **PASS** |
 | AC-8 | First production provider via interface; NullAI fallback | Provider framework + workspace tests | **PASS** |
 | AC-9 | ViewModels only | REST shape tests; no raw Store/TM rows | **PASS** |
-| AC-10 | Machine persist does not write TM; accepted save does | Write-back + accept batch tests | **PASS** |
+| AC-10 | Machine persist does not write TM; accepted save does | Policy tests PASS; workspace save wiring **GAP** (D1) | **PARTIAL** |
 | AC-11 | SuggestionService + providers mediate suggestions | Architecture + unit tests | **PASS** |
 | AC-12 | Deterministic ranking | `TranslationSuggestionServiceTest` | **PASS** |
 | AC-13 | Capability discovery adapts UI | Provider capabilities tests + settings | **PASS** |
@@ -139,17 +140,17 @@ Operational acceptance record for Strategy F milestone F11 (TM + AI suggestions 
 
 | Gate | Result |
 |---|---|
-| G1 §11 ACs | **PASS** |
-| G2 Validation log PASS | **PASS** |
+| G1 §11 ACs | **PASS** with AC-10 **PARTIAL** (D1) |
+| G2 Validation log PASS | **PASS** (caveats documented) |
 | G3 PHPUnit + PHPCS | **PASS** |
 | G4 SuggestionService owns suggestions | **PASS** |
 | G5 QA source-independent | **PASS** |
-| G6 TM write-back policy | **PASS** |
+| G6 TM write-back policy | **PASS** (policy); save-path wiring **GAP** (D1) |
 | G7 Provider swappable + capabilities | **PASS** |
 | G8 Deterministic ranking | **PASS** |
 | G9 Tag `strategy-f-f11-tm-ai-complete` | Applied at closure |
 | G10 Architecture Freeze Review | **PASS** |
-| G11 Definition of Done | **PASS** |
+| G11 Definition of Done | **PASS** with documented D1 follow-up |
 
 ## Operator sign-off
 
@@ -157,10 +158,10 @@ Operational acceptance record for Strategy F milestone F11 (TM + AI suggestions 
 |---|---|
 | Validator | Cursor agent (autonomous F11 closure) |
 | Date | 2026-08-03 |
-| Final result | **PASS** |
+| Final result | **PASS** with caveat D1 (TM save-path write-back not wired) — see [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md) |
 
 ## Tag
 
 `strategy-f-f11-tm-ai-complete` on branch `feature/f11-translation-memory-ai` (merge to `main` remains operator action).
 
-**Next milestone:** F12 — Limited rollout (cohort flags, stage metrics). See F11 plan §F12 entry gate.
+**Next milestone:** F12 — Limited rollout (operational only: flags, cohort, telemetry, monitoring, performance, caching). **No** new translator features in F12. See [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md).
