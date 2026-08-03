@@ -1,5 +1,6 @@
 /vendor/
 /node_modules/
+/assets/translator-workspace/node_modules/
 /tests/tmp/
 /dist/
 .phpunit.result.cache

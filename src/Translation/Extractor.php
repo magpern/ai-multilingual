@@ -198,6 +198,15 @@ final class Extractor {
 	}
 
 	/**
+	 * Whether block-level workspace translation replaces the legacy editor for this post.
+	 *
+	 * @param WP_Post $post Canonical post.
+	 */
+	public function uses_block_workspace( WP_Post $post ): bool {
+		return $this->should_extract_blocks( $post );
+	}
+
+	/**
 	 * Whether block-level extraction should run for this post.
 	 *
 	 * @param WP_Post $post Canonical post.

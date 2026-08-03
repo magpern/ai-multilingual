@@ -316,6 +316,9 @@ final class SettingsPage {
 
 		$this->render_strategy_f_settings( $current );
 
+		echo '<h2>' . esc_html__( 'Automatic translation', 'ai-multilingual' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'AI provider configuration (OpenAI and other vendors) will be available in a future milestone. The translator workspace supports manual editing now; automatic translation remains unavailable until a provider is configured.', 'ai-multilingual' ) . '</p>';
+
 		submit_button();
 
 		echo '</form></div>';

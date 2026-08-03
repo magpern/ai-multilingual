@@ -1,6 +1,6 @@
 # F10 — Translator Workspace MVP Plan
 
-**Status:** Canonical implementation plan (not started)  
+**Status:** Canonical implementation plan — **F10 complete** on `feature/f10-translator-workspace`
 **Architecture:** Includes the approved pre-implementation architecture refinement pass (collaborators, query/command split, REST v1 contract, reserved hooks and signed preview — documentation only; no F10 code started).  
 **Depends on:** F1–F9 complete; F9 engineering closure @ `91785cd` on `feature/f9-browser-acceptance`  
 **ADR-0013:** Proposed (unchanged; F10 does not promote ADR)  
@@ -14,11 +14,12 @@
 
 ### Milestone renumbering (master plan)
 
-| Master plan (pre-F10 doc) | After this plan |
-|---|---|
-| F10 Limited rollout | **F11** Limited rollout |
-| F11 General rollout | **F12** General rollout |
-| *(new)* | **F10 Translator Workspace MVP** (this document) |
+| Master plan (pre-F10 doc) | After F10 plan | After F11 plan |
+|---|---|---|
+| F10 Limited rollout | F11 Limited rollout | **F12** Limited rollout |
+| F11 General rollout | F12 General rollout | **F13** General rollout |
+| *(new)* | **F10 Translator Workspace MVP** (this document) | **F10** (unchanged) |
+| *(new)* | — | **F11 Translation Memory & AI Assistance** |
 
 F10 aligns with [ROADMAP.md](../ROADMAP.md) Milestone 2 “side-by-side segment editor + REST API” while building exclusively on Strategy F infrastructure (F1–F9). F10 does **not** redesign Strategy F, replace Store, replace UUID identity, or introduce a new rendering pipeline.
 
@@ -921,8 +922,22 @@ First translator-visible value: edit target, save with optimistic locking.
 
 ### Acceptance criteria
 
-- [ ] AC-1, AC-3, AC-8 satisfied
-- [ ] Manual save sets `STATUS_MANUALLY_EDITED`
+- [x] AC-1, AC-3, AC-8 satisfied (WP3 @ `feature/f10-translator-workspace`)
+- [x] Manual save sets `STATUS_MANUALLY_EDITED`
+- [x] Empty translation reverts to `STATUS_MISSING` (Store semantics)
+- [x] HTTP 409 conflict preserves local draft; explicit reload required
+- [x] M1 Editor deferral notice + workspace deep link for block posts
+
+### WP3 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Inline target editing, dirty tracking, single/batch save, 409 UX, stale badges, M1 deferral |
+| **Save semantics** | POST single/batch with `translated_text`, `source_hash`, `status=manually_edited`; empty → `missing` |
+| **409 UX** | Row `conflict` state; preserved draft; refreshed ViewModel in `conflictServer`; reload action |
+| **Legacy editor** | Block posts show warning + link to `aiml-translator?post_id=&language=`; title/excerpt unchanged |
+| **Tests** | `WorkspaceRestTest`, `WorkspaceBatchTest`, `WorkspaceConflictTest`, `WorkspaceStaleTest`, `WorkspacePermissionsTest`, `EditorWorkspaceDeferralTest`, `segment-rows.test.ts` |
+| **Validation** | Tier 0: PHPUnit unit + integration, PHPCS, TypeScript build + Jest, `git diff --check` |
 
 ### Testing strategy
 
@@ -962,6 +977,17 @@ Translation progress visibility; publish context.
 
 Translator understands page completion without WP-CLI.
 
+### WP4 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Status footer, publish context, segment filters, canonical status badges |
+| **Status aggregation** | `TranslationStatusCalculator` + `WorkspaceTranslationStatusViewModel`; sync before aggregate |
+| **Filters** | Client-side: all, missing, stale, translated, reviewed |
+| **Publish context** | Post title/type/status, Edit in WordPress link, preview action |
+| **Tests** | `TranslationStatusCalculatorTest`, `WorkspaceStatusTest`, `segment-status.test.ts` |
+| **Validation** | Tier 0 gates |
+
 ---
 
 ## 22. F10.5 — Retranslate + bulk actions
@@ -996,6 +1022,15 @@ Bulk POST routes delegate to `WorkspaceService`, which forwards iteration to `Ba
 
 Bulk paths tested; no provider required.
 
+### WP5 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Row selection, bulk toolbar, save selected, translate selected, per-item batch translate |
+| **Selection** | Visible editable rows only; hidden selections preserved across filters |
+| **Batch translate** | Per-item `aiml_ai_not_configured` errors; reserved `job_id` in response |
+| **Tests** | `WorkspaceTranslateTest`, `row-selection.test.ts`, batch save reuse via `applyBatchSaveResults` |
+
 ---
 
 ## 23. F10.6 — Auto-translate provider hook
@@ -1011,10 +1046,19 @@ Wire ADR-0010 interface; M3 swaps implementation without REST changes.
 3. TranslationService delegates to provider.
 4. Settings placeholder copy for M3.
 
+### WP6 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `AIProviderInterface`, `TranslationBatch`, `ProviderResult`, `NullAIProvider` |
+| **Delegation** | `TranslationService` builds batches and persists machine translations via Store |
+| **REST** | Unchanged translate contract; stable `aiml_ai_not_configured` per item |
+| **Tests** | `WorkspaceProviderTest` |
+
 ### Acceptance criteria
 
-- [ ] Provider injectable in tests
-- [ ] REST translate contract unchanged when provider added
+- [x] Provider injectable in tests
+- [x] REST translate contract unchanged when provider added
 
 ### Definition of done
 
@@ -1086,16 +1130,18 @@ Mirror F8/F9 milestone practice.
 
 ---
 
-## 27. F11 entry gate (deferred rollout)
+## 27. F12 entry gate (deferred rollout)
 
-Former master-plan F10 scope moves here:
+Former master-plan F10 limited-rollout scope moves here:
 
 - Cohort flags
 - Persistent metrics / dashboards
 - Render result caching (F8 deferred item)
 - `block_diagnostics_enabled` admin toggle
 
-F11 planning begins after F10 PASS + stakeholder review of §15 limitations.
+F12 planning begins after F11 PASS + stakeholder review of §15 limitations.
+
+**Next planned milestone after F10:** [F11 — Translation Memory & AI Assistance](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) (translator productivity; not started).
 
 ---
 
@@ -1124,11 +1170,11 @@ F10 closes when **all** are true:
 | WP0 | — | This plan committed | F9 merge |
 | WP1 | F10.1 | WorkspaceService + REST + ViewModels + tests | WP0 |
 | WP2 | F10.2 | Workspace shell UI | WP1 |
-| WP3 | F10.3 | Manual save + 409 handling | WP2 |
-| WP4 | F10.4 | Status + publish UX | WP3 |
-| WP5 | F10.5 | Bulk actions | WP4 |
-| WP6 | F10.6 | AI provider stub | WP5 |
-| WP7 | — | `F10_TRANSLATOR_VALIDATION_LOG.md` + tags | WP3 min / WP6 full |
+| WP3 | F10.3 | Manual save + 409 handling | WP2 | **Complete** |
+| WP4 | F10.4 | Status + publish UX | WP3 | **Complete** |
+| WP5 | F10.5 | Bulk actions | WP4 | **Complete** |
+| WP6 | F10.6 | AI provider stub | WP5 | **Complete** |
+| WP7 | — | `F10_TRANSLATOR_VALIDATION_LOG.md` + tags | WP3 min / WP6 full | **Complete** |
 
 ---
 
@@ -1176,7 +1222,7 @@ assets/translator-workspace/
 
 1. Master plan §19 F10/F11 renumber required when this doc merges.
 2. `PluginGuardTest::test_no_rest_routes_are_registered` intentionally updated in F10.1.
-3. F9 plan “After F9 PASS: F10 limited rollout” superseded by this doc’s scope split (rollout → F11).
+3. F9 plan “After F9 PASS: F10 limited rollout” superseded by this doc’s scope split (rollout → F12).
 4. F8 deferred “render caching to F10” → F11 in renumber table.
 5. [`SettingsPage.php`](../../src/Admin/SettingsPage.php) “REST arrives with segment editor” → F10 delivers REST; M1 Settings copy updated at implementation.
 

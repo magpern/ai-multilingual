@@ -53,6 +53,13 @@ final class Settings {
 	}
 
 	/**
+	 * Clears the in-memory settings cache so the next read loads from the database.
+	 */
+	public function reload(): void {
+		$this->data = null;
+	}
+
+	/**
 	 * Default settings.
 	 *
 	 * @return array<string, mixed>
