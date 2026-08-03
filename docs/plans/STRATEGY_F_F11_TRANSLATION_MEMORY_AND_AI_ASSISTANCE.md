@@ -1133,11 +1133,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Table includes `origin` field
-- [ ] UNIQUE on hash+lang pair+context
-- [ ] Migration idempotent
+- [x] Table includes `origin` field
+- [x] UNIQUE on hash+lang pair+context
+- [x] Migration idempotent
 
 **Dependencies:** WP0
+
+### WP1 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `Schema::create_tm()`, Migrator step 2 (`TARGET=2`), `TMRepository` |
+| **Tests** | `TranslationMemorySchemaTest`, `TMRepositoryTest` |
+| **Public API** | None (repository is internal persistence) |
 
 ---
 

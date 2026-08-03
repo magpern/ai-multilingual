@@ -25,6 +25,7 @@ final class Schema {
 	 */
 	public const LANGUAGES    = 'aiml_languages';
 	public const TRANSLATIONS = 'aiml_translations';
+	public const TM           = 'aiml_tm';
 
 	/**
 	 * Prefixes a table name with the current site's table prefix.
@@ -52,6 +53,13 @@ final class Schema {
 	}
 
 	/**
+	 * Fully qualified `aiml_tm` table name.
+	 */
+	public static function tm(): string {
+		return self::table( self::TM );
+	}
+
+	/**
 	 * Every table this plugin owns, in drop-safe order.
 	 *
 	 * @return string[]
@@ -59,6 +67,7 @@ final class Schema {
 	public static function all_tables(): array {
 		return array(
 			self::translations(),
+			self::tm(),
 			self::languages(),
 		);
 	}
@@ -148,6 +157,38 @@ final class Schema {
 			KEY lang_status (language_id, status, is_stale),
 			KEY lang_subtype (language_id, source_type, source_subtype, status),
 			KEY stale_sweep (language_id, is_stale, updated_at)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for the translation memory catalogue (ADR-0009 / F11).
+	 *
+	 * Identity is (source_hash, source_lang_id, target_lang_id, context) so
+	 * write-back is an upsert. The `origin` column records provenance
+	 * (human / ai / import / legacy) without conflating it with `quality`.
+	 */
+	public static function create_tm(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::tm() . " (
+			tm_id            BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
+			source_lang_id   SMALLINT UNSIGNED NOT NULL,
+			target_lang_id   SMALLINT UNSIGNED NOT NULL,
+			source_hash      CHAR(40)          NOT NULL,
+			source_text      LONGTEXT          NOT NULL,
+			target_text      LONGTEXT          NOT NULL,
+			text_format      VARCHAR(16)       NOT NULL DEFAULT 'plain',
+			context          VARCHAR(64)       NOT NULL DEFAULT '',
+			norm_version     SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+			origin           VARCHAR(16)       NOT NULL DEFAULT 'human',
+			quality          VARCHAR(24)       NOT NULL DEFAULT 'human_approved',
+			use_count        INT UNSIGNED      NOT NULL DEFAULT 0,
+			glossary_version INT UNSIGNED      NOT NULL DEFAULT 0,
+			created_at       DATETIME          NOT NULL,
+			updated_at       DATETIME          NOT NULL,
+			last_used_at     DATETIME          NULL,
+			PRIMARY KEY (tm_id),
+			UNIQUE KEY tm_identity (source_hash, source_lang_id, target_lang_id, context),
+			KEY fuzzy_lookup (source_lang_id, target_lang_id, text_format),
+			KEY origin_filter (origin, source_lang_id, target_lang_id)
 		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
 	}
 }
