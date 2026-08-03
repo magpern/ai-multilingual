@@ -43,11 +43,13 @@ The schema and interfaces do not block any of them.
 
 ## Strategy F production track
 
-Block-identity production work (F1–F12) runs in parallel with roadmap
+Block-identity production work (F1–F13) runs in parallel with roadmap
 milestones. As of 2026-08-03:
 
 | Milestone | Status |
 |---|---|
 | F1–F9 | Engineering complete on `main` |
-| **F10** Translator Workspace MVP | **Complete** on `feature/f10-translator-workspace` — see [F10 validation log](plans/F10_TRANSLATOR_VALIDATION_LOG.md) |
-| **F11** | Next — limited rollout |
+| **F10** Translator Workspace MVP | **Complete** — merged to `main`; see [F10 validation log](plans/F10_TRANSLATOR_VALIDATION_LOG.md) |
+| **F11** Translation Memory & AI Assistance | Planned — [canonical plan](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md); not started |
+| **F12** Limited rollout | Planned |
+| **F13** General rollout + ADR acceptance | Planned |

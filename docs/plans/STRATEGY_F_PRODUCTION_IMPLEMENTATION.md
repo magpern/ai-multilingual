@@ -6,7 +6,7 @@
 **Selected model:** Strategy F — `aimlBlockId` attribute, segment key grammar `b:<uuid>:<field>`.
 **ADR-0013:** Proposed — not Accepted.
 **Production implementation:** F1–F7 merged (`strategy-f-phase1-f1-f7`); F8 operational controls complete on `feature/f8-operations` (see [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)).
-**Production readiness:** Not approved (F11/F12 rollout + ADR acceptance pending). F9 closed by engineering acceptance.
+**Production readiness:** Not approved (F12/F13 rollout + ADR acceptance pending). F9 closed by engineering acceptance.
 
 This plan translates spike evidence into implementable Strategy F work packages (F1–F11). It does **not** supersede [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md); it **specializes** the block-identity portion Rev 3 deferred to Spike S5 (§5.2 segment key grammar, `block:N` drift note).
 
@@ -484,7 +484,7 @@ Dynamic blocks and WooCommerce: **no generic renderer** until block-specific ada
 
 ---
 
-## 19. Implementation milestones (F1–F12)
+## 19. Implementation milestones (F1–F13)
 
 Strategy F milestones use **F-prefix** to avoid collision with project Milestone 1/2/3.
 
@@ -499,9 +499,10 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | **F7** Migration and backfill | analyze + backfill CLI; canonical only | F2 | Idempotent batch; registration compat | Stop migration (step 4) |
 | **F8** Observability + feature controls | See [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) — Settings UI, `wp aiml block status`, metrics aggregator, runbooks | F1–F7 | Prohibited combos rejected; health check green | Disable diagnostics; render kill switch §15.4 step 1 |
 | **F9** Integration + browser sign-off | See [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — **Closed: engineering acceptance** @ `91785cd`; [F9_BROWSER_VALIDATION_LOG.md](F9_BROWSER_VALIDATION_LOG.md) | F6, F8 | `rendered_false_positive == 0`; no known product defect in supported scope; formal 35/35 Tier 3 waived (TID-1) | — |
-| **F10** Translator Workspace MVP | See [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) — **Complete** on `feature/f10-translator-workspace`; [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md) PASS | F9 | AC-1–AC-13 in F10 plan | — |
-| **F11** Limited rollout | Cohort flags (former master-plan F10) | F8, F10 | Stage metrics | §15.4 rollback |
-| **F12** General rollout + ADR acceptance | Expand adapters; PO sign-off (former master-plan F11) | F11 + ADR checklist | Production approved | §15.4 |
+| **F10** Translator Workspace MVP | See [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) — **Complete**; [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md) PASS | F9 | AC-1–AC-13 in F10 plan | — |
+| **F11** Translation Memory & AI Assistance | See [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) — TM, provider-neutral AI, QA (planned; not started) | F10 | AC in F11 plan | — |
+| **F12** Limited rollout | Cohort flags, stage metrics (former master-plan F10) | F8, F11 | Stage metrics | §15.4 rollback |
+| **F13** General rollout + ADR acceptance | Expand adapters; PO sign-off (former master-plan F11) | F12 + ADR checklist | Production approved | §15.4 |
 
 **Renderer architecture acceptance:** F6 must not begin until F5 proof is explicitly accepted and recorded.
 
@@ -549,9 +550,9 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **F1–F8 merged** on `main`; **F9 closed** (engineering acceptance @ `91785cd`); **F10 complete** on `feature/f10-translator-workspace` — merge pending |
-| Production readiness | **Not approved** (F11/F12 rollout + ADR acceptance pending) |
-| Next milestone | **F11** Limited rollout |
+| Production implementation | **F1–F9 merged** on `main`; **F10 complete** — merge pending |
+| Production readiness | **Not approved** (F12/F13 rollout + ADR acceptance pending) |
+| Next milestone | **F11** Translation Memory & AI Assistance (planned; not started) |
 | ADR-0013 | **Proposed** |
 
 ---
@@ -563,7 +564,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - F8 operations: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md)
 - F9 browser acceptance: [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — **Closed: engineering acceptance**
 - F9 validation log: [F9_BROWSER_VALIDATION_LOG.md](plans/F9_BROWSER_VALIDATION_LOG.md)
-- F10 Translator Workspace: [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](plans/STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md)
+- F11 Translation Memory & AI: [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)
 - F10 validation log: [F10_TRANSLATOR_VALIDATION_LOG.md](plans/F10_TRANSLATOR_VALIDATION_LOG.md)
 - F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2

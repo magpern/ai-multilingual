@@ -14,11 +14,12 @@
 
 ### Milestone renumbering (master plan)
 
-| Master plan (pre-F10 doc) | After this plan |
-|---|---|
-| F10 Limited rollout | **F11** Limited rollout |
-| F11 General rollout | **F12** General rollout |
-| *(new)* | **F10 Translator Workspace MVP** (this document) |
+| Master plan (pre-F10 doc) | After F10 plan | After F11 plan |
+|---|---|---|
+| F10 Limited rollout | F11 Limited rollout | **F12** Limited rollout |
+| F11 General rollout | F12 General rollout | **F13** General rollout |
+| *(new)* | **F10 Translator Workspace MVP** (this document) | **F10** (unchanged) |
+| *(new)* | — | **F11 Translation Memory & AI Assistance** |
 
 F10 aligns with [ROADMAP.md](../ROADMAP.md) Milestone 2 “side-by-side segment editor + REST API” while building exclusively on Strategy F infrastructure (F1–F9). F10 does **not** redesign Strategy F, replace Store, replace UUID identity, or introduce a new rendering pipeline.
 
@@ -1129,16 +1130,18 @@ Mirror F8/F9 milestone practice.
 
 ---
 
-## 27. F11 entry gate (deferred rollout)
+## 27. F12 entry gate (deferred rollout)
 
-Former master-plan F10 scope moves here:
+Former master-plan F10 limited-rollout scope moves here:
 
 - Cohort flags
 - Persistent metrics / dashboards
 - Render result caching (F8 deferred item)
 - `block_diagnostics_enabled` admin toggle
 
-F11 planning begins after F10 PASS + stakeholder review of §15 limitations.
+F12 planning begins after F11 PASS + stakeholder review of §15 limitations.
+
+**Next planned milestone after F10:** [F11 — Translation Memory & AI Assistance](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) (translator productivity; not started).
 
 ---
 
@@ -1219,7 +1222,7 @@ assets/translator-workspace/
 
 1. Master plan §19 F10/F11 renumber required when this doc merges.
 2. `PluginGuardTest::test_no_rest_routes_are_registered` intentionally updated in F10.1.
-3. F9 plan “After F9 PASS: F10 limited rollout” superseded by this doc’s scope split (rollout → F11).
+3. F9 plan “After F9 PASS: F10 limited rollout” superseded by this doc’s scope split (rollout → F12).
 4. F8 deferred “render caching to F10” → F11 in renumber table.
 5. [`SettingsPage.php`](../../src/Admin/SettingsPage.php) “REST arrives with segment editor” → F10 delivers REST; M1 Settings copy updated at implementation.
 
