@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
+use AIMultilingual\Admin\RolloutAdminPage;
 use AIMultilingual\Admin\SettingsPage;
 use AIMultilingual\Admin\TranslatorWorkspace;
 use AIMultilingual\Block\AdapterRegistry;
@@ -235,6 +236,7 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			( new SettingsPage( $settings, $languages, $vault ) )->register();
+			( new RolloutAdminPage() )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
 			( new TranslatorWorkspace( $languages ) )->register();
 

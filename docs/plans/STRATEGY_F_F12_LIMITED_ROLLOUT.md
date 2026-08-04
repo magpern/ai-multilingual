@@ -1273,4 +1273,4 @@ Resolve remaining PO operational values (cohort posts/languages, observation win
 | Validation log | Reserved at [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — not created until WP7 |
 | Rollout option key | `aiml_rollout_config` (current policy); `aiml_rollout_snapshots` (sanitized history) |
 | Unresolved PO values | §26 — staging-only values permitted during WP10 |
-| Implementation | **WP3 complete** — render-gate rollout integration; WP4+ pending |
+| Implementation | **Complete** — observation window and staging sign-off **pending** |
