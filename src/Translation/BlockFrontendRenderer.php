@@ -94,6 +94,8 @@ final class BlockFrontendRenderer {
 		$meta = $this->base_meta( $post );
 
 		if ( ! $decision->allowed ) {
+			$this->emit_rollout_decision( $decision );
+
 			$this->logger->log(
 				BlockFrontendRenderLogger::EVENT_GATE_DENIED,
 				array_merge(
@@ -106,6 +108,8 @@ final class BlockFrontendRenderer {
 
 			return $content;
 		}
+
+		$this->emit_rollout_decision( $decision );
 
 		$this->logger->log(
 			BlockFrontendRenderLogger::EVENT_GATE_ALLOWED,
@@ -189,6 +193,23 @@ final class BlockFrontendRenderer {
 		);
 
 		return $result->content;
+	}
+
+	/**
+	 * Notifies orchestration layers of a rollout policy decision (metrics/diagnostics).
+	 */
+	private function emit_rollout_decision( RenderGateDecision $decision ): void {
+		if ( null === $decision->rollout || ! function_exists( 'do_action' ) ) {
+			return;
+		}
+
+		/**
+		 * Fires after rollout policy evaluation for bounded metrics aggregation.
+		 *
+		 * @param \AIMultilingual\Rollout\RolloutPolicyDecision $rollout_decision Immutable decision.
+		 * @param bool                                          $render_allowed   Whether frontend render proceeds.
+		 */
+		\do_action( 'aiml_rollout_policy_decision', $decision->rollout, $decision->allowed );
 	}
 
 	/**

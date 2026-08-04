@@ -13,6 +13,7 @@ use AIMultilingual\Block\Contract;
 use AIMultilingual\Block\UuidValidator;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Rollout\RolloutRenderGateBridge;
 use WP_Post;
 
 /**
@@ -42,6 +43,14 @@ final class BlockRenderGate {
 	public const REASON_UNSUPPORTED_LANGUAGE  = 'unsupported_language';
 	public const REASON_RECURSION             = 'rendering_recursion';
 	public const REASON_INCOMPLETE_IDENTITY   = 'incomplete_identity_continuity';
+
+	/**
+	 * @param RolloutRenderGateBridge|null $rollout_bridge Optional rollout layer (F12).
+	 */
+	public function __construct(
+		private ?RolloutRenderGateBridge $rollout_bridge = null,
+	) {
+	}
 
 	/**
 	 * Evaluates whether frontend block rendering may proceed.
@@ -141,6 +150,10 @@ final class BlockRenderGate {
 
 		if ( $this->has_duplicate_uuids( $context->content ) ) {
 			return RenderGateDecision::deny( self::REASON_INCOMPLETE_IDENTITY );
+		}
+
+		if ( null !== $this->rollout_bridge ) {
+			return $this->rollout_bridge->evaluate( $context );
 		}
 
 		return RenderGateDecision::allow();
