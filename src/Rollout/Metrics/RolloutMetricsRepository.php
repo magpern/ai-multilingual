@@ -22,6 +22,8 @@ final class RolloutMetricsRepository {
 	public const RETENTION_DAYS = 90;
 
 	/**
+	 * Builds the metrics repository.
+	 *
 	 * @param RolloutMetricsDimensionValidator|null $validator Dimension validator.
 	 */
 	public function __construct(
@@ -49,11 +51,13 @@ final class RolloutMetricsRepository {
 	/**
 	 * Increments an aggregate counter safely.
 	 *
+	 * @param string                    $metric_key Metric key.
 	 * @param array<string, string|int> $dimensions Bounded dimensions.
-	 * @param int                         $count      Count increment.
-	 * @param int                         $sum        Sum increment (latency ms).
-	 * @param int|null                    $min        Optional min sample.
-	 * @param int|null                    $max        Optional max sample.
+	 * @param int                       $count      Count increment.
+	 * @param int                       $sum        Sum increment (latency ms).
+	 * @param int|null                  $min        Optional min sample.
+	 * @param int|null                  $max        Optional max sample.
+	 * @param bool                      $incomplete Whether persistence is incomplete.
 	 */
 	public function increment(
 		string $metric_key,
@@ -90,7 +94,7 @@ final class RolloutMetricsRepository {
 		$min_val = null !== $min ? $min : 0;
 		$max_val = null !== $max ? $max : 0;
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$result = $wpdb->query(
 			$wpdb->prepare(
 				"INSERT INTO {$table}
@@ -122,6 +126,7 @@ final class RolloutMetricsRepository {
 				$now
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return false !== $result;
 	}
@@ -139,12 +144,13 @@ final class RolloutMetricsRepository {
 		$cutoff = gmdate( 'Y-m-d', time() - ( self::RETENTION_DAYS * DAY_IN_SECONDS ) );
 		$table  = Schema::metrics_daily();
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return (int) $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$table} WHERE day < %s",
 				$cutoff
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }

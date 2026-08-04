@@ -19,6 +19,9 @@ interface CohortProviderInterface {
 
 	/**
 	 * Whether the request matches the cohort for the given configuration.
+	 *
+	 * @param RolloutPolicyRequest $request       Request facts.
+	 * @param RolloutConfiguration $configuration Active configuration.
 	 */
 	public function matches( RolloutPolicyRequest $request, RolloutConfiguration $configuration ): bool;
 }

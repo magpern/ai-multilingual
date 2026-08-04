@@ -15,6 +15,8 @@ namespace AIMultilingual\Rollout;
 final class RolloutConfigurationService {
 
 	/**
+	 * Builds the configuration service.
+	 *
 	 * @param RolloutConfigurationRepository $repository Configuration store.
 	 * @param RolloutAuditLogger             $audit        Audit logger.
 	 */
@@ -65,6 +67,8 @@ final class RolloutConfigurationService {
 	}
 
 	/**
+	 * Audits rollout render and cache flag transitions.
+	 *
 	 * @param RolloutConfiguration $before Previous config.
 	 * @param RolloutConfiguration $after  New config.
 	 * @param int                  $user_id Acting user.

@@ -22,7 +22,11 @@ final class RenderCacheKeyFactory {
 	/**
 	 * Builds a deterministic cache key from frozen identity components.
 	 *
-	 * @param list<object> $rows Renderable Store rows ordered by segment_key.
+	 * @param int                  $post_id              Post ID.
+	 * @param string               $source_content_hash  Source content hash.
+	 * @param int                  $language_id          Target language ID.
+	 * @param array<int, object>   $rows                 Renderable Store rows ordered by segment_key.
+	 * @param RolloutConfiguration $config               Active rollout configuration.
 	 */
 	public function build(
 		int $post_id,
@@ -46,7 +50,9 @@ final class RenderCacheKeyFactory {
 	}
 
 	/**
-	 * @param list<object> $rows Store rows.
+	 * Builds a translation fingerprint from store rows.
+	 *
+	 * @param array<int, object> $rows Store rows.
 	 */
 	public function translation_fingerprint( array $rows ): string {
 		$hashes = array();
@@ -69,6 +75,8 @@ final class RenderCacheKeyFactory {
 
 	/**
 	 * Normalized post content hash.
+	 *
+	 * @param string $content Raw post content.
 	 */
 	public function source_content_hash( string $content ): string {
 		return Store::source_hash( $content, Store::FORMAT_HTML );

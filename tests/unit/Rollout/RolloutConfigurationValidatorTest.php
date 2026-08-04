@@ -74,8 +74,8 @@ final class RolloutConfigurationValidatorTest extends TestCase {
 	public function test_rejects_percentage_cohort_field(): void {
 		$result = $this->validator->validate(
 			array(
-				'schema_version'      => 1,
-				'cohort_percentage'   => 10,
+				'schema_version'    => 1,
+				'cohort_percentage' => 10,
 			)
 		);
 

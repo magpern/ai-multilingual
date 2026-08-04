@@ -17,6 +17,8 @@ use AIMultilingual\Rollout\RolloutConfigurationRepository;
 final class RolloutDiagnosticsService {
 
 	/**
+	 * Builds the diagnostics service.
+	 *
 	 * @param RolloutConfigurationRepository $config Rollout config.
 	 * @param RolloutHotMetricsStore         $hot    Hot metrics.
 	 */
@@ -35,14 +37,14 @@ final class RolloutDiagnosticsService {
 		$configuration = $this->config->export();
 
 		return array(
-			'policy_version'        => $configuration['policy_version'] ?? 0,
-			'rollout_stage'         => $configuration['rollout_stage'] ?? 0,
-			'rollout_render_enabled' => ! empty( $configuration['rollout_render_enabled'] ),
-			'render_cache_enabled'  => ! empty( $configuration['render_cache_enabled'] ),
+			'policy_version'            => $configuration['policy_version'] ?? 0,
+			'rollout_stage'             => $configuration['rollout_stage'] ?? 0,
+			'rollout_render_enabled'    => ! empty( $configuration['rollout_render_enabled'] ),
+			'render_cache_enabled'      => ! empty( $configuration['render_cache_enabled'] ),
 			'block_diagnostics_enabled' => ! empty( $configuration['block_diagnostics_enabled'] ),
-			'hot_counters'          => $this->hot->counters(),
-			'telemetry_incomplete'  => $this->hot->is_incomplete(),
-			'metrics_registry_version' => RolloutMetricsRegistry::VERSION,
+			'hot_counters'              => $this->hot->counters(),
+			'telemetry_incomplete'      => $this->hot->is_incomplete(),
+			'metrics_registry_version'  => RolloutMetricsRegistry::VERSION,
 		);
 	}
 }

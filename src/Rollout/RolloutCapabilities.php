@@ -14,11 +14,11 @@ namespace AIMultilingual\Rollout;
  */
 final class RolloutCapabilities {
 
-	public const VIEW_ROLLOUT            = 'aiml_view_rollout';
-	public const MANAGE_ROLLOUT          = 'aiml_manage_rollout';
-	public const PROMOTE_ROLLOUT         = 'aiml_promote_rollout';
-	public const EMERGENCY_ROLLBACK      = 'aiml_emergency_rollback';
-	public const MANAGE_ROLLOUT_METRICS  = 'aiml_manage_rollout_metrics';
+	public const VIEW_ROLLOUT           = 'aiml_view_rollout';
+	public const MANAGE_ROLLOUT         = 'aiml_manage_rollout';
+	public const PROMOTE_ROLLOUT        = 'aiml_promote_rollout';
+	public const EMERGENCY_ROLLBACK     = 'aiml_emergency_rollback';
+	public const MANAGE_ROLLOUT_METRICS = 'aiml_manage_rollout_metrics';
 
 	/**
 	 * All rollout capabilities.

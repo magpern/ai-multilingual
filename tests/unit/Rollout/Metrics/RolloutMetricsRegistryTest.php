@@ -28,11 +28,17 @@ final class RolloutMetricsRegistryTest extends TestCase {
 	public function test_dimension_hash_is_deterministic(): void {
 		$a = RolloutMetricsRegistry::dimension_hash(
 			RolloutMetricsRegistry::RENDER_DENIED,
-			array( 'stage' => 2, 'reason_code' => 'post_not_allowlisted' )
+			array(
+				'stage'       => 2,
+				'reason_code' => 'post_not_allowlisted',
+			)
 		);
 		$b = RolloutMetricsRegistry::dimension_hash(
 			RolloutMetricsRegistry::RENDER_DENIED,
-			array( 'reason_code' => 'post_not_allowlisted', 'stage' => 2 )
+			array(
+				'reason_code' => 'post_not_allowlisted',
+				'stage'       => 2,
+			)
 		);
 
 		$this->assertSame( $a, $b );

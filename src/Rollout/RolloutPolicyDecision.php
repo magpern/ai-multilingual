@@ -38,6 +38,13 @@ final class RolloutPolicyDecision {
 
 	/**
 	 * Creates a deny decision.
+	 *
+	 * @param string $reason_code     Frozen reason code.
+	 * @param int    $stage           Rollout stage.
+	 * @param int    $policy_version  Config version.
+	 * @param bool   $cohort_match    Post ID allowlist match.
+	 * @param bool   $language_match  Language allowlist match.
+	 * @param bool   $post_type_match Post-type allowlist match.
 	 */
 	public static function deny(
 		string $reason_code,
@@ -60,6 +67,12 @@ final class RolloutPolicyDecision {
 
 	/**
 	 * Creates an allow decision.
+	 *
+	 * @param int  $stage           Rollout stage.
+	 * @param int  $policy_version  Config version.
+	 * @param bool $cohort_match    Post ID allowlist match.
+	 * @param bool $language_match  Language allowlist match.
+	 * @param bool $post_type_match Post-type allowlist match.
 	 */
 	public static function allow(
 		int $stage,

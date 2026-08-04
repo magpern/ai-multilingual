@@ -24,7 +24,9 @@ final class RolloutRenderGateBridge {
 	public const REASON_SHADOW_MODE = 'rollout_shadow_mode';
 
 	/**
-	 * @param RolloutPolicyService             $policy     Pure policy engine.
+	 * Builds the rollout render gate bridge.
+	 *
+	 * @param RolloutPolicyService           $policy      Pure policy engine.
 	 * @param RolloutConfigurationRepository $config_repo Configuration store.
 	 */
 	public function __construct(
@@ -35,6 +37,8 @@ final class RolloutRenderGateBridge {
 
 	/**
 	 * Evaluates rollout policy for an allowed base-gate context.
+	 *
+	 * @param RenderGateContext $context Render gate context.
 	 */
 	public function evaluate( RenderGateContext $context ): RenderGateDecision {
 		if ( ! $context->post instanceof WP_Post ) {
@@ -73,6 +77,8 @@ final class RolloutRenderGateBridge {
 
 	/**
 	 * Builds a rollout request from render gate context.
+	 *
+	 * @param RenderGateContext $context Render gate context.
 	 */
 	private function build_request( RenderGateContext $context ): RolloutPolicyRequest {
 		$post = $context->post;
@@ -88,6 +94,8 @@ final class RolloutRenderGateBridge {
 
 	/**
 	 * Resolves the current language code for policy evaluation.
+	 *
+	 * @param LanguageContext $language Language context.
 	 */
 	private function language_code( LanguageContext $language ): string {
 		$current = $language->current();

@@ -23,6 +23,8 @@ final class RolloutSnapshotStore {
 
 	/**
 	 * Stores a sanitized snapshot before a policy change.
+	 *
+	 * @param RolloutConfiguration $configuration Configuration to snapshot.
 	 */
 	public function store( RolloutConfiguration $configuration ): void {
 		if ( ! function_exists( 'get_option' ) || ! function_exists( 'update_option' ) ) {
@@ -46,6 +48,7 @@ final class RolloutSnapshotStore {
 	/**
 	 * Returns a snapshot by policy version.
 	 *
+	 * @param int $policy_version Snapshot policy version.
 	 * @return array<string, mixed>|null
 	 */
 	public function get( int $policy_version ): ?array {
@@ -73,6 +76,8 @@ final class RolloutSnapshotStore {
 	}
 
 	/**
+	 * Loads all stored snapshots from the option table.
+	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function load_all(): array {

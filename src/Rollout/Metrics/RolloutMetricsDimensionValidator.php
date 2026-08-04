@@ -34,6 +34,7 @@ final class RolloutMetricsDimensionValidator {
 	/**
 	 * Validates dimensions for a metric key.
 	 *
+	 * @param string                    $metric_key Metric key.
 	 * @param array<string, string|int> $dimensions Raw dimensions.
 	 * @return array<string, string>|null Sanitized dimensions or null when invalid.
 	 */

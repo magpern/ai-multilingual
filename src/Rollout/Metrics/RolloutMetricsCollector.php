@@ -17,13 +17,22 @@ use AIMultilingual\Rollout\RolloutPolicyDecision;
 final class RolloutMetricsCollector {
 
 	/**
+	 * Request-scoped metric increment buffer.
+	 *
 	 * @var list<array{metric_key:string,dimensions:array<string,string>,count:int,sum:int,min:?int,max:?int}>
 	 */
 	private array $buffer = array();
 
+	/**
+	 * Whether persistence failed for this request.
+	 *
+	 * @var bool
+	 */
 	private bool $incomplete = false;
 
 	/**
+	 * Builds the metrics collector.
+	 *
 	 * @param RolloutMetricsRepository|null $daily Daily aggregate store.
 	 * @param RolloutHotMetricsStore|null   $hot   Hot window store.
 	 */
@@ -53,6 +62,9 @@ final class RolloutMetricsCollector {
 
 	/**
 	 * Records one policy decision into the request buffer.
+	 *
+	 * @param RolloutPolicyDecision $decision       Immutable policy decision.
+	 * @param bool                  $render_allowed Whether frontend render proceeds.
 	 */
 	public function on_policy_decision( RolloutPolicyDecision $decision, bool $render_allowed ): void {
 		$dimensions = array(
@@ -61,12 +73,12 @@ final class RolloutMetricsCollector {
 		);
 
 		$this->buffer[] = array(
-			'metric_key'  => RolloutMetricsRegistry::POLICY_EVALUATION,
-			'dimensions'  => $dimensions,
-			'count'       => 1,
-			'sum'         => 0,
-			'min'         => null,
-			'max'         => null,
+			'metric_key' => RolloutMetricsRegistry::POLICY_EVALUATION,
+			'dimensions' => $dimensions,
+			'count'      => 1,
+			'sum'        => 0,
+			'min'        => null,
+			'max'        => null,
 		);
 
 		$metric = $render_allowed
@@ -74,12 +86,12 @@ final class RolloutMetricsCollector {
 			: RolloutMetricsRegistry::RENDER_DENIED;
 
 		$this->buffer[] = array(
-			'metric_key'  => $metric,
-			'dimensions'  => $dimensions,
-			'count'       => 1,
-			'sum'         => 0,
-			'min'         => null,
-			'max'         => null,
+			'metric_key' => $metric,
+			'dimensions' => $dimensions,
+			'count'      => 1,
+			'sum'        => 0,
+			'min'        => null,
+			'max'        => null,
 		);
 
 		$this->hot->increment( 'deny:' . $decision->reason_code );
@@ -107,7 +119,7 @@ final class RolloutMetricsCollector {
 			return;
 		}
 
-		$pending = $this->buffer;
+		$pending      = $this->buffer;
 		$this->buffer = array();
 
 		foreach ( $pending as $row ) {
@@ -133,6 +145,9 @@ final class RolloutMetricsCollector {
 		);
 	}
 
+	/**
+	 * Whether buffered or hot metrics are incomplete.
+	 */
 	public function is_incomplete(): bool {
 		return $this->incomplete || $this->hot->is_incomplete();
 	}

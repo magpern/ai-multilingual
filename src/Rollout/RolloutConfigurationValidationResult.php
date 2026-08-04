@@ -15,9 +15,11 @@ namespace AIMultilingual\Rollout;
 final class RolloutConfigurationValidationResult {
 
 	/**
-	 * @param bool                          $valid  Whether validation passed.
-	 * @param RolloutConfiguration|null     $config Validated configuration when valid.
-	 * @param list<string>                  $errors Human-readable error codes/messages.
+	 * Builds a validation result.
+	 *
+	 * @param bool                      $valid  Whether validation passed.
+	 * @param RolloutConfiguration|null $config Validated configuration when valid.
+	 * @param array<string>             $errors Human-readable error codes/messages.
 	 */
 	public function __construct(
 		public readonly bool $valid,
@@ -28,6 +30,8 @@ final class RolloutConfigurationValidationResult {
 
 	/**
 	 * Creates a successful result.
+	 *
+	 * @param RolloutConfiguration $config Validated configuration.
 	 */
 	public static function ok( RolloutConfiguration $config ): self {
 		return new self( true, $config, array() );
@@ -36,7 +40,7 @@ final class RolloutConfigurationValidationResult {
 	/**
 	 * Creates a failed result.
 	 *
-	 * @param list<string> $errors Validation errors.
+	 * @param array<string> $errors Validation errors.
 	 */
 	public static function fail( array $errors ): self {
 		return new self( false, null, $errors );

@@ -31,8 +31,8 @@ final class RolloutConfigurationValidator {
 	/**
 	 * Validates raw configuration input.
 	 *
-	 * @param mixed                     $raw               Raw option value.
-	 * @param list<string>|null         $configured_codes  Known language codes (null skips language check).
+	 * @param mixed             $raw               Raw option value.
+	 * @param list<string>|null $configured_codes  Known language codes (null skips language check).
 	 */
 	public function validate( $raw, ?array $configured_codes = null ): RolloutConfigurationValidationResult {
 		if ( ! is_array( $raw ) ) {
@@ -87,13 +87,13 @@ final class RolloutConfigurationValidator {
 			'policy_version'            => $policy_version,
 			'rollout_stage'             => $stage,
 			'rollout_render_enabled'    => ! empty( $raw['rollout_render_enabled'] ),
-			'allowed_post_ids'            => $post_ids,
-			'allowed_post_types'          => $post_types,
-			'allowed_language_codes'      => $lang_codes,
-			'render_cache_enabled'        => ! empty( $raw['render_cache_enabled'] ),
-			'block_diagnostics_enabled'   => ! empty( $raw['block_diagnostics_enabled'] ),
-			'updated_at'                  => $updated_at,
-			'updated_by'                  => $updated_by,
+			'allowed_post_ids'          => $post_ids,
+			'allowed_post_types'        => $post_types,
+			'allowed_language_codes'    => $lang_codes,
+			'render_cache_enabled'      => ! empty( $raw['render_cache_enabled'] ),
+			'block_diagnostics_enabled' => ! empty( $raw['block_diagnostics_enabled'] ),
+			'updated_at'                => $updated_at,
+			'updated_by'                => $updated_by,
 		);
 
 		return RolloutConfigurationValidationResult::ok(

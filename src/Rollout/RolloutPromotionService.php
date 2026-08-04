@@ -15,6 +15,8 @@ namespace AIMultilingual\Rollout;
 final class RolloutPromotionService {
 
 	/**
+	 * Builds the promotion service.
+	 *
 	 * @param RolloutConfigurationRepository $repository Config store.
 	 * @param RolloutAuditLogger             $audit      Audit logger.
 	 */
@@ -27,8 +29,8 @@ final class RolloutPromotionService {
 	/**
 	 * Promotes to a target stage when authorized.
 	 *
-	 * @param int $target_stage New stage 0–5.
-	 * @param int $user_id      Acting user.
+	 * @param int    $target_stage New stage 0–5.
+	 * @param int    $user_id      Acting user.
 	 * @param string $source    Origin label.
 	 */
 	public function promote( int $target_stage, int $user_id, string $source = 'cli' ): RolloutConfigurationValidationResult {
@@ -66,6 +68,10 @@ final class RolloutPromotionService {
 
 	/**
 	 * Rolls back to a snapshot policy version.
+	 *
+	 * @param int    $policy_version Snapshot policy version.
+	 * @param int    $user_id        Acting user.
+	 * @param string $source         Origin label.
 	 */
 	public function rollback( int $policy_version, int $user_id, string $source = 'cli' ): RolloutConfigurationValidationResult {
 		if ( ! RolloutAccess::user_can( $user_id, RolloutCapabilities::EMERGENCY_ROLLBACK ) ) {

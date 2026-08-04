@@ -27,11 +27,13 @@ final class RolloutAuditLogger {
 			return;
 		}
 
-		$payload = $this->sanitize_payload( $payload );
+		$payload          = $this->sanitize_payload( $payload );
 		$payload['event'] = $event;
 
 		/**
 		 * Fires when a rollout audit event is recorded.
+		 *
+		 * @since 0.1.0
 		 *
 		 * @param string               $event   Event name.
 		 * @param array<string, mixed> $payload Sanitized payload.
@@ -40,6 +42,8 @@ final class RolloutAuditLogger {
 	}
 
 	/**
+	 * Strips disallowed keys from an audit payload.
+	 *
 	 * @param array<string, mixed> $payload Raw payload.
 	 * @return array<string, mixed>
 	 */

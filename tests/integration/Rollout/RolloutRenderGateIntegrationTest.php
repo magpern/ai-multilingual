@@ -146,8 +146,8 @@ final class RolloutRenderGateIntegrationTest extends AimlTestCase {
 			1
 		);
 
-		$bridge = new RolloutRenderGateBridge( new RolloutPolicyService(), $repo );
-		$gate     = new BlockRenderGate( $bridge );
+		$bridge    = new RolloutRenderGateBridge( new RolloutPolicyService(), $repo );
+		$gate      = new BlockRenderGate( $bridge );
 		$settings  = new Settings( $this->enabled_settings() );
 		$extractor = new Extractor(
 			$settings,
@@ -184,6 +184,8 @@ final class RolloutRenderGateIntegrationTest extends AimlTestCase {
 	}
 
 	/**
+	 * @param WP_Post              $post          Source post.
+	 * @param object               $language      Target language object.
 	 * @param array<string, mixed> $settings_data Settings override.
 	 */
 	private function render( WP_Post $post, object $language, array $settings_data ): string {

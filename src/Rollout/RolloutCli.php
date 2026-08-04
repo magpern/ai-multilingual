@@ -69,8 +69,8 @@ final class RolloutCli {
 				'shortdesc' => 'Promotes rollout stage explicitly.',
 				'synopsis'  => array(
 					array(
-						'type'     => 'positional',
-						'name'     => 'stage',
+						'type' => 'positional',
+						'name' => 'stage',
 					),
 					array(
 						'type'     => 'assoc',
@@ -88,8 +88,10 @@ final class RolloutCli {
 	}
 
 	/**
-	 * @param array<int, string>    $args Positional args.
-	 * @param array<string, mixed>  $assoc Assoc args.
+	 * Shows rollout status and hot metrics.
+	 *
+	 * @param array<int, string>   $args Positional args.
+	 * @param array<string, mixed> $assoc Assoc args.
 	 */
 	public static function status( array $args, array $assoc ): void {
 		unset( $args, $assoc );
@@ -106,8 +108,10 @@ final class RolloutCli {
 	}
 
 	/**
-	 * @param array<int, string>    $args Positional args.
-	 * @param array<string, mixed>  $assoc Assoc args.
+	 * Exports sanitized rollout configuration.
+	 *
+	 * @param array<int, string>   $args Positional args.
+	 * @param array<string, mixed> $assoc Assoc args.
 	 */
 	public static function export_config( array $args, array $assoc ): void {
 		unset( $args, $assoc );
@@ -118,8 +122,10 @@ final class RolloutCli {
 	}
 
 	/**
-	 * @param array<int, string>    $args Positional args.
-	 * @param array<string, mixed>  $assoc Assoc args.
+	 * Applies emergency rollout stop.
+	 *
+	 * @param array<int, string>   $args Positional args.
+	 * @param array<string, mixed> $assoc Assoc args.
 	 */
 	public static function emergency_stop( array $args, array $assoc ): void {
 		unset( $args );
@@ -139,8 +145,10 @@ final class RolloutCli {
 	}
 
 	/**
-	 * @param array<int, string>    $args Positional args.
-	 * @param array<string, mixed>  $assoc Assoc args.
+	 * Promotes rollout to a target stage.
+	 *
+	 * @param array<int, string>   $args Positional args.
+	 * @param array<string, mixed> $assoc Assoc args.
 	 */
 	public static function promote( array $args, array $assoc ): void {
 		$stage   = isset( $args[0] ) ? (int) $args[0] : -1;
@@ -160,7 +168,10 @@ final class RolloutCli {
 	}
 
 	/**
+	 * Resolves an authorized CLI user ID.
+	 *
 	 * @param array<string, mixed> $assoc CLI assoc args.
+	 * @param string               $cap   Required capability.
 	 */
 	private static function require_user( array $assoc, string $cap ): int {
 		$user_id = isset( $assoc['user'] ) ? (int) $assoc['user'] : 0;
@@ -171,6 +182,9 @@ final class RolloutCli {
 		return $user_id;
 	}
 
+	/**
+	 * Ensures the current user may view rollout status.
+	 */
 	private static function require_view_cap(): int {
 		$user_id = function_exists( 'get_current_user_id' ) ? (int) get_current_user_id() : 0;
 		if ( $user_id <= 0 || ! RolloutAccess::user_can( $user_id, RolloutCapabilities::VIEW_ROLLOUT ) ) {
@@ -181,6 +195,8 @@ final class RolloutCli {
 	}
 
 	/**
+	 * Requires explicit --yes confirmation for mutations.
+	 *
 	 * @param array<string, mixed> $assoc CLI assoc args.
 	 */
 	private static function require_confirm( array $assoc ): void {

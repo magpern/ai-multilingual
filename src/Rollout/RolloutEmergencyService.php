@@ -15,6 +15,8 @@ namespace AIMultilingual\Rollout;
 final class RolloutEmergencyService {
 
 	/**
+	 * Builds the emergency stop service.
+	 *
 	 * @param RolloutConfigurationRepository $repository Config store.
 	 * @param RolloutAuditLogger             $audit      Audit logger.
 	 */
@@ -26,6 +28,10 @@ final class RolloutEmergencyService {
 
 	/**
 	 * Disables rollout rendering and cache immediately.
+	 *
+	 * @param int    $user_id Acting user.
+	 * @param string $source  Origin label.
+	 * @param string $reason  Audit reason label.
 	 */
 	public function stop( int $user_id, string $source = 'cli', string $reason = 'emergency_stop' ): RolloutConfigurationValidationResult {
 		if ( ! RolloutAccess::user_can( $user_id, RolloutCapabilities::EMERGENCY_ROLLBACK ) ) {

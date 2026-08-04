@@ -22,7 +22,10 @@ final class RenderCacheKeyFactoryTest extends TestCase {
 		$factory = new RenderCacheKeyFactory();
 		$config  = RolloutConfiguration::defaults()->with( array( 'policy_version' => 5 ) );
 		$rows    = array(
-			(object) array( 'segment_key' => 'b:uuid:content', 'translation_hash' => 'abc' ),
+			(object) array(
+				'segment_key'      => 'b:uuid:content',
+				'translation_hash' => 'abc',
+			),
 		);
 
 		$a = $factory->build( 10, $factory->source_content_hash( '<p>x</p>' ), 2, $rows, $config );
@@ -36,8 +39,18 @@ final class RenderCacheKeyFactoryTest extends TestCase {
 		$factory = new RenderCacheKeyFactory();
 		$config  = RolloutConfiguration::defaults();
 
-		$one = array( (object) array( 'segment_key' => 'a', 'translation_hash' => '1' ) );
-		$two = array( (object) array( 'segment_key' => 'a', 'translation_hash' => '2' ) );
+		$one = array(
+			(object) array(
+				'segment_key'      => 'a',
+				'translation_hash' => '1',
+			),
+		);
+		$two = array(
+			(object) array(
+				'segment_key'      => 'a',
+				'translation_hash' => '2',
+			),
+		);
 
 		$this->assertNotSame(
 			$factory->translation_fingerprint( $one ),

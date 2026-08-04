@@ -45,6 +45,8 @@ final class BlockRenderGate {
 	public const REASON_INCOMPLETE_IDENTITY   = 'incomplete_identity_continuity';
 
 	/**
+	 * Builds the block render gate.
+	 *
 	 * @param RolloutRenderGateBridge|null $rollout_bridge Optional rollout layer (F12).
 	 */
 	public function __construct(

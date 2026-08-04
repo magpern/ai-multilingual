@@ -47,7 +47,7 @@ final class RolloutMetricsRepositoryTest extends AimlTestCase {
 		global $wpdb;
 		$count = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				'SELECT count_value FROM ' . Schema::metrics_daily() . ' WHERE metric_key = %s',
+				'SELECT count_value FROM ' . Schema::metrics_daily() . ' WHERE metric_key = %s', // phpcs:ignore WordPress.DB.PreparedSQL
 				RolloutMetricsRegistry::RENDER_DENIED
 			)
 		);

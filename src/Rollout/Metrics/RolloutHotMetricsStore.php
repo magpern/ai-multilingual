@@ -22,7 +22,10 @@ final class RolloutHotMetricsStore {
 	private const MAX_KEYS = 128;
 
 	/**
-	 * @param array<string, int> $counters Counter map.
+	 * Builds a hot metrics store instance.
+	 *
+	 * @param array<string, int> $counters  Counter map.
+	 * @param bool               $incomplete Whether telemetry is incomplete.
 	 */
 	public function __construct(
 		private array $counters = array(),
@@ -58,6 +61,9 @@ final class RolloutHotMetricsStore {
 
 	/**
 	 * Increments one hot counter in-process and persists.
+	 *
+	 * @param string $key    Counter key.
+	 * @param int    $amount Increment amount.
 	 */
 	public function increment( string $key, int $amount = 1 ): void {
 		if ( ! RolloutMetricsRegistry::is_valid_key( $key ) && ! str_starts_with( $key, 'deny:' ) ) {
@@ -82,12 +88,17 @@ final class RolloutHotMetricsStore {
 	}
 
 	/**
+	 * Returns the current hot counter map.
+	 *
 	 * @return array<string, int>
 	 */
 	public function counters(): array {
 		return $this->counters;
 	}
 
+	/**
+	 * Whether hot metrics persistence is incomplete.
+	 */
 	public function is_incomplete(): bool {
 		return $this->incomplete;
 	}
@@ -101,6 +112,9 @@ final class RolloutHotMetricsStore {
 		$this->persist();
 	}
 
+	/**
+	 * Persists hot metrics to the option table.
+	 */
 	private function persist(): void {
 		if ( ! function_exists( 'update_option' ) ) {
 			return;
@@ -109,9 +123,9 @@ final class RolloutHotMetricsStore {
 		update_option(
 			self::OPTION,
 			array(
-				'counters'    => $this->counters,
-				'incomplete'  => $this->incomplete,
-				'updated_at'  => gmdate( 'c' ),
+				'counters'   => $this->counters,
+				'incomplete' => $this->incomplete,
+				'updated_at' => gmdate( 'c' ),
 			),
 			false
 		);

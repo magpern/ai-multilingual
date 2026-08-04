@@ -14,15 +14,15 @@ namespace AIMultilingual\Rollout;
  */
 final class RolloutReasonCodes {
 
-	public const ROLLOUT_DISABLED         = 'rollout_disabled';
-	public const STAGE_DISABLED           = 'stage_disabled';
-	public const POST_NOT_ALLOWLISTED     = 'post_not_allowlisted';
-	public const POST_TYPE_NOT_ALLOWED    = 'post_type_not_allowed';
-	public const LANGUAGE_NOT_ALLOWED     = 'language_not_allowed';
-	public const UNSUPPORTED_REQUEST      = 'unsupported_request';
-	public const INVALID_CONFIGURATION    = 'invalid_configuration';
-	public const POLICY_ERROR             = 'policy_error';
-	public const ALLOWED                  = 'allowed';
+	public const ROLLOUT_DISABLED      = 'rollout_disabled';
+	public const STAGE_DISABLED        = 'stage_disabled';
+	public const POST_NOT_ALLOWLISTED  = 'post_not_allowlisted';
+	public const POST_TYPE_NOT_ALLOWED = 'post_type_not_allowed';
+	public const LANGUAGE_NOT_ALLOWED  = 'language_not_allowed';
+	public const UNSUPPORTED_REQUEST   = 'unsupported_request';
+	public const INVALID_CONFIGURATION = 'invalid_configuration';
+	public const POLICY_ERROR          = 'policy_error';
+	public const ALLOWED               = 'allowed';
 
 	/**
 	 * Additive-only catalog after F12.
@@ -45,6 +45,8 @@ final class RolloutReasonCodes {
 
 	/**
 	 * Whether a reason code is in the frozen catalog.
+	 *
+	 * @param string $code Reason code.
 	 */
 	public static function is_known( string $code ): bool {
 		return in_array( $code, self::all(), true );

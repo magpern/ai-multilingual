@@ -23,9 +23,9 @@ final class Schema {
 	/**
 	 * Unprefixed table names.
 	 */
-	public const LANGUAGES    = 'aiml_languages';
-	public const TRANSLATIONS = 'aiml_translations';
-	public const TM           = 'aiml_tm';
+	public const LANGUAGES     = 'aiml_languages';
+	public const TRANSLATIONS  = 'aiml_translations';
+	public const TM            = 'aiml_tm';
 	public const METRICS_DAILY = 'aiml_metrics_daily';
 
 	/**

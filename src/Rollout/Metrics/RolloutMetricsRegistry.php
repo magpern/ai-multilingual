@@ -16,17 +16,19 @@ final class RolloutMetricsRegistry {
 
 	public const VERSION = 1;
 
-	public const RENDER_ATTEMPT           = 'rollout_render_attempt';
-	public const RENDER_ALLOWED           = 'rollout_render_allowed';
-	public const RENDER_DENIED            = 'rollout_render_denied';
-	public const RENDER_COMPLETED         = 'rollout_render_completed';
-	public const RENDER_FAILED            = 'rollout_render_failed';
-	public const RENDER_FALLBACK          = 'rollout_render_fallback';
-	public const POLICY_EVALUATION        = 'rollout_policy_evaluation';
-	public const METRICS_FLUSH            = 'rollout_metrics_flush';
-	public const METRICS_ROLLUP           = 'rollout_metrics_rollup';
+	public const RENDER_ATTEMPT    = 'rollout_render_attempt';
+	public const RENDER_ALLOWED    = 'rollout_render_allowed';
+	public const RENDER_DENIED     = 'rollout_render_denied';
+	public const RENDER_COMPLETED  = 'rollout_render_completed';
+	public const RENDER_FAILED     = 'rollout_render_failed';
+	public const RENDER_FALLBACK   = 'rollout_render_fallback';
+	public const POLICY_EVALUATION = 'rollout_policy_evaluation';
+	public const METRICS_FLUSH     = 'rollout_metrics_flush';
+	public const METRICS_ROLLUP    = 'rollout_metrics_rollup';
 
 	/**
+	 * Returns all registered metric keys.
+	 *
 	 * @return list<string>
 	 */
 	public static function metric_keys(): array {
@@ -67,6 +69,8 @@ final class RolloutMetricsRegistry {
 
 	/**
 	 * Whether a metric key is registered.
+	 *
+	 * @param string $key Metric key.
 	 */
 	public static function is_valid_key( string $key ): bool {
 		return in_array( $key, self::metric_keys(), true );
@@ -75,10 +79,11 @@ final class RolloutMetricsRegistry {
 	/**
 	 * Builds a canonical dimension hash from bounded dimensions.
 	 *
+	 * @param string                    $metric_key Metric key.
 	 * @param array<string, string|int> $dimensions Bounded dimensions only.
 	 */
 	public static function dimension_hash( string $metric_key, array $dimensions ): string {
-		$allowed = self::allowed_dimensions()[ $metric_key ] ?? array();
+		$allowed  = self::allowed_dimensions()[ $metric_key ] ?? array();
 		$filtered = array();
 
 		foreach ( $allowed as $dim ) {

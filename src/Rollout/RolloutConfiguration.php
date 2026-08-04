@@ -33,17 +33,17 @@ final class RolloutConfiguration {
 	/**
 	 * Builds a configuration value object.
 	 *
-	 * @param int          $schema_version           Configuration structure version.
-	 * @param int          $policy_version           Operator-visible policy revision.
-	 * @param int          $rollout_stage            Stage 0–5.
-	 * @param bool         $rollout_render_enabled   Enables cohort evaluation.
-	 * @param list<int>    $allowed_post_ids         Normalized positive post IDs.
-	 * @param list<string> $allowed_post_types       Subset of approved post types.
-	 * @param list<string> $allowed_language_codes   Configured language codes.
-	 * @param bool         $render_cache_enabled     Render cache flag (default off).
-	 * @param bool         $block_diagnostics_enabled Diagnostics verbosity.
-	 * @param string       $updated_at               GMT ISO timestamp.
-	 * @param int          $updated_by               Acting user ID.
+	 * @param int           $schema_version           Configuration structure version.
+	 * @param int           $policy_version           Operator-visible policy revision.
+	 * @param int           $rollout_stage            Stage 0–5.
+	 * @param bool          $rollout_render_enabled   Enables cohort evaluation.
+	 * @param array<int>    $allowed_post_ids         Normalized positive post IDs.
+	 * @param array<string> $allowed_post_types      Subset of approved post types.
+	 * @param array<string> $allowed_language_codes   Configured language codes.
+	 * @param bool          $render_cache_enabled     Render cache flag (default off).
+	 * @param bool          $block_diagnostics_enabled Diagnostics verbosity.
+	 * @param string        $updated_at               GMT ISO timestamp.
+	 * @param int           $updated_by               Acting user ID.
 	 */
 	public function __construct(
 		public readonly int $schema_version,
@@ -101,17 +101,17 @@ final class RolloutConfiguration {
 	 */
 	public function to_array(): array {
 		return array(
-			'schema_version'              => $this->schema_version,
-			'policy_version'              => $this->policy_version,
-			'rollout_stage'               => $this->rollout_stage,
-			'rollout_render_enabled'      => $this->rollout_render_enabled,
-			'allowed_post_ids'            => $this->allowed_post_ids,
-			'allowed_post_types'          => $this->allowed_post_types,
-			'allowed_language_codes'      => $this->allowed_language_codes,
-			'render_cache_enabled'        => $this->render_cache_enabled,
-			'block_diagnostics_enabled'   => $this->block_diagnostics_enabled,
-			'updated_at'                  => $this->updated_at,
-			'updated_by'                  => $this->updated_by,
+			'schema_version'            => $this->schema_version,
+			'policy_version'            => $this->policy_version,
+			'rollout_stage'             => $this->rollout_stage,
+			'rollout_render_enabled'    => $this->rollout_render_enabled,
+			'allowed_post_ids'          => $this->allowed_post_ids,
+			'allowed_post_types'        => $this->allowed_post_types,
+			'allowed_language_codes'    => $this->allowed_language_codes,
+			'render_cache_enabled'      => $this->render_cache_enabled,
+			'block_diagnostics_enabled' => $this->block_diagnostics_enabled,
+			'updated_at'                => $this->updated_at,
+			'updated_by'                => $this->updated_by,
 		);
 	}
 
