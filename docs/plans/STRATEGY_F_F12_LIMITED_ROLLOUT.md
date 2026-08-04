@@ -1260,3 +1260,17 @@ Do **not** invent production values:
 Resolve remaining PO operational values (cohort posts/languages, observation window, cost limits, capability mapping, diagnostics WP placement, cache activation GO) as they become needed during WP execution; then proceed with sequential WP0→WP11 implementation.
 
 **Do not treat unresolved PO values as license to redesign architecture.**
+
+---
+
+## Implementation baseline (WP0)
+
+| Item | State |
+|---|---|
+| Planning HEAD | `7d6e6c8084775e495916a92793e94874fa133666` |
+| Branch | `feature/f12-limited-rollout` |
+| Architecture | **Frozen** — see Architecture Freeze |
+| Validation log | Reserved at [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — not created until WP7 |
+| Rollout option key | `aiml_rollout_config` (current policy); `aiml_rollout_snapshots` (sanitized history) |
+| Unresolved PO values | §26 — staging-only values permitted during WP10 |
+| Implementation | **Starting WP1** after WP0 checkpoint |
