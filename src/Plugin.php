@@ -40,6 +40,8 @@ use AIMultilingual\Rollout\RolloutCapabilities;
 use AIMultilingual\Rollout\RolloutConfigurationRepository;
 use AIMultilingual\Rollout\RolloutPolicyService;
 use AIMultilingual\Rollout\RolloutRenderGateBridge;
+use AIMultilingual\Rollout\RolloutCli;
+use AIMultilingual\Rollout\Metrics\RolloutMetricsCollector;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\AI\CredentialVault;
 use AIMultilingual\Translation\AI\NullAIProvider;
@@ -152,8 +154,12 @@ final class Plugin {
 		);
 		$extractor        = new Extractor( $settings, $block_extractor );
 		$block_renderer   = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
+		$rollout_bridge   = new RolloutRenderGateBridge(
+			new RolloutPolicyService(),
+			new RolloutConfigurationRepository()
+		);
 		$block_frontend   = new BlockFrontendRenderer(
-			new BlockRenderGate(),
+			new BlockRenderGate( $rollout_bridge ),
 			new BlockTranslationLookup( $store ),
 			new BlockTranslationSanitizer(),
 			$block_renderer,
@@ -223,6 +229,8 @@ final class Plugin {
 		$metrics = new BlockMetricsAggregator();
 		$metrics->register();
 
+		( new RolloutMetricsCollector() )->register();
+
 		$this->register_stale_detection( $extractor, $store );
 
 		if ( is_admin() ) {
@@ -264,6 +272,7 @@ final class Plugin {
 			);
 
 			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics );
+			RolloutCli::register();
 		}
 	}
 

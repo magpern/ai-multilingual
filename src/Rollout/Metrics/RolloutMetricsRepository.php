@@ -36,6 +36,10 @@ final class RolloutMetricsRepository {
 	public function table_exists(): bool {
 		global $wpdb;
 
+		if ( ! isset( $wpdb ) ) {
+			return false;
+		}
+
 		$table = Schema::metrics_daily();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
