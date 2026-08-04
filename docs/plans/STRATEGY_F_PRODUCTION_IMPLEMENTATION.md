@@ -552,7 +552,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Production planning | **Allowed** (this document) |
 | Production implementation | **F1–F11 merged** on `main` (F11 tag `strategy-f-f11-tm-ai-merged`) |
 | Production readiness | **Not approved** (F12/F13 rollout + ADR acceptance pending) |
-| Next milestone | **F12** Limited rollout — [architecture frozen](STRATEGY_F_F12_LIMITED_ROLLOUT.md); implementation not started; PO operational values pending |
+| Next milestone | **F12** production observation gate — [implementation + staging complete](STRATEGY_F_F12_LIMITED_ROLLOUT.md); not F13-ready |
 | ADR-0013 | **Proposed** |
 
 ---

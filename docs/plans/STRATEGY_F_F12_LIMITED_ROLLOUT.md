@@ -1,13 +1,13 @@
 # F12 — Limited Rollout Plan
 
-**Status:** Canonical implementation plan — **architecture frozen**; PO operational values pending; implementation not started  
-**Architecture:** Includes approved architecture-refinement passes: canonical FeatureFlags→Gate→Policy→(Cache)→Store→Renderer pipeline, two-level render control, frozen immutable `RolloutPolicyDecision`, pure `RolloutPolicyService`, configuration versioning/compatibility (`schema_version` / `policy_version`), append-only `metrics_registry_version`, reserved `CohortProvider` expansion, centralized cache key + `RenderCacheInvalidationService` ownership, shadow evaluation, Stages 0–5, two-tier metrics, concrete cache identity (Store translation-hash aggregate), operator capabilities, audit events, failure-mode matrix, observation checklist, strengthened F13 entry gate (reason-code stability + rollback rehearsal)  
-**Governance:** Changes that affect architecture, public contracts, milestone scope, service boundaries, or operational workflows require an ADR or an explicit architecture revision of this document. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.  
-**Depends on:** F1–F9 complete; F10 Translator Workspace complete; F11 Translation Memory & AI Assistance complete ([STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md))  
-**ADR-0013:** Proposed — not Accepted; F12 does not promote ADR-0013  
-**Canonical doc:** This file. Master plan cross-ref: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)  
-**Prior milestone:** [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)  
-**Validation log (reserved):** [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — reserved path; **not created** until F12 implementation begins  
+**Status:** Canonical implementation plan — **architecture frozen**; **F12 implementation and staging acceptance complete**; production observation pending
+**Architecture:** Includes approved architecture-refinement passes: canonical FeatureFlags→Gate→Policy→(Cache)→Store→Renderer pipeline, two-level render control, frozen immutable `RolloutPolicyDecision`, pure `RolloutPolicyService`, configuration versioning/compatibility (`schema_version` / `policy_version`), append-only `metrics_registry_version`, reserved `CohortProvider` expansion, centralized cache key + `RenderCacheInvalidationService` ownership, shadow evaluation, Stages 0–5, two-tier metrics, concrete cache identity (Store translation-hash aggregate), operator capabilities, audit events, failure-mode matrix, observation checklist, strengthened F13 entry gate (reason-code stability + rollback rehearsal)
+**Governance:** Changes that affect architecture, public contracts, milestone scope, service boundaries, or operational workflows require an ADR or an explicit architecture revision of this document. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.
+**Depends on:** F1–F9 complete; F10 Translator Workspace complete; F11 Translation Memory & AI Assistance complete ([STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md))
+**ADR-0013:** Proposed — not Accepted; F12 does not promote ADR-0013
+**Canonical doc:** This file. Master plan cross-ref: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)
+**Prior milestone:** [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)
+**Validation log (reserved):** [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — reserved path; **not created** until F12 implementation begins
 
 ---
 
@@ -235,12 +235,12 @@ Translators may prepare content **outside** the render cohort. Render eligibilit
 
 **`RolloutPolicyService` is a pure decision engine.** It evaluates policy and returns a `RolloutPolicyDecision`. It **MUST NOT**:
 
-- persist data  
-- write audit events  
-- emit metrics  
-- invalidate cache  
-- perform logging  
-- mutate configuration  
+- persist data
+- write audit events
+- emit metrics
+- invalidate cache
+- perform logging
+- mutate configuration
 
 Persistence, audit, metrics, logging, and cache invalidation occur only in **higher orchestration layers** (e.g. render-gate wrapper, promotion service, metrics aggregator, `RenderCacheInvalidationService`).
 
@@ -311,10 +311,10 @@ F12 does **not** introduce percentage, visitor, tenant, or organization rollout 
 
 Future rollout mechanisms (examples only — **not in F12 scope**):
 
-- percentage rollout  
-- visitor cohorts  
-- tenant cohorts  
-- organization cohorts  
+- percentage rollout
+- visitor cohorts
+- tenant cohorts
+- organization cohorts
 
 **must** be introduced through separate **`CohortProvider`** implementations (or equivalent) plugged into the policy evaluation path.
 
@@ -450,15 +450,15 @@ Promotion or rollback may only change runtime visitor behavior through subsequen
 
 ### Pre-promotion checklist
 
-1. Pre-promotion checklist completed  
-2. Metrics snapshot captured  
-3. Open-incident review (no blocking SEV-1; SEV-2 under threshold)  
-4. Configuration snapshot saved  
-5. Required capability present (`aiml_promote_rollout`)  
-6. Explicit confirmation prompt  
-7. Audit event emitted  
-8. Post-promotion smoke validation  
-9. Defined rollback window communicated  
+1. Pre-promotion checklist completed
+2. Metrics snapshot captured
+3. Open-incident review (no blocking SEV-1; SEV-2 under threshold)
+4. Configuration snapshot saved
+5. Required capability present (`aiml_promote_rollout`)
+6. Explicit confirmation prompt
+7. Audit event emitted
+8. Post-promotion smoke validation
+9. Defined rollback window communicated
 
 ### Rollback
 
@@ -468,16 +468,16 @@ Promotion or rollback may only change runtime visitor behavior through subsequen
 
 ### Emergency rollback order
 
-1. Disable rollout rendering (`rollout_render_enabled` / emergency stop).  
-2. Disable cache (`render_cache_enabled`).  
-3. Disable extraction if needed.  
-4. Disable UUID injection only if operationally safe.  
-5. **Retain** attribute registration.  
-6. **Retain** UUID metadata.  
-7. **Retain** Store and TM rows.  
-8. Validate source frontend.  
-9. Preserve evidence.  
-10. Investigate offline.  
+1. Disable rollout rendering (`rollout_render_enabled` / emergency stop).
+2. Disable cache (`render_cache_enabled`).
+3. Disable extraction if needed.
+4. Disable UUID injection only if operationally safe.
+5. **Retain** attribute registration.
+6. **Retain** UUID metadata.
+7. **Retain** Store and TM rows.
+8. Validate source frontend.
+9. Preserve evidence.
+10. Investigate offline.
 
 **Never delete** UUIDs, translations, or TM rows during emergency rollback.
 
@@ -574,34 +574,34 @@ scheduled daily rollup
 
 ### Prohibited long-term dimensions
 
-- post IDs  
-- segment keys  
-- UUIDs  
-- source text  
-- translated text  
-- prompts  
-- emails  
-- API keys  
-- raw provider error bodies  
+- post IDs
+- segment keys
+- UUIDs
+- source text
+- translated text
+- prompts
+- emails
+- API keys
+- raw provider error bodies
 
 ### Allowed bounded dimensions
 
-- rollout stage  
-- configured language code  
-- approved post type  
-- policy reason_code  
-- provider ID (from registry)  
-- result class  
-- cache outcome  
+- rollout stage
+- configured language code
+- approved post type
+- policy reason_code
+- provider ID (from registry)
+- result class
+- cache outcome
 
 ### Per-post diagnostics
 
 Require all of:
 
-- explicit operator trigger;  
-- access control (`aiml_view_rollout` / `aiml_manage_rollout_metrics`);  
-- short expiration;  
-- no body content.  
+- explicit operator trigger;
+- access control (`aiml_view_rollout` / `aiml_manage_rollout_metrics`);
+- short expiration;
+- no body content.
 
 ---
 
@@ -611,23 +611,23 @@ Bounded operational metrics only. **Never** log translation bodies or prompts.
 
 ### Rendering
 
-- attempts · allowed · denied by stable reason · completed · failed · fallback · latency · rendered false positives  
+- attempts · allowed · denied by stable reason · completed · failed · fallback · latency · rendered false positives
 
 ### Identity and extraction
 
-- UUID events · repair failures · extracted segments · extraction failures · stale/orphaned counts  
+- UUID events · repair failures · extracted segments · extraction failures · stale/orphaned counts
 
 ### Workspace
 
-- loads · saves · 409 conflicts · partial batches · QA-blocked saves  
+- loads · saves · 409 conflicts · partial batches · QA-blocked saves
 
 ### TM
 
-- exact/fuzzy hits · accepted suggestions · write-backs · usage records · lookup latency  
+- exact/fuzzy hits · accepted suggestions · write-backs · usage records · lookup latency
 
 ### AI
 
-- translate/suggest requests · capability rejection · provider errors · latency · bounded usage/cost where provider reports  
+- translate/suggest requests · capability rejection · provider errors · latency · bounded usage/cost where provider reports
 
 ---
 
@@ -635,9 +635,9 @@ Bounded operational metrics only. **Never** log translation bodies or prompts.
 
 ### Backend
 
-- Primary abstraction: WordPress **object cache API**.  
-- WordPress-native fallback (e.g. transient-compatible) only if necessary.  
-- **No** new external caching dependency.  
+- Primary abstraction: WordPress **object cache API**.
+- WordPress-native fallback (e.g. transient-compatible) only if necessary.
+- **No** new external caching dependency.
 
 ### Cache identity (frozen)
 
@@ -663,9 +663,9 @@ Bounded operational metrics only. **Never** log translation bodies or prompts.
 
 ### Cache behavior
 
-- Miss / disabled / failure → normal Store + render path.  
-- Never bypasses global or rollout kill switches.  
-- Source fallback if renderer fails.  
+- Miss / disabled / failure → normal Store + render path.
+- Never bypasses global or rollout kill switches.
+- Source fallback if renderer fails.
 
 ---
 
@@ -673,13 +673,13 @@ Bounded operational metrics only. **Never** log translation bodies or prompts.
 
 ### WP8 Definition of Done (implementation)
 
-- Cache service implemented  
-- Key construction implemented  
-- Invalidation implemented  
-- Independent default-**off** flag (`render_cache_enabled`) implemented  
-- Kill-switch precedence tested  
-- Post/language isolation tested  
-- Measured activation decision **documented**  
+- Cache service implemented
+- Key construction implemented
+- Invalidation implemented
+- Independent default-**off** flag (`render_cache_enabled`) implemented
+- Kill-switch precedence tested
+- Post/language isolation tested
+- Measured activation decision **documented**
 
 **F12 may close with cache implemented but disabled.**
 
@@ -829,12 +829,12 @@ For every measured surface, record:
 
 ### Surfaces (minimum)
 
-- Frontend cold/warm render (cohort allow)  
-- Frontend deny/fallback path  
-- Policy evaluation overhead  
-- Metrics flush/rollup cost  
-- Cache hit vs miss (only if activation GO)  
-- Workspace load/save (regression vs F11 baseline)  
+- Frontend cold/warm render (cohort allow)
+- Frontend deny/fallback path
+- Policy evaluation overhead
+- Metrics flush/rollup cost
+- Cache hit vs miss (only if activation GO)
+- Workspace load/save (regression vs F11 baseline)
 
 Reserve performance evidence sections in the F12 validation log when that file is created during implementation.
 
@@ -861,18 +861,18 @@ Operational controls only — **no** billing analytics, **no** provider architec
 
 During limited-rollout stages, require scheduled review of:
 
-- rendered false positives  
-- render failures  
-- policy denials (by reason)  
-- reason-code distribution stability (watch for `policy_error` / `invalid_configuration` spikes)  
-- source fallback rate  
-- cache behavior (if enabled)  
-- workspace errors  
-- 409 conflicts  
-- TM write-back health  
-- provider failures / cost  
-- QA-blocked saves  
-- open incidents  
+- rendered false positives
+- render failures
+- policy denials (by reason)
+- reason-code distribution stability (watch for `policy_error` / `invalid_configuration` spikes)
+- source fallback rate
+- cache behavior (if enabled)
+- workspace errors
+- 409 conflicts
+- TM write-back health
+- provider failures / cost
+- QA-blocked saves
+- open incidents
 
 | Item | Rule |
 |---|---|
@@ -890,25 +890,25 @@ F13 must **not** begin merely because F12 code is complete.
 
 Require **all** of:
 
-1. Approved limited cohort operated for the approved observation window  
-2. Zero unresolved SEV-1 incidents  
-3. SEV-2 below approved threshold  
-4. Rendered false positives = **0**  
-5. Rollback drill **PASS** — evidence of at least one successful **rollback rehearsal** using the **documented operator workflow** (UI and/or CLI shared services)  
-6. Config export/restore **PASS**  
-7. Cache kill-switch **PASS** if cache implemented  
-8. Metrics retention/cleanup validated  
-9. Human operator sign-off  
-10. ADR-0013 status **explicitly reviewed** (may remain **Proposed**)  
-11. **Reason-code distribution remains operationally stable** throughout the observation window  
+1. Approved limited cohort operated for the approved observation window
+2. Zero unresolved SEV-1 incidents
+3. SEV-2 below approved threshold
+4. Rendered false positives = **0**
+5. Rollback drill **PASS** — evidence of at least one successful **rollback rehearsal** using the **documented operator workflow** (UI and/or CLI shared services)
+6. Config export/restore **PASS**
+7. Cache kill-switch **PASS** if cache implemented
+8. Metrics retention/cleanup validated
+9. Human operator sign-off
+10. ADR-0013 status **explicitly reviewed** (may remain **Proposed**)
+11. **Reason-code distribution remains operationally stable** throughout the observation window
 
 ### Reason-code stability (operational requirement)
 
 Operators must review denial/`reason_code` distributions before F13. Without inventing numeric thresholds:
 
-- no sustained `policy_error` spikes  
-- no sustained `invalid_configuration` spikes  
-- unexpected deny reasons investigated and resolved or accepted before promotion  
+- no sustained `policy_error` spikes
+- no sustained `invalid_configuration` spikes
+- unexpected deny reasons investigated and resolved or accepted before promotion
 
 Evidence is recorded in the F12 validation log / observation checklist. Threshold values, if any, remain a **PO/ops decision** — this gate only requires the stability review.
 
@@ -1161,16 +1161,16 @@ flowchart LR
 
 F12 is done only when:
 
-1. WP0–WP11 complete  
-2. All ACs (AC-1–AC-31) satisfied  
-3. Quality gates green (Tier 0)  
-4. F12-specific browser smoke complete (operator-approved)  
-5. Validation log committed with **PASS** (created during implementation — reserved now)  
-6. Architecture-freeze review complete  
-7. Limited observation period complete (PO-approved duration)  
-8. Rollback drill complete  
-9. Documentation aligned (this plan, ROADMAP, master plan)  
-10. Merge-ready branch  
+1. WP0–WP11 complete
+2. All ACs (AC-1–AC-31) satisfied
+3. Quality gates green (Tier 0)
+4. F12-specific browser smoke complete (operator-approved)
+5. Validation log committed with **PASS** (created during implementation — reserved now)
+6. Architecture-freeze review complete
+7. Limited observation period complete (PO-approved duration)
+8. Rollback drill complete
+9. Documentation aligned (this plan, ROADMAP, master plan)
+10. Merge-ready branch
 
 ---
 
@@ -1178,26 +1178,26 @@ F12 is done only when:
 
 ### Tier 0 (after every WP)
 
-- PHPUnit unit  
-- PHPUnit integration  
-- PHPCS  
-- TypeScript / Jest / webpack build when UI/assets affected  
-- `git diff --check`  
+- PHPUnit unit
+- PHPUnit integration
+- PHPCS
+- TypeScript / Jest / webpack build when UI/assets affected
+- `git diff --check`
 
 ### Targeted F12 browser smoke (only)
 
-- Inside-cohort translated render  
-- Outside-cohort source fallback  
-- Shadow mode  
-- Emergency kill switch  
-- Cache invalidation **if** cache enabled  
-- Operator rollout UI  
-- Provider outage does **not** affect public frontend  
+- Inside-cohort translated render
+- Outside-cohort source fallback
+- Shadow mode
+- Emergency kill switch
+- Cache invalidation **if** cache enabled
+- Operator rollout UI
+- Provider outage does **not** affect public frontend
 
 ### Explicit exclusions
 
-- Do **not** run the F9 35-test suite during ordinary F12 work.  
-- Full browser execution requires **explicit operator approval**.  
+- Do **not** run the F9 35-test suite during ordinary F12 work.
+- Full browser execution requires **explicit operator approval**.
 
 ---
 
@@ -1219,37 +1219,37 @@ F12 is done only when:
 
 Do **not** invent production values:
 
-1. Stage 1–3 post IDs  
-2. Stage 1–3 languages  
-3. Observation-window duration (plan proposes 14 days)  
-4. Whether `block_diagnostics_enabled` ships in WP2 or WP5  
-5. Whether render cache is **activated** during F12  
-6. AI cost warning / hard-limit values  
-7. Exact capability → role mapping (Administrator-only is the interim recommendation)  
+1. Stage 1–3 post IDs
+2. Stage 1–3 languages
+3. Observation-window duration (plan proposes 14 days)
+4. Whether `block_diagnostics_enabled` ships in WP2 or WP5
+5. Whether render cache is **activated** during F12
+6. AI cost warning / hard-limit values
+7. Exact capability → role mapping (Administrator-only is the interim recommendation)
 
 ---
 
 ## 27. Security and privacy summary
 
-- Bounded metrics only  
-- Sanitized config snapshots  
-- Capability-gated mutations  
-- No prompt/body logging  
-- Secrets never in audit or metrics  
-- Fail closed on policy/config errors  
+- Bounded metrics only
+- Sanitized config snapshots
+- Capability-gated mutations
+- No prompt/body logging
+- Secrets never in audit or metrics
+- Fail closed on policy/config errors
 
 ---
 
 ## 28. Related documents
 
-- Master plan: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)  
-- Roadmap: [../ROADMAP.md](../ROADMAP.md)  
-- F11 plan: [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)  
-- F11 performance baseline: [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md)  
-- F8 operations: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md)  
-- F9 browser: [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md)  
-- ADR-0013: [../adr/0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) (**Proposed**)  
-- Validation log (reserved): [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — **do not create until implementation**  
+- Master plan: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)
+- Roadmap: [../ROADMAP.md](../ROADMAP.md)
+- F11 plan: [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)
+- F11 performance baseline: [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md)
+- F8 operations: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md)
+- F9 browser: [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md)
+- ADR-0013: [../adr/0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) (**Proposed**)
+- Validation log (reserved): [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — **do not create until implementation**
 
 ---
 
@@ -1273,4 +1273,4 @@ Resolve remaining PO operational values (cohort posts/languages, observation win
 | Validation log | Reserved at [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — not created until WP7 |
 | Rollout option key | `aiml_rollout_config` (current policy); `aiml_rollout_snapshots` (sanitized history) |
 | Unresolved PO values | §26 — staging-only values permitted during WP10 |
-| Implementation | **Complete** — observation window and staging sign-off **pending** |
+| Implementation | **Complete** — staging acceptance **PASS** (WP10); production observation **pending** |
