@@ -1,7 +1,7 @@
 # F12 — Limited Rollout Plan
 
 **Status:** Canonical implementation plan — **architecture frozen**; PO operational values pending; implementation not started  
-**Architecture:** Includes approved architecture-refinement passes: two-level render control, frozen immutable `RolloutPolicyDecision`, pure `RolloutPolicyService`, configuration versioning (`schema_version` / `policy_version`), `metrics_registry_version`, reserved `CohortProvider` expansion, centralized `RenderCacheInvalidationService`, shadow evaluation, Stages 0–5, two-tier metrics, concrete cache identity (Store translation-hash aggregate), operator capabilities, audit events, failure-mode matrix, observation checklist, strengthened F13 entry gate (including reason-code stability)  
+**Architecture:** Includes approved architecture-refinement passes: canonical FeatureFlags→Gate→Policy→(Cache)→Store→Renderer pipeline, two-level render control, frozen immutable `RolloutPolicyDecision`, pure `RolloutPolicyService`, configuration versioning/compatibility (`schema_version` / `policy_version`), append-only `metrics_registry_version`, reserved `CohortProvider` expansion, centralized cache key + `RenderCacheInvalidationService` ownership, shadow evaluation, Stages 0–5, two-tier metrics, concrete cache identity (Store translation-hash aggregate), operator capabilities, audit events, failure-mode matrix, observation checklist, strengthened F13 entry gate (reason-code stability + rollback rehearsal)  
 **Governance:** Changes that affect architecture, public contracts, milestone scope, service boundaries, or operational workflows require an ADR or an explicit architecture revision of this document. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.  
 **Depends on:** F1–F9 complete; F10 Translator Workspace complete; F11 Translation Memory & AI Assistance complete ([STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md))  
 **ADR-0013:** Proposed — not Accepted; F12 does not promote ADR-0013  
@@ -31,15 +31,16 @@ F12 architecture is **frozen**. Implementation must not change the following wit
 | Frozen surface | Rule |
 |---|---|
 | Two-level render control | Global `block_frontend_rendering_enabled` master switch; `rollout_render_enabled` enables cohort evaluation only; stage/cohort never override the master kill switch |
+| Canonical render pipeline | Sole supported path: FeatureFlags → BlockRenderGate → RolloutPolicyService → (optional Render Cache) → Store → BlockFrontendRenderer (§1); no bypass of policy |
 | `RolloutPolicyService` purity | Pure decision engine only (§3); no persistence, audit, metrics, cache, logging, or config mutation |
 | `RolloutPolicyDecision` DTO | Immutable value object; new instance per evaluation; fields and reason-code catalog in §3 |
-| Configuration versioning | `schema_version` vs `policy_version` lifecycle in §4 |
+| Configuration versioning | `schema_version` vs `policy_version` lifecycle in §4; legacy config migrated before runtime; policy evaluates current schema only |
 | Rollout configuration schema | Option object fields and validation rules in §4 |
 | Cohort model | Explicit post-ID allowlist in F12; future mechanisms via reserved `CohortProvider` only (§3) |
-| Stages 0–5 | Canonical stage table in §5; no automatic promotion |
-| Metrics model | Two-tier hot window + `aiml_metrics_daily`; registry-only names/dimensions; independent `metrics_registry_version` (§7) |
-| Cache identity | Components in §11; fingerprint = Store translation-hash aggregate; no undefined `translation_revision` |
-| Cache invalidation ownership | Canonical `RenderCacheInvalidationService` (§13); no independent ad-hoc invalidation |
+| Stages 0–5 | Canonical stage table in §5; no automatic promotion; promotion/rollback affect runtime only via `RolloutPolicyDecision` |
+| Metrics model | Two-tier hot window + `aiml_metrics_daily`; append-only registry keys; independent `metrics_registry_version` (§7) |
+| Cache identity | Components in §11; fingerprint = Store translation-hash aggregate; no undefined `translation_revision`; keys built only by cache services |
+| Cache invalidation ownership | Canonical `RenderCacheInvalidationService` (§13); no independent ad-hoc invalidation; all reads/writes via cache abstraction |
 | Cache activation | Separate from WP8 implementation; default off |
 | Capability catalog | §14 additive capabilities |
 | Audit-event catalog | §15 additive-only event names |
@@ -76,6 +77,8 @@ F12 must not introduce performance optimizations that are not justified by measu
 13. `RolloutPolicyService` is a **pure** decision engine (no side effects).
 14. Runtime metrics, cache contents, and telemetry **never** modify `schema_version` or `policy_version`.
 15. Cache invalidation is owned by **`RenderCacheInvalidationService`** (or equivalent); other services must not invalidate independently.
+16. The only supported frontend translated-render path is the **canonical pipeline** in §1; no alternate path may bypass `RolloutPolicyService`.
+17. Promotion or rollback may change runtime behavior **only** through subsequent `RolloutPolicyDecision` evaluation — no silent side-channel behavior changes.
 
 ---
 
@@ -159,6 +162,31 @@ flowchart TB
 ---
 
 ## 1. Two-level render control
+
+### Canonical frontend render pipeline (frozen)
+
+The **only** supported frontend translated-render path is:
+
+```text
+FeatureFlags
+    →
+BlockRenderGate
+    →
+RolloutPolicyService
+    →
+(optional Render Cache)
+    →
+Store
+    →
+BlockFrontendRenderer
+```
+
+| Rule | Requirement |
+|---|---|
+| Sole path | No alternate rendering path may produce translated frontend output |
+| No policy bypass | No path may skip `RolloutPolicyService` evaluation for translated frontend render |
+| Cache optional | Render cache sits **after** a positive active policy decision (and kill-switch checks); it never substitutes for policy |
+| Invariant | This pipeline is a **frozen architectural invariant** |
 
 ### Hierarchy (evaluate in order)
 
@@ -256,6 +284,18 @@ Required fields:
 
 Reason codes are **stable diagnostics contracts**. New codes after F12 are **additive only**.
 
+### Reason-code purpose (frozen)
+
+`reason_code` values are **operator diagnostics only**.
+
+| Rule | Requirement |
+|---|---|
+| Audience | Operators, metrics, CLI, audit/diagnostics — not public visitors |
+| Contract | Stable machine-readable codes (additive-only catalog) |
+| Not localization | Codes are **not** localization strings |
+| Not user-facing copy | Codes are **not** end-user messages |
+| UI wording | Any human-readable UI text is produced **separately** (mapped from codes in presentation layer) |
+
 ### Cohort model (F12)
 
 | Control | Rule |
@@ -331,6 +371,17 @@ Additional frozen rules:
 2. Runtime metrics, observations, counters, cache contents, and telemetry **never** modify `schema_version` or `policy_version`.
 3. `metrics_registry_version` (§7) is **independent** of both versions and must not be conflated with them.
 
+### Configuration compatibility (frozen)
+
+| Rule | Requirement |
+|---|---|
+| Migrate before use | Legacy / older `schema_version` rollout configuration **must be migrated** to the current schema **before** runtime use |
+| Current schema only | `RolloutPolicyService` evaluates **only** the current schema |
+| No runtime compat shims | Runtime policy evaluation **never** contains compatibility logic for historical schemas |
+| Determinism | Compatibility work belongs in load/migrate/validate paths — not inside the pure decision engine |
+
+This keeps the policy engine deterministic and free of historical branching.
+
 ### Snapshot / restore
 
 Before every rollout-stage or cohort mutation, preserve a **sanitized** snapshot (no secrets).
@@ -386,6 +437,16 @@ Recommended default: **14 days**.
 ### Shared promotion service
 
 UI and CLI **must** call the same promotion service (planned name: `RolloutPromotionService`). Direct option editing is not the normal path.
+
+### Promotion / rollback behavioral invariant (frozen)
+
+Promotion or rollback may only change runtime visitor behavior through subsequent **`RolloutPolicyDecision` evaluation** (after the updated config is active).
+
+| Rule | Requirement |
+|---|---|
+| Sole behavior channel | Stage/cohort/flag changes take effect only via the canonical pipeline + policy decision |
+| No silent side effects | No other runtime behavior may **silently** change during stage promotion (e.g. hidden renderer forks, ad-hoc allowlists, bypass flags) |
+| Cache / metrics | Cache enablement and metrics remain separately gated; they do not invent alternate render paths |
 
 ### Pre-promotion checklist
 
@@ -480,9 +541,11 @@ Reserve an independent **`metrics_registry_version`** (documentation / code cons
 | Rule | Requirement |
 |---|---|
 | Independence | Unrelated to `schema_version` and `policy_version` |
-| Evolution | Changing the metric registry (keys, allowed dimensions, aggregation shape) bumps `metrics_registry_version` only |
+| Append-only keys | Metric **keys** are **append-only** after publish; do not reuse a key for a different meaning |
+| Semantic change | Any semantic change to an existing metric (meaning, unit, dimension set, aggregation semantics) **requires** a `metrics_registry_version` bump |
+| Evolution | Adding keys/dimensions or changing aggregation shape bumps `metrics_registry_version` as documented in the registry changelog |
 | Policy isolation | Metric registry evolution does **not** imply a rollout policy change and must **not** increment `policy_version` |
-| Consumers | Dashboards and exports may key off `metrics_registry_version` for compatibility |
+| Consumers | Dashboards and exports rely on registry compatibility via `metrics_registry_version` |
 | F12 scope | Document and implement as a frozen constant/registry metadata — **no** new product surface |
 
 ---
@@ -589,6 +652,15 @@ Bounded operational metrics only. **Never** log translation bodies or prompts.
 
 **Do not use** an undefined `translation_revision` field.
 
+### Cache service ownership (frozen)
+
+| Rule | Requirement |
+|---|---|
+| Key construction | **Only** cache services construct cache keys / identities |
+| No manual identities | Callers **never** manually build cache identities |
+| Read/write path | All cache reads and writes go through the cache abstraction |
+| Invalidation | Remains owned exclusively by `RenderCacheInvalidationService` (§13) |
+
 ### Cache behavior
 
 - Miss / disabled / failure → normal Store + render path.  
@@ -626,9 +698,11 @@ Reserve **`RenderCacheInvalidationService`** (or equivalent application service)
 | Rule | Requirement |
 |---|---|
 | Single owner | All invalidation paths call this service |
+| Exclusive invalidation | Invalidation remains owned **exclusively** by `RenderCacheInvalidationService` |
 | No ad-hoc invalidation | Future/other services must **not** invalidate the render cache independently |
 | Orchestration | Store saves, migrations, flag/stage changes, and operator purge invoke this service |
 | Kill switch | Emergency render disable bypasses cache read path immediately; purge may still be coordinated through this service when needed |
+| Key construction | Callers never invent keys; invalidation uses the same cache-service identity contract (§11) |
 
 ### Triggers
 
@@ -820,7 +894,7 @@ Require **all** of:
 2. Zero unresolved SEV-1 incidents  
 3. SEV-2 below approved threshold  
 4. Rendered false positives = **0**  
-5. Rollback drill **PASS**  
+5. Rollback drill **PASS** — evidence of at least one successful **rollback rehearsal** using the **documented operator workflow** (UI and/or CLI shared services)  
 6. Config export/restore **PASS**  
 7. Cache kill-switch **PASS** if cache implemented  
 8. Metrics retention/cleanup validated  
@@ -837,6 +911,17 @@ Operators must review denial/`reason_code` distributions before F13. Without inv
 - unexpected deny reasons investigated and resolved or accepted before promotion  
 
 Evidence is recorded in the F12 validation log / observation checklist. Threshold values, if any, remain a **PO/ops decision** — this gate only requires the stability review.
+
+### Rollback rehearsal (operational requirement)
+
+Before F13 there must be evidence of **at least one successful rollback rehearsal** executed through the documented operator workflow (shared promotion/rollback services — not ad-hoc option edits).
+
+| Rule | Requirement |
+|---|---|
+| Evidence | Recorded in the F12 validation log |
+| Workflow | Uses documented CLI/UI paths and capabilities |
+| Thresholds | None invented here — success means the documented restore/emergency path returned the site to the expected policy state and source/translated behavior matched expectation |
+| Scope | Does **not** redesign the rollout process |
 
 ---
 
@@ -1039,23 +1124,23 @@ flowchart LR
 | AC-1 | Two-level render control enforced; global kill switch cannot be overridden by stage/cohort |
 | AC-2 | Truth table cases return source on deny/fail/shadow |
 | AC-3 | `RolloutPolicyDecision` is an immutable value object; new instance per evaluation; fields match §3; no forbidden payloads |
-| AC-4 | Reason-code catalog frozen; unknown codes rejected or mapped to `policy_error` |
+| AC-4 | Reason-code catalog frozen; codes are operator diagnostics only (not localization or user-facing copy); unknown codes rejected or mapped to `policy_error` |
 | AC-5 | Config schema validates atomically; empty post allowlist denies limited-rollout render |
 | AC-6 | Malformed config fails closed; previous policy retained on rejected update |
 | AC-7 | Successful operator-visible policy change increments `policy_version` and retains sanitized snapshot; restore also increments `policy_version` |
 | AC-8 | Percentage/hash cohort configuration rejected |
 | AC-9 | Shadow mode evaluates via pure policy service; orchestration records metrics; never translates |
 | AC-10 | Stage promotion never automatic; shared UI/CLI promotion service |
-| AC-11 | Promotion checklist + audit event required |
-| AC-12 | Metrics two-tier model present; registry-only keys/dimensions; independent `metrics_registry_version` |
+| AC-11 | Promotion checklist + audit event required; promotion/rollback change visitor behavior only via `RolloutPolicyDecision` |
+| AC-12 | Metrics two-tier model present; append-only registry keys; independent `metrics_registry_version`; semantic changes bump registry version |
 | AC-13 | No synchronous persistent metric write on every frontend render |
 | AC-14 | Metrics failure marks incomplete; frontend unaffected |
 | AC-15 | Privacy: no prohibited long-term dimensions |
 | AC-16 | Operator capabilities enforced on mutations; CLI `--user` required |
 | AC-17 | Audit events use frozen names/payload fields; no secrets/content |
-| AC-18 | Cache identity uses Store translation-hash aggregate; no `translation_revision` |
+| AC-18 | Cache identity uses Store translation-hash aggregate; no `translation_revision`; only cache services construct keys |
 | AC-19 | WP8 cache default off; activation requires measured GO |
-| AC-20 | Invalidation contract §13 honored via `RenderCacheInvalidationService`; emergency bypass without purge |
+| AC-20 | Invalidation contract §13 honored exclusively via `RenderCacheInvalidationService`; all cache I/O via abstraction; emergency bypass without purge |
 | AC-21 | Failure-mode matrix §16 behaviors verified by tests/smoke |
 | AC-22 | Emergency rollback never deletes UUIDs, Store rows, or TM rows |
 | AC-23 | Observation checklist completed for operated stages |
@@ -1063,10 +1148,12 @@ flowchart LR
 | AC-25 | No translator-facing product features shipped in F12 |
 | AC-26 | Performance evidence fields recorded without invented baseline numbers |
 | AC-27 | `RolloutPolicyService` performs no persistence, audit, metrics, cache invalidation, logging, or config mutation |
-| AC-28 | `schema_version` changes only on configuration structure change; metrics/cache/telemetry never bump either version |
+| AC-28 | `schema_version` changes only on configuration structure change; metrics/cache/telemetry never bump either version; legacy config migrated before runtime; policy evaluates current schema only |
 | AC-29 | F13 reason-code stability review completed (no invented thresholds required) |
+| AC-30 | Canonical render pipeline enforced; no alternate path bypasses `RolloutPolicyService` |
+| AC-31 | F13 rollback rehearsal evidence recorded using documented operator workflow |
 
-**Acceptance-criteria count: 29**
+**Acceptance-criteria count: 31**
 
 ---
 
@@ -1075,7 +1162,7 @@ flowchart LR
 F12 is done only when:
 
 1. WP0–WP11 complete  
-2. All ACs (AC-1–AC-29) satisfied  
+2. All ACs (AC-1–AC-31) satisfied  
 3. Quality gates green (Tier 0)  
 4. F12-specific browser smoke complete (operator-approved)  
 5. Validation log committed with **PASS** (created during implementation — reserved now)  
