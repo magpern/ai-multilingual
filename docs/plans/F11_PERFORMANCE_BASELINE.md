@@ -19,7 +19,7 @@ optional caching. Before changing runtime behaviour, capture:
 | Workspace load | Translator time-to-edit |
 | TM lookup | Reuse latency vs corpus size |
 | AI suggestion | Provider RTT + validation |
-| Save latency | QA + Store + (future) TM write-back |
+| Save latency | QA + Store + TM write-back/usage |
 | Preview latency | Production render path (unchanged F10) |
 | Batch operations | Cap 50; partial success |
 | Database queries | Store + `aiml_tm` |
@@ -36,7 +36,7 @@ optional caching. Before changing runtime behaviour, capture:
 | TM fuzzy lookup | Candidate query + PHP similarity | Cap 20 candidates; score in PHP | Ambiguity gate for short strings |
 | AI suggest | `AISuggestionProvider` → provider HTTP | Network RTT | No Store write; rate limit 30/min/user (plan) |
 | AI translate | `TranslationService` → provider → Store | Network + Store write | **No** TM write-back on machine persist |
-| Save segment | QAEngine → Store save → reload + meta | QA checks (CPU) + 1 Store write | TM write-back **not yet wired** (see frozen API) |
+| Save segment | QAEngine → Store save → TM write-back/usage → reload + meta | QA checks (CPU) + Store write + TM upsert/usage | TM sync after Store success (F11.1) |
 | Preview | `PreviewService` → public URL | HTTP fetch of production route | Unchanged from F10 |
 | Batch save/translate/accept/QA | Loop ≤50 items | Linear in N; partial success | Sync only; async deferred |
 | Provider settings | CredentialVault decrypt | Negligible vs network | Keys never in JS |

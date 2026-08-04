@@ -12,6 +12,7 @@ namespace AIMultilingual\Workspace;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
 use AIMultilingual\Translation\Extractor;
+use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\QA\QAIssue;
@@ -98,6 +99,13 @@ final class WorkspaceService {
 	private QAEngine $qa;
 
 	/**
+	 * Injected dependency.
+	 *
+	 * @var TranslationMemoryService
+	 */
+	private TranslationMemoryService $tm;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param SegmentAssembler             $assembler           Segment assembly.
@@ -109,6 +117,7 @@ final class WorkspaceService {
 	 * @param Extractor                    $extractor           Source extractor.
 	 * @param TranslationSuggestionService $suggestions         Suggestion orchestration.
 	 * @param QAEngine                     $qa                  Quality assurance engine.
+	 * @param TranslationMemoryService     $tm                  Translation memory write-back.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -119,7 +128,8 @@ final class WorkspaceService {
 		Store $store,
 		Extractor $extractor,
 		TranslationSuggestionService $suggestions,
-		QAEngine $qa
+		QAEngine $qa,
+		TranslationMemoryService $tm
 	) {
 		$this->assembler         = $assembler;
 		$this->status_calculator = $status_calculator;
@@ -130,6 +140,7 @@ final class WorkspaceService {
 		$this->extractor         = $extractor;
 		$this->suggestions       = $suggestions;
 		$this->qa                = $qa;
+		$this->tm                = $tm;
 		$this->batch             = new BatchOperationCoordinator( $this, $translation );
 	}
 
@@ -275,6 +286,8 @@ final class WorkspaceService {
 	 * @param string  $translated_text Target text.
 	 * @param string  $source_hash     Client source hash.
 	 * @param string  $status          Optional workflow status.
+	 * @param string  $save_origin     Optional TM save origin (human|ai_accepted|tm_accepted|machine|import).
+	 * @param int     $tm_id           Optional TM id when accepting an existing memory hit.
 	 * @return array<string, mixed>
 	 * @throws WorkspaceConflictException When source_hash mismatches.
 	 * @throws WorkspaceQAException When QA errors block the save.
@@ -287,7 +300,9 @@ final class WorkspaceService {
 		string $segment_key,
 		string $translated_text,
 		string $source_hash,
-		string $status = ''
+		string $status = '',
+		string $save_origin = '',
+		int $tm_id = 0
 	): array {
 		$this->assert_supported_post( $post );
 
@@ -355,6 +370,14 @@ final class WorkspaceService {
 		if ( $result instanceof WP_Error ) {
 			throw new \InvalidArgumentException( esc_html( $result->get_error_message() ) );
 		}
+
+		$this->sync_translation_memory_after_save(
+			$language_id,
+			$current,
+			$translated_text,
+			$save_origin,
+			$tm_id
+		);
 
 		$refreshed = $this->assembler->assemble_one( $post, $language_id, $segment_key );
 		if ( null === $refreshed ) {
@@ -516,9 +539,11 @@ final class WorkspaceService {
 
 			$items[] = array(
 				'segment_key'     => $key,
-				'translated_text' => $exact,
+				'translated_text' => $exact['text'],
 				'source_hash'     => (string) ( $segment['source_hash'] ?? '' ),
 				'status'          => Store::STATUS_MANUALLY_EDITED,
+				'save_origin'     => 'tm_accepted',
+				'tm_id'           => $exact['tm_id'],
 			);
 		}
 
@@ -580,11 +605,12 @@ final class WorkspaceService {
 	}
 
 	/**
-	 * Returns the top exact TM suggestion text, if any.
+	 * Returns the top exact TM suggestion text and tm_id, if any.
 	 *
 	 * @param array<string, mixed> $segment Segment DTO with meta.suggestions.
+	 * @return array{text: string, tm_id: int}|null
 	 */
-	private function first_exact_tm_suggestion( array $segment ): ?string {
+	private function first_exact_tm_suggestion( array $segment ): ?array {
 		$suggestions = is_array( $segment['meta']['suggestions'] ?? null )
 			? $segment['meta']['suggestions']
 			: array();
@@ -601,7 +627,134 @@ final class WorkspaceService {
 			$match = (string) ( $meta['match_type'] ?? '' );
 			if ( 1 === $tier || 'exact' === $match ) {
 				$text = (string) ( $suggestion['target_text'] ?? '' );
-				return '' !== $text ? $text : null;
+				if ( '' === $text ) {
+					return null;
+				}
+
+				return array(
+					'text'  => $text,
+					'tm_id' => (int) ( $meta['tm_id'] ?? 0 ),
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Applies ADR-F11-004 TM write-back / usage after a successful Store save.
+	 *
+	 * Machine persist never reaches this method (TranslationService writes Store
+	 * directly). TM accepts record usage only; human / AI-accepted / import upsert.
+	 *
+	 * @param int                  $language_id     Target language id.
+	 * @param array<string, mixed> $current         Pre-save assembled segment DTO.
+	 * @param string               $translated_text Saved target text.
+	 * @param string               $save_origin     Optional explicit origin token.
+	 * @param int                  $tm_id           Optional TM id for tm_accepted.
+	 */
+	private function sync_translation_memory_after_save(
+		int $language_id,
+		array $current,
+		string $translated_text,
+		string $save_origin = '',
+		int $tm_id = 0
+	): void {
+		if ( '' === trim( $translated_text ) ) {
+			return;
+		}
+
+		if ( 'machine' === $save_origin ) {
+			return;
+		}
+
+		$default = $this->languages->default();
+		if ( null === $default ) {
+			return;
+		}
+
+		$text_format = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+		$source_text = (string) ( $current['source_text'] ?? '' );
+		$source_hash = (string) ( $current['source_hash'] ?? '' );
+		$context     = TranslationMemoryService::derive_context(
+			(string) ( $current['block_name'] ?? '' ),
+			(string) ( $current['field_key'] ?? '' )
+		);
+
+		$resolved_origin = $save_origin;
+		$resolved_tm_id  = $tm_id;
+
+		if ( '' === $resolved_origin ) {
+			$match = $this->matching_tm_suggestion( $current, $language_id, $translated_text );
+			if ( null !== $match ) {
+				$resolved_origin = 'tm_accepted';
+				$resolved_tm_id  = $match;
+			} else {
+				$resolved_origin = 'human';
+			}
+		}
+
+		if ( 'tm_accepted' === $resolved_origin ) {
+			if ( $resolved_tm_id <= 0 ) {
+				$resolved_tm_id = $this->matching_tm_suggestion( $current, $language_id, $translated_text ) ?? 0;
+			}
+			if ( $resolved_tm_id > 0 ) {
+				$this->tm->record_usage( $resolved_tm_id );
+			}
+			return;
+		}
+
+		if ( ! in_array( $resolved_origin, array( 'human', 'ai_accepted', 'import' ), true ) ) {
+			$resolved_origin = 'human';
+		}
+
+		$this->tm->write_back(
+			array(
+				'source_lang_id' => (int) $default->language_id,
+				'target_lang_id' => $language_id,
+				'source_text'    => $source_text,
+				'source_hash'    => $source_hash,
+				'target_text'    => $translated_text,
+				'text_format'    => $text_format,
+				'context'        => $context,
+			),
+			$resolved_origin
+		);
+	}
+
+	/**
+	 * Finds a TM suggestion id whose target text matches the saved translation.
+	 *
+	 * @param array<string, mixed> $current         Segment DTO (meta optional).
+	 * @param int                  $language_id     Target language id.
+	 * @param string               $translated_text Saved target text.
+	 */
+	private function matching_tm_suggestion( array $current, int $language_id, string $translated_text ): ?int {
+		$suggestions = is_array( $current['meta']['suggestions'] ?? null )
+			? $current['meta']['suggestions']
+			: array();
+
+		if ( array() === $suggestions ) {
+			$with_meta   = $this->attach_meta( array( $current ), $language_id );
+			$suggestions = is_array( $with_meta[0]['meta']['suggestions'] ?? null )
+				? $with_meta[0]['meta']['suggestions']
+				: array();
+		}
+
+		foreach ( $suggestions as $suggestion ) {
+			if ( ! is_array( $suggestion ) ) {
+				continue;
+			}
+			if ( 'tm' !== (string) ( $suggestion['provider_id'] ?? '' ) ) {
+				continue;
+			}
+			if ( (string) ( $suggestion['target_text'] ?? '' ) !== $translated_text ) {
+				continue;
+			}
+			$meta  = is_array( $suggestion['metadata'] ?? null ) ? $suggestion['metadata'] : array();
+			$tm_id = (int) ( $meta['tm_id'] ?? 0 );
+			if ( $tm_id > 0 ) {
+				return $tm_id;
 			}
 		}
 

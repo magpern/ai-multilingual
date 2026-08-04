@@ -200,7 +200,8 @@ final class Plugin {
 			$store,
 			$extractor,
 			$suggestion_service,
-			$qa_engine
+			$qa_engine,
+			$tm_service
 		);
 
 		( new WorkspaceController(

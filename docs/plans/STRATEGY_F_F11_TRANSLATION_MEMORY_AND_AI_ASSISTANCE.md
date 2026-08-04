@@ -1092,7 +1092,7 @@ Inherit F10 §15 plus:
 | No origin filter UI | Provenance recorded; filtering deferred |
 | Productivity metrics | Documented §18; not implemented F11 |
 | Single provider in settings UI | Registry supports many; multiple simultaneous providers deferred |
-| TM write-back on save not wired | Policy + service methods exist; workspace save path does not call `write_back`/`record_usage` yet — see [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md) D1 |
+| TM write-back on save | **Resolved (F11.1)** — `WorkspaceService::save_segment()` calls `write_back` / `record_usage` |
 | TM translate pre-fill | Plan §3.7 optional path; not implemented — debt D2 |
 | QA severity vs plan table | `empty_translation` and plain-HTML targets use warnings for workspace compatibility — frozen API §6 |
 | CLI TM stats | Deferred (plan §10); not delivered in WP11 |

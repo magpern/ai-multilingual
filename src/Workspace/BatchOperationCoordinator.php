@@ -86,7 +86,9 @@ final class BatchOperationCoordinator {
 					$key,
 					(string) ( $item['translated_text'] ?? '' ),
 					(string) ( $item['source_hash'] ?? '' ),
-					(string) ( $item['status'] ?? '' )
+					(string) ( $item['status'] ?? '' ),
+					(string) ( $item['save_origin'] ?? '' ),
+					(int) ( $item['tm_id'] ?? 0 )
 				);
 			} catch ( WorkspaceConflictException $conflict ) {
 				$failed[] = array(

@@ -24,7 +24,7 @@
 
 | ID | Deviation | Severity | Disposition |
 |---|---|---|---|
-| D1 | **TM write-back not wired on workspace save** — `TranslationMemoryService::write_back()` / `record_usage()` exist and are tested, but `WorkspaceService::save_segment()` never calls them. TM corpus will not grow from human/AI-accepted saves until wired. | **High** (AC-10 / G6 incomplete in production path) | Pre-production follow-up (hotfix on main or immediate post-merge PR). Policy itself correctly excludes `machine`. |
+| D1 | ~~TM write-back not wired on workspace save~~ | — | **RESOLVED** (F11.1) — `WorkspaceService::save_segment()` → `write_back()` / `record_usage()` |
 | D2 | **TM translate pre-fill** (`TranslationService` consult TM before provider) not implemented | Medium | Documented debt; optional productivity; not required to merge |
 | D3 | **QA severity softening:** `empty_translation` = warning (plan: error); plain-text HTML target → warning | Medium | Pragmatic for F10 save compatibility; codes unchanged; documented in frozen API |
 | D4 | **CLI TM stats** deferred in plan §10 to WP11 but not delivered | Low | Explicitly optional; remains deferred |
@@ -84,8 +84,8 @@
 | Provenance preserved | `origin` enum on `aiml_tm` | **PASS** |
 | TM canonical approved source for reuse | Suggestions via TM provider; Store remains segment SoT | **PASS** |
 | Providers cannot bypass TM policy | No provider writes `aiml_tm`; only `TranslationMemoryService` | **PASS** |
-| Eligible saves populate TM | Save path missing `write_back` call | **FAIL until D1 fixed** |
-| Accept TM → `record_usage` | Policy documented; `record_usage` not called from workspace | **FAIL until D1 fixed** |
+| Eligible saves populate TM | `save_segment` → `write_back` / `record_usage` | **PASS** |
+| Accept TM → `record_usage` | `tm_accepted` + `tm_id` via accept batch; usage incremented | **PASS** |
 
 ---
 
@@ -107,7 +107,7 @@
 
 ## 6. Remaining technical debt
 
-1. **D1 — Wire TM write-back + record_usage on eligible workspace saves** (blocking for real TM growth)
+1. ~~**D1 — Wire TM write-back + record_usage on eligible workspace saves**~~ **RESOLVED** (F11.1)
 2. **D2 — TM exact pre-fill on translate**
 3. **D3 — Revisit QA severities vs plan table** (product decision)
 4. **D4 — TM CLI stats**
@@ -137,7 +137,7 @@ See [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md). Capture staging 
 | Auth cookies untracked (gitignore) | **Yes** (`artifacts/` ignored) |
 | No tracked `node_modules` | **Yes** |
 | No secrets in tree | **Yes** (CredentialVault encrypts; cookies local-only) |
-| Ready to merge to `main` | **CONDITIONAL GO** — merge OK for code delivery; **do not claim production TM write-back** until D1 |
+| Ready to merge to `main` | **GO** — D1 resolved; remaining debt (D2–D5) is non-blocking |
 
 ---
 
@@ -187,7 +187,7 @@ e79a39c6e docs(f11): prepare merge with API freeze and readiness report
 
 | Risk | Mitigation |
 |---|---|
-| TM never grows (D1) | Wire write-back before relying on TM productivity in prod |
+| TM never grows (D1) | **Mitigated** — write-back wired on eligible saves (F11.1) |
 | QA warnings vs expected errors | Train translators; optional severity revisit |
 | Provider cost / timeouts | Sync cap 50; NullAI default; rate limits |
 | Credential mishandling | Vault + never return keys over REST |
@@ -228,4 +228,4 @@ e79a39c6e docs(f11): prepare merge with API freeze and readiness report
 
 **Merge F11 into main, tag the merge commit if required by repository policy, deploy to the development environment, perform a short human acceptance session, then begin planning and freezing the canonical F12 implementation plan.**
 
-Prioritize a short follow-up to wire TM `write_back` / `record_usage` on eligible saves (D1) before treating Translation Memory as production-complete for corpus growth.
+F11.1 completed D1 (TM write-back on eligible saves). Remaining deviations D2–D5 are non-blocking.

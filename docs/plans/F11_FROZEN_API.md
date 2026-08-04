@@ -118,7 +118,7 @@ New codes may only be **added** via new `QACheck` classes.
 | Exact confidence | 100 (context) / 95 (global + ambiguity gate) |
 | Fuzzy | Confidence ∈ [60, 94]; default threshold 85 |
 
-**Implementation gap (pre-production):** `TranslationMemoryService::write_back()` / `record_usage()` are implemented and unit/integration-tested, but **workspace `save_segment` does not yet invoke them**. Policy cannot be bypassed by providers (no alternate write path), but eligible human/AI-accepted saves do not yet populate TM until wiring is completed. See merge readiness report §6.
+**Implementation note:** `WorkspaceService::save_segment()` invokes `TranslationMemoryService::write_back()` after a successful Store persist for eligible origins (`human`, `ai_accepted`, `import`). Accepting an existing TM hit uses `record_usage()` only (`tm_accepted`). Machine persist goes through `TranslationService` → Store and never calls this path.
 
 ---
 
@@ -142,5 +142,5 @@ Workspace/settings adapt via flags — no vendor-name branching in `WorkspaceSer
 | `TranslationSuggestionService` sole suggestion orchestrator | **PASS** |
 | `WorkspaceService` does not call SuggestionProviders / OpenAI | **PASS** |
 | TM write-back **policy** machine-excluded | **PASS** |
-| TM write-back **wired on save** | **GAP** — see §7 |
+| TM write-back **wired on save** | **PASS** — `WorkspaceService::sync_translation_memory_after_save()` |
 | This frozen API doc committed | **PASS** |
