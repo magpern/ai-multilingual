@@ -36,6 +36,10 @@ use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
 use AIMultilingual\Rest\WorkspaceController;
+use AIMultilingual\Rollout\RolloutCapabilities;
+use AIMultilingual\Rollout\RolloutConfigurationRepository;
+use AIMultilingual\Rollout\RolloutPolicyService;
+use AIMultilingual\Rollout\RolloutRenderGateBridge;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\AI\CredentialVault;
 use AIMultilingual\Translation\AI\NullAIProvider;
@@ -285,6 +289,7 @@ final class Plugin {
 		$languages->ensure_default( get_locale() );
 
 		self::grant_capability();
+		RolloutCapabilities::grant_default_roles();
 	}
 
 	/**
