@@ -19,23 +19,18 @@ final class RolloutPolicyService {
 	/**
 	 * Evaluates rollout policy for one request against one configuration.
 	 *
-	 * @param RolloutPolicyRequest  $request Frontend or diagnostic request facts.
-	 * @param RolloutConfiguration  $config  Current validated configuration.
+	 * @param RolloutPolicyRequest $request Frontend or diagnostic request facts.
+	 * @param RolloutConfiguration $config  Current validated configuration.
 	 */
 	public function evaluate( RolloutPolicyRequest $request, RolloutConfiguration $config ): RolloutPolicyDecision {
-		try {
-			return $this->evaluate_inner( $request, $config );
-		} catch ( \Throwable $e ) {
-			return RolloutPolicyDecision::deny(
-				RolloutReasonCodes::POLICY_ERROR,
-				$config->rollout_stage,
-				$config->policy_version,
-			);
-		}
+		return $this->evaluate_inner( $request, $config );
 	}
 
 	/**
-	 * @throws \InvalidArgumentException When configuration is structurally invalid for evaluation.
+	 * Pure policy evaluation without side effects.
+	 *
+	 * @param RolloutPolicyRequest $request Request facts.
+	 * @param RolloutConfiguration $config  Active configuration.
 	 */
 	private function evaluate_inner( RolloutPolicyRequest $request, RolloutConfiguration $config ): RolloutPolicyDecision {
 		if ( RolloutConfiguration::SCHEMA_VERSION !== $config->schema_version ) {
@@ -129,6 +124,9 @@ final class RolloutPolicyService {
 
 	/**
 	 * Whether the post ID is allowlisted.
+	 *
+	 * @param int                  $post_id Post ID.
+	 * @param RolloutConfiguration $config  Active configuration.
 	 */
 	private function matches_post_id( int $post_id, RolloutConfiguration $config ): bool {
 		if ( $post_id <= 0 ) {
@@ -144,6 +142,9 @@ final class RolloutPolicyService {
 
 	/**
 	 * Whether the post type passes filters.
+	 *
+	 * @param string               $post_type Post type slug.
+	 * @param RolloutConfiguration $config    Active configuration.
 	 */
 	private function matches_post_type( string $post_type, RolloutConfiguration $config ): bool {
 		$post_type = strtolower( trim( $post_type ) );
@@ -161,6 +162,9 @@ final class RolloutPolicyService {
 
 	/**
 	 * Whether the language passes filters.
+	 *
+	 * @param string               $language_code Language code.
+	 * @param RolloutConfiguration $config        Active configuration.
 	 */
 	private function matches_language( string $language_code, RolloutConfiguration $config ): bool {
 		$language_code = strtolower( trim( $language_code ) );

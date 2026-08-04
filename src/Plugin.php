@@ -42,6 +42,11 @@ use AIMultilingual\Rollout\RolloutConfigurationRepository;
 use AIMultilingual\Rollout\RolloutPolicyService;
 use AIMultilingual\Rollout\RolloutRenderGateBridge;
 use AIMultilingual\Rollout\RolloutCli;
+use AIMultilingual\Rollout\Cache\RenderCacheInvalidationService;
+use AIMultilingual\Rollout\Cache\RenderCacheKeyFactory;
+use AIMultilingual\Rollout\Cache\RenderCacheService;
+use AIMultilingual\Rollout\Cache\RolloutCacheInvalidationHooks;
+use AIMultilingual\Rollout\Cache\RolloutRenderCacheBridge;
 use AIMultilingual\Rollout\Metrics\RolloutMetricsCollector;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\AI\CredentialVault;
@@ -144,22 +149,29 @@ final class Plugin {
 		$context        = new LanguageContext();
 		$store          = new Store( $cache );
 
-		$adapter_registry = new AdapterRegistry();
-		$block_registry   = new BlockRegistry( $adapter_registry );
-		$block_logger     = new BlockIdentityLogger();
-		$uuid_injector    = new UuidInjector( $block_registry, $block_logger );
-		$block_extractor  = new BlockExtractor(
+		$adapter_registry    = new AdapterRegistry();
+		$block_registry      = new BlockRegistry( $adapter_registry );
+		$block_logger        = new BlockIdentityLogger();
+		$uuid_injector       = new UuidInjector( $block_registry, $block_logger );
+		$block_extractor     = new BlockExtractor(
 			$adapter_registry,
 			$block_registry,
 			new BlockExtractionLogger()
 		);
-		$extractor        = new Extractor( $settings, $block_extractor );
-		$block_renderer   = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
-		$rollout_bridge   = new RolloutRenderGateBridge(
+		$extractor           = new Extractor( $settings, $block_extractor );
+		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
+		$config_repo         = new RolloutConfigurationRepository();
+		$rollout_bridge      = new RolloutRenderGateBridge(
 			new RolloutPolicyService(),
-			new RolloutConfigurationRepository()
+			$config_repo
 		);
-		$block_frontend   = new BlockFrontendRenderer(
+		$render_cache_bridge = new RolloutRenderCacheBridge(
+			new RenderCacheService( $cache ),
+			new RenderCacheKeyFactory(),
+			$store,
+			$config_repo
+		);
+		$block_frontend      = new BlockFrontendRenderer(
 			new BlockRenderGate( $rollout_bridge ),
 			new BlockTranslationLookup( $store ),
 			new BlockTranslationSanitizer(),
@@ -167,7 +179,8 @@ final class Plugin {
 			new BlockFrontendRenderLogger(),
 			$settings,
 			$context,
-			$extractor
+			$extractor,
+			$render_cache_bridge
 		);
 
 		$router = new Router( $languages, $resolver, $context );
@@ -231,6 +244,11 @@ final class Plugin {
 		$metrics->register();
 
 		( new RolloutMetricsCollector() )->register();
+
+		( new RolloutCacheInvalidationHooks(
+			new RenderCacheInvalidationService( null, $cache ),
+			$languages
+		) )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 

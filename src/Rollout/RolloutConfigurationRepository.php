@@ -99,7 +99,20 @@ final class RolloutConfigurationRepository {
 			)
 		);
 
-		return update_option( self::OPTION, $payload->to_array(), false );
+		$saved = update_option( self::OPTION, $payload->to_array(), false );
+
+		if ( $saved && function_exists( 'do_action' ) ) {
+			/**
+			 * Fires after rollout configuration is saved.
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param RolloutConfiguration $payload Saved configuration.
+			 */
+			\do_action( 'aiml_rollout_config_saved', $payload );
+		}
+
+		return $saved;
 	}
 
 	/**
@@ -116,7 +129,7 @@ final class RolloutConfigurationRepository {
 	): RolloutConfigurationValidationResult {
 		$current = $this->get( $configured_language_codes );
 
-		$merged = array_merge( $current->to_array(), $proposed );
+		$merged                   = array_merge( $current->to_array(), $proposed );
 		$merged['policy_version'] = $current->policy_version + 1;
 		$merged['schema_version'] = RolloutConfiguration::SCHEMA_VERSION;
 
@@ -135,9 +148,9 @@ final class RolloutConfigurationRepository {
 	/**
 	 * Restores a prior snapshot atomically and increments policy_version.
 	 *
-	 * @param int                  $policy_version            Snapshot version to restore.
-	 * @param int                  $updated_by                Acting user ID.
-	 * @param list<string>|null    $configured_language_codes Known language codes.
+	 * @param int               $policy_version            Snapshot version to restore.
+	 * @param int               $updated_by                Acting user ID.
+	 * @param list<string>|null $configured_language_codes Known language codes.
 	 */
 	public function restore(
 		int $policy_version,
@@ -151,10 +164,13 @@ final class RolloutConfigurationRepository {
 
 		$current = $this->get( $configured_language_codes );
 
-		$merged = array_merge( $snapshot, array(
-			'policy_version' => $current->policy_version + 1,
-			'schema_version' => RolloutConfiguration::SCHEMA_VERSION,
-		) );
+		$merged = array_merge(
+			$snapshot,
+			array(
+				'policy_version' => $current->policy_version + 1,
+				'schema_version' => RolloutConfiguration::SCHEMA_VERSION,
+			)
+		);
 
 		$result = $this->validate_proposed( $merged, $configured_language_codes );
 		if ( ! $result->valid || null === $result->config ) {
