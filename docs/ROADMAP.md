@@ -50,6 +50,6 @@ milestones. As of 2026-08-03:
 |---|---|
 | F1–F9 | Engineering complete on `main` |
 | **F10** Translator Workspace MVP | **Complete** — merged to `main`; see [F10 validation log](plans/F10_TRANSLATOR_VALIDATION_LOG.md) |
-| **F11** Translation Memory & AI Assistance | **Complete** on feature branch — [canonical plan](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md); [validation log](plans/F11_TRANSLATOR_VALIDATION_LOG.md) PASS; tag `strategy-f-f11-tm-ai-complete`; [merge readiness](plans/F11_MERGE_READINESS_REPORT.md) — merge to `main` pending |
-| **F12** Limited rollout | **Next** — operational only: cohort/feature flags, rollout strategy, telemetry, monitoring, performance, caching, production confidence, operational diagnostics. **No** new translator features. Plan not started. |
-| **F13** General rollout + ADR acceptance | Planned (unchanged) |
+| **F11** Translation Memory & AI Assistance | **Complete** — [canonical plan](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md); [validation log](plans/F11_TRANSLATOR_VALIDATION_LOG.md) PASS; tags `strategy-f-f11-tm-ai-complete` / `strategy-f-f11-tm-ai-merged` |
+| **F12** Limited rollout | **Plan drafted** — [canonical plan](plans/STRATEGY_F_F12_LIMITED_ROLLOUT.md); architecture pending final PO decisions. Operational only (cohort/flags, telemetry, metrics, performance, caching, diagnostics, rollback). **No** new translator features. **Implementation not started.** |
+| **F13** General rollout + ADR acceptance | Planned (unchanged); requires F12 entry gate + ADR-0013 review (**Proposed**) |
