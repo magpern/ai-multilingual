@@ -121,6 +121,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Database/Migrator.php',
 			'src/Language/Languages.php',
 			'src/Translation/Store.php',
+			'src/Translation/Memory/TMRepository.php',
 		);
 
 		foreach ( $this->sources() as $path => $code ) {
@@ -163,8 +164,11 @@ final class PluginGuardTest extends AimlTestCase {
 	public function test_no_rest_routes_are_registered(): void {
 		$this->assert_absent(
 			array( 'register_rest_route', 'WP_REST_Controller', 'rest_api_init' ),
-			'REST is confined to the translator workspace controller under aiml/v1.',
-			array( 'src/Rest/WorkspaceController.php' )
+			'REST is confined to the translator workspace and provider admin controllers under aiml/v1.',
+			array(
+				'src/Rest/WorkspaceController.php',
+				'src/Rest/ProviderController.php',
+			)
 		);
 	}
 

@@ -102,11 +102,11 @@ final class TranslatorWorkspace {
 			self::SCRIPT_HANDLE,
 			'aimlTranslatorWorkspace',
 			array(
-				'restNamespace'         => 'aiml/v1',
-				'nonce'                 => wp_create_nonce( 'wp_rest' ),
-				'languages'             => $this->language_bootstrap(),
-				'initialPostId'         => isset( $_GET['post_id'] ) ? (int) $_GET['post_id'] : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				'initialLanguageCode'   => isset( $_GET['language'] ) ? sanitize_key( wp_unslash( (string) $_GET['language'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				'restNamespace'       => 'aiml/v1',
+				'nonce'               => wp_create_nonce( 'wp_rest' ),
+				'languages'           => $this->language_bootstrap(),
+				'initialPostId'       => isset( $_GET['post_id'] ) ? (int) $_GET['post_id'] : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				'initialLanguageCode' => isset( $_GET['language'] ) ? sanitize_key( wp_unslash( (string) $_GET['language'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			)
 		);
 

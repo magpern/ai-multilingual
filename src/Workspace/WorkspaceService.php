@@ -12,7 +12,11 @@ namespace AIMultilingual\Workspace;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
 use AIMultilingual\Translation\Extractor;
+use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\QA\QAEngine;
+use AIMultilingual\Workspace\QA\QAIssue;
+use AIMultilingual\Workspace\QA\QAResult;
 use WP_Error;
 use WP_Post;
 use WP_Query;
@@ -81,15 +85,39 @@ final class WorkspaceService {
 	private Extractor $extractor;
 
 	/**
+	 * Injected dependency.
+	 *
+	 * @var TranslationSuggestionService
+	 */
+	private TranslationSuggestionService $suggestions;
+
+	/**
+	 * Injected dependency.
+	 *
+	 * @var QAEngine
+	 */
+	private QAEngine $qa;
+
+	/**
+	 * Injected dependency.
+	 *
+	 * @var TranslationMemoryService
+	 */
+	private TranslationMemoryService $tm;
+
+	/**
 	 * Builds the collaborator.
 	 *
-	 * @param SegmentAssembler            $assembler           Segment assembly.
-	 * @param TranslationStatusCalculator $status_calculator   Status aggregation.
-	 * @param TranslationService          $translation         Auto-translate boundary.
-	 * @param PreviewService              $preview             Preview URLs.
-	 * @param Languages                   $languages           Language registry.
-	 * @param Store                       $store               Segment store.
-	 * @param Extractor                   $extractor           Source extractor.
+	 * @param SegmentAssembler             $assembler           Segment assembly.
+	 * @param TranslationStatusCalculator  $status_calculator   Status aggregation.
+	 * @param TranslationService           $translation         Auto-translate boundary.
+	 * @param PreviewService               $preview             Preview URLs.
+	 * @param Languages                    $languages           Language registry.
+	 * @param Store                        $store               Segment store.
+	 * @param Extractor                    $extractor           Source extractor.
+	 * @param TranslationSuggestionService $suggestions         Suggestion orchestration.
+	 * @param QAEngine                     $qa                  Quality assurance engine.
+	 * @param TranslationMemoryService     $tm                  Translation memory write-back.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -98,7 +126,10 @@ final class WorkspaceService {
 		PreviewService $preview,
 		Languages $languages,
 		Store $store,
-		Extractor $extractor
+		Extractor $extractor,
+		TranslationSuggestionService $suggestions,
+		QAEngine $qa,
+		TranslationMemoryService $tm
 	) {
 		$this->assembler         = $assembler;
 		$this->status_calculator = $status_calculator;
@@ -107,6 +138,9 @@ final class WorkspaceService {
 		$this->languages         = $languages;
 		$this->store             = $store;
 		$this->extractor         = $extractor;
+		$this->suggestions       = $suggestions;
+		$this->qa                = $qa;
+		$this->tm                = $tm;
 		$this->batch             = new BatchOperationCoordinator( $this, $translation );
 	}
 
@@ -194,7 +228,9 @@ final class WorkspaceService {
 	public function load_segments( WP_Post $post, int $language_id ): array {
 		$this->assert_supported_post( $post );
 
-		return $this->assembler->assemble_for_post( $post, $language_id );
+		$segments = $this->assembler->assemble_for_post( $post, $language_id );
+
+		return $this->attach_meta( $segments, $language_id );
 	}
 
 	/**
@@ -250,8 +286,11 @@ final class WorkspaceService {
 	 * @param string  $translated_text Target text.
 	 * @param string  $source_hash     Client source hash.
 	 * @param string  $status          Optional workflow status.
+	 * @param string  $save_origin     Optional TM save origin (human|ai_accepted|tm_accepted|machine|import).
+	 * @param int     $tm_id           Optional TM id when accepting an existing memory hit.
 	 * @return array<string, mixed>
 	 * @throws WorkspaceConflictException When source_hash mismatches.
+	 * @throws WorkspaceQAException When QA errors block the save.
 	 * @throws \InvalidArgumentException When the segment cannot be saved.
 	 * @throws \RuntimeException When the saved segment cannot be reloaded.
 	 */
@@ -261,7 +300,9 @@ final class WorkspaceService {
 		string $segment_key,
 		string $translated_text,
 		string $source_hash,
-		string $status = ''
+		string $status = '',
+		string $save_origin = '',
+		int $tm_id = 0
 	): array {
 		$this->assert_supported_post( $post );
 
@@ -277,6 +318,31 @@ final class WorkspaceService {
 		if ( '' !== $source_hash && (string) ( $current['source_hash'] ?? '' ) !== $source_hash ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- conflict payload is structured data, not exception text.
 			throw new WorkspaceConflictException( array( $current ) );
+		}
+
+		$format = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+		$qa     = $this->qa->evaluate(
+			(string) ( $current['source_text'] ?? '' ),
+			$translated_text,
+			$format
+		);
+
+		// Clearing a translation (blank target) is an allowed workspace action;
+		// empty_translation must not block that path.
+		if ( '' === trim( $translated_text ) ) {
+			$qa = new \AIMultilingual\Workspace\QA\QAResult(
+				array_values(
+					array_filter(
+						$qa->issues,
+						static fn( \AIMultilingual\Workspace\QA\QAIssue $issue ): bool => 'empty_translation' !== $issue->code
+					)
+				)
+			);
+		}
+
+		if ( $this->qa->should_block_save( $qa ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- QA payload is structured data, not exception text.
+			throw new WorkspaceQAException( $qa );
 		}
 
 		$save_status = '' !== $status ? $status : Store::STATUS_MANUALLY_EDITED;
@@ -305,12 +371,66 @@ final class WorkspaceService {
 			throw new \InvalidArgumentException( esc_html( $result->get_error_message() ) );
 		}
 
+		$this->sync_translation_memory_after_save(
+			$language_id,
+			$current,
+			$translated_text,
+			$save_origin,
+			$tm_id
+		);
+
 		$refreshed = $this->assembler->assemble_one( $post, $language_id, $segment_key );
 		if ( null === $refreshed ) {
 			throw new \RuntimeException( 'Saved segment could not be reloaded.' );
 		}
 
-		return $refreshed;
+		$with_meta = $this->attach_meta( array( $refreshed ), $language_id );
+
+		return $with_meta[0];
+	}
+
+	/**
+	 * Requests ranked suggestions for one segment (TM + optional AI profile).
+	 *
+	 * @param WP_Post $post           Canonical post.
+	 * @param int     $language_id    Target language id.
+	 * @param string  $segment_key    Segment key.
+	 * @param string  $prompt_profile Prompt profile id.
+	 * @return array<string, mixed>
+	 * @throws \InvalidArgumentException When the segment is unknown.
+	 */
+	public function request_suggestions(
+		WP_Post $post,
+		int $language_id,
+		string $segment_key,
+		string $prompt_profile
+	): array {
+		$this->assert_supported_post( $post );
+
+		$segment = $this->assembler->assemble_one( $post, $language_id, $segment_key );
+		if ( null === $segment ) {
+			throw new \InvalidArgumentException( 'Unknown segment key for this post.' );
+		}
+
+		$default = $this->languages->default();
+		$context = array(
+			'source_language_id' => $default ? (int) $default->language_id : 0,
+			'target_language_id' => $language_id,
+			'prompt_profile'     => $prompt_profile,
+			'post'               => $post,
+		);
+
+		$suggestions         = $this->suggestions->request_suggestions( $segment, $context );
+		$meta                = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
+		$meta['suggestions'] = $suggestions;
+		$meta['qa']          = $this->qa->evaluate(
+			(string) ( $segment['source_text'] ?? '' ),
+			(string) ( $segment['translated_text'] ?? '' ),
+			(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN )
+		)->to_array();
+		$segment['meta']     = $meta;
+
+		return $segment;
 	}
 
 	/**
@@ -382,6 +502,294 @@ final class WorkspaceService {
 		}
 
 		return $post;
+	}
+
+	/**
+	 * Accepts exact TM suggestions for selected segments via save_batch.
+	 *
+	 * @param WP_Post            $post         Canonical post.
+	 * @param int                $language_id  Target language id.
+	 * @param array<int, string> $segment_keys Segment keys (empty = all with exact TM).
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function accept_tm_exact_batch( WP_Post $post, int $language_id, array $segment_keys = array() ) {
+		$this->assert_supported_post( $post );
+
+		$segments = $this->load_segments( $post, $language_id );
+		$wanted   = array();
+		foreach ( $segment_keys as $key ) {
+			$wanted[ (string) $key ] = true;
+		}
+
+		$items = array();
+		foreach ( $segments as $segment ) {
+			$key = (string) ( $segment['segment_key'] ?? '' );
+			if ( array() !== $wanted && ! isset( $wanted[ $key ] ) ) {
+				continue;
+			}
+
+			if ( ! (bool) ( $segment['can_edit'] ?? false ) ) {
+				continue;
+			}
+
+			$exact = $this->first_exact_tm_suggestion( $segment );
+			if ( null === $exact ) {
+				continue;
+			}
+
+			$items[] = array(
+				'segment_key'     => $key,
+				'translated_text' => $exact['text'],
+				'source_hash'     => (string) ( $segment['source_hash'] ?? '' ),
+				'status'          => Store::STATUS_MANUALLY_EDITED,
+				'save_origin'     => 'tm_accepted',
+				'tm_id'           => $exact['tm_id'],
+			);
+		}
+
+		if ( array() === $items ) {
+			return array(
+				'status'   => 'completed',
+				'segments' => array(),
+				'errors'   => array(),
+			);
+		}
+
+		return $this->batch->save_batch( $post, $language_id, $items );
+	}
+
+	/**
+	 * Runs read-only QA for selected or all segments.
+	 *
+	 * @param WP_Post            $post         Canonical post.
+	 * @param int                $language_id  Target language id.
+	 * @param array<int, string> $segment_keys Segment keys (empty = all).
+	 * @return array<string, mixed>
+	 */
+	public function qa_batch( WP_Post $post, int $language_id, array $segment_keys = array() ): array {
+		$this->assert_supported_post( $post );
+
+		$segments = $this->load_segments( $post, $language_id );
+		$wanted   = array();
+		foreach ( $segment_keys as $key ) {
+			$wanted[ (string) $key ] = true;
+		}
+
+		$out      = array();
+		$errors   = 0;
+		$warnings = 0;
+		$info     = 0;
+
+		foreach ( $segments as $segment ) {
+			$key = (string) ( $segment['segment_key'] ?? '' );
+			if ( array() !== $wanted && ! isset( $wanted[ $key ] ) ) {
+				continue;
+			}
+
+			$qa        = is_array( $segment['meta']['qa'] ?? null ) ? $segment['meta']['qa'] : array();
+			$summary   = is_array( $qa['summary'] ?? null ) ? $qa['summary'] : array();
+			$errors   += (int) ( $summary['errors'] ?? 0 );
+			$warnings += (int) ( $summary['warnings'] ?? 0 );
+			$info     += (int) ( $summary['info'] ?? 0 );
+			$out[]     = $segment;
+		}
+
+		return array(
+			'segments' => $out,
+			'summary'  => array(
+				'errors'   => $errors,
+				'warnings' => $warnings,
+				'info'     => $info,
+			),
+		);
+	}
+
+	/**
+	 * Returns the top exact TM suggestion text and tm_id, if any.
+	 *
+	 * @param array<string, mixed> $segment Segment DTO with meta.suggestions.
+	 * @return array{text: string, tm_id: int}|null
+	 */
+	private function first_exact_tm_suggestion( array $segment ): ?array {
+		$suggestions = is_array( $segment['meta']['suggestions'] ?? null )
+			? $segment['meta']['suggestions']
+			: array();
+
+		foreach ( $suggestions as $suggestion ) {
+			if ( ! is_array( $suggestion ) ) {
+				continue;
+			}
+			if ( 'tm' !== (string) ( $suggestion['provider_id'] ?? '' ) ) {
+				continue;
+			}
+			$tier  = (int) ( $suggestion['rank_tier'] ?? 0 );
+			$meta  = is_array( $suggestion['metadata'] ?? null ) ? $suggestion['metadata'] : array();
+			$match = (string) ( $meta['match_type'] ?? '' );
+			if ( 1 === $tier || 'exact' === $match ) {
+				$text = (string) ( $suggestion['target_text'] ?? '' );
+				if ( '' === $text ) {
+					return null;
+				}
+
+				return array(
+					'text'  => $text,
+					'tm_id' => (int) ( $meta['tm_id'] ?? 0 ),
+				);
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Applies ADR-F11-004 TM write-back / usage after a successful Store save.
+	 *
+	 * Machine persist never reaches this method (TranslationService writes Store
+	 * directly). TM accepts record usage only; human / AI-accepted / import upsert.
+	 *
+	 * @param int                  $language_id     Target language id.
+	 * @param array<string, mixed> $current         Pre-save assembled segment DTO.
+	 * @param string               $translated_text Saved target text.
+	 * @param string               $save_origin     Optional explicit origin token.
+	 * @param int                  $tm_id           Optional TM id for tm_accepted.
+	 */
+	private function sync_translation_memory_after_save(
+		int $language_id,
+		array $current,
+		string $translated_text,
+		string $save_origin = '',
+		int $tm_id = 0
+	): void {
+		if ( '' === trim( $translated_text ) ) {
+			return;
+		}
+
+		if ( 'machine' === $save_origin ) {
+			return;
+		}
+
+		$default = $this->languages->default();
+		if ( null === $default ) {
+			return;
+		}
+
+		$text_format = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+		$source_text = (string) ( $current['source_text'] ?? '' );
+		$source_hash = (string) ( $current['source_hash'] ?? '' );
+		$context     = TranslationMemoryService::derive_context(
+			(string) ( $current['block_name'] ?? '' ),
+			(string) ( $current['field_key'] ?? '' )
+		);
+
+		$resolved_origin = $save_origin;
+		$resolved_tm_id  = $tm_id;
+
+		if ( '' === $resolved_origin ) {
+			$match = $this->matching_tm_suggestion( $current, $language_id, $translated_text );
+			if ( null !== $match ) {
+				$resolved_origin = 'tm_accepted';
+				$resolved_tm_id  = $match;
+			} else {
+				$resolved_origin = 'human';
+			}
+		}
+
+		if ( 'tm_accepted' === $resolved_origin ) {
+			if ( $resolved_tm_id <= 0 ) {
+				$resolved_tm_id = $this->matching_tm_suggestion( $current, $language_id, $translated_text ) ?? 0;
+			}
+			if ( $resolved_tm_id > 0 ) {
+				$this->tm->record_usage( $resolved_tm_id );
+			}
+			return;
+		}
+
+		if ( ! in_array( $resolved_origin, array( 'human', 'ai_accepted', 'import' ), true ) ) {
+			$resolved_origin = 'human';
+		}
+
+		$this->tm->write_back(
+			array(
+				'source_lang_id' => (int) $default->language_id,
+				'target_lang_id' => $language_id,
+				'source_text'    => $source_text,
+				'source_hash'    => $source_hash,
+				'target_text'    => $translated_text,
+				'text_format'    => $text_format,
+				'context'        => $context,
+			),
+			$resolved_origin
+		);
+	}
+
+	/**
+	 * Finds a TM suggestion id whose target text matches the saved translation.
+	 *
+	 * @param array<string, mixed> $current         Segment DTO (meta optional).
+	 * @param int                  $language_id     Target language id.
+	 * @param string               $translated_text Saved target text.
+	 */
+	private function matching_tm_suggestion( array $current, int $language_id, string $translated_text ): ?int {
+		$suggestions = is_array( $current['meta']['suggestions'] ?? null )
+			? $current['meta']['suggestions']
+			: array();
+
+		if ( array() === $suggestions ) {
+			$with_meta   = $this->attach_meta( array( $current ), $language_id );
+			$suggestions = is_array( $with_meta[0]['meta']['suggestions'] ?? null )
+				? $with_meta[0]['meta']['suggestions']
+				: array();
+		}
+
+		foreach ( $suggestions as $suggestion ) {
+			if ( ! is_array( $suggestion ) ) {
+				continue;
+			}
+			if ( 'tm' !== (string) ( $suggestion['provider_id'] ?? '' ) ) {
+				continue;
+			}
+			if ( (string) ( $suggestion['target_text'] ?? '' ) !== $translated_text ) {
+				continue;
+			}
+			$meta  = is_array( $suggestion['metadata'] ?? null ) ? $suggestion['metadata'] : array();
+			$tm_id = (int) ( $meta['tm_id'] ?? 0 );
+			if ( $tm_id > 0 ) {
+				return $tm_id;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Attaches ranked suggestions and QA via dedicated services.
+	 *
+	 * @param list<array<string, mixed>> $segments    Assembled segment DTOs.
+	 * @param int                        $language_id Target language id.
+	 * @return list<array<string, mixed>>
+	 */
+	private function attach_meta( array $segments, int $language_id ): array {
+		$default = $this->languages->default();
+		$context = array(
+			'source_language_id' => $default ? (int) $default->language_id : 0,
+			'target_language_id' => $language_id,
+		);
+
+		$by_key = $this->suggestions->suggestions_for_batch( $segments, $context );
+
+		foreach ( $segments as $index => $segment ) {
+			$key                        = (string) ( $segment['segment_key'] ?? '' );
+			$meta                       = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
+			$meta['suggestions']        = $by_key[ $key ] ?? array();
+			$meta['qa']                 = $this->qa->evaluate(
+				(string) ( $segment['source_text'] ?? '' ),
+				(string) ( $segment['translated_text'] ?? '' ),
+				(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN )
+			)->to_array();
+			$segments[ $index ]['meta'] = $meta;
+		}
+
+		return $segments;
 	}
 
 	/**

@@ -16,7 +16,7 @@ use AIMultilingual\Translation\Store;
 use WP_REST_Request;
 
 /**
- * sync_source stale marking via workspace load path.
+ * Sync_source stale marking via workspace load path.
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -133,7 +133,7 @@ final class WorkspaceStaleTest extends AimlTestCase {
 
 	/**
 	 * @param array<int, array<string, mixed>> $segments Segment rows.
-	 * @param string                            $key      Segment key.
+	 * @param string                           $key      Segment key.
 	 * @return array<string, mixed>|null
 	 */
 	private function segment_by_key( array $segments, string $key ): ?array {

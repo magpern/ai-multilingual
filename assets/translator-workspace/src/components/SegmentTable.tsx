@@ -18,6 +18,8 @@ interface SegmentTableProps {
 	onDraftChange: ( segmentKey: string, value: string ) => void;
 	onSave: ( segmentKey: string ) => void;
 	onReload: ( segmentKey: string ) => void;
+	onSuggestProfile?: ( segmentKey: string, profile: string ) => void;
+	suggestingKey?: string | null;
 }
 
 export default function SegmentTable( {
@@ -34,6 +36,8 @@ export default function SegmentTable( {
 	onDraftChange,
 	onSave,
 	onReload,
+	onSuggestProfile,
+	suggestingKey = null,
 }: SegmentTableProps ) {
 	if ( loading ) {
 		return <Spinner />;
@@ -101,10 +105,12 @@ export default function SegmentTable( {
 							key={ row.segmentKey }
 							row={ row }
 							selected={ selectedKeys.has( row.segmentKey ) }
+							suggesting={ suggestingKey === row.segmentKey }
 							onToggleSelect={ onToggleSelect }
 							onDraftChange={ onDraftChange }
 							onSave={ onSave }
 							onReload={ onReload }
+							onSuggestProfile={ onSuggestProfile }
 						/>
 					) ) }
 				</tbody>

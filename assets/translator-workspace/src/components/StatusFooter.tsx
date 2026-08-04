@@ -5,9 +5,17 @@ import { overallStateLabel } from '../utils/segment-status';
 
 interface StatusFooterProps {
 	status: WorkspaceTranslationStatus;
+	qaSummary?: {
+		errors: number;
+		warnings: number;
+		info: number;
+	};
 }
 
-export default function StatusFooter( { status }: StatusFooterProps ) {
+export default function StatusFooter( {
+	status,
+	qaSummary,
+}: StatusFooterProps ) {
 	return (
 		<div
 			className="aiml-workspace-footer"
@@ -67,6 +75,24 @@ export default function StatusFooter( { status }: StatusFooterProps ) {
 						status.total_segments
 					) }
 				</li>
+				{ qaSummary && (
+					<>
+						<li>
+							{ sprintf(
+								/* translators: %d: count */
+								__( 'QA errors: %d', 'ai-multilingual' ),
+								qaSummary.errors
+							) }
+						</li>
+						<li>
+							{ sprintf(
+								/* translators: %d: count */
+								__( 'QA warnings: %d', 'ai-multilingual' ),
+								qaSummary.warnings
+							) }
+						</li>
+					</>
+				) }
 			</ul>
 		</div>
 	);

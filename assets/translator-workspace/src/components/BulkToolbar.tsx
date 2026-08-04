@@ -7,6 +7,8 @@ interface BulkToolbarProps {
 	busy: boolean;
 	onSaveSelected: () => void;
 	onTranslateSelected: () => void;
+	onAcceptTmExact?: () => void;
+	onRunQa?: () => void;
 	onClearSelection: () => void;
 }
 
@@ -16,6 +18,8 @@ export default function BulkToolbar( {
 	busy,
 	onSaveSelected,
 	onTranslateSelected,
+	onAcceptTmExact,
+	onRunQa,
 	onClearSelection,
 }: BulkToolbarProps ) {
 	if ( selectedCount === 0 ) {
@@ -61,6 +65,24 @@ export default function BulkToolbar( {
 				>
 					{ __( 'Translate selected', 'ai-multilingual' ) }
 				</Button>
+				{ onAcceptTmExact && (
+					<Button
+						variant="secondary"
+						onClick={ onAcceptTmExact }
+						disabled={ busy }
+					>
+						{ __( 'Accept TM exact', 'ai-multilingual' ) }
+					</Button>
+				) }
+				{ onRunQa && (
+					<Button
+						variant="secondary"
+						onClick={ onRunQa }
+						disabled={ busy }
+					>
+						{ __( 'Run QA', 'ai-multilingual' ) }
+					</Button>
+				) }
 				<Button
 					variant="tertiary"
 					onClick={ onClearSelection }

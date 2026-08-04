@@ -30,7 +30,39 @@ export interface WorkspaceSegment {
 	is_stale: boolean;
 	text_format: string;
 	can_edit: boolean;
-	meta: Record<string, unknown>;
+	meta: WorkspaceSegmentMeta;
+}
+
+export interface NormalizedSuggestion {
+	provider_id: string;
+	target_text: string;
+	confidence: number;
+	rank_tier: number;
+	metadata: Record<string, unknown>;
+}
+
+export interface QAIssue {
+	code: string;
+	severity: 'error' | 'warning' | 'info' | string;
+	message: string;
+	details: Record<string, unknown>;
+}
+
+export interface QASummary {
+	errors: number;
+	warnings: number;
+	info: number;
+}
+
+export interface SegmentQA {
+	issues: QAIssue[];
+	summary: QASummary;
+}
+
+export interface WorkspaceSegmentMeta {
+	suggestions?: NormalizedSuggestion[];
+	qa?: SegmentQA;
+	[key: string]: unknown;
 }
 
 export interface WorkspaceSegmentsResponse {

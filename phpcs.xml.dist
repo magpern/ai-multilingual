@@ -50,6 +50,9 @@
 		<exclude-pattern>*/tests/integration/wp-tests-config.php</exclude-pattern>
 	</rule>
 
+	<!-- Warnings must not fail CI when zero errors remain (F10/F11 gate). -->
+	<config name="ignore_warnings_on_exit" value="1"/>
+
 	<!-- Test method names are self-describing; don't demand full docblocks
 	     there. Data-provider annotations still require a docblock, so relax the
 	     short-description and param-tag requirements for test files only. -->

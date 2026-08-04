@@ -35,7 +35,7 @@ final class Migrator {
 	/**
 	 * Schema version this build expects.
 	 */
-	public const TARGET = 1;
+	public const TARGET = 2;
 
 	/**
 	 * Applies any migration steps newer than the recorded version.
@@ -83,6 +83,7 @@ final class Migrator {
 	private function steps(): array {
 		return array(
 			1 => array( $this, 'step_1_initial_tables' ),
+			2 => array( $this, 'step_2_translation_memory' ),
 		);
 	}
 
@@ -98,5 +99,14 @@ final class Migrator {
 
 		$wpdb->query( Schema::create_languages() );    // phpcs:ignore WordPress.DB.PreparedSQL
 		$wpdb->query( Schema::create_translations() ); // phpcs:ignore WordPress.DB.PreparedSQL
+	}
+
+	/**
+	 * Step 2 — F11 translation memory catalogue (`aiml_tm`).
+	 */
+	private function step_2_translation_memory(): void {
+		global $wpdb;
+
+		$wpdb->query( Schema::create_tm() ); // phpcs:ignore WordPress.DB.PreparedSQL
 	}
 }

@@ -106,4 +106,4 @@ Executed via WP-CLI `rest_do_request` as user 1 against post `6321`, language `s
 
 Recommend `strategy-f-f10-translator-complete` on merge to `main` (operator action).
 
-**Next milestone:** F11 — Translation Memory & AI Assistance (planned; see [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)). Limited rollout is **F12**.
+**Next milestone:** F12 — Limited rollout (operational). F11 Translation Memory & AI Assistance is **complete** — see [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md) and [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md).

@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 
 import type { BatchSaveResult, BatchTranslateResult } from '../types/segment-row';
 import type {
+	SegmentQA,
 	WorkspacePostsResponse,
 	WorkspaceSegment,
 	WorkspaceSegmentsResponse,
@@ -24,6 +25,16 @@ export class WorkspaceRequestError extends Error {
 		super( userMessage );
 		this.name = 'WorkspaceRequestError';
 		this.userMessage = userMessage;
+	}
+}
+
+export class WorkspaceQABlockedError extends Error {
+	public readonly qa: SegmentQA;
+
+	public constructor( message: string, qa: SegmentQA ) {
+		super( message );
+		this.name = 'WorkspaceQABlockedError';
+		this.qa = qa;
 	}
 }
 
@@ -169,8 +180,68 @@ export async function saveSegment(
 			throw conflict;
 		}
 
+		const qaBlocked = parseQaBlocked( error );
+		if ( qaBlocked ) {
+			throw qaBlocked;
+		}
+
 		throw new WorkspaceRequestError( userMessageFromError( error ) );
 	}
+}
+
+export async function suggestSegment(
+	postId: number,
+	languageCode: string,
+	segmentKey: string,
+	profile: string
+): Promise< WorkspaceSegment > {
+	try {
+		return await apiFetch< WorkspaceSegment >( {
+			path: path(
+				`workspace/${ postId }/segments/${ encodeURIComponent(
+					segmentKey
+				) }/suggest?language=${ encodeURIComponent( languageCode ) }`
+			),
+			method: 'POST',
+			data: {
+				profile,
+			},
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+function parseQaBlocked( error: unknown ): WorkspaceQABlockedError | null {
+	const candidate = error as {
+		code?: string;
+		message?: string;
+		qa?: SegmentQA;
+		data?: {
+			status?: number;
+			qa?: SegmentQA;
+		};
+	};
+
+	if ( candidate?.code === 'aiml_qa_blocked' ) {
+		const qa = candidate.qa ?? candidate.data?.qa;
+		if ( qa ) {
+			return new WorkspaceQABlockedError(
+				candidate.message ||
+					'Translation failed quality checks.',
+				{
+					issues: Array.isArray( qa.issues ) ? qa.issues : [],
+					summary: {
+						errors: Number( qa.summary?.errors ?? 0 ),
+						warnings: Number( qa.summary?.warnings ?? 0 ),
+						info: Number( qa.summary?.info ?? 0 ),
+					},
+				}
+			);
+		}
+	}
+
+	return null;
 }
 
 export async function saveBatch(
@@ -235,6 +306,61 @@ export async function translateBatch(
 			errors: response.errors ?? [],
 			job_id: response.job_id ?? null,
 		};
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function acceptTmSuggestions(
+	postId: number,
+	languageCode: string,
+	segmentKeys: string[]
+): Promise< BatchSaveResult > {
+	try {
+		const response = await apiFetch< BatchSaveResult & {
+			segments: WorkspaceSegment[];
+		} >( {
+			path: path(
+				`workspace/${ postId }/suggestions/accept?language=${ encodeURIComponent(
+					languageCode
+				) }`
+			),
+			method: 'POST',
+			data: {
+				segment_keys: segmentKeys,
+			},
+		} );
+
+		return {
+			status: response.status,
+			updated: response.segments ?? [],
+			errors: response.errors ?? [],
+		};
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function runQaBatch(
+	postId: number,
+	languageCode: string,
+	segmentKeys: string[]
+): Promise< {
+	segments: WorkspaceSegment[];
+	summary: { errors: number; warnings: number; info: number };
+} > {
+	try {
+		return await apiFetch( {
+			path: path(
+				`workspace/${ postId }/qa?language=${ encodeURIComponent(
+					languageCode
+				) }`
+			),
+			method: 'POST',
+			data: {
+				segment_keys: segmentKeys,
+			},
+		} );
 	} catch ( error ) {
 		throw new WorkspaceRequestError( userMessageFromError( error ) );
 	}

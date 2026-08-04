@@ -14,18 +14,18 @@ namespace AIMultilingual\Translation\AI;
  */
 final class ProviderResult {
 
-	public const ERROR_RETRYABLE   = 'retryable';
-	public const ERROR_PERMANENT   = 'permanent';
-	public const ERROR_VALIDATION  = 'validation';
+	public const ERROR_RETRYABLE  = 'retryable';
+	public const ERROR_PERMANENT  = 'permanent';
+	public const ERROR_VALIDATION = 'validation';
 
 	/**
 	 * Builds a provider result.
 	 *
 	 * @param array<int, array{segment_key: string, translated_text: string}> $segments Translated segments.
-	 * @param int                                                            $input_tokens Input token count.
-	 * @param int                                                            $output_tokens Output token count.
-	 * @param string                                                         $model Model identifier used.
-	 * @param string|null                                                    $error_class Error classification when partial failure occurs.
+	 * @param int                                                             $input_tokens Input token count.
+	 * @param int                                                             $output_tokens Output token count.
+	 * @param string                                                          $model Model identifier used.
+	 * @param string|null                                                     $error_class Error classification when partial failure occurs.
 	 */
 	public function __construct(
 		public readonly array $segments,

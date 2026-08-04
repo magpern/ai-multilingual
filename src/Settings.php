@@ -113,6 +113,15 @@ final class Settings {
 			 * deliberately enabled.
 			 */
 			'block_frontend_rendering_enabled' => false,
+
+			/*
+			 * F11 AI provider configuration (server-side only; API key encrypted).
+			 */
+			'ai_enabled'                       => false,
+			'ai_provider'                      => '',
+			'ai_model'                         => '',
+			'ai_api_key_encrypted'             => '',
+			'qa_block_on_error'                => true,
 		);
 	}
 
@@ -133,13 +142,42 @@ final class Settings {
 
 		$clean = $defaults;
 
-		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled', 'block_extraction_enabled', 'block_frontend_rendering_enabled' ) as $key ) {
+		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled', 'block_extraction_enabled', 'block_frontend_rendering_enabled', 'ai_enabled', 'qa_block_on_error' ) as $key ) {
 			if ( array_key_exists( $key, $raw ) ) {
 				$clean[ $key ] = self::to_bool( $raw[ $key ] );
 			}
 		}
 
-		$clean = FeatureFlags::validate_dependencies( $clean );
+		if ( array_key_exists( 'ai_provider', $raw ) ) {
+			$provider             = strtolower( trim( (string) $raw['ai_provider'] ) );
+			$provider             = preg_replace( '/[^a-z0-9_\-]/', '', $provider ) ?? '';
+			$allowed              = array( '', 'openai' );
+			$clean['ai_provider'] = in_array( $provider, $allowed, true ) ? $provider : '';
+		}
+
+		if ( array_key_exists( 'ai_model', $raw ) ) {
+			$model             = trim( (string) $raw['ai_model'] );
+			$model             = preg_replace( '/[^\w.\-\/: ]/', '', $model ) ?? '';
+			$clean['ai_model'] = substr( $model, 0, 191 );
+		}
+
+		if ( array_key_exists( 'ai_api_key_encrypted', $raw ) ) {
+			$key = (string) $raw['ai_api_key_encrypted'];
+			// Only accept vault ciphertext or empty — never store plaintext via sanitize.
+			if ( '' === $key || str_starts_with( $key, 'aiml1:' ) ) {
+				$clean['ai_api_key_encrypted'] = substr( $key, 0, 4096 );
+			}
+		}
+
+		$flag_keys  = FeatureFlags::PRODUCTION_FLAGS;
+		$flag_slice = array();
+		foreach ( $flag_keys as $flag_key ) {
+			$flag_slice[ $flag_key ] = $clean[ $flag_key ] ?? false;
+		}
+		$flag_slice = FeatureFlags::validate_dependencies( $flag_slice );
+		foreach ( $flag_keys as $flag_key ) {
+			$clean[ $flag_key ] = ! empty( $flag_slice[ $flag_key ] );
+		}
 
 		$clean['schema_version'] = self::SCHEMA_VERSION;
 

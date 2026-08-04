@@ -76,8 +76,11 @@ export default function PostSelect( {
 			<ComboboxControl
 				label={ __( 'Post or page', 'ai-multilingual' ) }
 				value={ value ? String( value ) : '' }
-				options={ options }
+				options={ ! languageCode || loading ? [] : options }
 				onChange={ ( next ) => {
+					if ( ! languageCode || loading ) {
+						return;
+					}
 					const postId = next ? Number( next ) : null;
 					const post =
 						items.find( ( item ) => item.post_id === postId ) ??
@@ -85,7 +88,6 @@ export default function PostSelect( {
 					onChange( postId, post );
 				} }
 				onFilterValueChange={ setSearch }
-				disabled={ ! languageCode || loading }
 				help={ error || undefined }
 			/>
 			{ loading && <Spinner /> }

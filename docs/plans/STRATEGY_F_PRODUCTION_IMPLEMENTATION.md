@@ -500,8 +500,8 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | **F8** Observability + feature controls | See [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md) — Settings UI, `wp aiml block status`, metrics aggregator, runbooks | F1–F7 | Prohibited combos rejected; health check green | Disable diagnostics; render kill switch §15.4 step 1 |
 | **F9** Integration + browser sign-off | See [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — **Closed: engineering acceptance** @ `91785cd`; [F9_BROWSER_VALIDATION_LOG.md](F9_BROWSER_VALIDATION_LOG.md) | F6, F8 | `rendered_false_positive == 0`; no known product defect in supported scope; formal 35/35 Tier 3 waived (TID-1) | — |
 | **F10** Translator Workspace MVP | See [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) — **Complete**; [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md) PASS | F9 | AC-1–AC-13 in F10 plan | — |
-| **F11** Translation Memory & AI Assistance | See [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) — TM, provider-neutral AI, QA (planned; not started) | F10 | AC in F11 plan | — |
-| **F12** Limited rollout | Cohort flags, stage metrics (former master-plan F10) | F8, F11 | Stage metrics | §15.4 rollback |
+| **F11** Translation Memory & AI Assistance | See [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) — **Complete**; [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md) PASS | F10 | AC-1–AC-15 in F11 plan | — |
+| **F12** Limited rollout | Cohort flags, stage metrics, telemetry, monitoring, performance, caching, production confidence (former master-plan F10). **No new translator features.** | F8, F11 | Stage metrics | §15.4 rollback |
 | **F13** General rollout + ADR acceptance | Expand adapters; PO sign-off (former master-plan F11) | F12 + ADR checklist | Production approved | §15.4 |
 
 **Renderer architecture acceptance:** F6 must not begin until F5 proof is explicitly accepted and recorded.
@@ -550,9 +550,9 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **F1–F9 merged** on `main`; **F10 complete** — merge pending |
+| Production implementation | **F1–F10 merged** on `main`; **F11 complete** on `feature/f11-translation-memory-ai` — merge pending ([merge readiness](F11_MERGE_READINESS_REPORT.md)) |
 | Production readiness | **Not approved** (F12/F13 rollout + ADR acceptance pending) |
-| Next milestone | **F11** Translation Memory & AI Assistance (planned; not started) |
+| Next milestone | **F12** Limited rollout — planning/freeze only after F11 merge + human acceptance |
 | ADR-0013 | **Proposed** |
 
 ---
@@ -564,8 +564,12 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - F8 operations: [STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md](STRATEGY_F_F8_OPERATIONS_AND_OBSERVABILITY.md)
 - F9 browser acceptance: [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — **Closed: engineering acceptance**
 - F9 validation log: [F9_BROWSER_VALIDATION_LOG.md](plans/F9_BROWSER_VALIDATION_LOG.md)
-- F11 Translation Memory & AI: [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)
-- F10 validation log: [F10_TRANSLATOR_VALIDATION_LOG.md](plans/F10_TRANSLATOR_VALIDATION_LOG.md)
+- F11 Translation Memory & AI: [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) — **Complete**
+- F11 validation log: [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md)
+- F11 frozen APIs: [F11_FROZEN_API.md](F11_FROZEN_API.md)
+- F11 performance baseline: [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md)
+- F11 merge readiness: [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md)
+- F10 validation log: [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md)
 - F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2
 - Production code today (Milestone 1): `src/Translation/Store.php`, `Extractor.php`, `Renderer.php`, `Plugin.php`

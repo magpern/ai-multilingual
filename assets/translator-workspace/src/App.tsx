@@ -4,11 +4,15 @@ import { __, sprintf } from '@wordpress/i18n';
 
 import {
 	WorkspaceConflictError,
+	WorkspaceQABlockedError,
+	acceptTmSuggestions,
 	configureWorkspaceApi,
 	fetchPreviewUrl,
 	fetchSegments,
+	runQaBatch,
 	saveBatch,
 	saveSegment,
+	suggestSegment,
 	translateBatch,
 } from './api/workspace-api';
 import BulkToolbar from './components/BulkToolbar';
@@ -39,6 +43,7 @@ import {
 	mergeSegmentsIntoRows,
 	updateDraftText,
 } from './utils/segment-rows';
+import { aggregateQaSummary } from './utils/meta';
 import {
 	allVisibleSelected,
 	clearSelection,
@@ -91,6 +96,7 @@ export default function App() {
 	const [ selectedKeys, setSelectedKeys ] = useState< Set< string > >(
 		() => new Set()
 	);
+	const [ suggestingKey, setSuggestingKey ] = useState< string | null >( null );
 
 	const dirtyCount = useMemo( () => countDirtyRows( rows ), [ rows ] );
 	const filteredRows = useMemo(
@@ -251,6 +257,36 @@ export default function App() {
 				return;
 			}
 
+			if ( unknownError instanceof WorkspaceQABlockedError ) {
+				const message = sprintf(
+					/* translators: %d: error count */
+					__(
+						'Save blocked by %d quality error(s). Fix QA issues and try again.',
+						'ai-multilingual'
+					),
+					unknownError.qa.summary.errors
+				);
+				setRows( ( current ) =>
+					current.map( ( candidate ) =>
+						candidate.segmentKey === segmentKey
+							? {
+									...candidate,
+									rowState: 'error',
+									errorMessage: message,
+									server: {
+										...candidate.server,
+										meta: {
+											...candidate.server.meta,
+											qa: unknownError.qa,
+										},
+									},
+							  }
+							: candidate
+					)
+				);
+				return;
+			}
+
 			const message =
 				unknownError instanceof Error
 					? unknownError.message
@@ -270,6 +306,40 @@ export default function App() {
 						: candidate
 				)
 			);
+		}
+	};
+
+	const handleSuggestProfile = async (
+		segmentKey: string,
+		profile: string
+	) => {
+		if ( ! postId || ! languageCode ) {
+			return;
+		}
+
+		setSuggestingKey( segmentKey );
+		setBatchMessage( '' );
+		try {
+			const updated = await suggestSegment(
+				postId,
+				languageCode,
+				segmentKey,
+				profile
+			);
+			setRows( ( current ) =>
+				mergeSegmentsIntoRows( current, [ updated ] )
+			);
+		} catch ( unknownError ) {
+			const message =
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not request AI suggestions.',
+							'ai-multilingual'
+					  );
+			setBatchMessage( message );
+		} finally {
+			setSuggestingKey( null );
 		}
 	};
 
@@ -380,6 +450,92 @@ export default function App() {
 							'Automatic translation is not configured.',
 							'ai-multilingual'
 					  )
+			);
+		} finally {
+			setBatchSaving( false );
+		}
+	};
+
+	const handleAcceptTmExact = async () => {
+		if ( ! postId || ! languageCode || selectedKeys.size === 0 ) {
+			return;
+		}
+
+		const uniqueKeys = selectedEditableKeys( rows, selectedKeys );
+		if ( uniqueKeys.length === 0 ) {
+			setBatchMessage(
+				__(
+					'Select at least one editable segment to accept TM matches.',
+					'ai-multilingual'
+				)
+			);
+			return;
+		}
+
+		setBatchSaving( true );
+		setBatchMessage( __( 'Accepting exact TM suggestions…', 'ai-multilingual' ) );
+
+		try {
+			const result = await acceptTmSuggestions(
+				postId,
+				languageCode,
+				uniqueKeys
+			);
+			if ( result.updated.length > 0 ) {
+				setRows( ( current ) =>
+					mergeSegmentsIntoRows( current, result.updated )
+				);
+			}
+			setBatchMessage(
+				sprintf(
+					/* translators: %d: accepted count */
+					__( 'Accepted %d exact TM suggestion(s).', 'ai-multilingual' ),
+					result.updated.length
+				)
+			);
+		} catch ( unknownError ) {
+			setBatchMessage(
+				unknownError instanceof Error
+					? unknownError.message
+					: __( 'Could not accept TM suggestions.', 'ai-multilingual' )
+			);
+		} finally {
+			setBatchSaving( false );
+		}
+	};
+
+	const handleRunQa = async () => {
+		if ( ! postId || ! languageCode || selectedKeys.size === 0 ) {
+			return;
+		}
+
+		const uniqueKeys = selectedEditableKeys( rows, selectedKeys );
+		setBatchSaving( true );
+		setBatchMessage( __( 'Running quality checks…', 'ai-multilingual' ) );
+
+		try {
+			const result = await runQaBatch( postId, languageCode, uniqueKeys );
+			if ( result.segments.length > 0 ) {
+				setRows( ( current ) =>
+					mergeSegmentsIntoRows( current, result.segments )
+				);
+			}
+			setBatchMessage(
+				sprintf(
+					/* translators: 1: errors, 2: warnings */
+					__(
+						'QA complete — errors: %1$d, warnings: %2$d.',
+						'ai-multilingual'
+					),
+					result.summary.errors,
+					result.summary.warnings
+				)
+			);
+		} catch ( unknownError ) {
+			setBatchMessage(
+				unknownError instanceof Error
+					? unknownError.message
+					: __( 'Could not run QA.', 'ai-multilingual' )
 			);
 		} finally {
 			setBatchSaving( false );
@@ -526,6 +682,8 @@ export default function App() {
 				busy={ batchSaving }
 				onSaveSelected={ handleSaveSelected }
 				onTranslateSelected={ handleTranslateSelected }
+				onAcceptTmExact={ handleAcceptTmExact }
+				onRunQa={ handleRunQa }
 				onClearSelection={ () => setSelectedKeys( clearSelection() ) }
 			/>
 
@@ -543,9 +701,18 @@ export default function App() {
 				onDraftChange={ handleDraftChange }
 				onSave={ handleSaveRow }
 				onReload={ handleReloadRow }
+				onSuggestProfile={ handleSuggestProfile }
+				suggestingKey={ suggestingKey }
 			/>
 
-			{ status && <StatusFooter status={ status } /> }
+			{ status && (
+				<StatusFooter
+					status={ status }
+					qaSummary={ aggregateQaSummary(
+						rows.map( ( row ) => row.server )
+					) }
+				/>
+			) }
 		</div>
 	);
 }

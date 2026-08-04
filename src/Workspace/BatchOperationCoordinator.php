@@ -86,7 +86,9 @@ final class BatchOperationCoordinator {
 					$key,
 					(string) ( $item['translated_text'] ?? '' ),
 					(string) ( $item['source_hash'] ?? '' ),
-					(string) ( $item['status'] ?? '' )
+					(string) ( $item['status'] ?? '' ),
+					(string) ( $item['save_origin'] ?? '' ),
+					(int) ( $item['tm_id'] ?? 0 )
 				);
 			} catch ( WorkspaceConflictException $conflict ) {
 				$failed[] = array(
@@ -94,6 +96,13 @@ final class BatchOperationCoordinator {
 					'code'        => 'aiml_source_hash_mismatch',
 					'message'     => $conflict->getMessage(),
 					'segments'    => $conflict->segments(),
+				);
+			} catch ( WorkspaceQAException $qa_exception ) {
+				$failed[] = array(
+					'segment_key' => $key,
+					'code'        => 'aiml_qa_blocked',
+					'message'     => $qa_exception->getMessage(),
+					'qa'          => $qa_exception->qa()->to_array(),
 				);
 			} catch ( \InvalidArgumentException $exception ) {
 				$failed[] = array(

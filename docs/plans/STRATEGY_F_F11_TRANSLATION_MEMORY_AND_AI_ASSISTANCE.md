@@ -1,13 +1,42 @@
 # F11 — Translation Memory & AI Assistance Plan
 
-**Status:** Canonical implementation plan — final architecture refinement pass (documentation only; no F11 code started)
+**Status:** Canonical implementation plan — **F11 complete** (PASS) on `feature/f11-translation-memory-ai`; see [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md)
 **Architecture:** Includes approved refinement pass: `SuggestionProvider` abstraction, `TranslationSuggestionService` orchestration, deterministic ranking, modular `QAEngine`, provider capability discovery, human-approved TM write-back, source-independent QA, TM provenance, productivity metrics (diagnostics only)
-**Depends on:** F1–F9 complete; F10 Translator Workspace complete (assumed successful)
+**Governance:** Changes that affect architecture, public APIs, milestone scope, service boundaries, or workflows require an ADR or an explicit architecture revision. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.
+**Depends on:** F1–F9 complete; F10 Translator Workspace complete (`strategy-f-f10-translator-complete`)
 **ADR-0010:** Accepted — F11 introduces first production provider via `AIProviderInterface`; architecture remains vendor-neutral
 **ADR-0009:** Accepted — TM in separate `aiml_tm` table
 **Canonical doc:** This file. Master plan cross-ref: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md)
 **Prior milestone:** [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md)
 **Validation log (reserved):** [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md) — created during F11 execution; not part of this plan
+
+---
+
+## Architecture Freeze
+
+F11 architecture is **frozen**.
+
+Implementation **must not** change any of the following without an architectural change process:
+
+| Frozen surface | Rule |
+|---|---|
+| Service boundaries | Application/domain/presentation layers and collaborator ownership stay as documented |
+| Public REST contracts | F10/F11 workspace endpoints remain backwards compatible; additive optional fields only |
+| Database schema | `aiml_tm` and related F11 schema as specified; no silent column/table redesign |
+| `TranslationSuggestionService` responsibilities | Sole orchestrator for TM + AI suggestion combination |
+| `SuggestionProvider` architecture | Normalized providers; no source-specific logic in the orchestrator |
+| `QAEngine` architecture | Modular independent checks; source-independent |
+| Translation Memory model | Separate `aiml_tm` table; human-approved write-back; provenance |
+| `ProviderRegistry` responsibilities | Sole registration and resolution of AI providers |
+| Prompt profile identifiers | Frozen public IDs listed in §4.4 |
+| QA issue codes | Frozen public codes listed in §6.2 / `meta.qa` |
+
+**Architectural changes require:**
+
+- an ADR, **or**
+- an approved revision of this document
+
+**Still allowed without architecture revision:** implementation details, tests, bug fixes, and internal refactoring that do not alter the frozen surfaces above.
 
 ---
 
@@ -282,13 +311,21 @@ SuggestionProvider
 
 **NormalizedSuggestion (common contract):**
 
-| Field | Purpose |
-|---|---|
-| `provider_id` | Source provider (`tm`, `ai`, …) |
-| `target_text` | Suggested translation text |
-| `confidence` | 0–100 normalized score |
-| `rank_tier` | Deterministic tier for policy (§2.6) |
-| `metadata` | Provider-specific display hints (match type, profile, origin) |
+`NormalizedSuggestion` is the **canonical suggestion DTO**. It is a frozen public contract for F11.
+
+| Field | Purpose | F11 rule |
+|---|---|---|
+| `provider_id` | Source provider (`tm`, `ai`, …) | Core — must not change |
+| `target_text` | Suggested translation text | Core — must not change |
+| `confidence` | 0–100 normalized score | Core — must not change |
+| `rank_tier` | Deterministic tier for policy (§2.6) | Core — must not change |
+| `metadata` | Provider-specific display hints (match type, profile, origin) | **Only** extension point for future providers |
+
+**Contract freeze:**
+
+- Core fields must remain unchanged throughout F11.
+- Future providers may extend **only** through the `metadata` field.
+- No provider-specific DTOs may leak outside provider implementations (not into `TranslationSuggestionService`, REST ViewModels, or React as alternate shapes).
 
 #### F11 providers (implemented)
 
@@ -610,7 +647,7 @@ F11 activates the ADR-0010 boundary with a **provider framework**:
 | Component | Role |
 |---|---|
 | `AIProviderInterface` | Domain contract: `test_connection`, `list_models`, `translate_batch` |
-| `ProviderRegistry` | Discovery, registration, active provider resolution |
+| `ProviderRegistry` | Discovery, registration, active provider resolution — see §4.5 governance |
 | `PromptProfileRegistry` | Domain prompt profiles → provider-agnostic instructions |
 | `ProviderConfiguration` | Encrypted credentials, model selection, enable flags (server-side only) |
 | First implementation | May be OpenAI; swappable without service changes |
@@ -666,6 +703,8 @@ Two operation classes — both provider-neutral:
 | `formal` | More formal register | source + current target |
 | `casual` | More casual register | source + current target |
 
+**Public contract freeze:** The six profile IDs above (`translate`, `improve`, `rewrite`, `shorten`, `formal`, `casual`) are **frozen public contracts**. Future profiles may only be **added**. Existing identifiers must **never** change during F11 (or in later milestones without an ADR).
+
 Each profile defines: `system_instructions`, `constraints[]` (placeholders, HTML, numbers), `version`.
 
 Provider implementations map profiles to vendor prompts internally. **Nothing vendor-shaped in the interface.**
@@ -686,6 +725,18 @@ WP5 delivers infrastructure — not a vendor milestone:
 4. **Provider registration** — composition root wires implementations in [`Plugin.php`](../../src/Plugin.php)
 5. **First provider implementation** — one class implementing `AIProviderInterface` (OpenAI may ship first)
 6. **`NullAIProvider`** — remains fallback when unconfigured; reports zero capabilities
+
+#### ProviderRegistry governance (frozen)
+
+`ProviderRegistry` is the **only** place where AI providers are registered and resolved.
+
+Providers must **never**:
+
+- instantiate other providers
+- discover providers
+- contain provider-selection logic
+
+`WorkspaceService`, `TranslationSuggestionService`, and REST controllers must obtain providers **exclusively** through `ProviderRegistry` (directly or via `TranslationService` / `AISuggestionProvider` that themselves resolve through the registry). No bypass registration lists in controllers or React.
 
 ### 4.6 Structural constraint validation (not QA)
 
@@ -881,6 +932,8 @@ QACheck
 | `UnsupportedMarkupCheck` | `unsupported_markup` | warning |
 | `LengthRatioCheck` | `length_ratio` | warning |
 
+**QA issue-code contract freeze:** The Check ID / `meta.qa.issues[].code` values above are a **stable public contract** between backend and React. Existing identifiers must **not** change during F11. New issue codes may only be **added** (via new check classes + registration). Frontend must not hard-code severity by inventing codes outside this list.
+
 **Rules:**
 
 - `QAEngine` runs all registered checks; aggregates issues and summary
@@ -1039,6 +1092,10 @@ Inherit F10 §15 plus:
 | No origin filter UI | Provenance recorded; filtering deferred |
 | Productivity metrics | Documented §18; not implemented F11 |
 | Single provider in settings UI | Registry supports many; multiple simultaneous providers deferred |
+| TM write-back on save | **Resolved (F11.1)** — `WorkspaceService::save_segment()` calls `write_back` / `record_usage` |
+| TM translate pre-fill | Plan §3.7 optional path; not implemented — debt D2 |
+| QA severity vs plan table | `empty_translation` and plain-HTML targets use warnings for workspace compatibility — frozen API §6 |
+| CLI TM stats | Deferred (plan §10); not delivered in WP11 |
 
 ---
 
@@ -1077,6 +1134,50 @@ Inherit F10 §15 plus:
 
 ---
 
+## Implementation Invariants
+
+These rules are mandatory throughout every F11 work package.
+
+1. Existing Strategy F components (Store, UUID system, extraction, routing, rendering, migration) are frozen and must not be modified except for strictly required extension points.
+
+2. F10 public REST contracts must remain backwards compatible. Existing endpoints may only receive additive optional fields.
+
+3. `TranslationSuggestionService` is the only orchestration layer for combining Translation Memory and AI suggestions. No component may bypass it.
+
+4. `WorkspaceService` must remain a thin orchestration service. New business logic belongs in focused collaborators, never directly inside `WorkspaceService`.
+
+5. AI providers must only implement `AIProviderInterface`. No OpenAI-specific logic may leak into `WorkspaceService`, REST controllers, ViewModels, or React.
+
+6. Translation Memory remains the canonical source of approved translations. AI suggestions never become Translation Memory entries automatically.
+
+7. Every work package must end with:
+   - PHPCS
+   - PHPUnit unit
+   - PHPUnit integration
+   - TypeScript build (when applicable)
+   - Documentation update
+   - Git commit
+   - Push
+   - Progress report
+
+8. Browser tests are NOT part of normal implementation.
+   - Use Tier 0 validation after every work package.
+   - Use targeted browser tests only when implementing browser behaviour.
+   - Run the complete browser acceptance suite only once during milestone closure.
+
+9. No work package may silently refactor unrelated code. If architectural improvements outside F11 scope are discovered, document them as technical debt instead of implementing them.
+
+10. Before closing F11, perform an Architecture Freeze Review:
+    - verify public interfaces
+    - verify REST contracts
+    - verify provider abstraction
+    - verify Translation Memory contracts
+    - document the frozen F11 APIs for future milestones.
+
+11. **No speculative optimization.** Implementation must follow the documented architecture. Do not introduce additional abstractions, extension points, service layers, optimization frameworks, or future-proofing unless explicitly described in this document. Ideas discovered during implementation must be recorded as technical debt or future ADR candidates — not implemented silently.
+
+---
+
 ## 15. Implementation breakdown — work packages
 
 ### Execution outline
@@ -1096,6 +1197,25 @@ Inherit F10 §15 plus:
 | WP10 | F11.10 | Batch productivity | WP6, WP8 |
 | WP11 | F11.11 | Validation + log | All |
 
+### Work package dependency diagram
+
+Do **not** start a work package before its dependencies are complete.
+
+```text
+WP0
+ │
+ ├── WP1 ── WP2 ── WP3
+ │
+ ├── WP4 ── WP5 ──┐
+ │                ├── WP6 ──┐
+ │                │         │
+ ├── WP7 ── WP8 ────────────┼── WP9 ── WP10 ── WP11
+ │                          │
+ └──────────────────────────┘
+```
+
+Parallel tracks after WP0: TM (WP1–WP3), provider/prompts (WP4–WP5), QA (WP7–WP8). WP6 joins TM + provider tracks. WP9 requires WP6 and WP8. WP10 requires WP6 and WP8. WP11 requires all.
+
 ---
 
 ### WP0 — Documentation
@@ -1106,13 +1226,21 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] All §2 architectural decisions documented (ADR-F11-001 through ADR-F11-008)
-- [ ] Diagrams include `SuggestionProvider` abstraction and `QAEngine`
-- [ ] Deterministic ranking policy §2.6 explicit
-- [ ] TM write-back policy ADR-F11-004 explicit
-- [ ] Provider-neutral language throughout
+- [x] All §2 architectural decisions documented (ADR-F11-001 through ADR-F11-008)
+- [x] Diagrams include `SuggestionProvider` abstraction and `QAEngine`
+- [x] Deterministic ranking policy §2.6 explicit
+- [x] TM write-back policy ADR-F11-004 explicit
+- [x] Provider-neutral language throughout
 
 **Validation:** Stakeholder review; no code.
+
+### WP0 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | Architecture freeze recorded; governance rule committed |
+| **Branch** | `feature/f11-translation-memory-ai` |
+| **Code** | None (documentation only) |
 
 ---
 
@@ -1124,11 +1252,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Table includes `origin` field
-- [ ] UNIQUE on hash+lang pair+context
-- [ ] Migration idempotent
+- [x] Table includes `origin` field
+- [x] UNIQUE on hash+lang pair+context
+- [x] Migration idempotent
 
 **Dependencies:** WP0
+
+### WP1 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `Schema::create_tm()`, Migrator step 2 (`TARGET=2`), `TMRepository` |
+| **Tests** | `TranslationMemorySchemaTest`, `TMRepositoryTest` |
+| **Public API** | None (repository is internal persistence) |
 
 ---
 
@@ -1140,12 +1276,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Exact match returns confidence 100
-- [ ] Fuzzy returns ranked candidates
-- [ ] Write-back respects §3.6 policy
-- [ ] Machine persist does not trigger write-back
+- [x] Exact match returns confidence 100
+- [x] Fuzzy returns ranked candidates
+- [x] Write-back respects §3.6 policy
+- [x] Machine persist does not trigger write-back
 
 **Dependencies:** WP1
+
+### WP2 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `TranslationMemoryService` with exact/fuzzy lookup, ADR-F11-004 write-back, usage |
+| **Tests** | Unit policy/scoring + integration lookup/write-back |
 
 ---
 
@@ -1157,11 +1300,18 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] GET segments includes ranked TM suggestions
-- [ ] WorkspaceService does not call TMS or providers directly
-- [ ] TM provider returns `NormalizedSuggestion` with `rank_tier`
+- [x] GET segments includes ranked TM suggestions
+- [x] WorkspaceService does not call TMS or providers directly
+- [x] TM provider returns `NormalizedSuggestion` with `rank_tier`
 
 **Dependencies:** WP2
+
+### WP3 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `SuggestionProvider`, `NormalizedSuggestion`, `TranslationMemorySuggestionProvider`, `TranslationSuggestionService`; `meta.suggestions` on GET segments |
+| **Tests** | Unit ranking/provider + `WorkspaceTmSuggestionsTest` |
 
 ---
 
@@ -1173,11 +1323,18 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Six profiles defined
-- [ ] Validator rejects structurally invalid provider output
-- [ ] Validator is not QA — documented separation
+- [x] Six profiles defined
+- [x] Validator rejects structurally invalid provider output
+- [x] Validator is not QA — documented separation
 
 **Dependencies:** WP0
+
+### WP4 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `PromptProfileRegistry` (6 profiles), `PromptProfile`, `SegmentConstraintAnalyzer`, `ResponseValidator`; additive `TranslationBatch`/`ProviderSegment` fields |
+| **Tests** | `PromptProfileRegistryTest`, `ResponseValidatorTest` |
 
 ---
 
@@ -1196,15 +1353,22 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Active provider resolved via registry
-- [ ] Capability methods declared; workspace adapts without vendor branching (AC-13)
-- [ ] Swapping provider requires no service signature changes
-- [ ] API key encrypted; never exposed to JS
-- [ ] `test_connection` and `list_models` work for configured provider
+- [x] Active provider resolved via registry
+- [x] Capability methods declared; workspace adapts without vendor branching (AC-13)
+- [x] Swapping provider requires no service signature changes
+- [x] API key encrypted; never exposed to JS
+- [x] `test_connection` and `list_models` work for configured provider
 
 **Dependencies:** WP4
 
 **Risks:** Vendor API drift — mitigated by ADR-0010 normalization inside provider class.
+
+### WP5 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `ProviderCapabilities`, `ProviderRegistry`, `CredentialVault`, `OpenAIProvider`, `ProviderController`, settings UI |
+| **Tests** | `ProviderFrameworkTest`, `ProviderCapabilitiesTest` |
 
 ---
 
@@ -1223,12 +1387,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-11, AC-12 satisfied
-- [ ] AI suggest read-only; translate persists
-- [ ] Unified ranked list merges TM + AI per policy §2.6
-- [ ] `GlossarySuggestionProvider` reserved in docs only (§2.5)
+- [x] AC-11, AC-12 satisfied
+- [x] AI suggest read-only; translate persists
+- [x] Unified ranked list merges TM + AI per policy §2.6
+- [x] `GlossarySuggestionProvider` reserved in docs only (§2.5)
 
 **Dependencies:** WP3, WP4, WP5
+
+### WP6 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `AISuggestionProvider`, `TranslationService::suggest_segment`, REST `.../suggest`, diagnostics hooks |
+| **Tests** | Ranking/AI tier unit + `WorkspaceSuggestionsRestTest` |
 
 ---
 
@@ -1240,12 +1411,19 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-14 satisfied
-- [ ] Same checks for manual, TM-accepted, AI-accepted text
-- [ ] New check registrable without modifying existing checks
-- [ ] Blocking policy configurable
+- [x] AC-14 satisfied
+- [x] Same checks for manual, TM-accepted, AI-accepted text
+- [x] New check registrable without modifying existing checks
+- [x] Blocking policy configurable
 
 **Dependencies:** WP0
+
+### WP7 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `QAEngine` + nine check classes; `QAIssue`/`QAResult`; block-on-error policy |
+| **Tests** | `QAEngineTest` |
 
 ---
 
@@ -1257,10 +1435,17 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-5 satisfied for all text origins
-- [ ] Save blocked on error when policy enabled
+- [x] AC-5 satisfied for all text origins
+- [x] Save blocked on error when policy enabled
 
 **Dependencies:** WP7
+
+### WP8 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `meta.qa` on GET/save; save gate via `WorkspaceQAException`; `qa_block_on_error` setting |
+| **Tests** | `WorkspaceQARestTest` |
 
 ---
 
@@ -1272,11 +1457,18 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] Unified suggestion panel
-- [ ] QA panel with severity
-- [ ] Consistent with F10 layout
+- [x] Unified suggestion panel
+- [x] QA panel with severity
+- [x] Consistent with F10 layout
 
 **Dependencies:** WP6, WP8
+
+### WP9 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `SuggestionPanel`, `QAPanel`, typed `meta.suggestions`/`meta.qa`, footer QA counts, suggest API client |
+| **Tests** | `meta.test.ts` |
 
 ---
 
@@ -1288,10 +1480,17 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-7, AC-10 satisfied
-- [ ] Partial success unchanged
+- [x] AC-7, AC-10 satisfied
+- [x] Partial success unchanged
 
 **Dependencies:** WP6, WP8
+
+### WP10 implementation record (2026-08-03)
+
+| Item | Detail |
+|---|---|
+| **Completed** | `accept_tm_exact_batch`, `qa_batch`, REST accept/QA, bulk toolbar actions |
+| **Tests** | `WorkspaceBatchProductivityTest` |
 
 ---
 
@@ -1303,10 +1502,15 @@ Inherit F10 §15 plus:
 
 **Acceptance criteria:**
 
-- [ ] AC-1 through AC-15 satisfied
-- [ ] PHPUnit + PHPCS green
+- [x] AC-1 through AC-15 satisfied
+- [x] PHPUnit + PHPCS green
 
 **Dependencies:** All
+
+| Item | Detail |
+|---|---|
+| **Completed** | Validation log PASS; frozen API doc; Architecture Freeze Review; tag `strategy-f-f11-tm-ai-complete` |
+| **Evidence** | [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md), [F11_FROZEN_API.md](F11_FROZEN_API.md) |
 
 ---
 
@@ -1407,6 +1611,26 @@ F11 explicitly excludes:
 
 ---
 
+## Definition of Done
+
+F11 is complete only when **all** of the following are true:
+
+- every work package WP1–WP11 completed
+- every acceptance criterion AC-1–AC-15 satisfied
+- PHPUnit unit green
+- PHPUnit integration green
+- PHPCS green
+- Browser validation complete
+- Validation log committed
+- Architecture Freeze Review passed
+- Documentation updated
+- Branch pushed
+- Ready for merge
+
+This is the **canonical completion checklist**. Milestone closure gates (§20) expand individual verification items; the Definition of Done is the single pass/fail bar for declaring F11 complete.
+
+---
+
 ## 20. F11 milestone closure gates
 
 | Gate | Requirement |
@@ -1420,6 +1644,8 @@ F11 explicitly excludes:
 | G7 | Provider swappable via registry; capabilities adapt UI |
 | G8 | Deterministic ranking §2.6 verified |
 | G9 | Tag `strategy-f-f11-tm-ai-complete` on merge |
+| G10 | **Architecture Freeze Review** complete (see Implementation Invariants §10): public interfaces, REST contracts, provider abstraction, TM contracts, frozen F11 API doc for future milestones |
+| G11 | **Definition of Done** checklist above fully satisfied |
 
 ---
 
@@ -1533,3 +1759,7 @@ Former master-plan F11 scope:
 - `block_diagnostics_enabled` admin toggle
 
 F12 planning begins after F11 PASS + stakeholder review of §12 limitations.
+
+**F12 scope boundary (operational only):** feature/cohort flags, rollout strategy, telemetry, monitoring, performance baselines, caching, production confidence, operational diagnostics. **Do not** add translator features (glossary, review workflow, comments, jobs, version history) in F12 — those remain post-F12 / Roadmap M3+.
+
+See also: [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md), [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md).

@@ -74,7 +74,7 @@ reachable while logged out.
 
 | Hook | Purpose |
 |---|---|
-| `rest_api_init` | Registers `aiml/v1/workspace/*` routes for the translator workspace (F10). |
+| `rest_api_init` | Registers `aiml/v1/workspace/*` routes for the translator workspace (F10 + F11 additive). |
 
 All routes require `aiml_translate`. Post-scoped routes additionally require
 `edit_post` for the requested canonical post. Responses include
@@ -90,6 +90,20 @@ delegate to `WorkspaceService` and never touch `Store` directly.
 | POST | `/aiml/v1/workspace/{post_id}/segments/{segment_key}?language=` |
 | POST | `/aiml/v1/workspace/{post_id}/segments/batch?language=` |
 | POST | `/aiml/v1/workspace/{post_id}/translate?language=` |
+| POST | `/aiml/v1/workspace/{post_id}/segments/{segment_key}/suggest?language=` | F11 — AI suggest (no Store persist) |
+| POST | `/aiml/v1/workspace/{post_id}/suggestions/accept?language=` | F11 — batch accept exact TM |
+| POST | `/aiml/v1/workspace/{post_id}/qa?language=` | F11 — batch QA (read-only) |
+
+`GET .../segments` may include additive `meta.suggestions` and `meta.qa` (F11).
+
+## AI provider admin REST — `src/Rest/ProviderController.php`
+
+| Hook | Purpose |
+|---|---|
+| `rest_api_init` | Registers `aiml/v1/providers/*` (active, test-connection, models). |
+
+Requires `manage_options`. Never returns cleartext API keys. Delegates to
+`ProviderRegistry` only — no OpenAI types in the controller.
 
 ## Deliberately not hooked
 
@@ -98,16 +112,23 @@ delegate to `WorkspaceService` and never touch `Store` directly.
   there is no rewrite state to manage.
 - **No cookie.** The URL is the only language authority in this milestone, so
   front-end responses carry no `Set-Cookie` and stay cacheable at the edge.
-- **No REST routes outside the workspace.** Only `src/Rest/WorkspaceController.php`
-  registers REST endpoints under `aiml/v1`.
+- **No REST routes outside workspace + providers.** Only `WorkspaceController`
+  and `ProviderController` register under `aiml/v1`.
 - **No deactivation hook.** Deactivation must remove nothing, so there is
   nothing for it to do.
 - **No WooCommerce hooks yet** beyond the compatibility declaration.
 
-## Workspace auto-translate — `src/Workspace/TranslationService.php`
+## Workspace translation + suggestions — `src/Workspace/`
 
-F10 routes all automatic translation through `TranslationService`, which builds
-domain `TranslationBatch` payloads and delegates to `AIProviderInterface`
-(`src/Translation/AI/`). Production wiring uses `NullAIProvider`, which returns
-the stable `aiml_ai_not_configured` error without external network calls.
-Controllers and `BatchOperationCoordinator` never call providers directly.
+F10+F11 route automatic **persist** translation through `TranslationService` →
+`AIProviderInterface` (resolved via `ProviderRegistry`; `NullAIProvider` when
+unconfigured).
+
+All **suggestions** (TM + AI) go through `TranslationSuggestionService` and
+registered `SuggestionProvider` implementations. Controllers and
+`BatchOperationCoordinator` never call suggestion providers or vendor APIs
+directly.
+
+TM write-back policy lives in `TranslationMemoryService` (ADR-F11-004). Machine
+persist must never write TM; eligible human / AI-accepted / import saves are the
+only write-back origins.

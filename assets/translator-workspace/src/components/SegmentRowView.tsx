@@ -2,15 +2,20 @@ import { Button, Notice, TextareaControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
 import type { SegmentRow } from '../types/segment-row';
+import { qaFromSegment, suggestionsFromSegment } from '../utils/meta';
 import { segmentStatusLabel } from '../utils/segment-status';
+import QAPanel from './QAPanel';
+import SuggestionPanel from './SuggestionPanel';
 
 interface SegmentRowViewProps {
 	row: SegmentRow;
 	selected: boolean;
+	suggesting?: boolean;
 	onToggleSelect: ( segmentKey: string, checked: boolean ) => void;
 	onDraftChange: ( segmentKey: string, value: string ) => void;
 	onSave: ( segmentKey: string ) => void;
 	onReload: ( segmentKey: string ) => void;
+	onSuggestProfile?: ( segmentKey: string, profile: string ) => void;
 }
 
 function rowStateLabel( row: SegmentRow ): string {
@@ -33,12 +38,16 @@ function rowStateLabel( row: SegmentRow ): string {
 export default function SegmentRowView( {
 	row,
 	selected,
+	suggesting = false,
 	onToggleSelect,
 	onDraftChange,
 	onSave,
 	onReload,
+	onSuggestProfile,
 }: SegmentRowViewProps ) {
 	const { server } = row;
+	const suggestions = suggestionsFromSegment( server );
+	const qa = qaFromSegment( server );
 	const sourceId = `aiml-source-${ server.segment_key.replace(
 		/[^a-z0-9_-]/gi,
 		'-'
@@ -175,6 +184,25 @@ export default function SegmentRowView( {
 					<Notice status="error" isDismissible={ false }>
 						{ row.errorMessage }
 					</Notice>
+				) }
+				{ editable && (
+					<>
+						<SuggestionPanel
+							suggestions={ suggestions }
+							disabled={ isSaving || suggesting }
+							suggesting={ suggesting }
+							onAccept={ ( text ) =>
+								onDraftChange( row.segmentKey, text )
+							}
+							onRequestProfile={
+								onSuggestProfile
+									? ( profile ) =>
+											onSuggestProfile( row.segmentKey, profile )
+									: undefined
+							}
+						/>
+						<QAPanel qa={ qa } />
+					</>
 				) }
 			</td>
 			<td>
