@@ -1,7 +1,7 @@
 # F12 — Limited Rollout Plan
 
-**Status:** Canonical implementation plan — architecture pending final PO decisions  
-**Architecture:** Includes approved architecture-refinement pass: two-level render control, frozen `RolloutPolicyDecision`, rollout configuration schema, shadow evaluation, Stages 0–5, two-tier metrics, concrete cache identity (Store translation-hash aggregate), operator capabilities, audit events, failure-mode matrix, observation checklist, strengthened F13 entry gate  
+**Status:** Canonical implementation plan — **architecture frozen**; PO operational values pending; implementation not started  
+**Architecture:** Includes approved architecture-refinement passes: two-level render control, frozen immutable `RolloutPolicyDecision`, pure `RolloutPolicyService`, configuration versioning (`schema_version` / `policy_version`), `metrics_registry_version`, reserved `CohortProvider` expansion, centralized `RenderCacheInvalidationService`, shadow evaluation, Stages 0–5, two-tier metrics, concrete cache identity (Store translation-hash aggregate), operator capabilities, audit events, failure-mode matrix, observation checklist, strengthened F13 entry gate (including reason-code stability)  
 **Governance:** Changes that affect architecture, public contracts, milestone scope, service boundaries, or operational workflows require an ADR or an explicit architecture revision of this document. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.  
 **Depends on:** F1–F9 complete; F10 Translator Workspace complete; F11 Translation Memory & AI Assistance complete ([STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md))  
 **ADR-0013:** Proposed — not Accepted; F12 does not promote ADR-0013  
@@ -15,7 +15,7 @@
 
 | Fact | State |
 |---|---|
-| F12 planning | **This document** — drafted; architecture pending final PO decisions |
+| F12 planning | **This document** — architecture **frozen** for implementation |
 | F12 production implementation | **Not started** |
 | F12 nature | **Operational rollout only** — not translator product development |
 | F13 | Remains **general rollout** + ADR acceptance |
@@ -26,22 +26,25 @@
 
 ## Architecture Freeze
 
-F12 architecture is **frozen** for planning purposes. Implementation must not change the following without an architectural change process:
+F12 architecture is **frozen**. Implementation must not change the following without an architectural change process:
 
 | Frozen surface | Rule |
 |---|---|
 | Two-level render control | Global `block_frontend_rendering_enabled` master switch; `rollout_render_enabled` enables cohort evaluation only; stage/cohort never override the master kill switch |
-| `RolloutPolicyService` ownership | Sole owner of cohort/policy logic; `BlockRenderGate` consumes decisions only |
-| `RolloutPolicyDecision` DTO | Immutable fields and reason-code catalog in §3 |
+| `RolloutPolicyService` purity | Pure decision engine only (§3); no persistence, audit, metrics, cache, logging, or config mutation |
+| `RolloutPolicyDecision` DTO | Immutable value object; new instance per evaluation; fields and reason-code catalog in §3 |
+| Configuration versioning | `schema_version` vs `policy_version` lifecycle in §4 |
 | Rollout configuration schema | Option object fields and validation rules in §4 |
+| Cohort model | Explicit post-ID allowlist in F12; future mechanisms via reserved `CohortProvider` only (§3) |
 | Stages 0–5 | Canonical stage table in §5; no automatic promotion |
-| Metrics model | Two-tier hot window + `aiml_metrics_daily`; registry-only names/dimensions |
+| Metrics model | Two-tier hot window + `aiml_metrics_daily`; registry-only names/dimensions; independent `metrics_registry_version` (§7) |
 | Cache identity | Components in §11; fingerprint = Store translation-hash aggregate; no undefined `translation_revision` |
+| Cache invalidation ownership | Canonical `RenderCacheInvalidationService` (§13); no independent ad-hoc invalidation |
 | Cache activation | Separate from WP8 implementation; default off |
 | Capability catalog | §14 additive capabilities |
 | Audit-event catalog | §15 additive-only event names |
 | Failure-mode contracts | §16 |
-| F13 entry gate | §20 — F13 does not start because F12 code is complete |
+| F13 entry gate | §20 — includes reason-code distribution stability; F13 does not start because F12 code is complete |
 
 **Architectural changes require:**
 
@@ -70,6 +73,9 @@ F12 must not introduce performance optimizations that are not justified by measu
 10. No long-term metric dimensions containing post IDs, segment keys, UUIDs, text, prompts, emails, API keys, or raw provider errors.
 11. Direct WordPress option editing is **not** the normal operator workflow.
 12. Stage promotion is **never** automatic.
+13. `RolloutPolicyService` is a **pure** decision engine (no side effects).
+14. Runtime metrics, cache contents, and telemetry **never** modify `schema_version` or `policy_version`.
+15. Cache invalidation is owned by **`RenderCacheInvalidationService`** (or equivalent); other services must not invalidate independently.
 
 ---
 
@@ -193,15 +199,34 @@ Translators may prepare content **outside** the render cohort. Render eligibilit
 
 ## 3. Rollout policy contract
 
-### Ownership
+### Ownership and purity
 
-- **`RolloutPolicyService`** owns all cohort/stage/language/post-type policy logic.
-- **`BlockRenderGate`** only consumes `RolloutPolicyDecision` after flag checks.
+- **`RolloutPolicyService`** owns all cohort/stage/language/post-type policy **evaluation**.
+- **`BlockRenderGate`** (and other orchestrators) only consume `RolloutPolicyDecision` after flag checks.
 - Planned path (implementation later): `src/Rollout/RolloutPolicyService.php`, `src/Rollout/RolloutPolicyDecision.php`.
+
+**`RolloutPolicyService` is a pure decision engine.** It evaluates policy and returns a `RolloutPolicyDecision`. It **MUST NOT**:
+
+- persist data  
+- write audit events  
+- emit metrics  
+- invalidate cache  
+- perform logging  
+- mutate configuration  
+
+Persistence, audit, metrics, logging, and cache invalidation occur only in **higher orchestration layers** (e.g. render-gate wrapper, promotion service, metrics aggregator, `RenderCacheInvalidationService`).
 
 ### Frozen DTO: `RolloutPolicyDecision`
 
-Immutable decision object. Required fields:
+`RolloutPolicyDecision` is an **immutable value object**.
+
+| Rule | Requirement |
+|---|---|
+| Immutability | After construction it **must never** be modified |
+| Construction | Every evaluation returns a **newly created** decision object |
+| Determinism | Same inputs + same config version → same field values across frontend, CLI, diagnostics, tests, and future services |
+
+Required fields:
 
 | Field | Type | Meaning |
 |---|---|---|
@@ -240,6 +265,26 @@ Reason codes are **stable diagnostics contracts**. New codes after F12 are **add
 | Approved post types | `{post, page}` only |
 | Percentage / hash cohort | **Rejected** during F12 |
 
+### Reserved future cohort providers (architectural reservation only)
+
+F12 does **not** introduce percentage, visitor, tenant, or organization rollout strategies.
+
+Future rollout mechanisms (examples only — **not in F12 scope**):
+
+- percentage rollout  
+- visitor cohorts  
+- tenant cohorts  
+- organization cohorts  
+
+**must** be introduced through separate **`CohortProvider`** implementations (or equivalent) plugged into the policy evaluation path.
+
+| Constraint | Rule |
+|---|---|
+| F12 strategy | Post-ID allowlist (+ post type / language filters) only |
+| Decision DTO | `RolloutPolicyDecision` fields remain **unchanged** |
+| Reason codes | Additive only if a new deny class is truly required |
+| This section | Reservation only — **no** F12 implementation of alternate providers |
+
 ---
 
 ## 4. Configuration schema
@@ -248,8 +293,8 @@ Canonical WordPress option object (exact option key chosen at WP1; single atomic
 
 | Field | Type | Rules |
 |---|---|---|
-| `schema_version` | `int` | Config schema version |
-| `policy_version` | `int` | Monotonic; increments on every successful config change |
+| `schema_version` | `int` | Configuration **structure** version (see versioning policy) |
+| `policy_version` | `int` | Operator-visible policy revision (see versioning policy) |
 | `rollout_stage` | `int` | 0–5 |
 | `rollout_render_enabled` | `bool` | Enables cohort-policy evaluation path |
 | `allowed_post_ids` | `int[]` | Normalized, unique, positive integers |
@@ -268,10 +313,23 @@ Canonical WordPress option object (exact option key chosen at WP1; single atomic
 4. Post types outside `{post, page}` rejected.
 5. Empty `allowed_post_ids` in limited-rollout stages **denies all** frontend translated rendering (fail closed).
 6. Malformed configuration **fails closed** (source render; `invalid_configuration`).
-7. Every successful change increments `policy_version`.
+7. Every successful **operator-visible policy** change increments `policy_version` (see versioning policy).
 8. Prior sanitized snapshot retained for rollback/restore.
 9. Percentage/hash cohort fields are **not accepted**.
 10. Direct `update_option` editing is **not** the normal operator workflow — use config/promotion services (UI/CLI).
+
+### Configuration versioning policy (frozen)
+
+| Version | Changes when | Does **not** change when |
+|---|---|---|
+| `schema_version` | The rollout configuration **structure** changes (fields added/removed/renamed, type changes, validation shape changes) | Operator edits stage, allowlists, or flags that fit the existing structure |
+| `policy_version` | Any **operator-visible** rollout policy change: stage, allowlists, `rollout_render_enabled`, `render_cache_enabled`, `block_diagnostics_enabled`, and equivalent policy fields; also on **restore** of a previous snapshot | Runtime metrics, observations, counters, cache contents, telemetry, or read-only diagnostics |
+
+Additional frozen rules:
+
+1. Restoring a previous rollout snapshot **also increments** `policy_version` (restore is a new policy revision that happens to match prior values).
+2. Runtime metrics, observations, counters, cache contents, and telemetry **never** modify `schema_version` or `policy_version`.
+3. `metrics_registry_version` (§7) is **independent** of both versions and must not be conflated with them.
 
 ### Snapshot / restore
 
@@ -295,8 +353,8 @@ Restore applies atomically and increments `policy_version`.
 
 Shadow mode:
 
-- `RolloutPolicyService` **evaluates** the request;
-- records **bounded** decision metrics;
+- Orchestration asks `RolloutPolicyService` to **evaluate** the request (pure; returns a new `RolloutPolicyDecision`);
+- **Higher layers** record bounded decision metrics from that decision;
 - frontend **always** receives **source** content;
 - **never** enables translated frontend output.
 
@@ -408,11 +466,24 @@ Suggested columns / fields:
 | Rule | Requirement |
 |---|---|
 | Registry | Canonical metric registry; no free-form names |
+| Registry version | Independent `metrics_registry_version` (see below) |
 | Dimensions | Allowed set **per metric**; no caller-defined labels |
 | Cardinality | Hard maximum per dimension set |
 | Concurrency | Safe increments under concurrent requests |
 | Retention | Documented retention + cleanup job |
 | Failure | Graceful; never break frontend |
+
+### Metrics registry version (frozen concept)
+
+Reserve an independent **`metrics_registry_version`** (documentation / code constant; not a rollout config field).
+
+| Rule | Requirement |
+|---|---|
+| Independence | Unrelated to `schema_version` and `policy_version` |
+| Evolution | Changing the metric registry (keys, allowed dimensions, aggregation shape) bumps `metrics_registry_version` only |
+| Policy isolation | Metric registry evolution does **not** imply a rollout policy change and must **not** increment `policy_version` |
+| Consumers | Dashboards and exports may key off `metrics_registry_version` for compatibility |
+| F12 scope | Document and implement as a frozen constant/registry metadata — **no** new product surface |
 
 ---
 
@@ -547,6 +618,19 @@ Requires a separate explicit **measured GO** decision (technical + product owner
 ---
 
 ## 13. Cache invalidation
+
+### Ownership (frozen)
+
+Reserve **`RenderCacheInvalidationService`** (or equivalent application service) as the **canonical owner** of render-cache invalidation.
+
+| Rule | Requirement |
+|---|---|
+| Single owner | All invalidation paths call this service |
+| No ad-hoc invalidation | Future/other services must **not** invalidate the render cache independently |
+| Orchestration | Store saves, migrations, flag/stage changes, and operator purge invoke this service |
+| Kill switch | Emergency render disable bypasses cache read path immediately; purge may still be coordinated through this service when needed |
+
+### Triggers
 
 Invalidate on:
 
@@ -706,6 +790,7 @@ During limited-rollout stages, require scheduled review of:
 - rendered false positives  
 - render failures  
 - policy denials (by reason)  
+- reason-code distribution stability (watch for `policy_error` / `invalid_configuration` spikes)  
 - source fallback rate  
 - cache behavior (if enabled)  
 - workspace errors  
@@ -741,6 +826,17 @@ Require **all** of:
 8. Metrics retention/cleanup validated  
 9. Human operator sign-off  
 10. ADR-0013 status **explicitly reviewed** (may remain **Proposed**)  
+11. **Reason-code distribution remains operationally stable** throughout the observation window  
+
+### Reason-code stability (operational requirement)
+
+Operators must review denial/`reason_code` distributions before F13. Without inventing numeric thresholds:
+
+- no sustained `policy_error` spikes  
+- no sustained `invalid_configuration` spikes  
+- unexpected deny reasons investigated and resolved or accepted before promotion  
+
+Evidence is recorded in the F12 validation log / observation checklist. Threshold values, if any, remain a **PO/ops decision** — this gate only requires the stability review.
 
 ---
 
@@ -784,11 +880,11 @@ flowchart LR
 
 | | |
 |---|---|
-| **Objective** | `RolloutPolicyService`, `RolloutPolicyDecision`, config schema, snapshots |
-| **Deliverables** | Policy service; config repository; validation; snapshot store |
+| **Objective** | `RolloutPolicyService` (pure), immutable `RolloutPolicyDecision`, config schema + versioning policy, snapshots |
+| **Deliverables** | Policy service; config repository; validation; snapshot store; versioning rules |
 | **Dependencies** | WP0 |
 | **Expected files** | `src/Rollout/*` (planned); options schema; unit tests |
-| **Acceptance** | AC-1–AC-5; empty allowlist denies; fail closed |
+| **Acceptance** | AC-1–AC-8, AC-27–AC-28; empty allowlist denies; fail closed; pure service |
 | **Validation** | Tier 0 PHPUnit |
 | **Rollback** | Disable rollout flag; retain prior option |
 | **Stop conditions** | Hash/% cohort introduced |
@@ -826,8 +922,8 @@ flowchart LR
 
 | | |
 |---|---|
-| **Objective** | Hot window + `aiml_metrics_daily` schema/migration |
-| **Deliverables** | Table migration; registry; concurrency-safe writers |
+| **Objective** | Hot window + `aiml_metrics_daily` schema/migration + registry version |
+| **Deliverables** | Table migration; registry; `metrics_registry_version`; concurrency-safe writers |
 | **Dependencies** | WP1 |
 | **Expected files** | Schema/migration; metrics repository |
 | **Acceptance** | AC-9–AC-11; no prohibited dimensions |
@@ -882,8 +978,8 @@ flowchart LR
 
 | | |
 |---|---|
-| **Objective** | Implement safe cache; leave disabled unless measured GO |
-| **Deliverables** | Cache service; keys; invalidation; default-off flag; tests |
+| **Objective** | Implement safe cache + `RenderCacheInvalidationService`; leave disabled unless measured GO |
+| **Deliverables** | Cache service; keys; invalidation service; default-off flag; tests |
 | **Dependencies** | WP7 |
 | **Expected files** | `src/Rollout/` or `src/Block/` cache collaborator; tests |
 | **Acceptance** | AC-18–AC-19; WP8 DoD (§12) |
@@ -942,16 +1038,16 @@ flowchart LR
 |---|---|
 | AC-1 | Two-level render control enforced; global kill switch cannot be overridden by stage/cohort |
 | AC-2 | Truth table cases return source on deny/fail/shadow |
-| AC-3 | `RolloutPolicyDecision` fields match §3; no forbidden payloads |
+| AC-3 | `RolloutPolicyDecision` is an immutable value object; new instance per evaluation; fields match §3; no forbidden payloads |
 | AC-4 | Reason-code catalog frozen; unknown codes rejected or mapped to `policy_error` |
 | AC-5 | Config schema validates atomically; empty post allowlist denies limited-rollout render |
 | AC-6 | Malformed config fails closed; previous policy retained on rejected update |
-| AC-7 | Successful config change increments `policy_version` and retains sanitized snapshot |
+| AC-7 | Successful operator-visible policy change increments `policy_version` and retains sanitized snapshot; restore also increments `policy_version` |
 | AC-8 | Percentage/hash cohort configuration rejected |
-| AC-9 | Shadow mode evaluates and metrics-records but never translates |
+| AC-9 | Shadow mode evaluates via pure policy service; orchestration records metrics; never translates |
 | AC-10 | Stage promotion never automatic; shared UI/CLI promotion service |
 | AC-11 | Promotion checklist + audit event required |
-| AC-12 | Metrics two-tier model present; registry-only keys/dimensions |
+| AC-12 | Metrics two-tier model present; registry-only keys/dimensions; independent `metrics_registry_version` |
 | AC-13 | No synchronous persistent metric write on every frontend render |
 | AC-14 | Metrics failure marks incomplete; frontend unaffected |
 | AC-15 | Privacy: no prohibited long-term dimensions |
@@ -959,15 +1055,18 @@ flowchart LR
 | AC-17 | Audit events use frozen names/payload fields; no secrets/content |
 | AC-18 | Cache identity uses Store translation-hash aggregate; no `translation_revision` |
 | AC-19 | WP8 cache default off; activation requires measured GO |
-| AC-20 | Invalidation contract §13 honored; emergency bypass without purge |
+| AC-20 | Invalidation contract §13 honored via `RenderCacheInvalidationService`; emergency bypass without purge |
 | AC-21 | Failure-mode matrix §16 behaviors verified by tests/smoke |
 | AC-22 | Emergency rollback never deletes UUIDs, Store rows, or TM rows |
 | AC-23 | Observation checklist completed for operated stages |
 | AC-24 | F13 entry gate §20 documented and not auto-satisfied by code complete |
 | AC-25 | No translator-facing product features shipped in F12 |
 | AC-26 | Performance evidence fields recorded without invented baseline numbers |
+| AC-27 | `RolloutPolicyService` performs no persistence, audit, metrics, cache invalidation, logging, or config mutation |
+| AC-28 | `schema_version` changes only on configuration structure change; metrics/cache/telemetry never bump either version |
+| AC-29 | F13 reason-code stability review completed (no invented thresholds required) |
 
-**Acceptance-criteria count: 26**
+**Acceptance-criteria count: 29**
 
 ---
 
@@ -976,7 +1075,7 @@ flowchart LR
 F12 is done only when:
 
 1. WP0–WP11 complete  
-2. All ACs (AC-1–AC-26) satisfied  
+2. All ACs (AC-1–AC-29) satisfied  
 3. Quality gates green (Tier 0)  
 4. F12-specific browser smoke complete (operator-approved)  
 5. Validation log committed with **PASS** (created during implementation — reserved now)  
@@ -1069,6 +1168,8 @@ Do **not** invent production values:
 
 ## Exact next step (post-plan)
 
-Resolve the remaining PO decisions, perform one final architecture review, freeze F12, and then prepare its sequential implementation prompt.
+**F12 architecture is frozen and implementation can begin.**
 
-**Do not implement F12 production code from this planning commit.**
+Resolve remaining PO operational values (cohort posts/languages, observation window, cost limits, capability mapping, diagnostics WP placement, cache activation GO) as they become needed during WP execution; then proceed with sequential WP0→WP11 implementation.
+
+**Do not treat unresolved PO values as license to redesign architecture.**
