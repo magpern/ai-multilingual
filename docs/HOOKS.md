@@ -154,4 +154,6 @@ directly.
 
 TM write-back policy lives in `TranslationMemoryService` (ADR-F11-004). Machine
 persist must never write TM; eligible human / AI-accepted / import saves are the
-only write-back origins.
+only write-back origins. **Amended by ADR-0015** (Review Workflow): when Review
+Workflow is enabled, new-content write-back fires on review **approval**, not
+on save — see `F11_FROZEN_API.md` §7.

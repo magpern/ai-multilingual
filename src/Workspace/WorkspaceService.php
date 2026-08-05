@@ -405,7 +405,7 @@ final class WorkspaceService {
 			throw new \InvalidArgumentException( esc_html( $result->get_error_message() ) );
 		}
 
-		$this->sync_translation_memory_after_save(
+		$this->record_tm_usage_after_save(
 			$language_id,
 			$current,
 			$translated_text,
@@ -533,8 +533,15 @@ final class WorkspaceService {
 	 * Approval never rewrites translated text, source hashes, or the
 	 * translation-axis `status` (ADR-0015 §4.4). QA errors block approval only
 	 * when `qa_block_on_error` is enabled; warnings (including
-	 * `glossary_term_missing`) never block. TM write-back is out of scope for
-	 * this milestone (R5).
+	 * `glossary_term_missing`) never block.
+	 *
+	 * TM write-back moved from save-time to approval-time (ADR-0015 §7 / F11
+	 * amendment, R5): eligible content writes back to
+	 * {@see TranslationMemoryService} exactly once, only on a real
+	 * `pending` → `approved` transition — never on an idempotent duplicate
+	 * approve (`$previous_review_status` is captured before
+	 * {@see ReviewWorkflowService::approve()} runs, so a no-op on an
+	 * already-`approved` row is correctly skipped).
 	 *
 	 * Also propagates {@see WorkspaceQAException} (QA errors block approval)
 	 * and {@see \AIMultilingual\Workspace\Review\ReviewWorkflowException}
@@ -567,6 +574,8 @@ final class WorkspaceService {
 
 		$this->assert_qa_passes_for_approval( $current, $language_id );
 
+		$previous_review_status = (string) ( $current['review_status'] ?? Store::REVIEW_NOT_SUBMITTED );
+
 		$this->review->approve(
 			Store::SOURCE_POST,
 			(int) $post->ID,
@@ -576,6 +585,10 @@ final class WorkspaceService {
 			$expected_review_status,
 			$client_submitted_hash
 		);
+
+		if ( Store::REVIEW_PENDING === $previous_review_status ) {
+			$this->write_back_tm_on_approval( $language_id, $current );
+		}
 
 		return $this->segment_view_after_review( $post, $language_id, $segment_key );
 	}
@@ -858,10 +871,17 @@ final class WorkspaceService {
 	}
 
 	/**
-	 * Applies ADR-F11-004 TM write-back / usage after a successful Store save.
+	 * Records Translation Memory usage for an already-existing exact match
+	 * accepted at save time.
 	 *
-	 * Machine persist never reaches this method (TranslationService writes Store
-	 * directly). TM accepts record usage only; human / AI-accepted / import upsert.
+	 * New-content write-back moved from save-time to approval-time
+	 * (ADR-0015 §7 / F11 amendment, R5) — see
+	 * {@see write_back_tm_on_approval()}. This method only ever calls
+	 * {@see TranslationMemoryService::record_usage()}: accepting an
+	 * existing TM hit does not add new content to the catalogue, so it is
+	 * not covered by the approval gate and stays wired to the moment of
+	 * acceptance. Machine persist never reaches this method
+	 * (TranslationService writes Store directly).
 	 *
 	 * @param int                  $language_id     Target language id.
 	 * @param array<string, mixed> $current         Pre-save assembled segment DTO.
@@ -869,7 +889,7 @@ final class WorkspaceService {
 	 * @param string               $save_origin     Optional explicit origin token.
 	 * @param int                  $tm_id           Optional TM id for tm_accepted.
 	 */
-	private function sync_translation_memory_after_save(
+	private function record_tm_usage_after_save(
 		int $language_id,
 		array $current,
 		string $translated_text,
@@ -884,19 +904,6 @@ final class WorkspaceService {
 			return;
 		}
 
-		$default = $this->languages->default();
-		if ( null === $default ) {
-			return;
-		}
-
-		$text_format = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
-		$source_text = (string) ( $current['source_text'] ?? '' );
-		$source_hash = (string) ( $current['source_hash'] ?? '' );
-		$context     = TranslationMemoryService::derive_context(
-			(string) ( $current['block_name'] ?? '' ),
-			(string) ( $current['field_key'] ?? '' )
-		);
-
 		$resolved_origin = $save_origin;
 		$resolved_tm_id  = $tm_id;
 
@@ -905,36 +912,79 @@ final class WorkspaceService {
 			if ( null !== $match ) {
 				$resolved_origin = 'tm_accepted';
 				$resolved_tm_id  = $match;
-			} else {
-				$resolved_origin = 'human';
 			}
 		}
 
-		if ( 'tm_accepted' === $resolved_origin ) {
-			if ( $resolved_tm_id <= 0 ) {
-				$resolved_tm_id = $this->matching_tm_suggestion( $current, $language_id, $translated_text ) ?? 0;
-			}
-			if ( $resolved_tm_id > 0 ) {
-				$this->tm->record_usage( $resolved_tm_id );
-			}
+		if ( 'tm_accepted' !== $resolved_origin ) {
 			return;
 		}
 
-		if ( ! in_array( $resolved_origin, array( 'human', 'ai_accepted', 'import' ), true ) ) {
-			$resolved_origin = 'human';
+		if ( $resolved_tm_id <= 0 ) {
+			$resolved_tm_id = $this->matching_tm_suggestion( $current, $language_id, $translated_text ) ?? 0;
+		}
+
+		if ( $resolved_tm_id > 0 ) {
+			$this->tm->record_usage( $resolved_tm_id );
+		}
+	}
+
+	/**
+	 * Writes new eligible content back to Translation Memory on approval.
+	 *
+	 * ADR-0015 §7 / F11 amendment (R5): pending and rejected translations
+	 * never reach this method — it is only called from
+	 * {@see approve_review()}, and only on a real `pending` → `approved`
+	 * transition (never on an idempotent duplicate approve). Machine-origin
+	 * content is excluded unless a human has since edited it — i.e. `status`
+	 * is no longer {@see Store::STATUS_MACHINE_TRANSLATED} — matching the
+	 * existing "never machine unless AI-accepted" write-back policy.
+	 *
+	 * Always resolves to `human` provenance: this milestone has no live
+	 * `ai_accepted` / `import` signal by the time a segment reaches formal
+	 * review approval (unchanged from pre-R5 behaviour, which also had no
+	 * caller passing those tokens). Reuses
+	 * {@see TranslationMemoryService::write_back()} — its identity upsert
+	 * never touches `use_count`, so approving content that already exists in
+	 * TM (e.g. an earlier `tm_accepted` save) safely updates the existing row
+	 * instead of duplicating it or inflating usage.
+	 *
+	 * @param int                  $language_id Target language id.
+	 * @param array<string, mixed> $segment     Assembled segment DTO captured
+	 *                                          immediately before the approve
+	 *                                          transition; `translated_text`
+	 *                                          is guaranteed to match the
+	 *                                          approved content via
+	 *                                          `submitted_translation_hash`.
+	 */
+	private function write_back_tm_on_approval( int $language_id, array $segment ): void {
+		$translated_text = (string) ( $segment['translated_text'] ?? '' );
+		if ( '' === trim( $translated_text ) ) {
+			return;
+		}
+
+		if ( Store::STATUS_MACHINE_TRANSLATED === (string) ( $segment['status'] ?? '' ) ) {
+			return;
+		}
+
+		$default = $this->languages->default();
+		if ( null === $default ) {
+			return;
 		}
 
 		$this->tm->write_back(
 			array(
 				'source_lang_id' => (int) $default->language_id,
 				'target_lang_id' => $language_id,
-				'source_text'    => $source_text,
-				'source_hash'    => $source_hash,
+				'source_text'    => (string) ( $segment['source_text'] ?? '' ),
+				'source_hash'    => (string) ( $segment['source_hash'] ?? '' ),
 				'target_text'    => $translated_text,
-				'text_format'    => $text_format,
-				'context'        => $context,
+				'text_format'    => (string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN ),
+				'context'        => TranslationMemoryService::derive_context(
+					(string) ( $segment['block_name'] ?? '' ),
+					(string) ( $segment['field_key'] ?? '' )
+				),
 			),
-			$resolved_origin
+			'human'
 		);
 	}
 

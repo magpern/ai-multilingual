@@ -12,6 +12,7 @@
 **R2 status:** **PASS** — Store review metadata, invalidate-on-edit, no-op preserve.
 **R3 status:** **PASS** — ReviewWorkflowService submit/approve/reject transitions, hash conflicts, reason validation.
 **R4 status:** **PASS** — `aiml_review_translations` capability; submit/approve/reject/batch-review/review-queue REST routes; additive ViewModel fields; Store-derived paginated queue; `ReviewBatchCoordinator`; QA-gated approval reusing the Workspace QA path.
+**R5 status:** **PASS** — TM write-back moved from save-time to approval-time (ADR-0015 §7 / F11 amendment). `WorkspaceService::save_segment()` no longer calls `TranslationMemoryService::write_back()`; `WorkspaceService::approve_review()` calls the new `write_back_tm_on_approval()` exactly once on a real `pending` → `approved` transition (idempotent duplicate approve is a no-op). Pending/rejected never write TM; reject never deletes historical TM; machine-origin excluded unless human-edited; accepted-exact-TM usage recording (`tm_accepted`) is unaffected (not new content). No second TM writer.
 **Implementation scope / WP order (R0–R7):** Unchanged.
 
 ---
