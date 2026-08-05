@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-08-05T08:36:00Z",
+  "branch": "feature/f14-block-expansion",
+  "head_at_run": "ca012a8d06297dcdeb7424bcaae2b6d5e5ba723e",
+  "environment": "dev.biopentra.eu",
+  "results": {
+    "phpunit_unit": {
+      "result": "PASS",
+      "tests": 373,
+      "assertions": 836
+    },
+    "phpunit_integration": {
+      "result": "PASS",
+      "tests": 329,
+      "assertions": 7120
+    },
+    "phpcs": {
+      "result": "PASS",
+      "scope": "src/Block + tests/unit/Block + tests/integration/Block + tests/unit/Rollout"
+    },
+    "typescript_build": "N/A",
+    "f9_playwright_35": "not_run",
+    "cumulative_adapter_smoke": {
+      "result": "PASS",
+      "adapters": ["list-item", "preformatted", "verse", "code"],
+      "rendered_false_positives": 0
+    }
+  },
+  "overall": "PASS"
+}

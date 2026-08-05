@@ -10,8 +10,12 @@ declare( strict_types=1 );
 namespace AIMultilingual\Tests\Unit\Block;
 
 use AIMultilingual\Block\Adapter\ButtonAdapter;
+use AIMultilingual\Block\Adapter\CodeAdapter;
 use AIMultilingual\Block\Adapter\HeadingAdapter;
+use AIMultilingual\Block\Adapter\ListItemAdapter;
 use AIMultilingual\Block\Adapter\ParagraphAdapter;
+use AIMultilingual\Block\Adapter\PreformattedAdapter;
+use AIMultilingual\Block\Adapter\VerseAdapter;
 use AIMultilingual\Block\AdapterRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +28,15 @@ final class AdapterRegistryTest extends TestCase {
 		$registry = new AdapterRegistry();
 
 		$this->assertSame(
-			array( 'core/paragraph', 'core/heading', 'core/button' ),
+			array(
+				'core/paragraph',
+				'core/heading',
+				'core/button',
+				'core/list-item',
+				'core/preformatted',
+				'core/verse',
+				'core/code',
+			),
 			$registry->block_names()
 		);
 	}
@@ -35,6 +47,10 @@ final class AdapterRegistryTest extends TestCase {
 		$this->assertInstanceOf( ParagraphAdapter::class, $registry->get( 'core/paragraph' ) );
 		$this->assertInstanceOf( HeadingAdapter::class, $registry->get( 'core/heading' ) );
 		$this->assertInstanceOf( ButtonAdapter::class, $registry->get( 'core/button' ) );
+		$this->assertInstanceOf( ListItemAdapter::class, $registry->get( 'core/list-item' ) );
+		$this->assertInstanceOf( PreformattedAdapter::class, $registry->get( 'core/preformatted' ) );
+		$this->assertInstanceOf( VerseAdapter::class, $registry->get( 'core/verse' ) );
+		$this->assertInstanceOf( CodeAdapter::class, $registry->get( 'core/code' ) );
 	}
 
 	public function test_lookup_returns_null_for_unsupported_blocks(): void {
