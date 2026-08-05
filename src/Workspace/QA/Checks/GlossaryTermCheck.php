@@ -90,11 +90,7 @@ final class GlossaryTermCheck implements QACheck, GlossaryLanguageAware {
 			return array();
 		}
 
-		try {
-			$matches = $this->glossary->match_terms( $source_text, $this->source_lang_id, $this->target_lang_id, $text_format );
-		} catch ( \Throwable ) {
-			return array();
-		}
+		$matches = $this->glossary->match_terms( $source_text, $this->source_lang_id, $this->target_lang_id, $text_format );
 
 		$issues   = array();
 		$seen     = array();

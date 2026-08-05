@@ -1,10 +1,10 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Planning document — Glossary MVP canonical plan written ([GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md)); ADR-0014 **Proposed**; **no implementation started**  
-**Branch:** `feature/post-v1-roadmap`  
-**Baseline:** `main` @ `04f726073` (F1–F14 complete)  
+**Status:** Glossary MVP **implemented** on `feature/glossary-mvp` (validation PASS — [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md)); ADR-0014 **Accepted**; next initiative **Review Workflow**  
+**Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary implementation `feature/glossary-mvp`  
+**Baseline:** `main` after F1–F14 + Glossary planning  
 **Scope:** Product priorities after the Strategy F platform program  
-**Code changes:** None — documentation only
+**Code changes:** Glossary MVP delivered separately on `feature/glossary-mvp`
 
 ---
 
@@ -231,6 +231,7 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Stop conditions** | Any second suggestion path; provider-specific glossary logic outside providers; breaking F11 contracts; production render path changes. |
 | **Release boundary** | Independently shippable after Glossary plan DoD; default-compatible with existing GA. |
 | **Readiness gate** | See §12. |
+| **Implementation status** | **Complete** on `feature/glossary-mvp` — see [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md). Awaiting merge/tag. |
 
 **Why next:** Highest Biopentra value among Low-architecture-risk candidates; reserved F11 seams; improves content already in GA without storefront Elementor investment.
 

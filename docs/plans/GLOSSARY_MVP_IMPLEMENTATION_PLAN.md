@@ -1,14 +1,15 @@
 # Glossary MVP — Implementation Plan
 
-**Status:** Architecture **frozen**; **ADR-0014 Accepted** (2026-08-05) — **G1 implementation authorized**  
+**Status:** **Implemented** — G1–G7 complete; validation log **PASS**  
 **Branch:** `feature/glossary-mvp`  
 **Baseline:** `main` after Glossary planning merge  
 **ADR:** [0014-glossary-platform-lexicon.md](../adr/0014-glossary-platform-lexicon.md) — **Accepted**  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md)  
-**F11 contracts:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)
+**F11 contracts:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)  
+**Validation log:** [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md)
 
 **G0 gate:** **PASS** — ADR-0014 Accepted — G1 implementation authorized.  
-**Implementation scope / WP order (G0–G7):** Unchanged.
+**Closure:** G1–G7 complete on `feature/glossary-mvp`. Awaiting merge/tag after PO review.
 
 ---
 
@@ -677,6 +678,7 @@ All ACs §17 green; G1–G7 complete; validation log PASS; uninstall clean; F11 
 
 ## 27. Exact next step
 
-1. Satisfy the ADR-0014 implementation gate (**Accepted**, or complete PO provisional approval).  
-2. Create `feature/glossary-mvp` (implementation) from updated `main`.  
-3. Execute G1 only after the gate passes. Work package order G0–G7 is unchanged.
+1. Review [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md).  
+2. Merge `feature/glossary-mvp` to `main`.  
+3. Tag `glossary-mvp-complete`.  
+4. Begin Review Workflow planning from updated `main`.
