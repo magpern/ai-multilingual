@@ -241,7 +241,7 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Stop conditions** | Requiring version history; building a second editor; changing render pipeline; overloading `status` with review states. |
 | **Release boundary** | Independently shippable after Review plan DoD and ADR-0015 Accepted (or complete provisional). |
 | **Readiness gate** | Canonical plan frozen; ADR-0015 Accepted or complete PO provisional; implementation branch from `main`. |
-| **Implementation status** | **Planning** — plan + ADR-0015 Proposed on `feature/review-workflow-plan`. No production code. |
+| **Implementation status** | **R0–R7 complete, validation PASS** on `feature/review-workflow`; ADR-0015 **Accepted**; not yet merged to `main`. See [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md) and [REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md). Targeted Review browser smoke is a documented manual checklist pending deploy. |
 
 ### 11.3 Background Translation Jobs
 
