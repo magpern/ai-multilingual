@@ -8,7 +8,7 @@ and TM approval policy).
 | Item | Value |
 |---|---|
 | Repo host | `/opt/biopentra/dev/ai-multilingual` (Docker-only test tooling; no host PHP/Composer/Node) |
-| Branch | `feature/review-workflow` (dev-validated; merge pending) |
+| Branch | `feature/review-workflow` (merged to `main` @ `c8b383c67`) |
 | Baseline | `main` @ `fb678963e` (Review Workflow planning docs merge) |
 | Plugin | AI Multilingual `0.1.0` (`AIML_VERSION`) |
 | PHP (unit/PHPCS) | `8.3` (`php:8.3-cli`) |
@@ -221,9 +221,9 @@ Operator sign-off: automated WP-CLI/REST smoke on live bind-mounted feature bran
 ## Merge readiness
 
 **Review Workflow validation: PASS**  
-**Merge readiness: YES**
+**Merge readiness: YES** (merged)
 
-R0–R7 complete; ADR-0015 Accepted; schema v5 live on dev; Tier 0 green; targeted Review smoke **68/68 PASS**; rendered FP = 0.
+Merged to `main` @ `c8b383c67e988dffc5c57e6289570ce724fa9b99`. Tag `review-workflow-complete`. R0–R7 complete; ADR-0015 Accepted; schema v5 live on dev; Tier 0 green; targeted Review smoke **68/68 PASS**; rendered FP = 0.
 
 ## Recommended tag
 
@@ -231,6 +231,4 @@ R0–R7 complete; ADR-0015 Accepted; schema v5 live on dev; Tier 0 green; target
 
 ## Exact next step
 
-1. Merge `feature/review-workflow` to `main` with `--no-ff`.
-2. Tag `review-workflow-complete` on the merge commit and push.
-3. Create planning branch `feature/background-translation-jobs-plan` from updated `main` (docs only; no Jobs implementation).
+Draft and review the canonical Background Translation Jobs architecture plan on `feature/background-translation-jobs-plan`. Do not implement production code until the plan is frozen and ADR-0011 compliance has been revalidated.

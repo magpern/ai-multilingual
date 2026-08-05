@@ -1,6 +1,6 @@
 # Review Workflow — Implementation Plan
 
-**Status:** Architecture **frozen**; **ADR-0015 Accepted** (2026-08-05) — **R0–R7 complete, validation PASS, pending merge to `main`**  
+**Status:** Architecture **frozen**; **ADR-0015 Accepted** (2026-08-05) — **R0–R7 complete, validation PASS, merged to `main`, tag `review-workflow-complete`**  
 **Branch:** `feature/review-workflow`  
 **Baseline:** `main` after Review planning merge  
 **ADR:** [0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md) — **Accepted**  

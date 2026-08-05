@@ -1,10 +1,10 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Glossary MVP **complete** — merged to `main` @ `ab66fefd6`, tag `glossary-mvp-complete` ([GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md)); ADR-0014 **Accepted**; next initiative **Review Workflow** (planning only)  
+**Status:** Review Workflow **complete** — merged to `main` @ `c8b383c67`, tag `review-workflow-complete` ([REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md)); ADR-0015 **Accepted**; next initiative **Background Translation Jobs** (planning only)  
 **Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary implementation `feature/glossary-mvp` (merged)  
 **Baseline:** `main` after F1–F14 + Glossary MVP merge  
 **Scope:** Product priorities after the Strategy F platform program  
-**Code changes:** Glossary MVP shipped; Review Workflow **not started**
+**Code changes:** Glossary MVP + Review Workflow shipped; Background Translation Jobs **not started**
 
 ---
 
@@ -14,9 +14,9 @@ Strategy F milestones **F1–F14** are the completed **platform-foundation progr
 
 The next phase is **not** an automatic F15 chain. It is a set of **named, independently shippable product initiatives** ordered for Biopentra merchant and translator value **without reopening frozen architecture**.
 
-**Next planning initiative: Review Workflow**
+**Next planning initiative: Background Translation Jobs**
 
-**Immediately after Review:** Background Translation Jobs (ADR-0011).
+**Immediately after Jobs planning freeze:** implement Jobs only after ADR-0011 revalidation.
 
 **Glossary MVP (complete):** High translator and merchant value — brand and scientific terminology stay consistent across Swedish content. Delivered via F11-reserved seams (`glossary_fragment`, `glossary_version`, `SuggestionProvider` tier, Workspace extension hooks) without a parallel suggestion path, UUID/Store/rollout/routing changes, or provider-architecture changes. See [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md) and tag `glossary-mvp-complete`.
 
@@ -115,8 +115,8 @@ Columns: Merchant value | Translator value | Arch risk | Size | Ops risk | Deps 
 | Order | Named initiative | Type |
 |---|---|---|
 | 1 | **Glossary MVP** | Product implementation — **complete** (`glossary-mvp-complete`) |
-| 2 | **Review Workflow** | Product planning / implementation — **next** |
-| 3 | **Background Translation Jobs** | Product implementation (ADR-0011) — after Review |
+| 2 | **Review Workflow** | **Complete** — merged + tagged |
+| 3 | **Background Translation Jobs** | Product planning / implementation — **next** (ADR-0011) |
 | Parallel optional | **Nested Block Identity Spike** | Research only — does **not** block #2 |
 
 No F15/F16 numbering. Each initiative is independently shippable with its own plan, validation, and release boundary.
@@ -241,7 +241,7 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Stop conditions** | Requiring version history; building a second editor; changing render pipeline; overloading `status` with review states. |
 | **Release boundary** | Independently shippable after Review plan DoD and ADR-0015 Accepted (or complete provisional). |
 | **Readiness gate** | Canonical plan frozen; ADR-0015 Accepted or complete PO provisional; implementation branch from `main`. |
-| **Implementation status** | **R0–R7 complete, validation PASS** on `feature/review-workflow`; ADR-0015 **Accepted**; not yet merged to `main`. See [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md) and [REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md). Targeted Review browser smoke is a documented manual checklist pending deploy. |
+| **Implementation status** | **Complete** — merged to `main` @ `c8b383c67`; tag `review-workflow-complete`. ADR-0015 **Accepted**. Dev smoke **68/68 PASS**. See [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md) and [REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md). |
 
 ### 11.3 Background Translation Jobs
 
@@ -319,9 +319,9 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 - Glossary MVP is **complete**, merged, and tagged (`glossary-mvp-complete`).
 - ADR-0014 remains **Accepted**.
 - F1–F14 remain **complete**.
-- **No** Review Workflow implementation has started (planning branch only after this closure).
-- Background Translation Jobs remains **after** Review Workflow.
-- Next planning initiative: **Review Workflow** — canonical plan + ADR-0015 Proposed; implementation blocked on ADR disposition.
+- Review Workflow is **complete** (merged + tagged).
+- Background Translation Jobs is **next** — planning only until ADR-0011 compliance is revalidated.
+- **No** Background Translation Jobs implementation has started.
 
 ---
 
