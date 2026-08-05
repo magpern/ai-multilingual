@@ -14,6 +14,11 @@ use WP_Error;
 
 /**
  * Owns legal review-status transitions only (no REST, caps, TM, or QA).
+ *
+ * Also emits stable `aiml_review_audit` lifecycle events (ADR-0015 §12) for
+ * every real transition it persists — this is a domain-event concern, not a
+ * transport/policy one, so it stays alongside the transitions that produce
+ * the old/new status pair the audit payload needs.
  */
 final class ReviewWorkflowService {
 
@@ -40,12 +45,21 @@ final class ReviewWorkflowService {
 	private Store $store;
 
 	/**
+	 * Audit logger for stable review lifecycle events (ADR-0015 §12).
+	 *
+	 * @var ReviewAuditLogger
+	 */
+	private ReviewAuditLogger $audit;
+
+	/**
 	 * Builds the service.
 	 *
-	 * @param Store $store Segment store.
+	 * @param Store                  $store Segment store.
+	 * @param ReviewAuditLogger|null $audit Audit logger.
 	 */
-	public function __construct( Store $store ) {
+	public function __construct( Store $store, ?ReviewAuditLogger $audit = null ) {
 		$this->store = $store;
+		$this->audit = $audit ?? new ReviewAuditLogger();
 	}
 
 	/**
@@ -120,6 +134,20 @@ final class ReviewWorkflowService {
 			)
 		);
 
+		$this->audit->log(
+			Store::REVIEW_REJECTED === $review_status ? ReviewAuditEvents::RESUBMITTED : ReviewAuditEvents::SUBMITTED,
+			$this->audit_payload(
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				$review_status,
+				Store::REVIEW_PENDING,
+				$user_id,
+				$hash
+			)
+		);
+
 		return $this->refresh_segment( $source_type, $source_id, $language_id, $segment_key );
 	}
 
@@ -177,6 +205,20 @@ final class ReviewWorkflowService {
 				'rejection_reason' => '',
 				'rejected_by'      => null,
 				'rejected_at'      => null,
+			)
+		);
+
+		$this->audit->log(
+			ReviewAuditEvents::APPROVED,
+			$this->audit_payload(
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				Store::REVIEW_PENDING,
+				Store::REVIEW_APPROVED,
+				$user_id,
+				(string) $row->submitted_translation_hash
 			)
 		);
 
@@ -241,6 +283,26 @@ final class ReviewWorkflowService {
 				'rejected_at'      => $now,
 				'reviewed_by'      => null,
 				'reviewed_at'      => null,
+			)
+		);
+
+		$this->audit->log(
+			ReviewAuditEvents::REJECTED,
+			array_merge(
+				$this->audit_payload(
+					$source_type,
+					$source_id,
+					$language_id,
+					$segment_key,
+					Store::REVIEW_PENDING,
+					Store::REVIEW_REJECTED,
+					$user_id,
+					(string) $row->submitted_translation_hash
+				),
+				array(
+					'reason_present' => '' !== $normalized_reason,
+					'reason_length'  => strlen( $normalized_reason ),
+				)
 			)
 		);
 
@@ -540,6 +602,53 @@ final class ReviewWorkflowService {
 	): never {
 		// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- domain codes and context are structured data, not HTML output.
 		throw new ReviewWorkflowException( $error_code, $message, $context, $code );
+	}
+
+	/**
+	 * Builds the safe audit payload shared by submit/approve/reject events.
+	 *
+	 * Safe fields only (ADR-0015 §12): source/post id, segment key,
+	 * language id, old/new review status, user id, timestamp, source
+	 * surface, and a non-reversible submitted-hash fingerprint — never
+	 * translation text.
+	 *
+	 * @param string $source_type   Source type.
+	 * @param int    $source_id     Source object id.
+	 * @param int    $language_id   Language id.
+	 * @param string $segment_key   Segment key.
+	 * @param string $old_status    Previous review_status.
+	 * @param string $new_status    New review_status.
+	 * @param int    $user_id       Acting user id.
+	 * @param string $submitted_hash Submitted translation hash for a safe fingerprint.
+	 * @return array<string, mixed>
+	 */
+	private function audit_payload(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		string $old_status,
+		string $new_status,
+		int $user_id,
+		string $submitted_hash
+	): array {
+		$payload = array(
+			'source_type'                => $source_type,
+			'source_id'                  => $source_id,
+			'segment_key'                => $segment_key,
+			'language_id'                => $language_id,
+			'old_review_status'          => $old_status,
+			'new_review_status'          => $new_status,
+			'user_id'                    => $user_id,
+			'source_surface'             => 'workspace',
+			'submitted_hash_fingerprint' => ReviewAuditLogger::hash_fingerprint( $submitted_hash ),
+		);
+
+		if ( Store::SOURCE_POST === $source_type ) {
+			$payload['post_id'] = $source_id;
+		}
+
+		return $payload;
 	}
 
 	/**

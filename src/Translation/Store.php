@@ -723,6 +723,96 @@ final class Store {
 		);
 	}
 
+	/**
+	 * Upper bound (seconds) reported for pending-review age (ADR-0015 §13).
+	 *
+	 * Diagnostics are query-time and bounded on purpose: a very old,
+	 * forgotten pending row must not make the reported figure unbounded, and
+	 * the plugin must never persist a high-cardinality metric to track it.
+	 */
+	public const REVIEW_PENDING_AGE_BOUND_SECONDS = 2592000; // 30 days.
+
+	/**
+	 * Counts review-axis rows by status, scoped by optional source/language
+	 * (ADR-0015 §13). Query-time diagnostics only — never a persisted metric.
+	 *
+	 * @param string $source_type Source type. Default SOURCE_POST.
+	 * @param int    $source_id   Optional source object id filter (0 = any).
+	 * @param int    $language_id Optional language filter (0 = any).
+	 * @return array<string, int> Map of every review_status catalog value to its count.
+	 */
+	public function review_status_counts( string $source_type = self::SOURCE_POST, int $source_id = 0, int $language_id = 0 ): array {
+		$counts = array_fill_keys( self::review_statuses(), 0 );
+
+		if ( ! $this->translations_table_exists() ) {
+			return $counts;
+		}
+
+		global $wpdb;
+
+		$scope = $this->health_scope_sql( $source_type, $source_id, $language_id );
+		$sql   = 'SELECT review_status, COUNT(*) AS row_count FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL
+			. ' WHERE 1=1' . $scope['sql'] . ' GROUP BY review_status';
+
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $scope['args'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+		foreach ( (array) $rows as $row ) {
+			$status = (string) ( $row->review_status ?? '' );
+			if ( array_key_exists( $status, $counts ) ) {
+				$counts[ $status ] = $this->normalize_health_count( $row->row_count );
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Bounded pending-review age stats, scoped by optional source/language
+	 * (ADR-0015 §13). Query-time diagnostics only.
+	 *
+	 * @param string $source_type Source type. Default SOURCE_POST.
+	 * @param int    $source_id   Optional source object id filter (0 = any).
+	 * @param int    $language_id Optional language filter (0 = any).
+	 * @return array{count: int, avg_seconds: int, max_seconds: int}
+	 */
+	public function review_pending_age_stats( string $source_type = self::SOURCE_POST, int $source_id = 0, int $language_id = 0 ): array {
+		$empty = array(
+			'count'       => 0,
+			'avg_seconds' => 0,
+			'max_seconds' => 0,
+		);
+
+		if ( ! $this->translations_table_exists() ) {
+			return $empty;
+		}
+
+		global $wpdb;
+
+		$scope = $this->health_scope_sql( $source_type, $source_id, $language_id );
+		$sql   = 'SELECT COUNT(*) AS row_count,'
+			. ' COALESCE(AVG(TIMESTAMPDIFF(SECOND, review_submitted_at, UTC_TIMESTAMP())), 0) AS avg_seconds,'
+			. ' COALESCE(MAX(TIMESTAMPDIFF(SECOND, review_submitted_at, UTC_TIMESTAMP())), 0) AS max_seconds'
+			. ' FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL
+			. ' WHERE review_status = %s AND review_submitted_at IS NOT NULL' . $scope['sql'];
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare( $sql, array_merge( array( self::REVIEW_PENDING ), $scope['args'] ) ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+
+		$row = ( is_array( $rows ) && isset( $rows[0] ) ) ? $rows[0] : null;
+		if ( null === $row ) {
+			return $empty;
+		}
+
+		$bound = self::REVIEW_PENDING_AGE_BOUND_SECONDS;
+
+		return array(
+			'count'       => $this->normalize_health_count( $row->row_count ),
+			'avg_seconds' => min( $bound, max( 0, (int) round( (float) $row->avg_seconds ) ) ),
+			'max_seconds' => min( $bound, max( 0, (int) $row->max_seconds ) ),
+		);
+	}
+
 	// -- Writes --
 
 	/**

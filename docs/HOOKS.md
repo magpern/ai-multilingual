@@ -93,6 +93,27 @@ delegate to `WorkspaceService` and never touch `Store` directly.
 | POST | `/aiml/v1/workspace/{post_id}/segments/{segment_key}/suggest?language=` | F11 — AI suggest (no Store persist) |
 | POST | `/aiml/v1/workspace/{post_id}/suggestions/accept?language=` | F11 — batch accept exact TM |
 | POST | `/aiml/v1/workspace/{post_id}/qa?language=` | F11 — batch QA (read-only) |
+| POST | `/aiml/v1/workspace/{post_id}/segments/{segment_key}/submit-review?language=` | Review Workflow — submit/resubmit (`aiml_translate` + `edit_post`) |
+| POST | `/aiml/v1/workspace/{post_id}/segments/{segment_key}/approve?language=` | Review Workflow — approve pending (`aiml_review_translations` + `edit_post`) |
+| POST | `/aiml/v1/workspace/{post_id}/segments/{segment_key}/reject?language=` | Review Workflow — reject pending, reason required (`aiml_review_translations` + `edit_post`) |
+| POST | `/aiml/v1/workspace/{post_id}/segments/batch-review?language=` | Review Workflow — bounded batch submit/approve/reject (ADR-0015 §11.1) |
+| GET | `/aiml/v1/workspace/review-queue?post_id=&language=&review_status=&page=&per_page=` | Review Workflow — filtered Store view (`aiml_review_translations`), never persisted |
+| GET | `/aiml/v1/workspace/review-diagnostics?post_id=&language=` | Review Workflow — bounded diagnostics (`aiml_review_translations`); ADR-0015 §13 |
+
+### Review Workflow audit — `aiml_review_audit` (ADR-0015 §12)
+
+Fired by `ReviewWorkflowService` (submit/resubmit/approve/reject),
+`ReviewBatchCoordinator` (one summary per batch call), and
+`ReviewEditInvalidationAuditBridge` (bridges the existing
+`aiml_review_invalidated_by_edit` Store hook into this channel). Stable event
+names: `review_submitted`, `review_resubmitted`, `review_approved`,
+`review_rejected`, `review_invalidated_by_edit`, `review_batch_completed`.
+
+Safe payload only — post/source id, segment key, language id, old/new
+`review_status`, user id, timestamp, source surface, a non-reversible
+submitted-hash fingerprint (first 8 chars), and rejection reason
+presence/length. **Never** translation body, source body, or the full
+rejection reason.
 
 `GET .../segments` may include additive `meta.suggestions` and `meta.qa` (F11).
 

@@ -130,6 +130,16 @@ final class WorkspaceController {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/review-diagnostics',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_review_diagnostics' ),
+				'permission_callback' => array( $this, 'can_review_queue' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments',
 			array(
 				'methods'             => 'GET',
@@ -972,6 +982,22 @@ final class WorkspaceController {
 				'per_page' => $result['per_page'],
 			)
 		);
+	}
+
+	/**
+	 * Returns bounded, low-cardinality Review Workflow diagnostics
+	 * (ADR-0015 §13). Never translation content — counts and timings only.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response
+	 */
+	public function get_review_diagnostics( WP_REST_Request $request ): WP_REST_Response {
+		$args = array(
+			'post_id'  => (int) $request->get_param( 'post_id' ),
+			'language' => sanitize_key( (string) ( $request->get_param( 'language' ) ?? '' ) ),
+		);
+
+		return $this->respond( $this->workspace->review_diagnostics( $args ) );
 	}
 
 	/**

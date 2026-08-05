@@ -79,6 +79,7 @@ use AIMultilingual\Workspace\QA\Checks\GlossaryTermCheck;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\PreviewService;
 use AIMultilingual\Workspace\Review\ReviewCapabilities;
+use AIMultilingual\Workspace\Review\ReviewEditInvalidationAuditBridge;
 use AIMultilingual\Workspace\Review\ReviewWorkflowService;
 use AIMultilingual\Workspace\SegmentAssembler;
 use AIMultilingual\Workspace\Suggestion\AISuggestionProvider;
@@ -275,6 +276,8 @@ final class Plugin {
 			new RenderCacheInvalidationService( null, $cache ),
 			$languages
 		) )->register();
+
+		( new ReviewEditInvalidationAuditBridge() )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 

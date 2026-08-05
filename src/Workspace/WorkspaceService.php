@@ -18,6 +18,8 @@ use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\QA\QAIssue;
 use AIMultilingual\Workspace\QA\QAResult;
 use AIMultilingual\Workspace\Review\ReviewBatchCoordinator;
+use AIMultilingual\Workspace\Review\ReviewDiagnosticsCounters;
+use AIMultilingual\Workspace\Review\ReviewWorkflowException;
 use AIMultilingual\Workspace\Review\ReviewWorkflowService;
 use WP_Error;
 use WP_Post;
@@ -122,19 +124,27 @@ final class WorkspaceService {
 	private ReviewBatchCoordinator $review_batch;
 
 	/**
+	 * Bounded, low-cardinality review diagnostic counters (ADR-0015 §13).
+	 *
+	 * @var ReviewDiagnosticsCounters
+	 */
+	private ReviewDiagnosticsCounters $review_diagnostics;
+
+	/**
 	 * Builds the collaborator.
 	 *
-	 * @param SegmentAssembler             $assembler           Segment assembly.
-	 * @param TranslationStatusCalculator  $status_calculator   Status aggregation.
-	 * @param TranslationService           $translation         Auto-translate boundary.
-	 * @param PreviewService               $preview             Preview URLs.
-	 * @param Languages                    $languages           Language registry.
-	 * @param Store                        $store               Segment store.
-	 * @param Extractor                    $extractor           Source extractor.
-	 * @param TranslationSuggestionService $suggestions         Suggestion orchestration.
-	 * @param QAEngine                     $qa                  Quality assurance engine.
-	 * @param TranslationMemoryService     $tm                  Translation memory write-back.
-	 * @param ReviewWorkflowService        $review              Review Workflow transition policy.
+	 * @param SegmentAssembler               $assembler           Segment assembly.
+	 * @param TranslationStatusCalculator    $status_calculator   Status aggregation.
+	 * @param TranslationService             $translation         Auto-translate boundary.
+	 * @param PreviewService                 $preview             Preview URLs.
+	 * @param Languages                      $languages           Language registry.
+	 * @param Store                          $store               Segment store.
+	 * @param Extractor                      $extractor           Source extractor.
+	 * @param TranslationSuggestionService   $suggestions         Suggestion orchestration.
+	 * @param QAEngine                       $qa                  Quality assurance engine.
+	 * @param TranslationMemoryService       $tm                  Translation memory write-back.
+	 * @param ReviewWorkflowService          $review              Review Workflow transition policy.
+	 * @param ReviewDiagnosticsCounters|null $review_diagnostics Bounded review diagnostic counters.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -147,21 +157,23 @@ final class WorkspaceService {
 		TranslationSuggestionService $suggestions,
 		QAEngine $qa,
 		TranslationMemoryService $tm,
-		ReviewWorkflowService $review
+		ReviewWorkflowService $review,
+		?ReviewDiagnosticsCounters $review_diagnostics = null
 	) {
-		$this->assembler         = $assembler;
-		$this->status_calculator = $status_calculator;
-		$this->translation       = $translation;
-		$this->preview           = $preview;
-		$this->languages         = $languages;
-		$this->store             = $store;
-		$this->extractor         = $extractor;
-		$this->suggestions       = $suggestions;
-		$this->qa                = $qa;
-		$this->tm                = $tm;
-		$this->review            = $review;
-		$this->batch             = new BatchOperationCoordinator( $this, $translation );
-		$this->review_batch      = new ReviewBatchCoordinator( $this );
+		$this->assembler          = $assembler;
+		$this->status_calculator  = $status_calculator;
+		$this->translation        = $translation;
+		$this->preview            = $preview;
+		$this->languages          = $languages;
+		$this->store              = $store;
+		$this->extractor          = $extractor;
+		$this->suggestions        = $suggestions;
+		$this->qa                 = $qa;
+		$this->tm                 = $tm;
+		$this->review             = $review;
+		$this->review_diagnostics = $review_diagnostics ?? new ReviewDiagnosticsCounters();
+		$this->batch              = new BatchOperationCoordinator( $this, $translation );
+		$this->review_batch       = new ReviewBatchCoordinator( $this );
 	}
 
 	/**
@@ -522,7 +534,12 @@ final class WorkspaceService {
 	): array {
 		$this->assert_supported_post( $post );
 
-		$this->review->submit( Store::SOURCE_POST, (int) $post->ID, $language_id, $segment_key, $user_id, $expected_review_status );
+		try {
+			$this->review->submit( Store::SOURCE_POST, (int) $post->ID, $language_id, $segment_key, $user_id, $expected_review_status );
+		} catch ( ReviewWorkflowException $exception ) {
+			$this->record_review_conflict( $exception );
+			throw $exception;
+		}
 
 		return $this->segment_view_after_review( $post, $language_id, $segment_key );
 	}
@@ -556,6 +573,8 @@ final class WorkspaceService {
 	 * @return array<string, mixed>
 	 *
 	 * @throws \InvalidArgumentException When the segment is unknown.
+	 * @throws WorkspaceQAException When QA errors block approval under policy.
+	 * @throws \AIMultilingual\Workspace\Review\ReviewWorkflowException When the transition is illegal or conflicts.
 	 */
 	public function approve_review(
 		WP_Post $post,
@@ -572,19 +591,30 @@ final class WorkspaceService {
 			throw new \InvalidArgumentException( 'Unknown segment key for this post.' );
 		}
 
-		$this->assert_qa_passes_for_approval( $current, $language_id );
+		try {
+			$this->assert_qa_passes_for_approval( $current, $language_id );
+		} catch ( WorkspaceQAException $qa_exception ) {
+			$this->review_diagnostics->increment( ReviewDiagnosticsCounters::QA_BLOCKED_APPROVALS );
+			throw $qa_exception;
+		}
 
 		$previous_review_status = (string) ( $current['review_status'] ?? Store::REVIEW_NOT_SUBMITTED );
 
-		$this->review->approve(
-			Store::SOURCE_POST,
-			(int) $post->ID,
-			$language_id,
-			$segment_key,
-			$user_id,
-			$expected_review_status,
-			$client_submitted_hash
-		);
+		try {
+			$this->review->approve(
+				Store::SOURCE_POST,
+				(int) $post->ID,
+				$language_id,
+				$segment_key,
+				$user_id,
+				$expected_review_status,
+				$client_submitted_hash
+			);
+		} catch ( ReviewWorkflowException $exception ) {
+			$this->review_diagnostics->increment( ReviewDiagnosticsCounters::APPROVAL_FAILURES );
+			$this->record_review_conflict( $exception );
+			throw $exception;
+		}
 
 		if ( Store::REVIEW_PENDING === $previous_review_status ) {
 			$this->write_back_tm_on_approval( $language_id, $current );
@@ -621,16 +651,21 @@ final class WorkspaceService {
 	): array {
 		$this->assert_supported_post( $post );
 
-		$this->review->reject(
-			Store::SOURCE_POST,
-			(int) $post->ID,
-			$language_id,
-			$segment_key,
-			$user_id,
-			$reason,
-			$expected_review_status,
-			$client_submitted_hash
-		);
+		try {
+			$this->review->reject(
+				Store::SOURCE_POST,
+				(int) $post->ID,
+				$language_id,
+				$segment_key,
+				$user_id,
+				$reason,
+				$expected_review_status,
+				$client_submitted_hash
+			);
+		} catch ( ReviewWorkflowException $exception ) {
+			$this->record_review_conflict( $exception );
+			throw $exception;
+		}
 
 		return $this->segment_view_after_review( $post, $language_id, $segment_key );
 	}
@@ -971,7 +1006,7 @@ final class WorkspaceService {
 			return;
 		}
 
-		$this->tm->write_back(
+		$result = $this->tm->write_back(
 			array(
 				'source_lang_id' => (int) $default->language_id,
 				'target_lang_id' => $language_id,
@@ -986,6 +1021,14 @@ final class WorkspaceService {
 			),
 			'human'
 		);
+
+		// null means write-back was skipped as ineligible (format/origin) —
+		// not a failure, so it is not counted either way (ADR-0015 §13).
+		if ( $result instanceof WP_Error ) {
+			$this->review_diagnostics->increment( ReviewDiagnosticsCounters::TM_WRITE_BACK_FAILURE );
+		} elseif ( null !== $result ) {
+			$this->review_diagnostics->increment( ReviewDiagnosticsCounters::TM_WRITE_BACK_SUCCESS );
+		}
 	}
 
 	/**
@@ -1121,6 +1164,48 @@ final class WorkspaceService {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- QA payload is structured data, not exception text.
 			throw new WorkspaceQAException( $qa );
 		}
+	}
+
+	/**
+	 * Increments the bounded stale-conflict counter for 409 review conflicts.
+	 *
+	 * Shared by submit/approve/reject so every optimistic-locking conflict
+	 * across the review lifecycle is counted the same way (ADR-0015 §13).
+	 *
+	 * @param ReviewWorkflowException $exception Domain exception from ReviewWorkflowService.
+	 */
+	private function record_review_conflict( ReviewWorkflowException $exception ): void {
+		if ( ReviewWorkflowService::CODE_CONFLICT === $exception->get_error_code() ) {
+			$this->review_diagnostics->increment( ReviewDiagnosticsCounters::CONFLICTS );
+		}
+	}
+
+	/**
+	 * Returns bounded, low-cardinality Review Workflow diagnostics
+	 * (ADR-0015 §13): query-time counts/pending-age from the Store plus
+	 * cross-request counters for conflicts, approval failures, QA-blocked
+	 * approvals, and TM write-back outcomes.
+	 *
+	 * @param array<string, mixed> $args Optional scope: post_id, language (code).
+	 * @return array<string, mixed>
+	 */
+	public function review_diagnostics( array $args = array() ): array {
+		$source_id   = (int) ( $args['post_id'] ?? 0 );
+		$language_id = 0;
+
+		$code = (string) ( $args['language'] ?? '' );
+		if ( '' !== $code ) {
+			$language = $this->resolve_language( $code );
+			if ( null !== $language ) {
+				$language_id = (int) $language->language_id;
+			}
+		}
+
+		return array(
+			'review_status_counts' => $this->store->review_status_counts( Store::SOURCE_POST, $source_id, $language_id ),
+			'pending_age'          => $this->store->review_pending_age_stats( Store::SOURCE_POST, $source_id, $language_id ),
+			'counters'             => $this->review_diagnostics->counters(),
+		);
 	}
 
 	/**

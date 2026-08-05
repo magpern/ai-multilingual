@@ -47,12 +47,21 @@ final class ReviewBatchCoordinator {
 	private WorkspaceService $workspace;
 
 	/**
+	 * Audit logger for the batch-completed summary event (ADR-0015 §12).
+	 *
+	 * @var ReviewAuditLogger
+	 */
+	private ReviewAuditLogger $audit;
+
+	/**
 	 * Builds the collaborator.
 	 *
-	 * @param WorkspaceService $workspace Workspace command facade.
+	 * @param WorkspaceService       $workspace Workspace command facade.
+	 * @param ReviewAuditLogger|null $audit     Audit logger.
 	 */
-	public function __construct( WorkspaceService $workspace ) {
+	public function __construct( WorkspaceService $workspace, ?ReviewAuditLogger $audit = null ) {
 		$this->workspace = $workspace;
+		$this->audit     = $audit ?? new ReviewAuditLogger();
 	}
 
 	/**
@@ -170,6 +179,21 @@ final class ReviewBatchCoordinator {
 		} else {
 			$status = 'partial';
 		}
+
+		$this->audit->log(
+			ReviewAuditEvents::BATCH_COMPLETED,
+			array(
+				'post_id'         => (int) $post->ID,
+				'language_id'     => $language_id,
+				'user_id'         => $user_id,
+				'action'          => $action,
+				'total_count'     => count( $items ),
+				'succeeded_count' => count( $succeeded ),
+				'failed_count'    => count( $failed ),
+				'batch_status'    => $status,
+				'source_surface'  => 'workspace_batch',
+			)
+		);
 
 		return array(
 			'status'   => $status,
