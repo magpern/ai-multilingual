@@ -105,6 +105,29 @@ delegate to `WorkspaceService` and never touch `Store` directly.
 Requires `manage_options`. Never returns cleartext API keys. Delegates to
 `ProviderRegistry` only — no OpenAI types in the controller.
 
+## Glossary REST — `src/Rest/GlossaryController.php`
+
+| Hook | Purpose |
+|---|---|
+| `rest_api_init` | Registers `aiml/v1/glossary/*` for platform lexicon CRUD (ADR-0014). |
+
+Requires `aiml_manage_glossary` (granted to Administrator on activation). Responses
+include `X-AIML-Glossary-Api-Version: 1` and serialize ViewModels only — never
+`GlossaryTermMatch`. Audit events fire on `aiml_glossary_audit` without term text.
+
+| Method | Route |
+|---|---|
+| GET | `/aiml/v1/glossary` |
+| POST | `/aiml/v1/glossary` |
+| GET | `/aiml/v1/glossary/diagnostics` |
+| GET | `/aiml/v1/glossary/{id}` |
+| PUT/PATCH | `/aiml/v1/glossary/{id}` |
+| DELETE | `/aiml/v1/glossary/{id}` |
+| POST | `/aiml/v1/glossary/{id}/activate` |
+| POST | `/aiml/v1/glossary/{id}/deactivate` |
+
+Admin UI: `src/Admin/GlossaryAdminPage.php` (submenu under Multilingual).
+
 ## Deliberately not hooked
 
 - **No rewrite rules.** `add_rewrite_rule`, `add_rewrite_tag` and
@@ -112,8 +135,8 @@ Requires `manage_options`. Never returns cleartext API keys. Delegates to
   there is no rewrite state to manage.
 - **No cookie.** The URL is the only language authority in this milestone, so
   front-end responses carry no `Set-Cookie` and stay cacheable at the edge.
-- **No REST routes outside workspace + providers.** Only `WorkspaceController`
-  and `ProviderController` register under `aiml/v1`.
+- **REST under `aiml/v1` only.** Allowed controllers: `WorkspaceController`,
+  `ProviderController`, and `GlossaryController`.
 - **No deactivation hook.** Deactivation must remove nothing, so there is
   nothing for it to do.
 - **No WooCommerce hooks yet** beyond the compatibility declaration.

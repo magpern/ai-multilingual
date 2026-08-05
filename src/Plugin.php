@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
+use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
 use AIMultilingual\Admin\SettingsPage;
 use AIMultilingual\Admin\TranslatorWorkspace;
@@ -29,6 +30,7 @@ use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
 use AIMultilingual\Frontend\Switcher;
+use AIMultilingual\Glossary\GlossaryCapabilities;
 use AIMultilingual\Glossary\GlossaryMatcher;
 use AIMultilingual\Glossary\GlossaryNormalizer;
 use AIMultilingual\Glossary\GlossaryRepository;
@@ -36,6 +38,7 @@ use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Rest\GlossaryController;
 use AIMultilingual\Rest\ProviderController;
 use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
@@ -252,6 +255,7 @@ final class Plugin {
 		) )->register();
 
 		( new ProviderController( $provider_registry ) )->register();
+		( new GlossaryController( $glossary_service ) )->register();
 
 		( new AttributeRegistrar( $settings, $block_registry ) )->register();
 		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();
@@ -273,6 +277,7 @@ final class Plugin {
 			( new RolloutAdminPage() )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
 			( new TranslatorWorkspace( $languages ) )->register();
+			( new GlossaryAdminPage( $languages ) )->register();
 
 			// Bind-mount deployments update files in place and never fire the
 			// activation hook, so schema drift has to be caught on its own.
@@ -335,6 +340,7 @@ final class Plugin {
 
 		self::grant_capability();
 		RolloutCapabilities::grant_default_roles();
+		GlossaryCapabilities::grant_default_roles();
 	}
 
 	/**

@@ -46,7 +46,8 @@ final class GlossaryMatcher {
 			} else {
 				$segment_norm = mb_strtolower( $scan, 'UTF-8' );
 			}
-		} catch ( \Throwable ) {
+		} catch ( \InvalidArgumentException | \RuntimeException $e ) {
+			unset( $e );
 			$segment_norm = mb_strtolower( $scan, 'UTF-8' );
 		}
 

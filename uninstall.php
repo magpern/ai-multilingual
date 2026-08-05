@@ -41,14 +41,18 @@ foreach ( (array) $aiml_language_ids as $aiml_language_id ) {
 	delete_option( 'aiml_lang_version_' . (int) $aiml_language_id );
 }
 
-// 2. Remove the capability this plugin created from every role holding it.
+// 2. Remove the capabilities this plugin created from every role holding them.
 $aiml_roles = wp_roles();
 foreach ( array_keys( $aiml_roles->roles ) as $aiml_role_name ) {
 	$aiml_role = $aiml_roles->get_role( $aiml_role_name );
-	if ( $aiml_role instanceof WP_Role && $aiml_role->has_cap( \AIMultilingual\Plugin::CAPABILITY ) ) {
+	if ( ! ( $aiml_role instanceof WP_Role ) ) {
+		continue;
+	}
+	if ( $aiml_role->has_cap( \AIMultilingual\Plugin::CAPABILITY ) ) {
 		$aiml_role->remove_cap( \AIMultilingual\Plugin::CAPABILITY );
 	}
 }
+\AIMultilingual\Glossary\GlossaryCapabilities::revoke_all_roles();
 
 // 3. Plugin options. Glossary lexicon version (ADR-0014) and cache epoch.
 // Milestone 3 may also unschedule aiml_run_job / aiml_jobs_sweep actions before this point.
