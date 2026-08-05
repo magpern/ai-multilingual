@@ -42,6 +42,7 @@ final class BlockRegistry {
 		'core/list-item',
 		'core/preformatted',
 		'core/verse',
+		'core/code',
 	);
 
 	/**

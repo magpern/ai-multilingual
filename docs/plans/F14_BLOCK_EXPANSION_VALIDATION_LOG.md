@@ -14,7 +14,7 @@
 | `core/list-item` | PASS | PASS | PASS | PASS | PASS | PASS | **PASS** — [F14_ADMISSION_list_item_EVIDENCE.json](F14_ADMISSION_list_item_EVIDENCE.json) |
 | `core/preformatted` | PASS | PASS | PASS | PASS | PASS | PASS | **PASS** — [F14_ADMISSION_preformatted_EVIDENCE.json](F14_ADMISSION_preformatted_EVIDENCE.json) |
 | `core/verse` | PASS | PASS | PASS | PASS | PASS | PASS | **PASS** — [F14_ADMISSION_verse_EVIDENCE.json](F14_ADMISSION_verse_EVIDENCE.json) |
-| `core/code` | — | — | — | — | — | — | pending |
+| `core/code` | PASS | PASS | PASS | PASS | PASS | PASS | **PASS** — [F14_ADMISSION_code_EVIDENCE.json](F14_ADMISSION_code_EVIDENCE.json) |
 
 ---
 
@@ -26,6 +26,7 @@
 | F14.1 `core/list-item` | **PASS** |
 | F14.2 `core/preformatted` | **PASS** |
 | F14.3 `core/verse` | **PASS** |
-| All adapters admitted | pending |
+| F14.4 `core/code` | **PASS** |
+| All adapters admitted | **PASS** |
 | Final Tier 0 | pending |
 | Merge/tag | **Not authorized** (implementation branch only) |

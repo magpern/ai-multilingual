@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Block;
 
 use AIMultilingual\Block\Adapter\ButtonAdapter;
+use AIMultilingual\Block\Adapter\CodeAdapter;
 use AIMultilingual\Block\Adapter\HeadingAdapter;
 use AIMultilingual\Block\Adapter\ListItemAdapter;
 use AIMultilingual\Block\Adapter\ParagraphAdapter;
@@ -40,6 +41,7 @@ final class AdapterRegistry {
 		$this->register( new ListItemAdapter() );
 		$this->register( new PreformattedAdapter() );
 		$this->register( new VerseAdapter() );
+		$this->register( new CodeAdapter() );
 	}
 
 	/**
