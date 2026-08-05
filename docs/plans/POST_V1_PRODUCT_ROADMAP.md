@@ -1,6 +1,6 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Planning document (not frozen until PO review)  
+**Status:** Planning document — Glossary MVP canonical plan written ([GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md)); ADR-0014 **Proposed**; **no implementation started**  
 **Branch:** `feature/post-v1-roadmap`  
 **Baseline:** `main` @ `04f726073` (F1–F14 complete)  
 **Scope:** Product priorities after the Strategy F platform program  
@@ -29,7 +29,7 @@ Why Glossary first:
 
 **Optional parallel research only:** Nested Block Identity Spike — timeboxed, non-blocking, no production behavior change. It is **not** a prerequisite for Glossary MVP.
 
-A **dedicated Glossary MVP architecture plan** (and ADR if new persistent storage is introduced) is required before any Glossary implementation branch begins coding.
+A **dedicated Glossary MVP architecture plan** is required before any Glossary implementation branch begins coding. That plan now exists: [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md). Schema/code remain blocked until [ADR-0014](../adr/0014-glossary-platform-lexicon.md) receives an explicit disposition.
 
 ---
 
@@ -333,4 +333,4 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 
 ## 15. Exact next step
 
-Review and freeze the **Glossary MVP** architecture (dedicated plan + readiness gate §12), then create a dedicated implementation branch from updated `main`.
+Review and accept [ADR-0014](../adr/0014-glossary-platform-lexicon.md), freeze [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), then create a dedicated **implementation** branch from updated `main` and begin G1 only after the ADR gate.
