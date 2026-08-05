@@ -21,7 +21,7 @@
 
 **Revalidation trigger:** schema redesign; new glossary ownership model; multiple glossary providers; automatic TM/glossary synchronization; breaking public API change; provider-owned glossary persistence.
 
-**Implementation gate:** **Closed (implementation complete)** — G1–G7 delivered on `feature/glossary-mvp`; see [GLOSSARY_MVP_VALIDATION_LOG.md](../plans/GLOSSARY_MVP_VALIDATION_LOG.md). Gate A (Accepted) satisfied. Gate B (provisional approval) is **not applicable**.
+**Implementation gate:** **Closed** — G1–G7 delivered, merged to `main` @ `ab66fefd6`, tagged `glossary-mvp-complete`. See [GLOSSARY_MVP_VALIDATION_LOG.md](../plans/GLOSSARY_MVP_VALIDATION_LOG.md). Gate A (Accepted) satisfied. Gate B (provisional approval) is **not applicable**.
 
 Canonical plan: [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](../plans/GLOSSARY_MVP_IMPLEMENTATION_PLAN.md).  
 Product context: [POST_V1_PRODUCT_ROADMAP.md](../plans/POST_V1_PRODUCT_ROADMAP.md).

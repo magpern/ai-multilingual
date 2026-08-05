@@ -7,8 +7,8 @@ Operational acceptance record for post-v1 **Glossary MVP** (ADR-0014 platform le
 | Item | Value |
 |---|---|
 | Host | `https://dev.biopentra.eu` |
-| Branch | `feature/glossary-mvp` |
-| Commit | *129f7f36e0d879c8911a728bc7e8cd4c754c80dd* |
+| Branch | `feature/glossary-mvp` (merged to `main`) |
+| Commit | merge `ab66fefd6` / tag `glossary-mvp-complete` (G7 pin `129f7f36e`) |
 | Plugin | AI Multilingual `0.1.0` (`AIML_VERSION`) |
 | Plugin mount | `/opt/biopentra/dev/ai-multilingual` → `wp-content/plugins/ai-multilingual` |
 | WordPress | `7.0.2` |
@@ -168,12 +168,12 @@ Operational acceptance record for post-v1 **Glossary MVP** (ADR-0014 platform le
 
 ## Merge readiness
 
-**Ready for review / merge** on `feature/glossary-mvp`. Do **not** merge or tag until Product Owner reviews this completion report.
+**Merged** to `main` @ `ab66fefd6`. **Tagged** `glossary-mvp-complete`.
 
 ## Recommended tag
 
-`glossary-mvp-complete` (after merge to `main`)
+`glossary-mvp-complete` — **created** on merge commit `ab66fefd6`.
 
 ## Exact next step
 
-Review the Glossary MVP completion report, then merge and tag the milestone.
+Draft and review the canonical Review Workflow architecture plan on `feature/review-workflow-plan`. Do not implement production code until that plan is frozen and any required ADR is explicitly accepted.

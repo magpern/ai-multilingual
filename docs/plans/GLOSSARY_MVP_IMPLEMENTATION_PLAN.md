@@ -1,7 +1,7 @@
 # Glossary MVP — Implementation Plan
 
-**Status:** **Implemented** — G1–G7 complete; validation log **PASS**  
-**Branch:** `feature/glossary-mvp`  
+**Status:** **Complete** — merged to `main` @ `ab66fefd6`; tag `glossary-mvp-complete`; validation log **PASS**  
+**Branch:** `feature/glossary-mvp` (merged)  
 **Baseline:** `main` after Glossary planning merge  
 **ADR:** [0014-glossary-platform-lexicon.md](../adr/0014-glossary-platform-lexicon.md) — **Accepted**  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md)  
@@ -9,7 +9,7 @@
 **Validation log:** [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md)
 
 **G0 gate:** **PASS** — ADR-0014 Accepted — G1 implementation authorized.  
-**Closure:** G1–G7 complete on `feature/glossary-mvp`. Awaiting merge/tag after PO review.
+**Closure:** G1–G7 complete; merged and tagged. Next: Review Workflow planning (no Review implementation in this milestone).
 
 ---
 
@@ -678,7 +678,6 @@ All ACs §17 green; G1–G7 complete; validation log PASS; uninstall clean; F11 
 
 ## 27. Exact next step
 
-1. Review [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md).  
-2. Merge `feature/glossary-mvp` to `main`.  
-3. Tag `glossary-mvp-complete`.  
-4. Begin Review Workflow planning from updated `main`.
+1. Draft and review the canonical Review Workflow architecture plan on `feature/review-workflow-plan`.  
+2. Do not implement Review production code until that plan is frozen and any required ADR is explicitly accepted.  
+3. Keep Background Translation Jobs after Review Workflow.

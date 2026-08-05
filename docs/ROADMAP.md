@@ -54,5 +54,7 @@ milestones. As of 2026-08-05:
 | **F12** Limited rollout | **Complete** — merged to `main`; [validation log PASS](plans/F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) |
 | **F13** General Availability + ADR acceptance | **Complete** — merged to `main`; [canonical plan](plans/STRATEGY_F_F13_GENERAL_ROLLOUT.md); [validation log PASS](plans/F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md); ADR-0013 **Accepted**; tags `strategy-f-f13-general-availability-merged` / `strategy-f-f13-general-availability-complete` |
 | **F14** Supported Gutenberg Block Expansion | **Complete** — merged to `main`; [canonical plan](plans/STRATEGY_F_F14_BLOCK_EXPANSION.md); [validation log PASS](plans/F14_BLOCK_EXPANSION_VALIDATION_LOG.md); [summary](plans/F14_IMPLEMENTATION_SUMMARY.md); tag `strategy-f-f14-block-expansion-complete` |
-| **Post-v1 product roadmap** | **Planning** — [POST_V1_PRODUCT_ROADMAP.md](plans/POST_V1_PRODUCT_ROADMAP.md); next initiative **Glossary MVP** |
-| **Glossary MVP** | **Plan ready for review** — [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](plans/GLOSSARY_MVP_IMPLEMENTATION_PLAN.md); ADR-0014 **Proposed** ([0014-glossary-platform-lexicon.md](adr/0014-glossary-platform-lexicon.md)); implementation blocked on ADR disposition |
+| **Post-v1 product roadmap** | **Active** — [POST_V1_PRODUCT_ROADMAP.md](plans/POST_V1_PRODUCT_ROADMAP.md); next initiative **Review Workflow** (planning) |
+| **Glossary MVP** | **Complete** — merged to `main`; [plan](plans/GLOSSARY_MVP_IMPLEMENTATION_PLAN.md); [validation log PASS](plans/GLOSSARY_MVP_VALIDATION_LOG.md); ADR-0014 **Accepted**; tag `glossary-mvp-complete` |
+| **Review Workflow** | **Next (planning)** — no implementation started; draft plan on `feature/review-workflow-plan` |
+| **Background Translation Jobs** | **After Review** — ADR-0011 Accepted (design baseline) |

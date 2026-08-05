@@ -1,10 +1,10 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Glossary MVP **implemented** on `feature/glossary-mvp` (validation PASS — [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md)); ADR-0014 **Accepted**; next initiative **Review Workflow**  
-**Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary implementation `feature/glossary-mvp`  
-**Baseline:** `main` after F1–F14 + Glossary planning  
+**Status:** Glossary MVP **complete** — merged to `main` @ `ab66fefd6`, tag `glossary-mvp-complete` ([GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md)); ADR-0014 **Accepted**; next initiative **Review Workflow** (planning only)  
+**Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary implementation `feature/glossary-mvp` (merged)  
+**Baseline:** `main` after F1–F14 + Glossary MVP merge  
 **Scope:** Product priorities after the Strategy F platform program  
-**Code changes:** Glossary MVP delivered separately on `feature/glossary-mvp`
+**Code changes:** Glossary MVP shipped; Review Workflow **not started**
 
 ---
 
@@ -14,22 +14,13 @@ Strategy F milestones **F1–F14** are the completed **platform-foundation progr
 
 The next phase is **not** an automatic F15 chain. It is a set of **named, independently shippable product initiatives** ordered for Biopentra merchant and translator value **without reopening frozen architecture**.
 
-**Next implementation initiative: Glossary MVP**
+**Next planning initiative: Review Workflow**
 
-Why Glossary first:
+**Immediately after Review:** Background Translation Jobs (ADR-0011).
 
-- High translator and merchant value — brand and scientific terminology stay consistent across Swedish content.
-- Uses F11-reserved seams (`glossary_fragment`, `glossary_version`, `SuggestionProvider` tier, Workspace extension hooks).
-- Improves terminology consistency on content already in production scope (`post` / `page` × `sv`).
-- Integrates through `TranslationSuggestionService` without a parallel suggestion path.
-- Influences AI prompt construction without changing the provider architecture.
-- Does **not** require changes to UUID identity, Store rendering, rollout policy, or routing.
+**Glossary MVP (complete):** High translator and merchant value — brand and scientific terminology stay consistent across Swedish content. Delivered via F11-reserved seams (`glossary_fragment`, `glossary_version`, `SuggestionProvider` tier, Workspace extension hooks) without a parallel suggestion path, UUID/Store/rollout/routing changes, or provider-architecture changes. See [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md) and tag `glossary-mvp-complete`.
 
-**Immediately after Glossary:** Review Workflow, then Background Translation Jobs (ADR-0011).
-
-**Optional parallel research only:** Nested Block Identity Spike — timeboxed, non-blocking, no production behavior change. It is **not** a prerequisite for Glossary MVP.
-
-A **dedicated Glossary MVP architecture plan** is required before any Glossary implementation branch begins coding. That plan now exists: [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md). Schema/code remain blocked until [ADR-0014](../adr/0014-glossary-platform-lexicon.md) receives an explicit disposition.
+**Optional parallel research only:** Nested Block Identity Spike — timeboxed, non-blocking, no production behavior change. It is **not** a prerequisite for Review Workflow.
 
 ---
 
@@ -123,10 +114,10 @@ Columns: Merchant value | Translator value | Arch risk | Size | Ops risk | Deps 
 
 | Order | Named initiative | Type |
 |---|---|---|
-| 1 | **Glossary MVP** | Product implementation (next) |
-| 2 | **Review Workflow** | Product implementation |
-| 3 | **Background Translation Jobs** | Product implementation (ADR-0011) |
-| Parallel optional | **Nested Block Identity Spike** | Research only — does **not** block #1 |
+| 1 | **Glossary MVP** | Product implementation — **complete** (`glossary-mvp-complete`) |
+| 2 | **Review Workflow** | Product planning / implementation — **next** |
+| 3 | **Background Translation Jobs** | Product implementation (ADR-0011) — after Review |
+| Parallel optional | **Nested Block Identity Spike** | Research only — does **not** block #2 |
 
 No F15/F16 numbering. Each initiative is independently shippable with its own plan, validation, and release boundary.
 
@@ -231,7 +222,7 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Stop conditions** | Any second suggestion path; provider-specific glossary logic outside providers; breaking F11 contracts; production render path changes. |
 | **Release boundary** | Independently shippable after Glossary plan DoD; default-compatible with existing GA. |
 | **Readiness gate** | See §12. |
-| **Implementation status** | **Complete** on `feature/glossary-mvp` — see [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md). Awaiting merge/tag. |
+| **Implementation status** | **Complete** — merged to `main` @ `ab66fefd6`; tag `glossary-mvp-complete`. See [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md). |
 
 **Why next:** Highest Biopentra value among Low-architecture-risk candidates; reserved F11 seams; improves content already in GA without storefront Elementor investment.
 
@@ -324,14 +315,15 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 
 ## 14. Confirmation
 
-- This document is **planning only**.
-- **No** production code, schema, REST, assets, tests, releases, or tags were changed by producing this roadmap.
-- **No F15** milestone is created.
+- Glossary MVP is **complete**, merged, and tagged (`glossary-mvp-complete`).
+- ADR-0014 remains **Accepted**.
 - F1–F14 remain **complete**.
-- Next implementation initiative: **Glossary MVP**.
+- **No** Review Workflow implementation has started (planning branch only after this closure).
+- Background Translation Jobs remains **after** Review Workflow.
+- Next planning initiative: **Review Workflow**.
 
 ---
 
 ## 15. Exact next step
 
-Review and accept [ADR-0014](../adr/0014-glossary-platform-lexicon.md), freeze [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), then create a dedicated **implementation** branch from updated `main` and begin G1 only after the ADR gate.
+Draft and review the canonical Review Workflow architecture plan on `feature/review-workflow-plan`. Do not implement production code until that plan is frozen and any required ADR is explicitly accepted.
