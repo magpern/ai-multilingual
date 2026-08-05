@@ -35,7 +35,7 @@ final class Migrator {
 	/**
 	 * Schema version this build expects.
 	 */
-	public const TARGET = 3;
+	public const TARGET = 4;
 
 	/**
 	 * Applies any migration steps newer than the recorded version.
@@ -85,6 +85,7 @@ final class Migrator {
 			1 => array( $this, 'step_1_initial_tables' ),
 			2 => array( $this, 'step_2_translation_memory' ),
 			3 => array( $this, 'step_3_rollout_metrics_daily' ),
+			4 => array( $this, 'step_4_glossary' ),
 		);
 	}
 
@@ -118,5 +119,18 @@ final class Migrator {
 		global $wpdb;
 
 		$wpdb->query( Schema::create_metrics_daily() ); // phpcs:ignore WordPress.DB.PreparedSQL
+	}
+
+	/**
+	 * Step 4 — Glossary MVP lexicon table and version option (ADR-0014).
+	 */
+	private function step_4_glossary(): void {
+		global $wpdb;
+
+		$wpdb->query( Schema::create_glossary() ); // phpcs:ignore WordPress.DB.PreparedSQL
+
+		if ( false === get_option( Schema::GLOSSARY_VERSION_OPTION, false ) ) {
+			add_option( Schema::GLOSSARY_VERSION_OPTION, 0, '', true );
+		}
 	}
 }

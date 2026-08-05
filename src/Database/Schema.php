@@ -27,6 +27,12 @@ final class Schema {
 	public const TRANSLATIONS  = 'aiml_translations';
 	public const TM            = 'aiml_tm';
 	public const METRICS_DAILY = 'aiml_metrics_daily';
+	public const GLOSSARY      = 'aiml_glossary';
+
+	/**
+	 * Option holding the monotonic glossary lexicon version (ADR-0014).
+	 */
+	public const GLOSSARY_VERSION_OPTION = 'aiml_glossary_version';
 
 	/**
 	 * Prefixes a table name with the current site's table prefix.
@@ -68,6 +74,13 @@ final class Schema {
 	}
 
 	/**
+	 * Fully qualified `aiml_glossary` table name.
+	 */
+	public static function glossary(): string {
+		return self::table( self::GLOSSARY );
+	}
+
+	/**
 	 * Every table this plugin owns, in drop-safe order.
 	 *
 	 * @return string[]
@@ -77,6 +90,7 @@ final class Schema {
 			self::translations(),
 			self::tm(),
 			self::metrics_daily(),
+			self::glossary(),
 			self::languages(),
 		);
 	}
@@ -227,6 +241,33 @@ final class Schema {
 			UNIQUE KEY daily_identity (day, metric_key, dimension_hash),
 			KEY day_metric (day, metric_key),
 			KEY retention (day)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for the platform glossary lexicon (ADR-0014 / Glossary MVP).
+	 *
+	 * Identity is (source_lang_id, target_lang_id, source_term_normalized).
+	 * Semantic normalization is owned by PHP; collation alone is not trusted.
+	 * Language IDs are validated in PHP — no SQL FOREIGN KEY (plugin convention).
+	 */
+	public static function create_glossary(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::glossary() . " (
+			glossary_id             BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
+			source_lang_id          SMALLINT UNSIGNED NOT NULL,
+			target_lang_id          SMALLINT UNSIGNED NOT NULL,
+			source_term             VARCHAR(255)      NOT NULL,
+			source_term_normalized  VARCHAR(191)      NOT NULL,
+			target_term             VARCHAR(512)      NOT NULL,
+			context                 VARCHAR(64)       NOT NULL DEFAULT '',
+			description             VARCHAR(512)      NOT NULL DEFAULT '',
+			is_active               TINYINT(1)        NOT NULL DEFAULT 1,
+			created_at              DATETIME          NOT NULL,
+			updated_at              DATETIME          NOT NULL,
+			PRIMARY KEY (glossary_id),
+			UNIQUE KEY glossary_identity (source_lang_id, target_lang_id, source_term_normalized),
+			KEY glossary_pair_active (source_lang_id, target_lang_id, is_active),
+			KEY glossary_updated (updated_at)
 		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
 	}
 }

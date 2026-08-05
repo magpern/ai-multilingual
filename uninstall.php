@@ -50,11 +50,12 @@ foreach ( array_keys( $aiml_roles->roles ) as $aiml_role_name ) {
 	}
 }
 
-// 3. Plugin options. Milestone 3 adds aiml_glossary_version here, and
-// unschedules the aiml_run_job / aiml_jobs_sweep actions before this point.
+// 3. Plugin options. Glossary lexicon version (ADR-0014) and cache epoch.
+// Milestone 3 may also unschedule aiml_run_job / aiml_jobs_sweep actions before this point.
 delete_option( \AIMultilingual\Settings::OPTION );
 delete_option( \AIMultilingual\Database\Migrator::OPTION );
 delete_option( \AIMultilingual\Cache\Cache::VERSION_OPTION );
+delete_option( \AIMultilingual\Database\Schema::GLOSSARY_VERSION_OPTION );
 
 // 4. Plugin-owned tables.
 foreach ( \AIMultilingual\Database\Schema::all_tables() as $aiml_table ) {
