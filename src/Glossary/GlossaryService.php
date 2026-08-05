@@ -15,7 +15,7 @@ use WP_Error;
 /**
  * Owns CRUD orchestration, versioning, matching, and fragment building.
  */
-final class GlossaryService {
+class GlossaryService {
 
 	public const FRAGMENT_MAX_TERMS         = 40;
 	public const FRAGMENT_MAX_CHARS         = 4000;

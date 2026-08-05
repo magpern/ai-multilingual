@@ -202,20 +202,22 @@ final class Plugin {
 		$provider_registry->register(
 			ProviderFactory::openai_from_settings( $this->settings, $vault, $profiles )
 		);
-		$translation        = new TranslationService(
-			$store,
-			$assembler,
-			$languages,
-			$provider_registry->active(),
-			$profiles
-		);
-		$preview            = new PreviewService( $languages, $context, $router );
-		$tm_service         = new TranslationMemoryService( new TMRepository() );
 		$glossary_service   = new GlossaryService(
 			new GlossaryRepository(),
 			new GlossaryNormalizer(),
 			new GlossaryMatcher( new GlossaryNormalizer() )
 		);
+		$translation        = new TranslationService(
+			$store,
+			$assembler,
+			$languages,
+			$provider_registry->active(),
+			$profiles,
+			null,
+			$glossary_service
+		);
+		$preview            = new PreviewService( $languages, $context, $router );
+		$tm_service         = new TranslationMemoryService( new TMRepository() );
 		$suggestion_service = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),

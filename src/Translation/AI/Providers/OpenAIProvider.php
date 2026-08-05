@@ -252,6 +252,11 @@ final class OpenAIProvider implements AIProviderInterface {
 			$parts[] = 'Constraints: ' . implode( ', ', $batch->constraints );
 		}
 
+		if ( '' !== trim( $batch->glossary_fragment ) ) {
+			$parts[] = 'Glossary terminology (use consistently):';
+			$parts[] = $batch->glossary_fragment;
+		}
+
 		return implode( "\n", $parts );
 	}
 

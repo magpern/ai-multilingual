@@ -37,6 +37,8 @@ final class GlossarySuggestionProvider implements SuggestionProvider {
 	private ?string $unavailable_reason = null;
 
 	/**
+	 * Builds the provider.
+	 *
 	 * @param GlossaryService $glossary Glossary service.
 	 */
 	public function __construct( GlossaryService $glossary ) {

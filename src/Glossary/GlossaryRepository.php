@@ -15,7 +15,7 @@ use WP_Error;
 /**
  * Repository for aiml_glossary rows. No business matching rules.
  */
-final class GlossaryRepository {
+class GlossaryRepository {
 
 	/**
 	 * Insert a glossary row.

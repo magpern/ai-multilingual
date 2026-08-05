@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Workspace;
 
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Translation\AI\AIProviderInterface;
 use AIMultilingual\Translation\AI\NullAIProvider;
 use AIMultilingual\Translation\AI\PromptProfileRegistry;
@@ -70,6 +71,13 @@ final class TranslationService {
 	private ResponseValidator $validator;
 
 	/**
+	 * Optional glossary service for AI fragment injection.
+	 *
+	 * @var GlossaryService|null
+	 */
+	private ?GlossaryService $glossary;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param Store                      $store     Segment store.
@@ -78,6 +86,7 @@ final class TranslationService {
 	 * @param AIProviderInterface        $provider  AI provider boundary.
 	 * @param PromptProfileRegistry|null $profiles Prompt profiles.
 	 * @param ResponseValidator|null     $validator Response validator.
+	 * @param GlossaryService|null       $glossary  Glossary service for fragments.
 	 */
 	public function __construct(
 		Store $store,
@@ -85,7 +94,8 @@ final class TranslationService {
 		Languages $languages,
 		AIProviderInterface $provider,
 		?PromptProfileRegistry $profiles = null,
-		?ResponseValidator $validator = null
+		?ResponseValidator $validator = null,
+		?GlossaryService $glossary = null
 	) {
 		$this->store     = $store;
 		$this->assembler = $assembler;
@@ -93,6 +103,7 @@ final class TranslationService {
 		$this->provider  = $provider;
 		$this->profiles  = $profiles ?? new PromptProfileRegistry();
 		$this->validator = $validator ?? new ResponseValidator( new SegmentConstraintAnalyzer() );
+		$this->glossary  = $glossary;
 	}
 
 	/**
@@ -143,7 +154,7 @@ final class TranslationService {
 			(string) $target->locale,
 			PromptProfileRegistry::TRANSLATE,
 			PromptProfileRegistry::VERSION,
-			'',
+			$this->glossary_fragment_for( $current, (int) $source->language_id, $language_id ),
 			array(
 				new ProviderSegment(
 					$segment_key,
@@ -217,7 +228,7 @@ final class TranslationService {
 			(string) $target->locale,
 			$profile->id,
 			$profile->version,
-			'',
+			$this->glossary_fragment_for( $current, (int) $source->language_id, $language_id ),
 			array(
 				new ProviderSegment( $segment_key, $source_text, $format, $existing ),
 			),
@@ -322,5 +333,25 @@ final class TranslationService {
 		}
 
 		return $refreshed;
+	}
+
+	/**
+	 * Build a platform-owned glossary fragment for the AI batch.
+	 *
+	 * @param array<string, mixed> $current     Assembled segment.
+	 * @param int                  $source_lang Source language id.
+	 * @param int                  $target_lang Target language id.
+	 */
+	private function glossary_fragment_for( array $current, int $source_lang, int $target_lang ): string {
+		if ( null === $this->glossary ) {
+			return '';
+		}
+
+		return $this->glossary->build_fragment(
+			(string) ( $current['source_text'] ?? '' ),
+			$source_lang,
+			$target_lang,
+			(string) ( $current['text_format'] ?? Store::FORMAT_PLAIN )
+		);
 	}
 }
