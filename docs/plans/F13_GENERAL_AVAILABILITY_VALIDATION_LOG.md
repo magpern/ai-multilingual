@@ -1,7 +1,7 @@
 # F13 General Availability Validation Log
 
-**Status:** **PASS** — F13 implementation and Tier 0–3 validation complete on `feature/f13-general-availability`  
-**Branch:** `feature/f13-general-availability`  
+**Status:** **PASS** — F13 complete; merged to `main`; production observation window closed successfully.  
+**Branch:** `feature/f13-general-availability` → `main`  
 **Environment:** `dev.biopentra.eu`  
 **Date:** 2026-08-05  
 **Canonical plan:** [STRATEGY_F_F13_GENERAL_ROLLOUT.md](STRATEGY_F_F13_GENERAL_ROLLOUT.md)
@@ -96,8 +96,11 @@ No invented SLOs. Policy evaluation median ≈ 0.0016 ms (limited and GA paths).
 
 ---
 
-## Residual debt
+## Closure
 
-- F12 observation calendar window continues through **2026-08-12** (reason-code / SEV monitoring).
-- Render cache remains **disabled** (explicit F13.3 decision).
-- Merge/tag deferred (per implementation order).
+| Gate | State |
+|---|---|
+| F13 merge to `main` | **Authorized / complete** |
+| F13 tags | `strategy-f-f13-general-availability-merged` / `strategy-f-f13-general-availability-complete` |
+| Observation window | Closed successfully (PO-approved window complete) |
+| Next | F14 — create `feature/f14-block-expansion` from updated `main` |

@@ -52,5 +52,5 @@ milestones. As of 2026-08-05:
 | **F10** Translator Workspace MVP | **Complete** — merged to `main`; see [F10 validation log](plans/F10_TRANSLATOR_VALIDATION_LOG.md) |
 | **F11** Translation Memory & AI Assistance | **Complete** — [canonical plan](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md); [validation log](plans/F11_TRANSLATOR_VALIDATION_LOG.md) PASS; tags `strategy-f-f11-tm-ai-complete` / `strategy-f-f11-tm-ai-merged` |
 | **F12** Limited rollout | **Complete** — merged to `main`; [validation log PASS](plans/F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) |
-| **F13** General Availability + ADR acceptance | **Complete** on `feature/f13-general-availability` — GA-only; [canonical plan](plans/STRATEGY_F_F13_GENERAL_ROLLOUT.md); [validation log PASS](plans/F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md); ADR-0013 **Accepted**; not merged/tagged |
-| **F14** Supported Gutenberg Block Expansion | **Next** (deferred until F13 merge) — owns adapter admission / `SUPPORTED_BLOCKS` expansion; see F13 plan §12 |
+| **F13** General Availability + ADR acceptance | **Complete** — merged to `main`; [canonical plan](plans/STRATEGY_F_F13_GENERAL_ROLLOUT.md); [validation log PASS](plans/F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md); ADR-0013 **Accepted**; tags `strategy-f-f13-general-availability-merged` / `strategy-f-f13-general-availability-complete` |
+| **F14** Supported Gutenberg Block Expansion | **Next** — create `feature/f14-block-expansion` from updated `main`; see F13 plan §12 |
