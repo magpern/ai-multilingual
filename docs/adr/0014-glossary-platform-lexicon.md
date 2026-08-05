@@ -4,7 +4,22 @@
 
 **Proposed** (2026-08-05) — Glossary MVP architecture.
 
-**Implementation gate:** Schema work (G1) and all subsequent Glossary code **must not begin** until this ADR is explicitly **Accepted**, **or** a dated written proceed-despite-Proposed decision records decision-maker, residual risk, and why Accepted was deferred.
+**Implementation gate:** Schema work (G1) and all subsequent Glossary code **must not begin** until **exactly one** of the following exists:
+
+**A) ADR Accepted** — this document’s Status is updated to **Accepted** with acceptance date.
+
+**B) Product Owner provisional approval** — a written record (linked from this ADR and the Glossary plan) that contains **all** of:
+
+| Required field | Purpose |
+|---|---|
+| Decision maker | Named Product Owner (or delegated authority) |
+| Approval date | ISO date of provisional approval |
+| Explicit scope | What G1+ work is authorized under provisional status |
+| Residual risks accepted | Risks accepted while Status remains Proposed |
+| Mandatory review date | Date by which Accepted/reject must be re-evaluated |
+| Expiration / revalidation point | When provisional approval expires if not revalidated |
+
+A generic “proceed despite Proposed” statement **without** the fields above is **not** sufficient.
 
 Silent continuation past G0 is forbidden.
 
@@ -46,7 +61,7 @@ F11 frozen ranking ([F11_FROZEN_API.md](../plans/F11_FROZEN_API.md) §4) current
 
 5. **Suggestion semantics.**
    - **Exact-segment match** (normalized segment source ≡ normalized glossary source term): may emit `NormalizedSuggestion` with `provider_id=glossary`, `target_text` = approved target term, confidence 95.
-   - **Embedded-term match** (term occurs inside a longer segment): must **not** emit isolated target terms as segment suggestions. Expose as terminology constraints (AI fragment, QA, optional additive Workspace metadata via an internal `GlossaryTermMatch` DTO).
+   - **Embedded-term match** (term occurs inside a longer segment): must **not** emit isolated target terms as segment suggestions. Expose as terminology constraints (AI fragment, QA) via an **internal** `GlossaryTermMatch` application DTO — not a REST/ViewModel/public contract. Public metadata, if any, uses dedicated ViewModels.
 
 6. **Ranking amendment (F11 §2.6).** Ordinary ranking sort keys unchanged (`rank_tier` ASC → `confidence` DESC → `target_text` ASC → `provider_id` ASC). Tier numbers after Glossary:
 
@@ -85,8 +100,9 @@ Only exact-segment glossary suggestions participate. This renumber of fuzzy/AI i
 
 ### Residual risks until Accepted
 
-- Implementing G1 while Proposed leaves schema ownership undecided if ADR is later rejected.
-- Proceed-despite-Proposed requires named decision-maker and residual-risk acceptance.
+- Implementing G1 while Status remains Proposed leaves schema ownership undecided if the ADR is later rejected.
+- Provisional approval (gate B) must expire or be revalidated; it is not a permanent substitute for Accepted.
+- Missing any required provisional-approval field invalidates the implementation gate.
 
 ## Alternatives considered
 
@@ -98,6 +114,20 @@ Only exact-segment glossary suggestions participate. This renumber of fuzzy/AI i
 | Partial `NormalizedSuggestion` for embedded terms | Unsafe; frozen DTO is segment-level |
 | `GlossaryProviderInterface` with one implementation | Speculative; deferred as future extension |
 | Auto-invalidate TM on glossary bump | Contradicts ADR-0009 selective invalidation; too aggressive for MVP |
+
+## Provisional approval log
+
+| Field | Value |
+|---|---|
+| Decision maker | _pending_ |
+| Approval date | _pending_ |
+| Explicit scope | _pending_ |
+| Residual risks accepted | _pending_ |
+| Mandatory review date | _pending_ |
+| Expiration / revalidation point | _pending_ |
+| Link to record | _pending_ |
+
+Fill this table only when gate **B** is used. Prefer gate **A** (Accepted).
 
 ## References
 

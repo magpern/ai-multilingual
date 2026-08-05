@@ -1,13 +1,14 @@
 # Glossary MVP — Implementation Plan
 
-**Status:** Architecture ready for final review (ADR-0014 **Proposed**)  
+**Status:** Architecture **frozen** for Glossary MVP (ADR-0014 **Proposed** — implementation gated per ADR § Status)  
 **Branch:** `feature/glossary-mvp-plan`  
 **Baseline:** `main` after post-v1 roadmap merge  
 **ADR:** [0014-glossary-platform-lexicon.md](../adr/0014-glossary-platform-lexicon.md)  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md)  
 **F11 contracts:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md)
 
-**Code changes in this planning commit:** None.
+**Code changes in this planning commit:** None.  
+**Implementation scope / WP order (G0–G7):** Unchanged by the architecture-contract tightening pass.
 
 ---
 
@@ -30,7 +31,7 @@ Glossary MVP succeeds when:
 5. QA emits warning-only `glossary_term_missing` issues.
 6. F11 frozen APIs remain compatible except for the **explicit** ranking-tier amendment in ADR-0014.
 7. No second suggestion, AI, or translation-storage pipeline exists.
-8. ADR-0014 has an explicit disposition before schema code lands.
+8. ADR-0014 gate is satisfied before schema code lands: Status **Accepted**, **or** a complete Product Owner provisional approval record per [ADR-0014](../adr/0014-glossary-platform-lexicon.md) (decision maker, approval date, explicit scope, residual risks, mandatory review date, expiration/revalidation). A generic “proceed despite Proposed” note is insufficient.
 
 ---
 
@@ -41,12 +42,14 @@ flowchart TB
   subgraph admin [Admin]
     UI[Workspace Glossary UI]
     REST[GlossaryController]
+    VM[Glossary ViewModels]
   end
   subgraph platform [Platform glossary]
     Svc[GlossaryService]
     Repo[GlossaryRepository]
     Norm[GlossaryNormalizer]
     Match[GlossaryMatcher]
+    DTO["GlossaryTermMatch internal DTO"]
     Ver[aiml_glossary_version]
     DB[(aiml_glossary)]
   end
@@ -65,10 +68,11 @@ flowchart TB
     Eng[QAEngine]
     GTC[GlossaryTermCheck]
   end
-  UI --> REST --> Svc
+  UI --> REST --> VM
+  REST --> Svc
   Svc --> Repo --> DB
   Svc --> Norm
-  Svc --> Match
+  Svc --> Match --> DTO
   Svc --> Ver
   TSS --> GSP --> Svc
   TSS --> TM
@@ -76,8 +80,10 @@ flowchart TB
   TSvc --> Svc
   TSvc --> Batch --> Prov
   Eng --> GTC --> Svc
+  DTO -.->|not public API| VM
 ```
 
+`GlossaryTermMatch` stays inside the platform subgraph. Public REST/Workspace surfaces use dedicated ViewModels/serializers if terminology metadata is exposed.
 ---
 
 ## 4. Layered architecture
@@ -132,7 +138,20 @@ flowchart TB
 
 ### 5.3 Internal DTO: `GlossaryTermMatch`
 
-Not a `NormalizedSuggestion`. Fields (conceptual):
+**Contract (frozen):** `GlossaryTermMatch` is an **internal application DTO** only.
+
+It is **not**:
+
+- a REST API resource or response shape
+- a public frozen contract
+- a Workspace ViewModel
+- a persistence / table row model
+
+It exists so fragment builders, QA, and suggestion providers can share match results **inside** the PHP application. Fields may evolve without a public breaking-change process.
+
+REST or Workspace may later expose additive terminology metadata only through **dedicated ViewModels or serializers** that map from internal matches. Do not JSON-encode `GlossaryTermMatch` directly as a public API type.
+
+Conceptual internal fields:
 
 - `glossary_id`
 - `source_term` / `target_term`
@@ -142,7 +161,7 @@ Not a `NormalizedSuggestion`. Fields (conceptual):
 - `length`
 - optional `context`
 
-Used by fragment builder, QA, and optional additive Workspace metadata. Never passed to ranking as a segment candidate unless `match_kind=exact_segment` is promoted through `GlossarySuggestionProvider`.
+Used by fragment builder and QA. Exact-segment promotion to a ranked segment candidate happens only via `GlossarySuggestionProvider` → `NormalizedSuggestion`. Embedded matches never become `NormalizedSuggestion.target_text`.
 
 ### 5.4 Complete schema (`aiml_glossary`)
 
@@ -176,6 +195,26 @@ Migrator **target version 4**. DDL style matches existing plugin (explicit `CREA
 **Uninstall:** drop `aiml_glossary`; delete option `aiml_glossary_version`; do not touch TM/Store content.
 
 **Option:** `aiml_glossary_version` — `INT UNSIGNED`, default `0`.
+
+### 5.5 Future glossary extensions (reserved)
+
+Glossary MVP **intentionally excludes** the following. They are **reserved extension points** for later plans. Do **not** add these columns/features in MVP. Do **not** redesign storage now. Do **not** add work packages for them.
+
+Reserved / excluded from MVP:
+
+- Part of speech
+- Approved synonyms
+- Forbidden translations
+- Customer glossary / project glossary / product glossary (multi-lexicon)
+- Domain inheritance
+- Glossary categories
+- Source references
+- Review status (terminology workflow)
+- Terminology ownership / stewardship fields
+- Import/export metadata
+- TBX metadata
+
+**Evolution rule:** The MVP schema (§5.4) must remain compatible with **additive** evolution (new nullable columns, new satellite tables, or new option keys under a future ADR/plan). MVP must not encode these concepts into overloaded `context`/`description` semantics as a substitute schema.
 
 ---
 
@@ -252,7 +291,7 @@ Header: reuse workspace versioning approach or document `X-AIML-Glossary-Api-Ver
 
 - Admin glossary management page under existing Translator Workspace / settings IA (exact menu placement in G6 UI design).
 - Features: CRUD, search, language-pair filter, active/inactive toggle, validation errors for duplicates.
-- Segment Workspace may show additive `meta.glossary_matches[]` (serialized from `GlossaryTermMatch`) — optional AC; if shipped, additive only and must not reuse `meta.suggestions` for embedded targets.
+- Segment Workspace may show additive terminology metadata later via a **dedicated ViewModel** (e.g. `meta.glossary_matches[]` shaped for the client) — optional AC; additive only; must not reuse `meta.suggestions` for embedded targets; must **not** expose the internal `GlossaryTermMatch` type as the public schema.
 
 ---
 
@@ -410,7 +449,7 @@ Aligns with ADR-0009: glossary change does not invalidate memory wholesale.
 17. No render-path / UUID / rollout changes.
 18. Uninstall drops glossary table + version option.
 19. No second suggestion pipeline; TSS remains sole orchestrator.
-20. ADR-0014 disposition recorded before G1 merges to an implementation branch.
+20. ADR-0014 gate satisfied before G1 on an implementation branch: Status **Accepted**, or complete Product Owner provisional approval per ADR-0014 (all six required fields). Generic “proceed despite Proposed” is insufficient.
 
 ---
 
@@ -420,14 +459,14 @@ Aligns with ADR-0009: glossary change does not invalidate memory wholesale.
 
 | | |
 |---|---|
-| **Objective** | Freeze architecture docs; obtain ADR disposition before schema |
-| **Scope** | This plan; ADR-0014 Proposed; roadmap pointers |
+| **Objective** | Freeze architecture docs; satisfy ADR-0014 implementation gate before schema |
+| **Scope** | This plan; ADR-0014 Proposed + gate A/B contract; roadmap pointers |
 | **Deps** | Post-v1 roadmap on `main` |
 | **Files** | `docs/plans/GLOSSARY_MVP_IMPLEMENTATION_PLAN.md`, `docs/adr/0014-…`, ROADMAP/POST_V1 pointers |
 | **Tests** | Link validation |
 | **Rollback** | Revert docs commit |
-| **Stop** | Proceeding to G1 without Accepted or dated proceed-despite-Proposed |
-| **Commit** | `docs(glossary): create Glossary MVP implementation plan` |
+| **Stop** | Proceeding to G1 without gate **A** (Accepted) or complete gate **B** (PO provisional approval with all required fields) |
+| **Commit** | `docs(glossary): create Glossary MVP implementation plan` / contract-tightening docs commits |
 
 ### G1 — Schema v4, uninstall, migration, version option
 
@@ -435,11 +474,11 @@ Aligns with ADR-0009: glossary change does not invalidate memory wholesale.
 |---|---|
 | **Objective** | Persist lexicon |
 | **Scope** | `Schema::create_glossary()`, Migrator TARGET=4, uninstall, option bootstrap |
-| **Deps** | **ADR-0014 Accepted or proceed-despite-Proposed** |
+| **Deps** | **ADR-0014 gate A (Accepted) or complete gate B (PO provisional approval)** |
 | **Files** | `src/Database/Schema.php`, `Migrator.php`, `uninstall.php`, activation hooks |
 | **Tests** | Migration up; unique constraint; uninstall |
 | **Rollback** | Migrator down / drop table (dev only) |
-| **Stop** | Silent G1 without ADR gate; SQL FKs; dbDelta misuse |
+| **Stop** | Silent G1 without ADR gate A/B; SQL FKs; dbDelta misuse |
 | **Commit** | `feat(glossary): add aiml_glossary schema v4` |
 
 ### G2 — Repository + GlossaryService + normalization/matching
@@ -541,7 +580,7 @@ Aligns with ADR-0009: glossary change does not invalidate memory wholesale.
 | Unique index length | `VARCHAR(191)` normalized |
 | Tier renumber breaks clients | ADR-0014 + explicit tests + release note |
 | Fragment token blowups | Hard caps + truncation |
-| ADR stays Proposed while coding | G0/G1 gate |
+| ADR stays Proposed without gate B | G0/G1 entry gate (Accepted or complete PO provisional approval) |
 
 ---
 
@@ -560,32 +599,57 @@ Aligns with ADR-0009: glossary change does not invalidate memory wholesale.
 - Auto TM invalidation on glossary bump
 - `GlossaryProviderInterface`
 - Multi-site
+- All reserved future terminology extensions in §5.5
 
 ---
 
-## 22. Definition of Ready (implementation branch)
+## 22. Unchanged platform architecture (confirmation)
 
-1. This plan reviewed.
-2. ADR-0014 **Accepted** **or** dated proceed-despite-Proposed with decision-maker + residual risk.
-3. Implementation branch created from updated `main`.
-4. No production code on the planning branch beyond docs.
+This Glossary MVP plan **does not change** the following platform contracts. Only glossary documentation contracts are strengthened:
+
+| Surface | Change? |
+|---|---|
+| Store | No |
+| Translation Memory lifecycle / table role | No (stamp field semantics only as already planned) |
+| `TranslationSuggestionService` role as sole orchestrator | No (additive provider only) |
+| `AIProviderInterface` | No |
+| `TranslationBatch` shape | No (fill existing `glossary_fragment`) |
+| Workspace shell / frozen segment APIs | No (additive glossary admin + optional meta ViewModels) |
+| UUID identity | No |
+| Rendering / render gate | No |
+| REST namespace `aiml/v1` | No (additive routes only) |
+| Rollout architecture | No |
+| Security model | No (additive capability `aiml_manage_glossary`) |
 
 ---
 
-## 23. Definition of Done
+## 23. Definition of Ready (implementation branch)
+
+1. This plan reviewed and treated as frozen for MVP scope.
+2. ADR-0014 implementation gate satisfied by **exactly one** of:
+   - **A)** Status set to **Accepted** with acceptance date; or
+   - **B)** Product Owner provisional approval record containing **all** of: decision maker, approval date, explicit scope, residual risks accepted, mandatory review date, expiration/revalidation point — linked from ADR-0014’s provisional approval log.
+3. A generic “proceed despite Proposed” statement is **not** accepted as gate B.
+4. Implementation branch created from updated `main`.
+5. No production code on the planning branch beyond docs.
+
+---
+
+## 24. Definition of Done
 
 All ACs §17 green; G1–G7 complete; validation log PASS; uninstall clean; F11 amendment documented; no architecture boundary violations.
 
 ---
 
-## 24. Closure gates
+## 25. Closure gates
 
 | Gate | Requirement |
 |---|---|
-| Docs | Plan + ADR present |
-| ADR disposition | Accepted or proceed-despite-Proposed before G1 |
+| Docs | Plan + ADR present; contracts frozen |
+| ADR implementation gate | Gate **A** (Accepted) or complete gate **B** (PO provisional approval) before G1 |
 | Schema | v4 migrated; uninstall OK |
 | Semantics | Exact vs embedded proven by tests |
+| Internal DTO | `GlossaryTermMatch` not exposed as public REST/ViewModel schema |
 | Ranking | Deterministic suite PASS |
 | Provider neutrality | No glossary I/O in providers |
 | Permissions | `aiml_manage_glossary` enforced |
@@ -593,7 +657,7 @@ All ACs §17 green; G1–G7 complete; validation log PASS; uninstall clean; F11 
 
 ---
 
-## 25. Architecture review answers
+## 26. Architecture review answers
 
 | Question | Answer |
 |---|---|
@@ -606,12 +670,12 @@ All ACs §17 green; G1–G7 complete; validation log PASS; uninstall clean; F11 
 | Deterministic order? | Existing sort keys + explicit tiers + tests |
 | Versions? | Monotonic option; TM stamp only |
 | Backward compatibility? | Additive REST; explicit tier renumber amendment |
+| `GlossaryTermMatch` public? | **No** — internal DTO only |
 
 ---
 
-## 26. Exact next step
+## 27. Exact next step
 
-1. Final review of this plan and ADR-0014.  
-2. Record ADR-0014 **Accepted** (or proceed-despite-Proposed).  
-3. Create `feature/glossary-mvp` (implementation) from updated `main`.  
-4. Execute G1 only after the ADR gate passes.
+1. Satisfy the ADR-0014 implementation gate (**Accepted**, or complete PO provisional approval).  
+2. Create `feature/glossary-mvp` (implementation) from updated `main`.  
+3. Execute G1 only after the gate passes. Work package order G0–G7 is unchanged.
