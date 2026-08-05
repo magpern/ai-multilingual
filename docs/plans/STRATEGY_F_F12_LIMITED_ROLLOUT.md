@@ -1,6 +1,6 @@
 # F12 — Limited Rollout Plan
 
-**Status:** Canonical implementation plan — **architecture frozen**; **F12 implementation and staging acceptance complete**; production observation pending
+**Status:** **Complete** — merged to `main`; production observation Day-0 PASS (2026-08-05)
 **Architecture:** Includes approved architecture-refinement passes: canonical FeatureFlags→Gate→Policy→(Cache)→Store→Renderer pipeline, two-level render control, frozen immutable `RolloutPolicyDecision`, pure `RolloutPolicyService`, configuration versioning/compatibility (`schema_version` / `policy_version`), append-only `metrics_registry_version`, reserved `CohortProvider` expansion, centralized cache key + `RenderCacheInvalidationService` ownership, shadow evaluation, Stages 0–5, two-tier metrics, concrete cache identity (Store translation-hash aggregate), operator capabilities, audit events, failure-mode matrix, observation checklist, strengthened F13 entry gate (reason-code stability + rollback rehearsal)
 **Governance:** Changes that affect architecture, public contracts, milestone scope, service boundaries, or operational workflows require an ADR or an explicit architecture revision of this document. Implementation details, bug fixes, tests, and internal refactoring may proceed without modifying the architecture.
 **Depends on:** F1–F9 complete; F10 Translator Workspace complete; F11 Translation Memory & AI Assistance complete ([STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md))
@@ -1273,4 +1273,4 @@ Resolve remaining PO operational values (cohort posts/languages, observation win
 | Validation log | Reserved at [F12_LIMITED_ROLLOUT_VALIDATION_LOG.md](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) — not created until WP7 |
 | Rollout option key | `aiml_rollout_config` (current policy); `aiml_rollout_snapshots` (sanitized history) |
 | Unresolved PO values | §26 — staging-only values permitted during WP10 |
-| Implementation | **Complete** — staging acceptance **PASS** (WP10); production observation **pending** |
+| Implementation | **Complete** — merged; observation Day-0 PASS |

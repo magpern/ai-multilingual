@@ -550,9 +550,10 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **F1–F11 merged** on `main` (F11 tag `strategy-f-f11-tm-ai-merged`) |
-| Production readiness | **Not approved** (F12/F13 rollout + ADR acceptance pending) |
-| Next milestone | **F12** production observation gate — [implementation + staging complete](STRATEGY_F_F12_LIMITED_ROLLOUT.md); not F13-ready |
+| Production implementation | **F1–F12 merged** on `main` (F12 tag `strategy-f-f12-limited-rollout-merged`) |
+| Production readiness | **Not approved** (F13 general rollout + ADR-0013 acceptance pending) |
+| Next milestone | **F13** general rollout + ADR-0013 acceptance — F12 **complete** on `main` |
+| F12 | **Merged** — tag `strategy-f-f12-limited-rollout-merged` |
 | ADR-0013 | **Proposed** |
 
 ---

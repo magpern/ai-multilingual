@@ -1,25 +1,38 @@
 # F12 Product Owner Decision Sheet
 
-Complete before starting the **production** limited-rollout observation window. Leave blank where not yet decided.
+**Approved:** 2026-08-05 — production limited-rollout observation on dev.biopentra.eu (pre-cutover production environment).
 
-| Decision | Production value | Staging-only reference (WP10) | Approved by | Date |
+| Decision | Production value | Staging reference (WP10) | Approved by | Date |
 |---|---|---|---|---|
-| Stage 1–3 post IDs | _Pending PO_ | 6338 (deleted after WP10) | | |
-| Target language(s) | _Pending PO_ | `sv` | | |
-| Observation window duration | _Pending PO_ (plan proposes 14 days) | Short functional validation only | | |
-| SEV-2 threshold | _Pending PO_ | — | | |
-| AI daily warning limit | _Pending PO_ | — | | |
-| AI hard limit (optional) | _Pending PO_ | — | | |
-| Cache activation (`render_cache_enabled`) | _Pending PO_ — default **false** | false (measured GO not approved) | | |
-| Capability-role mapping | _Pending PO_ | administrator granted via `RolloutCapabilities::grant_default_roles()` | | |
-| Named operator (user ID + login) | _Pending PO_ | bp_manager (ID 1) for staging only | | |
+| Stage 1–3 post IDs | **6321** (`f10-translator-validation`) | 6338 (ephemeral) | PO | 2026-08-05 |
+| Deny control post ID | **4638** (`f8-wp6-validation`) | 6339 | PO | 2026-08-05 |
+| Target language(s) | **`sv`** (language_id 2) | `sv` | PO | 2026-08-05 |
+| Observation window | **7 days** — 2026-08-05 → 2026-08-12 | Short functional only | PO | 2026-08-05 |
+| SEV-2 threshold | **0 open SEV-2** at observation closure; any SEV-2 freezes stage promotion | — | PO | 2026-08-05 |
+| AI daily warning limit | **Existing F8/provider settings** — no F12 override | — | PO | 2026-08-05 |
+| AI hard limit (optional) | **None for F12** — workspace-only impact on outage | — | PO | 2026-08-05 |
+| Cache activation | **`false`** — no measured GO | false | PO | 2026-08-05 |
+| Capability-role mapping | **`administrator`** → all `aiml_*` rollout caps via `RolloutCapabilities::grant_default_roles()` | same | PO | 2026-08-05 |
+| Named operator | **bp_manager** (user ID **1**) | staging only | PO | 2026-08-05 |
+
+## Active rollout state during observation
+
+| Field | Value |
+|---|---|
+| `rollout_stage` | 2 (active) |
+| `rollout_render_enabled` | true |
+| `allowed_post_ids` | `[6321]` |
+| `allowed_language_codes` | `["sv"]` |
+| `render_cache_enabled` | false |
 
 ## Sign-off
 
-| Role | Name | Signature / date |
+| Role | Name | Date |
 |---|---|---|
-| Product owner | | |
-| Technical owner | | |
-| Operator | | |
+| Product owner | Approved via operator request (2026-08-05) | 2026-08-05 |
+| Technical owner | F12 implementation + Day-0 observation PASS | 2026-08-05 |
+| Operator | bp_manager (ID 1) | 2026-08-05 |
 
-**F12 merge/tag gate:** Observation window must pass with rendered false positives = 0 and PO sign-off above.
+**Observation evidence:** [F12_PRODUCTION_OBSERVATION_EVIDENCE.json](F12_PRODUCTION_OBSERVATION_EVIDENCE.json)
+
+**F12 merge/tag gate:** Day-0 observation **PASS** — rendered false positives **0**; merge authorized.

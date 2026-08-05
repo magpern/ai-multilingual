@@ -47,4 +47,4 @@ Required before F13: restore prior snapshot via promotion service; verify `polic
 
 See [STRATEGY_F_F12_LIMITED_ROLLOUT.md](STRATEGY_F_F12_LIMITED_ROLLOUT.md) §20 — observation window and operator sign-off required.
 
-**F12 status:** F12 implementation and staging acceptance complete. Production observation pending — not F13-ready.
+**F12 status:** **Complete** — merged to `main`. Observation window 2026-08-05 → 2026-08-12 on dev.biopentra.eu. Not F13-ready.
