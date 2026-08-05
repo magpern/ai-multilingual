@@ -320,11 +320,16 @@ final class WorkspaceService {
 			throw new WorkspaceConflictException( array( $current ) );
 		}
 
-		$format = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
-		$qa     = $this->qa->evaluate(
+		$format  = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+		$default = $this->languages->default();
+		$qa      = $this->qa->evaluate(
 			(string) ( $current['source_text'] ?? '' ),
 			$translated_text,
-			$format
+			$format,
+			array(
+				'source_language_id' => $default ? (int) $default->language_id : 0,
+				'target_language_id' => $language_id,
+			)
 		);
 
 		// Clearing a translation (blank target) is an allowed workspace action;
@@ -426,7 +431,11 @@ final class WorkspaceService {
 		$meta['qa']          = $this->qa->evaluate(
 			(string) ( $segment['source_text'] ?? '' ),
 			(string) ( $segment['translated_text'] ?? '' ),
-			(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN )
+			(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN ),
+			array(
+				'source_language_id' => $default ? (int) $default->language_id : 0,
+				'target_language_id' => $language_id,
+			)
 		)->to_array();
 		$segment['meta']     = $meta;
 
@@ -784,7 +793,11 @@ final class WorkspaceService {
 			$meta['qa']                 = $this->qa->evaluate(
 				(string) ( $segment['source_text'] ?? '' ),
 				(string) ( $segment['translated_text'] ?? '' ),
-				(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN )
+				(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN ),
+				array(
+					'source_language_id' => $default ? (int) $default->language_id : 0,
+					'target_language_id' => $language_id,
+				)
 			)->to_array();
 			$segments[ $index ]['meta'] = $meta;
 		}
