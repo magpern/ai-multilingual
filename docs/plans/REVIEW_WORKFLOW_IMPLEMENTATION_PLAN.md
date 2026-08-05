@@ -1,14 +1,14 @@
 # Review Workflow — Implementation Plan
 
-**Status:** Architecture **frozen for review**; **ADR-0015 Proposed** — R1+ blocked until Accepted (or complete PO provisional approval)  
-**Branch:** `feature/review-workflow-plan`  
-**Baseline:** `main` @ `cee204aad` (Glossary MVP complete)  
-**ADR:** [0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md) — **Proposed**  
+**Status:** Architecture **frozen**; **ADR-0015 Accepted** (2026-08-05) — **R1 implementation authorized**  
+**Branch:** `feature/review-workflow`  
+**Baseline:** `main` after Review planning merge  
+**ADR:** [0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md) — **Accepted**  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) §11.2  
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md)
 
-**R0 gate:** Plan + ADR-0015 Proposed.  
-**Implementation gate:** R1+ only after ADR-0015 **Accepted**, or complete Product Owner provisional approval (all six required fields). Generic “proceed despite Proposed” is invalid.
+**R0 gate:** **PASS** — ADR-0015 Accepted — R1 implementation authorized.  
+**Implementation scope / WP order (R0–R7):** Unchanged.
 
 ---
 
