@@ -56,5 +56,5 @@ milestones. As of 2026-08-05:
 | **F14** Supported Gutenberg Block Expansion | **Complete** — merged to `main`; [canonical plan](plans/STRATEGY_F_F14_BLOCK_EXPANSION.md); [validation log PASS](plans/F14_BLOCK_EXPANSION_VALIDATION_LOG.md); [summary](plans/F14_IMPLEMENTATION_SUMMARY.md); tag `strategy-f-f14-block-expansion-complete` |
 | **Post-v1 product roadmap** | **Active** — [POST_V1_PRODUCT_ROADMAP.md](plans/POST_V1_PRODUCT_ROADMAP.md); next initiative **Review Workflow** (planning) |
 | **Glossary MVP** | **Complete** — merged to `main`; [plan](plans/GLOSSARY_MVP_IMPLEMENTATION_PLAN.md); [validation log PASS](plans/GLOSSARY_MVP_VALIDATION_LOG.md); ADR-0014 **Accepted**; tag `glossary-mvp-complete` |
-| **Review Workflow** | **Next (planning)** — no implementation started; draft plan on `feature/review-workflow-plan` |
+| **Review Workflow** | **Plan ready for review** — [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](plans/REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md); ADR-0015 **Proposed** ([0015-review-workflow-and-tm-approval-policy.md](adr/0015-review-workflow-and-tm-approval-policy.md)); implementation blocked on ADR disposition; review queue = Store filter view (not assignments) |
 | **Background Translation Jobs** | **After Review** — ADR-0011 Accepted (design baseline) |

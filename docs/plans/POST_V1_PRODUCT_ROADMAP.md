@@ -230,17 +230,18 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 
 | Field | Content |
 |---|---|
-| **Objective** | Add human approval states on the existing Workspace translation loop. |
+| **Objective** | Add human approval on the existing Workspace translation loop (Store-owned two-axis review state). |
 | **User outcome** | Merchants can require review before treating translations as approved / TM-eligible where policy demands. |
-| **Scope** | Submit for review; approve; reject with reason; reviewer capability; approval status; TM write-back only after approved workflow state where applicable; filters and status summaries. |
-| **Out of scope** | Collaboration comments; assignment queues; enterprise multi-step workflows; full version history; background jobs; glossary redesign. |
-| **Dependencies** | Glossary MVP recommended first (terminology informs review quality) but Review must not hard-depend on glossary schema details beyond existing TM/QA. |
-| **Architecture impact** | Additive to Workspace, Store statuses, QA, TM write-back policy. Prefer existing status/hash fields before inventing version history. |
-| **Likely work packages** | Status model → capabilities → REST/actions → Workspace UI filters → TM write-back gate → validation. |
-| **Validation** | Permission tests; state-machine tests; TM write-back policy tests; Workspace smoke. |
-| **Stop conditions** | Requiring version history; building a second editor; changing render pipeline. |
-| **Release boundary** | Independently shippable after Review plan DoD. |
-| **Readiness gate** | Glossary roadmap frozen or explicitly waived by PO; dedicated Review plan from `main`. |
+| **Scope** | Submit for review; approve; reject with required reason; reviewer capability `aiml_review_translations`; **review queue = filtered Store view** on `review_status` (not an assignment system); basic status filters and summaries; QA and Glossary context during review; TM write-back gated by approval; audit and bounded diagnostics. |
+| **Out of scope** | Collaboration comments; assignment queues / reviewer assignments; notifications; reporting dashboards; enterprise multi-step workflows; full version history; background jobs; glossary redesign; approval-gated frontend rendering (separate ADR if ever required). |
+| **Dependencies** | Glossary MVP complete; [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md) disposition before schema/code. |
+| **Architecture impact** | Additive Store review columns (schema v5); translation `status` unchanged; no second review table; F11 TM write-back moves to approval-time; render path unchanged. |
+| **Likely work packages** | R0 plan/ADR → R1 schema → R2–R3 domain → R4 REST/caps → R5 TM gate → R6 UI → R7 validation. |
+| **Validation** | Permission tests; two-axis transition tests; submitted-hash 409; TM write-back policy tests; Workspace smoke. |
+| **Stop conditions** | Requiring version history; building a second editor; changing render pipeline; overloading `status` with review states. |
+| **Release boundary** | Independently shippable after Review plan DoD and ADR-0015 Accepted (or complete provisional). |
+| **Readiness gate** | Canonical plan frozen; ADR-0015 Accepted or complete PO provisional; implementation branch from `main`. |
+| **Implementation status** | **Planning** — plan + ADR-0015 Proposed on `feature/review-workflow-plan`. No production code. |
 
 ### 11.3 Background Translation Jobs
 
@@ -320,10 +321,10 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 - F1–F14 remain **complete**.
 - **No** Review Workflow implementation has started (planning branch only after this closure).
 - Background Translation Jobs remains **after** Review Workflow.
-- Next planning initiative: **Review Workflow**.
+- Next planning initiative: **Review Workflow** — canonical plan + ADR-0015 Proposed; implementation blocked on ADR disposition.
 
 ---
 
 ## 15. Exact next step
 
-Draft and review the canonical Review Workflow architecture plan on `feature/review-workflow-plan`. Do not implement production code until that plan is frozen and any required ADR is explicitly accepted.
+Review and accept [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), freeze [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), then create a dedicated **implementation** branch from updated `main` and begin R1 only after the ADR gate.
