@@ -1,0 +1,12 @@
+schema=4
+store_rows=148
+tm_rows=0
+glossary_rows=0
+glossary_version=2
+has_review_status=no
+sample_hashes=
+1=fece5841cd792fa7cadd86e4f1eddca8
+2=9dceeb8c83599c1ac1de64c880b3a758
+3=2a381d68956d0030422a7beea19b9441
+5=bf67590f433624e536ec9a6b9b733261
+6=519a9afc0bcb36d978fbd86e4267de14

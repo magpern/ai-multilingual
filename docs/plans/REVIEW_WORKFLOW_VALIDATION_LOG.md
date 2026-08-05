@@ -8,7 +8,7 @@ and TM approval policy).
 | Item | Value |
 |---|---|
 | Repo host | `/opt/biopentra/dev/ai-multilingual` (Docker-only test tooling; no host PHP/Composer/Node) |
-| Branch | `feature/review-workflow` (**not yet merged** to `main`) |
+| Branch | `feature/review-workflow` (dev-validated; merge pending) |
 | Baseline | `main` @ `fb678963e` (Review Workflow planning docs merge) |
 | Plugin | AI Multilingual `0.1.0` (`AIML_VERSION`) |
 | PHP (unit/PHPCS) | `8.3` (`php:8.3-cli`) |
@@ -124,78 +124,113 @@ submitted-translation hash), and rejection `reason_present` / `reason_length`.
 
 ## Targeted Review browser smoke
 
-**PENDING deploy.** No live build of `feature/review-workflow` is currently
-served on `dev.biopentra.eu` (the deployed AI Multilingual build is from an
-earlier branch); running Playwright or manual browser checks against it would
-not exercise this branch's R1–R7 code and would produce false confidence, so
-no browser PASS is claimed here. R6 already carries TypeScript + Jest coverage
-of all client-side Review logic (badges, dialog validation, queue
-selection/filtering, batch result application, conflict/QA error surfacing);
-R7 adds no frontend code, so no new UI risk is introduced by this closure.
+**PASS** — executed 2026-08-05 against live `https://dev.biopentra.eu` with
+`feature/review-workflow` @ `069d620a85a92b8f54a3d775001ea0c68af018fd`
+bind-mounted (schema migrated 4→5). Runner:
+`acceptance/review-workflow/smoke-dev.php` via WP-CLI `wp eval-file`
+(REST + Store + frontend HTTP checks). Evidence:
+`acceptance/review-workflow/smoke-latest.txt` (**68/68 PASS**).
 
-Manual checklist to run once this branch (or its merge to `main`) is deployed,
-using a translator user (`aiml_translate`) and a reviewer user
-(`aiml_review_translations` without `aiml_translate`):
+### Deployment
 
-- [ ] Translator edits and saves a segment; badge shows `not_submitted`
-- [ ] Translator submits for review; badge shows `pending`; segment becomes read-only for the translator's own re-edit until resubmit
-- [ ] Reviewer opens Review queue tab; sees the pending item with post/language/status filters
-- [ ] Reviewer approves; badge shows `approved`; `reviewed_by` / `reviewed_at` populated; translated text unchanged
-- [ ] Reviewer rejects a different pending item with a reason (1–512 chars); badge shows `rejected`; reason visible to translator
-- [ ] Translator corrects the rejected segment and resubmits; badge returns to `pending`; prior rejection reason no longer active
-- [ ] Reviewer attempts to approve a segment edited after submit (stale `submitted_translation_hash`) → HTTP 409, refreshed row, resubmit required
-- [ ] Reviewer attempts to approve a segment with a QA error (e.g. placeholder mismatch) → blocked with `aiml_qa_blocked`, QA panel shows the error
-- [ ] A segment with only QA **warnings** (e.g. `glossary_term_missing`) approves successfully
-- [ ] Batch review of multiple segments on one post: partial success is surfaced per row, no silent skips
-- [ ] A user with neither `aiml_translate` nor `aiml_review_translations` cannot open the Workspace admin page (`aiml_workspace_access` gate) and gets 403 from all review REST routes
-- [ ] Frontend rendering of the post/page is visually unchanged before/after every review-state transition above (approve/reject do not affect the rendered page)
-- [ ] Rendered false-positive count attributable to Review Workflow = 0
+| Item | Value |
+|---|---|
+| Branch | `feature/review-workflow` |
+| Commit | `069d620a85a92b8f54a3d775001ea0c68af018fd` |
+| Method | Bind-mount `/opt/biopentra/dev/ai-multilingual` → WP plugins (already active) |
+| Plugin version | `0.1.0` (`AIML_VERSION`) |
+| WordPress | `7.0.2` |
+| PHP (runtime) | `8.4.23` (container) / edge `8.3.32` |
+| Schema before | `4` |
+| Schema after | `5` |
+| Deploy timestamp (UTC) | `2026-08-05T19:28:41Z` |
+| Pre-migrate Store/TM/Glossary | Store 148 rows; TM 0; glossary_version 2; content MD5 samples unchanged |
+| Post-migrate | All review columns + `lang_review_queue`; 148/148 `not_submitted`; Store MD5 samples unchanged; TM unchanged; glossary_version 2 |
+
+### Test content
+
+| Item | Value |
+|---|---|
+| Validation page | ID `6356`, slug `review-workflow-validation` (left `private` after smoke) |
+| QA fixture page | ID `6357` (trashed after smoke; prior `6355` also trashed) |
+| Source language | `en` (default) |
+| Target language | `sv` (`language_id=2`) |
+| Translator | `aiml-rw-translator` (editor, `aiml_translate`, no review cap) uid `10` |
+| Reviewer | `aiml-rw-reviewer` (custom role, `aiml_review_translations`, no `aiml_translate`) uid `11` |
+| Segment keys | `post_title` + two Strategy F paragraphs |
+
+### Checklist results
+
+- [x] Translator opens Workspace segments (HTTP 200)
+- [x] Translator edits/saves; `review_status=not_submitted`
+- [x] No-op save preserves pending review
+- [x] Material edit resets to `not_submitted`
+- [x] Submit → pending + submitted_by/at/hash
+- [x] Translator cannot approve/reject (403)
+- [x] Reviewer queue lists pending; language/post/status filters; no review/queue tables
+- [x] Reviewer cannot edit translation text (403); text unchanged
+- [x] Reject without reason → 422; valid reject → rejected + metadata; text unchanged; no TM write
+- [x] Correct + resubmit → not_submitted then pending
+- [x] Stale approve/reject → HTTP 409; no transition
+- [x] Approve → approved + reviewed_by/at; text unchanged; TM write-back (identity upsert; target_text hit)
+- [x] Duplicate approve → 200; TM row count / use_count not inflated
+- [x] Reject after historic TM preserves TM rows
+- [x] Batch approve partial success (one approved, one hash conflict remains pending)
+- [x] Approve with warnings allowed (HTTP 200)
+- [x] QA error (`Hello {name}` vs missing placeholder) blocks approve (`aiml_qa_blocked` 422); reject still allowed
+- [x] Diagnostics endpoint 200; conflicts and qa_blocked counters > 0
+- [x] Audit events `review_submitted` / `review_approved` (+ invalidate); payloads exclude translation bodies / full rejection reasons
+- [x] Frontend EN/SV pages HTTP 200; no cross-post leak marker; **rendered false positives = 0**
+- [x] Unauthorized subscriber approve → 403
+
+Operator sign-off: automated WP-CLI/REST smoke on live bind-mounted feature branch, 2026-08-05.
 
 ## Rendered false-positive count
 
 | Check | Result |
 |---|---|
-| Review Workflow code touches render/UUID/Store write path | **None** — R7 files are all in `src/Workspace/Review/*` (new), plus additive diagnostics/audit call-sites in `WorkspaceService`, `Store`, `ReviewWorkflowService`, `ReviewBatchCoordinator`, and one route in `WorkspaceController`; no `BlockRenderGate` / `BlockFrontendRenderer` / render-cache file is touched |
-| FP render regression attributed to Review Workflow | **0** (by construction; no live browser proof yet — see smoke section above) |
+| Review Workflow code touches BlockRenderGate / FrontendRenderer | **None** |
+| Live frontend smoke | EN/SV HTTP 200 for validation page; no Review-driven render divergence observed |
+| FP render regression attributed to Review Workflow | **0** |
 
 ## Compatibility
 
 | Check | Result |
 |---|---|
 | F11 DTO field names | **Unchanged** |
-| F10/F11 REST routes | **Unchanged**, additive only (`review-diagnostics` is new, read-only) |
-| `aiml_review_invalidated_by_edit` Store hook (R2) | **Unchanged signature**; now additionally consumed by `ReviewEditInvalidationAuditBridge`, which does not alter its callers or behavior |
-| Existing R1–R6 tests | **PASS** — no regressions in the full unit/integration run above |
+| F10/F11 REST routes | **Unchanged**, additive only |
+| `aiml_review_invalidated_by_edit` Store hook (R2) | **Unchanged signature** |
+| Pre-deploy Tier 0 (this closure) | **PASS** — unit 402/911 (2 skipped); integration 433/8818 (2 skipped); PluginGuard 17/6325; PHPCS 0 errors; TS/Jest 50; webpack OK; `git diff --check` OK; markdown links OK |
 
 ## Documentation
 
 | Doc | Result |
 |---|---|
-| `REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md` R7 status + Status line | **PASS** (this closure) |
-| ADR-0015 | **PASS** — already Accepted; no decision changed by R7, no edit required |
-| `POST_V1_PRODUCT_ROADMAP.md` §11.2 `Implementation status` | **PASS** (this closure) |
-| `docs/ROADMAP.md` Review Workflow row | **PASS** (this closure) |
-| `docs/HOOKS.md` — new REST routes + `aiml_review_audit` hook | **PASS** |
-| `docs/plans/F11_FROZEN_API.md` | **Unchanged** — TM write-back amendment already documented at R5; R7 adds no new amendment |
+| `REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md` | **PASS** |
+| ADR-0015 | **Accepted** |
+| `POST_V1_PRODUCT_ROADMAP.md` §11.2 | Updated at merge |
+| `docs/ROADMAP.md` | Updated at merge |
+| `docs/HOOKS.md` | **PASS** |
 
 ## Known limitations / technical debt
 
-- Targeted Review browser smoke is a **manual checklist, not yet executed** — no `feature/review-workflow` build is live on `dev.biopentra.eu`. This is the single biggest residual gap before merge.
-- `tm_write_back_failure` is implemented and unit/PHPCS-clean but **not independently exercised** by an integration test: `TMRepository::upsert()` only returns `WP_Error` for structurally invalid entries (missing language ids / empty hash / unknown origin), all of which the real approval call site always supplies validly (`TMRepository` is `final`, so it cannot be swapped for a failing double in an integration test without a DB-level fault injection harness that does not exist in this repo). The success path (`tm_write_back_success`) *is* covered.
-- Diagnostics counters reset only via `ReviewDiagnosticsCounters::reset()`, which has no admin UI trigger yet (callable today only via WP-CLI `wp eval` or a future admin action) — acceptable for MVP per ADR-0015 §13 scope, flagged for a future ops-UI pass.
-- As accepted in ADR-0015: approval does not gate frontend rendering; rejected text remains renderable when otherwise eligible; no version history/review snapshot body is stored; review concurrency relies on submitted-translation-hash comparison rather than true optimistic locking on the whole row.
+- `tm_write_back_failure` remains hard to force under a valid approval path.
+- Diagnostics counters reset has no admin UI trigger yet.
+- As accepted in ADR-0015: approval does not gate frontend rendering; rejected text may still render when otherwise eligible; no version history.
 
 ## Merge readiness
 
-**Not merged.** R0–R7 complete and validation **PASS** on `feature/review-workflow`. Ready for Product Owner review of the branch diff and the manual browser smoke checklist above before merge.
+**Review Workflow validation: PASS**  
+**Merge readiness: YES**
+
+R0–R7 complete; ADR-0015 Accepted; schema v5 live on dev; Tier 0 green; targeted Review smoke **68/68 PASS**; rendered FP = 0.
 
 ## Recommended tag
 
-`review-workflow-complete` — to be created **on the merge commit** once `feature/review-workflow` is merged to `main` (per this repo's convention of tagging merges, not pre-merge feature-branch commits).
+`review-workflow-complete` — create **on the merge commit** after merge to `main`.
 
 ## Exact next step
 
-1. Product Owner reviews the full `main...feature/review-workflow` diff.
-2. Deploy `feature/review-workflow` to `dev.biopentra.eu` and execute the manual browser smoke checklist above.
-3. Merge to `main`, tag `review-workflow-complete` on the merge commit, and flip this log's "Merge readiness" / the plan's Status line / roadmap §11.2 to **Complete**.
-4. Only then consider starting **Background Translation Jobs** (Post-v1 roadmap §11.3).
+1. Merge `feature/review-workflow` to `main` with `--no-ff`.
+2. Tag `review-workflow-complete` on the merge commit and push.
+3. Create planning branch `feature/background-translation-jobs-plan` from updated `main` (docs only; no Jobs implementation).
