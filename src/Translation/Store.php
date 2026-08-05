@@ -609,6 +609,120 @@ final class Store {
 		return max( 0, (int) $count );
 	}
 
+	/**
+	 * Maximum rows returned per review-queue page.
+	 */
+	public const REVIEW_QUEUE_MAX_PER_PAGE = 50;
+
+	/**
+	 * Filtered, paginated view over review-axis rows (ADR-0015 §5, §11).
+	 *
+	 * The review queue is a query over the existing translations table, never
+	 * a separate persisted queue. Sort is stable (submission time, then row
+	 * id) so pagination cannot skip or repeat rows between pages.
+	 *
+	 * @param array<string, mixed> $args {
+	 *     Optional query args.
+	 *
+	 *     @type string $source_type   Source type. Default SOURCE_POST.
+	 *     @type int    $source_id     Optional object id filter (0 = any).
+	 *     @type int    $language_id   Optional language filter (0 = any).
+	 *     @type string $review_status One of review_statuses(), or 'all'. Default REVIEW_PENDING.
+	 *     @type int    $page          1-based page number. Default 1.
+	 *     @type int    $per_page      Page size, bounded by REVIEW_QUEUE_MAX_PER_PAGE. Default 20.
+	 * }
+	 * @return array{items: list<object>, total: int, page: int, per_page: int}
+	 */
+	public function query_review_queue( array $args = array() ): array {
+		global $wpdb;
+
+		$source_type   = (string) ( $args['source_type'] ?? self::SOURCE_POST );
+		$source_id     = (int) ( $args['source_id'] ?? 0 );
+		$language_id   = (int) ( $args['language_id'] ?? 0 );
+		$review_status = (string) ( $args['review_status'] ?? self::REVIEW_PENDING );
+		$page          = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$per_page      = max( 1, min( self::REVIEW_QUEUE_MAX_PER_PAGE, (int) ( $args['per_page'] ?? 20 ) ) );
+
+		if ( 'all' !== $review_status && ! in_array( $review_status, self::review_statuses(), true ) ) {
+			return array(
+				'items'    => array(),
+				'total'    => 0,
+				'page'     => $page,
+				'per_page' => $per_page,
+			);
+		}
+
+		if ( ! $this->translations_table_exists() ) {
+			return array(
+				'items'    => array(),
+				'total'    => 0,
+				'page'     => $page,
+				'per_page' => $per_page,
+			);
+		}
+
+		$where  = array( 'source_type = %s' );
+		$params = array( $source_type );
+
+		if ( $language_id > 0 ) {
+			$where[]  = 'language_id = %d';
+			$params[] = $language_id;
+		}
+
+		if ( $source_id > 0 ) {
+			$where[]  = 'source_id = %d';
+			$params[] = $source_id;
+		}
+
+		if ( 'all' !== $review_status ) {
+			$where[]  = 'review_status = %s';
+			$params[] = $review_status;
+		}
+
+		$where_sql = implode( ' AND ', $where );
+
+		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM ' . Schema::translations() . ' WHERE ' . $where_sql, // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where_sql is built from a fixed set of %s/%d placeholders above, matched 1:1 with $params.
+				$params
+			)
+		);
+
+		if ( $total <= 0 ) {
+			return array(
+				'items'    => array(),
+				'total'    => 0,
+				'page'     => $page,
+				'per_page' => $per_page,
+			);
+		}
+
+		$offset      = ( $page - 1 ) * $per_page;
+		$list_params = array_merge( $params, array( $per_page, $offset ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $where_sql is built from a fixed set of %s/%d placeholders above, matched 1:1 with $list_params.
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::translations() . ' WHERE ' . $where_sql
+				. ' ORDER BY review_submitted_at ASC, translation_id ASC LIMIT %d OFFSET %d',
+				$list_params
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+		$items = array();
+		foreach ( (array) $rows as $row ) {
+			$items[] = $this->hydrate( $row );
+		}
+
+		return array(
+			'items'    => $items,
+			'total'    => $total,
+			'page'     => $page,
+			'per_page' => $per_page,
+		);
+	}
+
 	// -- Writes --
 
 	/**

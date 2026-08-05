@@ -20,6 +20,13 @@ final class WorkspaceSegmentSerializer {
 	 * @param array<string, mixed> $dto Application segment DTO.
 	 */
 	public function from_dto( array $dto ): WorkspaceSegmentViewModel {
+		$review_submitted_by = $dto['review_submitted_by'] ?? null;
+		$review_submitted_at = $dto['review_submitted_at'] ?? null;
+		$reviewed_by         = $dto['reviewed_by'] ?? null;
+		$reviewed_at         = $dto['reviewed_at'] ?? null;
+		$rejected_by         = $dto['rejected_by'] ?? null;
+		$rejected_at         = $dto['rejected_at'] ?? null;
+
 		return new WorkspaceSegmentViewModel(
 			(string) ( $dto['segment_key'] ?? '' ),
 			(string) ( $dto['field_key'] ?? '' ),
@@ -33,7 +40,16 @@ final class WorkspaceSegmentSerializer {
 			(bool) ( $dto['is_stale'] ?? false ),
 			(string) ( $dto['text_format'] ?? '' ),
 			(bool) ( $dto['can_edit'] ?? false ),
-			is_array( $dto['meta'] ?? null ) ? $dto['meta'] : array()
+			is_array( $dto['meta'] ?? null ) ? $dto['meta'] : array(),
+			(string) ( $dto['review_status'] ?? 'not_submitted' ),
+			(string) ( $dto['submitted_translation_hash'] ?? '' ),
+			null === $review_submitted_by ? null : (int) $review_submitted_by,
+			null === $review_submitted_at ? null : (string) $review_submitted_at,
+			null === $reviewed_by ? null : (int) $reviewed_by,
+			null === $reviewed_at ? null : (string) $reviewed_at,
+			(string) ( $dto['rejection_reason'] ?? '' ),
+			null === $rejected_by ? null : (int) $rejected_by,
+			null === $rejected_at ? null : (string) $rejected_at
 		);
 	}
 

@@ -128,27 +128,56 @@ final class SegmentAssembler {
 		$text   = '';
 		$stale  = false;
 
+		$review_status              = Store::REVIEW_NOT_SUBMITTED;
+		$submitted_translation_hash = '';
+		$review_submitted_by        = null;
+		$review_submitted_at        = null;
+		$reviewed_by                = null;
+		$reviewed_at                = null;
+		$rejection_reason           = '';
+		$rejected_by                = null;
+		$rejected_at                = null;
+
 		if ( null !== $row ) {
 			$status = (string) ( $row->status ?? Store::STATUS_MISSING );
 			$text   = (string) ( $row->translated_text ?? '' );
 			$stale  = (bool) ( (int) ( $row->is_stale ?? 0 ) );
+
+			$review_status              = (string) ( $row->review_status ?? Store::REVIEW_NOT_SUBMITTED );
+			$submitted_translation_hash = (string) ( $row->submitted_translation_hash ?? '' );
+			$review_submitted_by        = $row->review_submitted_by ?? null;
+			$review_submitted_at        = $row->review_submitted_at ?? null;
+			$reviewed_by                = $row->reviewed_by ?? null;
+			$reviewed_at                = $row->reviewed_at ?? null;
+			$rejection_reason           = (string) ( $row->rejection_reason ?? '' );
+			$rejected_by                = $row->rejected_by ?? null;
+			$rejected_at                = $row->rejected_at ?? null;
 		}
 
 		return array(
-			'segment_key'     => $segment_key,
-			'field_key'       => (string) ( $extracted['field_key'] ?? '' ),
-			'block_name'      => $block_name,
-			'uuid'            => (string) ( $extracted['uuid'] ?? '' ),
-			'segment_order'   => (int) ( $extracted['segment_order'] ?? 0 ),
-			'source_text'     => $source,
-			'source_hash'     => $hash,
-			'translated_text' => $text,
-			'status'          => $status,
-			'is_stale'        => $stale,
-			'text_format'     => $format,
-			'can_edit'        => '' === $block_name || $this->block_registry->is_supported( $block_name ),
-			'segment_kind'    => (string) ( $extracted['segment_kind'] ?? Store::KIND_FIELD ),
-			'meta'            => array(),
+			'segment_key'                => $segment_key,
+			'field_key'                  => (string) ( $extracted['field_key'] ?? '' ),
+			'block_name'                 => $block_name,
+			'uuid'                       => (string) ( $extracted['uuid'] ?? '' ),
+			'segment_order'              => (int) ( $extracted['segment_order'] ?? 0 ),
+			'source_text'                => $source,
+			'source_hash'                => $hash,
+			'translated_text'            => $text,
+			'status'                     => $status,
+			'is_stale'                   => $stale,
+			'text_format'                => $format,
+			'can_edit'                   => '' === $block_name || $this->block_registry->is_supported( $block_name ),
+			'segment_kind'               => (string) ( $extracted['segment_kind'] ?? Store::KIND_FIELD ),
+			'meta'                       => array(),
+			'review_status'              => $review_status,
+			'submitted_translation_hash' => $submitted_translation_hash,
+			'review_submitted_by'        => $review_submitted_by,
+			'review_submitted_at'        => $review_submitted_at,
+			'reviewed_by'                => $reviewed_by,
+			'reviewed_at'                => $reviewed_at,
+			'rejection_reason'           => $rejection_reason,
+			'rejected_by'                => $rejected_by,
+			'rejected_at'                => $rejected_at,
 		);
 	}
 }

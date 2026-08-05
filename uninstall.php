@@ -53,6 +53,7 @@ foreach ( array_keys( $aiml_roles->roles ) as $aiml_role_name ) {
 	}
 }
 \AIMultilingual\Glossary\GlossaryCapabilities::revoke_all_roles();
+\AIMultilingual\Workspace\Review\ReviewCapabilities::revoke_all_roles();
 
 // 3. Plugin options. Glossary lexicon version (ADR-0014) and cache epoch.
 // Milestone 3 may also unschedule aiml_run_job / aiml_jobs_sweep actions before this point.

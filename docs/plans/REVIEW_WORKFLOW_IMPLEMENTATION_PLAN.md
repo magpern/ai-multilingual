@@ -11,6 +11,7 @@
 **R1 status:** **PASS** — Migrator `TARGET=5`; additive review columns + `lang_review_queue`.
 **R2 status:** **PASS** — Store review metadata, invalidate-on-edit, no-op preserve.
 **R3 status:** **PASS** — ReviewWorkflowService submit/approve/reject transitions, hash conflicts, reason validation.
+**R4 status:** **PASS** — `aiml_review_translations` capability; submit/approve/reject/batch-review/review-queue REST routes; additive ViewModel fields; Store-derived paginated queue; `ReviewBatchCoordinator`; QA-gated approval reusing the Workspace QA path.
 **Implementation scope / WP order (R0–R7):** Unchanged.
 
 ---

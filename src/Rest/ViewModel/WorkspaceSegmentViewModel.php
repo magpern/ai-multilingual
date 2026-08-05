@@ -30,6 +30,15 @@ final class WorkspaceSegmentViewModel {
 	 * @param string               $text_format     Text format.
 	 * @param bool                 $can_edit        Whether editing is allowed.
 	 * @param array<string, mixed> $meta            Reserved extension bag.
+	 * @param string               $review_status   Review Workflow status (ADR-0015).
+	 * @param string               $submitted_translation_hash Hash captured at last submit.
+	 * @param int|null             $review_submitted_by         Submitting user id.
+	 * @param string|null          $review_submitted_at         Submission timestamp.
+	 * @param int|null             $reviewed_by                 Approving reviewer id.
+	 * @param string|null          $reviewed_at                 Approval timestamp.
+	 * @param string               $rejection_reason            Active rejection reason.
+	 * @param int|null             $rejected_by                 Rejecting reviewer id.
+	 * @param string|null          $rejected_at                 Rejection timestamp.
 	 */
 	public function __construct(
 		public readonly string $segment_key,
@@ -44,7 +53,16 @@ final class WorkspaceSegmentViewModel {
 		public readonly bool $is_stale,
 		public readonly string $text_format,
 		public readonly bool $can_edit,
-		public readonly array $meta = array()
+		public readonly array $meta = array(),
+		public readonly string $review_status = 'not_submitted',
+		public readonly string $submitted_translation_hash = '',
+		public readonly ?int $review_submitted_by = null,
+		public readonly ?string $review_submitted_at = null,
+		public readonly ?int $reviewed_by = null,
+		public readonly ?string $reviewed_at = null,
+		public readonly string $rejection_reason = '',
+		public readonly ?int $rejected_by = null,
+		public readonly ?string $rejected_at = null
 	) {
 	}
 
@@ -55,19 +73,28 @@ final class WorkspaceSegmentViewModel {
 	 */
 	public function to_array(): array {
 		return array(
-			'segment_key'     => $this->segment_key,
-			'field_key'       => $this->field_key,
-			'block_name'      => $this->block_name,
-			'uuid'            => $this->uuid,
-			'segment_order'   => $this->segment_order,
-			'source_text'     => $this->source_text,
-			'source_hash'     => $this->source_hash,
-			'translated_text' => $this->translated_text,
-			'status'          => $this->status,
-			'is_stale'        => $this->is_stale,
-			'text_format'     => $this->text_format,
-			'can_edit'        => $this->can_edit,
-			'meta'            => $this->meta,
+			'segment_key'                => $this->segment_key,
+			'field_key'                  => $this->field_key,
+			'block_name'                 => $this->block_name,
+			'uuid'                       => $this->uuid,
+			'segment_order'              => $this->segment_order,
+			'source_text'                => $this->source_text,
+			'source_hash'                => $this->source_hash,
+			'translated_text'            => $this->translated_text,
+			'status'                     => $this->status,
+			'is_stale'                   => $this->is_stale,
+			'text_format'                => $this->text_format,
+			'can_edit'                   => $this->can_edit,
+			'meta'                       => $this->meta,
+			'review_status'              => $this->review_status,
+			'submitted_translation_hash' => $this->submitted_translation_hash,
+			'review_submitted_by'        => $this->review_submitted_by,
+			'review_submitted_at'        => $this->review_submitted_at,
+			'reviewed_by'                => $this->reviewed_by,
+			'reviewed_at'                => $this->reviewed_at,
+			'rejection_reason'           => $this->rejection_reason,
+			'rejected_by'                => $this->rejected_by,
+			'rejected_at'                => $this->rejected_at,
 		);
 	}
 }

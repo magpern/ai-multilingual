@@ -46,6 +46,28 @@ final class Cache {
 	private const LANG_VERSION_PREFIX = 'aiml_lang_version_';
 
 	/**
+	 * Per-process high-water mark for each version option.
+	 *
+	 * `version()` normally just reads the persisted option, which is correct
+	 * in production where it only ever increases. Under `WP_UnitTestCase`,
+	 * every test runs inside a transaction that rolls back, so a bump made in
+	 * one test (e.g. via `add_language()`) is undone before the next test
+	 * begins — and if two tests bump the same option by the same number of
+	 * steps from that shared rollback baseline, they land on the identical
+	 * persisted value. A `Languages`/`Store` instance built once at plugin
+	 * boot (idempotent `Plugin::init()`) and reused for the rest of the
+	 * process would then see `$memo_epoch === $epoch` succeed spuriously and
+	 * serve another test's stale, since-rolled-back rows. Tracking the
+	 * highest value this process has ever produced — memory the rollback
+	 * cannot touch — keeps every bump strictly increasing for the process's
+	 * lifetime without changing anything in production, where the persisted
+	 * value is already the higher of the two.
+	 *
+	 * @var array<string, int>
+	 */
+	private static array $high_water_mark = array();
+
+	/**
 	 * Reads a value, or null when absent.
 	 *
 	 * @param string $key         Unversioned key.
@@ -87,9 +109,7 @@ final class Cache {
 	 * @param int $language_id Language to invalidate.
 	 */
 	public function flush_language( int $language_id ): void {
-		$option = self::LANG_VERSION_PREFIX . $language_id;
-
-		update_option( $option, $this->version( $option ) + 1, true );
+		$this->bump( self::LANG_VERSION_PREFIX . $language_id );
 	}
 
 	/**
@@ -98,7 +118,21 @@ final class Cache {
 	 * Used when language configuration changes or the plugin is upgraded.
 	 */
 	public function flush_all(): void {
-		update_option( self::VERSION_OPTION, $this->version( self::VERSION_OPTION ) + 1, true );
+		$this->bump( self::VERSION_OPTION );
+	}
+
+	/**
+	 * Advances a version counter, recording the new value in the per-process
+	 * high-water mark alongside the persisted option. See
+	 * {@see self::$high_water_mark} for why both are needed.
+	 *
+	 * @param string $option Option name holding the counter.
+	 */
+	private function bump( string $option ): void {
+		$next                             = $this->version( $option ) + 1;
+		self::$high_water_mark[ $option ] = $next;
+
+		update_option( $option, $next, true );
 	}
 
 	/**
@@ -127,6 +161,9 @@ final class Cache {
 	 * @param string $option Option name holding the counter.
 	 */
 	private function version( string $option ): int {
-		return (int) get_option( $option, 0 );
+		$persisted = (int) get_option( $option, 0 );
+		$mark      = self::$high_water_mark[ $option ] ?? 0;
+
+		return max( $persisted, $mark );
 	}
 }
