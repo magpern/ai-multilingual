@@ -5,7 +5,7 @@
 **Production-plan baseline:** `ea5af19` (initial plan; amended by subsequent docs commits on `spike/s5`).
 **Selected model:** Strategy F — `aimlBlockId` attribute, segment key grammar `b:<uuid>:<field>`.
 **ADR-0013:** **Accepted** (2026-08-05) — see [F13_ADR_DISPOSITION.md](F13_ADR_DISPOSITION.md).
-**Production readiness:** F13–F14 **complete** on `main` (GA + expanded leaf allowlist). F9–F14 closed on `main`.
+**Production readiness:** F13–F14 **complete** on `main` (GA + expanded leaf allowlist). F9–F14 closed on `main`. Post-v1 priorities: [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) (next: Glossary MVP; no implementation started).
 
 This plan translates spike evidence into implementable Strategy F work packages (F1–F11). It does **not** supersede [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md); it **specializes** the block-identity portion Rev 3 deferred to Spike S5 (§5.2 segment key grammar, `block:N` drift note).
 
@@ -552,10 +552,11 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Production planning | **Allowed** (this document) |
 | Production implementation | **F1–F12 merged** on `main` (F12 tag `strategy-f-f12-limited-rollout-merged`) |
 | Production readiness | **F13–F14 complete** on `main` (expanded leaf allowlist) |
-| Next milestone | Post-v1 roadmap planning (`feature/post-v1-roadmap`) — no implementation started |
+| Next milestone | **Glossary MVP** — see [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md); planning on `feature/post-v1-roadmap`; no implementation started |
 | F13 | **Merged** — tags `strategy-f-f13-general-availability-merged` / `strategy-f-f13-general-availability-complete` |
 | F14 | **Merged** — tag `strategy-f-f14-block-expansion-complete` |
 | ADR-0013 | **Accepted** (2026-08-05) |
+| Post-v1 roadmap | [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) — Glossary → Review → Jobs; nested spike optional |
 
 ---
 
@@ -573,6 +574,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - F11 merge readiness: [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md)
 - F12 Limited rollout: [STRATEGY_F_F12_LIMITED_ROLLOUT.md](STRATEGY_F_F12_LIMITED_ROLLOUT.md) — **Complete** on `main`
 - F13 General Availability: [STRATEGY_F_F13_GENERAL_ROLLOUT.md](STRATEGY_F_F13_GENERAL_ROLLOUT.md) — **Complete** on `main` (validation log PASS; ADR-0013 Accepted)
+- Post-v1 product roadmap: [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) — next: Glossary MVP
 - F10 validation log: [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md)
 - F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2
