@@ -39,6 +39,10 @@ final class BlockRegistry {
 		'core/paragraph',
 		'core/heading',
 		'core/button',
+		'core/list-item',
+		'core/preformatted',
+		'core/verse',
+		'core/code',
 	);
 
 	/**

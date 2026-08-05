@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-08-05T08:32:34Z",
+  "adapter": "core/preformatted",
+  "admission_key": "preformatted",
+  "branch": "feature/f14-block-expansion",
+  "head": "ca012a8d06297dcdeb7424bcaae2b6d5e5ba723e",
+  "post_id": 6349,
+  "results": {
+    "supported_blocks_contains": "PASS",
+    "translated_render": "PASS",
+    "source_language_deny": "PASS",
+    "rendered_false_positives": 0
+  },
+  "overall": "PASS"
+}

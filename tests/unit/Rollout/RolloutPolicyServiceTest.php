@@ -285,11 +285,15 @@ final class RolloutPolicyServiceTest extends TestCase {
 		$this->assertSame( RolloutReasonCodes::ROLLOUT_DISABLED, $decision->reason_code );
 	}
 
-	public function test_supported_blocks_remain_f12_set(): void {
-		$this->assertSame(
-			array( 'core/paragraph', 'core/heading', 'core/button' ),
-			\AIMultilingual\Block\BlockRegistry::SUPPORTED_BLOCKS
-		);
+	public function test_supported_blocks_include_f14_admitted_set(): void {
+		$blocks = \AIMultilingual\Block\BlockRegistry::SUPPORTED_BLOCKS;
+		$this->assertContains( 'core/paragraph', $blocks );
+		$this->assertContains( 'core/heading', $blocks );
+		$this->assertContains( 'core/button', $blocks );
+		$this->assertContains( 'core/list-item', $blocks );
+		$this->assertContains( 'core/preformatted', $blocks );
+		$this->assertContains( 'core/verse', $blocks );
+		$this->assertContains( 'core/code', $blocks );
 	}
 
 	/**

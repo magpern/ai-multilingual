@@ -10,8 +10,12 @@ declare( strict_types=1 );
 namespace AIMultilingual\Block;
 
 use AIMultilingual\Block\Adapter\ButtonAdapter;
+use AIMultilingual\Block\Adapter\CodeAdapter;
 use AIMultilingual\Block\Adapter\HeadingAdapter;
+use AIMultilingual\Block\Adapter\ListItemAdapter;
 use AIMultilingual\Block\Adapter\ParagraphAdapter;
+use AIMultilingual\Block\Adapter\PreformattedAdapter;
+use AIMultilingual\Block\Adapter\VerseAdapter;
 
 /**
  * Explicit adapter lookup by block name.
@@ -34,6 +38,10 @@ final class AdapterRegistry {
 		$this->register( new ParagraphAdapter() );
 		$this->register( new HeadingAdapter() );
 		$this->register( new ButtonAdapter() );
+		$this->register( new ListItemAdapter() );
+		$this->register( new PreformattedAdapter() );
+		$this->register( new VerseAdapter() );
+		$this->register( new CodeAdapter() );
 	}
 
 	/**

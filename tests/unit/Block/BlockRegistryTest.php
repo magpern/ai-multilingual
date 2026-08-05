@@ -27,10 +27,13 @@ final class BlockRegistryTest extends TestCase {
 	}
 
 	public function test_initial_allowlist_contains_proof_blocks(): void {
-		$this->assertSame(
-			array( 'core/paragraph', 'core/heading', 'core/button' ),
-			BlockRegistry::SUPPORTED_BLOCKS
-		);
+		$this->assertContains( 'core/paragraph', BlockRegistry::SUPPORTED_BLOCKS );
+		$this->assertContains( 'core/heading', BlockRegistry::SUPPORTED_BLOCKS );
+		$this->assertContains( 'core/button', BlockRegistry::SUPPORTED_BLOCKS );
+		$this->assertContains( 'core/list-item', BlockRegistry::SUPPORTED_BLOCKS );
+		$this->assertContains( 'core/preformatted', BlockRegistry::SUPPORTED_BLOCKS );
+		$this->assertContains( 'core/verse', BlockRegistry::SUPPORTED_BLOCKS );
+		$this->assertContains( 'core/code', BlockRegistry::SUPPORTED_BLOCKS );
 	}
 
 	public function test_supported_blocks_are_eligible_leaves(): void {
