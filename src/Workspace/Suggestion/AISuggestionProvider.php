@@ -12,13 +12,13 @@ namespace AIMultilingual\Workspace\Suggestion;
 use AIMultilingual\Workspace\TranslationService;
 
 /**
- * Maps TranslationService suggest mode to NormalizedSuggestion (tier 6).
+ * Maps TranslationService suggest mode to NormalizedSuggestion (tier 7).
  */
 final class AISuggestionProvider implements SuggestionProvider {
 
 	public const ID = 'ai';
 
-	public const TIER_AI = 6;
+	public const TIER_AI = 7;
 
 	/**
 	 * Injected dependency.

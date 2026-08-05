@@ -1,0 +1,27 @@
+.aiml-glossary-admin .aiml-glossary-toolbar {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin: 12px 0 20px;
+}
+
+.aiml-glossary-admin .aiml-glossary-form {
+	max-width: 640px;
+	padding: 16px;
+	margin-bottom: 24px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}
+
+.aiml-glossary-admin .aiml-glossary-table {
+	margin-top: 8px;
+}
+
+.aiml-glossary-admin .aiml-glossary-actions {
+	display: flex;
+	gap: 6px;
+}
+
+.aiml-glossary-admin .aiml-glossary-meta {
+	color: #646970;
+}

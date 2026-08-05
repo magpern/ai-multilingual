@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
+use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
 use AIMultilingual\Admin\SettingsPage;
 use AIMultilingual\Admin\TranslatorWorkspace;
@@ -29,9 +30,15 @@ use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
 use AIMultilingual\Frontend\Switcher;
+use AIMultilingual\Glossary\GlossaryCapabilities;
+use AIMultilingual\Glossary\GlossaryMatcher;
+use AIMultilingual\Glossary\GlossaryNormalizer;
+use AIMultilingual\Glossary\GlossaryRepository;
+use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Rest\GlossaryController;
 use AIMultilingual\Rest\ProviderController;
 use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
@@ -67,10 +74,12 @@ use AIMultilingual\Translation\BlockTranslationSanitizer;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\QA\Checks\GlossaryTermCheck;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\PreviewService;
 use AIMultilingual\Workspace\SegmentAssembler;
 use AIMultilingual\Workspace\Suggestion\AISuggestionProvider;
+use AIMultilingual\Workspace\Suggestion\GlossarySuggestionProvider;
 use AIMultilingual\Workspace\Suggestion\TranslationMemorySuggestionProvider;
 use AIMultilingual\Workspace\TranslationService;
 use AIMultilingual\Workspace\TranslationStatusCalculator;
@@ -197,18 +206,26 @@ final class Plugin {
 		$provider_registry->register(
 			ProviderFactory::openai_from_settings( $this->settings, $vault, $profiles )
 		);
+		$glossary_service   = new GlossaryService(
+			new GlossaryRepository(),
+			new GlossaryNormalizer(),
+			new GlossaryMatcher( new GlossaryNormalizer() )
+		);
 		$translation        = new TranslationService(
 			$store,
 			$assembler,
 			$languages,
 			$provider_registry->active(),
-			$profiles
+			$profiles,
+			null,
+			$glossary_service
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$tm_service         = new TranslationMemoryService( new TMRepository() );
 		$suggestion_service = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),
+				new GlossarySuggestionProvider( $glossary_service ),
 				new AISuggestionProvider( $translation ),
 			)
 		);
@@ -216,7 +233,8 @@ final class Plugin {
 			null,
 			! empty( $this->settings->get()['qa_block_on_error'] )
 		);
-		$workspace          = new WorkspaceService(
+		$qa_engine->register( new GlossaryTermCheck( $glossary_service ) );
+		$workspace = new WorkspaceService(
 			$assembler,
 			$status_calculator,
 			$translation,
@@ -237,6 +255,7 @@ final class Plugin {
 		) )->register();
 
 		( new ProviderController( $provider_registry ) )->register();
+		( new GlossaryController( $glossary_service ) )->register();
 
 		( new AttributeRegistrar( $settings, $block_registry ) )->register();
 		( new SavePipeline( $settings, $uuid_injector, $extractor ) )->register();
@@ -258,6 +277,7 @@ final class Plugin {
 			( new RolloutAdminPage() )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
 			( new TranslatorWorkspace( $languages ) )->register();
+			( new GlossaryAdminPage( $languages ) )->register();
 
 			// Bind-mount deployments update files in place and never fire the
 			// activation hook, so schema drift has to be caught on its own.
@@ -320,6 +340,7 @@ final class Plugin {
 
 		self::grant_capability();
 		RolloutCapabilities::grant_default_roles();
+		GlossaryCapabilities::grant_default_roles();
 	}
 
 	/**

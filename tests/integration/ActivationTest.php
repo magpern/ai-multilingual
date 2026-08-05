@@ -23,7 +23,7 @@ final class ActivationTest extends AimlTestCase {
 	public function test_both_milestone_one_tables_exist(): void {
 		global $wpdb;
 
-		foreach ( array( Schema::languages(), Schema::translations(), Schema::tm() ) as $table ) {
+		foreach ( array( Schema::languages(), Schema::translations(), Schema::tm(), Schema::glossary() ) as $table ) {
 			$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 
 			$this->assertSame( $table, $found, "Table {$table} should exist after activation." );

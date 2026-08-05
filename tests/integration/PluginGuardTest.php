@@ -122,6 +122,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Language/Languages.php',
 			'src/Translation/Store.php',
 			'src/Translation/Memory/TMRepository.php',
+			'src/Glossary/GlossaryRepository.php',
 			'src/Rollout/Metrics/RolloutMetricsRepository.php',
 		);
 
@@ -169,6 +170,7 @@ final class PluginGuardTest extends AimlTestCase {
 			array(
 				'src/Rest/WorkspaceController.php',
 				'src/Rest/ProviderController.php',
+				'src/Rest/GlossaryController.php',
 			)
 		);
 	}

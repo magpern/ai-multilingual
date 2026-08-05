@@ -2,26 +2,26 @@
 
 ## Status
 
-**Proposed** (2026-08-05) — Glossary MVP architecture.
+**Accepted** (2026-08-05) — Glossary MVP platform lexicon architecture.
 
-**Implementation gate:** Schema work (G1) and all subsequent Glossary code **must not begin** until **exactly one** of the following exists:
+**Decision maker:** Product Owner  
+**Approval date:** 2026-08-05  
+**Decision:** ADR-0014 Accepted  
+**Scope:** Glossary MVP platform lexicon architecture exactly as defined in this ADR and the frozen [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](../plans/GLOSSARY_MVP_IMPLEMENTATION_PLAN.md).
 
-**A) ADR Accepted** — this document’s Status is updated to **Accepted** with acceptance date.
+**Residual risks accepted:**
 
-**B) Product Owner provisional approval** — a written record (linked from this ADR and the Glossary plan) that contains **all** of:
+- Unicode whole-word matching has documented MVP limits
+- Glossary ranking changes F11 tier numbering as explicitly documented
+- New persistent table and schema migration v4
+- Glossary version is a stamp and does not automatically invalidate TM or rendered content
+- Warning-only glossary QA may permit terminology deviations
 
-| Required field | Purpose |
-|---|---|
-| Decision maker | Named Product Owner (or delegated authority) |
-| Approval date | ISO date of provisional approval |
-| Explicit scope | What G1+ work is authorized under provisional status |
-| Residual risks accepted | Risks accepted while Status remains Proposed |
-| Mandatory review date | Date by which Accepted/reject must be re-evaluated |
-| Expiration / revalidation point | When provisional approval expires if not revalidated |
+**Review point:** Glossary MVP closure review  
 
-A generic “proceed despite Proposed” statement **without** the fields above is **not** sufficient.
+**Revalidation trigger:** schema redesign; new glossary ownership model; multiple glossary providers; automatic TM/glossary synchronization; breaking public API change; provider-owned glossary persistence.
 
-Silent continuation past G0 is forbidden.
+**Implementation gate:** **Closed (implementation complete)** — G1–G7 delivered on `feature/glossary-mvp`; see [GLOSSARY_MVP_VALIDATION_LOG.md](../plans/GLOSSARY_MVP_VALIDATION_LOG.md). Gate A (Accepted) satisfied. Gate B (provisional approval) is **not applicable**.
 
 Canonical plan: [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](../plans/GLOSSARY_MVP_IMPLEMENTATION_PLAN.md).  
 Product context: [POST_V1_PRODUCT_ROADMAP.md](../plans/POST_V1_PRODUCT_ROADMAP.md).
@@ -98,12 +98,6 @@ Only exact-segment glossary suggestions participate. This renumber of fuzzy/AI i
 - Fuzzy TM and AI tier constants must change (callers/tests updated).
 - Matching/normalization must be carefully tested (Unicode, whole-word).
 
-### Residual risks until Accepted
-
-- Implementing G1 while Status remains Proposed leaves schema ownership undecided if the ADR is later rejected.
-- Provisional approval (gate B) must expire or be revalidated; it is not a permanent substitute for Accepted.
-- Missing any required provisional-approval field invalidates the implementation gate.
-
 ## Alternatives considered
 
 | Alternative | Why rejected |
@@ -117,17 +111,7 @@ Only exact-segment glossary suggestions participate. This renumber of fuzzy/AI i
 
 ## Provisional approval log
 
-| Field | Value |
-|---|---|
-| Decision maker | _pending_ |
-| Approval date | _pending_ |
-| Explicit scope | _pending_ |
-| Residual risks accepted | _pending_ |
-| Mandatory review date | _pending_ |
-| Expiration / revalidation point | _pending_ |
-| Link to record | _pending_ |
-
-Fill this table only when gate **B** is used. Prefer gate **A** (Accepted).
+**Not applicable** — ADR-0014 is fully **Accepted** (gate A). Gate B provisional approval was not used.
 
 ## References
 

@@ -87,14 +87,21 @@ final class QAEngine {
 	/**
 	 * Evaluates one segment (content only).
 	 *
-	 * @param string $source_text Source text.
-	 * @param string $target_text Target text.
-	 * @param string $text_format Text format.
+	 * @param string               $source_text Source text.
+	 * @param string               $target_text Target text.
+	 * @param string               $text_format Text format.
+	 * @param array<string, mixed> $context     Optional language pair context.
 	 */
-	public function evaluate( string $source_text, string $target_text, string $text_format ): QAResult {
+	public function evaluate( string $source_text, string $target_text, string $text_format, array $context = array() ): QAResult {
 		$issues = array();
 
+		$source_lang = (int) ( $context['source_language_id'] ?? 0 );
+		$target_lang = (int) ( $context['target_language_id'] ?? 0 );
+
 		foreach ( $this->checks as $check ) {
+			if ( $check instanceof GlossaryLanguageAware && $source_lang > 0 && $target_lang > 0 ) {
+				$check->set_language_pair( $source_lang, $target_lang );
+			}
 			foreach ( $check->check( $source_text, $target_text, $text_format ) as $issue ) {
 				$issues[] = $issue;
 			}
