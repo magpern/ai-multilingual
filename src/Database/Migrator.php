@@ -35,7 +35,7 @@ final class Migrator {
 	/**
 	 * Schema version this build expects.
 	 */
-	public const TARGET = 4;
+	public const TARGET = 5;
 
 	/**
 	 * Applies any migration steps newer than the recorded version.
@@ -86,6 +86,7 @@ final class Migrator {
 			2 => array( $this, 'step_2_translation_memory' ),
 			3 => array( $this, 'step_3_rollout_metrics_daily' ),
 			4 => array( $this, 'step_4_glossary' ),
+			5 => array( $this, 'step_5_review_workflow' ),
 		);
 	}
 
@@ -131,6 +132,54 @@ final class Migrator {
 
 		if ( false === get_option( Schema::GLOSSARY_VERSION_OPTION, false ) ) {
 			add_option( Schema::GLOSSARY_VERSION_OPTION, 0, '', true );
+		}
+	}
+
+	/**
+	 * Step 5 — Review Workflow additive columns on the Store (ADR-0015).
+	 *
+	 * Existing rows keep translation content and TM links. Review defaults to
+	 * `not_submitted` (fail closed for legacy `status=reviewed`). Columns are
+	 * added one at a time so an interrupted upgrade can resume safely.
+	 */
+	private function step_5_review_workflow(): void {
+		global $wpdb;
+
+		$table = Schema::translations();
+
+		$columns = array(
+			'review_status'              => "VARCHAR(24) NOT NULL DEFAULT 'not_submitted'",
+			'review_submitted_by'        => 'BIGINT UNSIGNED NULL',
+			'review_submitted_at'        => 'DATETIME NULL',
+			'submitted_translation_hash' => "CHAR(40) NOT NULL DEFAULT ''",
+			'rejection_reason'           => "VARCHAR(512) NOT NULL DEFAULT ''",
+			'rejected_by'                => 'BIGINT UNSIGNED NULL',
+			'rejected_at'                => 'DATETIME NULL',
+		);
+
+		foreach ( $columns as $name => $definition ) {
+			if ( Schema::column_exists( $table, $name ) ) {
+				continue;
+			}
+
+			$escaped_table = str_replace( '`', '``', $table );
+			$escaped_name  = str_replace( '`', '``', $name );
+
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- additive DDL; identifiers from Schema only.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				"ALTER TABLE `{$escaped_table}` ADD COLUMN `{$escaped_name}` {$definition}"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		if ( ! Schema::index_exists( $table, 'lang_review_queue' ) ) {
+			$escaped_table = str_replace( '`', '``', $table );
+
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- additive DDL; identifiers from Schema only.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				"ALTER TABLE `{$escaped_table}` ADD KEY lang_review_queue (language_id, review_status, review_submitted_at)"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
 	}
 }

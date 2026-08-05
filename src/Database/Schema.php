@@ -170,6 +170,13 @@ final class Schema {
 			translated_by    BIGINT UNSIGNED   NULL,
 			reviewed_by      BIGINT UNSIGNED   NULL,
 			reviewed_at      DATETIME          NULL,
+			review_status    VARCHAR(24)       NOT NULL DEFAULT 'not_submitted',
+			review_submitted_by BIGINT UNSIGNED NULL,
+			review_submitted_at DATETIME       NULL,
+			submitted_translation_hash CHAR(40) NOT NULL DEFAULT '',
+			rejection_reason VARCHAR(512)      NOT NULL DEFAULT '',
+			rejected_by      BIGINT UNSIGNED   NULL,
+			rejected_at      DATETIME          NULL,
 			error_code       VARCHAR(32)       NOT NULL DEFAULT '',
 			error_message    VARCHAR(500)      NOT NULL DEFAULT '',
 			created_at       DATETIME          NOT NULL,
@@ -179,8 +186,62 @@ final class Schema {
 			KEY object_lang (source_type, source_id, language_id, segment_order),
 			KEY lang_status (language_id, status, is_stale),
 			KEY lang_subtype (language_id, source_type, source_subtype, status),
-			KEY stale_sweep (language_id, is_stale, updated_at)
+			KEY stale_sweep (language_id, is_stale, updated_at),
+			KEY lang_review_queue (language_id, review_status, review_submitted_at)
 		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * Whether a column exists on a plugin-owned table.
+	 *
+	 * Used by additive migrations so interrupted upgrades can resume without
+	 * failing on duplicate column names.
+	 *
+	 * @param string $table  Fully qualified table name from Schema helpers.
+	 * @param string $column Column name.
+	 */
+	public static function column_exists( string $table, string $column ): bool {
+		global $wpdb;
+
+		// Table names come only from Schema::*() helpers — never from request input.
+		$escaped_table = str_replace( '`', '``', $table );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- trusted Schema table name.
+		$found = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				"SHOW COLUMNS FROM `{$escaped_table}` LIKE %s",
+				$column
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return ! empty( $found );
+	}
+
+	/**
+	 * Whether a named index exists on a plugin-owned table.
+	 *
+	 * @param string $table Fully qualified table name from Schema helpers.
+	 * @param string $index Index / key name.
+	 */
+	public static function index_exists( string $table, string $index ): bool {
+		global $wpdb;
+
+		$escaped_table = str_replace( '`', '``', $table );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- trusted Schema table name.
+		$indexes = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared
+			"SHOW INDEX FROM `{$escaped_table}`"
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		foreach ( (array) $indexes as $row ) {
+			if ( isset( $row->Key_name ) && $index === (string) $row->Key_name ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

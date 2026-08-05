@@ -8,6 +8,7 @@
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md)
 
 **R0 gate:** **PASS** — ADR-0015 Accepted — R1 implementation authorized.  
+**R1 status:** **PASS** — Migrator `TARGET=5`; additive review columns + `lang_review_queue`.
 **Implementation scope / WP order (R0–R7):** Unchanged.
 
 ---
