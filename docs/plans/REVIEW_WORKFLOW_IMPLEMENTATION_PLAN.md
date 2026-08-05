@@ -9,6 +9,7 @@
 
 **R0 gate:** **PASS** — ADR-0015 Accepted — R1 implementation authorized.  
 **R1 status:** **PASS** — Migrator `TARGET=5`; additive review columns + `lang_review_queue`.
+**R2 status:** **PASS** — Store review metadata, invalidate-on-edit, no-op preserve.
 **Implementation scope / WP order (R0–R7):** Unchanged.
 
 ---

@@ -59,6 +59,14 @@ final class Store {
 	public const STATUS_IGNORED            = 'ignored';
 
 	/**
+	 * Review Workflow axis (ADR-0015). Independent of provenance `status`.
+	 */
+	public const REVIEW_NOT_SUBMITTED = 'not_submitted';
+	public const REVIEW_PENDING       = 'pending';
+	public const REVIEW_APPROVED      = 'approved';
+	public const REVIEW_REJECTED      = 'rejected';
+
+	/**
 	 * Segment kinds.
 	 */
 	public const KIND_FIELD = 'field';
@@ -114,6 +122,48 @@ final class Store {
 			self::STATUS_FAILED,
 			self::STATUS_IGNORED,
 		);
+	}
+
+	/**
+	 * Every known review-status value (ADR-0015).
+	 *
+	 * @return string[]
+	 */
+	public static function review_statuses(): array {
+		return array(
+			self::REVIEW_NOT_SUBMITTED,
+			self::REVIEW_PENDING,
+			self::REVIEW_APPROVED,
+			self::REVIEW_REJECTED,
+		);
+	}
+
+	/**
+	 * Column map that clears active review decisions (invalidate-on-edit).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function review_clear_fields(): array {
+		return array(
+			'review_status'              => self::REVIEW_NOT_SUBMITTED,
+			'review_submitted_by'        => null,
+			'review_submitted_at'        => null,
+			'submitted_translation_hash' => '',
+			'reviewed_by'                => null,
+			'reviewed_at'                => null,
+			'rejection_reason'           => '',
+			'rejected_by'                => null,
+			'rejected_at'                => null,
+		);
+	}
+
+	/**
+	 * Allowlisted review-metadata column names.
+	 *
+	 * @return string[]
+	 */
+	public static function review_metadata_columns(): array {
+		return array_keys( self::review_clear_fields() );
 	}
 
 	/**
@@ -602,6 +652,8 @@ final class Store {
 
 		$now = current_time( 'mysql', true );
 
+		$translation_hash = self::translation_hash( $translated_text );
+
 		$data = array(
 			'source_type'      => $source_type,
 			'source_id'        => $source_id,
@@ -617,15 +669,45 @@ final class Store {
 			'source_hash'      => self::source_hash( $source_text, $format ),
 			'norm_version'     => self::NORM_VERSION,
 			'translated_text'  => $translated_text,
-			'translation_hash' => self::translation_hash( $translated_text ),
+			'translation_hash' => $translation_hash,
 			'status'           => $status,
 			'is_stale'         => 0,
 			'translated_by'    => (int) ( $args['translated_by'] ?? get_current_user_id() ),
 			'updated_at'       => $now,
 		);
 
+		$existing     = $this->get( $source_type, $source_id, $language_id, $segment_key );
+		$prior_hash   = null === $existing ? '' : (string) ( $existing->translation_hash ?? '' );
+		$text_changed = null === $existing || $prior_hash !== $translation_hash;
+
+		if ( $text_changed ) {
+			$data = array_merge( $data, self::review_clear_fields() );
+		}
+
 		$this->upsert( $data, $now );
 		$this->invalidate( $source_type, $source_id, $language_id );
+
+		if ( $text_changed && null !== $existing && function_exists( 'do_action' ) ) {
+			/**
+			 * Fires when a material translation edit clears prior review state.
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param string $source_type Source type.
+			 * @param int    $source_id   Source object ID.
+			 * @param int    $language_id Language ID.
+			 * @param string $segment_key Segment key.
+			 * @param string $old_review  Previous review_status.
+			 */
+			\do_action(
+				'aiml_review_invalidated_by_edit',
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				(string) ( $existing->review_status ?? self::REVIEW_NOT_SUBMITTED )
+			);
+		}
 
 		if ( function_exists( 'do_action' ) ) {
 			/**
@@ -639,6 +721,79 @@ final class Store {
 			 */
 			\do_action( 'aiml_translation_saved', $source_type, $source_id, $language_id );
 		}
+
+		return true;
+	}
+
+	/**
+	 * Updates allowlisted review-metadata columns without changing translation content.
+	 *
+	 * @param string               $source_type Source type.
+	 * @param int                  $source_id   Source object id.
+	 * @param int                  $language_id Language id.
+	 * @param string               $segment_key Segment key.
+	 * @param array<string, mixed> $fields      Review columns only.
+	 * @return true|WP_Error
+	 */
+	public function update_review_metadata(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		array $fields
+	) {
+		$allowed = self::review_metadata_columns();
+		$data    = array();
+
+		foreach ( $fields as $column => $value ) {
+			if ( ! in_array( (string) $column, $allowed, true ) ) {
+				continue;
+			}
+
+			$data[ (string) $column ] = $value;
+		}
+
+		if ( array() === $data ) {
+			return new WP_Error( 'aiml_invalid_review_fields', __( 'No review metadata fields provided.', 'ai-multilingual' ) );
+		}
+
+		if ( isset( $data['review_status'] ) && ! in_array( (string) $data['review_status'], self::review_statuses(), true ) ) {
+			return new WP_Error( 'aiml_invalid_review_status', __( 'Unknown review status.', 'ai-multilingual' ) );
+		}
+
+		$existing = $this->get( $source_type, $source_id, $language_id, $segment_key );
+		if ( null === $existing ) {
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+		}
+
+		$data['updated_at'] = current_time( 'mysql', true );
+
+		$formats = array();
+		foreach ( $data as $column => $value ) {
+			if ( null === $value ) {
+				$formats[] = null;
+			} elseif ( is_int( $value ) ) {
+				$formats[] = '%d';
+			} else {
+				$formats[] = '%s';
+			}
+		}
+
+		global $wpdb;
+
+		$result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::translations(),
+			$data,
+			array( 'translation_id' => (int) $existing->translation_id ),
+			$formats,
+			array( '%d' )
+		);
+
+		if ( false === $result ) {
+			return new WP_Error( 'aiml_review_update_failed', __( 'Could not update review metadata.', 'ai-multilingual' ) );
+		}
+
+		$this->invalidate( $source_type, $source_id, $language_id );
 
 		return true;
 	}
@@ -777,6 +932,11 @@ final class Store {
 		foreach ( $columns as $column ) {
 			$value = $data[ $column ];
 
+			if ( null === $value ) {
+				$placeholders[] = 'NULL';
+				continue;
+			}
+
 			if ( is_int( $value ) ) {
 				$placeholders[] = '%d';
 			} else {
@@ -796,6 +956,11 @@ final class Store {
 		$sql = 'INSERT INTO ' . Schema::translations()
 			. ' (' . implode( ', ', $columns ) . ') VALUES (' . implode( ', ', $placeholders ) . ')'
 			. ' ON DUPLICATE KEY UPDATE ' . implode( ', ', $assignments );
+
+		if ( array() === $values ) {
+			$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			return;
+		}
 
 		$wpdb->query( $wpdb->prepare( $sql, $values ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 	}
@@ -827,6 +992,24 @@ final class Store {
 		$row->segment_key    = (string) $row->segment_key;
 		$row->field_key      = (string) $row->field_key;
 		$row->text_format    = (string) $row->text_format;
+
+		if ( isset( $row->review_status ) ) {
+			$row->review_status = (string) $row->review_status;
+		} else {
+			$row->review_status = self::REVIEW_NOT_SUBMITTED;
+		}
+
+		$row->submitted_translation_hash = (string) ( $row->submitted_translation_hash ?? '' );
+		$row->rejection_reason           = (string) ( $row->rejection_reason ?? '' );
+		$row->review_submitted_by        = null !== ( $row->review_submitted_by ?? null ) && '' !== (string) $row->review_submitted_by
+			? (int) $row->review_submitted_by
+			: null;
+		$row->reviewed_by                = null !== ( $row->reviewed_by ?? null ) && '' !== (string) $row->reviewed_by
+			? (int) $row->reviewed_by
+			: null;
+		$row->rejected_by                = null !== ( $row->rejected_by ?? null ) && '' !== (string) $row->rejected_by
+			? (int) $row->rejected_by
+			: null;
 
 		return $row;
 	}
