@@ -1,9 +1,9 @@
 # F14 Implementation Summary — Supported Gutenberg Block Expansion
 
-**Status:** Implementation complete on `feature/f14-block-expansion`  
+**Status:** Complete — merged to `main`  
 **Baseline:** `main` @ F13 merge (`14e0a38f3` / `strategy-f-f13-general-availability-merged`)  
 **Date:** 2026-08-05  
-**Merge/tag:** Not performed (per F14 execution rules)
+**Merge/tag:** Merged; tag `strategy-f-f14-block-expansion-complete`
 
 ---
 

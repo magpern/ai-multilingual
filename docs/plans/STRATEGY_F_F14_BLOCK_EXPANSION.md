@@ -1,6 +1,6 @@
 # F14 — Supported Gutenberg Block Expansion
 
-**Status:** **Implementation complete** on `feature/f14-block-expansion` (merge/tag not authorized)  
+**Status:** **Complete** — merged to `main`; tag `strategy-f-f14-block-expansion-complete`  
 **Baseline:** `main` @ F13 merge (`strategy-f-f13-general-availability-merged`)  
 **Canonical ownership:** Expand Strategy F allowlist one leaf adapter at a time.  
 **Does not change:** UUID, Store, TM, AI, Workspace, rollout/policy/cohort, render pipeline, cache, metrics, REST, security.

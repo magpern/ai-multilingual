@@ -1,7 +1,7 @@
 # F14 Block Expansion Validation Log
 
-**Status:** **PASS** — implementation complete on `feature/f14-block-expansion`; merge/tag **not authorized**.  
-**Branch:** `feature/f14-block-expansion`  
+**Status:** **PASS** — F14 complete; merged to `main`.  
+**Branch:** `feature/f14-block-expansion` → `main`  
 **Environment:** `dev.biopentra.eu`  
 **Date:** 2026-08-05  
 **Canonical plan:** [STRATEGY_F_F14_BLOCK_EXPANSION.md](STRATEGY_F_F14_BLOCK_EXPANSION.md)  
@@ -32,7 +32,7 @@
 | All adapters admitted | **PASS** |
 | Final Tier 0 | **PASS** |
 | Cumulative F14 adapter smoke | **PASS** (FP=0 × 4) |
-| Merge/tag | **Not authorized** (implementation branch only) |
+| Merge/tag | **Complete** — merge on `main`; tag `strategy-f-f14-block-expansion-complete` |
 
 ---
 
