@@ -12,7 +12,7 @@
 | Adapter | Render-safety | PHPUnit | Browser | Docs | Log | SUPPORTED_BLOCKS | Overall |
 |---|---|---|---|---|---|---|---|
 | `core/list-item` | PASS | PASS | PASS | PASS | PASS | PASS | **PASS** — [F14_ADMISSION_list_item_EVIDENCE.json](F14_ADMISSION_list_item_EVIDENCE.json) |
-| `core/preformatted` | — | — | — | — | — | — | pending |
+| `core/preformatted` | PASS | PASS | PASS | PASS | PASS | PASS | **PASS** — [F14_ADMISSION_preformatted_EVIDENCE.json](F14_ADMISSION_preformatted_EVIDENCE.json) |
 | `core/verse` | — | — | — | — | — | — | pending |
 | `core/code` | — | — | — | — | — | — | pending |
 
@@ -24,6 +24,7 @@
 |---|---|
 | F14.0 scaffold | **PASS** |
 | F14.1 `core/list-item` | **PASS** |
+| F14.2 `core/preformatted` | **PASS** |
 | All adapters admitted | pending |
 | Final Tier 0 | pending |
 | Merge/tag | **Not authorized** (implementation branch only) |

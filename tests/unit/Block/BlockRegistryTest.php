@@ -31,6 +31,7 @@ final class BlockRegistryTest extends TestCase {
 		$this->assertContains( 'core/heading', BlockRegistry::SUPPORTED_BLOCKS );
 		$this->assertContains( 'core/button', BlockRegistry::SUPPORTED_BLOCKS );
 		$this->assertContains( 'core/list-item', BlockRegistry::SUPPORTED_BLOCKS );
+		$this->assertContains( 'core/preformatted', BlockRegistry::SUPPORTED_BLOCKS );
 	}
 
 	public function test_supported_blocks_are_eligible_leaves(): void {

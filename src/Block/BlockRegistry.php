@@ -40,6 +40,7 @@ final class BlockRegistry {
 		'core/heading',
 		'core/button',
 		'core/list-item',
+		'core/preformatted',
 	);
 
 	/**

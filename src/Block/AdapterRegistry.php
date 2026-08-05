@@ -13,6 +13,7 @@ use AIMultilingual\Block\Adapter\ButtonAdapter;
 use AIMultilingual\Block\Adapter\HeadingAdapter;
 use AIMultilingual\Block\Adapter\ListItemAdapter;
 use AIMultilingual\Block\Adapter\ParagraphAdapter;
+use AIMultilingual\Block\Adapter\PreformattedAdapter;
 
 /**
  * Explicit adapter lookup by block name.
@@ -36,6 +37,7 @@ final class AdapterRegistry {
 		$this->register( new HeadingAdapter() );
 		$this->register( new ButtonAdapter() );
 		$this->register( new ListItemAdapter() );
+		$this->register( new PreformattedAdapter() );
 	}
 
 	/**
