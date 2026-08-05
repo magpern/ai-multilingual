@@ -18,7 +18,7 @@
 | F12 planning | **This document** — architecture **frozen** for implementation |
 | F12 production implementation | **Not started** |
 | F12 nature | **Operational rollout only** — not translator product development |
-| F13 | Remains **general rollout** + ADR acceptance |
+| F13 | Remains **General Availability** + ADR acceptance (GA-only; adapter expansion deferred to F14 — see [STRATEGY_F_F13_GENERAL_ROLLOUT.md](STRATEGY_F_F13_GENERAL_ROLLOUT.md)) |
 | F11 | Remains **complete** |
 | Architecture-changing deviations | Require an **ADR** or **approved plan revision** |
 
@@ -101,7 +101,7 @@ F12 must not introduce performance optimizations that are not justified by measu
 |---|---|
 | **F11** | Translator productivity complete |
 | **F12** | Operate a **limited production cohort** with kill switches, telemetry, metrics, diagnostics, performance budgets, optional cache, and proven rollback |
-| **F13** | General rollout + ADR-0013 acceptance path |
+| **F13** | General Availability + ADR-0013 acceptance path (feature coverage frozen; adapters → F14) |
 
 **F12 success** means operators can promote/rollback stages safely, observe bounded metrics, and keep public visitors on source when policy denies or systems fail — without adding translator features.
 
@@ -1205,8 +1205,9 @@ F12 is done only when:
 
 | Deferred | Owner milestone |
 |---|---|
-| General production approval | F13 |
+| General production approval | F13 (GA-only; see STRATEGY_F_F13_GENERAL_ROLLOUT.md) |
 | ADR-0013 acceptance | F13 + human checklist |
+| Supported Gutenberg block expansion | **F14** (deferred from F13; admission process unchanged) |
 | Percentage/hash cohorts | Post-F12 if ever |
 | New translator features (glossary, review workflow, job queues) | Later milestones / ADR-0011 |
 | Billing analytics | Out of scope |

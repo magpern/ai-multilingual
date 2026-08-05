@@ -43,8 +43,8 @@ The schema and interfaces do not block any of them.
 
 ## Strategy F production track
 
-Block-identity production work (F1–F13) runs in parallel with roadmap
-milestones. As of 2026-08-03:
+Block-identity production work (F1–F14) runs in parallel with roadmap
+milestones. As of 2026-08-05:
 
 | Milestone | Status |
 |---|---|
@@ -52,4 +52,5 @@ milestones. As of 2026-08-03:
 | **F10** Translator Workspace MVP | **Complete** — merged to `main`; see [F10 validation log](plans/F10_TRANSLATOR_VALIDATION_LOG.md) |
 | **F11** Translation Memory & AI Assistance | **Complete** — [canonical plan](plans/STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md); [validation log](plans/F11_TRANSLATOR_VALIDATION_LOG.md) PASS; tags `strategy-f-f11-tm-ai-complete` / `strategy-f-f11-tm-ai-merged` |
 | **F12** Limited rollout | **Complete** — merged to `main`; [validation log PASS](plans/F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) |
-| **F13** General rollout + ADR acceptance | **Next** — requires F13 gate + ADR-0013 review (**Proposed**) |
+| **F13** General Availability + ADR acceptance | **Next** — GA-only; feature coverage frozen at F12 block set; [canonical plan](plans/STRATEGY_F_F13_GENERAL_ROLLOUT.md); requires F12 §20 gate + ADR-0013 disposition (**Proposed**) |
+| **F14** Supported Gutenberg Block Expansion | **Deferred** — owns adapter admission / `SUPPORTED_BLOCKS` expansion after F13 GA closes; see F13 plan §12 |
