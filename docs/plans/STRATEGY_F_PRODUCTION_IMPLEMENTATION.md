@@ -4,9 +4,8 @@
 **Spike evidence baseline:** `42237bd` (S5 complete; merged to `main` via PR #1).
 **Production-plan baseline:** `ea5af19` (initial plan; amended by subsequent docs commits on `spike/s5`).
 **Selected model:** Strategy F — `aimlBlockId` attribute, segment key grammar `b:<uuid>:<field>`.
-**ADR-0013:** Proposed — not Accepted.
-**Production implementation:** F1–F7 merged (`strategy-f-phase1-f1-f7`); F8 operational controls complete on `feature/f8-operations` (see [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)).
-**Production readiness:** Not approved (F13 General Availability + ADR-0013 acceptance pending; adapters deferred to F14). F9–F12 closed.
+**ADR-0013:** **Accepted** (2026-08-05) — see [F13_ADR_DISPOSITION.md](F13_ADR_DISPOSITION.md).
+**Production readiness:** Not approved for merge/tag yet (F13 complete on feature branch; observation window residual through 2026-08-12). F9–F12 closed on `main`.
 
 This plan translates spike evidence into implementable Strategy F work packages (F1–F11). It does **not** supersede [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md); it **specializes** the block-identity portion Rev 3 deferred to Spike S5 (§5.2 segment key grammar, `block:N` drift note).
 
@@ -502,8 +501,8 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | **F10** Translator Workspace MVP | See [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) — **Complete**; [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md) PASS | F9 | AC-1–AC-13 in F10 plan | — |
 | **F11** Translation Memory & AI Assistance | See [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) — **Complete**; [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md) PASS | F10 | AC-1–AC-15 in F11 plan | — |
 | **F12** Limited rollout | See [STRATEGY_F_F12_LIMITED_ROLLOUT.md](STRATEGY_F_F12_LIMITED_ROLLOUT.md) — **Complete** on `main`; [validation log](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) PASS. **No new translator features.** | F8, F11 | F12 ACs + stage metrics | §15.4 rollback + F12 emergency order |
-| **F13** General Availability + ADR acceptance | See [STRATEGY_F_F13_GENERAL_ROLLOUT.md](STRATEGY_F_F13_GENERAL_ROLLOUT.md) — **GA-only**; feature coverage frozen at F12 block set (`paragraph`/`heading`/`button`). Requires F12 §20 entry gate + ADR disposition. **No adapter expansion.** | F12 + ADR checklist | Production approved at F12 feature set | §15.4 |
-| **F14** Supported Gutenberg Block Expansion | Deferred — one adapter at a time via unchanged admission process; no rollout/policy/renderer/UUID/Store redesign. See F13 plan §12. | F13 DoD | Per-adapter admission gates | Disable new adapters / allowlist |
+| **F13** General Availability + ADR acceptance | See [STRATEGY_F_F13_GENERAL_ROLLOUT.md](STRATEGY_F_F13_GENERAL_ROLLOUT.md) — **Complete** on `feature/f13-general-availability`; [validation log](F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md) PASS. **GA-only**; feature coverage frozen. **No adapter expansion.** | F12 + ADR checklist | Production approved at F12 feature set (pending merge) | §15.4 |
+| **F14** Supported Gutenberg Block Expansion | Deferred — one adapter at a time via unchanged admission process; no rollout/policy/renderer/UUID/Store redesign. See F13 plan §12. | F13 DoD + merge | Per-adapter admission gates | Disable new adapters / allowlist |
 
 **Renderer architecture acceptance:** F6 must not begin until F5 proof is explicitly accepted and recorded.
 
@@ -552,10 +551,10 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
 | Production implementation | **F1–F12 merged** on `main` (F12 tag `strategy-f-f12-limited-rollout-merged`) |
-| Production readiness | **Not approved** (F13 General Availability + ADR-0013 acceptance pending) |
-| Next milestone | **F13** General Availability (GA-only; adapters → F14) — F12 **complete** on `main` |
-| F12 | **Merged** — tag `strategy-f-f12-limited-rollout-merged` |
-| ADR-0013 | **Proposed** |
+| Production readiness | **Not merge-approved yet** (F13 complete on feature branch; observation window residual through 2026-08-12) |
+| Next milestone | **F14** Supported Gutenberg Block Expansion — after F13 merge |
+| F13 | **Complete** on `feature/f13-general-availability` — validation log PASS; ADR-0013 **Accepted** |
+| ADR-0013 | **Accepted** (2026-08-05) |
 
 ---
 
@@ -572,7 +571,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - F11 performance baseline: [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md)
 - F11 merge readiness: [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md)
 - F12 Limited rollout: [STRATEGY_F_F12_LIMITED_ROLLOUT.md](STRATEGY_F_F12_LIMITED_ROLLOUT.md) — **Complete** on `main`
-- F13 General Availability: [STRATEGY_F_F13_GENERAL_ROLLOUT.md](STRATEGY_F_F13_GENERAL_ROLLOUT.md) — **Frozen** (GA-only; adapters → F14)
+- F13 General Availability: [STRATEGY_F_F13_GENERAL_ROLLOUT.md](STRATEGY_F_F13_GENERAL_ROLLOUT.md) — **Complete** on feature branch (validation log PASS; ADR-0013 Accepted)
 - F10 validation log: [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md)
 - F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2

@@ -62,8 +62,8 @@ See [F12_PO_DECISION_SHEET.md](F12_PO_DECISION_SHEET.md).
 |---|---|
 | F12 merge to `main` | **Authorized** |
 | F12 tag | `strategy-f-f12-limited-rollout-merged` |
-| F13-ready | **No** — ADR-0013 review + F13 gate still required |
-| ADR-0013 | **Proposed** (explicit review pending) |
+| F13-ready | **Engineering complete** on `feature/f13-general-availability` — see [F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md](F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md); observation window residual through 2026-08-12 before merge |
+| ADR-0013 | **Accepted** (2026-08-05) |
 
 ---
 
