@@ -3,19 +3,28 @@ import { __, sprintf } from '@wordpress/i18n';
 
 import type { SegmentRow } from '../types/segment-row';
 import { qaFromSegment, suggestionsFromSegment } from '../utils/meta';
+import { canDecideReview, canSubmitForReview } from '../utils/review-status';
 import { segmentStatusLabel } from '../utils/segment-status';
 import QAPanel from './QAPanel';
+import ReviewMetaSummary from './ReviewMetaSummary';
+import ReviewStatusBadge from './ReviewStatusBadge';
 import SuggestionPanel from './SuggestionPanel';
 
 interface SegmentRowViewProps {
 	row: SegmentRow;
 	selected: boolean;
 	suggesting?: boolean;
+	canReview: boolean;
 	onToggleSelect: ( segmentKey: string, checked: boolean ) => void;
 	onDraftChange: ( segmentKey: string, value: string ) => void;
 	onSave: ( segmentKey: string ) => void;
 	onReload: ( segmentKey: string ) => void;
 	onSuggestProfile?: ( segmentKey: string, profile: string ) => void;
+	onSubmitReview: ( segmentKey: string ) => void;
+	onRequestReviewDecision: (
+		segmentKeys: string[],
+		action: 'approve' | 'reject'
+	) => void;
 }
 
 function rowStateLabel( row: SegmentRow ): string {
@@ -39,15 +48,20 @@ export default function SegmentRowView( {
 	row,
 	selected,
 	suggesting = false,
+	canReview,
 	onToggleSelect,
 	onDraftChange,
 	onSave,
 	onReload,
 	onSuggestProfile,
+	onSubmitReview,
+	onRequestReviewDecision,
 }: SegmentRowViewProps ) {
 	const { server } = row;
 	const suggestions = suggestionsFromSegment( server );
 	const qa = qaFromSegment( server );
+	const showSubmitReview = canSubmitForReview( server );
+	const showReviewDecision = canReview && canDecideReview( server );
 	const sourceId = `aiml-source-${ server.segment_key.replace(
 		/[^a-z0-9_-]/gi,
 		'-'
@@ -185,6 +199,7 @@ export default function SegmentRowView( {
 						{ row.errorMessage }
 					</Notice>
 				) }
+				<ReviewMetaSummary review={ server } />
 				{ editable && (
 					<>
 						<SuggestionPanel
@@ -216,6 +231,7 @@ export default function SegmentRowView( {
 				>
 					{ segmentStatusLabel( server.status ) }
 				</span>
+				<ReviewStatusBadge status={ server.review_status } />
 				<span className="aiml-workspace-row-state" aria-live="polite">
 					{ rowStateLabel( row ) }
 				</span>
@@ -232,20 +248,75 @@ export default function SegmentRowView( {
 				) }
 			</td>
 			<td>
-				{ showSave && (
-					<Button
-						variant="secondary"
-						onClick={ () => onSave( row.segmentKey ) }
-						disabled={ isSaving }
-						aria-label={ sprintf(
-							/* translators: %s: segment key */
-							__( 'Save translation for %s', 'ai-multilingual' ),
-							server.segment_key
-						) }
-					>
-						{ __( 'Save', 'ai-multilingual' ) }
-					</Button>
-				) }
+				<div className="aiml-workspace-row-actions">
+					{ showSave && (
+						<Button
+							variant="secondary"
+							onClick={ () => onSave( row.segmentKey ) }
+							disabled={ isSaving }
+							aria-label={ sprintf(
+								/* translators: %s: segment key */
+								__( 'Save translation for %s', 'ai-multilingual' ),
+								server.segment_key
+							) }
+						>
+							{ __( 'Save', 'ai-multilingual' ) }
+						</Button>
+					) }
+					{ showSubmitReview && (
+						<Button
+							variant="secondary"
+							onClick={ () => onSubmitReview( row.segmentKey ) }
+							disabled={ isSaving }
+							aria-label={ sprintf(
+								/* translators: %s: segment key */
+								__( 'Submit %s for review', 'ai-multilingual' ),
+								server.segment_key
+							) }
+						>
+							{ 'rejected' === server.review_status
+								? __( 'Resubmit for review', 'ai-multilingual' )
+								: __( 'Submit for review', 'ai-multilingual' ) }
+						</Button>
+					) }
+					{ showReviewDecision && (
+						<>
+							<Button
+								variant="primary"
+								onClick={ () =>
+									onRequestReviewDecision(
+										[ row.segmentKey ],
+										'approve'
+									)
+								}
+								aria-label={ sprintf(
+									/* translators: %s: segment key */
+									__( 'Approve translation for %s', 'ai-multilingual' ),
+									server.segment_key
+								) }
+							>
+								{ __( 'Approve', 'ai-multilingual' ) }
+							</Button>
+							<Button
+								variant="secondary"
+								isDestructive
+								onClick={ () =>
+									onRequestReviewDecision(
+										[ row.segmentKey ],
+										'reject'
+									)
+								}
+								aria-label={ sprintf(
+									/* translators: %s: segment key */
+									__( 'Reject translation for %s', 'ai-multilingual' ),
+									server.segment_key
+								) }
+							>
+								{ __( 'Reject', 'ai-multilingual' ) }
+							</Button>
+						</>
+					) }
+				</div>
 			</td>
 		</tr>
 	);

@@ -1,8 +1,11 @@
 import type {
 	NormalizedSuggestion,
+	QAIssue,
 	SegmentQA,
 	WorkspaceSegment,
 } from '../types/view-models';
+
+export const GLOSSARY_TERM_ISSUE_CODE = 'glossary_term_missing';
 
 export function suggestionsFromSegment(
 	segment: WorkspaceSegment
@@ -29,6 +32,17 @@ export function qaFromSegment( segment: WorkspaceSegment ): SegmentQA {
 			info: Number( qa.summary?.info ?? 0 ),
 		},
 	};
+}
+
+/**
+ * Extracts read-only glossary terminology context from QA issues
+ * (`glossary_term_missing` is warning-only and never blocks approval — the
+ * Review UI must never mutate glossary data, only display it).
+ */
+export function glossaryIssuesFromQa( qa: SegmentQA ): QAIssue[] {
+	return qa.issues.filter(
+		( issue ) => GLOSSARY_TERM_ISSUE_CODE === issue.code
+	);
 }
 
 export function aggregateQaSummary( segments: WorkspaceSegment[] ): {

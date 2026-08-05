@@ -17,7 +17,21 @@ export interface WorkspacePageSummary {
 	stale_count: number;
 }
 
-export interface WorkspaceSegment {
+export type ReviewStatus = 'not_submitted' | 'pending' | 'approved' | 'rejected';
+
+export interface ReviewMetadata {
+	review_status: ReviewStatus | string;
+	submitted_translation_hash: string;
+	review_submitted_by: number | null;
+	review_submitted_at: string | null;
+	reviewed_by: number | null;
+	reviewed_at: string | null;
+	rejection_reason: string;
+	rejected_by: number | null;
+	rejected_at: string | null;
+}
+
+export interface WorkspaceSegment extends ReviewMetadata {
 	segment_key: string;
 	field_key: string;
 	block_name: string;
@@ -31,6 +45,39 @@ export interface WorkspaceSegment {
 	text_format: string;
 	can_edit: boolean;
 	meta: WorkspaceSegmentMeta;
+}
+
+export interface ReviewQueueItem extends ReviewMetadata {
+	source_type: string;
+	post_id: number;
+	language_id: number;
+	segment_key: string;
+	field_key: string;
+	source_text: string;
+	translated_text: string;
+	status: string;
+}
+
+export interface ReviewQueueResponse {
+	items: ReviewQueueItem[];
+	total: number;
+	page: number;
+	per_page: number;
+}
+
+export interface ReviewErrorContext {
+	review_status?: string;
+	submitted_translation_hash?: string;
+	translation_hash?: string;
+	review_submitted_by?: number | null;
+	review_submitted_at?: string | null;
+	reviewed_by?: number | null;
+	reviewed_at?: string | null;
+	rejection_reason?: string;
+	rejected_by?: number | null;
+	rejected_at?: string | null;
+	expected_review_status?: string;
+	[ key: string ]: unknown;
 }
 
 export interface NormalizedSuggestion {
@@ -102,6 +149,8 @@ export interface TranslatorWorkspaceConfig {
 	languages: LanguageOption[];
 	initialPostId?: number;
 	initialLanguageCode?: string;
+	canTranslate: boolean;
+	canReview: boolean;
 }
 
 declare global {

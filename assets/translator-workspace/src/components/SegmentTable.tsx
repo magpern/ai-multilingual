@@ -13,6 +13,7 @@ interface SegmentTableProps {
 	selectedKeys: Set< string >;
 	allVisibleSelected: boolean;
 	hasSelectableVisible: boolean;
+	canReview: boolean;
 	onToggleSelect: ( segmentKey: string, checked: boolean ) => void;
 	onToggleSelectAll: ( checked: boolean ) => void;
 	onDraftChange: ( segmentKey: string, value: string ) => void;
@@ -20,6 +21,11 @@ interface SegmentTableProps {
 	onReload: ( segmentKey: string ) => void;
 	onSuggestProfile?: ( segmentKey: string, profile: string ) => void;
 	suggestingKey?: string | null;
+	onSubmitReview: ( segmentKey: string ) => void;
+	onRequestReviewDecision: (
+		segmentKeys: string[],
+		action: 'approve' | 'reject'
+	) => void;
 }
 
 export default function SegmentTable( {
@@ -31,6 +37,7 @@ export default function SegmentTable( {
 	selectedKeys,
 	allVisibleSelected,
 	hasSelectableVisible,
+	canReview,
 	onToggleSelect,
 	onToggleSelectAll,
 	onDraftChange,
@@ -38,6 +45,8 @@ export default function SegmentTable( {
 	onReload,
 	onSuggestProfile,
 	suggestingKey = null,
+	onSubmitReview,
+	onRequestReviewDecision,
 }: SegmentTableProps ) {
 	if ( loading ) {
 		return <Spinner />;
@@ -106,11 +115,14 @@ export default function SegmentTable( {
 							row={ row }
 							selected={ selectedKeys.has( row.segmentKey ) }
 							suggesting={ suggestingKey === row.segmentKey }
+							canReview={ canReview }
 							onToggleSelect={ onToggleSelect }
 							onDraftChange={ onDraftChange }
 							onSave={ onSave }
 							onReload={ onReload }
 							onSuggestProfile={ onSuggestProfile }
+							onSubmitReview={ onSubmitReview }
+							onRequestReviewDecision={ onRequestReviewDecision }
 						/>
 					) ) }
 				</tbody>

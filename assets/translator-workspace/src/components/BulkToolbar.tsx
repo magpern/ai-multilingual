@@ -10,6 +10,10 @@ interface BulkToolbarProps {
 	onAcceptTmExact?: () => void;
 	onRunQa?: () => void;
 	onClearSelection: () => void;
+	canReview?: boolean;
+	reviewSelectedCount?: number;
+	onApproveSelected?: () => void;
+	onRejectSelected?: () => void;
 }
 
 export default function BulkToolbar( {
@@ -21,6 +25,10 @@ export default function BulkToolbar( {
 	onAcceptTmExact,
 	onRunQa,
 	onClearSelection,
+	canReview = false,
+	reviewSelectedCount = 0,
+	onApproveSelected,
+	onRejectSelected,
 }: BulkToolbarProps ) {
 	if ( selectedCount === 0 ) {
 		return null;
@@ -81,6 +89,41 @@ export default function BulkToolbar( {
 						disabled={ busy }
 					>
 						{ __( 'Run QA', 'ai-multilingual' ) }
+					</Button>
+				) }
+				{ canReview && onApproveSelected && (
+					<Button
+						variant="primary"
+						onClick={ onApproveSelected }
+						disabled={ busy || reviewSelectedCount === 0 }
+						aria-label={ __(
+							'Approve selected pending segments',
+							'ai-multilingual'
+						) }
+					>
+						{ sprintf(
+							/* translators: %d: pending selected count */
+							__( 'Approve selected (%d)', 'ai-multilingual' ),
+							reviewSelectedCount
+						) }
+					</Button>
+				) }
+				{ canReview && onRejectSelected && (
+					<Button
+						variant="secondary"
+						isDestructive
+						onClick={ onRejectSelected }
+						disabled={ busy || reviewSelectedCount === 0 }
+						aria-label={ __(
+							'Reject selected pending segments',
+							'ai-multilingual'
+						) }
+					>
+						{ sprintf(
+							/* translators: %d: pending selected count */
+							__( 'Reject selected (%d)', 'ai-multilingual' ),
+							reviewSelectedCount
+						) }
 					</Button>
 				) }
 				<Button

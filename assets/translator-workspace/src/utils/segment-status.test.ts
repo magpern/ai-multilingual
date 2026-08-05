@@ -20,6 +20,15 @@ function segment( overrides: Partial< WorkspaceSegment > = {} ): WorkspaceSegmen
 		text_format: 'html',
 		can_edit: true,
 		meta: {},
+		review_status: 'not_submitted',
+		submitted_translation_hash: '',
+		review_submitted_by: null,
+		review_submitted_at: null,
+		reviewed_by: null,
+		reviewed_at: null,
+		rejection_reason: '',
+		rejected_by: null,
+		rejected_at: null,
 		...overrides,
 	};
 }

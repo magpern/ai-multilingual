@@ -1,4 +1,8 @@
-import type { WorkspaceSegment } from './view-models';
+import type {
+	ReviewErrorContext,
+	SegmentQA,
+	WorkspaceSegment,
+} from './view-models';
 
 export type SegmentRowState =
 	| 'clean'
@@ -37,4 +41,18 @@ export interface BatchTranslateResult {
 	}>;
 	status: 'completed' | 'partial' | 'failed';
 	job_id?: string | null;
+}
+
+export interface ReviewBatchErrorItem {
+	segment_key: string;
+	code?: string;
+	message?: string;
+	context?: ReviewErrorContext;
+	qa?: SegmentQA;
+}
+
+export interface ReviewBatchResult {
+	updated: WorkspaceSegment[];
+	errors: ReviewBatchErrorItem[];
+	status: 'completed' | 'partial' | 'failed';
 }

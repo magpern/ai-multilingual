@@ -1,4 +1,4 @@
-import type { BatchSaveResult } from '../types/segment-row';
+import type { BatchSaveResult, ReviewBatchResult } from '../types/segment-row';
 import type { SegmentRow, SegmentRowState } from '../types/segment-row';
 import type { WorkspaceSegment } from '../types/view-models';
 
@@ -205,6 +205,43 @@ export function applyBatchSaveResults(
 				  }
 				: row
 		);
+	}
+
+	return nextRows;
+}
+
+/**
+ * Merges a review batch's per-item results (submit/approve/reject) into
+ * the current rows: successes replace the server row (draft text is
+ * untouched by review decisions), failures surface an inline error message
+ * — including re-attaching fresh QA context for `aiml_qa_blocked` approvals
+ * (per-item result DTO — ADR-0015 §11.1, no silent skips).
+ */
+export function applyReviewBatchResults(
+	currentRows: SegmentRow[],
+	result: ReviewBatchResult
+): SegmentRow[] {
+	let nextRows = mergeSegmentsIntoRows( currentRows, result.updated );
+
+	for ( const item of result.errors ) {
+		nextRows = nextRows.map( ( row ) => {
+			if ( row.segmentKey !== item.segment_key ) {
+				return row;
+			}
+
+			const server = item.qa
+				? { ...row.server, meta: { ...row.server.meta, qa: item.qa } }
+				: row.server;
+
+			return {
+				...row,
+				server,
+				rowState: 'error' as SegmentRowState,
+				errorMessage:
+					item.message ||
+					'The review action could not be completed. Please try again.',
+			};
+		} );
 	}
 
 	return nextRows;

@@ -5,6 +5,7 @@ import {
 	selectAllVisible,
 	selectedDirtyRows,
 	selectedEditableRows,
+	selectedPendingReviewRows,
 	toggleSelection,
 } from './row-selection';
 import type { SegmentRow } from '../types/segment-row';
@@ -24,6 +25,15 @@ function row( overrides: Partial< SegmentRow > = {} ): SegmentRow {
 		text_format: 'html',
 		can_edit: true,
 		meta: {},
+		review_status: 'not_submitted',
+		submitted_translation_hash: '',
+		review_submitted_by: null,
+		review_submitted_at: null,
+		reviewed_by: null,
+		reviewed_at: null,
+		rejection_reason: '',
+		rejected_by: null,
+		rejected_at: null,
 		...( overrides.server ?? {} ),
 	};
 
@@ -109,5 +119,31 @@ describe( 'row-selection', () => {
 			true
 		);
 		expect( allVisibleSelected( visible, new Set() ) ).toBe( false );
+	} );
+
+	it( 'returns only pending-review rows among the current selection (batch review toolbar)', () => {
+		const rows = [
+			row( {
+				segmentKey: 'b:pending:content',
+				server: {
+					segment_key: 'b:pending:content',
+					review_status: 'pending',
+				},
+			} ),
+			row( {
+				segmentKey: 'b:approved:content',
+				server: {
+					segment_key: 'b:approved:content',
+					review_status: 'approved',
+				},
+			} ),
+		];
+
+		expect(
+			selectedPendingReviewRows(
+				rows,
+				new Set( [ 'b:pending:content', 'b:approved:content' ] )
+			)
+		).toHaveLength( 1 );
 	} );
 } );
