@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-08-05T08:00:58Z",
+  "tier": 3,
+  "scope": "targeted frontend smoke — F12-proven blocks under GA (not F9 35-suite)",
+  "environment": "dev.biopentra.eu",
+  "branch": "feature/f13-general-availability",
+  "head": "9bee3a5f6f545eb4a166bb2f531f65f92322543b",
+  "cohort_slug": "f10-translator-validation",
+  "supported_blocks": ["core\/paragraph","core\/heading","core\/button"],
+  "results": {
+    "stage2_regression": "PASS",
+    "stage6_ga_paragraph_render": "PASS",
+    "supported_blocks_frozen": "PASS",
+    "rendered_false_positives": 0
+  },
+  "overall": "PASS",
+  "note": "Heading/button adapters unchanged; paragraph path exercised on production cohort under GA."
+}

@@ -1,0 +1,19 @@
+{
+    "timestamp": "2026-08-05T07:59:41+00:00",
+    "limited_allowlist": {
+        "median_ms": 0.0015775,
+        "p95_ms": 0.002084,
+        "samples": 50
+    },
+    "ga_non_allowlisted": {
+        "median_ms": 0.0016324999999999998,
+        "p95_ms": 0.0053,
+        "samples": 50
+    },
+    "ga_deny_language": {
+        "median_ms": 0.001322,
+        "p95_ms": 0.003707,
+        "samples": 50
+    },
+    "note": "No invented SLOs \u2014 evidence only."
+}
