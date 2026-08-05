@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-08-05T08:24:46Z",
+  "adapter": "core/verse",
+  "admission_key": "verse",
+  "branch": "feature/f14-block-expansion",
+  "head": "a03d130d5f1b4a48db5ece7e6caf58fe42a2103b",
+  "post_id": 6346,
+  "results": {
+    "supported_blocks_contains": "PASS",
+    "translated_render": "PASS",
+    "source_language_deny": "PASS",
+    "rendered_false_positives": 0
+  },
+  "overall": "PASS"
+}

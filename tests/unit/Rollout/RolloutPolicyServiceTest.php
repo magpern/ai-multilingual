@@ -292,6 +292,7 @@ final class RolloutPolicyServiceTest extends TestCase {
 		$this->assertContains( 'core/button', $blocks );
 		$this->assertContains( 'core/list-item', $blocks );
 		$this->assertContains( 'core/preformatted', $blocks );
+		$this->assertContains( 'core/verse', $blocks );
 	}
 
 	/**
