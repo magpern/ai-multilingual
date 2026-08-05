@@ -40,6 +40,7 @@ final class RolloutDiagnosticsService {
 			'policy_version'            => $configuration['policy_version'] ?? 0,
 			'rollout_stage'             => $configuration['rollout_stage'] ?? 0,
 			'rollout_render_enabled'    => ! empty( $configuration['rollout_render_enabled'] ),
+			'general_rollout_enabled'   => ! empty( $configuration['general_rollout_enabled'] ),
 			'render_cache_enabled'      => ! empty( $configuration['render_cache_enabled'] ),
 			'block_diagnostics_enabled' => ! empty( $configuration['block_diagnostics_enabled'] ),
 			'hot_counters'              => $this->hot->counters(),

@@ -10,10 +10,10 @@ declare( strict_types=1 );
 namespace AIMultilingual\Rollout;
 
 /**
- * Architectural reservation only — no F12 implementation.
+ * Cohort matching seam (F12 reservation; F13 ships {@see GeneralAvailabilityCohortProvider}).
  *
- * Future percentage, visitor, tenant, or organization cohorts must plug in
- * here without changing {@see RolloutPolicyDecision}.
+ * Percentage, visitor, tenant, or organization cohorts must plug in here
+ * without changing {@see RolloutPolicyDecision} — still not implemented.
  */
 interface CohortProviderInterface {
 

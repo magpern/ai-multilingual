@@ -51,7 +51,7 @@ final class RolloutConfigurationValidator {
 		}
 
 		$stage = isset( $raw['rollout_stage'] ) ? (int) $raw['rollout_stage'] : -1;
-		if ( $stage < 0 || $stage > 5 ) {
+		if ( $stage < 0 || $stage > RolloutConfiguration::MAX_STAGE ) {
 			return RolloutConfigurationValidationResult::fail( array( 'invalid_rollout_stage' ) );
 		}
 
@@ -90,6 +90,7 @@ final class RolloutConfigurationValidator {
 			'allowed_post_ids'          => $post_ids,
 			'allowed_post_types'        => $post_types,
 			'allowed_language_codes'    => $lang_codes,
+			'general_rollout_enabled'   => ! empty( $raw['general_rollout_enabled'] ),
 			'render_cache_enabled'      => ! empty( $raw['render_cache_enabled'] ),
 			'block_diagnostics_enabled' => ! empty( $raw['block_diagnostics_enabled'] ),
 			'updated_at'                => $updated_at,

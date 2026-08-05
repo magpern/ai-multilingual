@@ -39,6 +39,7 @@ use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
 use AIMultilingual\Rest\WorkspaceController;
 use AIMultilingual\Rollout\RolloutCapabilities;
 use AIMultilingual\Rollout\RolloutConfigurationRepository;
+use AIMultilingual\Rollout\GeneralAvailabilityCohortProvider;
 use AIMultilingual\Rollout\RolloutPolicyService;
 use AIMultilingual\Rollout\RolloutRenderGateBridge;
 use AIMultilingual\Rollout\RolloutCli;
@@ -162,7 +163,7 @@ final class Plugin {
 		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
 		$config_repo         = new RolloutConfigurationRepository();
 		$rollout_bridge      = new RolloutRenderGateBridge(
-			new RolloutPolicyService(),
+			new RolloutPolicyService( new GeneralAvailabilityCohortProvider() ),
 			$config_repo
 		);
 		$render_cache_bridge = new RolloutRenderCacheBridge(

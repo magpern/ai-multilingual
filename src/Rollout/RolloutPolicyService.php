@@ -17,6 +17,16 @@ namespace AIMultilingual\Rollout;
 final class RolloutPolicyService {
 
 	/**
+	 * Optional cohort provider (null preserves F12 allowlist-only behavior).
+	 *
+	 * @param CohortProviderInterface|null $cohort_provider Reserved F12 seam; F13 GA provider.
+	 */
+	public function __construct(
+		private ?CohortProviderInterface $cohort_provider = null,
+	) {
+	}
+
+	/**
 	 * Evaluates rollout policy for one request against one configuration.
 	 *
 	 * @param RolloutPolicyRequest $request Frontend or diagnostic request facts.
@@ -86,6 +96,29 @@ final class RolloutPolicyService {
 				false,
 				false,
 				false,
+			);
+		}
+
+		if ( null !== $this->cohort_provider && $config->general_rollout_enabled ) {
+			$cohort_match = $this->cohort_provider->matches( $request, $config );
+
+			if ( ! $cohort_match ) {
+				return RolloutPolicyDecision::deny(
+					RolloutReasonCodes::POST_NOT_ALLOWLISTED,
+					$config->rollout_stage,
+					$config->policy_version,
+					false,
+					$language_match,
+					$post_type_match,
+				);
+			}
+
+			return RolloutPolicyDecision::allow(
+				$config->rollout_stage,
+				$config->policy_version,
+				true,
+				$language_match,
+				$post_type_match,
 			);
 		}
 
