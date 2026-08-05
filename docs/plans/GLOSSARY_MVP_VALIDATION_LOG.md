@@ -8,7 +8,7 @@ Operational acceptance record for post-v1 **Glossary MVP** (ADR-0014 platform le
 |---|---|
 | Host | `https://dev.biopentra.eu` |
 | Branch | `feature/glossary-mvp` |
-| Commit | *(final G7 HEAD — see git log)* |
+| Commit | *129f7f36e0d879c8911a728bc7e8cd4c754c80dd* |
 | Plugin | AI Multilingual `0.1.0` (`AIML_VERSION`) |
 | Plugin mount | `/opt/biopentra/dev/ai-multilingual` → `wp-content/plugins/ai-multilingual` |
 | WordPress | `7.0.2` |
