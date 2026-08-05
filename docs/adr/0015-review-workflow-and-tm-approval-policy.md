@@ -2,18 +2,32 @@
 
 ## Status
 
-**Proposed** — awaiting Product Owner disposition before Review Workflow schema/code (R1+).
+**Accepted** (2026-08-05) — Review Workflow and approval-gated TM write-back.
 
-**Implementation gate:** **Closed until disposition.** R1+ may begin only when **exactly one** of:
+**Decision maker:** Product Owner  
+**Approval date:** 2026-08-05  
+**Decision:** ADR-0015 Accepted  
+**Scope:** Two-axis Store-owned review state; submitted translation hash; approval/rejection lifecycle; minimal rejection metadata; approval-gated TM write-back; frontend rendering remains independent from review state — exactly as defined in this ADR and the frozen [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](../plans/REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md).
 
-- **A)** Status set to **Accepted** with acceptance date; or
-- **B)** Product Owner provisional approval record containing **all** of: decision maker, approval date, explicit scope, residual risks accepted, mandatory review date, expiration/revalidation point — linked from this ADR’s provisional approval log.
+**Residual risks accepted:**
 
-A generic “proceed despite Proposed” note is **insufficient**.
+- Existing translations default to `review_status=not_submitted`
+- Existing TM entries remain valid and are not retroactively removed
+- Approval does not gate frontend rendering
+- Rejected text remains renderable when otherwise eligible
+- No version history or review snapshot body is stored
+- Review concurrency relies on submitted translation hashes
+- Warning-level QA does not block approval
+
+**Review point:** Review Workflow milestone closure  
+
+**Revalidation trigger:** approval-gated rendering; separate review storage; multi-stage review; assignments or comments; version history; automatic TM deletion or rollback; breaking Store or REST contract changes.
+
+**Implementation gate:** **Open** — R1–R7 authorized on `feature/review-workflow`. Gate A (Accepted) satisfied. Gate B (provisional approval) is **not applicable**.
 
 Canonical plan: [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](../plans/REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md).  
 Product context: [POST_V1_PRODUCT_ROADMAP.md](../plans/POST_V1_PRODUCT_ROADMAP.md) §11.2.  
-Prior freeze: [F11_FROZEN_API.md](../plans/F11_FROZEN_API.md) (TM write-back today is save-time origin-eligible).
+Prior freeze: [F11_FROZEN_API.md](../plans/F11_FROZEN_API.md) (TM write-back amended from save-time to approval-time by this ADR).
 
 ---
 
@@ -98,16 +112,7 @@ Assignments, collaboration comments, notifications, reporting dashboards, multi-
 
 ## Provisional approval log
 
-| Field | Value |
-|---|---|
-| Decision maker | _pending_ |
-| Approval date | _pending_ |
-| Explicit scope | _pending_ |
-| Residual risks accepted | _pending_ |
-| Mandatory review date | _pending_ |
-| Expiration / revalidation | _pending_ |
-
-Gate B is complete only when **all six** fields are filled and this ADR Status remains Proposed with an explicit provisional note, **or** Status is set to Accepted (gate A).
+**Not applicable** — ADR-0015 is fully **Accepted** (gate A). Gate B provisional approval is not used.
 
 ---
 

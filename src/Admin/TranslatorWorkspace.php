@@ -11,6 +11,7 @@ namespace AIMultilingual\Admin;
 
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
+use AIMultilingual\Workspace\Review\ReviewCapabilities;
 
 /**
  * Enqueues the React translator workspace under the Multilingual admin menu.
@@ -22,6 +23,14 @@ final class TranslatorWorkspace {
 	public const SCRIPT_HANDLE = 'aiml-translator-workspace';
 
 	public const STYLE_HANDLE = 'aiml-translator-workspace';
+
+	/**
+	 * Virtual capability granting access to the Workspace admin screen to
+	 * translators and reviewers alike (ADR-0015 §6). Mapped below to a
+	 * capability the user already holds; never granted as a real role
+	 * capability so it cannot drift from the two source capabilities.
+	 */
+	private const ACCESS_CAP = 'aiml_workspace_access';
 
 	/**
 	 * Language registry.
@@ -45,20 +54,43 @@ final class TranslatorWorkspace {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_filter( 'map_meta_cap', array( $this, 'map_access_cap' ), 10, 2 );
 	}
 
 	/**
-	 * Adds the workspace submenu for translators.
+	 * Adds the workspace submenu for translators and reviewers.
 	 */
 	public function add_menu(): void {
 		add_submenu_page(
 			SettingsPage::MENU_SLUG,
 			__( 'Translator workspace', 'ai-multilingual' ),
 			__( 'Workspace', 'ai-multilingual' ),
-			Plugin::CAPABILITY,
+			self::ACCESS_CAP,
 			self::MENU_SLUG,
 			array( $this, 'render' )
 		);
+	}
+
+	/**
+	 * Maps the virtual Workspace access capability to `aiml_translate` OR
+	 * `aiml_review_translations` (ADR-0015 §6): the Workspace shell now
+	 * serves both translators and review-only users, but neither capability
+	 * is widened and no new real capability is granted to any role.
+	 *
+	 * @param array<int, string> $caps Required primitive capabilities.
+	 * @param string             $cap  Capability being checked.
+	 * @return array<int, string>
+	 */
+	public function map_access_cap( array $caps, string $cap ): array {
+		if ( self::ACCESS_CAP !== $cap ) {
+			return $caps;
+		}
+
+		if ( current_user_can( Plugin::CAPABILITY ) || current_user_can( ReviewCapabilities::REVIEW_TRANSLATIONS ) ) {
+			return array( 'read' );
+		}
+
+		return array( 'do_not_allow' );
 	}
 
 	/**
@@ -107,6 +139,8 @@ final class TranslatorWorkspace {
 				'languages'           => $this->language_bootstrap(),
 				'initialPostId'       => isset( $_GET['post_id'] ) ? (int) $_GET['post_id'] : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				'initialLanguageCode' => isset( $_GET['language'] ) ? sanitize_key( wp_unslash( (string) $_GET['language'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				'canTranslate'        => current_user_can( Plugin::CAPABILITY ),
+				'canReview'           => current_user_can( ReviewCapabilities::REVIEW_TRANSLATIONS ),
 			)
 		);
 
@@ -117,7 +151,7 @@ final class TranslatorWorkspace {
 	 * Renders the workspace mount point.
 	 */
 	public function render(): void {
-		if ( ! current_user_can( Plugin::CAPABILITY ) ) {
+		if ( ! current_user_can( self::ACCESS_CAP ) ) {
 			wp_die( esc_html__( 'You do not have permission to access the translator workspace.', 'ai-multilingual' ) );
 		}
 

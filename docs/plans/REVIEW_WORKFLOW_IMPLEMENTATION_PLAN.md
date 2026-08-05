@@ -1,14 +1,21 @@
 # Review Workflow — Implementation Plan
 
-**Status:** Architecture **frozen for review**; **ADR-0015 Proposed** — R1+ blocked until Accepted (or complete PO provisional approval)  
-**Branch:** `feature/review-workflow-plan`  
-**Baseline:** `main` @ `cee204aad` (Glossary MVP complete)  
-**ADR:** [0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md) — **Proposed**  
+**Status:** Architecture **frozen**; **ADR-0015 Accepted** (2026-08-05) — **R0–R7 complete, validation PASS, pending merge to `main`**  
+**Branch:** `feature/review-workflow`  
+**Baseline:** `main` after Review planning merge  
+**ADR:** [0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md) — **Accepted**  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) §11.2  
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md)
 
-**R0 gate:** Plan + ADR-0015 Proposed.  
-**Implementation gate:** R1+ only after ADR-0015 **Accepted**, or complete Product Owner provisional approval (all six required fields). Generic “proceed despite Proposed” is invalid.
+**R0 gate:** **PASS** — ADR-0015 Accepted — R1 implementation authorized.  
+**R1 status:** **PASS** — Migrator `TARGET=5`; additive review columns + `lang_review_queue`.
+**R2 status:** **PASS** — Store review metadata, invalidate-on-edit, no-op preserve.
+**R3 status:** **PASS** — ReviewWorkflowService submit/approve/reject transitions, hash conflicts, reason validation.
+**R4 status:** **PASS** — `aiml_review_translations` capability; submit/approve/reject/batch-review/review-queue REST routes; additive ViewModel fields; Store-derived paginated queue; `ReviewBatchCoordinator`; QA-gated approval reusing the Workspace QA path.
+**R5 status:** **PASS** — TM write-back moved from save-time to approval-time (ADR-0015 §7 / F11 amendment). `WorkspaceService::save_segment()` no longer calls `TranslationMemoryService::write_back()`; `WorkspaceService::approve_review()` calls the new `write_back_tm_on_approval()` exactly once on a real `pending` → `approved` transition (idempotent duplicate approve is a no-op). Pending/rejected never write TM; reject never deletes historical TM; machine-origin excluded unless human-edited; accepted-exact-TM usage recording (`tm_accepted`) is unaffected (not new content). No second TM writer.
+**R6 status:** **PASS** — Existing Translator Workspace extended (no second editor): review-status badges, submit/resubmit-for-review, approve/reject with a shared `ReviewDecisionDialog` (1–512 char reason enforced client-side), rejected-state reason display, `ReviewQueuePanel` with post/language/status filters and pagination, batch approve/reject toolbar (grouped per post+language for the batch-review REST contract, partial-success surfaced per row), 409 conflict and `aiml_qa_blocked` handling with QA re-attached to the affected row, read-only QA/glossary-term context in `QAPanel`, approved/rejected metadata (`ReviewMetaSummary`), and permission-aware view: reviewers without `aiml_translate` land on the Review queue tab and cannot open the editor; a new virtual `aiml_workspace_access` capability (translate OR review) gates the admin page itself. TS/Jest/webpack all green; PHPUnit unit+integration green (no regressions); phpcs clean. Full browser smoke deferred to R7 (see §16 Testing strategy note) — extending `f10-browser` would require new deploy + reviewer-capability fixture infrastructure, not a cheap extension of the existing spec.
+**R7 status:** **PASS** — Audit: `aiml_review_audit` hook with stable event names (`review_submitted`, `review_resubmitted`, `review_approved`, `review_rejected`, `review_invalidated_by_edit`, `review_batch_completed`), fired from `ReviewWorkflowService` (submit/approve/reject), `ReviewBatchCoordinator` (one summary per batch call), and a new `ReviewEditInvalidationAuditBridge` that bridges the existing R2 `aiml_review_invalidated_by_edit` Store hook into the same channel; payloads carry only post/segment/language ids, old/new `review_status`, user id, timestamp, source surface, an 8-char non-reversible submitted-hash fingerprint, and rejection reason presence/length — never translation body, source body, or the full reason (`ReviewAuditLoggerTest`, `ReviewDiagnosticsCountersTest`, `ReviewAuditTest`). Diagnostics: `Store::review_status_counts()` / `review_pending_age_stats()` (query-time, bounded to `REVIEW_PENDING_AGE_BOUND_SECONDS` = 30 days) plus a small option-backed `ReviewDiagnosticsCounters` (`conflicts`, `approval_failures`, `qa_blocked_approvals`, `tm_write_back_success`, `tm_write_back_failure` — five fixed keys, never per-post/per-user) wired into `WorkspaceService`'s submit/approve/reject and TM write-back paths, exposed read-only via `GET /aiml/v1/workspace/review-diagnostics` (`ReviewDiagnosticsTest`, 12 integration tests). Full Tier 0 validation green (unit, integration, PHPCS, TS/Jest/webpack, PluginGuard, `git diff --check`) — see [REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md). Targeted Review browser smoke is a **documented manual checklist, PENDING deploy** (no live `feature/review-workflow` build on `dev.biopentra.eu` at closure time) — not claimed as PASS without evidence.
+**Implementation scope / WP order (R0–R7):** Unchanged. **R0–R7 all PASS on `feature/review-workflow`; not yet merged to `main`.**
 
 ---
 
@@ -499,6 +506,8 @@ Low-cardinality counters (no high-cardinality persistent metrics):
 - **Browser:** targeted Workspace smoke only — **not** F9 35-suite.
 - **PHPCS** on all new PHP.
 
+**R6 browser smoke — deferred to R7:** the existing `acceptance/f10-browser` Playwright harness (`workspace-smoke.spec.ts`) exercises the deployed Workspace on `dev.biopentra.eu` via a pre-provisioned admin auth-cookie fixture. Extending it to cover Review actions would require: (a) deploying this branch's build to the dev site, (b) a reviewer-only test user/role (`aiml_review_translations` without `aiml_translate`) plus its own auth-cookie fixture, and (c) seeded segments in `pending`/`rejected` review state — new test infrastructure, not a cheap spec extension. Deferred to R7 alongside the full Tier 0 validation pass; manual smoke (submit → approve, submit → reject with reason, 409 on stale approve, reviewer-only permission boundary) should be run against a deployed build before R7 closes. R6 ships with TypeScript + Jest coverage of all new component logic (badges, dialog validation, queue selection/filtering, batch result application, conflict/QA error surfacing) instead.
+
 ---
 
 ## 17. Risks
@@ -618,7 +627,11 @@ If product later requires approval-gated rendering, stop and open a separate ADR
 
 ## 25. Exact next step
 
-1. Product Owner reviews this plan and [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md).  
-2. Set ADR-0015 to **Accepted** (or complete provisional approval with all six fields).  
-3. Create implementation branch from updated `main`.  
-4. Execute **R1** only after the ADR gate. Work package order R0–R7 is unchanged.
+R0–R7 are complete on `feature/review-workflow` with validation **PASS** — see
+[REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md).
+
+1. Product Owner / reviewer approves the branch diff (`main...feature/review-workflow`).
+2. Deploy `feature/review-workflow` to `dev.biopentra.eu` and run the manual browser smoke checklist in the validation log's "Targeted Review browser smoke" section (currently PENDING deploy).
+3. Merge `feature/review-workflow` into `main` (no squash needed — commit history is already work-package-scoped) and tag the merge commit (suggested: `review-workflow-complete`).
+4. Update this plan's Status line and the Post-v1 roadmap §11.2 `Implementation status` to **Complete** with the merge commit and tag.
+5. Only then consider starting **Background Translation Jobs** (§11.3 of the Post-v1 roadmap).

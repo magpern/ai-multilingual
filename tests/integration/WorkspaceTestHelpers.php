@@ -54,6 +54,64 @@ trait WorkspaceTestHelpers {
 	}
 
 	/**
+	 * Creates a reviewer with `aiml_review_translations` + `edit_post` on
+	 * both posts and pages, but deliberately without `aiml_translate` —
+	 * able to inspect/approve/reject only, never to alter segment text.
+	 *
+	 * Cannot reuse the built-in `editor` role: it is one of
+	 * `Plugin::CAPABLE_ROLES` and is granted `aiml_translate` on activation,
+	 * which would defeat the "reviewer without translate" scenario. A
+	 * dedicated role isolates the page/post edit caps from that grant.
+	 *
+	 * @return int Reviewer user id.
+	 */
+	protected function create_reviewer(): int {
+		$role = get_role( 'aiml_test_reviewer' );
+		if ( null === $role ) {
+			add_role(
+				'aiml_test_reviewer',
+				'AIML Test Reviewer',
+				array(
+					'read'                 => true,
+					'edit_posts'           => true,
+					'edit_others_posts'    => true,
+					'edit_published_posts' => true,
+					'edit_pages'           => true,
+					'edit_others_pages'    => true,
+					'edit_published_pages' => true,
+					\AIMultilingual\Workspace\Review\ReviewCapabilities::REVIEW_TRANSLATIONS => true,
+				)
+			);
+			$role = get_role( 'aiml_test_reviewer' );
+		}
+
+		// `$wp_roles` is a process-lifetime singleton that WP_UnitTestCase does
+		// not reset between tests, so a capability removed in-memory by a
+		// different test's exercise of `ReviewCapabilities::revoke_all_roles()`
+		// (which walks every existing role, including this one) stays removed
+		// for the rest of the run even though the DB row rolls back. Re-assert
+		// the capability here rather than only on first creation.
+		if ( $role instanceof \WP_Role && ! $role->has_cap( \AIMultilingual\Workspace\Review\ReviewCapabilities::REVIEW_TRANSLATIONS ) ) {
+			$role->add_cap( \AIMultilingual\Workspace\Review\ReviewCapabilities::REVIEW_TRANSLATIONS );
+		}
+
+		return (int) self::factory()->user->create( array( 'role' => 'aiml_test_reviewer' ) );
+	}
+
+	/**
+	 * Creates a user with both translate and review capabilities.
+	 *
+	 * @return int User id.
+	 */
+	protected function create_translator_reviewer(): int {
+		$user_id = $this->create_translator();
+		$user    = new \WP_User( $user_id );
+		$user->add_cap( \AIMultilingual\Workspace\Review\ReviewCapabilities::REVIEW_TRANSLATIONS );
+
+		return $user_id;
+	}
+
+	/**
 	 * @param string $uuid Block UUID.
 	 * @return \WP_Post
 	 */
@@ -163,6 +221,112 @@ trait WorkspaceTestHelpers {
 		$request->set_url_params( array( 'post_id' => $post_id ) );
 		$request->set_param( 'language', $language );
 		$request->set_param( 'segments', $items );
+
+		return $request;
+	}
+
+	/**
+	 * Builds a POST request to submit a segment for review.
+	 *
+	 * @param int                  $post_id Post id.
+	 * @param string               $key     Segment key.
+	 * @param array<string, mixed> $body    Optional extra body params.
+	 * @return WP_REST_Request
+	 */
+	protected function submit_review_request( int $post_id, string $key, array $body = array() ): WP_REST_Request {
+		return $this->review_action_request( $post_id, $key, 'submit-review', $body );
+	}
+
+	/**
+	 * Builds a POST request to approve a pending review.
+	 *
+	 * @param int                  $post_id Post id.
+	 * @param string               $key     Segment key.
+	 * @param array<string, mixed> $body    Optional extra body params.
+	 * @return WP_REST_Request
+	 */
+	protected function approve_review_request( int $post_id, string $key, array $body = array() ): WP_REST_Request {
+		return $this->review_action_request( $post_id, $key, 'approve', $body );
+	}
+
+	/**
+	 * Builds a POST request to reject a pending review.
+	 *
+	 * @param int                  $post_id Post id.
+	 * @param string               $key     Segment key.
+	 * @param array<string, mixed> $body    Optional extra body params (e.g. 'reason').
+	 * @return WP_REST_Request
+	 */
+	protected function reject_review_request( int $post_id, string $key, array $body = array() ): WP_REST_Request {
+		return $this->review_action_request( $post_id, $key, 'reject', $body );
+	}
+
+	/**
+	 * Shared builder for the single-segment review action routes.
+	 *
+	 * @param int                  $post_id Post id.
+	 * @param string               $key     Segment key.
+	 * @param string               $action  One of submit-review|approve|reject.
+	 * @param array<string, mixed> $body    Optional extra body params.
+	 * @return WP_REST_Request
+	 */
+	private function review_action_request( int $post_id, string $key, string $action, array $body ): WP_REST_Request {
+		$request = new WP_REST_Request(
+			'POST',
+			sprintf( '/aiml/v1/workspace/%d/segments/%s/%s', $post_id, $key, $action )
+		);
+		$request->set_url_params(
+			array(
+				'post_id'     => $post_id,
+				'segment_key' => $key,
+			)
+		);
+		$request->set_param( 'language', 'sv' );
+		foreach ( $body as $param_key => $value ) {
+			$request->set_param( (string) $param_key, $value );
+		}
+
+		return $request;
+	}
+
+	/**
+	 * Builds a POST request for a batch review action.
+	 *
+	 * @param int                              $post_id  Post id.
+	 * @param string                           $action   One of submit|approve|reject.
+	 * @param array<int, array<string, mixed>> $items    Per-segment payloads.
+	 * @param string                           $language Language code.
+	 * @return WP_REST_Request
+	 */
+	protected function batch_review_request(
+		int $post_id,
+		string $action,
+		array $items,
+		string $language = 'sv'
+	): WP_REST_Request {
+		$request = new WP_REST_Request(
+			'POST',
+			sprintf( '/aiml/v1/workspace/%d/segments/batch-review', $post_id )
+		);
+		$request->set_url_params( array( 'post_id' => $post_id ) );
+		$request->set_param( 'language', $language );
+		$request->set_param( 'action', $action );
+		$request->set_param( 'segments', $items );
+
+		return $request;
+	}
+
+	/**
+	 * Builds a GET request for the review queue.
+	 *
+	 * @param array<string, mixed> $query Query params (post_id, language, review_status, page, per_page).
+	 * @return WP_REST_Request
+	 */
+	protected function review_queue_request( array $query = array() ): WP_REST_Request {
+		$request = new WP_REST_Request( 'GET', '/aiml/v1/workspace/review-queue' );
+		foreach ( $query as $key => $value ) {
+			$request->set_param( (string) $key, $value );
+		}
 
 		return $request;
 	}

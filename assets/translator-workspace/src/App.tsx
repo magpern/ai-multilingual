@@ -6,12 +6,16 @@ import {
 	WorkspaceConflictError,
 	WorkspaceQABlockedError,
 	acceptTmSuggestions,
+	approveReview,
+	batchReview,
 	configureWorkspaceApi,
 	fetchPreviewUrl,
 	fetchSegments,
+	rejectReview,
 	runQaBatch,
 	saveBatch,
 	saveSegment,
+	submitReview,
 	suggestSegment,
 	translateBatch,
 } from './api/workspace-api';
@@ -19,6 +23,8 @@ import BulkToolbar from './components/BulkToolbar';
 import LanguageSelect from './components/LanguageSelect';
 import PostSelect from './components/PostSelect';
 import PublishContext from './components/PublishContext';
+import ReviewDecisionDialog from './components/ReviewDecisionDialog';
+import ReviewQueuePanel from './components/ReviewQueuePanel';
 import SegmentFilterBar from './components/SegmentFilterBar';
 import SegmentTable from './components/SegmentTable';
 import StatusFooter from './components/StatusFooter';
@@ -36,6 +42,7 @@ import {
 	applyBatchSaveResults,
 	applyConflict,
 	applyReloadFromServer,
+	applyReviewBatchResults,
 	applySaveSuccess,
 	countDirtyRows,
 	createRowsFromSegments,
@@ -51,9 +58,20 @@ import {
 	selectAllVisible,
 	selectedDirtyRows,
 	selectedEditableKeys,
+	selectedPendingReviewRows,
 	selectableRows,
 	toggleSelection,
 } from './utils/row-selection';
+
+type ReviewViewMode = 'editor' | 'queue';
+
+interface ReviewDialogState {
+	action: 'approve' | 'reject';
+	targets: string[];
+	reason: string;
+	busy: boolean;
+	error: string;
+}
 
 configureWorkspaceApi();
 
@@ -77,6 +95,14 @@ function readInitialPostId(): number | null {
 export default function App() {
 	const languages: LanguageOption[] =
 		window.aimlTranslatorWorkspace.languages ?? [];
+	const canTranslate = Boolean( window.aimlTranslatorWorkspace.canTranslate );
+	const canReview = Boolean( window.aimlTranslatorWorkspace.canReview );
+
+	const [ viewMode, setViewMode ] = useState< ReviewViewMode >( () =>
+		canTranslate ? 'editor' : 'queue'
+	);
+	const [ reviewDialog, setReviewDialog ] =
+		useState< ReviewDialogState | null >( null );
 
 	const [ languageCode, setLanguageCode ] = useState( () =>
 		readInitialLanguage( languages )
@@ -305,6 +331,176 @@ export default function App() {
 						  }
 						: candidate
 				)
+			);
+		}
+	};
+
+	const handleSubmitReview = async ( segmentKey: string ) => {
+		if ( ! postId || ! languageCode ) {
+			return;
+		}
+
+		try {
+			const dto = await submitReview( postId, languageCode, segmentKey );
+			setRows( ( current ) => mergeSegmentsIntoRows( current, [ dto ] ) );
+			setBatchMessage(
+				__( 'Segment submitted for review.', 'ai-multilingual' )
+			);
+		} catch ( unknownError ) {
+			const message =
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not submit this segment for review.',
+							'ai-multilingual'
+					  );
+			setRows( ( current ) =>
+				current.map( ( candidate ) =>
+					candidate.segmentKey === segmentKey
+						? { ...candidate, rowState: 'error', errorMessage: message }
+						: candidate
+				)
+			);
+		}
+	};
+
+	const openReviewDialog = (
+		segmentKeys: string[],
+		action: 'approve' | 'reject'
+	) => {
+		if ( 0 === segmentKeys.length ) {
+			return;
+		}
+		setReviewDialog( { action, targets: segmentKeys, reason: '', busy: false, error: '' } );
+	};
+
+	const closeReviewDialog = () => setReviewDialog( null );
+
+	const confirmReviewDialog = async () => {
+		if ( ! reviewDialog || ! postId || ! languageCode ) {
+			return;
+		}
+
+		const { action, targets, reason } = reviewDialog;
+		setReviewDialog( ( current ) =>
+			current ? { ...current, busy: true, error: '' } : current
+		);
+
+		if ( 1 === targets.length ) {
+			const segmentKey = targets[ 0 ];
+			const row = rows.find(
+				( candidate ) => candidate.segmentKey === segmentKey
+			);
+
+			try {
+				const dto =
+					'approve' === action
+						? await approveReview(
+								postId,
+								languageCode,
+								segmentKey,
+								undefined,
+								row?.server.submitted_translation_hash
+						  )
+						: await rejectReview(
+								postId,
+								languageCode,
+								segmentKey,
+								reason,
+								undefined,
+								row?.server.submitted_translation_hash
+						  );
+
+				setRows( ( current ) => mergeSegmentsIntoRows( current, [ dto ] ) );
+				setBatchMessage(
+					'approve' === action
+						? __( 'Segment approved.', 'ai-multilingual' )
+						: __( 'Segment rejected.', 'ai-multilingual' )
+				);
+				setReviewDialog( null );
+			} catch ( unknownError ) {
+				if ( unknownError instanceof WorkspaceQABlockedError ) {
+					setRows( ( current ) =>
+						current.map( ( candidate ) =>
+							candidate.segmentKey === segmentKey
+								? {
+										...candidate,
+										server: {
+											...candidate.server,
+											meta: {
+												...candidate.server.meta,
+												qa: unknownError.qa,
+											},
+										},
+								  }
+								: candidate
+						)
+					);
+				}
+
+				const message =
+					unknownError instanceof Error
+						? unknownError.message
+						: __(
+								'The review action could not be completed.',
+								'ai-multilingual'
+						  );
+				setReviewDialog( ( current ) =>
+					current ? { ...current, busy: false, error: message } : current
+				);
+			}
+			return;
+		}
+
+		try {
+			const items = targets.map( ( segmentKey ) => {
+				const row = rows.find(
+					( candidate ) => candidate.segmentKey === segmentKey
+				);
+				return {
+					segment_key: segmentKey,
+					submitted_translation_hash:
+						row?.server.submitted_translation_hash,
+				};
+			} );
+
+			const result = await batchReview(
+				postId,
+				languageCode,
+				action,
+				items,
+				reason
+			);
+
+			setRows( ( current ) => applyReviewBatchResults( current, result ) );
+			setSelectedKeys( clearSelection() );
+			setBatchMessage(
+				0 === result.errors.length
+					? sprintf(
+							/* translators: %d: succeeded count */
+							'approve' === action
+								? __( '%d segment(s) approved.', 'ai-multilingual' )
+								: __( '%d segment(s) rejected.', 'ai-multilingual' ),
+							result.updated.length
+					  )
+					: sprintf(
+							/* translators: 1: succeeded count, 2: failed count */
+							__( '%1$d succeeded, %2$d failed.', 'ai-multilingual' ),
+							result.updated.length,
+							result.errors.length
+					  )
+			);
+			setReviewDialog( null );
+		} catch ( unknownError ) {
+			const message =
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'The batch review action could not be completed.',
+							'ai-multilingual'
+					  );
+			setReviewDialog( ( current ) =>
+				current ? { ...current, busy: false, error: message } : current
 			);
 		}
 	};
@@ -576,141 +772,229 @@ export default function App() {
 		}
 	};
 
+	const reviewSelectedRows = selectedPendingReviewRows( rows, selectedKeys );
+
 	return (
 		<div className="aiml-translator-workspace">
-			<Panel>
-				<PanelBody
-					title={ __( 'Workspace', 'ai-multilingual' ) }
-					initialOpen={ true }
+			{ canTranslate && canReview && (
+				<div
+					className="aiml-workspace-view-tabs"
+					role="tablist"
+					aria-label={ __( 'Workspace views', 'ai-multilingual' ) }
 				>
-					<div className="aiml-workspace-toolbar">
-						<LanguageSelect
-							languages={ languages }
-							value={ languageCode }
-							onChange={ ( code ) => {
-								setLanguageCode( code );
-								setPostId( null );
-								setPostSummary( null );
-								setSegmentFilter( 'all' );
-							} }
-						/>
-						<PostSelect
-							languageCode={ languageCode }
-							value={ postId }
-							onChange={ ( id, summary ) => {
-								setPostId( id );
-								setPostSummary( summary );
-							} }
-						/>
-						<div className="aiml-workspace-toolbar-actions">
-							<Button
-								variant="secondary"
-								onClick={ loadSegments }
-								disabled={ loading || ! postId }
-							>
-								{ __( 'Refresh', 'ai-multilingual' ) }
-							</Button>
-							<Button
-								variant="secondary"
-								onClick={ handleSaveAllDirty }
-								disabled={
-									batchSaving ||
-									loading ||
-									! postId ||
-									dirtyCount === 0
-								}
-							>
-								{ batchSaving
-									? __( 'Saving…', 'ai-multilingual' )
-									: sprintf(
-											/* translators: %d: dirty segment count */
-											__(
-												'Save all changed (%d)',
-												'ai-multilingual'
-											),
-											dirtyCount
-									  ) }
-							</Button>
-							<Button
-								variant="primary"
-								onClick={ handlePreview }
-								disabled={ ! postId || ! languageCode }
-							>
-								{ __( 'Preview', 'ai-multilingual' ) }
-							</Button>
-						</div>
-					</div>
-					{ previewError && (
-						<Notice status="error" isDismissible={ false }>
-							{ previewError }
-						</Notice>
-					) }
-					{ postSummary && (
-						<p className="aiml-workspace-summary">
-							{ postSummary.post_title } · { postSummary.total_segments }{ ' ' }
-							{ __( 'segments', 'ai-multilingual' ) }
-							{ postSummary.stale_count > 0 &&
-								` · ${ postSummary.stale_count } ${ __(
-									'stale',
-									'ai-multilingual'
-								) }` }
-						</p>
-					) }
-				</PanelBody>
-			</Panel>
+					<Button
+						variant={ viewMode === 'editor' ? 'primary' : 'secondary' }
+						role="tab"
+						aria-selected={ viewMode === 'editor' }
+						onClick={ () => setViewMode( 'editor' ) }
+					>
+						{ __( 'Translate', 'ai-multilingual' ) }
+					</Button>
+					<Button
+						variant={ viewMode === 'queue' ? 'primary' : 'secondary' }
+						role="tab"
+						aria-selected={ viewMode === 'queue' }
+						onClick={ () => setViewMode( 'queue' ) }
+					>
+						{ __( 'Review queue', 'ai-multilingual' ) }
+					</Button>
+				</div>
+			) }
 
-			{ status && postId && (
-				<PublishContext
-					status={ status }
-					onPreview={ handlePreview }
-					previewDisabled={ ! languageCode }
+			{ ! canTranslate && ! canReview && (
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						'You do not have permission to translate or review content.',
+						'ai-multilingual'
+					) }
+				</Notice>
+			) }
+
+			{ canTranslate && 'editor' === viewMode && (
+				<>
+					<Panel>
+						<PanelBody
+							title={ __( 'Workspace', 'ai-multilingual' ) }
+							initialOpen={ true }
+						>
+							<div className="aiml-workspace-toolbar">
+								<LanguageSelect
+									languages={ languages }
+									value={ languageCode }
+									onChange={ ( code ) => {
+										setLanguageCode( code );
+										setPostId( null );
+										setPostSummary( null );
+										setSegmentFilter( 'all' );
+									} }
+								/>
+								<PostSelect
+									languageCode={ languageCode }
+									value={ postId }
+									onChange={ ( id, summary ) => {
+										setPostId( id );
+										setPostSummary( summary );
+									} }
+								/>
+								<div className="aiml-workspace-toolbar-actions">
+									<Button
+										variant="secondary"
+										onClick={ loadSegments }
+										disabled={ loading || ! postId }
+									>
+										{ __( 'Refresh', 'ai-multilingual' ) }
+									</Button>
+									<Button
+										variant="secondary"
+										onClick={ handleSaveAllDirty }
+										disabled={
+											batchSaving ||
+											loading ||
+											! postId ||
+											dirtyCount === 0
+										}
+									>
+										{ batchSaving
+											? __( 'Saving…', 'ai-multilingual' )
+											: sprintf(
+													/* translators: %d: dirty segment count */
+													__(
+														'Save all changed (%d)',
+														'ai-multilingual'
+													),
+													dirtyCount
+											  ) }
+									</Button>
+									<Button
+										variant="primary"
+										onClick={ handlePreview }
+										disabled={ ! postId || ! languageCode }
+									>
+										{ __( 'Preview', 'ai-multilingual' ) }
+									</Button>
+								</div>
+							</div>
+							{ previewError && (
+								<Notice status="error" isDismissible={ false }>
+									{ previewError }
+								</Notice>
+							) }
+							{ postSummary && (
+								<p className="aiml-workspace-summary">
+									{ postSummary.post_title } · { postSummary.total_segments }{ ' ' }
+									{ __( 'segments', 'ai-multilingual' ) }
+									{ postSummary.stale_count > 0 &&
+										` · ${ postSummary.stale_count } ${ __(
+											'stale',
+											'ai-multilingual'
+										) }` }
+								</p>
+							) }
+						</PanelBody>
+					</Panel>
+
+					{ status && postId && (
+						<PublishContext
+							status={ status }
+							onPreview={ handlePreview }
+							previewDisabled={ ! languageCode }
+						/>
+					) }
+
+					{ rows.length > 0 && (
+						<SegmentFilterBar
+							value={ segmentFilter }
+							visibleCount={ filteredRows.length }
+							totalCount={ rows.length }
+							onChange={ setSegmentFilter }
+						/>
+					) }
+
+					<BulkToolbar
+						selectedCount={ selectedKeys.size }
+						dirtySelectedCount={ dirtySelectedCount }
+						busy={ batchSaving }
+						onSaveSelected={ handleSaveSelected }
+						onTranslateSelected={ handleTranslateSelected }
+						onAcceptTmExact={ handleAcceptTmExact }
+						onRunQa={ handleRunQa }
+						onClearSelection={ () => setSelectedKeys( clearSelection() ) }
+						canReview={ canReview }
+						reviewSelectedCount={ reviewSelectedRows.length }
+						onApproveSelected={ () =>
+							openReviewDialog(
+								reviewSelectedRows.map( ( row ) => row.segmentKey ),
+								'approve'
+							)
+						}
+						onRejectSelected={ () =>
+							openReviewDialog(
+								reviewSelectedRows.map( ( row ) => row.segmentKey ),
+								'reject'
+							)
+						}
+					/>
+
+					<SegmentTable
+						rows={ filteredRows }
+						loading={ loading }
+						error={ error }
+						batchMessage={ batchMessage }
+						filterActive={ segmentFilter !== 'all' }
+						selectedKeys={ selectedKeys }
+						allVisibleSelected={ visibleAllSelected }
+						hasSelectableVisible={ hasSelectableVisible }
+						canReview={ canReview }
+						onToggleSelect={ handleToggleSelect }
+						onToggleSelectAll={ handleToggleSelectAll }
+						onDraftChange={ handleDraftChange }
+						onSave={ handleSaveRow }
+						onReload={ handleReloadRow }
+						onSuggestProfile={ handleSuggestProfile }
+						suggestingKey={ suggestingKey }
+						onSubmitReview={ handleSubmitReview }
+						onRequestReviewDecision={ openReviewDialog }
+					/>
+
+					{ status && (
+						<StatusFooter
+							status={ status }
+							qaSummary={ aggregateQaSummary(
+								rows.map( ( row ) => row.server )
+							) }
+						/>
+					) }
+				</>
+			) }
+
+			{ canReview && 'queue' === viewMode && (
+				<ReviewQueuePanel
+					languages={ languages }
+					canTranslate={ canTranslate }
+					onOpenInEditor={ ( openPostId, openLanguageCode ) => {
+						setViewMode( 'editor' );
+						if ( openLanguageCode ) {
+							setLanguageCode( openLanguageCode );
+						}
+						setPostId( openPostId );
+					} }
 				/>
 			) }
 
-			{ rows.length > 0 && (
-				<SegmentFilterBar
-					value={ segmentFilter }
-					visibleCount={ filteredRows.length }
-					totalCount={ rows.length }
-					onChange={ setSegmentFilter }
-				/>
-			) }
-
-			<BulkToolbar
-				selectedCount={ selectedKeys.size }
-				dirtySelectedCount={ dirtySelectedCount }
-				busy={ batchSaving }
-				onSaveSelected={ handleSaveSelected }
-				onTranslateSelected={ handleTranslateSelected }
-				onAcceptTmExact={ handleAcceptTmExact }
-				onRunQa={ handleRunQa }
-				onClearSelection={ () => setSelectedKeys( clearSelection() ) }
-			/>
-
-			<SegmentTable
-				rows={ filteredRows }
-				loading={ loading }
-				error={ error }
-				batchMessage={ batchMessage }
-				filterActive={ segmentFilter !== 'all' }
-				selectedKeys={ selectedKeys }
-				allVisibleSelected={ visibleAllSelected }
-				hasSelectableVisible={ hasSelectableVisible }
-				onToggleSelect={ handleToggleSelect }
-				onToggleSelectAll={ handleToggleSelectAll }
-				onDraftChange={ handleDraftChange }
-				onSave={ handleSaveRow }
-				onReload={ handleReloadRow }
-				onSuggestProfile={ handleSuggestProfile }
-				suggestingKey={ suggestingKey }
-			/>
-
-			{ status && (
-				<StatusFooter
-					status={ status }
-					qaSummary={ aggregateQaSummary(
-						rows.map( ( row ) => row.server )
-					) }
+			{ reviewDialog && (
+				<ReviewDecisionDialog
+					action={ reviewDialog.action }
+					count={ reviewDialog.targets.length }
+					reason={ reviewDialog.reason }
+					onReasonChange={ ( value ) =>
+						setReviewDialog( ( current ) =>
+							current ? { ...current, reason: value } : current
+						)
+					}
+					onConfirm={ confirmReviewDialog }
+					onCancel={ closeReviewDialog }
+					busy={ reviewDialog.busy }
+					errorMessage={ reviewDialog.error }
 				/>
 			) }
 		</div>

@@ -59,6 +59,14 @@ final class Store {
 	public const STATUS_IGNORED            = 'ignored';
 
 	/**
+	 * Review Workflow axis (ADR-0015). Independent of provenance `status`.
+	 */
+	public const REVIEW_NOT_SUBMITTED = 'not_submitted';
+	public const REVIEW_PENDING       = 'pending';
+	public const REVIEW_APPROVED      = 'approved';
+	public const REVIEW_REJECTED      = 'rejected';
+
+	/**
 	 * Segment kinds.
 	 */
 	public const KIND_FIELD = 'field';
@@ -114,6 +122,48 @@ final class Store {
 			self::STATUS_FAILED,
 			self::STATUS_IGNORED,
 		);
+	}
+
+	/**
+	 * Every known review-status value (ADR-0015).
+	 *
+	 * @return string[]
+	 */
+	public static function review_statuses(): array {
+		return array(
+			self::REVIEW_NOT_SUBMITTED,
+			self::REVIEW_PENDING,
+			self::REVIEW_APPROVED,
+			self::REVIEW_REJECTED,
+		);
+	}
+
+	/**
+	 * Column map that clears active review decisions (invalidate-on-edit).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function review_clear_fields(): array {
+		return array(
+			'review_status'              => self::REVIEW_NOT_SUBMITTED,
+			'review_submitted_by'        => null,
+			'review_submitted_at'        => null,
+			'submitted_translation_hash' => '',
+			'reviewed_by'                => null,
+			'reviewed_at'                => null,
+			'rejection_reason'           => '',
+			'rejected_by'                => null,
+			'rejected_at'                => null,
+		);
+	}
+
+	/**
+	 * Allowlisted review-metadata column names.
+	 *
+	 * @return string[]
+	 */
+	public static function review_metadata_columns(): array {
+		return array_keys( self::review_clear_fields() );
 	}
 
 	/**
@@ -559,6 +609,210 @@ final class Store {
 		return max( 0, (int) $count );
 	}
 
+	/**
+	 * Maximum rows returned per review-queue page.
+	 */
+	public const REVIEW_QUEUE_MAX_PER_PAGE = 50;
+
+	/**
+	 * Filtered, paginated view over review-axis rows (ADR-0015 §5, §11).
+	 *
+	 * The review queue is a query over the existing translations table, never
+	 * a separate persisted queue. Sort is stable (submission time, then row
+	 * id) so pagination cannot skip or repeat rows between pages.
+	 *
+	 * @param array<string, mixed> $args {
+	 *     Optional query args.
+	 *
+	 *     @type string $source_type   Source type. Default SOURCE_POST.
+	 *     @type int    $source_id     Optional object id filter (0 = any).
+	 *     @type int    $language_id   Optional language filter (0 = any).
+	 *     @type string $review_status One of review_statuses(), or 'all'. Default REVIEW_PENDING.
+	 *     @type int    $page          1-based page number. Default 1.
+	 *     @type int    $per_page      Page size, bounded by REVIEW_QUEUE_MAX_PER_PAGE. Default 20.
+	 * }
+	 * @return array{items: list<object>, total: int, page: int, per_page: int}
+	 */
+	public function query_review_queue( array $args = array() ): array {
+		global $wpdb;
+
+		$source_type   = (string) ( $args['source_type'] ?? self::SOURCE_POST );
+		$source_id     = (int) ( $args['source_id'] ?? 0 );
+		$language_id   = (int) ( $args['language_id'] ?? 0 );
+		$review_status = (string) ( $args['review_status'] ?? self::REVIEW_PENDING );
+		$page          = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$per_page      = max( 1, min( self::REVIEW_QUEUE_MAX_PER_PAGE, (int) ( $args['per_page'] ?? 20 ) ) );
+
+		if ( 'all' !== $review_status && ! in_array( $review_status, self::review_statuses(), true ) ) {
+			return array(
+				'items'    => array(),
+				'total'    => 0,
+				'page'     => $page,
+				'per_page' => $per_page,
+			);
+		}
+
+		if ( ! $this->translations_table_exists() ) {
+			return array(
+				'items'    => array(),
+				'total'    => 0,
+				'page'     => $page,
+				'per_page' => $per_page,
+			);
+		}
+
+		$where  = array( 'source_type = %s' );
+		$params = array( $source_type );
+
+		if ( $language_id > 0 ) {
+			$where[]  = 'language_id = %d';
+			$params[] = $language_id;
+		}
+
+		if ( $source_id > 0 ) {
+			$where[]  = 'source_id = %d';
+			$params[] = $source_id;
+		}
+
+		if ( 'all' !== $review_status ) {
+			$where[]  = 'review_status = %s';
+			$params[] = $review_status;
+		}
+
+		$where_sql = implode( ' AND ', $where );
+
+		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM ' . Schema::translations() . ' WHERE ' . $where_sql, // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $where_sql is built from a fixed set of %s/%d placeholders above, matched 1:1 with $params.
+				$params
+			)
+		);
+
+		if ( $total <= 0 ) {
+			return array(
+				'items'    => array(),
+				'total'    => 0,
+				'page'     => $page,
+				'per_page' => $per_page,
+			);
+		}
+
+		$offset      = ( $page - 1 ) * $per_page;
+		$list_params = array_merge( $params, array( $per_page, $offset ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $where_sql is built from a fixed set of %s/%d placeholders above, matched 1:1 with $list_params.
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::translations() . ' WHERE ' . $where_sql
+				. ' ORDER BY review_submitted_at ASC, translation_id ASC LIMIT %d OFFSET %d',
+				$list_params
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+		$items = array();
+		foreach ( (array) $rows as $row ) {
+			$items[] = $this->hydrate( $row );
+		}
+
+		return array(
+			'items'    => $items,
+			'total'    => $total,
+			'page'     => $page,
+			'per_page' => $per_page,
+		);
+	}
+
+	/**
+	 * Upper bound (seconds) reported for pending-review age (ADR-0015 §13).
+	 *
+	 * Diagnostics are query-time and bounded on purpose: a very old,
+	 * forgotten pending row must not make the reported figure unbounded, and
+	 * the plugin must never persist a high-cardinality metric to track it.
+	 */
+	public const REVIEW_PENDING_AGE_BOUND_SECONDS = 2592000; // 30 days.
+
+	/**
+	 * Counts review-axis rows by status, scoped by optional source/language
+	 * (ADR-0015 §13). Query-time diagnostics only — never a persisted metric.
+	 *
+	 * @param string $source_type Source type. Default SOURCE_POST.
+	 * @param int    $source_id   Optional source object id filter (0 = any).
+	 * @param int    $language_id Optional language filter (0 = any).
+	 * @return array<string, int> Map of every review_status catalog value to its count.
+	 */
+	public function review_status_counts( string $source_type = self::SOURCE_POST, int $source_id = 0, int $language_id = 0 ): array {
+		$counts = array_fill_keys( self::review_statuses(), 0 );
+
+		if ( ! $this->translations_table_exists() ) {
+			return $counts;
+		}
+
+		global $wpdb;
+
+		$scope = $this->health_scope_sql( $source_type, $source_id, $language_id );
+		$sql   = 'SELECT review_status, COUNT(*) AS row_count FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL
+			. ' WHERE 1=1' . $scope['sql'] . ' GROUP BY review_status';
+
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $scope['args'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+		foreach ( (array) $rows as $row ) {
+			$status = (string) ( $row->review_status ?? '' );
+			if ( array_key_exists( $status, $counts ) ) {
+				$counts[ $status ] = $this->normalize_health_count( $row->row_count );
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Bounded pending-review age stats, scoped by optional source/language
+	 * (ADR-0015 §13). Query-time diagnostics only.
+	 *
+	 * @param string $source_type Source type. Default SOURCE_POST.
+	 * @param int    $source_id   Optional source object id filter (0 = any).
+	 * @param int    $language_id Optional language filter (0 = any).
+	 * @return array{count: int, avg_seconds: int, max_seconds: int}
+	 */
+	public function review_pending_age_stats( string $source_type = self::SOURCE_POST, int $source_id = 0, int $language_id = 0 ): array {
+		$empty = array(
+			'count'       => 0,
+			'avg_seconds' => 0,
+			'max_seconds' => 0,
+		);
+
+		if ( ! $this->translations_table_exists() ) {
+			return $empty;
+		}
+
+		global $wpdb;
+
+		$scope = $this->health_scope_sql( $source_type, $source_id, $language_id );
+		$sql   = 'SELECT COUNT(*) AS row_count,'
+			. ' COALESCE(AVG(TIMESTAMPDIFF(SECOND, review_submitted_at, UTC_TIMESTAMP())), 0) AS avg_seconds,'
+			. ' COALESCE(MAX(TIMESTAMPDIFF(SECOND, review_submitted_at, UTC_TIMESTAMP())), 0) AS max_seconds'
+			. ' FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL
+			. ' WHERE review_status = %s AND review_submitted_at IS NOT NULL' . $scope['sql'];
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare( $sql, array_merge( array( self::REVIEW_PENDING ), $scope['args'] ) ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+
+		$row = ( is_array( $rows ) && isset( $rows[0] ) ) ? $rows[0] : null;
+		if ( null === $row ) {
+			return $empty;
+		}
+
+		$bound = self::REVIEW_PENDING_AGE_BOUND_SECONDS;
+
+		return array(
+			'count'       => $this->normalize_health_count( $row->row_count ),
+			'avg_seconds' => min( $bound, max( 0, (int) round( (float) $row->avg_seconds ) ) ),
+			'max_seconds' => min( $bound, max( 0, (int) $row->max_seconds ) ),
+		);
+	}
+
 	// -- Writes --
 
 	/**
@@ -602,6 +856,8 @@ final class Store {
 
 		$now = current_time( 'mysql', true );
 
+		$translation_hash = self::translation_hash( $translated_text );
+
 		$data = array(
 			'source_type'      => $source_type,
 			'source_id'        => $source_id,
@@ -617,15 +873,45 @@ final class Store {
 			'source_hash'      => self::source_hash( $source_text, $format ),
 			'norm_version'     => self::NORM_VERSION,
 			'translated_text'  => $translated_text,
-			'translation_hash' => self::translation_hash( $translated_text ),
+			'translation_hash' => $translation_hash,
 			'status'           => $status,
 			'is_stale'         => 0,
 			'translated_by'    => (int) ( $args['translated_by'] ?? get_current_user_id() ),
 			'updated_at'       => $now,
 		);
 
+		$existing     = $this->get( $source_type, $source_id, $language_id, $segment_key );
+		$prior_hash   = null === $existing ? '' : (string) ( $existing->translation_hash ?? '' );
+		$text_changed = null === $existing || $prior_hash !== $translation_hash;
+
+		if ( $text_changed ) {
+			$data = array_merge( $data, self::review_clear_fields() );
+		}
+
 		$this->upsert( $data, $now );
 		$this->invalidate( $source_type, $source_id, $language_id );
+
+		if ( $text_changed && null !== $existing && function_exists( 'do_action' ) ) {
+			/**
+			 * Fires when a material translation edit clears prior review state.
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param string $source_type Source type.
+			 * @param int    $source_id   Source object ID.
+			 * @param int    $language_id Language ID.
+			 * @param string $segment_key Segment key.
+			 * @param string $old_review  Previous review_status.
+			 */
+			\do_action(
+				'aiml_review_invalidated_by_edit',
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				(string) ( $existing->review_status ?? self::REVIEW_NOT_SUBMITTED )
+			);
+		}
 
 		if ( function_exists( 'do_action' ) ) {
 			/**
@@ -639,6 +925,79 @@ final class Store {
 			 */
 			\do_action( 'aiml_translation_saved', $source_type, $source_id, $language_id );
 		}
+
+		return true;
+	}
+
+	/**
+	 * Updates allowlisted review-metadata columns without changing translation content.
+	 *
+	 * @param string               $source_type Source type.
+	 * @param int                  $source_id   Source object id.
+	 * @param int                  $language_id Language id.
+	 * @param string               $segment_key Segment key.
+	 * @param array<string, mixed> $fields      Review columns only.
+	 * @return true|WP_Error
+	 */
+	public function update_review_metadata(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		array $fields
+	) {
+		$allowed = self::review_metadata_columns();
+		$data    = array();
+
+		foreach ( $fields as $column => $value ) {
+			if ( ! in_array( (string) $column, $allowed, true ) ) {
+				continue;
+			}
+
+			$data[ (string) $column ] = $value;
+		}
+
+		if ( array() === $data ) {
+			return new WP_Error( 'aiml_invalid_review_fields', __( 'No review metadata fields provided.', 'ai-multilingual' ) );
+		}
+
+		if ( isset( $data['review_status'] ) && ! in_array( (string) $data['review_status'], self::review_statuses(), true ) ) {
+			return new WP_Error( 'aiml_invalid_review_status', __( 'Unknown review status.', 'ai-multilingual' ) );
+		}
+
+		$existing = $this->get( $source_type, $source_id, $language_id, $segment_key );
+		if ( null === $existing ) {
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+		}
+
+		$data['updated_at'] = current_time( 'mysql', true );
+
+		$formats = array();
+		foreach ( $data as $column => $value ) {
+			if ( null === $value ) {
+				$formats[] = null;
+			} elseif ( is_int( $value ) ) {
+				$formats[] = '%d';
+			} else {
+				$formats[] = '%s';
+			}
+		}
+
+		global $wpdb;
+
+		$result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::translations(),
+			$data,
+			array( 'translation_id' => (int) $existing->translation_id ),
+			$formats,
+			array( '%d' )
+		);
+
+		if ( false === $result ) {
+			return new WP_Error( 'aiml_review_update_failed', __( 'Could not update review metadata.', 'ai-multilingual' ) );
+		}
+
+		$this->invalidate( $source_type, $source_id, $language_id );
 
 		return true;
 	}
@@ -777,6 +1136,11 @@ final class Store {
 		foreach ( $columns as $column ) {
 			$value = $data[ $column ];
 
+			if ( null === $value ) {
+				$placeholders[] = 'NULL';
+				continue;
+			}
+
 			if ( is_int( $value ) ) {
 				$placeholders[] = '%d';
 			} else {
@@ -796,6 +1160,11 @@ final class Store {
 		$sql = 'INSERT INTO ' . Schema::translations()
 			. ' (' . implode( ', ', $columns ) . ') VALUES (' . implode( ', ', $placeholders ) . ')'
 			. ' ON DUPLICATE KEY UPDATE ' . implode( ', ', $assignments );
+
+		if ( array() === $values ) {
+			$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			return;
+		}
 
 		$wpdb->query( $wpdb->prepare( $sql, $values ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 	}
@@ -827,6 +1196,24 @@ final class Store {
 		$row->segment_key    = (string) $row->segment_key;
 		$row->field_key      = (string) $row->field_key;
 		$row->text_format    = (string) $row->text_format;
+
+		if ( isset( $row->review_status ) ) {
+			$row->review_status = (string) $row->review_status;
+		} else {
+			$row->review_status = self::REVIEW_NOT_SUBMITTED;
+		}
+
+		$row->submitted_translation_hash = (string) ( $row->submitted_translation_hash ?? '' );
+		$row->rejection_reason           = (string) ( $row->rejection_reason ?? '' );
+		$row->review_submitted_by        = null !== ( $row->review_submitted_by ?? null ) && '' !== (string) $row->review_submitted_by
+			? (int) $row->review_submitted_by
+			: null;
+		$row->reviewed_by                = null !== ( $row->reviewed_by ?? null ) && '' !== (string) $row->reviewed_by
+			? (int) $row->reviewed_by
+			: null;
+		$row->rejected_by                = null !== ( $row->rejected_by ?? null ) && '' !== (string) $row->rejected_by
+			? (int) $row->rejected_by
+			: null;
 
 		return $row;
 	}

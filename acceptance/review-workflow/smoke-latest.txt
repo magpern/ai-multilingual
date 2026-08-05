@@ -1,0 +1,80 @@
+PASS	reviewer_lacks_translate	uid=11
+PASS	reviewer_has_review_cap
+PASS	translator_has_translate
+PASS	translator_lacks_review_cap
+PASS	test_post_created	id=6354 slug=review-workflow-validation
+PASS	translator_open_workspace_segments	status=200
+PASS	has_title_and_two_blocks	keys=b:550e8400-e29b-41d4-a716-446655440010:content,post_title,b:660e8400-e29b-41d4-a716-446655440011:content
+PASS	resolved_segment_keys
+PASS	translator_save_translation	status=200
+PASS	default_review_not_submitted
+PASS	noop_save_preserves_pending
+PASS	edit_resets_review_not_submitted
+PASS	translator_submit	status=200
+PASS	submit_sets_pending
+PASS	submit_records_hash
+PASS	submit_records_by
+PASS	submit_records_at
+PASS	translator_cannot_approve	status=403
+PASS	translator_cannot_reject	status=403
+PASS	reviewer_queue_ok	status=200
+PASS	pending_appears_in_queue	count=1
+PASS	no_review_or_queue_tables
+PASS	reviewer_cannot_edit	status=403
+PASS	reviewer_edit_did_not_change_text
+PASS	reject_empty_reason_denied	status=422
+PASS	reject_succeeds	status=200
+PASS	reject_status
+PASS	reject_preserves_text
+PASS	reject_reason_visible
+PASS	reject_meta
+PASS	reject_no_tm_write	before=1 after=1
+PASS	correction_clears_to_not_submitted
+PASS	correction_clears_rejection
+PASS	resubmit_ok	status=200
+PASS	resubmit_pending
+PASS	stale_edit_invalidates
+PASS	stale_approve_409	status=409
+PASS	stale_approve_no_transition
+PASS	stale_reject_409	status=409
+PASS	approve_succeeds	status=200
+PASS	approve_status
+PASS	approve_meta
+PASS	approve_text_unchanged
+FAIL	approve_writes_tm_once	before=1 after=1
+PASS	duplicate_approve_ok	status=200
+PASS	duplicate_approve_no_tm_inflate	tm=1 use=1
+PASS	reject_preserves_historic_tm	tm=1
+PASS	batch_fixtures_pending
+PASS	batch_partial_http	status=200
+PASS	batch_reports_results	{"status":"partial","segments":[{"segment_key":"b:550e8400-e29b-41d4-a716-446655440010:content","field_key":"post_content","block_name":"core\/paragraph","uuid":"550e8400-e29b-41d4-a716-446655440010","segment_order":0,"s
+PASS	batch_partial_success_title_approved	review=approved
+PASS	batch_partial_conflict_content_pending	review=pending
+PASS	approve_with_warnings_allowed	status=200
+PASS	qa_error_blocks_approval_when_policy_on	status=422 code=aiml_qa_blocked submit=200
+PASS	reject_without_qa_pass	status=200
+PASS	diagnostics_endpoint	status=200
+PASS	diagnostics_has_counts	{"review_status_counts":{"not_submitted":149,"pending":2,"approved":3,"rejected":2},"pending_age":{"count":2,"avg_seconds":269,"max_seconds":269},"counters":{"conflicts":7,"approval_failures":4,"qa_blocked_approvals":1,"tm_write_back_succes
+PASS	diagnostics_conflicts_incremented	conflicts=7
+PASS	diagnostics_qa_blocked_incremented	qa_blocked=1
+PASS	audit_submitted_or_resubmitted	review_invalidated_by_edit,review_submitted,review_approved
+PASS	audit_approved	review_invalidated_by_edit,review_submitted,review_approved
+PASS	audit_payload_safe_no_bodies
+PASS	render_en_ok	code=200
+PASS	render_sv_ok	code=200
+PASS	render_sv_has_content	len=136080
+PASS	render_no_cross_post_leak
+PASS	rendered_false_positives_zero	no Review branches in BlockRenderGate; FP=0
+PASS	unauthorized_approve_forbidden	status=403
+
+SUMMARY	passed=67	failed=1	total=68
+POST_ID=6354
+QA_POST_ID=6355
+TRANSLATOR_ID=10
+REVIEWER_ID=11
+LANG_ID=2
+TM_ROWS=3
+TM_BASELINE=1
+SCHEMA=5
+FAILED_NAMES\tapprove_writes_tm_once
+

@@ -53,6 +53,7 @@ foreach ( array_keys( $aiml_roles->roles ) as $aiml_role_name ) {
 	}
 }
 \AIMultilingual\Glossary\GlossaryCapabilities::revoke_all_roles();
+\AIMultilingual\Workspace\Review\ReviewCapabilities::revoke_all_roles();
 
 // 3. Plugin options. Glossary lexicon version (ADR-0014) and cache epoch.
 // Milestone 3 may also unschedule aiml_run_job / aiml_jobs_sweep actions before this point.
@@ -61,7 +62,8 @@ delete_option( \AIMultilingual\Database\Migrator::OPTION );
 delete_option( \AIMultilingual\Cache\Cache::VERSION_OPTION );
 delete_option( \AIMultilingual\Database\Schema::GLOSSARY_VERSION_OPTION );
 
-// 4. Plugin-owned tables.
+// 4. Plugin-owned tables (translations includes Review Workflow columns from
+// schema v5; no separate review/queue tables exist — ADR-0015).
 foreach ( \AIMultilingual\Database\Schema::all_tables() as $aiml_table ) {
 	$wpdb->query( 'DROP TABLE IF EXISTS ' . $aiml_table ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 }

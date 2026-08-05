@@ -40,6 +40,7 @@ use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Rest\GlossaryController;
 use AIMultilingual\Rest\ProviderController;
+use AIMultilingual\Rest\ViewModel\ReviewQueueItemSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
@@ -77,6 +78,9 @@ use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\QA\Checks\GlossaryTermCheck;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\PreviewService;
+use AIMultilingual\Workspace\Review\ReviewCapabilities;
+use AIMultilingual\Workspace\Review\ReviewEditInvalidationAuditBridge;
+use AIMultilingual\Workspace\Review\ReviewWorkflowService;
 use AIMultilingual\Workspace\SegmentAssembler;
 use AIMultilingual\Workspace\Suggestion\AISuggestionProvider;
 use AIMultilingual\Workspace\Suggestion\GlossarySuggestionProvider;
@@ -234,6 +238,7 @@ final class Plugin {
 			! empty( $this->settings->get()['qa_block_on_error'] )
 		);
 		$qa_engine->register( new GlossaryTermCheck( $glossary_service ) );
+		$review    = new ReviewWorkflowService( $store );
 		$workspace = new WorkspaceService(
 			$assembler,
 			$status_calculator,
@@ -244,14 +249,16 @@ final class Plugin {
 			$extractor,
 			$suggestion_service,
 			$qa_engine,
-			$tm_service
+			$tm_service,
+			$review
 		);
 
 		( new WorkspaceController(
 			$workspace,
 			new WorkspaceSegmentSerializer(),
 			new WorkspacePageSummarySerializer(),
-			new WorkspaceTranslationStatusSerializer()
+			new WorkspaceTranslationStatusSerializer(),
+			new ReviewQueueItemSerializer()
 		) )->register();
 
 		( new ProviderController( $provider_registry ) )->register();
@@ -269,6 +276,8 @@ final class Plugin {
 			new RenderCacheInvalidationService( null, $cache ),
 			$languages
 		) )->register();
+
+		( new ReviewEditInvalidationAuditBridge() )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 
@@ -341,6 +350,7 @@ final class Plugin {
 		self::grant_capability();
 		RolloutCapabilities::grant_default_roles();
 		GlossaryCapabilities::grant_default_roles();
+		ReviewCapabilities::grant_default_roles();
 	}
 
 	/**

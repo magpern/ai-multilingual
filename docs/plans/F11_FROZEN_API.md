@@ -118,7 +118,9 @@ New codes may only be **added** via new `QACheck` classes.
 | Exact confidence | 100 (context) / 95 (global + ambiguity gate) |
 | Fuzzy | Confidence ∈ [60, 94]; default threshold 85 |
 
-**Implementation note:** `WorkspaceService::save_segment()` invokes `TranslationMemoryService::write_back()` after a successful Store persist for eligible origins (`human`, `ai_accepted`, `import`). Accepting an existing TM hit uses `record_usage()` only (`tm_accepted`). Machine persist goes through `TranslationService` → Store and never calls this path.
+**Implementation note (pre-Review-Workflow, superseded below):** `WorkspaceService::save_segment()` invoked `TranslationMemoryService::write_back()` after a successful Store persist for eligible origins (`human`, `ai_accepted`, `import`). Accepting an existing TM hit uses `record_usage()` only (`tm_accepted`). Machine persist goes through `TranslationService` → Store and never calls this path.
+
+**Additive amendment (ADR-0015 §7, Review Workflow R5):** when Review Workflow is enabled, *new*-content write-back moves from save-time to approval-time. `WorkspaceService::save_segment()` no longer calls `write_back()`; it still calls `record_usage()` immediately for an accepted exact TM hit (`tm_accepted` — not new content, unaffected by this amendment). `WorkspaceService::approve_review()` calls the new `write_back_tm_on_approval()` exactly once on a real `pending` → `approved` transition (never on an idempotent duplicate approve), reusing the same `TranslationMemoryService::write_back()` and its existing eligibility rules (format exclusions unchanged). Pending and rejected translations never write TM; rejecting never deletes historical TM. Machine-origin content (`status = machine_translated`) remains excluded unless a human has since edited it. See [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md) and [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md §10](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md#10-translation-memory-interaction) for the full policy.
 
 ---
 
@@ -142,5 +144,5 @@ Workspace/settings adapt via flags — no vendor-name branching in `WorkspaceSer
 | `TranslationSuggestionService` sole suggestion orchestrator | **PASS** |
 | `WorkspaceService` does not call SuggestionProviders / OpenAI | **PASS** |
 | TM write-back **policy** machine-excluded | **PASS** |
-| TM write-back **wired on save** | **PASS** — `WorkspaceService::sync_translation_memory_after_save()` |
+| TM write-back **wired on save** | **PASS** at F11 close; **amended** by ADR-0015 (Review Workflow R5) — new-content write-back now wired on approval via `WorkspaceService::write_back_tm_on_approval()`; `record_tm_usage_after_save()` still records usage for accepted exact TM hits at save-time |
 | This frozen API doc committed | **PASS** |

@@ -121,5 +121,6 @@ final class ActivationTest extends AimlTestCase {
 		$this->assertArrayHasKey( 'segment_identity', $names );
 		$this->assertArrayHasKey( 'object_lang', $names );
 		$this->assertArrayHasKey( 'lang_status', $names );
+		$this->assertArrayHasKey( 'lang_review_queue', $names );
 	}
 }

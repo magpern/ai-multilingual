@@ -1,7 +1,9 @@
+import type { ReviewBatchResult } from '../types/segment-row';
 import type { WorkspaceSegment } from '../types/view-models';
 import {
 	applyConflict,
 	applyReloadFromServer,
+	applyReviewBatchResults,
 	applySaveSuccess,
 	countDirtyRows,
 	createRowsFromSegments,
@@ -26,6 +28,15 @@ function segment( overrides: Partial< WorkspaceSegment > = {} ): WorkspaceSegmen
 		text_format: 'html',
 		can_edit: true,
 		meta: {},
+		review_status: 'not_submitted',
+		submitted_translation_hash: '',
+		review_submitted_by: null,
+		review_submitted_at: null,
+		reviewed_by: null,
+		reviewed_at: null,
+		rejection_reason: '',
+		rejected_by: null,
+		rejected_at: null,
 		...overrides,
 	};
 }
@@ -160,5 +171,90 @@ describe( 'segment-rows', () => {
 			segment( { can_edit: false, translated_text: 'Locked' } ),
 		] );
 		expect( rows[ 0 ].server.can_edit ).toBe( false );
+	} );
+
+	describe( 'applyReviewBatchResults', () => {
+		it( 'applies successful review decisions and clears row errors', () => {
+			const rows = createRowsFromSegments( [
+				segment( { segment_key: 'b:one:content' } ),
+			] );
+			const result: ReviewBatchResult = {
+				status: 'completed',
+				updated: [
+					segment( {
+						segment_key: 'b:one:content',
+						review_status: 'approved',
+						reviewed_by: 4,
+					} ),
+				],
+				errors: [],
+			};
+
+			const next = applyReviewBatchResults( rows, result );
+			expect( next[ 0 ].server.review_status ).toBe( 'approved' );
+			expect( next[ 0 ].rowState ).toBe( 'clean' );
+		} );
+
+		it( 'surfaces a per-item error without dropping other rows (no silent skip)', () => {
+			const rows = createRowsFromSegments( [
+				segment( { segment_key: 'b:one:content' } ),
+				segment( { segment_key: 'b:two:content' } ),
+			] );
+			const result: ReviewBatchResult = {
+				status: 'partial',
+				updated: [
+					segment( {
+						segment_key: 'b:one:content',
+						review_status: 'approved',
+					} ),
+				],
+				errors: [
+					{
+						segment_key: 'b:two:content',
+						code: 'aiml_review_conflict',
+						message: 'The submitted translation changed.',
+					},
+				],
+			};
+
+			const next = applyReviewBatchResults( rows, result );
+			expect( next[ 0 ].server.review_status ).toBe( 'approved' );
+			expect( next[ 1 ].rowState ).toBe( 'error' );
+			expect( next[ 1 ].errorMessage ).toBe(
+				'The submitted translation changed.'
+			);
+		} );
+
+		it( 'reattaches fresh QA context on an aiml_qa_blocked batch approval failure', () => {
+			const rows = createRowsFromSegments( [
+				segment( { segment_key: 'b:one:content' } ),
+			] );
+			const result: ReviewBatchResult = {
+				status: 'partial',
+				updated: [],
+				errors: [
+					{
+						segment_key: 'b:one:content',
+						code: 'aiml_qa_blocked',
+						message: 'Translation failed quality checks.',
+						qa: {
+							issues: [
+								{
+									code: 'placeholder_mismatch',
+									severity: 'error',
+									message: 'Placeholder missing.',
+									details: {},
+								},
+							],
+							summary: { errors: 1, warnings: 0, info: 0 },
+						},
+					},
+				],
+			};
+
+			const next = applyReviewBatchResults( rows, result );
+			expect( next[ 0 ].rowState ).toBe( 'error' );
+			expect( next[ 0 ].server.meta.qa ).toEqual( result.errors[ 0 ].qa );
+		} );
 	} );
 } );

@@ -88,3 +88,20 @@ export function allVisibleSelected(
 
 	return selectable.every( ( row ) => selected.has( row.segmentKey ) );
 }
+
+/**
+ * Approve/reject are legal transitions only from `pending`
+ * (ADR-0015 §4.1) — the batch review toolbar only ever acts on these rows.
+ */
+export function isRowPendingReview( row: SegmentRow ): boolean {
+	return 'pending' === row.server.review_status;
+}
+
+export function selectedPendingReviewRows(
+	rows: SegmentRow[],
+	selected: Set< string >
+): SegmentRow[] {
+	return rows.filter(
+		( row ) => selected.has( row.segmentKey ) && isRowPendingReview( row )
+	);
+}

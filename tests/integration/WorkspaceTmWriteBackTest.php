@@ -17,7 +17,10 @@ use AIMultilingual\Translation\Store;
 use WP_REST_Request;
 
 /**
- * Confirms eligible workspace saves populate TM; machine persist does not.
+ * Confirms workspace saves alone never populate TM (ADR-0015 §7 / F11
+ * amendment, R5 — write-back moved to approval-time); accepting an existing
+ * exact TM hit still records usage immediately, and machine persist never
+ * writes TM. See {@see ReviewTmWriteBackTest} for approval-gated write-back.
  *
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
@@ -31,7 +34,13 @@ final class WorkspaceTmWriteBackTest extends AimlTestCase {
 		$this->enable_strategy_f_flags();
 	}
 
-	public function test_human_save_writes_tm_entry(): void {
+	/**
+	 * ADR-0015 §7 / F11 amendment (R5): new-content TM write-back moved from
+	 * save-time to approval-time. A workspace save alone — however eligible
+	 * the origin — must never populate TM anymore; see
+	 * {@see ReviewTmWriteBackTest} for the approval-gated coverage.
+	 */
+	public function test_human_save_no_longer_writes_tm_entry_before_approval(): void {
 		$language = $this->add_language();
 		$default  = $this->languages->default();
 		$this->assertNotNull( $default );
@@ -88,9 +97,7 @@ final class WorkspaceTmWriteBackTest extends AimlTestCase {
 			'block:core/paragraph'
 		);
 
-		$this->assertNotNull( $hit );
-		$this->assertSame( 'Unika produktgarantivillkor för nordiska marknader', $hit['target_text'] );
-		$this->assertSame( TMRepository::ORIGIN_HUMAN, $hit['origin'] );
+		$this->assertNull( $hit );
 	}
 
 	public function test_accept_tm_exact_records_usage_without_new_origin(): void {

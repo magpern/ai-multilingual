@@ -228,3 +228,141 @@
 	border-left-color: #72aee6;
 	background: #f0f6fc;
 }
+
+.aiml-translator-workspace .aiml-glossary-context {
+	margin-top: 0.5rem;
+	padding-top: 0.35rem;
+	border-top: 1px dashed #dcdcde;
+}
+
+.aiml-translator-workspace .aiml-glossary-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 0.25rem;
+}
+
+.aiml-translator-workspace .aiml-glossary-item {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-size: 12px;
+}
+
+.aiml-translator-workspace .aiml-glossary-source {
+	text-decoration: line-through;
+	color: #646970;
+}
+
+.aiml-translator-workspace .aiml-glossary-target {
+	font-weight: 600;
+	color: #008a20;
+}
+
+.aiml-translator-workspace .aiml-workspace-view-tabs {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.aiml-translator-workspace .aiml-workspace-row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.aiml-translator-workspace .aiml-review-badge {
+	display: inline-block;
+	margin-left: 0.5rem;
+	padding: 0.05rem 0.4rem;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.aiml-translator-workspace .aiml-review-badge--not_submitted {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.aiml-translator-workspace .aiml-review-badge--pending {
+	background: #fcf9e8;
+	color: #8a6d00;
+}
+
+.aiml-translator-workspace .aiml-review-badge--approved {
+	background: #edfaef;
+	color: #008a20;
+}
+
+.aiml-translator-workspace .aiml-review-badge--rejected {
+	background: #fcf0f1;
+	color: #d63638;
+}
+
+.aiml-translator-workspace .aiml-review-meta {
+	margin: 0.5rem 0;
+	font-size: 12px;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 0.15rem 0.5rem;
+}
+
+.aiml-translator-workspace .aiml-review-meta dt {
+	font-weight: 600;
+	margin: 0;
+}
+
+.aiml-translator-workspace .aiml-review-meta dd {
+	margin: 0;
+}
+
+.aiml-translator-workspace .aiml-review-reason {
+	white-space: pre-wrap;
+}
+
+.aiml-review-dialog .aiml-review-dialog-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+.aiml-translator-workspace .aiml-review-queue-panel {
+	margin-top: 1rem;
+}
+
+.aiml-translator-workspace .aiml-review-queue-filter-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.aiml-translator-workspace .aiml-review-queue-toolbar {
+	align-items: center;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	justify-content: space-between;
+	margin: 1rem 0;
+	padding: 0.75rem 1rem;
+}
+
+.aiml-translator-workspace .aiml-review-queue-row--selected {
+	background: #f0f6fc;
+}
+
+.aiml-translator-workspace .aiml-review-queue-pagination {
+	align-items: center;
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	margin-top: 1rem;
+}
