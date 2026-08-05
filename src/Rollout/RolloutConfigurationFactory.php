@@ -28,6 +28,7 @@ final class RolloutConfigurationFactory {
 			array_values( array_map( 'intval', (array) $data['allowed_post_ids'] ) ),
 			array_values( array_map( 'strval', (array) $data['allowed_post_types'] ) ),
 			array_values( array_map( 'strval', (array) $data['allowed_language_codes'] ) ),
+			! empty( $data['general_rollout_enabled'] ),
 			! empty( $data['render_cache_enabled'] ),
 			! empty( $data['block_diagnostics_enabled'] ),
 			(string) $data['updated_at'],

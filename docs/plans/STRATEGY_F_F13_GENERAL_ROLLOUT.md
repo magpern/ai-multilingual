@@ -1,13 +1,14 @@
 # F13 — General Availability + ADR-0013 Acceptance
 
-**Status:** FROZEN — canonical implementation specification (GA-only refinement).  
+**Status:** **Complete** — merged to `main`; GA-only implementation + Tier 0–3 validation PASS; observation window closed.  
 **Architecture:** Strategy F unchanged. F13 introduces **one** major architectural variable: general availability via the F12-reserved `CohortProviderInterface` seam. Feature coverage (supported Gutenberg blocks) is **intentionally frozen** at the F12-proven set.  
-**Depends on:** F1–F12 complete and merged; F12 §20 entry gate PASS; observation window closed with operator sign-off.  
-**ADR-0013:** Disposition required before F13.2+ (Accepted, or explicit documented proceed-despite-Proposed).  
+**Depends on:** F1–F12 complete and merged; F12 §20 entry gate PASS; observation window closed.  
+**ADR-0013:** **Accepted** (2026-08-05) — [F13_ADR_DISPOSITION.md](F13_ADR_DISPOSITION.md).  
 **Canonical doc:** This file. Master plan: [STRATEGY_F_PRODUCTION_IMPLEMENTATION.md](STRATEGY_F_PRODUCTION_IMPLEMENTATION.md) §19.  
 **Prior milestone:** [STRATEGY_F_F12_LIMITED_ROLLOUT.md](STRATEGY_F_F12_LIMITED_ROLLOUT.md)  
-**Validation log (reserved):** [F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md](F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md) — created during F13 execution; not part of this plan.  
-**Next milestone (deferred):** F14 — Supported Gutenberg Block Expansion (see §12).
+**Validation log:** [F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md](F13_GENERAL_AVAILABILITY_VALIDATION_LOG.md) — **PASS**.  
+**Tags:** `strategy-f-f13-general-availability-merged` / `strategy-f-f13-general-availability-complete`  
+**Next milestone:** F14 — Supported Gutenberg Block Expansion (see §12).
 
 ---
 

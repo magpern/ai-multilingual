@@ -29,7 +29,7 @@ final class RolloutPromotionService {
 	/**
 	 * Promotes to a target stage when authorized.
 	 *
-	 * @param int    $target_stage New stage 0–5.
+	 * @param int    $target_stage New stage 0–6.
 	 * @param int    $user_id      Acting user.
 	 * @param string $source    Origin label.
 	 */
@@ -38,7 +38,7 @@ final class RolloutPromotionService {
 			return RolloutConfigurationValidationResult::fail( array( 'unauthorized' ) );
 		}
 
-		if ( $target_stage < 0 || $target_stage > 5 ) {
+		if ( $target_stage < 0 || $target_stage > RolloutConfiguration::MAX_STAGE ) {
 			return RolloutConfigurationValidationResult::fail( array( 'invalid_stage' ) );
 		}
 

@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Tests\Unit\Rollout;
 
+use AIMultilingual\Rollout\GeneralAvailabilityCohortProvider;
 use AIMultilingual\Rollout\RolloutConfiguration;
 use AIMultilingual\Rollout\RolloutPolicyDecision;
 use AIMultilingual\Rollout\RolloutPolicyRequest;
@@ -19,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @covers \AIMultilingual\Rollout\RolloutPolicyService
  * @covers \AIMultilingual\Rollout\RolloutPolicyDecision
+ * @covers \AIMultilingual\Rollout\GeneralAvailabilityCohortProvider
  */
 final class RolloutPolicyServiceTest extends TestCase {
 
@@ -185,6 +187,109 @@ final class RolloutPolicyServiceTest extends TestCase {
 
 		$this->assertInstanceOf( RolloutPolicyDecision::class, $decision );
 		$this->assertTrue( property_exists( $decision, 'allowed' ) );
+	}
+
+	public function test_ga_allows_non_allowlisted_post_when_enabled(): void {
+		$service = new RolloutPolicyService( new GeneralAvailabilityCohortProvider() );
+		$config  = $this->active_config(
+			array(
+				'rollout_stage'           => 6,
+				'allowed_post_ids'        => array( 99 ),
+				'allowed_language_codes'  => array( 'sv' ),
+				'general_rollout_enabled' => true,
+			)
+		);
+
+		$decision = $service->evaluate(
+			new RolloutPolicyRequest( 42, 'page', 'sv' ),
+			$config
+		);
+
+		$this->assertTrue( $decision->allowed );
+		$this->assertTrue( $decision->cohort_match );
+		$this->assertSame( RolloutReasonCodes::ALLOWED, $decision->reason_code );
+	}
+
+	public function test_ga_disabled_preserves_allowlist_behavior_with_provider(): void {
+		$service = new RolloutPolicyService( new GeneralAvailabilityCohortProvider() );
+		$config  = $this->active_config(
+			array(
+				'allowed_post_ids'        => array( 99 ),
+				'general_rollout_enabled' => false,
+			)
+		);
+
+		$decision = $service->evaluate(
+			new RolloutPolicyRequest( 42, 'page', 'sv' ),
+			$config
+		);
+
+		$this->assertFalse( $decision->allowed );
+		$this->assertSame( RolloutReasonCodes::POST_NOT_ALLOWLISTED, $decision->reason_code );
+	}
+
+	public function test_null_provider_ignores_general_rollout_flag_for_cohort(): void {
+		$config = $this->active_config(
+			array(
+				'allowed_post_ids'        => array( 99 ),
+				'general_rollout_enabled' => true,
+			)
+		);
+
+		$decision = $this->service->evaluate(
+			new RolloutPolicyRequest( 42, 'page', 'sv' ),
+			$config
+		);
+
+		$this->assertFalse( $decision->allowed );
+		$this->assertSame( RolloutReasonCodes::POST_NOT_ALLOWLISTED, $decision->reason_code );
+	}
+
+	public function test_ga_still_respects_language_filter(): void {
+		$service = new RolloutPolicyService( new GeneralAvailabilityCohortProvider() );
+		$config  = $this->active_config(
+			array(
+				'rollout_stage'           => 6,
+				'allowed_post_ids'        => array(),
+				'allowed_language_codes'  => array( 'sv' ),
+				'general_rollout_enabled' => true,
+			)
+		);
+
+		$decision = $service->evaluate(
+			new RolloutPolicyRequest( 42, 'page', 'de' ),
+			$config
+		);
+
+		$this->assertFalse( $decision->allowed );
+		$this->assertSame( RolloutReasonCodes::LANGUAGE_NOT_ALLOWED, $decision->reason_code );
+	}
+
+	public function test_ga_still_respects_rollout_disabled_kill_switch(): void {
+		$service = new RolloutPolicyService( new GeneralAvailabilityCohortProvider() );
+		$config  = $this->active_config(
+			array(
+				'rollout_stage'           => 6,
+				'rollout_render_enabled'  => false,
+				'general_rollout_enabled' => true,
+				'allowed_post_ids'        => array(),
+			)
+		);
+
+		$decision = $service->evaluate(
+			new RolloutPolicyRequest( 42, 'page', 'sv' ),
+			$config
+		);
+
+		$this->assertFalse( $decision->allowed );
+		$this->assertSame( RolloutReasonCodes::ROLLOUT_DISABLED, $decision->reason_code );
+	}
+
+	public function test_supported_blocks_remain_f12_set(): void {
+		$this->assertSame(
+			array( 'core/paragraph', 'core/heading', 'core/button' ),
+			\AIMultilingual\Block\BlockRegistry::SUPPORTED_BLOCKS
+		);
 	}
 
 	/**

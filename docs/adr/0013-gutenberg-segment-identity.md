@@ -2,10 +2,12 @@
 
 ## Status
 
-**Proposed** (Spike S5 Phase 3 browser validation complete; awaiting
-Milestone 2 architecture review). **Not Accepted.** Strategy F is
-conditionally accepted for planning purposes only — see "Proposed decision"
-below for the still-open production prerequisites.
+**Accepted** (2026-08-05) — Strategy F production identity model.
+
+Disposition recorded under F13.1 ([STRATEGY_F_F13_GENERAL_ROLLOUT.md](../plans/STRATEGY_F_F13_GENERAL_ROLLOUT.md)).
+Human approval checklist completed against merged F1–F12 evidence.
+Elementor-primary coverage and cross-site paste remain **open questions**
+(non-blocking; listed below) and do **not** reverse this acceptance.
 
 ## Context
 
@@ -58,15 +60,14 @@ across 59 browser-derived replay fixtures.
 | C — structural path | Rejected | fail |
 | D — path + exact hash rematch | Rejected | fail |
 | E — D + render gate | Rejected | fail (identical-content path reuse) |
-| F — persistent UUID in attrs | **Recommended conditional** | **pass (PHP)** |
-| G — registry table | Costed fallback | not implemented |
+| F — persistent UUID in attrs | **Accepted** | **pass** |
+| G — registry table | Documented fallback (not selected) | not implemented |
 
 Full evidence: `docs/spikes/S5-gutenberg-segment-identity.md`.
 
-## Proposed decision (conditional)
+## Decision (Accepted)
 
-**Adopt Strategy F** as the Milestone 2 block segment identity algorithm **if**
-all production prerequisites pass:
+**Adopt Strategy F** as the block segment identity algorithm.
 
 1. ~~Browser validation extended to duplicate/copy/paste, patterns, and
    representative third-party blocks~~ — **done (Phase 3).** Finding:
@@ -75,41 +76,27 @@ all production prerequisites pass:
    registration, not evidence against Strategy F.
 2. ADR-0013 attribute contract ratified: `aimlBlockId`, RFC 4122 v4,
    segment key grammar `b:<uuid>:<field>` (initial field: `content` only).
-3. Save-time UUID injection implemented as editor/server filter (not manual
-   WP-CLI backfill), **and** `aimlBlockId` registered via
-   `block_type_metadata`/`block.json` for every eligible core and supported
-   third-party block type (Phase 3 evidence: unregistered survives only
-   no-op saves; registered survives ordinary edits too, at the cost of
-   duplication now copying the UUID — which first-wins repair handles).
+3. Save-time UUID injection implemented as editor/server filter,
+   and `aimlBlockId` registered via `block_type_metadata`/`block.json` for
+   every eligible core and supported third-party block type.
 4. Migration plan for existing content accepted (one-time `post_content`
    mutation per document).
-5. Synced-pattern references are explicitly excluded from tagging (Phase 3
-   pattern-gate finding: pattern entities never retain the attribute through
-   pattern creation, and a referencing post's own `post_content` never
-   contains the pattern's block content to tag in the first place).
+5. Synced-pattern references are explicitly excluded from tagging.
 
-**Retain Strategy G** as the documented fallback if browser validation fails
-or `post_content` mutation is rejected by stakeholders. Strategy G does not
-automatically solve logical identity without a persistent marker or
-equivalent heuristics (see cost analysis in S5 report).
+**Retain Strategy G** as the documented historical fallback only. It is not
+the production path.
 
 ## Consequences
 
-### If Strategy F is accepted
+### Strategy F accepted
 
-- Segment keys become stable across reorder, move, wrap, identical-content
+- Segment keys are stable across reorder, move, wrap, identical-content
   scenarios that rejected C–E.
 - Canonical `post_content` gains ~55 bytes per eligible block (UUID JSON).
 - Renderer remains pure; identity lifecycle lives in extraction/sync.
 - Duplicate UUID repair (first-wins) runs on every save.
 - Text edits preserve UUID but suppress render until re-translation when
   `source_hash` differs (availability trade-off, not false positive).
-
-### If Strategy F is rejected
-
-- Must choose Strategy G (schema + operational complexity) or accept
-  reconciliation loss / human re-linking for structural edits.
-- Spike evidence shows no non-mutating strategy passes exit gate.
 
 ## Risks and mitigations
 
@@ -127,77 +114,51 @@ equivalent heuristics (see cost analysis in S5 report).
 - **Strategy B** — key collisions on duplicate content.
 - **Silent hash rematch without gate** — false continuity (E proved necessity of gate).
 
-## Open questions
+## Open questions (non-blocking)
 
 1. ~~Does Gutenberg **copy** `aimlBlockId` on duplicate/paste?~~ **Answered
-   (Phase 3):** not with the unregistered attribute (stripped before
-   duplication can copy it); **yes**, verbatim, with the attribute
-   registered — and Strategy F's first-wins repair was verified against
-   that real browser-produced duplicate, including under a two-session
-   concurrent-edit race.
+   (Phase 3).**
 2. Elementor-primary site: Gutenberg block coverage on production content?
-   **Still open** — not addressed by this spike; Elementor-authored content
-   was out of scope for both phases.
-3. ~~Cross-post paste behavior?~~ **Answered (Phase 3):** same-site cross-post
-   copy/paste strips the attribute identically to same-post copy/paste — no
-   different failure mode. **Cross-site** paste remains untested (no second
-   WordPress installation available in this environment).
-4. ~~Production registration of `aimlBlockId` in block.json vs bare JSON
-   attr?~~ **Answered (Phase 3):** registration is **required** if attribute
-   survival through ordinary editing (not just no-op save) is a product
-   requirement. This is now a decision the ADR must make explicitly, not an
-   open question — see decision driver 3 above.
-5. **New:** should Strategy F tag blocks living inside pattern entities?
-   **Answered (Phase 3): no.** See decision driver 5 and the pattern-gate
-   finding in `docs/spikes/S5-gutenberg-segment-identity.md` §13.
-6. **New:** what happens when two editors concurrently duplicate the same
-   block? **Answered (Phase 3, adversarial single-scenario evidence, not a
-   full concurrency proof):** WordPress's normal last-write-wins semantics
-   apply (no merge, no optimistic lock) — the later save fully replaces the
-   earlier one. Strategy F's repair still reaches `rendered_false_positive
-   == 0` on the resulting content, but the lost-update itself is a
-   WordPress editing property Strategy F does not and cannot fix.
+   **Still open** — Elementor-authored content was out of scope for S5 and
+   remains a future spike/ADR. **Does not block this acceptance.**
+3. ~~Cross-post paste behavior?~~ **Answered (Phase 3)** for same-site.
+   **Cross-site** paste remains untested. **Does not block this acceptance.**
+4. ~~Production registration of `aimlBlockId`?~~ **Answered (Phase 3):**
+   registration is required and shipped in F1+.
+5. ~~Should Strategy F tag blocks inside pattern entities?~~ **Answered: no.**
+6. ~~Concurrent duplicate of the same block?~~ **Answered (Phase 3).**
 
 ## Rollout prerequisites
 
-Production implementation plan (planning only, no code):
+Production implementation plan:
 [`docs/plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md`](../plans/STRATEGY_F_PRODUCTION_IMPLEMENTATION.md).
 
 **Baselines:** spike evidence `42237bd`; production-plan baseline `ea5af19`
 (amended on `spike/s5` before F1).
 
-- [x] Extended browser validation matrix (Phase 3 — Tier 1/2/3 mandatory
-  operations, duplicate repair against real browser content, concurrent-edit
-  simulation, autosave/REST/export/import; remaining minor gaps are
-  explicitly listed in IMPLEMENTATION_LOG.md and do not block this checkbox)
-- [ ] Decide and implement `aimlBlockId` registration strategy
-  (`block_type_metadata`/`block.json`) for production — Phase 3 evidence
-  shows this is required for survival through ordinary edits; after any
-  production UUID exists, registration becomes a **compatibility requirement**
-  (not a normal post-rollout kill switch — see plan §2.2, §15.4)
-- [ ] Production UUID injection hook (not spike WP-CLI tools)
-- [ ] Block adapter model + initial allowlist (`core/paragraph`, `core/heading`,
-  `core/button`; field `content` only) — plan §1.2, §3
-- [ ] Renderer proof gate (F5) passed before general rendering (F6) — plan §18
-- [ ] Migration runbook + canonical-only backfill + autosave/revision policy
-  (plan §6.4, §9)
-- [ ] Cross-post UUID ownership policy accepted (plan §4.2)
-- [ ] Feature-flag dependency rules + ordered rollback accepted (plan §15)
+- [x] Extended browser validation matrix (Phase 3)
+- [x] Decide and implement `aimlBlockId` registration strategy (F1)
+- [x] Production UUID injection hook (F2)
+- [x] Block adapter model + initial allowlist (F4)
+- [x] Renderer proof gate (F5) passed before general rendering (F6)
+- [x] Migration runbook + canonical-only backfill + autosave/revision policy (F7 / §6.4)
+- [x] Cross-post UUID ownership policy accepted (§4.2)
+- [x] Feature-flag dependency rules + ordered rollback accepted (§15 / F12)
 
 ## Human approval checklist (required before Accepted)
 
-ADR-0013 must remain **Proposed** until each item is explicitly approved:
+Completed 2026-08-05 against merged F1–F12 evidence (F13.1):
 
-- [ ] `post_content` mutation approved
-- [ ] Permanent registration compatibility requirement approved (post-rollout)
-- [ ] Key grammar `b:<uuid>:<field>` approved (initial field: `content`)
-- [ ] Initial block adapter allowlist approved (paragraph, heading, button)
-- [ ] Synced-pattern exclusion approved
-- [ ] Autosave/revision semantics approved (plan §6.4)
-- [ ] Renderer proof (F5) completed and accepted
-- [ ] Frontend metadata / structured sanitizer policy approved
-- [ ] Rollout cohort approved
-- [ ] Rollback behavior approved (plan §15.4)
+- [x] `post_content` mutation approved — shipped F1–F2; operating under F12 observation
+- [x] Permanent registration compatibility requirement approved (post-rollout) — F1 / §2.2
+- [x] Key grammar `b:<uuid>:<field>` approved (initial field: `content`) — `Contract`
+- [x] Initial block adapter allowlist approved (paragraph, heading, button) — F4–F6
+- [x] Synced-pattern exclusion approved — `BlockRegistry` / `core/block` exclusion
+- [x] Autosave/revision semantics approved (plan §6.4) — F2
+- [x] Renderer proof (F5) completed and accepted — F5/F6
+- [x] Frontend metadata / structured sanitizer policy approved — F6
+- [x] Rollout cohort approved — F12 PO decision sheet (post 6321 / `sv`)
+- [x] Rollback behavior approved (plan §15.4) — F12 rollback rehearsal PASS
 
-Do **not** promote this ADR to Accepted until all checklist items pass and
-Strategy F milestones F1–F11 prerequisites are met.
+This ADR is **Accepted** after all checklist items passed and Strategy F
+milestones **F1–F12** prerequisites were met.

@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-08-05T07:58:57Z",
+  "environment": "dev.biopentra.eu",
+  "branch": "feature/f13-general-availability",
+  "head": "9bee3a5f6f545eb4a166bb2f531f65f92322543b",
+  "supported_blocks": ["core\/paragraph","core\/heading","core\/button"],
+  "staging_posts": {"a": 6342, "b": 6343},
+  "results": {
+    "supported_blocks_frozen": "PASS",
+    "stage2_deny_non_allowlisted": "PASS",
+    "stage6_ga_post_a": "PASS",
+    "stage6_ga_post_b": "PASS",
+    "stage6_language_deny": "PASS",
+    "kill_global": "PASS",
+    "kill_rollout": "PASS",
+    "kill_emergency": "PASS",
+    "rollback_rehearsal": "PASS",
+    "rendered_false_positives": 0
+  },
+  "overall": "PASS",
+  "config_before": {"schema_version":2,"policy_version":35,"rollout_stage":2,"rollout_render_enabled":true,"allowed_post_ids":[6321],"allowed_post_types":["post","page"],"allowed_language_codes":["sv"],"general_rollout_enabled":false,"render_cache_enabled":false,"block_diagnostics_enabled":false,"updated_at":"2026-08-05T07:54:55+00:00","updated_by":1},
+  "restored_to_f12_observation": true
+}

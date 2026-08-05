@@ -1,6 +1,6 @@
 <?php
 /**
- * Frozen F12 rollout configuration value object.
+ * Frozen F12/F13 rollout configuration value object.
  *
  * @package AIMultilingual
  */
@@ -14,36 +14,43 @@ namespace AIMultilingual\Rollout;
  */
 final class RolloutConfiguration {
 
-	public const SCHEMA_VERSION = 1;
+	public const SCHEMA_VERSION = 2;
 
 	/**
-	 * Approved post types for limited rollout.
+	 * Approved post types for limited and general rollout.
 	 *
 	 * @var list<string>
 	 */
 	public const APPROVED_POST_TYPES = array( 'post', 'page' );
 
 	/**
-	 * Stages that require a non-empty post allowlist when rollout render is on.
+	 * Stages that require a non-empty post allowlist when rollout render is on
+	 * and general availability is off.
 	 *
 	 * @var list<int>
 	 */
 	public const LIMITED_ROLLOUT_STAGES = array( 1, 2, 3, 4 );
 
 	/**
+	 * Maximum supported rollout stage (0–6).
+	 */
+	public const MAX_STAGE = 6;
+
+	/**
 	 * Builds a configuration value object.
 	 *
-	 * @param int           $schema_version           Configuration structure version.
-	 * @param int           $policy_version           Operator-visible policy revision.
-	 * @param int           $rollout_stage            Stage 0–5.
-	 * @param bool          $rollout_render_enabled   Enables cohort evaluation.
-	 * @param array<int>    $allowed_post_ids         Normalized positive post IDs.
-	 * @param array<string> $allowed_post_types      Subset of approved post types.
-	 * @param array<string> $allowed_language_codes   Configured language codes.
-	 * @param bool          $render_cache_enabled     Render cache flag (default off).
+	 * @param int           $schema_version            Configuration structure version.
+	 * @param int           $policy_version            Operator-visible policy revision.
+	 * @param int           $rollout_stage             Stage 0–6.
+	 * @param bool          $rollout_render_enabled    Enables cohort evaluation.
+	 * @param array<int>    $allowed_post_ids          Normalized positive post IDs.
+	 * @param array<string> $allowed_post_types        Subset of approved post types.
+	 * @param array<string> $allowed_language_codes    Configured language codes.
+	 * @param bool          $general_rollout_enabled   GA cohort mode (ignore post allowlist).
+	 * @param bool          $render_cache_enabled      Render cache flag (default off).
 	 * @param bool          $block_diagnostics_enabled Diagnostics verbosity.
-	 * @param string        $updated_at               GMT ISO timestamp.
-	 * @param int           $updated_by               Acting user ID.
+	 * @param string        $updated_at                GMT ISO timestamp.
+	 * @param int           $updated_by                Acting user ID.
 	 */
 	public function __construct(
 		public readonly int $schema_version,
@@ -53,6 +60,7 @@ final class RolloutConfiguration {
 		public readonly array $allowed_post_ids,
 		public readonly array $allowed_post_types,
 		public readonly array $allowed_language_codes,
+		public readonly bool $general_rollout_enabled,
 		public readonly bool $render_cache_enabled,
 		public readonly bool $block_diagnostics_enabled,
 		public readonly string $updated_at,
@@ -74,6 +82,7 @@ final class RolloutConfiguration {
 			array(),
 			false,
 			false,
+			false,
 			'1970-01-01T00:00:00+00:00',
 			0,
 		);
@@ -88,8 +97,14 @@ final class RolloutConfiguration {
 
 	/**
 	 * Whether limited-rollout stages require a non-empty post allowlist.
+	 *
+	 * General availability disables the post-ID allowlist requirement.
 	 */
 	public function requires_post_allowlist(): bool {
+		if ( $this->general_rollout_enabled ) {
+			return false;
+		}
+
 		return in_array( $this->rollout_stage, self::LIMITED_ROLLOUT_STAGES, true )
 			&& $this->rollout_render_enabled;
 	}
@@ -108,6 +123,7 @@ final class RolloutConfiguration {
 			'allowed_post_ids'          => $this->allowed_post_ids,
 			'allowed_post_types'        => $this->allowed_post_types,
 			'allowed_language_codes'    => $this->allowed_language_codes,
+			'general_rollout_enabled'   => $this->general_rollout_enabled,
 			'render_cache_enabled'      => $this->render_cache_enabled,
 			'block_diagnostics_enabled' => $this->block_diagnostics_enabled,
 			'updated_at'                => $this->updated_at,
