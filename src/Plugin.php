@@ -29,6 +29,10 @@ use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
 use AIMultilingual\Frontend\Switcher;
+use AIMultilingual\Glossary\GlossaryMatcher;
+use AIMultilingual\Glossary\GlossaryNormalizer;
+use AIMultilingual\Glossary\GlossaryRepository;
+use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
@@ -71,6 +75,7 @@ use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\PreviewService;
 use AIMultilingual\Workspace\SegmentAssembler;
 use AIMultilingual\Workspace\Suggestion\AISuggestionProvider;
+use AIMultilingual\Workspace\Suggestion\GlossarySuggestionProvider;
 use AIMultilingual\Workspace\Suggestion\TranslationMemorySuggestionProvider;
 use AIMultilingual\Workspace\TranslationService;
 use AIMultilingual\Workspace\TranslationStatusCalculator;
@@ -206,9 +211,15 @@ final class Plugin {
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$tm_service         = new TranslationMemoryService( new TMRepository() );
+		$glossary_service   = new GlossaryService(
+			new GlossaryRepository(),
+			new GlossaryNormalizer(),
+			new GlossaryMatcher( new GlossaryNormalizer() )
+		);
 		$suggestion_service = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),
+				new GlossarySuggestionProvider( $glossary_service ),
 				new AISuggestionProvider( $translation ),
 			)
 		);

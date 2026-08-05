@@ -24,7 +24,7 @@ final class TranslationMemorySuggestionProvider implements SuggestionProvider {
 	public const TIER_REVIEWED_HUMAN_TM = 2;
 	public const TIER_HUMAN_TM          = 3;
 	public const TIER_IMPORTED_TM       = 4;
-	public const TIER_FUZZY_TM          = 5;
+	public const TIER_FUZZY_TM          = 6;
 
 	/**
 	 * Injected dependency.
