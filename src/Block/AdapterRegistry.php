@@ -11,6 +11,7 @@ namespace AIMultilingual\Block;
 
 use AIMultilingual\Block\Adapter\ButtonAdapter;
 use AIMultilingual\Block\Adapter\HeadingAdapter;
+use AIMultilingual\Block\Adapter\ListItemAdapter;
 use AIMultilingual\Block\Adapter\ParagraphAdapter;
 
 /**
@@ -34,6 +35,7 @@ final class AdapterRegistry {
 		$this->register( new ParagraphAdapter() );
 		$this->register( new HeadingAdapter() );
 		$this->register( new ButtonAdapter() );
+		$this->register( new ListItemAdapter() );
 	}
 
 	/**

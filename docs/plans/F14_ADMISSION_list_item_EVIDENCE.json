@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-08-05T08:18:08Z",
+  "adapter": "core/list-item",
+  "admission_key": "list-item",
+  "branch": "feature/f14-block-expansion",
+  "head": "546f0a031bb04b731a66b4fa0d2facd0b3cf31b9",
+  "post_id": 6344,
+  "results": {
+    "supported_blocks_contains": "PASS",
+    "translated_render": "PASS",
+    "source_language_deny": "PASS",
+    "rendered_false_positives": 0
+  },
+  "overall": "PASS"
+}
