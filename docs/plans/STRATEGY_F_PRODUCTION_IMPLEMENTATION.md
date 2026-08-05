@@ -501,8 +501,8 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | **F9** Integration + browser sign-off | See [STRATEGY_F_F9_BROWSER_ACCEPTANCE.md](STRATEGY_F_F9_BROWSER_ACCEPTANCE.md) — **Closed: engineering acceptance** @ `91785cd`; [F9_BROWSER_VALIDATION_LOG.md](F9_BROWSER_VALIDATION_LOG.md) | F6, F8 | `rendered_false_positive == 0`; no known product defect in supported scope; formal 35/35 Tier 3 waived (TID-1) | — |
 | **F10** Translator Workspace MVP | See [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md) — **Complete**; [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md) PASS | F9 | AC-1–AC-13 in F10 plan | — |
 | **F11** Translation Memory & AI Assistance | See [STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md](STRATEGY_F_F11_TRANSLATION_MEMORY_AND_AI_ASSISTANCE.md) — **Complete**; [F11_TRANSLATOR_VALIDATION_LOG.md](F11_TRANSLATOR_VALIDATION_LOG.md) PASS | F10 | AC-1–AC-15 in F11 plan | — |
-| **F12** Limited rollout | Cohort flags, stage metrics, telemetry, monitoring, performance, caching, production confidence (former master-plan F10). **No new translator features.** | F8, F11 | Stage metrics | §15.4 rollback |
-| **F13** General rollout + ADR acceptance | Expand adapters; PO sign-off (former master-plan F11) | F12 + ADR checklist | Production approved | §15.4 |
+| **F12** Limited rollout | See [STRATEGY_F_F12_LIMITED_ROLLOUT.md](STRATEGY_F_F12_LIMITED_ROLLOUT.md) — **implementation complete**; observation window pending; [validation log](F12_LIMITED_ROLLOUT_VALIDATION_LOG.md) in progress. **No new translator features.** | F8, F11 | F12 ACs + stage metrics | §15.4 rollback + F12 emergency order |
+| **F13** General rollout + ADR acceptance | Expand adapters; PO sign-off (former master-plan F11). Requires F12 §20 entry gate. | F12 + ADR checklist | Production approved | §15.4 |
 
 **Renderer architecture acceptance:** F6 must not begin until F5 proof is explicitly accepted and recorded.
 
@@ -550,9 +550,10 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 | Spike S5 | **Complete** (evidence baseline `42237bd`) |
 | Selected strategy | **Strategy F** |
 | Production planning | **Allowed** (this document) |
-| Production implementation | **F1–F10 merged** on `main`; **F11 complete** on `feature/f11-translation-memory-ai` — merge pending ([merge readiness](F11_MERGE_READINESS_REPORT.md)) |
-| Production readiness | **Not approved** (F12/F13 rollout + ADR acceptance pending) |
-| Next milestone | **F12** Limited rollout — planning/freeze only after F11 merge + human acceptance |
+| Production implementation | **F1–F12 merged** on `main` (F12 tag `strategy-f-f12-limited-rollout-merged`) |
+| Production readiness | **Not approved** (F13 general rollout + ADR-0013 acceptance pending) |
+| Next milestone | **F13** general rollout + ADR-0013 acceptance — F12 **complete** on `main` |
+| F12 | **Merged** — tag `strategy-f-f12-limited-rollout-merged` |
 | ADR-0013 | **Proposed** |
 
 ---
@@ -569,6 +570,7 @@ Strategy F milestones use **F-prefix** to avoid collision with project Milestone
 - F11 frozen APIs: [F11_FROZEN_API.md](F11_FROZEN_API.md)
 - F11 performance baseline: [F11_PERFORMANCE_BASELINE.md](F11_PERFORMANCE_BASELINE.md)
 - F11 merge readiness: [F11_MERGE_READINESS_REPORT.md](F11_MERGE_READINESS_REPORT.md)
+- F12 Limited rollout: [STRATEGY_F_F12_LIMITED_ROLLOUT.md](STRATEGY_F_F12_LIMITED_ROLLOUT.md) — **architecture frozen**; implementation not started
 - F10 validation log: [F10_TRANSLATOR_VALIDATION_LOG.md](F10_TRANSLATOR_VALIDATION_LOG.md)
 - F8 live validation: [F8_CLI_VALIDATION_LOG.md](plans/F8_CLI_VALIDATION_LOG.md)
 - Approved plan: [`APPROVED_PLAN_REV3.md`](APPROVED_PLAN_REV3.md) §5.2

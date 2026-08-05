@@ -122,6 +122,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Language/Languages.php',
 			'src/Translation/Store.php',
 			'src/Translation/Memory/TMRepository.php',
+			'src/Rollout/Metrics/RolloutMetricsRepository.php',
 		);
 
 		foreach ( $this->sources() as $path => $code ) {

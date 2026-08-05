@@ -35,7 +35,7 @@ final class Migrator {
 	/**
 	 * Schema version this build expects.
 	 */
-	public const TARGET = 2;
+	public const TARGET = 3;
 
 	/**
 	 * Applies any migration steps newer than the recorded version.
@@ -84,6 +84,7 @@ final class Migrator {
 		return array(
 			1 => array( $this, 'step_1_initial_tables' ),
 			2 => array( $this, 'step_2_translation_memory' ),
+			3 => array( $this, 'step_3_rollout_metrics_daily' ),
 		);
 	}
 
@@ -108,5 +109,14 @@ final class Migrator {
 		global $wpdb;
 
 		$wpdb->query( Schema::create_tm() ); // phpcs:ignore WordPress.DB.PreparedSQL
+	}
+
+	/**
+	 * Step 3 — F12 daily rollout metrics aggregates.
+	 */
+	private function step_3_rollout_metrics_daily(): void {
+		global $wpdb;
+
+		$wpdb->query( Schema::create_metrics_daily() ); // phpcs:ignore WordPress.DB.PreparedSQL
 	}
 }

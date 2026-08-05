@@ -627,6 +627,19 @@ final class Store {
 		$this->upsert( $data, $now );
 		$this->invalidate( $source_type, $source_id, $language_id );
 
+		if ( function_exists( 'do_action' ) ) {
+			/**
+			 * Fires after a translation segment is saved.
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param string $source_type Source type.
+			 * @param int    $source_id   Source object ID.
+			 * @param int    $language_id Language ID.
+			 */
+			\do_action( 'aiml_translation_saved', $source_type, $source_id, $language_id );
+		}
+
 		return true;
 	}
 

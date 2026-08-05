@@ -1,0 +1,27 @@
+{
+  "observation_start": "2026-08-05T00:00:00Z",
+  "observation_end_planned": "2026-08-12T00:00:00Z",
+  "observation_duration_days": 7,
+  "environment": "dev.biopentra.eu",
+  "branch": "feature/f12-limited-rollout",
+  "head": "8d6a0b03fd0c1d32b0f925c26e8ff0441c6b2b83",
+  "po_approved": {
+    "cohort_post_ids": [6321],
+    "deny_control_post_id": 4638,
+    "target_language": "sv",
+    "rollout_stage_active": 2,
+    "render_cache_enabled": false,
+    "operator_user_id": 1,
+    "operator_login": "bp_manager"
+  },
+  "day_zero_validation": {
+    "stage_1_shadow": "PASS",
+    "stage_2_allow": "PASS",
+    "stage_2_deny": "PASS",
+    "kill_switch_global": "PASS",
+    "kill_switch_emergency": "PASS",
+    "rendered_false_positives": 0,
+    "policy_version": 27
+  },
+  "overall": "PASS"
+}

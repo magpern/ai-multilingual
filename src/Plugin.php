@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual;
 
 use AIMultilingual\Admin\Editor;
+use AIMultilingual\Admin\RolloutAdminPage;
 use AIMultilingual\Admin\SettingsPage;
 use AIMultilingual\Admin\TranslatorWorkspace;
 use AIMultilingual\Block\AdapterRegistry;
@@ -36,6 +37,17 @@ use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
 use AIMultilingual\Rest\WorkspaceController;
+use AIMultilingual\Rollout\RolloutCapabilities;
+use AIMultilingual\Rollout\RolloutConfigurationRepository;
+use AIMultilingual\Rollout\RolloutPolicyService;
+use AIMultilingual\Rollout\RolloutRenderGateBridge;
+use AIMultilingual\Rollout\RolloutCli;
+use AIMultilingual\Rollout\Cache\RenderCacheInvalidationService;
+use AIMultilingual\Rollout\Cache\RenderCacheKeyFactory;
+use AIMultilingual\Rollout\Cache\RenderCacheService;
+use AIMultilingual\Rollout\Cache\RolloutCacheInvalidationHooks;
+use AIMultilingual\Rollout\Cache\RolloutRenderCacheBridge;
+use AIMultilingual\Rollout\Metrics\RolloutMetricsCollector;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\AI\CredentialVault;
 use AIMultilingual\Translation\AI\NullAIProvider;
@@ -137,26 +149,38 @@ final class Plugin {
 		$context        = new LanguageContext();
 		$store          = new Store( $cache );
 
-		$adapter_registry = new AdapterRegistry();
-		$block_registry   = new BlockRegistry( $adapter_registry );
-		$block_logger     = new BlockIdentityLogger();
-		$uuid_injector    = new UuidInjector( $block_registry, $block_logger );
-		$block_extractor  = new BlockExtractor(
+		$adapter_registry    = new AdapterRegistry();
+		$block_registry      = new BlockRegistry( $adapter_registry );
+		$block_logger        = new BlockIdentityLogger();
+		$uuid_injector       = new UuidInjector( $block_registry, $block_logger );
+		$block_extractor     = new BlockExtractor(
 			$adapter_registry,
 			$block_registry,
 			new BlockExtractionLogger()
 		);
-		$extractor        = new Extractor( $settings, $block_extractor );
-		$block_renderer   = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
-		$block_frontend   = new BlockFrontendRenderer(
-			new BlockRenderGate(),
+		$extractor           = new Extractor( $settings, $block_extractor );
+		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
+		$config_repo         = new RolloutConfigurationRepository();
+		$rollout_bridge      = new RolloutRenderGateBridge(
+			new RolloutPolicyService(),
+			$config_repo
+		);
+		$render_cache_bridge = new RolloutRenderCacheBridge(
+			new RenderCacheService( $cache ),
+			new RenderCacheKeyFactory(),
+			$store,
+			$config_repo
+		);
+		$block_frontend      = new BlockFrontendRenderer(
+			new BlockRenderGate( $rollout_bridge ),
 			new BlockTranslationLookup( $store ),
 			new BlockTranslationSanitizer(),
 			$block_renderer,
 			new BlockFrontendRenderLogger(),
 			$settings,
 			$context,
-			$extractor
+			$extractor,
+			$render_cache_bridge
 		);
 
 		$router = new Router( $languages, $resolver, $context );
@@ -219,10 +243,18 @@ final class Plugin {
 		$metrics = new BlockMetricsAggregator();
 		$metrics->register();
 
+		( new RolloutMetricsCollector() )->register();
+
+		( new RolloutCacheInvalidationHooks(
+			new RenderCacheInvalidationService( null, $cache ),
+			$languages
+		) )->register();
+
 		$this->register_stale_detection( $extractor, $store );
 
 		if ( is_admin() ) {
 			( new SettingsPage( $settings, $languages, $vault ) )->register();
+			( new RolloutAdminPage() )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
 			( new TranslatorWorkspace( $languages ) )->register();
 
@@ -260,6 +292,7 @@ final class Plugin {
 			);
 
 			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics );
+			RolloutCli::register();
 		}
 	}
 
@@ -285,6 +318,7 @@ final class Plugin {
 		$languages->ensure_default( get_locale() );
 
 		self::grant_capability();
+		RolloutCapabilities::grant_default_roles();
 	}
 
 	/**

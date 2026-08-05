@@ -23,9 +23,10 @@ final class Schema {
 	/**
 	 * Unprefixed table names.
 	 */
-	public const LANGUAGES    = 'aiml_languages';
-	public const TRANSLATIONS = 'aiml_translations';
-	public const TM           = 'aiml_tm';
+	public const LANGUAGES     = 'aiml_languages';
+	public const TRANSLATIONS  = 'aiml_translations';
+	public const TM            = 'aiml_tm';
+	public const METRICS_DAILY = 'aiml_metrics_daily';
 
 	/**
 	 * Prefixes a table name with the current site's table prefix.
@@ -60,6 +61,13 @@ final class Schema {
 	}
 
 	/**
+	 * Fully qualified `aiml_metrics_daily` table name.
+	 */
+	public static function metrics_daily(): string {
+		return self::table( self::METRICS_DAILY );
+	}
+
+	/**
 	 * Every table this plugin owns, in drop-safe order.
 	 *
 	 * @return string[]
@@ -68,6 +76,7 @@ final class Schema {
 		return array(
 			self::translations(),
 			self::tm(),
+			self::metrics_daily(),
 			self::languages(),
 		);
 	}
@@ -189,6 +198,35 @@ final class Schema {
 			UNIQUE KEY tm_identity (source_hash, source_lang_id, target_lang_id, context),
 			KEY fuzzy_lookup (source_lang_id, target_lang_id, text_format),
 			KEY origin_filter (origin, source_lang_id, target_lang_id)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for F12 daily rollout metrics aggregates.
+	 */
+	public static function create_metrics_daily(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::metrics_daily() . " (
+			metrics_id      BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
+			day             DATE              NOT NULL,
+			metric_key      VARCHAR(64)       NOT NULL,
+			dimension_hash  CHAR(40)          NOT NULL,
+			stage           TINYINT UNSIGNED  NOT NULL DEFAULT 0,
+			reason_code     VARCHAR(64)       NOT NULL DEFAULT '',
+			post_type       VARCHAR(32)       NOT NULL DEFAULT '',
+			language_code   VARCHAR(12)       NOT NULL DEFAULT '',
+			result_class    VARCHAR(32)       NOT NULL DEFAULT '',
+			cache_outcome   VARCHAR(32)       NOT NULL DEFAULT '',
+			count_value     BIGINT UNSIGNED   NOT NULL DEFAULT 0,
+			sum_value       BIGINT            NOT NULL DEFAULT 0,
+			min_value       BIGINT            NOT NULL DEFAULT 0,
+			max_value       BIGINT            NOT NULL DEFAULT 0,
+			incomplete      TINYINT(1)        NOT NULL DEFAULT 0,
+			registry_version SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+			updated_at      DATETIME          NOT NULL,
+			PRIMARY KEY (metrics_id),
+			UNIQUE KEY daily_identity (day, metric_key, dimension_hash),
+			KEY day_metric (day, metric_key),
+			KEY retention (day)
 		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
 	}
 }

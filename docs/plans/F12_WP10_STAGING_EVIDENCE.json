@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-08-04T21:24:20Z",
+  "environment": "dev.biopentra.eu",
+  "branch": "feature/f12-limited-rollout",
+  "head": "638ab61e09c30b1fbcda4ffe2f96a885129a979e",
+  "wordpress": "7.0.2",
+  "php": "8.4.23",
+  "schema_version": 3,
+  "staging_only": {"post_id": 6338, "other_post_id": 6339, "target_language": "sv", "slug": "f12-staging-rollout-test"},
+  "results": {
+    "stage_0": "PASS",
+    "stage_1_shadow": "PASS",
+    "stage_2_allow": "PASS",
+    "stage_2_deny_other_post": "PASS",
+    "kill_switch_global_render": "PASS",
+    "kill_switch_rollout_disabled": "PASS",
+    "kill_switch_emergency": "PASS",
+    "config_restore_policy_increment": "PASS",
+    "rendered_false_positives": 0
+  }
+}

@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Translation;
 
 use AIMultilingual\Language\LanguageContext;
+use AIMultilingual\Rollout\Cache\RolloutRenderCacheBridge;
 use AIMultilingual\Settings;
 use WP_Post;
 
@@ -28,14 +29,15 @@ final class BlockFrontendRenderer {
 	/**
 	 * Builds the frontend block renderer.
 	 *
-	 * @param BlockRenderGate           $gate         Render gate.
-	 * @param BlockTranslationLookup    $lookup       Store-backed lookup.
-	 * @param BlockTranslationSanitizer $sanitizer    Translation sanitizer.
-	 * @param BlockRenderer             $block_renderer Pure block renderer.
-	 * @param BlockFrontendRenderLogger $logger       Structured logger.
-	 * @param Settings                  $settings     Plugin settings.
-	 * @param LanguageContext           $language     Request language state.
-	 * @param Extractor                 $extractor    Body classifier.
+	 * @param BlockRenderGate               $gate         Render gate.
+	 * @param BlockTranslationLookup        $lookup       Store-backed lookup.
+	 * @param BlockTranslationSanitizer     $sanitizer    Translation sanitizer.
+	 * @param BlockRenderer                 $block_renderer Pure block renderer.
+	 * @param BlockFrontendRenderLogger     $logger       Structured logger.
+	 * @param Settings                      $settings     Plugin settings.
+	 * @param LanguageContext               $language     Request language state.
+	 * @param Extractor                     $extractor    Body classifier.
+	 * @param RolloutRenderCacheBridge|null $render_cache Optional render cache bridge.
 	 */
 	public function __construct(
 		private BlockRenderGate $gate,
@@ -46,6 +48,7 @@ final class BlockFrontendRenderer {
 		private Settings $settings,
 		private LanguageContext $language,
 		private Extractor $extractor,
+		private ?RolloutRenderCacheBridge $render_cache = null,
 	) {
 	}
 
@@ -94,6 +97,8 @@ final class BlockFrontendRenderer {
 		$meta = $this->base_meta( $post );
 
 		if ( ! $decision->allowed ) {
+			$this->emit_rollout_decision( $decision );
+
 			$this->logger->log(
 				BlockFrontendRenderLogger::EVENT_GATE_DENIED,
 				array_merge(
@@ -107,10 +112,32 @@ final class BlockFrontendRenderer {
 			return $content;
 		}
 
+		$this->emit_rollout_decision( $decision );
+
 		$this->logger->log(
 			BlockFrontendRenderLogger::EVENT_GATE_ALLOWED,
 			$meta
 		);
+
+		$language_id = $this->language->current_id();
+		$cached      = null === $this->render_cache
+			? null
+			: $this->render_cache->try_get( (int) $post->ID, $content, $language_id );
+
+		if ( is_string( $cached ) && '' !== $cached ) {
+			$this->logger->log(
+				BlockFrontendRenderLogger::EVENT_RENDER_COMPLETE,
+				array_merge(
+					$meta,
+					array(
+						'cache_hit'  => true,
+						'elapsed_ms' => $this->elapsed_ms( $started ),
+					)
+				)
+			);
+
+			return $cached;
+		}
 
 		$lookup = $this->lookup->for_post(
 			Store::SOURCE_POST,
@@ -188,7 +215,32 @@ final class BlockFrontendRenderer {
 			)
 		);
 
+		if ( null !== $this->render_cache ) {
+			$this->render_cache->store( (int) $post->ID, $content, $language_id, $result->content );
+		}
+
 		return $result->content;
+	}
+
+	/**
+	 * Notifies orchestration layers of a rollout policy decision (metrics/diagnostics).
+	 *
+	 * @param RenderGateDecision $decision Render gate decision.
+	 */
+	private function emit_rollout_decision( RenderGateDecision $decision ): void {
+		if ( null === $decision->rollout || ! function_exists( 'do_action' ) ) {
+			return;
+		}
+
+		/**
+		 * Fires after rollout policy evaluation for bounded metrics aggregation.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param \AIMultilingual\Rollout\RolloutPolicyDecision $rollout_decision Immutable decision.
+		 * @param bool                                          $render_allowed   Whether frontend render proceeds.
+		 */
+		\do_action( 'aiml_rollout_policy_decision', $decision->rollout, $decision->allowed );
 	}
 
 	/**
