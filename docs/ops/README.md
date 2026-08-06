@@ -10,8 +10,7 @@ Active stabilization plan: [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](..
 | Document | Purpose |
 |---|---|
 | [BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md](BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md) | Jobs health, pause/resume/cancel, budgets, AS, retention |
-
-Additional P1 ops docs (diagnostics, backup, rollback, maintenance) are added in later work packages and linked here when present.
+| [DIAGNOSTICS_AND_HEALTH.md](DIAGNOSTICS_AND_HEALTH.md) | Operational “is X functioning?” Q&A |
 
 ## Related Strategy F / GA checklists
 

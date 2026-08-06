@@ -107,13 +107,21 @@ cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
 
 ## S3 — Diagnostics
 
-**Result:** _(pending)_
-
----
+**Docs:** `docs/ops/DIAGNOSTICS_AND_HEALTH.md`  
+**Harness:** `acceptance/p1/diagnostics-smoke.php`  
+**Result:** **12/12 PASS** (2026-08-06) — AI/providers, jobs, review, TM table, glossary, rollout; no secrets in payloads.
 
 ## S4 — Schema verify
 
-**Result:** _(pending)_
+**Harness:** `acceptance/p1/schema-verify.php`  
+**Command (with upgrade simulation):**
+
+```bash
+cd /opt/biopentra/apps/wordpress && docker compose run --rm -T -e AIML_P1_SIMULATE_UPGRADE=1 wpcli \
+  wp eval-file wp-content/plugins/ai-multilingual/acceptance/p1/schema-verify.php
+```
+
+**Result:** **14/14 PASS** (2026-08-06) — TARGET 6, all tables, review_status column, glossary version option, maybe_migrate noop, simulated 5→6 upgrade.
 
 ---
 
