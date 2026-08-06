@@ -1,12 +1,12 @@
 # AI Multilingual Platform v1.0.0 RC — OpenAI End-to-End Validation
 
-**Verdict:** **PASSED**  
-**Date:** 2026-08-06  
-**Repo:** `/opt/biopentra/dev/ai-multilingual`  
-**Branch:** `main`  
-**Site:** `https://dev.biopentra.eu`  
-**Schema:** 6 / 6  
-**Harness:** `acceptance/rc/v1-openai-rc.php`  
+**Verdict:** **PASSED**
+**Date:** 2026-08-06
+**Repo:** `/opt/biopentra/dev/ai-multilingual`
+**Branch:** `main`
+**Site:** `https://dev.biopentra.eu`
+**Schema:** 6 / 6
+**Harness:** `acceptance/rc/v1-openai-rc.php`
 **Final run:** **56/56 PASS**
 
 ---
