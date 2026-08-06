@@ -120,5 +120,6 @@ Runner: `acceptance/jobs/smoke-dev.php` via WP-CLI `wp eval-file`.
 
 ## Closure
 
-- Merged to `main` and tagged `background-translation-jobs-complete` (see Phase 4 of release report)
+- Merged to `main` @ `b308138c4e2b6e835d3aeec8d508696d90fbe597`
+- Annotated tag `background-translation-jobs-complete` points at the merge commit
 - Platform v1 product track (Glossary + Review + Background Jobs) complete for controlled production deployment
