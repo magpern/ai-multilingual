@@ -100,6 +100,236 @@ final class BackgroundTranslationJobRepository {
 	}
 
 	/**
+	 * Count jobs with a given status.
+	 *
+	 * @param string $status Job status.
+	 */
+	public function count_by_status( string $status ): int {
+		global $wpdb;
+
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM ' . Schema::jobs() . ' WHERE status = %s', // phpcs:ignore WordPress.DB.PreparedSQL
+				$status
+			)
+		);
+
+		return (int) $count;
+	}
+
+	/**
+	 * List jobs sharing a batch_id.
+	 *
+	 * @param string $batch_id Batch identifier.
+	 * @return list<object>
+	 */
+	public function list_by_batch_id( string $batch_id ): array {
+		global $wpdb;
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::jobs() . ' WHERE batch_id = %s ORDER BY job_id ASC', // phpcs:ignore WordPress.DB.PreparedSQL
+				$batch_id
+			)
+		);
+
+		return is_array( $rows ) ? array_values( $rows ) : array();
+	}
+
+	/**
+	 * Find jobs with expired leases.
+	 *
+	 * @param string $now UTC datetime (Y-m-d H:i:s).
+	 * @return list<object>
+	 */
+	public function find_stale_leases( string $now ): array {
+		global $wpdb;
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::jobs() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' WHERE lease_owner != %s'
+				. ' AND lease_expires_at IS NOT NULL'
+				. ' AND lease_expires_at <= %s'
+				. ' AND status IN (%s, %s, %s)'
+				. ' ORDER BY job_id ASC',
+				'',
+				$now,
+				JobStatuses::QUEUED,
+				JobStatuses::RUNNING,
+				JobStatuses::RETRY_WAIT
+			)
+		);
+
+		return is_array( $rows ) ? array_values( $rows ) : array();
+	}
+
+	/**
+	 * Atomically claim a job lease and transition to running when queued.
+	 *
+	 * @param int    $job_id       Job id.
+	 * @param string $owner_token  Worker lease owner token.
+	 * @param int    $ttl_seconds  Lease TTL.
+	 * @param string $now          UTC datetime.
+	 * @return object|WP_Error|null Updated row, null when not claimable, or error.
+	 */
+	public function claim_lease( int $job_id, string $owner_token, int $ttl_seconds, string $now ) {
+		global $wpdb;
+
+		$expires = gmdate( 'Y-m-d H:i:s', strtotime( $now . ' UTC' ) + $ttl_seconds );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from Schema helper.
+		$sql = 'UPDATE ' . Schema::jobs() . ' SET '
+			. 'lease_owner = %s, lease_expires_at = %s, lease_heartbeat_at = %s, updated_at = %s, '
+			. 'status = IF(status = %s, %s, status), '
+			. 'started_at = IF(started_at IS NULL, %s, started_at) '
+			. 'WHERE job_id = %d '
+			. 'AND status IN (%s, %s, %s) '
+			. 'AND requested_action = %s '
+			. 'AND (lease_owner = %s OR lease_owner = %s OR lease_expires_at IS NULL OR lease_expires_at <= %s)';
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+		$prepared = $wpdb->prepare(
+			$sql,
+			$owner_token,
+			$expires,
+			$now,
+			$now,
+			JobStatuses::QUEUED,
+			JobStatuses::RUNNING,
+			$now,
+			$job_id,
+			JobStatuses::QUEUED,
+			JobStatuses::RUNNING,
+			JobStatuses::RETRY_WAIT,
+			RequestedActions::NONE,
+			'',
+			$owner_token,
+			$now
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$updated = $wpdb->query( $prepared );
+
+		if ( false === $updated ) {
+			return new WP_Error( 'job_lease_claim_failed', 'Failed to claim job lease.' );
+		}
+
+		if ( 0 === $updated ) {
+			return null;
+		}
+
+		return $this->find( $job_id );
+	}
+
+	/**
+	 * Extend an active lease owned by the given token.
+	 *
+	 * @param int    $job_id      Job id.
+	 * @param string $owner_token Lease owner token.
+	 * @param int    $ttl_seconds Lease TTL.
+	 * @param string $now         UTC datetime.
+	 * @return object|WP_Error|null
+	 */
+	public function heartbeat_lease( int $job_id, string $owner_token, int $ttl_seconds, string $now ) {
+		global $wpdb;
+
+		$expires = gmdate( 'Y-m-d H:i:s', strtotime( $now . ' UTC' ) + $ttl_seconds );
+
+		$updated = $wpdb->update(
+			Schema::jobs(),
+			array(
+				'lease_expires_at'   => $expires,
+				'lease_heartbeat_at' => $now,
+				'updated_at'         => $now,
+			),
+			array(
+				'job_id'      => $job_id,
+				'lease_owner' => $owner_token,
+			),
+			array( '%s', '%s', '%s' ),
+			array( '%d', '%s' )
+		);
+
+		if ( false === $updated ) {
+			return new WP_Error( 'job_lease_heartbeat_failed', 'Failed to heartbeat job lease.' );
+		}
+
+		if ( 0 === $updated ) {
+			$job = $this->find( $job_id );
+			if ( null !== $job && (string) $job->lease_owner === $owner_token ) {
+				return $job;
+			}
+
+			return null;
+		}
+
+		return $this->find( $job_id );
+	}
+
+	/**
+	 * Release a lease without clearing active_lock_key.
+	 *
+	 * @param int    $job_id      Job id.
+	 * @param string $owner_token Lease owner token.
+	 * @return object|WP_Error|null
+	 */
+	public function release_lease( int $job_id, string $owner_token ) {
+		global $wpdb;
+
+		$now = current_time( 'mysql', true );
+
+		$updated = $wpdb->update(
+			Schema::jobs(),
+			array(
+				'lease_owner'        => '',
+				'lease_expires_at'   => null,
+				'lease_heartbeat_at' => null,
+				'updated_at'         => $now,
+			),
+			array(
+				'job_id'      => $job_id,
+				'lease_owner' => $owner_token,
+			),
+			array( '%s', '%s', '%s', '%s' ),
+			array( '%d', '%s' )
+		);
+
+		if ( false === $updated ) {
+			return new WP_Error( 'job_lease_release_failed', 'Failed to release job lease.' );
+		}
+
+		if ( 0 === $updated ) {
+			return null;
+		}
+
+		return $this->find( $job_id );
+	}
+
+	/**
+	 * Archive idempotency key so a new job may reuse the canonical digest.
+	 *
+	 * @param int $job_id Job id.
+	 * @return object|WP_Error|null
+	 */
+	public function archive_idempotency_key( int $job_id ) {
+		$job = $this->find( $job_id );
+		if ( null === $job ) {
+			return new WP_Error( 'job_not_found', 'Job not found.' );
+		}
+
+		$archived = hash( 'sha256', (string) $job->idempotency_key . '|archived|' . $job_id );
+
+		return $this->update(
+			$job_id,
+			array(
+				'idempotency_key' => $archived,
+			)
+		);
+	}
+
+	/**
 	 * Find an active job by lock key.
 	 *
 	 * @param string $lock_key Active lock key value.
@@ -311,6 +541,7 @@ final class BackgroundTranslationJobRepository {
 			'job_type'                  => '%s',
 			'status'                    => '%s',
 			'requested_action'          => '%s',
+			'idempotency_key'           => '%s',
 			'batch_id'                  => '%s',
 			'source_type'               => '%s',
 			'source_id'                 => '%d',
@@ -454,15 +685,15 @@ final class BackgroundTranslationJobRepository {
 	 * @return WP_Error
 	 */
 	private function map_insert_error( string $error ): WP_Error {
+		if ( ! $this->is_duplicate_error( $error ) ) {
+			return new WP_Error( 'job_insert_failed', 'Failed to insert job.' );
+		}
+
 		if ( $this->is_duplicate_for_key( $error, 'idempotency_key' ) ) {
 			return new WP_Error( 'job_idempotency_conflict', 'Duplicate job idempotency key.' );
 		}
 
-		if ( $this->is_duplicate_for_key( $error, 'active_lock_key' ) ) {
-			return new WP_Error( 'job_lock_key_conflict', 'Duplicate active lock key.' );
-		}
-
-		return new WP_Error( 'job_insert_failed', 'Failed to insert job.' );
+		return new WP_Error( 'job_lock_key_conflict', 'Duplicate active lock key.' );
 	}
 
 	/**
@@ -486,10 +717,19 @@ final class BackgroundTranslationJobRepository {
 	 * @param string $key   Index / key name.
 	 */
 	private function is_duplicate_for_key( string $error, string $key ): bool {
-		if ( false === stripos( $error, 'Duplicate' ) && false === stripos( $error, '1062' ) ) {
+		if ( ! $this->is_duplicate_error( $error ) ) {
 			return false;
 		}
 
 		return false !== stripos( $error, $key );
+	}
+
+	/**
+	 * Whether a DB error string indicates a unique-key collision.
+	 *
+	 * @param string $error MySQL error text.
+	 */
+	private function is_duplicate_error( string $error ): bool {
+		return false !== stripos( $error, 'Duplicate' ) || false !== stripos( $error, '1062' );
 	}
 }

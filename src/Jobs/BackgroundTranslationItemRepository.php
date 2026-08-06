@@ -253,6 +253,33 @@ final class BackgroundTranslationItemRepository {
 	}
 
 	/**
+	 * Reset running items for a job back to queued (stale lease recovery).
+	 *
+	 * @param int $job_id Job id.
+	 * @return int Number of rows updated.
+	 */
+	public function reset_running_to_queued( int $job_id ): int {
+		global $wpdb;
+
+		$now = current_time( 'mysql', true );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$updated = $wpdb->query(
+			$wpdb->prepare(
+				'UPDATE ' . Schema::job_items() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' SET status = %s, updated_at = %s, started_at = NULL'
+				. ' WHERE job_id = %d AND status = %s',
+				ItemStatuses::QUEUED,
+				$now,
+				$job_id,
+				ItemStatuses::RUNNING
+			)
+		);
+
+		return false === $updated ? 0 : (int) $updated;
+	}
+
+	/**
 	 * Reject forbidden payload keys.
 	 *
 	 * @param array<string, mixed> $data Payload.

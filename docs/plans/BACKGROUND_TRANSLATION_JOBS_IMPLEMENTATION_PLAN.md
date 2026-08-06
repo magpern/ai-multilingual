@@ -10,6 +10,7 @@
 **Production schema today:** Migrator `TARGET = 5` until J1 lands additive step **6**.  
 **J0 gate:** **PASS** — Amended ADR-0011 Accepted — J1 authorized.
 **J1 status:** **PASS** — Migrator `TARGET=6`; `aiml_jobs` + `aiml_job_items`; repositories + JobCheckpoint.
+**J2 status:** **PASS** — Lifecycle state machines, leases, idempotency, batch coordinator; unit + integration tests green.
 **Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance
