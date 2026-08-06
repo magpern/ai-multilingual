@@ -1,11 +1,11 @@
 # Post-v1 Platform Roadmap — AI Multilingual
 
-**Roadmap version:** **v1.0** (frozen strategic baseline)  
-**Status:** Canonical long-term product roadmap — **frozen**  
-**Baseline:** AI Multilingual Platform **v1.0.0**  
-**Supersedes:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) (historical — v1 platform-track planning only)  
-**Planning model:** Durable programs (P1, A–E). Strategy F / F15+ numbering is retired. Classic M4–M7 themes are absorbed into programs.  
-**Scope of this document:** Product strategy, program boundaries, milestone ordering, dependencies, freezes, governance.  
+**Roadmap version:** **v1.0** (frozen strategic baseline)
+**Status:** Canonical long-term product roadmap — **frozen**
+**Baseline:** AI Multilingual Platform **v1.0.0**
+**Supersedes:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) (historical — v1 platform-track planning only)
+**Planning model:** Durable programs (P1, A–E). Strategy F / F15+ numbering is retired. Classic M4–M7 themes are absorbed into programs.
+**Scope of this document:** Product strategy, program boundaries, milestone ordering, dependencies, freezes, governance.
 **Out of scope here:** Implementation plans, ADRs, schemas, APIs, code.
 
 ---
@@ -25,8 +25,8 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **D** | Operations | *How* the platform is run safely at scale |
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
-**First milestone after v1.0.0:** P1.1 — Production deployment validation.  
-**First Coverage research after P1.1:** A.R1 Elementor identity spike (parallel: A.R2 nested spike, A.1 integration framework, A.0 leaf expansion).
+**First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
+**Next Coverage research:** A.R1 Elementor identity spike (parallel: A.R2 nested spike, A.1 integration framework, A.0 leaf expansion).
 
 ---
 
@@ -36,12 +36,10 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NOW
 
-- Platform **v1.0.0** released and in use as the engineering baseline
-- **P1 — Platform Stabilization** is the active program — implementation plan: [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md)
+- Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main` — plan [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md); validation [P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md) **PASS**
+- Active planning focus: **A.R1** Elementor Identity Research Spike (research/planning only)
 
 ### NEXT
-
-Immediately after P1.1 (and largely in parallel once P1.1 is done):
 
 - **A.R1** Elementor Identity Research Spike
 - **A.R2** Nested Gutenberg Identity Research Spike
@@ -114,12 +112,13 @@ Types aid planning. They do not change ordering.
 
 ### P1 — Platform Stabilization
 
-**Purpose:** Make v1.0.0 reliable in production before expanding surface area.  
-**Why:** A just-released platform needs deploy evidence and ops discipline more than new extractors.  
-**Success:** Controlled production validation; schema target 6 confirmed; rollback/kill-switch rehearsal current; docs match shipped surfaces; render cache remains off until a measured GO.  
-**Boundaries:** Fixes, docs, packaging, diagnostics clarity, provider compatibility—no new identity families.  
-**Size / risk:** Small / Low.  
-**Implementation plan:** [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md) (awaiting architecture review and freeze).
+**Purpose:** Make v1.0.0 reliable in production before expanding surface area.
+**Why:** A just-released platform needs deploy evidence and ops discipline more than new extractors.
+**Success:** Controlled production validation; schema target 6 confirmed; rollback/kill-switch rehearsal current; docs match shipped surfaces; render cache remains off until a measured GO.
+**Boundaries:** Fixes, docs, packaging, diagnostics clarity, provider compatibility—no new identity families.
+**Size / risk:** Small / Low.
+**Implementation plan:** [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md) — **Complete / merged**.
+**Validation log:** [P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md) **PASS**.
 
 | ID | Milestone | Type |
 |---|---|---|
@@ -129,11 +128,11 @@ Types aid planning. They do not change ordering.
 
 ### Program A — Translation Coverage
 
-**Purpose:** Expand deterministic visitor-facing coverage.  
-**Why:** v1 covers seven Gutenberg leaves; Elementor, nested blocks, WP chrome, WooCommerce, and third-party surfaces remain the multi-year value.  
+**Purpose:** Expand deterministic visitor-facing coverage.
+**Why:** v1 covers seven Gutenberg leaves; Elementor, nested blocks, WP chrome, WooCommerce, and third-party surfaces remain the multi-year value.
 **Size / risk:** Largest program / High (especially Elementor and nested identity).
 
-**Long-term completion statement:**  
+**Long-term completion statement:**
 Program A is considered **complete** when AI Multilingual can translate **essentially every visitor-facing surface** of a modern WordPress installation through **deterministic integrations** rather than HTML scraping—while respecting plugin ownership and the frozen identity/overlay principles above. Completion is a strategic end-state, not a single release.
 
 **Architectural boundaries:** Visitor-facing only; adapters/integrations only; no wp-admin; no scrape-first approaches; Elementor/nested product work only after their research spikes (and subsequent ADR acceptance outside this document).
@@ -154,8 +153,8 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 
 ### Program B — Translation Intelligence
 
-**Purpose:** Improve provider choice, quality signals, terminology use, resilience, and AI cost/effectiveness.  
-**Why:** v1 ships OpenAI-first with a frozen provider framework; quality loop exists but intelligence depth is thin.  
+**Purpose:** Improve provider choice, quality signals, terminology use, resilience, and AI cost/effectiveness.
+**Why:** v1 ships OpenAI-first with a frozen provider framework; quality loop exists but intelligence depth is thin.
 **Naming:** **Translation Intelligence** is retained. Alternatives considered:
 
 - *Translation Quality* — too narrow (omits providers, health, optimisation, retranslation policy)
@@ -178,8 +177,8 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 
 ### Program C — Translator Experience
 
-**Purpose:** Make Workspace and review the fastest path from source to approved target.  
-**Why:** v1 Workspace is capable but MVP; Coverage gains multiply with operator speed.  
+**Purpose:** Make Workspace and review the fastest path from source to approved target.
+**Why:** v1 Workspace is capable but MVP; Coverage gains multiply with operator speed.
 **Boundaries:** Operator UI only; no second editor; no assignment/collaboration platform unless product reopen; REST remains ViewModels.
 
 | ID | Milestone | Type |
@@ -194,8 +193,8 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 
 ### Program D — Operations
 
-**Purpose:** Run the platform safely as coverage and volume grow.  
-**Why:** Diagnostics exist but are siloed; import/export and deep analytics remain open.  
+**Purpose:** Run the platform safely as coverage and volume grow.
+**Why:** Diagnostics exist but are siloed; import/export and deep analytics remain open.
 **Boundaries:** No secrets in diagnostics; export/import must preserve overlay invariants; not a billing product.
 
 | ID | Milestone | Type |
@@ -212,8 +211,8 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 
 ### Program E — Platform Ecosystem
 
-**Purpose:** Let third parties extend Coverage and Intelligence without forking core.  
-**Why:** Long-term Coverage depends on external adapters and providers.  
+**Purpose:** Let third parties extend Coverage and Intelligence without forking core.
+**Why:** Long-term Coverage depends on external adapters and providers.
 **Boundaries:** Public contracts only; samples obey PluginGuard-class rules; no scraping SDK.
 
 | ID | Milestone | Type |
@@ -274,7 +273,7 @@ Waves may slip across minors; the family definition is stable.
 
 ### 6.3 Third-party and SEO
 
-- **A.8** — One third-party bridge at a time via A.1  
+- **A.8** — One third-party bridge at a time via A.1
 - **A.SEO** — Late, low coupling to editor identity work
 
 ---
@@ -396,8 +395,8 @@ That end-state is approached through programs A–E after P1; it is not a single
 
 ## 12. First milestone and stopping guidance
 
-**Start:** P1.1 Production deployment validation — see [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md).  
-**Then:** A.R1 + A.R2 + A.1 + A.0 in parallel with early B/C/D.  
+**Start:** P1.1 Production deployment validation — see [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md).
+**Then:** A.R1 + A.R2 + A.1 + A.0 in parallel with early B/C/D.
 **Stop and freeze** at the points in §9 before opening the next identity family or data-mobility surface.
 
 ---
@@ -436,6 +435,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 |---|---|---|
 | **v1.0** | 2026-08-06 | Initial frozen canonical long-term roadmap (programs P1, A–E; governance and maintenance policy). |
 | v1.0 (editorial) | 2026-08-06 | Linked P1 implementation plan under Program P1 / Now (no structural change). |
+| v1.0 (editorial) | 2026-08-06 | P1 marked complete/merged; Now/Next advances to A.R1 planning (no structural change). |
 
 ---
 

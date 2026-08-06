@@ -1,11 +1,11 @@
 # P1 — Platform Stabilization — Implementation Plan
 
-**Status:** Architecture frozen — implementation authorized  
-**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Program **P1** (milestones P1.1–P1.3); Roadmap **v1.0**  
-**Baseline:** AI Multilingual Platform **v1.0.0** (`main`)  
-**Branch (when implementation starts):** `feature/p1-platform-stabilization` (recommended)  
-**ADR:** **None required** for planned work. Open an ADR only if a frozen platform contract must change — that is a **stop condition**, not a P1 deliverable.  
-**Validation log (to create during implementation):** `docs/plans/P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md`
+**Status:** **Complete** — merged to `main`; tag `p1-platform-stabilization-complete`
+**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Program **P1** (milestones P1.1–P1.3); Roadmap **v1.0**
+**Baseline:** AI Multilingual Platform **v1.0.0** (`main`)
+**Branch:** `feature/p1-platform-stabilization` (merged)
+**ADR:** **None required**
+**Validation log:** [P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md) **PASS**
 
 **Primary deliverables:** Runnable verification under `acceptance/p1/` + executed operational evidence. Documentation is **supporting evidence**, not the product of P1.
 
@@ -443,9 +443,9 @@ Plus: S0–S8 complete or explicitly waived; Tier 0 green for any code; contract
 
 ## 16. Exact next step
 
-1. Open `feature/p1-platform-stabilization` (or equivalent process).  
-2. Execute **S0 → S1** first (`deploy-verify.php`); do not start A.R1 until **S1 PASS**.  
-3. Parallelize S2+ after S0.  
+1. Open `feature/p1-platform-stabilization` (or equivalent process).
+2. Execute **S0 → S1** first (`deploy-verify.php`); do not start A.R1 until **S1 PASS**.
+3. Parallelize S2+ after S0.
 4. Close with **S9 Operational Readiness Sign-off**.
 
 ---
@@ -470,12 +470,12 @@ Plus: S0–S8 complete or explicitly waived; Tier 0 green for any code; contract
 
 This refinement confirms:
 
-- **S0–S9 ordering** is unchanged  
-- **Roadmap mapping** (P1.1–P1.3) is unchanged  
-- **Implementation scope** is unchanged (no new product capabilities)  
-- **Frozen contracts** are unchanged  
-- **No ADR** is required  
-- **No schema TARGET** changes  
+- **S0–S9 ordering** is unchanged
+- **Roadmap mapping** (P1.1–P1.3) is unchanged
+- **Implementation scope** is unchanged (no new product capabilities)
+- **Frozen contracts** are unchanged
+- **No ADR** is required
+- **No schema TARGET** changes
 - **No production code** is modified by this planning refinement (plan document only)
 
 ---

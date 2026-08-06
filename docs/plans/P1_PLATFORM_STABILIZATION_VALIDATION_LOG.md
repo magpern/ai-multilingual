@@ -209,4 +209,4 @@ cd /opt/biopentra/apps/wordpress && docker compose run --rm -T -e AIML_P1_SIMULA
 
 Supporting: [V1_0_X_MAINTENANCE.md](../ops/V1_0_X_MAINTENANCE.md)
 
-**Overall:** **PASS** — P1 Platform Stabilization complete on `feature/p1-platform-stabilization`
+**Overall:** **PASS** — P1 Platform Stabilization complete; merged to `main` (merge checkpoint 2026-08-06). Accepted waivers for full kill-switch flip and full DB restore documented above.
