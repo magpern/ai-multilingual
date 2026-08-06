@@ -1,5 +1,5 @@
 import { Button, Modal, Notice } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 import type { JobAction } from '../types/jobs';
 import { jobActionLabel } from '../utils/jobs';

@@ -400,13 +400,32 @@ final class JobsController {
 	}
 
 	/**
-	 * Requests job pause.
+	 * Requests job pause and observes it at a safe boundary.
+	 *
+	 * Queued/retry_wait jobs have no in-flight item; observe immediately so
+	 * operators can resume. Matches cancel REST behaviour. Running jobs that
+	 * already hold a lease still observe pause inside the worker item loop;
+	 * this call is still safe (idempotent when requested_action is none).
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function pause_job( WP_REST_Request $request ) {
-		return $this->mutate_job( (int) $request['id'], array( $this->jobs, 'request_pause' ) );
+		$job_id = (int) $request['id'];
+
+		$result = $this->jobs->request_pause( $job_id );
+		if ( is_wp_error( $result ) ) {
+			return $this->map_domain_error( $result );
+		}
+
+		$observed = $this->jobs->observe_requested_action_at_boundary( $job_id );
+		if ( is_wp_error( $observed ) ) {
+			return $this->map_domain_error( $observed );
+		}
+
+		$job = is_object( $observed ) ? $observed : $result;
+
+		return $this->respond( $this->serializer->job_from_row( $job )->to_array() );
 	}
 
 	/**

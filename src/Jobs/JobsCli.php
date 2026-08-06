@@ -263,7 +263,7 @@ final class JobsCli {
 	}
 
 	/**
-	 * Requests job pause.
+	 * Requests job pause and observes it at a safe boundary.
 	 *
 	 * ## OPTIONS
 	 *
@@ -276,7 +276,30 @@ final class JobsCli {
 	public function pause( array $args, array $assoc ): void {
 		unset( $assoc );
 		self::require_cap( JobsCapabilities::CANCEL_JOBS );
-		$this->mutate_job( $args, array( $this->jobs, 'request_pause' ), 'Pause requested.' );
+
+		$job_id = isset( $args[0] ) ? (int) $args[0] : 0;
+		if ( $job_id <= 0 ) {
+			WP_CLI::error( 'Missing job id.' );
+		}
+
+		$job = $this->jobs->find_job( $job_id );
+		if ( null === $job ) {
+			WP_CLI::error( 'Job not found.' );
+		}
+
+		self::assert_post_scope( $job );
+
+		$result = $this->jobs->request_pause( $job_id );
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result->get_error_message() );
+		}
+
+		$observed = $this->jobs->observe_requested_action_at_boundary( $job_id );
+		if ( is_wp_error( $observed ) ) {
+			WP_CLI::error( $observed->get_error_message() );
+		}
+
+		WP_CLI::success( 'Job paused.' );
 	}
 
 	/**

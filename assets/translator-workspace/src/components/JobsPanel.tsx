@@ -12,6 +12,7 @@ import {
 import type {
 	BatchProgressSummary,
 	JobAction,
+	JobStatus,
 	JobsHealthResponse,
 	TranslationJobDetail,
 	TranslationJobSummary,
@@ -48,7 +49,9 @@ export default function JobsPanel( {
 	canCancel,
 	canRun,
 }: JobsPanelProps ) {
-	const [ statusFilter, setStatusFilter ] = useState( 'all' );
+	const [ statusFilter, setStatusFilter ] = useState< JobStatus | 'all' >(
+		'all'
+	);
 	const [ languageCode, setLanguageCode ] = useState( '' );
 	const [ batchIdFilter, setBatchIdFilter ] = useState( '' );
 	const [ page, setPage ] = useState( 1 );

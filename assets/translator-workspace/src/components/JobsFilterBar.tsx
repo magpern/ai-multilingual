@@ -2,6 +2,7 @@ import { Button, SelectControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 import type { LanguageOption } from '../types/view-models';
+import type { JobStatus } from '../types/jobs';
 import { jobStatusFilterOptions } from '../utils/jobs';
 import LanguageSelect from './LanguageSelect';
 
@@ -9,8 +10,8 @@ interface JobsFilterBarProps {
 	languages: LanguageOption[];
 	languageCode: string;
 	onLanguageChange: ( code: string ) => void;
-	status: string;
-	onStatusChange: ( status: string ) => void;
+	status: JobStatus | 'all';
+	onStatusChange: ( status: JobStatus | 'all' ) => void;
 	batchIdFilter: string;
 	onBatchIdFilterChange: ( value: string ) => void;
 	onRefresh: () => void;
@@ -39,7 +40,9 @@ export default function JobsFilterBar( {
 				label={ __( 'Status', 'ai-multilingual' ) }
 				value={ status }
 				options={ jobStatusFilterOptions() }
-				onChange={ onStatusChange }
+				onChange={ ( next ) =>
+					onStatusChange( ( next ?? 'all' ) as JobStatus | 'all' )
+				}
 			/>
 			<LanguageSelect
 				languages={ languages }
