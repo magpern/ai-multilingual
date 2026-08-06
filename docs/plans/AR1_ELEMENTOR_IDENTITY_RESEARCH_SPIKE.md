@@ -6,14 +6,14 @@
 **Planning branch:** `feature/ar1-elementor-identity-spike-plan` (merged)  
 **Research branch:** `feature/ar1-elementor-identity`  
 **Evidence log:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md)  
-**ADR:** Not written in this milestone. Expected later: *Elementor identity and ownership model*.  
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Proposed**. Expected acceptance freezes Hybrid D / ownership / deny-list for A.2 planning.  
 **Elementor production implementation:** **Blocked**.  
 **A.2 Elementor Foundation:** **Blocked** until:
 
 1. ER0–ER7 are complete — **done**  
 2. Result is **GO** or **CONDITIONAL GO** — **CONDITIONAL GO**  
-3. Required Elementor identity/ownership ADR is written  
-4. ADR is **explicitly Accepted**
+3. Required Elementor identity/ownership ADR is written — **ADR-0016 Proposed**  
+4. ADR is **explicitly Accepted** — **pending**
 
 **This research milestone does not authorize Elementor production translation.** A.2 coding remains blocked pending ADR acceptance.
 

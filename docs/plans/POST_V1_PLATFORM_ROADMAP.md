@@ -139,7 +139,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 
 | ID | Milestone | Type |
 |---|---|---|
-| A.R1 | Elementor Identity Research Spike | Research Spike — [plan](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md); [research log](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; A.2 blocked pending ADR) |
+| A.R1 | Elementor Identity Research Spike | Research Spike — [plan](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md); [research log](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Proposed** (A.2 blocked until Accepted) |
 | A.R2 | Nested Gutenberg Identity Research Spike | Research Spike |
 | A.1 | Plugin Integration Framework | Architecture |
 | A.0 | Additional Gutenberg leaf blocks and fields | Product |

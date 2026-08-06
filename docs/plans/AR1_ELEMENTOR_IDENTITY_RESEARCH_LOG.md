@@ -5,8 +5,9 @@
 **Research branch:** `feature/ar1-elementor-identity`  
 **Baseline main (plan merge):** `b310190c4766696e6c42982bde4ffc76d435322c`  
 **Recommendation:** **CONDITIONAL GO**  
-**A.2 / production Elementor translation:** Still **blocked** until ADR written and **Accepted**  
-**Evidence root:** `research/ar1-elementor-identity/evidence/`
+**A.2 / production Elementor translation:** Still **blocked** until ADR-0016 is **Accepted**  
+**Evidence root:** `research/ar1-elementor-identity/evidence/`  
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Proposed** (authorizes A.2 **planning** only after Accepted; does not authorize implementation)
 
 This log is the source of truth for A.R1 findings. Confidence labels follow the charter §14.1 model.
 
@@ -446,11 +447,11 @@ These gaps condition the GO; they do not invalidate measured ID/collision/path f
 
 ## Exact next step
 
-1. Review this research log and CONDITIONAL GO.  
-2. If accepted, draft ADR *Elementor identity and ownership model* (do not implement A.2 yet).  
-3. Only after ADR **Accepted**, open A.2 Elementor Foundation planning for the advisory first surface.
+1. Review and **Accept** [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) (or request changes while Proposed).  
+2. Only after ADR-0016 is **Accepted**, open A.2 Elementor Foundation **planning** for the advisory first surface.  
+3. Do **not** implement Elementor production support until A.2 is separately authorized after acceptance.
 
-**Do not begin A.2 coding in this milestone.**
+**Do not begin A.2 coding while ADR-0016 remains Proposed.**
 
 ---
 
