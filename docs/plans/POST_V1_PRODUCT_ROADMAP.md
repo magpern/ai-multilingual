@@ -1,10 +1,10 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Review Workflow **complete**; Background Translation Jobs **implementation authorized** on `feature/background-translation-jobs` — ADR-0011 amendment **Accepted** (2026-08-06, Gate A)  
-**Branch:** planning merged; implementation `feature/background-translation-jobs`  
+**Status:** Background Translation Jobs **J0–J8 complete** on `feature/background-translation-jobs` — ADR-0011 amendment **Accepted**; validation log PASS (browser smoke pending deploy)  
+**Branch:** implementation `feature/background-translation-jobs`  
 **Baseline:** `main` after Jobs planning merge  
 **Scope:** Product priorities after the Strategy F platform program  
-**Code changes:** Glossary MVP + Review Workflow shipped; Jobs J0 gate open — J1+ in progress on implementation branch
+**Code changes:** Glossary + Review shipped; Jobs implemented on feature branch (not yet merged)
 
 ---
 
@@ -258,7 +258,7 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Stop conditions** | J1 without ADR amendment disposition; provider-specific job logic; unbounded fan-out; worker TM write-back; auto-approve. |
 | **Release boundary** | Independently shippable; default-off or capability-gated until ops ready. |
 | **Readiness gate** | Canonical plan frozen; **ADR-0011 amendment Accepted** (Gate A, 2026-08-06) — J1 authorized. |
-| **Planning status** | Plan merged to `main`; implementation on `feature/background-translation-jobs`. |
+| **Planning status** | J0–J8 complete on `feature/background-translation-jobs`; [validation log](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md) PASS; merge/tag pending. |
 
 **Why jobs before broader automation:** Retries, bounded concurrency, cost control, failure recovery, operator visibility, idempotency, and safe bulk translation are prerequisites for responsible AI automation at scale.
 
@@ -321,10 +321,10 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 - ADR-0014 remains **Accepted**.
 - F1–F14 remain **complete**.
 - Review Workflow is **complete** (merged + tagged); ADR-0015 **Accepted**.
-- Background Translation Jobs: ADR-0011 amendment **Accepted** (Gate A); J1 authorized on `feature/background-translation-jobs`.
+- Background Translation Jobs: ADR-0011 **Accepted**; J0–J8 complete on feature branch; validation log PASS.
 
 ---
 
 ## 15. Exact next step
 
-Implement J1–J8 on `feature/background-translation-jobs` per [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md). Do not merge or tag until J8 validation PASS.
+Deploy `feature/background-translation-jobs` to `dev.biopentra.eu`, run the Jobs smoke checklist in [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md), then merge to `main` and tag when smoke is green.

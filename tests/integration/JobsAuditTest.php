@@ -33,8 +33,8 @@ final class JobsAuditTest extends AimlTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$jobs       = new BackgroundTranslationJobRepository();
-		$this->audit = new BackgroundTranslationJobAuditLogger();
+		$jobs          = new BackgroundTranslationJobRepository();
+		$this->audit   = new BackgroundTranslationJobAuditLogger();
 		$this->service = new BackgroundTranslationJobService(
 			$jobs,
 			null,

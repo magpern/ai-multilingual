@@ -52,7 +52,7 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 	private BackgroundTranslationJobRepository $jobs;
 
 	public function test_create_job_rejects_when_action_scheduler_unavailable(): void {
-		$unavailable = new UnavailableSchedulerStub();
+		$unavailable = new UnavailableJobsSchedulerStub();
 		$service     = $this->build_job_service( $unavailable );
 		$language    = $this->add_language();
 		$post        = $this->create_block_page();
@@ -76,7 +76,7 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 	}
 
 	public function test_batch_create_rejects_when_action_scheduler_unavailable(): void {
-		$unavailable = new UnavailableSchedulerStub();
+		$unavailable = new UnavailableJobsSchedulerStub();
 		$service     = $this->build_job_service( $unavailable );
 		$batch       = new BackgroundTranslationBatchCoordinator( $service, new BackgroundTranslationJobRepository(), $unavailable );
 		$language    = $this->add_language();
@@ -140,11 +140,11 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 		$this->jobs->update(
 			(int) $job->job_id,
 			array(
-				'status'        => JobStatuses::QUEUED,
-				'finished_at'   => null,
-				'queued_items'  => 1,
+				'status'          => JobStatuses::QUEUED,
+				'finished_at'     => null,
+				'queued_items'    => 1,
 				'completed_items' => 1,
-				'total_items'   => 2,
+				'total_items'     => 2,
 			)
 		);
 
@@ -202,13 +202,13 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 		$this->jobs  = new BackgroundTranslationJobRepository();
 		$this->items = new BackgroundTranslationItemRepository();
 
-		$available = new AvailableSchedulerStub();
+		$available         = new AvailableSchedulerStub();
 		$this->job_service = $this->build_job_service( $available );
 		$this->worker      = $this->build_worker( $available, $this->job_service );
 	}
 
 	/**
-	 * @param list<object> $items Item rows.
+	 * @param array<object> $items Item rows.
 	 */
 	private function count_items_by_status( array $items, string $status ): int {
 		$count = 0;
@@ -233,10 +233,10 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 				new BlockExtractionLogger()
 			)
 		);
-		$assembler = new SegmentAssembler( $extractor, $this->store, $block_registry );
-		$leases    = new JobLeaseService( $this->jobs, $this->items );
-		$reconcile = new JobProgressReconciler( $this->jobs, $this->items );
-		$budget    = new BackgroundTranslationBudgetPolicy( $this->jobs );
+		$assembler        = new SegmentAssembler( $extractor, $this->store, $block_registry );
+		$leases           = new JobLeaseService( $this->jobs, $this->items );
+		$reconcile        = new JobProgressReconciler( $this->jobs, $this->items );
+		$budget           = new BackgroundTranslationBudgetPolicy( $this->jobs );
 
 		return new BackgroundTranslationJobService(
 			$this->jobs,
@@ -266,13 +266,13 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 				new BlockExtractionLogger()
 			)
 		);
-		$assembler   = new SegmentAssembler( $extractor, $this->store, $block_registry );
-		$glossary    = new GlossaryService(
+		$assembler        = new SegmentAssembler( $extractor, $this->store, $block_registry );
+		$glossary         = new GlossaryService(
 			new GlossaryRepository(),
 			new GlossaryNormalizer(),
 			new GlossaryMatcher( new GlossaryNormalizer() )
 		);
-		$translation = new TranslationService(
+		$translation      = new TranslationService(
 			$this->store,
 			$assembler,
 			$this->languages,
@@ -281,16 +281,16 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 			null,
 			$glossary
 		);
-		$processor = new BackgroundTranslationItemProcessor(
+		$processor        = new BackgroundTranslationItemProcessor(
 			$this->store,
 			$translation,
 			$glossary,
 			$assembler,
 			new BackgroundTranslationRetryPolicy()
 		);
-		$leases    = new JobLeaseService( $this->jobs, $this->items );
-		$reconcile = new JobProgressReconciler( $this->jobs, $this->items );
-		$budget    = new BackgroundTranslationBudgetPolicy( $this->jobs );
+		$leases           = new JobLeaseService( $this->jobs, $this->items );
+		$reconcile        = new JobProgressReconciler( $this->jobs, $this->items );
+		$budget           = new BackgroundTranslationBudgetPolicy( $this->jobs );
 
 		return new BackgroundTranslationWorker(
 			$processor,
@@ -327,62 +327,5 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 		);
 
 		unset( $wpdb );
-	}
-}
-
-/**
- * Scheduler stub reporting Action Scheduler as unavailable.
- */
-final class UnavailableSchedulerStub extends BackgroundTranslationScheduler {
-
-	public function is_available(): bool {
-		return false;
-	}
-
-	/**
-	 * @return array{available: bool, message: string}
-	 */
-	public function health(): array {
-		return array(
-			'available' => false,
-			'message'   => 'Action Scheduler is not available.',
-		);
-	}
-}
-
-/**
- * Scheduler stub reporting Action Scheduler as available for worker tests.
- */
-final class AvailableSchedulerStub extends BackgroundTranslationScheduler {
-
-	public function is_available(): bool {
-		return true;
-	}
-
-	/**
-	 * @return array{available: bool, message: string}
-	 */
-	public function health(): array {
-		return array(
-			'available' => true,
-			'message'   => 'Action Scheduler is available.',
-		);
-	}
-
-	/**
-	 * @param int $job_id Job id.
-	 * @return true
-	 */
-	public function enqueue_job( int $job_id ) {
-		return true;
-	}
-
-	/**
-	 * @param int $job_id        Job id.
-	 * @param int $delay_seconds Delay seconds.
-	 * @return true
-	 */
-	public function enqueue_job_delayed( int $job_id, int $delay_seconds ) {
-		return true;
 	}
 }

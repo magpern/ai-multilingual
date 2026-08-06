@@ -60,9 +60,9 @@ final class BackgroundTranslationBudgetPolicyTest extends TestCase {
 		$policy = new BackgroundTranslationBudgetPolicy();
 		$job    = (object) array(
 			'budget_max_requests'  => 10,
-			'budget_max_tokens'      => 0,
-			'budget_used_requests'   => 8,
-			'budget_warning_pct'     => 80,
+			'budget_max_tokens'    => 0,
+			'budget_used_requests' => 8,
+			'budget_warning_pct'   => 80,
 		);
 
 		$this->assertTrue( $policy->is_warning( $job ) );

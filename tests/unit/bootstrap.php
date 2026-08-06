@@ -103,6 +103,12 @@ if ( ! function_exists( 'do_action' ) ) {
 
 if ( ! function_exists( 'add_action' ) ) {
 	/**
+	 * No-op WordPress hook registration for unit tests.
+	 *
+	 * Must not invoke the callback: real WordPress stores it for later
+	 * `do_action` delivery. Calling it here breaks constructors that
+	 * register methods with required arguments (e.g. BlockMetricsAggregator).
+	 *
 	 * @param string   $hook     Hook name.
 	 * @param callable $callback Callback.
 	 * @param int      $priority Priority.
@@ -110,10 +116,6 @@ if ( ! function_exists( 'add_action' ) ) {
 	 * @return true
 	 */
 	function add_action( $hook, $callback, $priority = 10, $args = 1 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
-		if ( is_callable( $callback ) ) {
-			call_user_func( $callback );
-		}
-
 		return true;
 	}
 }

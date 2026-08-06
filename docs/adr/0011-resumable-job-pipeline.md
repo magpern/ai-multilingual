@@ -9,7 +9,7 @@
 | **Original acceptance** | Milestone 0 (Accepted design baseline) |
 | **Amendment date** | 2026-08-06 |
 | **Amendment acceptance date** | 2026-08-06 |
-| **Implementation status** | **Authorized — not yet implemented** (J1+ on `feature/background-translation-jobs`) |
+| **Implementation status** | **Implemented on `feature/background-translation-jobs`** — J0–J8 complete; validation log PASS (live browser smoke pending deploy checklist) |
 | **Supersedes status claim** | ~~Implemented in Milestone 3~~ — false at amendment time; implementation proceeds under this Accepted amendment |
 | **Decision maker** | Product Owner |
 | **Decision** | Amended ADR-0011 **Accepted** |

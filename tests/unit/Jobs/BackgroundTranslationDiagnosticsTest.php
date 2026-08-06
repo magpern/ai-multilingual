@@ -46,14 +46,14 @@ final class BackgroundTranslationDiagnosticsTest extends TestCase {
 
 		$this->assertSame(
 			array(
-				'provider_errors'        => 0,
-				'stale_source_conflicts' => 0,
-				'budget_stops'           => 0,
-				'item_retries'           => 0,
-				'cleanup_jobs_deleted'   => 0,
-				'cleanup_items_deleted'  => 0,
+				'provider_errors'         => 0,
+				'stale_source_conflicts'  => 0,
+				'budget_stops'            => 0,
+				'item_retries'            => 0,
+				'cleanup_jobs_deleted'    => 0,
+				'cleanup_items_deleted'   => 0,
 				'cleanup_orphans_deleted' => 0,
-				'stuck_leases_recovered' => 0,
+				'stuck_leases_recovered'  => 0,
 			),
 			$diagnostics->counters()
 		);

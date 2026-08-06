@@ -7,7 +7,7 @@
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) §11.3  
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md)
 
-**Production schema today:** Migrator `TARGET = 5` until J1 lands additive step **6**.  
+**Production schema today:** Migrator `TARGET = 6` on this implementation branch (additive Jobs tables).  
 **J0 gate:** **PASS** — Amended ADR-0011 Accepted — J1 authorized.
 **J1 status:** **PASS** — Migrator `TARGET=6`; `aiml_jobs` + `aiml_job_items`; repositories + JobCheckpoint.
 **J2 status:** **PASS** — Lifecycle state machines, leases, idempotency, batch coordinator; unit + integration tests green.
@@ -16,6 +16,7 @@
 **J5 status:** **PASS** — Jobs REST/CLI, capabilities, ViewModels; permission matrix, 409 idempotency, AS 503, post-level auth; phpcs + Jobs-filtered PHPUnit green.
 **J6 status:** **PASS** — Translator Workspace extended with Jobs tab (capability-aware), list/progress/actions, create dialog, batch summary, bounded errors, AS/provider health banner; Jest + webpack build green.
 **J7 status:** **PASS** — Audit hook `aiml_translation_job_audit` with stable event names; bounded diagnostics + `GET /jobs/diagnostics`; retention cleanup in sweep (30d completed / 90d failed-cancelled, bounded, no active/leased delete); runbook `docs/ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md`; unit + integration tests green.
+**J8 status:** **PASS** — Tier 0 validation green; see [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md). Live browser smoke **PENDING deploy checklist**.
 **Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance
