@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual;
 
+use AIMultilingual\Jobs\BackgroundTranslationBatchCoordinator;
 use AIMultilingual\Jobs\BackgroundTranslationItemProcessor;
 use AIMultilingual\Jobs\BackgroundTranslationItemRepository;
 use AIMultilingual\Jobs\BackgroundTranslationJobProviderValidator;
@@ -20,6 +21,10 @@ use AIMultilingual\Jobs\BackgroundTranslationScheduler;
 use AIMultilingual\Jobs\BackgroundTranslationWorker;
 use AIMultilingual\Jobs\JobLeaseService;
 use AIMultilingual\Jobs\JobProgressReconciler;
+use AIMultilingual\Jobs\JobsCapabilities;
+use AIMultilingual\Jobs\JobsCli;
+use AIMultilingual\Jobs\JobsController;
+use AIMultilingual\Jobs\JobsViewModelSerializer;
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
@@ -302,6 +307,7 @@ final class Plugin {
 			$job_scheduler,
 			$job_provider
 		);
+		$job_batches    = new BackgroundTranslationBatchCoordinator( $job_service, $job_repo, $job_scheduler );
 		$job_scheduler->register_hooks( $job_worker, $job_leases );
 		add_action(
 			'init',
@@ -310,7 +316,15 @@ final class Plugin {
 			},
 			20
 		);
-		unset( $job_service, $job_worker, $job_processor, $job_repo, $item_repo, $job_leases, $job_reconciler, $job_scheduler, $job_budget, $job_retry, $job_provider );
+
+		( new JobsController(
+			$job_service,
+			$job_batches,
+			$job_scheduler,
+			$job_worker,
+			$languages,
+			new JobsViewModelSerializer()
+		) )->register();
 
 		( new WorkspaceController(
 			$workspace,
@@ -382,6 +396,7 @@ final class Plugin {
 
 			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics );
 			RolloutCli::register();
+			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases );
 		}
 	}
 
@@ -410,6 +425,7 @@ final class Plugin {
 		RolloutCapabilities::grant_default_roles();
 		GlossaryCapabilities::grant_default_roles();
 		ReviewCapabilities::grant_default_roles();
+		JobsCapabilities::grant_default_roles();
 	}
 
 	/**

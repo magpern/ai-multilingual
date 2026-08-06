@@ -54,6 +54,7 @@ foreach ( array_keys( $aiml_roles->roles ) as $aiml_role_name ) {
 }
 \AIMultilingual\Glossary\GlossaryCapabilities::revoke_all_roles();
 \AIMultilingual\Workspace\Review\ReviewCapabilities::revoke_all_roles();
+\AIMultilingual\Jobs\JobsCapabilities::revoke_all_roles();
 
 // 3. Action Scheduler callbacks (J4 registers these; safe no-op when AS absent).
 if ( function_exists( 'as_unschedule_all_actions' ) ) {

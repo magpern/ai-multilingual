@@ -13,6 +13,7 @@
 **J2 status:** **PASS** — Lifecycle state machines, leases, idempotency, batch coordinator; unit + integration tests green.
 **J3 status:** **PASS** — Worker, ItemProcessor, Scheduler; conflict policy; AS wake hook; unit + integration tests green.
 **J4 status:** **PASS** — RetryPolicy, BudgetPolicy, provider validation, AS health reject-on-create, worker budget/retry wiring; unit + integration tests green.
+**J5 status:** **PASS** — Jobs REST/CLI, capabilities, ViewModels; permission matrix, 409 idempotency, AS 503, post-level auth; phpcs + Jobs-filtered PHPUnit green.
 **Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance

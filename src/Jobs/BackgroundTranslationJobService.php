@@ -281,6 +281,55 @@ final class BackgroundTranslationJobService {
 	}
 
 	/**
+	 * List jobs with optional filters.
+	 *
+	 * @param array<string, mixed> $filters Query filters.
+	 * @return array{items: list<object>, total: int, page: int, per_page: int}
+	 */
+	public function list_jobs( array $filters ): array {
+		$page     = max( 1, (int) ( $filters['page'] ?? 1 ) );
+		$per_page = max( 1, min( 100, (int) ( $filters['per_page'] ?? 20 ) ) );
+
+		$query = $this->jobs->query(
+			array(
+				'status'      => $filters['status'] ?? null,
+				'batch_id'    => $filters['batch_id'] ?? null,
+				'language_id' => $filters['language_id'] ?? null,
+				'page'        => $page,
+				'per_page'    => $per_page,
+			)
+		);
+
+		return array(
+			'items'    => $query['items'],
+			'total'    => $query['total'],
+			'page'     => $page,
+			'per_page' => $per_page,
+		);
+	}
+
+	/**
+	 * Load one job row.
+	 *
+	 * @param int $job_id Job id.
+	 * @return object|null
+	 */
+	public function find_job( int $job_id ): ?object {
+		return $this->jobs->find( $job_id );
+	}
+
+	/**
+	 * Load item rows for one job.
+	 *
+	 * @param int         $job_id Job id.
+	 * @param string|null $status Optional item status filter.
+	 * @return list<object>
+	 */
+	public function list_job_items( int $job_id, ?string $status = null ): array {
+		return $this->items->list_by_job( $job_id, $status );
+	}
+
+	/**
 	 * Set requested_action to pause (observed at safe item boundary).
 	 *
 	 * @param int $job_id Job id.

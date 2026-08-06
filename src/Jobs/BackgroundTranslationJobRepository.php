@@ -118,6 +118,67 @@ final class BackgroundTranslationJobRepository {
 	}
 
 	/**
+	 * Query jobs with optional filters and pagination.
+	 *
+	 * @param array<string, mixed> $args Query arguments (status, batch_id, language_id, page, per_page).
+	 * @return array{items: list<object>, total: int}
+	 */
+	public function query( array $args ): array {
+		global $wpdb;
+
+		$page     = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$per_page = max( 1, min( 100, (int) ( $args['per_page'] ?? 20 ) ) );
+		$offset   = ( $page - 1 ) * $per_page;
+
+		$where  = array( '1=1' );
+		$params = array();
+
+		if ( ! empty( $args['status'] ) ) {
+			$where[]  = 'status = %s';
+			$params[] = (string) $args['status'];
+		}
+
+		if ( ! empty( $args['batch_id'] ) ) {
+			$where[]  = 'batch_id = %s';
+			$params[] = (string) $args['batch_id'];
+		}
+
+		if ( ! empty( $args['language_id'] ) ) {
+			$where[]  = 'language_id = %d';
+			$params[] = (int) $args['language_id'];
+		}
+
+		$where_sql = implode( ' AND ', $where );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from Schema helper.
+		$count_sql = 'SELECT COUNT(*) FROM ' . Schema::jobs() . ' WHERE ' . $where_sql;
+		if ( array() !== $params ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$count_sql = $wpdb->prepare( $count_sql, ...$params );
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+		$total = (int) $wpdb->get_var( $count_sql );
+
+		$list_params   = $params;
+		$list_params[] = $per_page;
+		$list_params[] = $offset;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$list_sql = 'SELECT * FROM ' . Schema::jobs() . ' WHERE ' . $where_sql . ' ORDER BY job_id DESC LIMIT %d OFFSET %d';
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$list_sql = $wpdb->prepare( $list_sql, ...$list_params );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+		$rows = $wpdb->get_results( $list_sql );
+
+		return array(
+			'items' => is_array( $rows ) ? array_values( $rows ) : array(),
+			'total' => $total,
+		);
+	}
+
+	/**
 	 * List jobs sharing a batch_id.
 	 *
 	 * @param string $batch_id Batch identifier.
