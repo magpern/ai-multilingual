@@ -23,7 +23,12 @@
 
 Determine whether AI Multilingual can support **visitor-facing Elementor content** while preserving frozen Platform v1 invariants, and—if so—which **identity family**, **ownership scopes**, and **translation-unit granularity** are safe.
 
-A.R1 is architecture-heavy **research**. It must produce evidence and a GO / CONDITIONAL GO / NO-GO recommendation. It must **not** ship Elementor support.
+The spike must determine **both**:
+
+- what **can** be translated safely; and  
+- what **must not** be translated (deterministic deny-list with explicit reasons).
+
+A.R1 is architecture-heavy **research**. It must produce evidence, confidence-labelled findings, a GO / CONDITIONAL GO / NO-GO recommendation, and—when GO or CONDITIONAL GO—an advisory **recommended first implementation surface** for A.2 planning. It must **not** ship Elementor support or authorize implementation.
 
 ---
 
@@ -112,6 +117,32 @@ The model must distinguish:
 - third-party widget fields.
 
 **A widget-level identity that cannot uniquely identify each value cannot receive a GO recommendation.**
+
+### 2.4 Unsupported content as a first-class output
+
+Discovering supportability is incomplete without an equally rigorous **deny** surface.
+
+For every widget/control category and every identity candidate, classify into exactly one of:
+
+| Classification | Meaning |
+|---|---|
+| **Directly supportable** | Safe under the recommended identity model without a special adapter |
+| **Supportable through adapter** | Safe only with an explicit widget/control adapter contract |
+| **Unsupported** | Must not be translated; leave source |
+
+For every **unsupported** item, record an explicit reason from this bounded taxonomy (extend only with documented justification):
+
+- ownership ambiguity  
+- unstable identity  
+- dynamic runtime value  
+- third-party opaque persistence  
+- unsupported Elementor behavior  
+- unacceptable performance  
+- cache/language safety  
+- security/privacy concern  
+- architectural contract violation  
+
+The research deliverable must include a **deterministic deny-list**, not merely an allow-list. Source-fallback policy is unchanged: unsupported or ambiguous values render **source**.
 
 ---
 
@@ -235,6 +266,12 @@ The spike must investigate (prove with evidence, do not assume):
 
 For every candidate assess: determinism; value-level granularity; edit stability; uniqueness; copy/duplicate semantics; cross-document safety; template ownership; import/export; overlay purity; maintenance cost; Store compatibility; rendering safety.
 
+For every candidate, also record:
+
+- overall classification under §2.4 (**directly supportable** / **supportable through adapter** / **unsupported** as a general model, noting partial coverage where applicable);
+- explicit unsupported reasons (from the §2.4 taxonomy) for categories the candidate cannot cover safely;
+- **evidence confidence** under §14.1 for each major claim about the candidate.
+
 ### Candidate A — Native Elementor identity
 
 Conceptual composition (illustrative only):
@@ -327,13 +364,21 @@ For each category record:
 - render-overlay feasibility;
 - stale/hash behaviour;
 - adapter requirement;
-- expected classification:
+- classification under §2.4 (exactly one of):
   - **directly supportable**;
   - **supportable through adapter**;
-  - **separate ADR required**;
-  - **unsupported**.
+  - **unsupported**;
+- if **unsupported**: explicit reason from the §2.4 taxonomy;
+- evidence confidence under §14.1.
 
-Do **not** promise widget coverage in this spike.
+Categories that would previously have been labelled “separate ADR required” are recorded as **unsupported** (or adapter-only) with reason **architectural contract violation** or another matching §2.4 reason—never as silently supportable.
+
+Aggregate outputs:
+
+- allow-oriented taxonomy (supportable / adapter); and  
+- a **deterministic deny-list** of unsupported widgets/controls with reasons.
+
+Do **not** promise widget coverage in this spike. Do **not** weaken source-fallback for deny-listed items.
 
 ---
 
@@ -493,8 +538,27 @@ Require evidence for:
 12. Performance  
 13. Version compatibility  
 14. Third-party widget limits  
-15. Unsupported-value policy  
+15. Unsupported-value policy and **deterministic deny-list**  
 16. Prototype containment  
+17. Evidence-confidence labels on candidates and major recommendations  
+18. Recommended first implementation surface (GO / CONDITIONAL GO only; advisory)
+
+### 14.1 Evidence-confidence model
+
+The spike answers unknown architectural questions. Facts and hypotheses must not be conflated.
+
+For every identity candidate and every major recommendation, classify each material claim as exactly one of:
+
+| Confidence | Meaning |
+|---|---|
+| **Proven by experiment** | Repeatable experiment in the research log demonstrates the claim |
+| **Supported by evidence** | Strong observational or documented Elementor/platform evidence without a full controlled experiment |
+| **Inferred** | Reasonable conclusion from related evidence; not yet directly demonstrated |
+| **Assumption requiring validation** | Working premise; must not enter the future ADR as settled fact |
+
+The final recommendation must clearly distinguish **verified findings** from **architectural judgement**.
+
+The future ADR must inherit **only evidence-backed conclusions** (proven by experiment or supported by evidence). Inferences and assumptions may inform A.2 planning discussion but must be called out for validation and must not be frozen as ADR norms until upgraded.
 
 ---
 
@@ -509,17 +573,37 @@ Additionally:
 - ownership scopes are decided and collision-safe;
 - source-hash stale detection works (hash ≠ identity);
 - no Store/TM/Review/Jobs redesign is required;
-- Candidate B, if chosen, meets §7 governance bar.
+- Candidate B, if chosen, meets §7 governance bar;
+- a **deterministic deny-list** exists with §2.4 reasons;
+- major claims carry §14.1 confidence labels;
+- a **recommended first implementation surface** is recorded (advisory only).
 
 ### CONDITIONAL GO
 
-Only bounded widget/control categories are safe, with explicit adapter allowlists and deterministic source fallback for everything else.
+Only bounded widget/control categories are safe, with explicit adapter allowlists, a deterministic deny-list for everything else, and deterministic source fallback for unsupported values.
 
 Ownership matrix must still cover templates/globals; complex/dynamic widgets remain unsupported and fail safely.
+
+Major claims carry §14.1 confidence labels. A **recommended first implementation surface** (smallest safe subset) is recorded (advisory only).
 
 ### NO-GO
 
 Identity depends on unstable paths, persistent safe identity is unavailable, HTML scraping is required, full Elementor documents must be duplicated by language, ownership/collision safety is unresolved, or frozen v1 contracts must be broken.
+
+Even under NO-GO, record the deny-list and confidence-labelled findings so future work does not re-litigate unsupported cases without new evidence.
+
+### Recommended first implementation surface (advisory)
+
+If the result is **GO** or **CONDITIONAL GO**, ER7 must recommend the **smallest safe subset** suitable for a future A.2 implementation plan. Identify:
+
+- supported widget families;  
+- supported control types;  
+- excluded controls;  
+- excluded widgets;  
+- known limitations;  
+- rationale (tied to evidence and §14.1 confidence).  
+
+This recommendation is **advisory only**. It does **not** authorize implementation. It provides a clean transition into the future A.2 implementation plan after ADR acceptance.
 
 ---
 
@@ -530,6 +614,8 @@ Do **not** create an ADR in this planning task.
 **Expected later ADR:** Elementor identity and ownership model (including ownership scopes and translation-unit grammar).
 
 Do **not** write or accept the ADR during the spike itself as a substitute for evidence.
+
+The ADR must inherit **only** conclusions labelled **proven by experiment** or **supported by evidence** (§14.1). Deny-list reasons and the advisory first implementation surface may be cited as research outputs; they do not by themselves authorize A.2 coding.
 
 A.2 remains blocked until ER0–ER7 complete, result is GO or CONDITIONAL GO, the required ADR is written, and the ADR is **explicitly Accepted**.
 
@@ -570,10 +656,10 @@ A.2 remains blocked until ER0–ER7 complete, result is GO or CONDITIONAL GO, th
 | Field | Content |
 |---|---|
 | **Objective** | Evaluate Candidates A–E including ownership scopes and value granularity. |
-| **Research questions** | Which model is deterministic at field/nested-item level? Does B meet governance bar? |
+| **Research questions** | Which model is deterministic at field/nested-item level? Does B meet governance bar? What must each candidate deny? |
 | **Fixtures** | Disposable fixtures only for Candidate B; explicit cleanup |
 | **Tools / prototypes** | Candidate scoring harnesses; no production bootstrap |
-| **Evidence** | Candidate scorecards against §7 assessment axes |
+| **Evidence** | Candidate scorecards against §7 assessment axes; §2.4 classifications; §14.1 confidence labels |
 | **Validation** | Widget-level-only models rejected for GO |
 | **Stop conditions** | Persistent AIML metadata written to real site content |
 | **Commit boundary** | Research evidence commits |
@@ -582,12 +668,12 @@ A.2 remains blocked until ER0–ER7 complete, result is GO or CONDITIONAL GO, th
 
 | Field | Content |
 |---|---|
-| **Objective** | Classify core widget fields; map translation-unit keys; ownership implications. |
-| **Research questions** | Which categories are directly supportable vs adapter vs unsupported? |
+| **Objective** | Classify core widget fields; map translation-unit keys; ownership implications; build allow and deny surfaces. |
+| **Research questions** | Which categories are directly supportable vs adapter vs unsupported? What §2.4 reason applies to each deny? |
 | **Fixtures** | Representative widgets covering §8 taxonomy |
 | **Tools / prototypes** | Extraction inspection scripts (research paths only) |
-| **Evidence** | Field/widget taxonomy table with verdicts |
-| **Validation** | No promised production widget coverage |
+| **Evidence** | Field/widget taxonomy table with §2.4 verdicts; deterministic deny-list with reasons; §14.1 confidence labels |
+| **Validation** | No promised production widget coverage; every unsupported item has an explicit reason |
 | **Stop conditions** | Promising production widget coverage as if shipped |
 | **Commit boundary** | Research evidence commits |
 
@@ -634,13 +720,13 @@ A.2 remains blocked until ER0–ER7 complete, result is GO or CONDITIONAL GO, th
 
 | Field | Content |
 |---|---|
-| **Objective** | GO / CONDITIONAL GO / NO-GO; ADR recommendation; limitations; A.2 readiness; containment audit. |
-| **Research questions** | Is A.2 ready to plan under an Accepted ADR? Are prototypes contained? |
+| **Objective** | GO / CONDITIONAL GO / NO-GO; deny-list; confidence-labelled findings; advisory first implementation surface (if GO/CONDITIONAL GO); ADR recommendation; limitations; A.2 readiness; containment audit. |
+| **Research questions** | Is A.2 ready to plan under an Accepted ADR? What is the smallest safe first surface? Are prototypes contained? What must never be translated? |
 | **Fixtures** | Full evidence set from ER0–ER6 |
 | **Tools / prototypes** | Containment checklist; ZIP exclusion verification |
-| **Evidence** | Recommendation memo; containment audit PASS/FAIL |
-| **Validation** | All acceptance criteria checked; research dirs deletable / ZIP-excluded |
-| **Stop conditions** | Recommending A.2 without ADR gate |
+| **Evidence** | Recommendation memo; deterministic deny-list; §14.1 confidence summary; recommended first implementation surface (advisory); containment audit PASS/FAIL |
+| **Validation** | All acceptance criteria checked; research dirs deletable / ZIP-excluded; verified findings separated from judgement |
+| **Stop conditions** | Recommending A.2 without ADR gate; treating advisory first surface as implementation authorization |
 | **Commit boundary** | `docs(elementor): conclude AR1 identity spike recommendation` |
 
 ---
@@ -657,7 +743,7 @@ The spike (**research execution**) is accepted when all of the following hold:
 6. Cross-document identity safety evidence.  
 7. Template **ownership decision matrix** complete.  
 8. **Translation-unit granularity** defined for approved candidate(s).  
-9. Field/widget taxonomy with verdicts.  
+9. Field/widget taxonomy with §2.4 verdicts.  
 10. Rendering-hook viability without HTML scraping.  
 11. Source fallback demonstrated for unsupported/ambiguous cases.  
 12. Stale/hash semantics defined (hash ≠ identity).  
@@ -668,13 +754,15 @@ The spike (**research execution**) is accepted when all of the following hold:
 17. Version matrix with verified ER0 baseline.  
 18. Third-party widget policy.  
 19. Performance evidence.  
-20. Unsupported-content behaviour defined.  
+20. Unsupported-content behaviour defined; **deterministic deny-list** with §2.4 reasons complete.  
 21. Clear GO / CONDITIONAL GO / NO-GO.  
-22. ADR recommendation recorded.  
+22. ADR recommendation recorded; ADR inheritance limited to evidence-backed conclusions (§14.1).  
 23. Candidate B governance satisfied or Candidate B rejected.  
 24. Prototype containment audit PASS.  
 25. A.2 remains blocked pending Accepted ADR.  
-26. Planning branch contains no experimental research runtime.
+26. Planning branch contains no experimental research runtime.  
+27. §14.1 evidence-confidence labels applied to identity candidates and major recommendations.  
+28. If GO or CONDITIONAL GO: **recommended first implementation surface** recorded (advisory only; does not authorize implementation).
 
 **Planning-document acceptance (this milestone):** criteria above are **defined**; research has **not** begun; ER0 is **not** started; research log is **not** created; Elementor production implementation remains **blocked**.
 
@@ -710,7 +798,9 @@ The spike (**research execution**) is accepted when all of the following hold:
 
 ## 21. Exact next step
 
-Review and merge this planning document. Then create `feature/ar1-elementor-identity-spike` from updated `main` and begin **ER0** (version capture + fixture inventory). Do **not** implement Elementor production support. A.2 remains blocked.
+Review and merge this planning document. Then create `feature/ar1-elementor-identity-spike` from updated `main` and begin **ER0** (version capture + fixture inventory).
+
+Do **not** implement Elementor production support. Do **not** treat any recommended first implementation surface as authorization. A.2 remains blocked until research completes, result is GO or CONDITIONAL GO, and the required ADR is **explicitly Accepted**.
 
 ---
 
