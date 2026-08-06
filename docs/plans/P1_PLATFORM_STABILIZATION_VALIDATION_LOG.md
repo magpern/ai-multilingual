@@ -77,7 +77,20 @@ Probe covered: schema 6, all `aiml_*` tables, Jobs/Glossary/Providers/Workspace 
 ## S1 — Deploy verify
 
 **Harness:** `acceptance/p1/deploy-verify.php`  
-**Result:** _(pending)_
+**Command:**
+
+```bash
+cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
+  wp eval-file wp-content/plugins/ai-multilingual/acceptance/p1/deploy-verify.php
+```
+
+**Result:**
+
+| Field | Value |
+|---|---|
+| Date | 2026-08-06 |
+| Exit code | 0 |
+| Summary | **16/16 PASS** (AIML 1.0.0, schema 6, rollout readable, OpenAI vaulted key, jobs/workspace/providers healthy) |
 
 ---
 
