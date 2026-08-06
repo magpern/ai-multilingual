@@ -151,6 +151,17 @@ cd /opt/biopentra/apps/wordpress && docker compose run --rm -T -e AIML_P1_SIMULA
 | Type | Tabletop against [BACKUP_AND_RESTORE.md](../ops/BACKUP_AND_RESTORE.md) |
 | Outcome | Inventory of `aiml_*` tables/options confirmed via schema-verify; restore order and forbidden partial deletes reviewed; full host restore not scheduled |
 
+### Accepted waiver — full database restore not executed
+
+| Field | Value |
+|---|---|
+| Decision maker | Product / engineering owner (merge checkpoint 2026-08-06) |
+| Date | 2026-08-06 |
+| Reason | Full restore is destructive on the shared target (`https://dev.biopentra.eu`); no isolated restore sandbox was authorized for this checkpoint |
+| Residual risk | Untested end-to-end restore timing/ops muscle memory on this host |
+| Future rehearsal trigger | Before first production cutover of Platform v1.0.x **or** before enabling `remove_data_on_uninstall`; schedule isolated restore drill |
+| Confirmation | [BACKUP_AND_RESTORE.md](../ops/BACKUP_AND_RESTORE.md) and ADR-0004 retention rules remain valid; schema-verify proves `aiml_*` inventory present |
+
 ## S8 — Rollback rehearsal
 
 **Result:** **PASS** (2026-08-06) — tabletop + flag readability
@@ -162,6 +173,28 @@ cd /opt/biopentra/apps/wordpress && docker compose run --rm -T -e AIML_P1_SIMULA
 | Type | Tabletop walkthrough of [ROLLBACK_REHEARSAL.md](../ops/ROLLBACK_REHEARSAL.md) + F12/F13 checklists |
 | Evidence | `deploy-verify.php` confirmed block render flag and rollout config readable; primary kill switch = frontend rendering / rollout flags; Jobs pause/cancel per existing runbook |
 | Note | Production flags were **not** flipped on the shared dev site during rehearsal (visitor safety); procedure validated as operable |
+
+### Accepted waiver — full production kill-switch flip not executed
+
+| Field | Value |
+|---|---|
+| Decision maker | Product / engineering owner (merge checkpoint 2026-08-06) |
+| Date | 2026-08-06 |
+| Reason | Flipping visitor-facing render/rollout kill switches on the shared live site was not authorized; would interrupt multilingual visitors during checkpoint |
+| Residual risk | Untested live flag flip latency on this deployment |
+| Future rehearsal trigger | Next GA observation window or isolated staging clone with explicit authorization |
+| Confirmation | F12/F13 rollback checklists and Jobs runbook remain valid; deploy-verify confirms flags remain readable/controllable |
+
+## Pre-merge target-environment verification (2026-08-06)
+
+**Environment:** `https://dev.biopentra.eu` (same as implementation) · Plugin `AIML_VERSION=1.0.0` · schema 6
+
+| Harness | Result |
+|---|---|
+| `health-probe.php` | **21/21 PASS** |
+| `deploy-verify.php` | **16/16 PASS** |
+| `diagnostics-smoke.php` | **12/12 PASS** |
+| `schema-verify.php` (AIML_P1_SIMULATE_UPGRADE=1) | **14/14 PASS** |
 
 ## S9 — Operational readiness sign-off
 
