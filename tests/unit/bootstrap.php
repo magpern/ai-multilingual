@@ -20,13 +20,28 @@ if ( ! class_exists( 'WP_Error', false ) ) {
 		/** @var string */
 		private $message;
 
-		public function __construct( string $code = '', string $message = '' ) {
+		/** @var mixed */
+		private $data;
+
+		public function __construct( string $code = '', string $message = '', $data = null ) {
 			$this->code    = $code;
 			$this->message = $message;
+			$this->data    = $data;
 		}
 
 		public function get_error_code(): string {
 			return $this->code;
+		}
+
+		public function get_error_message(): string {
+			return $this->message;
+		}
+
+		/**
+		 * @return mixed
+		 */
+		public function get_error_data() {
+			return $this->data;
 		}
 	}
 }
@@ -37,6 +52,19 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 	 */
 	function is_wp_error( $thing ): bool {
 		return $thing instanceof WP_Error;
+	}
+}
+
+if ( ! class_exists( 'WP_Post', false ) ) {
+	/**
+	 * Minimal WP_Post stub for unit tests.
+	 */
+	class WP_Post {
+		/** @var int */
+		public $ID = 0;
+
+		/** @var string */
+		public $post_type = 'post';
 	}
 }
 

@@ -78,4 +78,5 @@ require_once $aiml_tests_dir . '/includes/bootstrap.php';
 // which only exists once the bootstrap above has run, and because PHPUnit only
 // autoloads files matching the *Test.php suffix.
 require_once __DIR__ . '/AimlTestCase.php';
+require_once __DIR__ . '/JobsEchoAIProvider.php';
 require_once __DIR__ . '/WorkspaceTestHelpers.php';
