@@ -1,0 +1,573 @@
+{
+    "provenance": {
+        "source_post_id": 4430,
+        "source_post_type": "page",
+        "template_type": "",
+        "elementor": "4.2.1",
+        "elementor_pro": "4.2.1",
+        "exported_at": "2026-08-06T19:08:57+00:00",
+        "sanitized": true,
+        "note": "A.R1 research fixture \u2014 emails/tokens redacted; not for production."
+    },
+    "elements": [
+        {
+            "id": "ghrproot",
+            "elType": "container",
+            "settings": {
+                "content_width": "full",
+                "flex_direction": "column",
+                "align_items": "center",
+                "css_classes": "ghrproot"
+            },
+            "elements": [
+                {
+                    "id": "ghrphero",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "40",
+                            "right": "20",
+                            "bottom": "36",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center",
+                        "background_overlay_background": "classic",
+                        "background_overlay_image": {
+                            "url": "https://www.biopentra.eu/wp-content/uploads/2026/04/glas_molecole.webp",
+                            "id": 3502,
+                            "size": "",
+                            "alt": "",
+                            "source": "library"
+                        },
+                        "background_overlay_position": "center center",
+                        "background_overlay_repeat": "no-repeat",
+                        "background_overlay_size": "cover",
+                        "background_overlay_opacity": {
+                            "unit": "px",
+                            "size": 0.55,
+                            "sizes": []
+                        },
+                        "css_classes": "bp-seo-hero"
+                    },
+                    "elements": [
+                        {
+                            "id": "ghrpheroin",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 10,
+                                    "sizes": []
+                                },
+                                "align_items": "flex-start",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "ghrpbc",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\"><a href=\"https://www.biopentra.eu/\" style=\"color:#1F5FAE;text-decoration:none\">Home</a> &gt; Resources &gt; Growth Hormone Releasing Peptides</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpH1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h1",
+                                        "title": "Growth Hormone Releasing Peptides",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpintro",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Growth hormone releasing peptides (GHRPs) are a family of research compounds often discussed together because they are studied in similar laboratory contexts. In broad terms, they are peptide-based materials examined for how they interact with endocrine signaling pathways, particularly those connected to growth hormone-related receptor activity.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Researchers may group these compounds when comparing receptor interaction patterns, peptide signaling behavior, or pathway models in controlled settings. The category is useful for organizing literature and catalog information, even when individual compounds differ in structure and reported laboratory focus.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">On a research storefront, GHRP pages serve a practical role: they connect related catalog entries, explain shared terminology, and point to handling guidance that applies across lyophilized peptide materials. Readers can use this overview before reviewing individual product listings or adjacent resource pages.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">This page is an informational resource from BioPentra. It is intended to support understanding of how GHRP-related research compounds are commonly categorized and referenced in a research-use context. It does not describe medical applications or use outside qualified laboratory work.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2sr9692",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-search-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2ss969",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_home_search]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2ct9692",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-cats-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2cc969",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_home_categories]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2gr9692",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-grid-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2grid4430",
+                            "elType": "widget",
+                            "widgetType": "loop-grid",
+                            "settings": {
+                                "_skin": "product",
+                                "template_id": "3608",
+                                "columns": 4,
+                                "columns_tablet": 3,
+                                "columns_mobile": 2,
+                                "posts_per_page": 8,
+                                "equal_height": "yes",
+                                "query_post_type": "product",
+                                "query_orderby": "post_date",
+                                "query_order": "desc",
+                                "pagination_type": "",
+                                "nothing_found_message_text": "No products matched this category guide."
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "b2lk969",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_wc_archive_link slug=\"growth-performance\"]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "ghrpbody",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "padding": {
+                            "unit": "px",
+                            "top": "32",
+                            "right": "20",
+                            "bottom": "48",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center",
+                        "css_classes": "bp-seo-body"
+                    },
+                    "elements": [
+                        {
+                            "id": "ghrpinner",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 6,
+                                    "sizes": []
+                                },
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "ghrpsec1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "What are growth hormone releasing peptides?",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec2",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Growth hormone releasing peptides are peptides studied primarily for their role in endocrine signaling research. In laboratory work, interest often centers on how a compound engages receptors or related pathways that influence hormonal communication between cells and tissues.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">GHRPs are not a single uniform molecule. The label describes a practical grouping used in research commerce and documentation when several related peptide structures are studied under overlapping experimental themes. Grouping can help researchers navigate product listings, compare published background, and align materials with a consistent research frame.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Because these materials are supplied for research use only, descriptions emphasize laboratory relevance\u2014such as receptor interaction, peptide signaling models, and pathway comparisons\u2014rather than outcomes in living systems outside controlled study designs.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec3",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Research areas commonly associated with GHRPs",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec4",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Published laboratory discussions of GHRP-related compounds often touch on several recurring themes. Endocrine signaling is a common thread, especially where experiments examine how peptide messages travel through hormonal networks.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Receptor interaction studies may compare binding profiles, selectivity, or downstream signaling markers under defined assay conditions. Metabolic signaling and growth hormone pathway research appear frequently in broader peptide literature, sometimes alongside models that track how pathways respond to controlled stimuli.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Peptide signaling research may also explore how closely related compounds differ in assay readouts, stability, or experimental design. Metabolic signaling models sometimes appear alongside endocrine pathway work when studies compare how related peptides influence measured markers under controlled conditions.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">These themes are research descriptors\u2014not statements about therapeutic benefit\u2014and they should be interpreted within the limits of each study's methods and materials.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp0",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Commonly researched compounds",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp1",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">The compounds below are often associated with GHRP-related research themes. Each has its own product listing with variation strengths where applicable. Links are provided for catalog reference only.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp2",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Ipamorelin",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp3",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Ipamorelin is commonly referenced in selective growth hormone pathway research. Laboratory discussions often note interest in receptor interaction models where signaling selectivity relative to other pathways is part of the experimental question. Researchers comparing related GHRP listings may review Ipamorelin as a distinct catalog entry within this category.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp4",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "GHRP-2",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp5",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">GHRP-2 appears frequently in endocrine signaling literature as a GHRP-class peptide studied for receptor-related activity. Experimental framing varies by publication, but the compound is often grouped with other GHRP materials when researchers compare pathway readouts. See the GHRP-2 product page for current catalog details and variation options.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp6",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "GHRP-6",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp7",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">GHRP-6 is another peptide commonly listed among growth hormone releasing research compounds. Studies may examine signaling behavior alongside related GHRP structures in controlled assays. The GHRP-6 listing summarizes how this material is presented in BioPentra's research catalog.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp8",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Hexarelin",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp9",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Hexarelin is often discussed as a potent GHRP-class research peptide in receptor and endocrine signaling models. Researchers comparing compound families may use it as a reference point when reviewing pathway activity under defined laboratory conditions. View Hexarelin for product-specific information.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp10",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Sermorelin",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp11",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Sermorelin is frequently categorized alongside GHRP research peptides in endocrine pathway discussions, though its experimental framing may differ from other GHRP listings. Laboratory interest often relates to hormonal signaling models rather than a single shared assay design. See Sermorelin for catalog context.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp12",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "CJC-1295 No DAC + IPA",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpcmp13",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">This combination listing pairs two research peptides commonly discussed in endocrine signaling work. Laboratory researchers may review combined materials when comparing interaction models across related pathway studies. Details for <a href=\"https://www.biopentra.eu/product/cjc-1295-no-dac-ipa/\" style=\"color:#1F5FAE;text-decoration:none\">CJC-1295 No DAC + IPA</a> are available on its product page.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec5",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Storage and handling considerations",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec6",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Many GHRP-class research materials are supplied in lyophilized form. Lyophilization (freeze-drying) is commonly used to support stability during storage and transport, provided materials are kept cool, dry, and protected from light in line with good laboratory practice.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Handling should follow institutional protocols and manufacturer-provided documentation where available. Temperature control, moisture exposure, and labeled storage guidance are routine considerations for peptide inventories in research settings. For broader guidance, see BioPentra's <a href=\"https://www.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none\">Storage &amp; Handling</a> resource page.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec7",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Frequently asked questions",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpfaq",
+                                    "elType": "widget",
+                                    "widgetType": "accordion",
+                                    "settings": {
+                                        "tabs": [
+                                            {
+                                                "_id": "1daf6119",
+                                                "tab_title": "What are GHRPs commonly researched for?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">GHRPs are commonly researched in laboratory models focused on endocrine signaling, receptor interaction, and peptide pathway behavior. Specific assay goals vary by study design and compound.</p>"
+                                            },
+                                            {
+                                                "_id": "4add79e7",
+                                                "tab_title": "What is the difference between GHRP compounds?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Related GHRP compounds may differ in structure, receptor interaction profiles studied in assays, and how they are described in research literature. They are grouped as a category for navigation, not because they are identical materials.</p>"
+                                            },
+                                            {
+                                                "_id": "4b8882fb",
+                                                "tab_title": "Why are some products available in different strengths?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Variable strengths or concentrations allow researchers to select a catalog option aligned with an experimental design. Available variations are shown on each product page where applicable.</p>"
+                                            },
+                                            {
+                                                "_id": "a37f9a44",
+                                                "tab_title": "What does lyophilized mean?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Lyophilized means freeze-dried. This format is widely used for research peptides to support stability during storage and shipment when handled appropriately in the laboratory.</p>"
+                                            },
+                                            {
+                                                "_id": "d179edf7",
+                                                "tab_title": "How are GHRPs commonly categorized in research?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">They are often categorized as growth hormone releasing peptides within research catalogs and educational resources, alongside related endocrine signaling compounds studied in similar pathway models.</p>"
+                                            }
+                                        ],
+                                        "selected_icon": {
+                                            "value": "fas fa-angle-down",
+                                            "library": "fa-solid"
+                                        },
+                                        "selected_active_icon": {
+                                            "value": "fas fa-angle-up",
+                                            "library": "fa-solid"
+                                        },
+                                        "title_html_tag": "div",
+                                        "faq_schema": "yes",
+                                        "icon_align": "right",
+                                        "border_width": {
+                                            "unit": "px",
+                                            "size": 1,
+                                            "sizes": []
+                                        },
+                                        "border_color": "#E3EAF2",
+                                        "title_background": "#FFFFFF",
+                                        "title_color": "#0F1F33",
+                                        "tab_active_color": "#1F5FAE",
+                                        "icon_color": "#1F5FAE",
+                                        "icon_active_color": "#1F5FAE",
+                                        "content_background_color": "#FFFFFF",
+                                        "content_color": "#3D4F66",
+                                        "title_padding": {
+                                            "unit": "px",
+                                            "top": "12",
+                                            "right": "14",
+                                            "bottom": "12",
+                                            "left": "14",
+                                            "isLinked": false
+                                        },
+                                        "content_padding": {
+                                            "unit": "px",
+                                            "top": "10",
+                                            "right": "14",
+                                            "bottom": "14",
+                                            "left": "14",
+                                            "isLinked": false
+                                        }
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec8",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Related information",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "ghrpsec9",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<ul style=\"margin:0;padding:0 0 0 1.1em;color:#3D4F66;font-size:15px;line-height:1.6\"><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/faq/\" style=\"color:#1F5FAE;text-decoration:none\">FAQ</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/research-use-disclaimer/\" style=\"color:#1F5FAE;text-decoration:none\">Research &amp; Intended Use</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none\">Storage &amp; Handling</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/metabolic-research-peptides/\" style=\"color:#1F5FAE;text-decoration:none\">Metabolic Research Peptides</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/what-are-peptides-v2/\" style=\"color:#1F5FAE;text-decoration:none\">What Are Peptides?</a></li></ul>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                }
+            ]
+        }
+    ],
+    "walk_summary": {
+        "nodes": 39,
+        "widget_types": [
+            "text-editor",
+            "heading",
+            "shortcode",
+            "loop-grid",
+            "accordion"
+        ],
+        "dynamic_nodes": 0,
+        "repeater_nodes": 1
+    }
+}

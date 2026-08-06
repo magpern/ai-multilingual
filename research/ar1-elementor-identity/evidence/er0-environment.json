@@ -1,0 +1,21 @@
+{
+    "captured_at": "2026-08-06T19:08:57+00:00",
+    "wp_version": "7.0.2",
+    "php_version": "8.4.23",
+    "elementor_slug": "elementor",
+    "elementor_version": "4.2.1",
+    "elementor_pro_slug": "elementor-pro",
+    "elementor_pro_version": "4.2.1",
+    "theme": "blocksy-child",
+    "theme_version": "1.1.0",
+    "parent_theme": "blocksy",
+    "feature_flags": {
+        "elementor_experiment-container": "active",
+        "elementor_experiment-nested-elements": "default",
+        "elementor_experiment-e_optimized_markup": "active",
+        "elementor_cpt_support": [
+            "post",
+            "page"
+        ]
+    }
+}

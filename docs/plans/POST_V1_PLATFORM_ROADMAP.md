@@ -26,7 +26,7 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
 **First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
-**Next Coverage research:** A.R1 Elementor identity spike (parallel: A.R2 nested spike, A.1 integration framework, A.0 leaf expansion).
+**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. Next: A.2 Elementor Foundation **planning** (parallel: A.R2, A.1, A.0).
 
 ---
 
@@ -36,12 +36,13 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NOW
 
-- Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main` — plan [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md); validation [P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md) **PASS**
-- Active planning focus: **A.R1** Elementor Identity Research Spike (research/planning only)
+- Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main`
+- **A.R1** Elementor Identity Research Spike **complete**; [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**
+- Active planning focus: **A.2** Elementor Foundation **planning** (implementation not started)
 
 ### NEXT
 
-- **A.R1** Elementor Identity Research Spike
+- **A.2** Elementor Foundation (post–ADR-0016; planning then implementation under separate authorization)
 - **A.R2** Nested Gutenberg Identity Research Spike
 - **A.1** Plugin Integration Framework
 - **A.0** Additional Gutenberg leaf/field expansion
@@ -51,7 +52,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### LATER
 
-- Elementor Foundation and widget coverage (post-spike/ADR)
+- Elementor widget coverage beyond first surface (A.3+)
 - Nested/container Gutenberg (post-spike/ADR)
 - WordPress visitor chrome (navigation, theme/widgets, declared residual strings)
 - WooCommerce visitor-facing coverage family
@@ -139,7 +140,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 
 | ID | Milestone | Type |
 |---|---|---|
-| A.R1 | Elementor Identity Research Spike | Research Spike — [plan](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md) (planning; research not started) |
+| A.R1 | Elementor Identity Research Spike | Research Spike — **Complete**; [plan](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md); [research log](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**; A.2 planning authorized; Elementor production implementation not started |
 | A.R2 | Nested Gutenberg Identity Research Spike | Research Spike |
 | A.1 | Plugin Integration Framework | Architecture |
 | A.0 | Additional Gutenberg leaf blocks and fields | Product |

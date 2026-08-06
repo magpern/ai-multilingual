@@ -1,0 +1,531 @@
+{
+    "provenance": {
+        "source_post_id": 4431,
+        "source_post_type": "page",
+        "template_type": "",
+        "elementor": "4.2.1",
+        "elementor_pro": "4.2.1",
+        "exported_at": "2026-08-06T19:08:57+00:00",
+        "sanitized": true,
+        "note": "A.R1 research fixture \u2014 emails/tokens redacted; not for production."
+    },
+    "elements": [
+        {
+            "id": "metaroot",
+            "elType": "container",
+            "settings": {
+                "content_width": "full",
+                "flex_direction": "column",
+                "align_items": "center",
+                "css_classes": "metaroot"
+            },
+            "elements": [
+                {
+                    "id": "metahero",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "40",
+                            "right": "20",
+                            "bottom": "36",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center",
+                        "background_overlay_background": "classic",
+                        "background_overlay_image": {
+                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/04/glas_molecole.webp",
+                            "id": 3502,
+                            "size": "",
+                            "alt": "",
+                            "source": "library"
+                        },
+                        "background_overlay_position": "center center",
+                        "background_overlay_repeat": "no-repeat",
+                        "background_overlay_size": "cover",
+                        "background_overlay_opacity": {
+                            "unit": "px",
+                            "size": 0.55,
+                            "sizes": []
+                        },
+                        "css_classes": "bp-seo-hero"
+                    },
+                    "elements": [
+                        {
+                            "id": "metaheroin",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 10,
+                                    "sizes": []
+                                },
+                                "align_items": "flex-start",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "metabc",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\"><a href=\"https://dev.biopentra.eu/\" style=\"color:#1F5FAE;text-decoration:none\">Home</a> &gt; Resources &gt; Metabolic Research Peptides</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metaH1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h1",
+                                        "title": "Metabolic Research Peptides",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metaintro",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Metabolic research peptides are peptide-based materials commonly discussed in laboratory work focused on metabolic signaling. Research in this area often examines how peptide messages relate to energy balance, glucose response models, and broader endocrine signaling networks under controlled conditions.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Rather than describing a single molecule type, the category brings together compounds that appear in similar experimental conversations\u2014particularly where peptide signaling models are used to study pathway behavior, receptor interaction, or measured metabolic markers in assays.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">On a research storefront, a metabolic peptide resource page helps connect related catalog entries, clarify shared terminology, and situate individual products within a consistent laboratory frame. Readers can use this page before reviewing specific listings or adjacent guides on storage, intended use, and other peptide categories.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">This overview from BioPentra explains how metabolic research peptides are grouped in research commerce and literature, links to related catalog entries, and points to handling guidance for lyophilized research materials. It is educational content for laboratory research contexts only.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2srbdf0",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-search-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2ssbdf",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_home_search]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2ctbdf0",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-cats-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2ccbdf",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_home_categories]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2grbdf0",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-grid-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2grid4431",
+                            "elType": "widget",
+                            "widgetType": "loop-grid",
+                            "settings": {
+                                "_skin": "product",
+                                "template_id": "3608",
+                                "columns": 4,
+                                "columns_tablet": 3,
+                                "columns_mobile": 2,
+                                "posts_per_page": 8,
+                                "equal_height": "yes",
+                                "query_post_type": "product",
+                                "query_orderby": "post_date",
+                                "query_order": "desc",
+                                "pagination_type": "",
+                                "nothing_found_message_text": "No products matched this category guide."
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "b2lkbdf",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_wc_archive_link slug=\"weight-management\"]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "metabody",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "padding": {
+                            "unit": "px",
+                            "top": "32",
+                            "right": "20",
+                            "bottom": "48",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center",
+                        "css_classes": "bp-seo-body"
+                    },
+                    "elements": [
+                        {
+                            "id": "metainner",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 6,
+                                    "sizes": []
+                                },
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "metasec1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "What are metabolic research peptides?",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec2",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Metabolic research peptides are a broad peptide category used to organize materials studied in metabolic signaling research. In practice, the label helps researchers find related catalog items and compare background information across compounds that share experimental themes.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Laboratory interest often centers on receptor and pathway studies: how a peptide engages signaling nodes, how downstream markers change in an assay, or how models compare related structures. These are research framing questions, not statements about outcomes outside the study design.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Because listings are intended for research use, descriptions emphasize peptide signaling models, metabolic pathway modeling, and methodological context. The grouping is a navigational and educational tool\u2014individual compounds can differ substantially in structure and published laboratory focus.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">When comparing products, researchers often review how each listing is described in the catalog, which variation strengths are available, and how the compound is referenced in adjacent resource pages such as lyophilized materials or related peptide categories.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec3",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Research areas commonly associated with metabolic peptides",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec4",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Discussions of metabolic research peptides in the literature often reference several overlapping themes. Appetite signaling and energy balance appear where experiments model how peptide pathways influence regulatory networks in controlled systems.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Glucose response research may examine measured markers under defined assay conditions, while endocrine signaling work situates peptides within broader hormonal communication models. Mitochondrial signaling is another recurring topic when compounds are studied in energy-utilization or organelle-related pathway models.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Receptor interaction and metabolic pathway modeling help researchers compare how related peptides behave in parallel assays. Some studies emphasize mitochondrial signaling or organelle-linked markers; others focus on endocrine nodes that coordinate metabolic communication across tissues in model systems.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Wording in this section is intentionally broad: each study defines its own endpoints, materials, and limits of interpretation. The themes listed here describe common research language\u2014not claims about applications outside qualified laboratory work.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp0",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Commonly researched compounds",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp1",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">The compounds below are often associated with metabolic research peptide themes in laboratory literature and research catalogs. Links are for catalog reference only.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp2",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Triple G (Retatrutide)",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp3",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Retatrutide is frequently cited in multi-receptor metabolic signaling research, where laboratory models compare pathway engagement across related peptide agonists. Experimental framing varies by publication, but the compound is often grouped with other metabolic research peptides in catalog navigation. See <a href=\"https://dev.biopentra.eu/product/triple-g/\" style=\"color:#1F5FAE;text-decoration:none\">Retatrutide</a> for product details and available strengths.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp4",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Trizepatide",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp5",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Trizepatide appears in research discussions that examine dual-pathway metabolic signaling and receptor interaction in controlled assays. It is commonly listed alongside other metabolic signaling compounds when researchers compare peptide categories. The <a href=\"https://dev.biopentra.eu/product/tirzepatide/\" style=\"color:#1F5FAE;text-decoration:none\">Trizepatide</a> product page summarizes catalog information and variation options.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp6",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "MOTS-C",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp7",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">MOTS-C is a mitochondrial-derived peptide often referenced in metabolic signaling and energy-balance pathway models. Laboratory literature may discuss it in the context of peptide signaling research distinct from classical endocrine agonist framing. Review <a href=\"https://dev.biopentra.eu/product/mots-c/\" style=\"color:#1F5FAE;text-decoration:none\">MOTS-C</a> for current listing information.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp8",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "AOD9604",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metacmp9",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">AOD9604 is discussed in research settings that examine peptide fragments and metabolic pathway models, sometimes alongside lipid-metabolism assay themes in published work. It remains a distinct catalog entry within the broader metabolic research peptide grouping. See AOD9604 for product-specific details.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec5",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Laboratory storage and handling considerations",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec6",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Many metabolic research peptides are supplied as lyophilized research materials. Freeze-drying is widely used to support stability during storage and transport when materials are kept cool, dry, and protected from light according to laboratory practice.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Transport and short-term storage conditions can affect peptide integrity in research inventories. Laboratories typically document receiving conditions, reconcile labels with catalog records, and store vials in controlled environments aligned with institutional standard operating procedures.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Handling should follow institutional protocols and any documentation supplied with the material. Moisture exposure, temperature excursions, and inventory labeling are routine considerations for peptide stocks in research settings. For general guidance, see BioPentra's <a href=\"https://dev.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none\">Storage &amp; Handling</a> page.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec7",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Frequently asked questions",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metafaq",
+                                    "elType": "widget",
+                                    "widgetType": "accordion",
+                                    "settings": {
+                                        "tabs": [
+                                            {
+                                                "_id": "25374282",
+                                                "tab_title": "What are metabolic research peptides commonly studied for?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">They are commonly studied in laboratory models of metabolic signaling, including energy balance, glucose response assays, endocrine pathway behavior, and receptor interaction under defined experimental conditions.</p>"
+                                            },
+                                            {
+                                                "_id": "723356b5",
+                                                "tab_title": "Why are metabolic peptides grouped together?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Grouping reflects shared research themes and catalog organization. Related compounds may appear in similar pathway or signaling discussions even when their structures and assay designs differ.</p>"
+                                            },
+                                            {
+                                                "_id": "983e3790",
+                                                "tab_title": "What does lyophilized mean?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Lyophilized means freeze-dried. This format is common for research peptides to support stability during storage and shipment when handled appropriately in the laboratory.</p>"
+                                            },
+                                            {
+                                                "_id": "72d145b8",
+                                                "tab_title": "Why are products available in different strengths?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Different strengths or concentrations let researchers select a catalog option aligned with an experimental design. Available variations are listed on each product page where applicable.</p>"
+                                            },
+                                            {
+                                                "_id": "f0ccf17e",
+                                                "tab_title": "How are metabolic signaling compounds categorized in research?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">They are often categorized as metabolic research peptides within educational resources and storefront navigation, alongside related endocrine or pathway-focused peptide groupings.</p>"
+                                            }
+                                        ],
+                                        "selected_icon": {
+                                            "value": "fas fa-angle-down",
+                                            "library": "fa-solid"
+                                        },
+                                        "selected_active_icon": {
+                                            "value": "fas fa-angle-up",
+                                            "library": "fa-solid"
+                                        },
+                                        "title_html_tag": "div",
+                                        "faq_schema": "yes",
+                                        "icon_align": "right",
+                                        "border_width": {
+                                            "unit": "px",
+                                            "size": 1,
+                                            "sizes": []
+                                        },
+                                        "border_color": "#E3EAF2",
+                                        "title_background": "#FFFFFF",
+                                        "title_color": "#0F1F33",
+                                        "tab_active_color": "#1F5FAE",
+                                        "icon_color": "#1F5FAE",
+                                        "icon_active_color": "#1F5FAE",
+                                        "content_background_color": "#FFFFFF",
+                                        "content_color": "#3D4F66",
+                                        "title_padding": {
+                                            "unit": "px",
+                                            "top": "12",
+                                            "right": "14",
+                                            "bottom": "12",
+                                            "left": "14",
+                                            "isLinked": false
+                                        },
+                                        "content_padding": {
+                                            "unit": "px",
+                                            "top": "10",
+                                            "right": "14",
+                                            "bottom": "14",
+                                            "left": "14",
+                                            "isLinked": false
+                                        }
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec8",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Related information",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "metasec9",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<ul style=\"margin:0;padding:0 0 0 1.1em;color:#3D4F66;font-size:15px;line-height:1.6\"><li style=\"margin-bottom:8px\"><a href=\"https://dev.biopentra.eu/faq/\" style=\"color:#1F5FAE;text-decoration:none\">FAQ</a></li><li style=\"margin-bottom:8px\"><a href=\"https://dev.biopentra.eu/research-use-disclaimer/\" style=\"color:#1F5FAE;text-decoration:none\">Research &amp; Intended Use</a></li><li style=\"margin-bottom:8px\"><a href=\"https://dev.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none\">Storage &amp; Handling</a></li><li style=\"margin-bottom:8px\"><a href=\"https://dev.biopentra.eu/growth-hormone-releasing-peptides/\" style=\"color:#1F5FAE;text-decoration:none\">Growth Hormone Releasing Peptides</a></li><li style=\"margin-bottom:8px\"><a href=\"https://dev.biopentra.eu/what-are-peptides-v2/\" style=\"color:#1F5FAE;text-decoration:none\">What Are Peptides?</a></li><li style=\"margin-bottom:8px\"><a href=\"https://dev.biopentra.eu/lyophilized-research-materials/\" style=\"color:#1F5FAE;text-decoration:none\">Lyophilized Research Materials</a></li></ul>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                }
+            ]
+        }
+    ],
+    "walk_summary": {
+        "nodes": 35,
+        "widget_types": [
+            "text-editor",
+            "heading",
+            "shortcode",
+            "loop-grid",
+            "accordion"
+        ],
+        "dynamic_nodes": 0,
+        "repeater_nodes": 1
+    }
+}

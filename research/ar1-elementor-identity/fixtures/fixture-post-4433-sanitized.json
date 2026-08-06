@@ -1,0 +1,535 @@
+{
+    "provenance": {
+        "source_post_id": 4433,
+        "source_post_type": "page",
+        "template_type": "",
+        "elementor": "4.2.1",
+        "elementor_pro": "4.2.1",
+        "exported_at": "2026-08-06T19:08:57+00:00",
+        "sanitized": true,
+        "note": "A.R1 research fixture \u2014 emails/tokens redacted; not for production."
+    },
+    "elements": [
+        {
+            "id": "varroot",
+            "elType": "container",
+            "settings": {
+                "content_width": "full",
+                "flex_direction": "column",
+                "align_items": "center"
+            },
+            "elements": [
+                {
+                    "id": "varhero",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "40",
+                            "right": "20",
+                            "bottom": "36",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center",
+                        "background_overlay_background": "classic",
+                        "background_overlay_image": {
+                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/04/glas_molecole.webp",
+                            "id": 3502,
+                            "size": "",
+                            "alt": "",
+                            "source": "library"
+                        },
+                        "background_overlay_position": "center center",
+                        "background_overlay_repeat": "no-repeat",
+                        "background_overlay_size": "cover",
+                        "background_overlay_opacity": {
+                            "unit": "px",
+                            "size": 0.55,
+                            "sizes": []
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "varheroin",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 10,
+                                    "sizes": []
+                                },
+                                "align_items": "flex-start",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "varbc",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\"><a href=\"https://dev.biopentra.eu/\" style=\"color:#1F5FAE;text-decoration:none;\">Home</a> &gt; Resources &gt; Product Variations &amp; Concentrations</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varH1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h1",
+                                        "title": "Product Variations & Concentrations",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varintro",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Research products are often listed in more than one strength or concentration. Product variations exist so laboratories can choose a catalog option that matches how materials are organized in an inventory, how orders are reconciled, and how related compounds are compared in documentation.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">On BioPentra, many peptide listings use WooCommerce variable products: a single product page with selectors for strength or similar attributes. This structure keeps related research compounds grouped while still tracking stock, SKU, and pricing at the variation level.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">This page explains product variations and research product concentrations in plain language. It is an informational guide for laboratory research contexts\u2014not a protocol, dosage reference, or use instruction.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "varbody",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "padding": {
+                            "unit": "px",
+                            "top": "32",
+                            "right": "20",
+                            "bottom": "48",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center"
+                    },
+                    "elements": [
+                        {
+                            "id": "varinner",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 6,
+                                    "sizes": []
+                                },
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "varsec1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "What are product variations?",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec2",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Product variations are the individual options within a variable product. On the storefront, you might see a parent listing such as a peptide name, then a dropdown or selector for strength (for example 5mg, 10mg, or 20mg). Each selectable option is a variation with its own SKU and stock record.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">In user-friendly terms, think of the parent product as the research compound family and each variation as a specific catalog line item. Selecting a strength updates what you are viewing on the product page\u2014price, availability, and variation-specific details where shown.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Inventory and stock tracking by variation helps the store show accurate availability per strength. A parent product may remain visible while individual variations are temporarily out of stock, depending on current inventory.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec3",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Why are products available in different strengths?",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec4",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Different strengths support laboratory organization and research planning. Teams may standardize on particular catalog lines for repeat orders, label bins by strength, or align purchases with how assay materials are documented in study files.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Analytical contexts can differ between projects even when the same compound is studied. A variation label describes the supplied amount in the vial or unit, not an experimental protocol. Handling preferences and inventory management also influence why multiple concentration options are offered.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Availability varies by product category and stock. BioPentra does not present strengths as guidance for administration or intended effects\u2014only as catalog descriptors for research compounds.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec5",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Understanding concentrations and labeling",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec6",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Strength labels such as 5mg, 10mg, or 20mg refer to the labeled amount associated with a variation name on the product page. Naming is kept consistent where possible so researchers can recognize patterns across listings (for example \u201cCompound - 10mg\u201d).</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">SKU structure ties each variation to warehouse and order records. When reviewing a product, check both the visible strength selector and any variation-specific notes on the page. Exact options depend on what is currently published and in stock for that product.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Some materials are lyophilized research materials with dry presentation; others may differ by category. For background on freeze-dried supply formats, see <a href=\"https://dev.biopentra.eu/lyophilized-research-materials/\" style=\"color:#1F5FAE;text-decoration:none;\">Lyophilized Research Materials</a>.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec7",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "How variation selection works on BioPentra",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec8",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">On a BioPentra product page, choose a variation using the product selector (typically a strength dropdown). After selection, the displayed price updates to reflect that variation. Stock status is shown per variation\u2014an option may display as out of stock even when the parent product page remains accessible.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Variation-specific information may include SKU references, strength in the title, and availability messaging. If a strength is unavailable, try another listed option or check back later; inventory changes over time. Product selectors and stock visibility are designed to make variation-level availability clear before checkout.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">For variable products with multiple concentration options, confirm the selected strength matches your order documentation and laboratory labeling practices before adding to cart.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd0",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Examples of products with multiple variations",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd1",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">The examples below link to live product pages where variation selectors may appear. Options and stock change with inventory.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd2",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Kisspeptin",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd3",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Kisspeptin is listed with multiple strength variations on its product page. See <a href=\"https://dev.biopentra.eu/product/kisspeptin/\" style=\"color:#1F5FAE;text-decoration:none;\">Kisspeptin</a> for selectable options and current stock status.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd4",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Retatrutide",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd5",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Retatrutide offers concentration options suited to catalog organization for metabolic research peptides. View <a href=\"https://dev.biopentra.eu/product/triple-g/\" style=\"color:#1F5FAE;text-decoration:none;\">Retatrutide</a> to compare available strengths.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd6",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "MOTS-C",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd7",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">MOTS-C includes variation selectors for different labeled amounts. Review <a href=\"https://dev.biopentra.eu/product/mots-c/\" style=\"color:#1F5FAE;text-decoration:none;\">MOTS-C</a> for variation names and availability.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd8",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "CJC-1295 No DAC + IPA",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd9",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">This combined listing may present variation choices where applicable on the product page. See <a href=\"https://dev.biopentra.eu/product/cjc-1295-no-dac-ipa/\" style=\"color:#1F5FAE;text-decoration:none;\">CJC-1295 No DAC + IPA</a> for details.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd10",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "BPC-157",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd11",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">BPC-157 is an example of a peptide with multiple strength lines in the catalog. Visit <a href=\"https://dev.biopentra.eu/product/bpc-157/\" style=\"color:#1F5FAE;text-decoration:none;\">BPC-157</a> to view variations and stock indicators.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd12",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "GHK-CU",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varprd13",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">GHK-CU is listed with higher-strength variation options such as 50mg and 100mg where published. Check <a href=\"https://dev.biopentra.eu/product/ghk-cu/\" style=\"color:#1F5FAE;text-decoration:none;\">GHK-CU</a> for current selectors and pricing.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec9",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Storage and handling considerations",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec10",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">When multiple strengths are stored in the same laboratory, labeling consistency matters. Match physical labels to the variation name and SKU from the order record, and separate inventory locations where helpful to avoid mix-ups.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Storage organization should follow institutional protocols and general guidance for research materials. Handling different strengths carefully is part of routine identification practice\u2014not a preparation or use instruction. See <a href=\"https://dev.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none;\">Storage &amp; Handling</a> for broader BioPentra recommendations.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec11",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Frequently asked questions",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varfaq",
+                                    "elType": "widget",
+                                    "widgetType": "accordion",
+                                    "settings": {
+                                        "tabs": [
+                                            {
+                                                "_id": "41875311",
+                                                "tab_title": "Why do products have different strengths?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Different strengths help laboratories order catalog lines that fit inventory organization and research documentation. Labels describe supplied amounts, not use protocols.</p>"
+                                            },
+                                            {
+                                                "_id": "f96fcef3",
+                                                "tab_title": "What are product variations?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Variations are selectable options within a variable product\u2014often strength\u2014each with its own SKU, price, and stock status on the product page.</p>"
+                                            },
+                                            {
+                                                "_id": "4e7ac57d",
+                                                "tab_title": "Why are some variations out of stock?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Stock is tracked per variation. One strength may be unavailable while another remains in stock, or all variations may be temporarily unavailable depending on inventory.</p>"
+                                            },
+                                            {
+                                                "_id": "ad833ef3",
+                                                "tab_title": "Does each variation have its own stock level?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Yes. WooCommerce variable products maintain separate stock records for each variation where stock management is enabled.</p>"
+                                            },
+                                            {
+                                                "_id": "ed5013dd",
+                                                "tab_title": "Why do prices change when selecting a variation?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">Each variation can have its own price based on the labeled amount and catalog pricing. The product page updates the displayed price when you change the selector.</p>"
+                                            },
+                                            {
+                                                "_id": "d11a9b65",
+                                                "tab_title": "What do labels like 5mg or 10mg refer to?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66;\">They refer to the strength label shown for that catalog variation\u2014typically the amount associated with the product name on the listing. They are not dosing or administration guidance.</p>"
+                                            }
+                                        ],
+                                        "selected_icon": {
+                                            "value": "fas fa-angle-down",
+                                            "library": "fa-solid"
+                                        },
+                                        "selected_active_icon": {
+                                            "value": "fas fa-angle-up",
+                                            "library": "fa-solid"
+                                        },
+                                        "title_html_tag": "div",
+                                        "faq_schema": "yes",
+                                        "icon_align": "right",
+                                        "border_width": {
+                                            "unit": "px",
+                                            "size": 1,
+                                            "sizes": []
+                                        },
+                                        "border_color": "#E3EAF2",
+                                        "title_background": "#FFFFFF",
+                                        "title_color": "#0F1F33",
+                                        "tab_active_color": "#1F5FAE",
+                                        "icon_color": "#1F5FAE",
+                                        "icon_active_color": "#1F5FAE",
+                                        "content_background_color": "#FFFFFF",
+                                        "content_color": "#3D4F66",
+                                        "title_padding": {
+                                            "unit": "px",
+                                            "top": "12",
+                                            "right": "14",
+                                            "bottom": "12",
+                                            "left": "14",
+                                            "isLinked": false
+                                        },
+                                        "content_padding": {
+                                            "unit": "px",
+                                            "top": "10",
+                                            "right": "14",
+                                            "bottom": "14",
+                                            "left": "14",
+                                            "isLinked": false
+                                        }
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec12",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Related information",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "varsec13",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<ul style=\"margin:0;padding:0 0 0 1.1em;color:#3D4F66;font-size:15px;line-height:1.6;\"><li style=\"margin-bottom:8px;\"><a href=\"https://dev.biopentra.eu/faq/\" style=\"color:#1F5FAE;text-decoration:none;\">FAQ</a></li><li style=\"margin-bottom:8px;\"><a href=\"https://dev.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none;\">Storage &amp; Handling</a></li><li style=\"margin-bottom:8px;\"><a href=\"https://dev.biopentra.eu/research-use-disclaimer/\" style=\"color:#1F5FAE;text-decoration:none;\">Research &amp; Intended Use</a></li><li style=\"margin-bottom:8px;\"><a href=\"https://dev.biopentra.eu/lyophilized-research-materials/\" style=\"color:#1F5FAE;text-decoration:none;\">Lyophilized Research Materials</a></li><li style=\"margin-bottom:8px;\"><a href=\"https://dev.biopentra.eu/growth-hormone-releasing-peptides/\" style=\"color:#1F5FAE;text-decoration:none;\">Growth Hormone Releasing Peptides</a></li><li style=\"margin-bottom:8px;\"><a href=\"https://dev.biopentra.eu/metabolic-research-peptides/\" style=\"color:#1F5FAE;text-decoration:none;\">Metabolic Research Peptides</a></li></ul>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                }
+            ]
+        }
+    ],
+    "walk_summary": {
+        "nodes": 36,
+        "widget_types": [
+            "text-editor",
+            "heading",
+            "accordion"
+        ],
+        "dynamic_nodes": 0,
+        "repeater_nodes": 1
+    }
+}

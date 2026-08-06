@@ -1,0 +1,144 @@
+{
+    "captured_at": "2026-08-06T19:09:31+00:00",
+    "hook_match_count": 577,
+    "hooks_of_interest": {
+        "elementor/frontend/builder_content_data": {
+            "registered_listener_count": 2,
+            "exists_in_wp_filter": true
+        },
+        "elementor/frontend/the_content": {
+            "registered_listener_count": 0,
+            "exists_in_wp_filter": false
+        },
+        "elementor/element/parse_css": {
+            "registered_listener_count": 1,
+            "exists_in_wp_filter": true
+        },
+        "elementor/widget/render_content": {
+            "registered_listener_count": 5,
+            "exists_in_wp_filter": true
+        },
+        "elementor/frontend/widget/before_render": {
+            "registered_listener_count": 0,
+            "exists_in_wp_filter": false
+        },
+        "elementor/frontend/widget/after_render": {
+            "registered_listener_count": 0,
+            "exists_in_wp_filter": false
+        },
+        "elementor/element/before_parse_css": {
+            "registered_listener_count": 0,
+            "exists_in_wp_filter": false
+        },
+        "elementor/document/before_save": {
+            "registered_listener_count": 2,
+            "exists_in_wp_filter": true
+        },
+        "elementor/document/after_save": {
+            "registered_listener_count": 10,
+            "exists_in_wp_filter": true
+        },
+        "elementor/editor/after_save": {
+            "registered_listener_count": 1,
+            "exists_in_wp_filter": true
+        },
+        "elementor/element/after_add_attributes": {
+            "registered_listener_count": 1,
+            "exists_in_wp_filter": true
+        }
+    },
+    "sample_elementor_hooks": {
+        "activate_elementor/elementor.php": 1,
+        "add_meta_boxes_elementor_font": 1,
+        "add_meta_boxes_elementor_snippet": 1,
+        "add_option_elementor_css_print_method": 1,
+        "add_option_elementor_disable_color_schemes": 1,
+        "add_option_elementor_disable_typography_schemes": 1,
+        "add_option_elementor_local_google_fonts": 1,
+        "admin_action_elementor": 1,
+        "admin_footer-widgets.php": 6,
+        "admin_head-widgets.php": 1,
+        "admin_post_elementor_revert_kit": 1,
+        "admin_post_elementor_rollback": 1,
+        "admin_post_elementor_set_admin_notice_viewed": 1,
+        "admin_post_elementor_site_clear_cache": 1,
+        "admin_print_scripts-widgets.php": 6,
+        "after_plugin_row_elementor-pro/elementor-pro.php": 1,
+        "aiml_block_frontend_render_log": 1,
+        "auth_post_meta__elementor_code_for_elementor_snippet": 1,
+        "auth_post_meta__elementor_conditions_for_e-floating-buttons": 1,
+        "auth_post_meta__elementor_conditions_for_elementor_component": 1,
+        "auth_post_meta__elementor_conditions_for_elementor_library": 1,
+        "auth_post_meta__elementor_conditions_for_page": 1,
+        "auth_post_meta__elementor_conditions_for_post": 1,
+        "auth_post_meta__elementor_data_for_e-floating-buttons": 1,
+        "auth_post_meta__elementor_data_for_elementor_component": 1,
+        "auth_post_meta__elementor_data_for_elementor_library": 1,
+        "auth_post_meta__elementor_data_for_page": 1,
+        "auth_post_meta__elementor_data_for_post": 1,
+        "auth_post_meta__elementor_edit_mode_for_e-floating-buttons": 1,
+        "auth_post_meta__elementor_edit_mode_for_elementor_component": 1,
+        "auth_post_meta__elementor_edit_mode_for_elementor_library": 1,
+        "auth_post_meta__elementor_edit_mode_for_page": 1,
+        "auth_post_meta__elementor_edit_mode_for_post": 1,
+        "auth_post_meta__elementor_location_for_elementor_snippet": 1,
+        "auth_post_meta__elementor_page_settings_for_e-floating-buttons": 1,
+        "auth_post_meta__elementor_page_settings_for_elementor_component": 1,
+        "auth_post_meta__elementor_page_settings_for_elementor_library": 1,
+        "auth_post_meta__elementor_page_settings_for_page": 1,
+        "auth_post_meta__elementor_page_settings_for_post": 1,
+        "auth_post_meta__elementor_priority_for_elementor_snippet": 1,
+        "auth_post_meta__elementor_template_type_for_e-floating-buttons": 1,
+        "auth_post_meta__elementor_template_type_for_elementor_component": 1,
+        "auth_post_meta__elementor_template_type_for_elementor_library": 1,
+        "auth_post_meta__elementor_template_type_for_page": 1,
+        "auth_post_meta__elementor_template_type_for_post": 1,
+        "block_core_navigation_render_inner_blocks": 1,
+        "blocksy:dynamic-css:has_files_cache": 1,
+        "blocksy:dynamic-css:refresh-caches": 2,
+        "blocksy:frontend:dynamic-js-chunks": 1,
+        "blocksy:header:dynamic-styles-args": 1,
+        "blocksy:header:rows-render": 1,
+        "blocksy:widgets_init": 1,
+        "customize_render_partials_response": 1,
+        "deactivate_elementor-pro/elementor-pro.php": 1,
+        "deactivate_elementor/elementor.php": 1,
+        "delete_option__elementor_pro_license_v2_data": 1,
+        "document_title": 4,
+        "document_title_parts": 2,
+        "dynamic_sidebar_after": 2,
+        "dynamic_sidebar_before": 2,
+        "elementor-pro/editor/v2/packages": 3,
+        "elementor-pro/forms/pre_render": 1,
+        "elementor-pro/modules/loop-builder/documents/loop/query_settings": 3,
+        "elementor-pro/site-editor/data/template": 1,
+        "elementor/admin-top-bar/init": 1,
+        "elementor/admin-top-bar/is-active": 3,
+        "elementor/admin/after_create_settings/elementor": 1,
+        "elementor/admin/after_create_settings/elementor-tools": 2,
+        "elementor/admin/create_new_post/meta": 1,
+        "elementor/admin/localize_settings": 1,
+        "elementor/admin/menu/register": 5,
+        "elementor/admin_top_bar/before_enqueue_scripts": 1,
+        "elementor/ajax/register_actions": 28,
+        "elementor/app/init": 1,
+        "elementor/atomic-widgets/controls": 2,
+        "elementor/atomic-widgets/export/transformers/register": 2,
+        "elementor/atomic-widgets/import/transformers/register": 2,
+        "elementor/atomic-widgets/props-schema": 3,
+        "elementor/atomic-widgets/settings/transformers/classes": 1,
+        "elementor/atomic-widgets/settings/transformers/register": 6
+    },
+    "candidate_b_probe": {
+        "attempted": true,
+        "note": "Disposable fixture only; cleaned up.",
+        "post_id": 6399,
+        "survived_meta_roundtrip": true,
+        "survived_elementor_document_save": true,
+        "builder_content_contains_title": true,
+        "builder_content_bytes": 782,
+        "trashed": true,
+        "governance_note": "Preservation on disposable fixture is necessary but not sufficient for Candidate B GO; copy/import/update compatibility and ADR ownership exception still required."
+    },
+    "html_scrape_verdict": "rejected_as_primary_architecture"
+}

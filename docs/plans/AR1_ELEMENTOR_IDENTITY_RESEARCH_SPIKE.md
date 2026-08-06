@@ -1,21 +1,35 @@
 # A.R1 — Elementor Identity Research Spike
 
-**Status:** Planning complete — research **not started**  
+**Status:** Research execution **complete** — recommendation **CONDITIONAL GO**; ADR-0016 **Accepted** (see [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md))  
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.R1** (Research Spike)  
-**Baseline:** Platform **v1.0.0**; **P1 complete** ([validation log PASS](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md)); planning branch rooted at `5d224cd074a29695f116ace664001760296c5218`  
-**Planning branch:** `feature/ar1-elementor-identity-spike-plan`  
-**Research branch (after plan merge):** `feature/ar1-elementor-identity-spike` (create from updated `main`; do **not** run ER0–ER7 on the planning branch)  
-**Evidence log (reserved; create when ER0 begins):** `docs/plans/AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md` — **do not create until research starts**  
-**ADR:** Not written in this milestone. Expected later: *Elementor identity and ownership model*.  
+**Baseline:** Platform **v1.0.0**; **P1 complete** ([validation log PASS](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md)); planning merged to `main` @ `b310190c4766696e6c42982bde4ffc76d435322c`  
+**Planning branch:** `feature/ar1-elementor-identity-spike-plan` (merged)  
+**Research branch:** `feature/ar1-elementor-identity`  
+**Evidence log:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md)  
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Accepted** (2026-08-06). Freezes Hybrid D / ownership / deny-list for A.2 planning.  
 **Elementor production implementation:** **Blocked**.  
-**A.2 Elementor Foundation:** **Blocked** until:
+**A.2 Elementor Foundation:** **Planning authorized**; **implementation blocked** until A.2 plan is reviewed and coding separately authorized.
 
-1. ER0–ER7 are complete  
-2. Result is **GO** or **CONDITIONAL GO**  
-3. Required Elementor identity/ownership ADR is written  
-4. ADR is **explicitly Accepted**
+1. ER0–ER7 are complete — **done**  
+2. Result is **GO** or **CONDITIONAL GO** — **CONDITIONAL GO**  
+3. Required Elementor identity/ownership ADR is written — **ADR-0016**  
+4. ADR is **explicitly Accepted** — **done** (2026-08-06)
 
-**This document authorizes research planning only.** It does **not** authorize Elementor production translation, extractors, adapters, renderers, migrations, REST, UI, schema changes, research prototypes, fixtures, or ADRs.
+**This research milestone does not authorize Elementor production translation.** A.2 coding remains blocked pending A.2 implementation authorization.
+
+### Frozen research outcomes (post-execution documentation)
+
+Canonical findings live in [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md). Documentation freeze adds (conclusions unchanged):
+
+| Outcome | Location |
+|---|---|
+| Hybrid **D** canonical conceptual identity contract | Research log § Canonical conceptual identity contract |
+| Ownership **precedence** | Research log § Ownership precedence |
+| Stability ≠ support ≠ ownership | Research log § Stability vs support vs ownership |
+| Permanent **deny-list** | [research/ar1-elementor-identity/DENY_LIST.md](../../research/ar1-elementor-identity/DENY_LIST.md) + log Appendix A |
+| **Adapter graduation** lifecycle | Research log § Adapter graduation |
+
+Recommendation remains **CONDITIONAL GO**. No production grammar is defined in this charter.
 
 ---
 
@@ -143,6 +157,12 @@ For every **unsupported** item, record an explicit reason from this bounded taxo
 - architectural contract violation  
 
 The research deliverable must include a **deterministic deny-list**, not merely an allow-list. Source-fallback policy is unchanged: unsupported or ambiguous values render **source**.
+
+After research completion, the deny-list is a **permanent architectural artifact** ([DENY_LIST.md](../../research/ar1-elementor-identity/DENY_LIST.md)). Future milestones remove entries through evidence; they do not discard the deny-list institution.
+
+**Adapter graduation (research outcome):** Unsupported → Research → Adapter → Directly Supported. Adapters are not permanent; successful adapters graduate to directly supported when evidence allows.
+
+**Stability vs support:** A stable identity does not imply supportability. Ownership must be resolved separately.
 
 ---
 
@@ -327,9 +347,13 @@ Evaluate native identity plus owner scope, field key, nested-item identity, and 
 
 Evaluate whether this avoids persistence mutation while remaining stable and value-granular enough.
 
+**Post-research outcome:** Hybrid D is the **canonical conceptual identity contract** (see research log). Conceptual layers: Owner Scope → Owner Identifier → Element Identifier → Field/Control Identifier → Nested Item Identifier (optional) → Responsive Variant (optional). Still not a production grammar.
+
 ### Candidate E — Adapter-required or unsupported
 
 Use for values without a safe general identity model. Require a widget-specific adapter or explicit third-party integration contract. This may be the correct outcome for some widgets.
+
+**Post-research outcome:** Adapter cases follow graduation Unsupported → Research → Adapter → Directly Supported; adapters are not permanent.
 
 ---
 
@@ -611,13 +635,15 @@ This recommendation is **advisory only**. It does **not** authorize implementati
 
 Do **not** create an ADR in this planning task.
 
-**Expected later ADR:** Elementor identity and ownership model (including ownership scopes and translation-unit grammar).
+**Expected later ADR:** Elementor identity and ownership model (including Hybrid D conceptual contract, ownership precedence, permanent deny-list, adapter graduation, and translation-unit composition — not a production key string until A.2 defines one).
 
 Do **not** write or accept the ADR during the spike itself as a substitute for evidence.
 
 The ADR must inherit **only** conclusions labelled **proven by experiment** or **supported by evidence** (§14.1). Deny-list reasons and the advisory first implementation surface may be cited as research outputs; they do not by themselves authorize A.2 coding.
 
 A.2 remains blocked until ER0–ER7 complete, result is GO or CONDITIONAL GO, the required ADR is written, and the ADR is **explicitly Accepted**.
+
+Research execution recorded Hybrid **D** as the canonical conceptual model; see the research log.
 
 ---
 

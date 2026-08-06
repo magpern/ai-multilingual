@@ -1,0 +1,39 @@
+{
+    "environment_file": "er0-environment.json",
+    "inventory_count": 36,
+    "cross_document_id_collisions": 16,
+    "top_widgets": {
+        "text-editor": 198,
+        "heading": 179,
+        "image": 53,
+        "button": 40,
+        "shortcode": 15,
+        "html": 13,
+        "loop-grid": 8,
+        "accordion": 5,
+        "icon-box": 3,
+        "icon": 3,
+        "divider": 2,
+        "theme-site-logo": 2,
+        "toggle": 1,
+        "icon-list": 1,
+        "mega-menu": 1,
+        "biopentra_header_auth": 1,
+        "woocommerce-menu-cart": 1,
+        "taxonomy-filter": 1,
+        "theme-post-featured-image": 1,
+        "woocommerce-product-title": 1,
+        "woocommerce-product-price": 1,
+        "fluent-form-widget": 1
+    },
+    "exported_fixtures": [
+        "fixture-post-4616-sanitized.json",
+        "fixture-post-4484-sanitized.json",
+        "fixture-post-4472-sanitized.json",
+        "fixture-post-4444-sanitized.json",
+        "fixture-post-4433-sanitized.json",
+        "fixture-post-4432-sanitized.json",
+        "fixture-post-4431-sanitized.json",
+        "fixture-post-4430-sanitized.json"
+    ]
+}

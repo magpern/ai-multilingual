@@ -1,0 +1,161 @@
+{
+    "started_at": "2026-08-06T19:09:07+00:00",
+    "experiments": {
+        "edit_text_only": {
+            "compare": {
+                "before_count": 6,
+                "after_count": 6,
+                "unique_before": 6,
+                "unique_after": 6,
+                "retained": 6,
+                "lost": [],
+                "new": [],
+                "duplicate_ids_before": 0,
+                "duplicate_ids_after": 0,
+                "all_retained": true
+            },
+            "paths_unchanged": true,
+            "repeater_ids": [
+                {
+                    "control": "tabs",
+                    "_id": "020c002"
+                },
+                {
+                    "control": "tabs",
+                    "_id": "a223da2"
+                }
+            ]
+        },
+        "reorder_siblings": {
+            "compare": {
+                "before_count": 6,
+                "after_count": 6,
+                "unique_before": 6,
+                "unique_after": 6,
+                "retained": 6,
+                "lost": [],
+                "new": [],
+                "duplicate_ids_before": 0,
+                "duplicate_ids_after": 0,
+                "all_retained": true
+            },
+            "paths_before": {
+                "229b98e": "0",
+                "a2e9d1a": "0/0",
+                "8ffae58": "0/1",
+                "0c761df": "0/2",
+                "653f6f6": "0/3",
+                "3f54527": "0/3/0"
+            },
+            "paths_after": {
+                "229b98e": "0",
+                "8ffae58": "0/0",
+                "0c761df": "0/1",
+                "653f6f6": "0/2",
+                "3f54527": "0/2/0",
+                "a2e9d1a": "0/3"
+            },
+            "note": "IDs retained but structural paths change \u2014 Candidate C risk."
+        },
+        "duplicate_widget_new_id": {
+            "compare": {
+                "before_count": 6,
+                "after_count": 7,
+                "unique_before": 6,
+                "unique_after": 7,
+                "retained": 6,
+                "lost": [],
+                "new": [
+                    "fe6bf50"
+                ],
+                "duplicate_ids_before": 0,
+                "duplicate_ids_after": 0,
+                "all_retained": true
+            },
+            "note": "Manual duplicate with new ID (Elementor editor behaviour simulated)."
+        },
+        "duplicate_page_copy_meta": {
+            "duplicate_post_id": 6394,
+            "compare_to_source_current": {
+                "before_count": 7,
+                "after_count": 7,
+                "unique_before": 7,
+                "unique_after": 7,
+                "retained": 7,
+                "lost": [],
+                "new": [],
+                "duplicate_ids_before": 0,
+                "duplicate_ids_after": 0,
+                "all_retained": true
+            },
+            "note": "Naive page duplicate copies identical element IDs into another post \u2014 cross-document collision if identity lacks owner scope."
+        },
+        "elementor_document_api_resave": {
+            "attempted": true,
+            "compare": {
+                "before_count": 7,
+                "after_count": 7,
+                "unique_before": 7,
+                "unique_after": 7,
+                "retained": 7,
+                "lost": [],
+                "new": [],
+                "duplicate_ids_before": 0,
+                "duplicate_ids_after": 0,
+                "all_retained": true
+            },
+            "result": "saved_via_document_api"
+        },
+        "import_sanitized_fixture": {
+            "attempted": true,
+            "source_fixture": "fixture-post-4430-sanitized.json",
+            "import_post_id": 6395,
+            "compare": {
+                "before_count": 39,
+                "after_count": 39,
+                "unique_before": 39,
+                "unique_after": 39,
+                "retained": 39,
+                "lost": [],
+                "new": [],
+                "duplicate_ids_before": 0,
+                "duplicate_ids_after": 0,
+                "all_retained": true
+            },
+            "note": "Import preserving IDs as in payload \u2014 if another document already uses those IDs, owner-scope is mandatory."
+        }
+    },
+    "source_post_id": 6393,
+    "baseline_ids": [
+        "229b98e",
+        "a2e9d1a",
+        "8ffae58",
+        "0c761df",
+        "653f6f6",
+        "3f54527"
+    ],
+    "baseline_paths": {
+        "229b98e": "0",
+        "a2e9d1a": "0/0",
+        "8ffae58": "0/1",
+        "0c761df": "0/2",
+        "653f6f6": "0/3",
+        "3f54527": "0/3/0"
+    },
+    "baseline_repeater_ids": [
+        {
+            "control": "tabs",
+            "_id": "020c002"
+        },
+        {
+            "control": "tabs",
+            "_id": "a223da2"
+        }
+    ],
+    "cleanup_trashed": [
+        6393,
+        6394,
+        6395
+    ],
+    "finished_at": "2026-08-06T19:09:08+00:00"
+}

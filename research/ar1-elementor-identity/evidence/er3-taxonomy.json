@@ -1,0 +1,181 @@
+{
+    "accordion": {
+        "samples": 4,
+        "likely_text_controls": [
+            "title_background",
+            "title_color",
+            "title_html_tag",
+            "title_padding"
+        ],
+        "responsive_keys": [],
+        "has_dynamic": false,
+        "has_repeater": true,
+        "template_refs_observed": 0,
+        "classification": "supportable through adapter",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "button": {
+        "samples": 10,
+        "likely_text_controls": [
+            "text",
+            "text_padding"
+        ],
+        "responsive_keys": [
+            "_margin_tablet",
+            "_margin_mobile"
+        ],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "directly supportable",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "container": {
+        "samples": 105,
+        "likely_text_controls": [],
+        "responsive_keys": [
+            "min_height_tablet",
+            "min_height_mobile",
+            "padding_mobile",
+            "background_position_tablet",
+            "background_position_mobile",
+            "padding_tablet",
+            "width_tablet",
+            "width_mobile",
+            "flex_direction_mobile",
+            "flex_direction_tablet",
+            "grid_columns_grid_tablet"
+        ],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "directly supportable",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "divider": {
+        "samples": 1,
+        "likely_text_controls": [],
+        "responsive_keys": [],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "supportable through adapter",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "heading": {
+        "samples": 92,
+        "likely_text_controls": [
+            "title",
+            "title_color"
+        ],
+        "responsive_keys": [
+            "typography_font_size_tablet",
+            "typography_font_size_mobile"
+        ],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "directly supportable",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "html": {
+        "samples": 1,
+        "likely_text_controls": [
+            "html"
+        ],
+        "responsive_keys": [],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "unsupported",
+        "unsupported_reason": "unsupported Elementor behavior",
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "image": {
+        "samples": 11,
+        "likely_text_controls": [],
+        "responsive_keys": [],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "supportable through adapter",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "loop-grid": {
+        "samples": 6,
+        "likely_text_controls": [
+            "alternate_templates"
+        ],
+        "responsive_keys": [
+            "columns_tablet",
+            "columns_mobile",
+            "column_gap_tablet",
+            "column_gap_mobile",
+            "row_gap_tablet",
+            "row_gap_mobile"
+        ],
+        "has_dynamic": false,
+        "has_repeater": true,
+        "template_refs_observed": 0,
+        "classification": "supportable through adapter",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "shortcode": {
+        "samples": 11,
+        "likely_text_controls": [
+            "shortcode"
+        ],
+        "responsive_keys": [],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "unsupported",
+        "unsupported_reason": "unsupported Elementor behavior",
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "text-editor": {
+        "samples": 96,
+        "likely_text_controls": [
+            "editor",
+            "text_color"
+        ],
+        "responsive_keys": [
+            "typography_font_size_mobile"
+        ],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "directly supportable",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    },
+    "toggle": {
+        "samples": 1,
+        "likely_text_controls": [],
+        "responsive_keys": [],
+        "has_dynamic": false,
+        "has_repeater": false,
+        "template_refs_observed": 0,
+        "classification": "supportable through adapter",
+        "unsupported_reason": null,
+        "confidence": "supported by evidence",
+        "notes": "Preliminary from sanitized fixtures; ER7 may refine."
+    }
+}
