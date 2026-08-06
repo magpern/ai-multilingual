@@ -124,6 +124,8 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Translation/Memory/TMRepository.php',
 			'src/Glossary/GlossaryRepository.php',
 			'src/Rollout/Metrics/RolloutMetricsRepository.php',
+			'src/Jobs/BackgroundTranslationJobRepository.php',
+			'src/Jobs/BackgroundTranslationItemRepository.php',
 		);
 
 		foreach ( $this->sources() as $path => $code ) {
@@ -171,6 +173,7 @@ final class PluginGuardTest extends AimlTestCase {
 				'src/Rest/WorkspaceController.php',
 				'src/Rest/ProviderController.php',
 				'src/Rest/GlossaryController.php',
+				'src/Jobs/JobsController.php',
 			)
 		);
 	}

@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Admin;
 
+use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
 use AIMultilingual\Workspace\Review\ReviewCapabilities;
@@ -86,7 +87,11 @@ final class TranslatorWorkspace {
 			return $caps;
 		}
 
-		if ( current_user_can( Plugin::CAPABILITY ) || current_user_can( ReviewCapabilities::REVIEW_TRANSLATIONS ) ) {
+		if (
+			current_user_can( Plugin::CAPABILITY )
+			|| current_user_can( ReviewCapabilities::REVIEW_TRANSLATIONS )
+			|| current_user_can( JobsCapabilities::VIEW_JOBS )
+		) {
 			return array( 'read' );
 		}
 
@@ -141,6 +146,10 @@ final class TranslatorWorkspace {
 				'initialLanguageCode' => isset( $_GET['language'] ) ? sanitize_key( wp_unslash( (string) $_GET['language'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				'canTranslate'        => current_user_can( Plugin::CAPABILITY ),
 				'canReview'           => current_user_can( ReviewCapabilities::REVIEW_TRANSLATIONS ),
+				'canViewJobs'         => current_user_can( JobsCapabilities::VIEW_JOBS ),
+				'canManageJobs'       => current_user_can( JobsCapabilities::MANAGE_JOBS ),
+				'canRunJobs'          => current_user_can( JobsCapabilities::RUN_JOBS ),
+				'canCancelJobs'       => current_user_can( JobsCapabilities::CANCEL_JOBS ),
 			)
 		);
 

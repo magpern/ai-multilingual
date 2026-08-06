@@ -9,6 +9,25 @@ declare( strict_types=1 );
 
 namespace AIMultilingual;
 
+use AIMultilingual\Jobs\BackgroundTranslationBatchCoordinator;
+use AIMultilingual\Jobs\BackgroundTranslationDiagnostics;
+use AIMultilingual\Jobs\BackgroundTranslationItemProcessor;
+use AIMultilingual\Jobs\BackgroundTranslationItemRepository;
+use AIMultilingual\Jobs\BackgroundTranslationJobAuditLogger;
+use AIMultilingual\Jobs\BackgroundTranslationJobProviderValidator;
+use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
+use AIMultilingual\Jobs\BackgroundTranslationJobService;
+use AIMultilingual\Jobs\BackgroundTranslationBudgetPolicy;
+use AIMultilingual\Jobs\BackgroundTranslationRetentionCleanup;
+use AIMultilingual\Jobs\BackgroundTranslationRetryPolicy;
+use AIMultilingual\Jobs\BackgroundTranslationScheduler;
+use AIMultilingual\Jobs\BackgroundTranslationWorker;
+use AIMultilingual\Jobs\JobLeaseService;
+use AIMultilingual\Jobs\JobProgressReconciler;
+use AIMultilingual\Jobs\JobsCapabilities;
+use AIMultilingual\Jobs\JobsCli;
+use AIMultilingual\Jobs\JobsController;
+use AIMultilingual\Jobs\JobsViewModelSerializer;
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
@@ -253,6 +272,73 @@ final class Plugin {
 			$review
 		);
 
+		$job_repo        = new BackgroundTranslationJobRepository();
+		$item_repo       = new BackgroundTranslationItemRepository();
+		$job_leases      = new JobLeaseService( $job_repo, $item_repo );
+		$job_reconciler  = new JobProgressReconciler( $job_repo, $item_repo );
+		$job_audit       = new BackgroundTranslationJobAuditLogger();
+		$job_diagnostics = new BackgroundTranslationDiagnostics( $job_repo, $item_repo );
+		$job_scheduler   = new BackgroundTranslationScheduler(
+			new BackgroundTranslationRetentionCleanup( $job_repo, $item_repo, $job_diagnostics ),
+			$job_diagnostics
+		);
+		$job_budget      = new BackgroundTranslationBudgetPolicy( $job_repo );
+		$job_retry       = new BackgroundTranslationRetryPolicy();
+		$job_provider    = new BackgroundTranslationJobProviderValidator( $provider_registry );
+		$job_service     = new BackgroundTranslationJobService(
+			$job_repo,
+			$item_repo,
+			$job_leases,
+			$job_reconciler,
+			$store,
+			$assembler,
+			$job_scheduler,
+			$job_budget,
+			$job_provider,
+			$job_audit,
+			$job_diagnostics
+		);
+		$job_processor   = new BackgroundTranslationItemProcessor(
+			$store,
+			$translation,
+			$glossary_service,
+			$assembler,
+			$job_retry
+		);
+		$job_worker      = new BackgroundTranslationWorker(
+			$job_processor,
+			$job_service,
+			$job_repo,
+			$item_repo,
+			$job_leases,
+			$job_reconciler,
+			$job_retry,
+			$job_budget,
+			$job_scheduler,
+			$job_provider,
+			$job_audit,
+			$job_diagnostics
+		);
+		$job_batches     = new BackgroundTranslationBatchCoordinator( $job_service, $job_repo, $job_scheduler );
+		$job_scheduler->register_hooks( $job_worker, $job_leases );
+		add_action(
+			'init',
+			static function () use ( $job_scheduler ): void {
+				$job_scheduler->schedule_sweep();
+			},
+			20
+		);
+
+		( new JobsController(
+			$job_service,
+			$job_batches,
+			$job_scheduler,
+			$job_worker,
+			$languages,
+			new JobsViewModelSerializer(),
+			$job_diagnostics
+		) )->register();
+
 		( new WorkspaceController(
 			$workspace,
 			new WorkspaceSegmentSerializer(),
@@ -323,6 +409,7 @@ final class Plugin {
 
 			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics );
 			RolloutCli::register();
+			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases );
 		}
 	}
 
@@ -351,6 +438,7 @@ final class Plugin {
 		RolloutCapabilities::grant_default_roles();
 		GlossaryCapabilities::grant_default_roles();
 		ReviewCapabilities::grant_default_roles();
+		JobsCapabilities::grant_default_roles();
 	}
 
 	/**

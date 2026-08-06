@@ -24,6 +24,7 @@ import LanguageSelect from './components/LanguageSelect';
 import PostSelect from './components/PostSelect';
 import PublishContext from './components/PublishContext';
 import ReviewDecisionDialog from './components/ReviewDecisionDialog';
+import JobsPanel from './components/JobsPanel';
 import ReviewQueuePanel from './components/ReviewQueuePanel';
 import SegmentFilterBar from './components/SegmentFilterBar';
 import SegmentTable from './components/SegmentTable';
@@ -63,7 +64,7 @@ import {
 	toggleSelection,
 } from './utils/row-selection';
 
-type ReviewViewMode = 'editor' | 'queue';
+type WorkspaceViewMode = 'editor' | 'queue' | 'jobs';
 
 interface ReviewDialogState {
 	action: 'approve' | 'reject';
@@ -97,10 +98,27 @@ export default function App() {
 		window.aimlTranslatorWorkspace.languages ?? [];
 	const canTranslate = Boolean( window.aimlTranslatorWorkspace.canTranslate );
 	const canReview = Boolean( window.aimlTranslatorWorkspace.canReview );
-
-	const [ viewMode, setViewMode ] = useState< ReviewViewMode >( () =>
-		canTranslate ? 'editor' : 'queue'
+	const canViewJobs = Boolean( window.aimlTranslatorWorkspace.canViewJobs );
+	const canManageJobs = Boolean(
+		window.aimlTranslatorWorkspace.canManageJobs
 	);
+	const canRunJobs = Boolean( window.aimlTranslatorWorkspace.canRunJobs );
+	const canCancelJobs = Boolean(
+		window.aimlTranslatorWorkspace.canCancelJobs
+	);
+
+	const [ viewMode, setViewMode ] = useState< WorkspaceViewMode >( () => {
+		if ( canTranslate ) {
+			return 'editor';
+		}
+		if ( canReview ) {
+			return 'queue';
+		}
+		if ( canViewJobs ) {
+			return 'jobs';
+		}
+		return 'editor';
+	} );
 	const [ reviewDialog, setReviewDialog ] =
 		useState< ReviewDialogState | null >( null );
 
@@ -776,35 +794,49 @@ export default function App() {
 
 	return (
 		<div className="aiml-translator-workspace">
-			{ canTranslate && canReview && (
+			{ ( canTranslate || canReview || canViewJobs ) && (
 				<div
 					className="aiml-workspace-view-tabs"
 					role="tablist"
 					aria-label={ __( 'Workspace views', 'ai-multilingual' ) }
 				>
-					<Button
-						variant={ viewMode === 'editor' ? 'primary' : 'secondary' }
-						role="tab"
-						aria-selected={ viewMode === 'editor' }
-						onClick={ () => setViewMode( 'editor' ) }
-					>
-						{ __( 'Translate', 'ai-multilingual' ) }
-					</Button>
-					<Button
-						variant={ viewMode === 'queue' ? 'primary' : 'secondary' }
-						role="tab"
-						aria-selected={ viewMode === 'queue' }
-						onClick={ () => setViewMode( 'queue' ) }
-					>
-						{ __( 'Review queue', 'ai-multilingual' ) }
-					</Button>
+					{ canTranslate && (
+						<Button
+							variant={ viewMode === 'editor' ? 'primary' : 'secondary' }
+							role="tab"
+							aria-selected={ viewMode === 'editor' }
+							onClick={ () => setViewMode( 'editor' ) }
+						>
+							{ __( 'Translate', 'ai-multilingual' ) }
+						</Button>
+					) }
+					{ canReview && (
+						<Button
+							variant={ viewMode === 'queue' ? 'primary' : 'secondary' }
+							role="tab"
+							aria-selected={ viewMode === 'queue' }
+							onClick={ () => setViewMode( 'queue' ) }
+						>
+							{ __( 'Review queue', 'ai-multilingual' ) }
+						</Button>
+					) }
+					{ canViewJobs && (
+						<Button
+							variant={ viewMode === 'jobs' ? 'primary' : 'secondary' }
+							role="tab"
+							aria-selected={ viewMode === 'jobs' }
+							onClick={ () => setViewMode( 'jobs' ) }
+						>
+							{ __( 'Jobs', 'ai-multilingual' ) }
+						</Button>
+					) }
 				</div>
 			) }
 
-			{ ! canTranslate && ! canReview && (
+			{ ! canTranslate && ! canReview && ! canViewJobs && (
 				<Notice status="error" isDismissible={ false }>
 					{ __(
-						'You do not have permission to translate or review content.',
+						'You do not have permission to use the translator workspace.',
 						'ai-multilingual'
 					) }
 				</Notice>
@@ -972,12 +1004,23 @@ export default function App() {
 					languages={ languages }
 					canTranslate={ canTranslate }
 					onOpenInEditor={ ( openPostId, openLanguageCode ) => {
-						setViewMode( 'editor' );
+						if ( canTranslate ) {
+							setViewMode( 'editor' );
+						}
 						if ( openLanguageCode ) {
 							setLanguageCode( openLanguageCode );
 						}
 						setPostId( openPostId );
 					} }
+				/>
+			) }
+
+			{ canViewJobs && 'jobs' === viewMode && (
+				<JobsPanel
+					languages={ languages }
+					canManage={ canManageJobs }
+					canCancel={ canCancelJobs }
+					canRun={ canRunJobs }
 				/>
 			) }
 

@@ -1,25 +1,32 @@
 # Background Translation Jobs — Implementation Plan
 
-**Status:** Architecture **frozen** (planning approved 2026-08-06); ADR-0011 amendment **Proposed** — **J1+ blocked** until Gate A or Gate B  
-**Branch:** `feature/background-translation-jobs-plan`  
-**Baseline:** `main` @ `adf38640f71b99ec027f7fef8d9131233e366618` (after Review Workflow closure)  
-**ADR:** [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) — Accepted baseline; **amendment Proposed** (implementation gate)  
+**Status:** **Completed / merged / tagged** — ADR-0011 amendment **Accepted**; validation log **PASS**; tag `background-translation-jobs-complete`  
+**Branch:** merged from `feature/background-translation-jobs` into `main`  
+**Baseline:** `main` after Jobs planning merge (`3f7341a31`)  
+**ADR:** [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) — **Amended ADR Accepted** (Gate A)  
+**Validation log:** [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md)  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) §11.3  
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md)
 
-**Production schema today:** Migrator `TARGET = 5` (unchanged by this planning delivery). Jobs schema target **6** is documentation-only until J1.  
-**J0 gate:** **OPEN** — plan frozen; amended ADR-0011 disposition required before J1.  
-**Implementation scope / WP order:** J0–J8 (unchanged). **No production code in this planning delivery.**
+**Production schema today:** Migrator `TARGET = 6` on this implementation branch (additive Jobs tables).  
+**J0 gate:** **PASS** — Amended ADR-0011 Accepted — J1 authorized.
+**J1 status:** **PASS** — Migrator `TARGET=6`; `aiml_jobs` + `aiml_job_items`; repositories + JobCheckpoint.
+**J2 status:** **PASS** — Lifecycle state machines, leases, idempotency, batch coordinator; unit + integration tests green.
+**J3 status:** **PASS** — Worker, ItemProcessor, Scheduler; conflict policy; AS wake hook; unit + integration tests green.
+**J4 status:** **PASS** — RetryPolicy, BudgetPolicy, provider validation, AS health reject-on-create, worker budget/retry wiring; unit + integration tests green.
+**J5 status:** **PASS** — Jobs REST/CLI, capabilities, ViewModels; permission matrix, 409 idempotency, AS 503, post-level auth; phpcs + Jobs-filtered PHPUnit green.
+**J6 status:** **PASS** — Translator Workspace extended with Jobs tab (capability-aware), list/progress/actions, create dialog, batch summary, bounded errors, AS/provider health banner; Jest + webpack build green.
+**J7 status:** **PASS** — Audit hook `aiml_translation_job_audit` with stable event names; bounded diagnostics + `GET /jobs/diagnostics`; retention cleanup in sweep (30d completed / 90d failed-cancelled, bounded, no active/leased delete); runbook `docs/ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md`; unit + integration tests green.
+**J8 status:** **PASS** — Tier 0 + live REST smoke 35/35 + browser Jobs UI; see [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md).  
+**Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance
 
-| Gate | Requirement | J1+ |
+| Gate | Requirement | Status |
 |---|---|---|
-| Plan freeze | This document approved | Required |
-| **Gate A** | Amended ADR-0011 explicitly **Accepted** after amendment review | Sufficient alone |
-| **Gate B** | Complete PO provisional approval (decision maker, date, scope, residual risks, review date, expiration/revalidation) | Sufficient alone |
-
-A generic “ADR-0011 was already Accepted” is **insufficient**. This plan does **not** Accept the amendment; Product Owner disposition is required.
+| Plan freeze | This document approved | **PASS** |
+| **Gate A** | Amended ADR-0011 explicitly **Accepted** | **PASS** (2026-08-06) |
+| **Gate B** | Complete PO provisional approval | **Not applicable** |
 
 ---
 

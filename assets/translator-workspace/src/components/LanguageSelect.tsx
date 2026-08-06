@@ -6,8 +6,10 @@ import type { LanguageOption } from '../types/view-models';
 interface LanguageSelectProps {
 	languages: LanguageOption[];
 	value: string;
-	onChange: (code: string) => void;
+	onChange: ( code: string ) => void;
 	disabled?: boolean;
+	allowEmpty?: boolean;
+	emptyLabel?: string;
 }
 
 export default function LanguageSelect( {
@@ -15,9 +17,20 @@ export default function LanguageSelect( {
 	value,
 	onChange,
 	disabled = false,
+	allowEmpty = false,
+	emptyLabel,
 }: LanguageSelectProps ) {
 	const options = [
-		{ label: __('Select a language', 'ai-multilingual'), value: '' },
+		...( allowEmpty || ! value
+			? [
+					{
+						label:
+							emptyLabel ??
+							__( 'Select a language', 'ai-multilingual' ),
+						value: '',
+					},
+			  ]
+			: [] ),
 		...languages.map( ( language ) => ( {
 			label: language.native_name || language.name || language.code,
 			value: language.code,

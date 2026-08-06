@@ -1,10 +1,10 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Review Workflow **complete** — merged to `main` @ `c8b383c67`, tag `review-workflow-complete` ([REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md)); ADR-0015 **Accepted**; **Background Translation Jobs** plan **frozen** on `feature/background-translation-jobs-plan` — ADR-0011 amendment **Proposed** (J1+ gated)  
-**Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary `feature/glossary-mvp` (merged); Review `feature/review-workflow` (merged); Jobs plan `feature/background-translation-jobs-plan`  
-**Baseline:** `main` @ `adf38640f` after Review Workflow closure  
+**Status:** Background Translation Jobs **J0–J8 complete** on `feature/background-translation-jobs` — ADR-0011 amendment **Accepted**; validation log PASS (browser smoke pending deploy)  
+**Branch:** implementation `feature/background-translation-jobs`  
+**Baseline:** `main` after Jobs planning merge  
 **Scope:** Product priorities after the Strategy F platform program  
-**Code changes:** Glossary MVP + Review Workflow shipped; Background Translation Jobs **not started** (docs only)
+**Code changes:** Glossary + Review shipped; Jobs implemented on feature branch (not yet merged)
 
 ---
 
@@ -257,8 +257,8 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Validation** | Concurrency/idempotency tests; failure injection; cost/bounds tests; no FP on render allowlist. |
 | **Stop conditions** | J1 without ADR amendment disposition; provider-specific job logic; unbounded fan-out; worker TM write-back; auto-approve. |
 | **Release boundary** | Independently shippable; default-off or capability-gated until ops ready. |
-| **Readiness gate** | Canonical plan **frozen**; ADR-0011 amendment Proposed — **J1 blocked** until Gate A Accept or complete Gate B. |
-| **Planning status** | Plan frozen on `feature/background-translation-jobs-plan`; **no implementation started**. |
+| **Readiness gate** | Canonical plan frozen; **ADR-0011 amendment Accepted** (Gate A, 2026-08-06) — J1 authorized. |
+| **Planning status** | J0–J8 complete on `feature/background-translation-jobs`; [validation log](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md) PASS; merge/tag pending. |
 
 **Why jobs before broader automation:** Retries, bounded concurrency, cost control, failure recovery, operator visibility, idempotency, and safe bulk translation are prerequisites for responsible AI automation at scale.
 
@@ -321,11 +321,10 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 - ADR-0014 remains **Accepted**.
 - F1–F14 remain **complete**.
 - Review Workflow is **complete** (merged + tagged); ADR-0015 **Accepted**.
-- Background Translation Jobs **canonical plan written**; ADR-0011 amendment **Proposed** (implementation gate open).
-- **No** Background Translation Jobs implementation has started.
+- Background Translation Jobs: ADR-0011 **Accepted**; J0–J8 complete on feature branch; validation log PASS.
 
 ---
 
 ## 15. Exact next step
 
-Review and disposition the [ADR-0011 amendment](../adr/0011-resumable-job-pipeline.md) (Gate A Accept or complete Gate B provisional), freeze [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md), then create a dedicated **implementation** branch from updated `main` and begin **J1** only after the gate.
+Deploy `feature/background-translation-jobs` to `dev.biopentra.eu`, run the Jobs smoke checklist in [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md), then merge to `main` and tag when smoke is green.

@@ -125,6 +125,21 @@
 		<exclude-pattern>*src/Database/*</exclude-pattern>
 		<exclude-pattern>*src/Language/Languages.php</exclude-pattern>
 		<exclude-pattern>*src/Translation/Store.php</exclude-pattern>
+		<exclude-pattern>*src/Jobs/BackgroundTranslationJobRepository.php</exclude-pattern>
+		<exclude-pattern>*src/Jobs/BackgroundTranslationItemRepository.php</exclude-pattern>
 		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<!-- Unit bootstrap stubs WordPress globals for pure-domain tests. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<exclude-pattern>*/tests/unit/bootstrap.php</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
+		<exclude-pattern>*/tests/unit/bootstrap.php</exclude-pattern>
+	</rule>
+	<rule ref="Universal.Files.SeparateFunctionsFromOO">
+		<exclude-pattern>*/tests/unit/bootstrap.php</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Files.OneObjectStructurePerFile">
+		<exclude-pattern>*/tests/unit/bootstrap.php</exclude-pattern>
 	</rule>
 </ruleset>

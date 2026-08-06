@@ -151,6 +151,10 @@ export interface TranslatorWorkspaceConfig {
 	initialLanguageCode?: string;
 	canTranslate: boolean;
 	canReview: boolean;
+	canViewJobs: boolean;
+	canManageJobs: boolean;
+	canRunJobs: boolean;
+	canCancelJobs: boolean;
 }
 
 declare global {

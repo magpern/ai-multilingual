@@ -35,7 +35,7 @@ final class Migrator {
 	/**
 	 * Schema version this build expects.
 	 */
-	public const TARGET = 5;
+	public const TARGET = 6;
 
 	/**
 	 * Applies any migration steps newer than the recorded version.
@@ -87,6 +87,7 @@ final class Migrator {
 			3 => array( $this, 'step_3_rollout_metrics_daily' ),
 			4 => array( $this, 'step_4_glossary' ),
 			5 => array( $this, 'step_5_review_workflow' ),
+			6 => array( $this, 'step_6_background_jobs' ),
 		);
 	}
 
@@ -181,5 +182,18 @@ final class Migrator {
 			);
 			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
+	}
+
+	/**
+	 * Step 6 — Background Translation Jobs tables (ADR-0011 / J1).
+	 *
+	 * Creates `aiml_jobs` and `aiml_job_items` only. Action Scheduler hooks
+	 * (`aiml_run_job`, `aiml_jobs_sweep`) are registered in J4 — not here.
+	 */
+	private function step_6_background_jobs(): void {
+		global $wpdb;
+
+		$wpdb->query( Schema::create_jobs() );      // phpcs:ignore WordPress.DB.PreparedSQL
+		$wpdb->query( Schema::create_job_items() ); // phpcs:ignore WordPress.DB.PreparedSQL
 	}
 }

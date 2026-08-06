@@ -1,0 +1,130 @@
+export type JobType =
+	| 'translate_selected'
+	| 'translate_missing'
+	| 'retranslate_stale'
+	| 'bulk_translate';
+
+export type JobStatus =
+	| 'queued'
+	| 'running'
+	| 'paused'
+	| 'retry_wait'
+	| 'completed'
+	| 'completed_with_errors'
+	| 'failed'
+	| 'cancelled';
+
+export type JobRequestedAction = 'none' | 'pause' | 'cancel';
+
+export interface TranslationJobSummary {
+	job_id: number;
+	job_type: JobType | string;
+	status: JobStatus | string;
+	requested_action: JobRequestedAction | string;
+	batch_id: string | null;
+	source_type: string;
+	source_id: number;
+	language_id: number;
+	provider_id: string;
+	prompt_profile: string;
+	prompt_version: string;
+	total_items: number;
+	queued_items: number;
+	running_items: number;
+	completed_items: number;
+	failed_items: number;
+	skipped_items: number;
+	stale_items: number;
+	cancelled_items: number;
+	last_error_code: string;
+	last_error_class: string;
+	last_error_message: string;
+	created_at: string;
+	updated_at: string;
+	started_at: string | null;
+	finished_at: string | null;
+}
+
+export interface TranslationJobItemSummary {
+	item_id: number;
+	job_id: number;
+	segment_key: string;
+	status: string;
+	result_code: string;
+	attempt_count: number;
+	last_error_code: string;
+	last_error_class: string;
+	last_error_message: string;
+	created_at: string;
+	updated_at: string;
+	started_at: string | null;
+	finished_at: string | null;
+}
+
+export interface TranslationJobDetail extends TranslationJobSummary {
+	items?: TranslationJobItemSummary[];
+}
+
+export interface JobsListResponse {
+	items: TranslationJobSummary[];
+	total: number;
+	page: number;
+	per_page: number;
+}
+
+export interface BatchProgressSummary {
+	batch_id: string;
+	job_count: number;
+	total_items: number;
+	queued_items: number;
+	running_items: number;
+	completed_items: number;
+	failed_items: number;
+	skipped_items: number;
+	stale_items: number;
+	cancelled_items: number;
+	jobs_by_status: Record< string, number >;
+}
+
+export interface JobsHealthResponse {
+	available: boolean;
+	message: string;
+	provider?: {
+		available: boolean;
+		message: string;
+		provider_id?: string;
+	};
+}
+
+export interface CreateSingleJobPayload {
+	job_type: JobType;
+	source_type?: string;
+	source_id: number;
+	language_id: number;
+	segment_keys?: string[];
+	client_token?: string;
+	prompt_profile?: string;
+	prompt_version?: string;
+	provider_id?: string;
+	force_new?: boolean;
+}
+
+export interface CreateBulkJobPayload {
+	language_id: number;
+	posts: Array< {
+		source_id: number;
+		segment_keys?: string[];
+	} >;
+	client_token?: string;
+	prompt_profile?: string;
+	prompt_version?: string;
+	provider_id?: string;
+	force_new?: boolean;
+}
+
+export interface CreateBulkJobResponse {
+	batch_id: string;
+	jobs: TranslationJobSummary[];
+}
+
+export type JobAction = 'pause' | 'resume' | 'cancel' | 'retry-failed' | 'run';

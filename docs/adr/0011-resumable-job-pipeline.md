@@ -2,29 +2,25 @@
 
 ## Status
 
-**Accepted baseline** (Milestone 0 design). **Amendment Proposed** (2026-08-06) — pending explicit disposition before J1 implementation.
+**Accepted** (2026-08-06) — Materially amended ADR-0011 Accepted by Product Owner. Gate A satisfied. J1+ implementation authorized.
 
 | Field | Value |
 |---|---|
 | **Original acceptance** | Milestone 0 (Accepted design baseline) |
 | **Amendment date** | 2026-08-06 |
-| **Implementation status** | **Not implemented** |
-| **Supersedes status claim** | ~~Implemented in Milestone 3~~ — false; Jobs code, schema, and Action Scheduler wiring do not exist on `main` after Glossary MVP + Review Workflow |
-| **Decision maker (amendment)** | _Pending — Gate A Accept or Gate B provisional_ |
-| **Approval date (amendment)** | _Pending_ |
-| **Scope of amendment** | Review Workflow / TM interaction; lifecycle and table model; schema target 6; batch grouping; lock/lease implementability; canonical plan pointer — exactly as in **Amended Decision** below and [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) |
-| **Residual risks accepted** | _Recorded at Gate A/B disposition_ |
-| **Mandatory review date** | Background Translation Jobs milestone closure (or Gate B expiration) |
-| **Revalidation trigger** | New queue engine; automatic approval from jobs; worker TM write-back; dedicated lock table replacing job-table SoT; parent job aggregate state machine; approval-gated rendering; site-wide unrestricted fan-out |
+| **Amendment acceptance date** | 2026-08-06 |
+| **Implementation status** | **Implemented on `feature/background-translation-jobs`** — J0–J8 complete; validation log PASS (live browser smoke pending deploy checklist) |
+| **Supersedes status claim** | ~~Implemented in Milestone 3~~ — false at amendment time; implementation proceeds under this Accepted amendment |
+| **Decision maker** | Product Owner |
+| **Decision** | Amended ADR-0011 **Accepted** |
+| **Scope** | Action Scheduler trigger-only architecture; orchestration state in `aiml_jobs` and `aiml_job_items`; `BackgroundTranslationItemProcessor` as sole per-item application boundary; job/item/requested-action state separation; nullable unique `active_lock_key` lease model; schema target 6; Review Workflow owns approval; workers never write Translation Memory; Glossary resolved through GlossaryService; bounded retries, concurrency, budgets, and retention — exactly as in **Amended Decision** below and [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) |
+| **Residual risks accepted** | Action Scheduler becomes a runtime dependency for Jobs; nullable unique active-lock behavior depends on supported MariaDB semantics; queued work may become stale before execution; provider usage estimates may differ from actual usage; cancellation is observed only at safe item boundaries; Glossary drift is allowed and recorded; completed operational records are retained temporarily and later cleaned |
+| **Mandatory review point** | Background Translation Jobs milestone closure |
+| **Revalidation triggers** | Replacement of Action Scheduler; alternate queue engine; separate lock table; automatic approval; worker TM write-back; job-owned translation bodies; provider-specific worker pipeline; dynamic site-wide fan-out; material schema redesign; breaking public API change |
 
-**Implementation gate:** **Closed** until Gate A or Gate B is satisfied.
+**Implementation gate:** **Open** — Gate A (Accepted) satisfied. Gate B (provisional approval) is **not applicable**.
 
-- **Gate A:** This amended ADR is explicitly **Accepted** after review of the amendment scope.
-- **Gate B:** A complete Product Owner provisional approval records decision maker, approval date, exact amendment scope, accepted residual risks, mandatory review date, and expiration/revalidation trigger.
-
-A generic “ADR-0011 was already Accepted” is **insufficient** for these material amendments.
-
-Canonical plan: [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) — **architecture frozen** (planning approved); amendment disposition still required before J1.  
+Canonical plan: [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) — architecture frozen; **ADR-0011 amendment Accepted — J1 implementation authorized**.  
 Product context: [POST_V1_PRODUCT_ROADMAP.md](../plans/POST_V1_PRODUCT_ROADMAP.md) §11.3.  
 Related: [ADR-0015](0015-review-workflow-and-tm-approval-policy.md) (Review + approval-gated TM), [ADR-0014](0014-glossary-platform-lexicon.md) (Glossary).
 
@@ -144,18 +140,7 @@ Automatic approval, automatic publishing, review assignments, glossary import jo
 
 ## Provisional approval log
 
-**Not applicable until Gate B is used.** Gate A (explicit Accept of this amendment) is preferred.
-
-When Gate B is used, record here:
-
-| Field | Value |
-|---|---|
-| Decision maker | |
-| Approval date | |
-| Exact amendment scope | |
-| Accepted residual risks | |
-| Mandatory review date | |
-| Expiration / revalidation trigger | |
+**Not applicable** — Amended ADR-0011 is fully **Accepted** (Gate A). Gate B provisional approval is not used.
 
 ---
 
