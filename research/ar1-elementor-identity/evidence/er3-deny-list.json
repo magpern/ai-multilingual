@@ -1,0 +1,19 @@
+{
+    "deny_list": {
+        "html": "unsupported Elementor behavior",
+        "shortcode": "unsupported Elementor behavior"
+    },
+    "adapter_required": [
+        "accordion",
+        "divider",
+        "image",
+        "loop-grid",
+        "toggle"
+    ],
+    "directly_supportable_candidates": [
+        "button",
+        "container",
+        "heading",
+        "text-editor"
+    ]
+}

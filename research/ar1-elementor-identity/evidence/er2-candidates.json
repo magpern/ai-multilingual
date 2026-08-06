@@ -1,0 +1,76 @@
+{
+  "captured_at": "2026-08-06T19:11:00Z",
+  "method": "Scored from ER0–ER6 experiments; not a production decision.",
+  "candidates": {
+    "A_native_elementor_identity": {
+      "classification": "supportable through adapter",
+      "summary": "Native element IDs survive text edit, reorder, and Elementor document API resave. Must include owner scope + field/control + nested-item keys for translation-unit granularity.",
+      "determinism": "high within a document when IDs present",
+      "value_granularity": "requires field/nested keys — widget ID alone insufficient",
+      "edit_stability": "proven by experiment (edit_text_only all_retained=true)",
+      "uniqueness": "intra-doc generally unique; cross-doc collisions proven (16 shared IDs across posts including intentional bp_* ids)",
+      "copy_duplicate": "page duplicate copies identical IDs — owner scope mandatory",
+      "template_ownership": "needs definition vs consuming rules",
+      "import_export": "import preserves IDs from payload — collision risk without owner scope",
+      "overlay_purity": "good — no Elementor persistence mutation",
+      "maintenance_cost": "medium — Elementor version ID behaviour must be revalidated",
+      "store_compatibility": "compatible if key includes owner+element+field",
+      "rendering_safety": "depends on ER4 hooks (builder_content_data / widget render_content present)",
+      "confidence": "proven by experiment"
+    },
+    "B_aiml_identity_in_elementor_data": {
+      "classification": "unsupported",
+      "unsupported_reason": "architectural contract violation",
+      "summary": "Disposable probe showed _aiml_identity survived meta roundtrip and Elementor document save; title still rendered. Higher governance threshold NOT met for GO: update/import/copy policy incomplete; mutates Elementor-owned persistence.",
+      "determinism": "can be high if written",
+      "value_granularity": "possible",
+      "edit_stability": "supported by evidence on disposable fixture only",
+      "uniqueness": "plugin-controlled",
+      "copy_duplicate": "assumption requiring validation — may copy embedded IDs",
+      "template_ownership": "assumption requiring validation",
+      "import_export": "assumption requiring validation",
+      "overlay_purity": "poor — writes into Elementor settings",
+      "maintenance_cost": "high — Elementor updates may strip unknown settings",
+      "store_compatibility": "compatible only with ADR ownership exception",
+      "rendering_safety": "visitor semantics unchanged in probe",
+      "confidence": "supported by evidence (probe); GO blocked by governance",
+      "go_bar_met": false
+    },
+    "C_structural_path": {
+      "classification": "unsupported",
+      "unsupported_reason": "unstable identity",
+      "summary": "Reorder retained element IDs but changed structural paths for 5/6 nodes — path identity breaks under sibling reorder.",
+      "determinism": "low under edit",
+      "value_granularity": "possible but unstable",
+      "edit_stability": "proven by experiment — FAIL for reorder",
+      "uniqueness": "path-local only",
+      "copy_duplicate": "paths recreated independently — misleading collisions/misses",
+      "overlay_purity": "good",
+      "maintenance_cost": "high",
+      "confidence": "proven by experiment"
+    },
+    "D_hybrid_native_plus_owner_field_hash": {
+      "classification": "directly supportable",
+      "summary": "Preferred research direction: owner scope + native element ID + control key + nested-item/_id + optional responsive suffix; source hash for stale detection only.",
+      "determinism": "high for ordinary document-owned widgets",
+      "value_granularity": "explicit",
+      "edit_stability": "inherits Candidate A ID stability",
+      "uniqueness": "owner scope solves cross-doc collisions",
+      "copy_duplicate": "consuming-document-owned after copy; new owner key",
+      "template_ownership": "definition-owned when stable template_id reference exists",
+      "import_export": "owner remapped on import target document",
+      "overlay_purity": "good",
+      "maintenance_cost": "medium",
+      "store_compatibility": "good",
+      "rendering_safety": "feasible via document/widget filters",
+      "confidence": "supported by evidence"
+    },
+    "E_adapter_or_unsupported": {
+      "classification": "supportable through adapter",
+      "summary": "Correct outcome for repeaters, loop-grid, third-party, dynamic, html/shortcode — either dedicated adapter or deny-list.",
+      "confidence": "supported by evidence"
+    }
+  },
+  "recommended_primary_model": "D_hybrid_native_plus_owner_field_hash",
+  "confidence": "supported by evidence"
+}
