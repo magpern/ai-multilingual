@@ -10,6 +10,124 @@
 
 This log is the source of truth for A.R1 findings. Confidence labels follow the charter §14.1 model.
 
+**Frozen research outcomes (documentation refinement; conclusions unchanged):**
+
+- Canonical conceptual model: **Hybrid D** (§ Canonical conceptual identity contract)
+- Ownership **precedence** rules (§ Ownership precedence)
+- Permanent **deny-list** artifact: [research/ar1-elementor-identity/DENY_LIST.md](../../research/ar1-elementor-identity/DENY_LIST.md) and [Appendix A](#appendix-a--permanent-deny-list)
+- **Adapter graduation** lifecycle (§ Adapter graduation)
+- **Stability ≠ support** (§ Stability vs support vs ownership)
+
+Recommendation remains **CONDITIONAL GO**. No production grammar is defined here.
+
+---
+
+## Canonical conceptual identity contract (Hybrid D)
+
+Research prefers Candidate D and hereby promotes it to the **canonical conceptual model** for Elementor translation units. This remains **conceptual only** — not a production key grammar.
+
+### Composition
+
+```text
+Owner Scope
+    ↓
+Owner Identifier
+    ↓
+Element Identifier
+    ↓
+Field / Control Identifier
+    ↓
+Nested Item Identifier   (optional)
+    ↓
+Responsive Variant       (optional)
+```
+
+| Layer | Role |
+|---|---|
+| **Owner Scope** | document-owned / shared-definition-owned / consuming-document-owned / unsupported |
+| **Owner Identifier** | Post/document or definition ID that owns the overlay namespace |
+| **Element Identifier** | Native Elementor element `id` (Candidate A substrate) |
+| **Field / Control Identifier** | Widget setting/control key for one value |
+| **Nested Item Identifier** | Repeater/tab/accordion item `_id` when applicable |
+| **Responsive Variant** | Device-specific control suffix when Elementor stores a distinct value |
+
+### Non-identity payload rules
+
+| Item | Role |
+|---|---|
+| Source / stale **hash** | **Freshness only** — never part of identity |
+| Source-language **value** | Overlay payload — not identity |
+| Translated **value** | Overlay payload — not identity |
+
+**Owner scope is mandatory.** An element ID without owner scope is not a safe translation-unit identity (cross-document collisions proven in ER0/ER1).
+
+Native Elementor IDs (Candidate A) are the **element layer** inside Hybrid D. Structural paths (Candidate C) are rejected. Candidate B remains denied under current governance.
+
+Confidence for promoting D: **supported by evidence** (unchanged from ER2/ER7).
+
+---
+
+## Stability vs support vs ownership
+
+These three judgments are independent. Evaluation must not conflate them.
+
+| Dimension | Question |
+|---|---|
+| **Stable identity** | Does a deterministic identity exist and survive normal edits? |
+| **Ownership resolved** | Is owner scope known and collision-safe? |
+| **Supportability** | May AIML translate this value under Hybrid D (direct / adapter / deny)? |
+
+A value may have **stable identity** and still be **unsupported** (e.g. `html`, shortcode, dynamic tags, third-party opaque widgets).  
+A value may be **supportable** only after ownership is resolved.  
+Missing ownership resolution → treat as unsupported (leave source), even if the native element ID appears stable.
+
+---
+
+## Ownership precedence
+
+Applies the ER5 matrix with explicit precedence so implementations cannot silently share or duplicate translations.
+
+### Precedence rules (highest first)
+
+1. **Unsupported / ambiguous ownership** — If reference semantics are unclear, **do not translate**. Leave source. Never invent silent sharing.
+2. **Shared-definition-owned** — When Elementor provides a **stable reference** to a library / Theme Builder / global definition (`template_id` or equivalent), overlays bind to the **definition** owner identifier — not to each consuming page’s local wrapper element alone.
+3. **Document-owned** — Ordinary page/post Elementor trees that are not live references: overlays bind to that document’s owner identifier.
+4. **Consuming-document-owned (after copy)** — When content is **copied** / pasted / inserted as an independent tree (not a live reference), ownership moves to the **consuming document**. Overlays must **not** continue to share the definition’s translation set.
+
+### Anti-patterns (forbidden)
+
+- Silently duplicating shared definition translations onto unrelated consuming documents.
+- Keying overlays only by native element ID without owner scope.
+- Treating a copied tree as still definition-owned without a live reference.
+- Sharing one overlay key across two posts that happen to reuse the same element ID (proven collision class).
+
+Frozen defaults from the charter remain in force and are consistent with this precedence.
+
+---
+
+## Adapter graduation
+
+Support classification is a **lifecycle**, not a permanent label for adapter cases.
+
+```text
+Unsupported
+    ↓  (research + evidence)
+Research
+    ↓  (explicit adapter contract)
+Adapter
+    ↓  (adapter proven; identity/ownership/render safe)
+Directly Supported
+```
+
+| Stage | Meaning |
+|---|---|
+| **Unsupported** | On the deny-list; source fallback |
+| **Research** | Under investigation; not visitor-translated |
+| **Adapter** | Translated only via an explicit widget/control adapter |
+| **Directly supported** | Covered by the general Hybrid D model without a special adapter |
+
+**Adapters are not permanent.** A successful adapter should graduate to **directly supported** once evidence shows the general model covers that control family safely. Graduation requires evidence; it does not remove the deny-list as an institution — items leave the deny-list through evidence, not by discarding the list.
+
 ---
 
 ## ER0 — Baseline, environment, and fixture inventory
@@ -69,17 +187,17 @@ Repeater item `_id` values are present on accordion `tabs` in disposable fixture
 
 Source: `er2-candidates.json`.
 
-| Candidate | Classification | Verdict |
-|---|---|---|
-| **A** Native Elementor ID | Supportable through adapter | Viable only with owner + field + nested keys |
-| **B** AIML ID in Elementor data | Unsupported (architectural contract violation) | Probe preserved metadata on disposable fixture; **GO bar not met** |
-| **C** Structural path | Unsupported (unstable identity) | Failed reorder experiment |
-| **D** Hybrid (owner + native ID + field + nested + hash≠identity) | Directly supportable (research direction) | Preferred |
-| **E** Adapter / unsupported | Supportable through adapter / deny | Correct for complex widgets |
+| Candidate | Stable identity? | Ownership resolvable? | Supportability | Verdict |
+|---|---|---|---|---|
+| **A** Native Elementor ID | Yes (within doc; proven) | Only with explicit owner scope | Supportable through adapter / as D substrate | Viable only with owner + field + nested keys |
+| **B** AIML ID in Elementor data | Potentially yes (probe) | Requires ADR ownership exception | Unsupported (architectural contract violation) | GO bar not met |
+| **C** Structural path | No (reorder breaks paths) | N/A | Unsupported (unstable identity) | Rejected |
+| **D** Hybrid | Yes when layers complete | Yes (owner scope mandatory) | Directly supportable (canonical conceptual model) | **Canonical conceptual contract** |
+| **E** Adapter / unsupported | Case-by-case | Case-by-case | Adapter or deny | Correct for complex widgets |
 
 **Candidate B probe** (`er4-hooks-candidate-b.json`): `_aiml_identity` survived meta roundtrip and Elementor `document->save()`; builder content still showed title. Confidence: **supported by evidence** for preservation on disposable fixtures only. Copy/import/update governance incomplete → **not** recommended for GO.
 
-**Recommended primary model:** Candidate **D**. Confidence: **supported by evidence**.
+**Canonical conceptual model:** Hybrid **D** (see § Canonical conceptual identity contract). Confidence: **supported by evidence**.
 
 ---
 
@@ -87,40 +205,46 @@ Source: `er2-candidates.json`.
 
 Sources: `er3-taxonomy.json`, `er3-deny-list.json`, plus inventory frequency.
 
+Tables below separate **stable identity**, **ownership**, and **supportability**.
+
 ### Directly supportable (first-surface candidates)
 
-| Family | Likely controls | Confidence |
-|---|---|---|
-| `heading` | `title` (+ responsive variants e.g. `title_mobile`) | Supported by evidence |
-| `text-editor` | `editor` | Supported by evidence |
-| `button` | `text` | Supported by evidence |
+| Family | Stable identity? | Ownership | Supportability | Likely controls | Confidence |
+|---|---|---|---|---|---|
+| `heading` | Yes (native ID + `title`) | Document-owned (typical) | Directly supportable | `title` (+ responsive e.g. `title_mobile`) | Supported by evidence |
+| `text-editor` | Yes | Document-owned (typical) | Directly supportable | `editor` | Supported by evidence |
+| `button` | Yes | Document-owned (typical) | Directly supportable | `text` | Supported by evidence |
 
-(`container` classified direct but has no visitor text controls.)
+(`container` may have stable IDs but no visitor text controls — stability without a translatable value is not a support claim.)
 
 ### Supportable through adapter
 
-| Family | Notes | Confidence |
-|---|---|---|
-| `accordion`, `toggle` | Repeater rows via `_id` + `tab_title` / `tab_content` | Supported by evidence |
-| `image` | Caption/alt need control mapping | Inferred |
-| `loop-grid` | Query/template driven — high risk | Supported by evidence |
-| `divider` / layout-only | Usually no text | Supported by evidence |
+| Family | Stable identity? | Ownership | Supportability | Notes | Confidence |
+|---|---|---|---|---|---|
+| `accordion`, `toggle` | Yes if `_id` + field keys used | Document-owned (typical) | Adapter | Repeater rows via `_id` + `tab_title` / `tab_content` | Supported by evidence |
+| `image` | Yes for caption/alt keys | Document-owned (typical) | Adapter | Caption/alt need control mapping | Inferred |
+| `loop-grid` | Element may be stable; cell content often not | Often ambiguous / dynamic | Adapter or deny | Query/template driven — high risk | Supported by evidence |
+| `divider` / layout-only | Yes | Document-owned | Usually N/A (no text) | Usually no text | Supported by evidence |
 
 ### Deterministic deny-list (must not translate)
 
-| Item | Reason |
-|---|---|
-| `html` | unsupported Elementor behavior |
-| `shortcode` | unsupported Elementor behavior |
-| Dynamic-tag values (`__dynamic__`) | dynamic runtime value |
-| `loop-grid` query-generated cell content | dynamic runtime value |
-| WooCommerce product widgets (`woocommerce-*`) | third-party opaque persistence |
-| `fluent-form-widget` | third-party opaque persistence |
-| `biopentra_header_auth`, `mega-menu`, theme chrome widgets | unsupported Elementor behavior / ownership ambiguity |
-| Global/template widgets without stable `template_id` | ownership ambiguity |
-| Any value without field-level identity | unstable identity |
+Permanent artifact: [Appendix A](#appendix-a--permanent-deny-list) and [`research/ar1-elementor-identity/DENY_LIST.md`](../../research/ar1-elementor-identity/DENY_LIST.md).
+
+| Item | Stable identity? | Ownership resolved? | Supportability | Reason |
+|---|---|---|---|---|
+| `html` | May be stable at element level | Often document-owned | Unsupported | unsupported Elementor behavior |
+| `shortcode` | May be stable at element level | Often document-owned | Unsupported | unsupported Elementor behavior |
+| Dynamic-tag values (`__dynamic__`) | Unstable / runtime | N/A | Unsupported | dynamic runtime value |
+| `loop-grid` query-generated cell content | Unstable | Ambiguous | Unsupported | dynamic runtime value |
+| WooCommerce product widgets (`woocommerce-*`) | Opaque | Third-party | Unsupported | third-party opaque persistence |
+| `fluent-form-widget` | Opaque | Third-party | Unsupported | third-party opaque persistence |
+| `biopentra_header_auth`, `mega-menu`, theme chrome | Case-by-case | Often ambiguous | Unsupported | unsupported Elementor behavior / ownership ambiguity |
+| Global/template widgets without stable `template_id` | Element ID alone insufficient | No | Unsupported | ownership ambiguity |
+| Any value without field-level identity | No | N/A | Unsupported | unstable identity |
 
 Source fallback unchanged: deny-listed values remain **source**. Confidence: **supported by evidence** (fixture + inventory); Woo/third-party rows **inferred** from widget presence without deep adapter research.
+
+Future milestones may **remove** items from the deny-list only through new evidence (and adapter graduation where applicable) — not by discarding the deny-list.
 
 ---
 
@@ -166,6 +290,8 @@ Source: `er5-ownership.json`.
 | Ambiguous global without clear ref | explicitly unsupported | Leave source | Assumption requiring validation |
 | Dynamic-tag values | explicitly unsupported | Leave source | Supported by evidence |
 
+See also § Ownership precedence (rules above the matrix). Referenced templates remain **definition-owned**; copies become **consuming-document-owned**; ambiguous cases stay **unsupported**.
+
 ---
 
 ## ER6 — Compatibility, cache, performance
@@ -203,25 +329,24 @@ Source: `er7-containment-audit.json` + `acceptance/ar1-elementor/containment-aud
 
 **Containment audit: PASS.** Confidence: **proven by experiment**.
 
-### Translation-unit model (recommended)
+### Translation-unit model (Hybrid D — canonical conceptual contract)
 
-Conceptual composition (illustrative — not a shipped grammar):
+See § Canonical conceptual identity contract. Summary:
 
 ```text
-owner_scope + owner_id
-  + element_id
-  + control_key
-  + [repeater_item_id]
-  + [responsive_suffix]
+Owner Scope
+  → Owner Identifier
+  → Element Identifier
+  → Field / Control Identifier
+  → Nested Item Identifier (optional)
+  → Responsive Variant (optional)
 ```
 
-Plus: source-language value in Store overlay; source/stale hash for freshness only (never identity).
-
-Must distinguish multiple fields on one widget and repeated rows sharing a control name. Confidence: **supported by evidence**.
+Hash and translated/source values are **not** identity. Owner scope is **mandatory**. Confidence: **supported by evidence**.
 
 ### Identity comparison (summary)
 
-Prefer **D (hybrid)**. Reject **C**. Keep **B** denied unless future ADR explicitly accepts Elementor persistence mutation **and** copy/import/update evidence is completed. **A** is the ID substrate inside **D**.
+**Canonical model: D (hybrid).** Reject **C**. Keep **B** denied unless future ADR explicitly accepts Elementor persistence mutation **and** copy/import/update evidence is completed. **A** is the element-ID substrate inside **D**.
 
 ### GO / CONDITIONAL GO / NO-GO
 
@@ -240,32 +365,33 @@ Prefer **D (hybrid)**. Reject **C**. Keep **B** denied unless future ADR explici
 
 **Conditions for proceeding to ADR + A.2 planning:**
 
-1. Identity model = hybrid D with mandatory owner scope and field/nested granularity.  
+1. Identity model = Hybrid D conceptual contract with mandatory owner scope and field/nested granularity.  
 2. First implementation surface limited to the advisory set below.  
-3. Deny-list enforced with source fallback.  
+3. Deny-list enforced with source fallback (permanent artifact; removals require evidence).  
 4. No HTML scraping.  
 5. No Candidate B without separate Accepted ownership exception.  
 6. Cache/language isolation designed before production render.  
-7. Re-validate on Elementor upgrades.
+7. Re-validate on Elementor upgrades.  
+8. Adapter cases follow graduation lifecycle (not permanent adapters by default).
 
 ### Recommended first implementation surface (advisory only)
 
 Does **not** authorize implementation.
 
-| Include | Controls |
-|---|---|
-| `heading` | `title` (+ responsive title variants when present) |
-| `text-editor` | `editor` |
-| `button` | `text` |
+| Include | Controls | Stable identity? | Ownership | Supportability |
+|---|---|---|---|---|
+| `heading` | `title` (+ responsive title variants when present) | Yes | Document-owned (typical) | Directly supportable |
+| `text-editor` | `editor` | Yes | Document-owned (typical) | Directly supportable |
+| `button` | `text` | Yes | Document-owned (typical) | Directly supportable |
 
-| Exclude | Reason |
-|---|---|
-| `html`, `shortcode` | unsupported Elementor behavior |
-| Repeaters (`accordion`/`toggle`) | adapter required — defer |
-| `image` alt/caption | adapter — defer |
-| `loop-grid`, Woo, Fluent, custom chrome | deny-list |
-| Dynamic tags | dynamic runtime value |
-| Template/global ambiguous refs | ownership ambiguity |
+| Exclude | Stable identity? | Supportability | Reason |
+|---|---|---|---|
+| `html`, `shortcode` | Often yes at element level | Unsupported | unsupported Elementor behavior |
+| Repeaters (`accordion`/`toggle`) | Yes with `_id` | Adapter — defer | adapter graduation pending |
+| `image` alt/caption | Likely yes | Adapter — defer | adapter graduation pending |
+| `loop-grid`, Woo, Fluent, custom chrome | Mixed | Unsupported | deny-list |
+| Dynamic tags | No | Unsupported | dynamic runtime value |
+| Template/global ambiguous refs | Insufficient | Unsupported | ownership ambiguity |
 
 **Known limitations:** Single environment (Elementor 4.2.1); Theme Builder definition-owned overlays not exercised end-to-end; no production render prototype registered.
 
@@ -277,9 +403,11 @@ Does **not** authorize implementation.
 
 Must cover:
 
-- Hybrid identity grammar (owner + element + field + nested + responsive)  
-- Ownership decision matrix  
-- Deny-list / source fallback  
+- Hybrid D conceptual contract (owner → element → field → nested → responsive); hash ≠ identity  
+- Ownership decision matrix **and precedence**  
+- Permanent deny-list / source fallback / evidence-based removals  
+- Adapter graduation lifecycle  
+- Explicit separation of stability vs support vs ownership  
 - Explicit rejection of HTML scraping and fuzzy rematch  
 - Explicit rejection (or gated exception) of Candidate B  
 - Coexistence with Gutenberg `b:<uuid>:<field>`  
@@ -299,6 +427,7 @@ ADR may inherit only conclusions labelled **proven by experiment** or **supporte
 | Third-party widgets | Medium | Deny by default |
 | Version drift | Medium | Re-test on upgrades |
 | Accidental prototype promotion | Medium | Containment PASS; ZIP exclude |
+| Silent share of definition translations | High | Forbidden by ownership precedence |
 
 ---
 
@@ -322,3 +451,51 @@ These gaps condition the GO; they do not invalidate measured ID/collision/path f
 3. Only after ADR **Accepted**, open A.2 Elementor Foundation planning for the advisory first surface.
 
 **Do not begin A.2 coding in this milestone.**
+
+---
+
+## Appendix A — Permanent deny-list
+
+Architectural deliverable of A.R1. Mirror: [`research/ar1-elementor-identity/DENY_LIST.md`](../../research/ar1-elementor-identity/DENY_LIST.md).
+
+Items leave this list only through **new evidence** (and adapter graduation where applicable). The deny-list itself is not replaced by an allow-list.
+
+### By reason
+
+#### Ownership ambiguity
+
+- Global/template widgets without stable `template_id` (or equivalent reference)
+- Theme/chrome widgets with unclear document vs definition ownership (`biopentra_header_auth`, `mega-menu`, similar)
+
+#### Unstable identity
+
+- Any value lacking field/control-level identity (widget-only keys)
+- Structural-path-only identities (Candidate C — rejected generally)
+
+#### Dynamic runtime
+
+- Dynamic-tag driven settings (`__dynamic__`)
+- `loop-grid` (and similar) query-generated cell content
+
+#### Third-party persistence
+
+- WooCommerce Elementor widgets (`woocommerce-*`)
+- `fluent-form-widget`
+- Other third-party Elementor widgets not explicitly researched
+
+#### Unsupported Elementor behavior
+
+- `html` controls
+- `shortcode` controls
+
+#### Architectural contract
+
+- Candidate B–style AIML metadata embedded in Elementor persistence (denied under current governance)
+- HTML/DOM scraping as translation identity or primary render path
+
+#### Performance / cache / security-privacy
+
+- No specific widget family proven deny-only for performance in A.R1; cache/language leakage is a **design gate** for any future support (not a per-widget deny row yet)
+- Security/privacy: fixtures/exports must remain sanitized; no translation of secrets or unrelated customer PII (operational deny)
+
+Source fallback: all deny-listed values remain **source**.
