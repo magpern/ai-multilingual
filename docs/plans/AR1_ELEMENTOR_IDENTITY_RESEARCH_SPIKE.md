@@ -1,21 +1,22 @@
 # A.R1 — Elementor Identity Research Spike
 
-**Status:** Planning complete — research **not started**  
+**Status:** Research execution **complete** — recommendation **CONDITIONAL GO** (see [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md))  
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.R1** (Research Spike)  
-**Baseline:** Platform **v1.0.0**; **P1 complete** ([validation log PASS](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md)); planning branch rooted at `5d224cd074a29695f116ace664001760296c5218`  
-**Planning branch:** `feature/ar1-elementor-identity-spike-plan`  
-**Research branch (after plan merge):** `feature/ar1-elementor-identity-spike` (create from updated `main`; do **not** run ER0–ER7 on the planning branch)  
-**Evidence log (reserved; create when ER0 begins):** `docs/plans/AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md` — **do not create until research starts**  
+**Baseline:** Platform **v1.0.0**; **P1 complete** ([validation log PASS](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md)); planning merged to `main` @ `b310190c4766696e6c42982bde4ffc76d435322c`  
+**Planning branch:** `feature/ar1-elementor-identity-spike-plan` (merged)  
+**Research branch:** `feature/ar1-elementor-identity`  
+**Evidence log:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md)  
 **ADR:** Not written in this milestone. Expected later: *Elementor identity and ownership model*.  
 **Elementor production implementation:** **Blocked**.  
 **A.2 Elementor Foundation:** **Blocked** until:
 
-1. ER0–ER7 are complete  
-2. Result is **GO** or **CONDITIONAL GO**  
+1. ER0–ER7 are complete — **done**  
+2. Result is **GO** or **CONDITIONAL GO** — **CONDITIONAL GO**  
 3. Required Elementor identity/ownership ADR is written  
 4. ADR is **explicitly Accepted**
 
-**This document authorizes research planning only.** It does **not** authorize Elementor production translation, extractors, adapters, renderers, migrations, REST, UI, schema changes, research prototypes, fixtures, or ADRs.
+**This research milestone does not authorize Elementor production translation.** A.2 coding remains blocked pending ADR acceptance.
+
 
 ---
 

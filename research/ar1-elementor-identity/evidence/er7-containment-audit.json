@@ -1,0 +1,16 @@
+{
+    "captured_at": "2026-08-06T19:10:47+00:00",
+    "checks": {
+        "research_dir_exists": true,
+        "acceptance_dir_exists": true,
+        "plugin_php_no_ar1_reference": true,
+        "main_php_no_ar1_reference": true,
+        "no_ar1_rest_route_registered": true,
+        "scripts_marked_experimental": true,
+        "no_schema_migration_in_research": true
+    },
+    "pass": true,
+    "zip_policy": "Research and acceptance/ar1-elementor paths must be excluded from production Release ZIPs (verify in packaging scripts before any release that includes this branch).",
+    "delete_dirs_restores_runtime": "Supported by evidence: research code is not loaded by Plugin.php; deleting research/ and acceptance/ar1-elementor/ leaves production bootstrap unchanged.",
+    "confidence": "proven by experiment"
+}
