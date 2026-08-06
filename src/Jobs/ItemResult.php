@@ -71,6 +71,13 @@ final class ItemResult {
 	public int $usage_tokens;
 
 	/**
+	 * Retry-After hint in seconds when retryable.
+	 *
+	 * @var int
+	 */
+	public int $retry_after_seconds;
+
+	/**
 	 * Human-readable skip reason for conflict/stale outcomes.
 	 *
 	 * @var string
@@ -89,6 +96,7 @@ final class ItemResult {
 	 * @param int    $usage_requests          Request units used.
 	 * @param int    $usage_tokens            Token units used.
 	 * @param string $skip_reason             Skip/stale reason when applicable.
+	 * @param int    $retry_after_seconds     Retry-After hint when retryable.
 	 */
 	public function __construct(
 		string $status,
@@ -99,7 +107,8 @@ final class ItemResult {
 		int $glossary_version_actual = 0,
 		int $usage_requests = 0,
 		int $usage_tokens = 0,
-		string $skip_reason = ''
+		string $skip_reason = '',
+		int $retry_after_seconds = 0
 	) {
 		$this->status                  = $status;
 		$this->result_code             = '' !== $result_code ? $result_code : $status;
@@ -110,6 +119,7 @@ final class ItemResult {
 		$this->usage_requests          = $usage_requests;
 		$this->usage_tokens            = $usage_tokens;
 		$this->skip_reason             = $skip_reason;
+		$this->retry_after_seconds     = max( 0, $retry_after_seconds );
 	}
 
 	/**
@@ -181,12 +191,14 @@ final class ItemResult {
 	 * @param string $error_code    Error code.
 	 * @param string $error_class   Error taxonomy.
 	 * @param string $error_message Bounded message.
+	 * @param int    $retry_after   Optional Retry-After seconds.
 	 */
 	public static function from_error(
 		string $status,
 		string $error_code,
 		string $error_class,
-		string $error_message
+		string $error_message,
+		int $retry_after = 0
 	): self {
 		return new self(
 			$status,
@@ -196,7 +208,9 @@ final class ItemResult {
 			self::bound_message( $error_message ),
 			0,
 			0,
-			0
+			0,
+			'',
+			$retry_after
 		);
 	}
 

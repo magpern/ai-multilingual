@@ -31,17 +31,27 @@ final class BackgroundTranslationBatchCoordinator {
 	private BackgroundTranslationJobRepository $job_repo;
 
 	/**
+	 * Action Scheduler health gate (J4).
+	 *
+	 * @var BackgroundTranslationScheduler|null
+	 */
+	private ?BackgroundTranslationScheduler $scheduler;
+
+	/**
 	 * Builds the batch coordinator.
 	 *
-	 * @param BackgroundTranslationJobService|null    $jobs     Job service.
-	 * @param BackgroundTranslationJobRepository|null $job_repo Job repository.
+	 * @param BackgroundTranslationJobService|null    $jobs      Job service.
+	 * @param BackgroundTranslationJobRepository|null $job_repo  Job repository.
+	 * @param BackgroundTranslationScheduler|null     $scheduler AS scheduler.
 	 */
 	public function __construct(
 		?BackgroundTranslationJobService $jobs = null,
-		?BackgroundTranslationJobRepository $job_repo = null
+		?BackgroundTranslationJobRepository $job_repo = null,
+		?BackgroundTranslationScheduler $scheduler = null
 	) {
-		$this->job_repo = $job_repo ?? new BackgroundTranslationJobRepository();
-		$this->jobs     = $jobs ?? new BackgroundTranslationJobService( $this->job_repo );
+		$this->job_repo  = $job_repo ?? new BackgroundTranslationJobRepository();
+		$this->jobs      = $jobs ?? new BackgroundTranslationJobService( $this->job_repo );
+		$this->scheduler = $scheduler;
 	}
 
 	/**
@@ -59,6 +69,16 @@ final class BackgroundTranslationBatchCoordinator {
 
 		if ( array() === $posts ) {
 			return new WP_Error( 'empty_workload', 'Bulk request requires at least one post.' );
+		}
+
+		if ( null !== $this->scheduler ) {
+			$health = $this->scheduler->health();
+			if ( empty( $health['available'] ) ) {
+				return new WP_Error(
+					'action_scheduler_unavailable',
+					(string) ( $health['message'] ?? 'Action Scheduler is not available.' )
+				);
+			}
 		}
 
 		$batch_id = $this->generate_batch_id();

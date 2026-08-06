@@ -23,11 +23,6 @@ final class BackgroundTranslationWorker {
 	public const MAX_ITEMS_PER_WAKE = 10;
 
 	/**
-	 * Maximum item attempts before terminal failure (plan §14; full policy in J4).
-	 */
-	private const MAX_ITEM_ATTEMPTS = 5;
-
-	/**
 	 * Job domain service.
 	 *
 	 * @var BackgroundTranslationJobService
@@ -70,14 +65,46 @@ final class BackgroundTranslationWorker {
 	private BackgroundTranslationItemProcessor $processor;
 
 	/**
+	 * Retry taxonomy and backoff.
+	 *
+	 * @var BackgroundTranslationRetryPolicy
+	 */
+	private BackgroundTranslationRetryPolicy $retry_policy;
+
+	/**
+	 * Runtime budget enforcement.
+	 *
+	 * @var BackgroundTranslationBudgetPolicy
+	 */
+	private BackgroundTranslationBudgetPolicy $budget;
+
+	/**
+	 * Action Scheduler wake scheduling.
+	 *
+	 * @var BackgroundTranslationScheduler|null
+	 */
+	private ?BackgroundTranslationScheduler $scheduler;
+
+	/**
+	 * Provider availability checks.
+	 *
+	 * @var BackgroundTranslationJobProviderValidator|null
+	 */
+	private ?BackgroundTranslationJobProviderValidator $provider_validator;
+
+	/**
 	 * Builds the worker.
 	 *
-	 * @param BackgroundTranslationItemProcessor       $processor  Item processor.
-	 * @param BackgroundTranslationJobService|null     $jobs       Job service.
-	 * @param BackgroundTranslationJobRepository|null  $job_repo   Job repository.
-	 * @param BackgroundTranslationItemRepository|null $items      Item repository.
-	 * @param JobLeaseService|null                     $leases     Lease service.
-	 * @param JobProgressReconciler|null               $reconciler Reconciler.
+	 * @param BackgroundTranslationItemProcessor             $processor           Item processor.
+	 * @param BackgroundTranslationJobService|null           $jobs                Job service.
+	 * @param BackgroundTranslationJobRepository|null        $job_repo            Job repository.
+	 * @param BackgroundTranslationItemRepository|null       $items               Item repository.
+	 * @param JobLeaseService|null                           $leases              Lease service.
+	 * @param JobProgressReconciler|null                     $reconciler          Reconciler.
+	 * @param BackgroundTranslationRetryPolicy|null          $retry_policy        Retry policy.
+	 * @param BackgroundTranslationBudgetPolicy|null         $budget              Budget policy.
+	 * @param BackgroundTranslationScheduler|null            $scheduler           AS scheduler.
+	 * @param BackgroundTranslationJobProviderValidator|null $provider_validator  Provider validator.
 	 */
 	public function __construct(
 		BackgroundTranslationItemProcessor $processor,
@@ -85,18 +112,31 @@ final class BackgroundTranslationWorker {
 		?BackgroundTranslationJobRepository $job_repo = null,
 		?BackgroundTranslationItemRepository $items = null,
 		?JobLeaseService $leases = null,
-		?JobProgressReconciler $reconciler = null
+		?JobProgressReconciler $reconciler = null,
+		?BackgroundTranslationRetryPolicy $retry_policy = null,
+		?BackgroundTranslationBudgetPolicy $budget = null,
+		?BackgroundTranslationScheduler $scheduler = null,
+		?BackgroundTranslationJobProviderValidator $provider_validator = null
 	) {
-		$this->processor  = $processor;
-		$this->job_repo   = $job_repo ?? new BackgroundTranslationJobRepository();
-		$this->items      = $items ?? new BackgroundTranslationItemRepository();
-		$this->leases     = $leases ?? new JobLeaseService( $this->job_repo, $this->items );
-		$this->reconciler = $reconciler ?? new JobProgressReconciler( $this->job_repo, $this->items );
-		$this->jobs       = $jobs ?? new BackgroundTranslationJobService(
+		$this->processor          = $processor;
+		$this->job_repo           = $job_repo ?? new BackgroundTranslationJobRepository();
+		$this->items              = $items ?? new BackgroundTranslationItemRepository();
+		$this->leases             = $leases ?? new JobLeaseService( $this->job_repo, $this->items );
+		$this->reconciler         = $reconciler ?? new JobProgressReconciler( $this->job_repo, $this->items );
+		$this->retry_policy       = $retry_policy ?? new BackgroundTranslationRetryPolicy();
+		$this->budget             = $budget ?? new BackgroundTranslationBudgetPolicy( $this->job_repo );
+		$this->scheduler          = $scheduler;
+		$this->provider_validator = $provider_validator;
+		$this->jobs               = $jobs ?? new BackgroundTranslationJobService(
 			$this->job_repo,
 			$this->items,
 			$this->leases,
-			$this->reconciler
+			$this->reconciler,
+			null,
+			null,
+			$scheduler,
+			$this->budget,
+			$provider_validator
 		);
 	}
 
@@ -130,6 +170,18 @@ final class BackgroundTranslationWorker {
 		}
 
 		$job = $lease_check;
+
+		if ( null !== $this->provider_validator && ! $this->provider_validator->is_provider_available( $job ) ) {
+			$paused = $this->jobs->pause_for_orchestration_error(
+				$job_id,
+				'provider_unavailable',
+				'Job provider is not available for execution.',
+				'permanent'
+			);
+			$this->leases->release( $job_id, $owner_token );
+
+			return is_wp_error( $paused ) ? $paused : $paused;
+		}
 
 		$post = get_post( (int) $job->source_id );
 		if ( ! $post instanceof WP_Post ) {
@@ -166,13 +218,33 @@ final class BackgroundTranslationWorker {
 				return $boundary;
 			}
 
+			$fresh_job = $this->job_repo->find( $job_id );
+			if ( null === $fresh_job ) {
+				return new WP_Error( 'job_not_found', 'Job not found.' );
+			}
+
+			if ( ! $this->has_claimable_items( $job_id ) ) {
+				break;
+			}
+
+			if ( ! $this->budget->can_claim_next( $fresh_job ) ) {
+				$paused = $this->jobs->pause_for_orchestration_error(
+					$job_id,
+					'budget_exceeded',
+					'Job budget hard limit reached before next item.',
+					'permanent'
+				);
+
+				return is_wp_error( $paused ) ? $paused : $paused;
+			}
+
 			$item = $this->items->claim_next( $job_id );
 			if ( null === $item ) {
 				break;
 			}
 
-			$result = $this->processor->process( $job, $item, $post );
-			$this->record_item_result( (int) $item->item_id, $result );
+			$result = $this->processor->process( $fresh_job, $item, $post );
+			$this->record_item_result( $job_id, (int) $item->item_id, $result );
 
 			$this->reconciler->reconcile( $job_id );
 			$this->leases->heartbeat( $job_id, $owner_token );
@@ -252,18 +324,45 @@ final class BackgroundTranslationWorker {
 	/**
 	 * Persist item outcome from ItemResult.
 	 *
+	 * @param int        $job_id  Job id.
 	 * @param int        $item_id Item id.
 	 * @param ItemResult $result  Processor outcome.
 	 */
-	private function record_item_result( int $item_id, ItemResult $result ): void {
-		$item   = $this->items->find( $item_id );
-		$status = $result->status;
+	private function record_item_result( int $job_id, int $item_id, ItemResult $result ): void {
+		$item         = $this->items->find( $item_id );
+		$attempts     = null !== $item ? (int) ( $item->attempt_count ?? 0 ) : 0;
+		$status       = $result->status;
+		$record_usage = ItemStatuses::COMPLETED === $status;
 
 		if ( ItemStatuses::RETRY_WAIT === $status ) {
-			$attempts = null !== $item ? (int) ( $item->attempt_count ?? 0 ) : 0;
-			if ( $attempts >= self::MAX_ITEM_ATTEMPTS ) {
+			if ( ! $this->retry_policy->should_retry( $attempts ) ) {
 				$status = ItemStatuses::FAILED;
 			}
+		}
+
+		if ( $record_usage ) {
+			$usage = $this->budget->record_usage(
+				$job_id,
+				$result->usage_requests,
+				$result->usage_tokens
+			);
+			if ( is_wp_error( $usage ) ) {
+				$this->jobs->pause_for_orchestration_error(
+					$job_id,
+					'budget_exceeded',
+					'Failed to record job budget usage.',
+					'permanent'
+				);
+			}
+		}
+
+		if ( ItemStatuses::RETRY_WAIT === $status && $result->is_retryable() ) {
+			$delay = $this->retry_policy->delay_seconds( $attempts, $result->retry_after_seconds );
+			if ( null !== $this->scheduler ) {
+				$this->scheduler->enqueue_job_delayed( $job_id, $delay );
+			}
+
+			$this->maybe_transition_job_retry_wait( $job_id );
 		}
 
 		$fields = array(
@@ -282,6 +381,34 @@ final class BackgroundTranslationWorker {
 		}
 
 		$this->items->update( $item_id, $fields );
+	}
+
+	/**
+	 * Transition running job to retry_wait when an item enters backoff.
+	 *
+	 * @param int $job_id Job id.
+	 */
+	private function maybe_transition_job_retry_wait( int $job_id ): void {
+		$job = $this->job_repo->find( $job_id );
+		if ( null === $job ) {
+			return;
+		}
+
+		if ( JobStatuses::RUNNING !== (string) $job->status ) {
+			return;
+		}
+
+		$valid = JobTransitionPolicy::validate_transition( JobStatuses::RUNNING, JobStatuses::RETRY_WAIT );
+		if ( is_wp_error( $valid ) ) {
+			return;
+		}
+
+		$this->job_repo->update(
+			$job_id,
+			array(
+				'status' => JobStatuses::RETRY_WAIT,
+			)
+		);
 	}
 
 	/**

@@ -79,3 +79,41 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 		return json_encode( $data, $options, $depth );
 	}
 }
+
+if ( ! function_exists( 'wp_rand' ) ) {
+	/**
+	 * Deterministic jitter stub for unit tests.
+	 *
+	 * @param int $min Minimum.
+	 * @param int $max Maximum.
+	 */
+	function wp_rand( $min = 0, $max = 0 ) {
+		return (int) $min;
+	}
+}
+
+if ( ! function_exists( 'do_action' ) ) {
+	/**
+	 * @param string $hook Hook name.
+	 * @param mixed  ...$args Hook arguments.
+	 */
+	function do_action( $hook, ...$args ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	}
+}
+
+if ( ! function_exists( 'add_action' ) ) {
+	/**
+	 * @param string   $hook     Hook name.
+	 * @param callable $callback Callback.
+	 * @param int      $priority Priority.
+	 * @param int      $args     Accepted args.
+	 * @return true
+	 */
+	function add_action( $hook, $callback, $priority = 10, $args = 1 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		if ( is_callable( $callback ) ) {
+			call_user_func( $callback );
+		}
+
+		return true;
+	}
+}

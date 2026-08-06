@@ -51,23 +51,33 @@ final class BackgroundTranslationItemProcessor {
 	private SegmentAssembler $assembler;
 
 	/**
+	 * Retry taxonomy for translate errors.
+	 *
+	 * @var BackgroundTranslationRetryPolicy
+	 */
+	private BackgroundTranslationRetryPolicy $retry_policy;
+
+	/**
 	 * Builds the processor.
 	 *
-	 * @param Store              $store       Segment store.
-	 * @param TranslationService $translation Translation boundary.
-	 * @param GlossaryService    $glossary    Glossary service.
-	 * @param SegmentAssembler   $assembler   Segment assembler.
+	 * @param Store                                 $store        Segment store.
+	 * @param TranslationService                    $translation  Translation boundary.
+	 * @param GlossaryService                       $glossary     Glossary service.
+	 * @param SegmentAssembler                      $assembler    Segment assembler.
+	 * @param BackgroundTranslationRetryPolicy|null $retry_policy Retry policy.
 	 */
 	public function __construct(
 		Store $store,
 		TranslationService $translation,
 		GlossaryService $glossary,
-		SegmentAssembler $assembler
+		SegmentAssembler $assembler,
+		?BackgroundTranslationRetryPolicy $retry_policy = null
 	) {
-		$this->store       = $store;
-		$this->translation = $translation;
-		$this->glossary    = $glossary;
-		$this->assembler   = $assembler;
+		$this->store        = $store;
+		$this->translation  = $translation;
+		$this->glossary     = $glossary;
+		$this->assembler    = $assembler;
+		$this->retry_policy = $retry_policy ?? new BackgroundTranslationRetryPolicy();
 	}
 
 	/**
@@ -182,37 +192,19 @@ final class BackgroundTranslationItemProcessor {
 	private function map_translate_error( WP_Error $error ): ItemResult {
 		$code    = (string) $error->get_error_code();
 		$message = (string) $error->get_error_message();
-		$class   = $this->classify_error( $code, $error );
+		$data    = $error->get_error_data();
+		$http    = is_array( $data ) ? (int) ( $data['status'] ?? 0 ) : 0;
+		$retry   = is_array( $data ) ? (int) ( $data['retry_after'] ?? 0 ) : 0;
+
+		$disposition = $this->retry_policy->classify( $code, $http > 0 ? $http : null );
+		$class       = BackgroundTranslationRetryPolicy::DISPOSITION_RETRYABLE === $disposition
+			? ProviderResult::ERROR_RETRYABLE
+			: ProviderResult::ERROR_PERMANENT;
 
 		$status = ProviderResult::ERROR_RETRYABLE === $class
 			? ItemStatuses::RETRY_WAIT
 			: ItemStatuses::FAILED;
 
-		return ItemResult::from_error( $status, $code, $class, $message );
-	}
-
-	/**
-	 * Minimal retry taxonomy stub (full RetryPolicy arrives in J4).
-	 *
-	 * @param string   $code  Error code.
-	 * @param WP_Error $error Full error for data inspection.
-	 */
-	private function classify_error( string $code, WP_Error $error ): string {
-		$data = $error->get_error_data();
-		$http = is_array( $data ) ? (int) ( $data['status'] ?? 0 ) : 0;
-
-		if ( in_array( $code, array( 'aiml_rate_limited', 'http_request_failed' ), true ) ) {
-			return ProviderResult::ERROR_RETRYABLE;
-		}
-
-		if ( $http >= 500 && $http < 600 ) {
-			return ProviderResult::ERROR_RETRYABLE;
-		}
-
-		if ( in_array( $code, array( 'aiml_invalid_segment', 'aiml_invalid_language' ), true ) ) {
-			return ProviderResult::ERROR_PERMANENT;
-		}
-
-		return ProviderResult::ERROR_PERMANENT;
+		return ItemResult::from_error( $status, $code, $class, $message, $retry );
 	}
 }

@@ -348,6 +348,52 @@ final class BackgroundTranslationJobRepository {
 	}
 
 	/**
+	 * Atomically increment budget usage counters.
+	 *
+	 * @param int $job_id   Job id.
+	 * @param int $requests Request units to add.
+	 * @param int $tokens   Token units to add.
+	 * @return object|WP_Error
+	 */
+	public function increment_budget_usage( int $job_id, int $requests, int $tokens ) {
+		global $wpdb;
+
+		$requests = max( 0, $requests );
+		$tokens   = max( 0, $tokens );
+		$now      = current_time( 'mysql', true );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$updated = $wpdb->query(
+			$wpdb->prepare(
+				'UPDATE ' . Schema::jobs() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' SET budget_used_requests = budget_used_requests + %d,'
+				. ' budget_used_tokens = budget_used_tokens + %d,'
+				. ' updated_at = %s'
+				. ' WHERE job_id = %d',
+				$requests,
+				$tokens,
+				$now,
+				$job_id
+			)
+		);
+
+		if ( false === $updated ) {
+			return new WP_Error( 'job_budget_update_failed', 'Failed to record job budget usage.' );
+		}
+
+		if ( 0 === $updated ) {
+			return new WP_Error( 'job_not_found', 'Job not found.' );
+		}
+
+		$job = $this->find( $job_id );
+		if ( null === $job ) {
+			return new WP_Error( 'job_not_found', 'Job not found.' );
+		}
+
+		return $job;
+	}
+
+	/**
 	 * Update a job row.
 	 *
 	 * @param int                  $job_id Job id.

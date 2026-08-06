@@ -62,14 +62,38 @@ final class BackgroundTranslationJobService {
 	private ?SegmentAssembler $assembler;
 
 	/**
+	 * Action Scheduler health gate (J4).
+	 *
+	 * @var BackgroundTranslationScheduler|null
+	 */
+	private ?BackgroundTranslationScheduler $scheduler;
+
+	/**
+	 * Create-time budget preflight (J4).
+	 *
+	 * @var BackgroundTranslationBudgetPolicy|null
+	 */
+	private ?BackgroundTranslationBudgetPolicy $budget;
+
+	/**
+	 * Provider availability at create (J4).
+	 *
+	 * @var BackgroundTranslationJobProviderValidator|null
+	 */
+	private ?BackgroundTranslationJobProviderValidator $provider_validator;
+
+	/**
 	 * Builds the job service.
 	 *
-	 * @param BackgroundTranslationJobRepository|null  $jobs       Job repository.
-	 * @param BackgroundTranslationItemRepository|null $items      Item repository.
-	 * @param JobLeaseService|null                     $leases     Lease service.
-	 * @param JobProgressReconciler|null               $reconciler Progress reconciler.
-	 * @param Store|null                               $store      Segment store.
-	 * @param SegmentAssembler|null                    $assembler  Segment assembler.
+	 * @param BackgroundTranslationJobRepository|null        $jobs                Job repository.
+	 * @param BackgroundTranslationItemRepository|null       $items               Item repository.
+	 * @param JobLeaseService|null                           $leases              Lease service.
+	 * @param JobProgressReconciler|null                     $reconciler          Progress reconciler.
+	 * @param Store|null                                     $store               Segment store.
+	 * @param SegmentAssembler|null                          $assembler           Segment assembler.
+	 * @param BackgroundTranslationScheduler|null            $scheduler           AS scheduler.
+	 * @param BackgroundTranslationBudgetPolicy|null         $budget              Budget policy.
+	 * @param BackgroundTranslationJobProviderValidator|null $provider_validator  Provider validator.
 	 */
 	public function __construct(
 		?BackgroundTranslationJobRepository $jobs = null,
@@ -77,14 +101,20 @@ final class BackgroundTranslationJobService {
 		?JobLeaseService $leases = null,
 		?JobProgressReconciler $reconciler = null,
 		?Store $store = null,
-		?SegmentAssembler $assembler = null
+		?SegmentAssembler $assembler = null,
+		?BackgroundTranslationScheduler $scheduler = null,
+		?BackgroundTranslationBudgetPolicy $budget = null,
+		?BackgroundTranslationJobProviderValidator $provider_validator = null
 	) {
-		$this->jobs       = $jobs ?? new BackgroundTranslationJobRepository();
-		$this->items      = $items ?? new BackgroundTranslationItemRepository();
-		$this->leases     = $leases ?? new JobLeaseService( $this->jobs, $this->items );
-		$this->reconciler = $reconciler ?? new JobProgressReconciler( $this->jobs, $this->items );
-		$this->store      = $store;
-		$this->assembler  = $assembler;
+		$this->jobs               = $jobs ?? new BackgroundTranslationJobRepository();
+		$this->items              = $items ?? new BackgroundTranslationItemRepository();
+		$this->leases             = $leases ?? new JobLeaseService( $this->jobs, $this->items );
+		$this->reconciler         = $reconciler ?? new JobProgressReconciler( $this->jobs, $this->items );
+		$this->store              = $store;
+		$this->assembler          = $assembler;
+		$this->scheduler          = $scheduler;
+		$this->budget             = $budget ?? new BackgroundTranslationBudgetPolicy( $this->jobs );
+		$this->provider_validator = $provider_validator;
 	}
 
 	/**
@@ -104,6 +134,16 @@ final class BackgroundTranslationJobService {
 			return $validation;
 		}
 
+		if ( null !== $this->scheduler ) {
+			$health = $this->scheduler->health();
+			if ( empty( $health['available'] ) ) {
+				return new WP_Error(
+					'action_scheduler_unavailable',
+					(string) ( $health['message'] ?? 'Action Scheduler is not available.' )
+				);
+			}
+		}
+
 		$job_type = (string) $args['job_type'];
 		$segments = $this->resolve_segment_keys( $args, $job_type );
 		if ( is_wp_error( $segments ) ) {
@@ -112,6 +152,22 @@ final class BackgroundTranslationJobService {
 
 		if ( array() === $segments ) {
 			return new WP_Error( 'empty_workload', 'No segments to materialize for this job.' );
+		}
+
+		if ( null !== $this->budget ) {
+			$preflight = $this->budget->preflight( $args, count( $segments ) );
+			if ( is_wp_error( $preflight ) ) {
+				return $preflight;
+			}
+		}
+
+		if ( null !== $this->provider_validator && ! empty( $args['provider_id'] ) ) {
+			$probe = (object) array(
+				'provider_id' => (string) $args['provider_id'],
+			);
+			if ( ! $this->provider_validator->is_provider_available( $probe ) ) {
+				return new WP_Error( 'provider_unavailable', 'Configured provider is not available.' );
+			}
 		}
 
 		$idempotency = $this->resolve_idempotency_key( $args );
@@ -169,6 +225,9 @@ final class BackgroundTranslationJobService {
 			'prompt_version'            => (string) ( $args['prompt_version'] ?? '' ),
 			'provider_config_fp'        => (string) ( $args['provider_config_fp'] ?? '' ),
 			'glossary_version_intended' => (int) ( $args['glossary_version_intended'] ?? 0 ),
+			'budget_max_requests'       => (int) ( $args['budget_max_requests'] ?? 0 ),
+			'budget_max_tokens'         => (int) ( $args['budget_max_tokens'] ?? 0 ),
+			'budget_warning_pct'        => (int) ( $args['budget_warning_pct'] ?? 80 ),
 			'created_by'                => (int) ( $args['created_by'] ?? 0 ),
 		);
 
@@ -267,6 +326,53 @@ final class BackgroundTranslationJobService {
 		);
 
 		return is_wp_error( $updated ) ? $updated : $updated;
+	}
+
+	/**
+	 * Pause a non-terminal job with orchestration error metadata (budget/provider).
+	 *
+	 * @param int    $job_id      Job id.
+	 * @param string $error_code  Stable error code.
+	 * @param string $message     Bounded operator message.
+	 * @param string $error_class Error class (retryable|permanent).
+	 * @return object|WP_Error
+	 */
+	public function pause_for_orchestration_error(
+		int $job_id,
+		string $error_code,
+		string $message,
+		string $error_class = 'permanent'
+	) {
+		$job = $this->jobs->find( $job_id );
+		if ( null === $job ) {
+			return new WP_Error( 'job_not_found', 'Job not found.' );
+		}
+
+		if ( JobStatuses::is_terminal( (string) $job->status ) ) {
+			return $job;
+		}
+
+		if ( JobStatuses::PAUSED === (string) $job->status ) {
+			return $this->jobs->update(
+				$job_id,
+				array(
+					'last_error_code'    => $error_code,
+					'last_error_class'   => $error_class,
+					'last_error_message' => $message,
+				)
+			);
+		}
+
+		return $this->transition_job(
+			$job_id,
+			JobTransitionPolicy::pause_target(),
+			array(
+				'requested_action'   => RequestedActions::NONE,
+				'last_error_code'    => $error_code,
+				'last_error_class'   => $error_class,
+				'last_error_message' => $message,
+			)
+		);
 	}
 
 	/**
