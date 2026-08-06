@@ -1,7 +1,7 @@
 # Background Translation Jobs — Implementation Plan
 
-**Status:** **J0–J8 complete** — ADR-0011 amendment **Accepted**; validation log **PASS** (interactive UI smoke recommended before merge)  
-**Branch:** `feature/background-translation-jobs`  
+**Status:** **Completed / merged / tagged** — ADR-0011 amendment **Accepted**; validation log **PASS**; tag `background-translation-jobs-complete`  
+**Branch:** merged from `feature/background-translation-jobs` into `main`  
 **Baseline:** `main` after Jobs planning merge (`3f7341a31`)  
 **ADR:** [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) — **Amended ADR Accepted** (Gate A)  
 **Validation log:** [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md)  
@@ -17,7 +17,7 @@
 **J5 status:** **PASS** — Jobs REST/CLI, capabilities, ViewModels; permission matrix, 409 idempotency, AS 503, post-level auth; phpcs + Jobs-filtered PHPUnit green.
 **J6 status:** **PASS** — Translator Workspace extended with Jobs tab (capability-aware), list/progress/actions, create dialog, batch summary, bounded errors, AS/provider health banner; Jest + webpack build green.
 **J7 status:** **PASS** — Audit hook `aiml_translation_job_audit` with stable event names; bounded diagnostics + `GET /jobs/diagnostics`; retention cleanup in sweep (30d completed / 90d failed-cancelled, bounded, no active/leased delete); runbook `docs/ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md`; unit + integration tests green.
-**J8 status:** **PASS** — Tier 0 validation green; see [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md). Live browser smoke **PENDING deploy checklist**.
+**J8 status:** **PASS** — Tier 0 + live REST smoke 35/35 + browser Jobs UI; see [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md).  
 **Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance

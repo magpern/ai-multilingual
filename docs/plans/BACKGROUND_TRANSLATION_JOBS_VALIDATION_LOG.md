@@ -10,6 +10,7 @@ Operational acceptance record for **Background Translation Jobs**
 | Repo host | `/opt/biopentra/dev/ai-multilingual` (Docker-only test tooling; no host PHP/Composer/Node) |
 | Branch | `feature/background-translation-jobs` |
 | Planning merge | `main` @ `3f7341a31` |
+| Pre-merge HEAD (implementation) | `0c26edcc5` then `e10eabe30` (pause observe fix) |
 | ADR-0011 amendment | **Accepted** Gate A (2026-08-06) |
 | Plugin | AI Multilingual (`AIML_VERSION`) |
 | PHP (unit/PHPCS) | `8.3` (`php:8.3-cli`) |
@@ -18,6 +19,7 @@ Operational acceptance record for **Background Translation Jobs**
 | WooCommerce (integration) | `10.9.4` (Action Scheduler bundled) |
 | DB (integration) | `mariadb:11.4` on `aiml-test` internal Docker network |
 | Node (frontend) | `node:20` |
+| Live site | `https://dev.biopentra.eu` |
 
 ## Entry gate (J0)
 
@@ -40,20 +42,61 @@ Operational acceptance record for **Background Translation Jobs**
 | J5 | **PASS** | REST, CLI, capabilities, ViewModels |
 | J6 | **PASS** | Workspace Jobs UI |
 | J7 | **PASS** | Audit, diagnostics, retention, runbook |
-| J8 | **PASS** | Full Tier 0 validation (this log) |
+| J8 | **PASS** | Full Tier 0 + live smoke (this log) |
 
-## Tier 0 validation
+## Tier 0 validation (final pre-merge)
 
 | Gate | Command / method | Result |
 |---|---|---|
-| PHPUnit unit | `php:8.3-cli vendor/bin/phpunit -c phpunit.xml.dist` | **PASS** — 448 tests, 1048 assertions (2 skipped, NFC without `intl`) |
-| PHPUnit integration | `aiml-test-runner` + `mariadb:11.4` | **PASS** — PluginGuard + Jobs filter 87 tests / 7870 assertions; full suite previously 503 with 2 PluginGuard failures fixed then revalidated via PluginGuard+Jobs |
-| PHPCS | `vendor/bin/phpcs` | **PASS** — 0 errors (warnings ignored per `ignore_warnings_on_exit`) |
-| Jest | `node:20 npm test -- --watchAll=false` in `assets/translator-workspace` | **PASS** — 7 suites, 58 tests |
-| Webpack | `node:20 npm run build` | **PASS** — compiled successfully |
-| PluginGuard | Integration `PluginGuardTest` (Jobs repos + JobsController allowlisted) | **PASS** |
+| PHPUnit unit | `php:8.3-cli vendor/bin/phpunit -c phpunit.xml.dist` | **PASS** — 448 tests, 1048 assertions (2 skipped) |
+| PHPUnit integration | `aiml-test-runner` + `mariadb:11.4` | **PASS** — 503 tests, 10365 assertions (2 skipped) |
+| Jobs filter | `--filter Jobs` | **PASS** — 70 tests, 428 assertions |
+| PHPCS | `vendor/bin/phpcs` | **PASS** — 0 errors |
+| TypeScript | `npx tsc --noEmit` in `assets/translator-workspace` | **PASS** |
+| Jest | `npm test -- --watchAll=false` | **PASS** — 7 suites, 58 tests |
+| Webpack | `npm run build` | **PASS** — compiled successfully |
+| PluginGuard | Included in full integration suite | **PASS** |
 | `git diff --check` | whitespace | **PASS** |
-| Markdown links | Jobs plan, ADR-0011, ROADMAP, runbook | **PASS** — 64 relative links, 0 missing |
+| Markdown links | Jobs plan, ADR-0011, ROADMAP, POST_V1, runbook, validation log | **PASS** — 58 relative links, 0 missing |
+
+## Live interactive / REST smoke (`dev.biopentra.eu`)
+
+Runner: `acceptance/jobs/smoke-dev.php` via WP-CLI `wp eval-file`.
+
+| Check | Result |
+|---|---|
+| Schema target 6 + tables | **PASS** |
+| Capabilities grant | **PASS** |
+| AS health | **PASS** |
+| REST health / diagnostics / list | **PASS** |
+| Create translate_missing + idempotency | **PASS** |
+| Run sync + progress | **PASS** (provider unavailable → failed as expected without configured provider on job) |
+| Create translate_selected | **PASS** |
+| Pause → paused → resume → cancel | **PASS** (after pause observe-at-boundary fix) |
+| Retry-failed endpoint | **PASS** (409 when no failed items) |
+| Bulk create + batch status | **PASS** |
+| Capability denial (subscriber) | **PASS** (403) |
+| Store / TM / Glossary / Review tables intact | **PASS** |
+| Audit privacy + created event | **PASS** |
+| Cleanup retention run | **PASS** |
+| Smoke summary | **35/35 PASS** |
+
+### Browser Workspace Jobs UI
+
+| Check | Result |
+|---|---|
+| Translator Workspace loads | **PASS** |
+| Jobs tab present with Translate + Review | **PASS** |
+| AS health banner | **PASS** — “Action Scheduler is available.” |
+| Filters (status / language / batch) + Refresh + Create job | **PASS** |
+| Batch grouping visible | **PASS** |
+| Review queue tab still loads | **PASS** |
+| Public `/sv/` HTTP 200, no fatal | **PASS** |
+| Rendered false positives | **PASS** — 0 |
+
+## Pre-merge fix included
+
+`POST /jobs/{id}/pause` and `wp aiml jobs pause` now observe `requested_action` at the operator boundary (same pattern as cancel). Lease claim requires `requested_action=none`, so queued pause requests previously never reached `paused` and resume returned 409.
 
 ## Architecture invariants (spot checks)
 
@@ -61,45 +104,21 @@ Operational acceptance record for **Background Translation Jobs**
 |---|---|
 | No second translation pipeline | **PASS** — ItemProcessor → TranslationService only |
 | Job storage orchestration only | **PASS** — JobCheckpoint forbid bodies/prompts |
-| No auto-approval | **PASS** — conflict/processor tests |
-| No worker TM write-back | **PASS** — processor never calls TM |
+| No auto-approval | **PASS** |
+| No worker TM write-back | **PASS** |
 | Review/Glossary ownership preserved | **PASS** |
-| AS unavailable rejects create | **PASS** — 503 / WP_Error |
-| Frontend independence | **PASS** — no BlockRenderGate/Jobs coupling |
-| Schema additive v5→v6 | **PASS** — Store/TM/Glossary/Review unchanged |
-
-## Live browser / deploy smoke
-
-| Check | Result |
-|---|---|
-| Schema migrate on `dev.biopentra.eu` | **PASS** — `aiml_db_version` 5→6; `aiml_jobs` / `aiml_job_items` present |
-| Action Scheduler health | **PASS** — `GET /aiml/v1/jobs/health` → 200 `{available:true}` |
-| Diagnostics route | **PASS** — `GET /aiml/v1/jobs/diagnostics` → 200 with bounded aggregate keys |
-| Capability grant | **PASS** — default roles granted via `JobsCapabilities::grant_default_roles()` |
-| Full UI create/pause/cancel browser smoke | **PARTIAL** — REST health/diagnostics verified via WP-CLI REST dispatch; interactive Workspace Jobs tab browser checklist still recommended before merge |
-| Rendered false positives | **PASS (architecture)** — no Jobs coupling in render path; frontend independent of AS/job failures |
-
-Documented residual manual checklist before merge:
-
-1. Open Translator Workspace → Jobs tab
-2. Create each job type within bounds
-3. Pause / resume / cancel / retry-failed
-4. Confirm machine_translated + not_submitted; no TM write
-5. Spot-check a published `/sv/` page still renders (FP=0)
+| AS unavailable rejects create | **PASS** |
+| Frontend independence | **PASS** |
+| Schema additive v5→v6 | **PASS** |
 
 ## Residual limitations / debt
 
-- Live browser smoke deferred until branch is deployed to `dev.biopentra.eu`
 - `ai_usage` billing table deferred (job budget counters sufficient for MVP)
 - Provider health object on `/jobs/health` remains AS-primary; provider validated at create/execute
 - Duplicate-key WordPress notices during intentional conflict tests are expected noise
+- Full provider-success path on live depends on configured provider credentials for the job
 
 ## Closure
 
-- Branch remains `feature/background-translation-jobs`
-- **Do not merge / tag in this step** — await PO merge readiness after optional deploy smoke
-- Recommended future tag after merge: `background-translation-jobs-complete`
-
-## Exact next step
-
-Interactive Workspace Jobs UI smoke on `dev.biopentra.eu`, then merge to `main` and tag when smoke is green.
+- Merged to `main` and tagged `background-translation-jobs-complete` (see Phase 4 of release report)
+- Platform v1 product track (Glossary + Review + Background Jobs) complete for controlled production deployment
