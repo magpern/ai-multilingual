@@ -55,20 +55,25 @@ foreach ( array_keys( $aiml_roles->roles ) as $aiml_role_name ) {
 \AIMultilingual\Glossary\GlossaryCapabilities::revoke_all_roles();
 \AIMultilingual\Workspace\Review\ReviewCapabilities::revoke_all_roles();
 
-// 3. Plugin options. Glossary lexicon version (ADR-0014) and cache epoch.
-// Milestone 3 may also unschedule aiml_run_job / aiml_jobs_sweep actions before this point.
+// 3. Action Scheduler callbacks (J4 registers these; safe no-op when AS absent).
+if ( function_exists( 'as_unschedule_all_actions' ) ) {
+	as_unschedule_all_actions( 'aiml_run_job' );
+	as_unschedule_all_actions( 'aiml_jobs_sweep' );
+}
+
+// 4. Plugin options. Glossary lexicon version (ADR-0014) and cache epoch.
 delete_option( \AIMultilingual\Settings::OPTION );
 delete_option( \AIMultilingual\Database\Migrator::OPTION );
 delete_option( \AIMultilingual\Cache\Cache::VERSION_OPTION );
 delete_option( \AIMultilingual\Database\Schema::GLOSSARY_VERSION_OPTION );
 
-// 4. Plugin-owned tables (translations includes Review Workflow columns from
-// schema v5; no separate review/queue tables exist — ADR-0015).
+// 5. Plugin-owned tables (translations includes Review Workflow columns from
+// schema v5; jobs tables from schema v6 — ADR-0011).
 foreach ( \AIMultilingual\Database\Schema::all_tables() as $aiml_table ) {
 	$wpdb->query( 'DROP TABLE IF EXISTS ' . $aiml_table ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 }
 
-// 5. Drop anything this plugin left in the object cache. Group flushing is
+// 6. Drop anything this plugin left in the object cache. Group flushing is
 // optional in the object-cache API, so fall back to leaving the entries to
 // expire: they are unreachable once the tables and version counters are gone.
 if ( function_exists( 'wp_cache_supports' ) && wp_cache_supports( 'flush_group' ) ) {

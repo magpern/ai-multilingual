@@ -8,7 +8,8 @@
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md)
 
 **Production schema today:** Migrator `TARGET = 5` until J1 lands additive step **6**.  
-**J0 gate:** **PASS** — Amended ADR-0011 Accepted — J1 authorized.  
+**J0 gate:** **PASS** — Amended ADR-0011 Accepted — J1 authorized.
+**J1 status:** **PASS** — Migrator `TARGET=6`; `aiml_jobs` + `aiml_job_items`; repositories + JobCheckpoint.
 **Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance

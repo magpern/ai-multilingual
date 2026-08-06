@@ -28,6 +28,8 @@ final class Schema {
 	public const TM            = 'aiml_tm';
 	public const METRICS_DAILY = 'aiml_metrics_daily';
 	public const GLOSSARY      = 'aiml_glossary';
+	public const JOBS          = 'aiml_jobs';
+	public const JOB_ITEMS     = 'aiml_job_items';
 
 	/**
 	 * Option holding the monotonic glossary lexicon version (ADR-0014).
@@ -81,12 +83,28 @@ final class Schema {
 	}
 
 	/**
+	 * Fully qualified `aiml_jobs` table name.
+	 */
+	public static function jobs(): string {
+		return self::table( self::JOBS );
+	}
+
+	/**
+	 * Fully qualified `aiml_job_items` table name.
+	 */
+	public static function job_items(): string {
+		return self::table( self::JOB_ITEMS );
+	}
+
+	/**
 	 * Every table this plugin owns, in drop-safe order.
 	 *
 	 * @return string[]
 	 */
 	public static function all_tables(): array {
 		return array(
+			self::job_items(),
+			self::jobs(),
 			self::translations(),
 			self::tm(),
 			self::metrics_daily(),
@@ -329,6 +347,98 @@ final class Schema {
 			UNIQUE KEY glossary_identity (source_lang_id, target_lang_id, source_term_normalized),
 			KEY glossary_pair_active (source_lang_id, target_lang_id, is_active),
 			KEY glossary_updated (updated_at)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for background translation job aggregates (ADR-0011 / Jobs J1).
+	 *
+	 * Orchestration state only — no translation bodies or prompts. Language IDs
+	 * are validated in PHP; no SQL FOREIGN KEY (plugin convention).
+	 */
+	public static function create_jobs(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::jobs() . " (
+			job_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			job_type VARCHAR(32) NOT NULL,
+			status VARCHAR(32) NOT NULL DEFAULT 'queued',
+			requested_action VARCHAR(16) NOT NULL DEFAULT 'none',
+			batch_id VARCHAR(36) NULL,
+			idempotency_key VARCHAR(64) NOT NULL,
+			source_type VARCHAR(20) NOT NULL DEFAULT '',
+			source_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			language_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			lock_key VARCHAR(191) NOT NULL DEFAULT '',
+			active_lock_key VARCHAR(191) NULL,
+			lease_owner VARCHAR(64) NOT NULL DEFAULT '',
+			lease_expires_at DATETIME NULL,
+			lease_heartbeat_at DATETIME NULL,
+			stage VARCHAR(32) NOT NULL DEFAULT '',
+			checkpoint TEXT NULL,
+			provider_id VARCHAR(32) NOT NULL DEFAULT '',
+			prompt_profile VARCHAR(32) NOT NULL DEFAULT '',
+			prompt_version VARCHAR(16) NOT NULL DEFAULT '',
+			provider_config_fp VARCHAR(64) NOT NULL DEFAULT '',
+			glossary_version_intended INT UNSIGNED NOT NULL DEFAULT 0,
+			glossary_version_actual INT UNSIGNED NOT NULL DEFAULT 0,
+			total_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			queued_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			running_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			completed_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			failed_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			skipped_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			stale_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			cancelled_items BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			budget_max_requests BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			budget_max_tokens BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			budget_used_requests BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			budget_used_tokens BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			budget_warning_pct TINYINT UNSIGNED NOT NULL DEFAULT 80,
+			attempt_count INT UNSIGNED NOT NULL DEFAULT 0,
+			last_error_code VARCHAR(32) NOT NULL DEFAULT '',
+			last_error_class VARCHAR(24) NOT NULL DEFAULT '',
+			last_error_message VARCHAR(500) NOT NULL DEFAULT '',
+			created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			started_at DATETIME NULL,
+			finished_at DATETIME NULL,
+			PRIMARY KEY (job_id),
+			UNIQUE KEY idempotency_key (idempotency_key),
+			UNIQUE KEY active_lock_key (active_lock_key),
+			KEY status_updated (status, updated_at),
+			KEY batch_id (batch_id),
+			KEY object_lang (source_type, source_id, language_id),
+			KEY lease_expires (lease_expires_at)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for per-segment background translation job items (ADR-0011 / Jobs J1).
+	 *
+	 * Identity is (job_id, segment_key). No translation bodies in item rows.
+	 */
+	public static function create_job_items(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::job_items() . " (
+			item_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			job_id BIGINT UNSIGNED NOT NULL,
+			segment_key VARCHAR(191) NOT NULL,
+			status VARCHAR(32) NOT NULL DEFAULT 'queued',
+			result_code VARCHAR(32) NOT NULL DEFAULT '',
+			attempt_count INT UNSIGNED NOT NULL DEFAULT 0,
+			source_hash_captured VARCHAR(64) NOT NULL DEFAULT '',
+			translation_hash_captured VARCHAR(64) NOT NULL DEFAULT '',
+			glossary_version_actual INT UNSIGNED NOT NULL DEFAULT 0,
+			last_error_code VARCHAR(32) NOT NULL DEFAULT '',
+			last_error_class VARCHAR(24) NOT NULL DEFAULT '',
+			last_error_message VARCHAR(500) NOT NULL DEFAULT '',
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			started_at DATETIME NULL,
+			finished_at DATETIME NULL,
+			PRIMARY KEY (item_id),
+			UNIQUE KEY job_segment (job_id, segment_key),
+			KEY job_status (job_id, status),
+			KEY status_updated (status, updated_at)
 		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
 	}
 }
