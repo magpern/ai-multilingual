@@ -1,14 +1,25 @@
 # Background Translation Jobs — Implementation Plan
 
-**Status:** Architecture **frozen for review**; ADR-0011 amendment **Proposed** (2026-08-06) — **J1+ blocked** until Gate A or Gate B  
+**Status:** Architecture **frozen** (planning approved 2026-08-06); ADR-0011 amendment **Proposed** — **J1+ blocked** until Gate A or Gate B  
 **Branch:** `feature/background-translation-jobs-plan`  
 **Baseline:** `main` @ `adf38640f71b99ec027f7fef8d9131233e366618` (after Review Workflow closure)  
 **ADR:** [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) — Accepted baseline; **amendment Proposed** (implementation gate)  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) §11.3  
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md)
 
-**J0 gate:** **OPEN** — plan written; amended ADR-0011 disposition required before J1.  
-**Implementation scope / WP order:** J0–J8 (unchanged). **No production code in this planning commit.**
+**Production schema today:** Migrator `TARGET = 5` (unchanged by this planning delivery). Jobs schema target **6** is documentation-only until J1.  
+**J0 gate:** **OPEN** — plan frozen; amended ADR-0011 disposition required before J1.  
+**Implementation scope / WP order:** J0–J8 (unchanged). **No production code in this planning delivery.**
+
+### Governance
+
+| Gate | Requirement | J1+ |
+|---|---|---|
+| Plan freeze | This document approved | Required |
+| **Gate A** | Amended ADR-0011 explicitly **Accepted** after amendment review | Sufficient alone |
+| **Gate B** | Complete PO provisional approval (decision maker, date, scope, residual risks, review date, expiration/revalidation) | Sufficient alone |
+
+A generic “ADR-0011 was already Accepted” is **insufficient**. This plan does **not** Accept the amendment; Product Owner disposition is required.
 
 ---
 
@@ -208,6 +219,70 @@ stateDiagram-v2
   retry_wait --> cancelled: cancelBoundary
 ```
 
+### 6.6 Item transitions (legal)
+
+| From | To | Trigger |
+|---|---|---|
+| — | `queued` | materialize at create |
+| `queued` | `running` | worker claims item under job lease |
+| `running` | `retry_wait` | retryable failure; attempts remaining |
+| `retry_wait` | `queued` / `running` | backoff elapsed; re-claim |
+| `running` | `completed` | persist success |
+| `running` | `failed` | terminal error / attempts exhausted |
+| `running` | `stale_source` | source hash mismatch |
+| `running` | `skipped_conflict` | overwrite policy conflict |
+| `queued` / `retry_wait` / `running`* | `cancelled` | job cancel observed at boundary (*after bounded outcome if mid-call) |
+| any terminal | — | **forbidden** |
+
+```mermaid
+stateDiagram-v2
+  [*] --> queued: materialize
+  queued --> running: claimItem
+  running --> retry_wait: retryable
+  retry_wait --> queued: backoff
+  running --> completed: ok
+  running --> failed: terminal
+  running --> stale_source: sourceMismatch
+  running --> skipped_conflict: conflict
+  queued --> cancelled: jobCancel
+  retry_wait --> cancelled: jobCancel
+```
+
+### 6.7 Pause / cancel behavior
+
+```mermaid
+flowchart TD
+  req[Operator sets requested_action]
+  boundary[Safe item boundary]
+  inflight[In-flight provider call]
+  finish[Finish or record bounded item outcome]
+  noClaim[Do not claim next item]
+  pauseJob[Job status paused]
+  cancelJob[Job status cancelled]
+  req --> boundary
+  inflight -->|not forcibly interrupted| finish
+  boundary --> noClaim
+  finish --> noClaim
+  noClaim -->|pause| pauseJob
+  noClaim -->|cancel| cancelJob
+```
+
+### 6.8 Illegal transitions and stable error codes
+
+| Attempt | Error code | HTTP (API) |
+|---|---|---|
+| Transition from terminal job/item | `illegal_transition` | 409 |
+| Resume a `cancelled` job | `job_not_resumable` | 409 |
+| Claim item after pause/cancel requested | `claim_blocked_by_request` | n/a (worker no-op) |
+| Create job while AS unhealthy | `action_scheduler_unavailable` | 503 |
+| Duplicate create with different params / same client token | `idempotency_conflict` | 409 |
+| Active `lock_key` held by another job | `lock_key_conflict` | 409 |
+| Exceed materialization bounds | `workload_limit_exceeded` | 422 |
+| Empty materialization | `empty_workload` | 422 |
+| Provider/profile unavailable at execute | `provider_unavailable` | n/a (pause + diagnostics) |
+| Budget hard limit before next item | `budget_exceeded` | n/a (pause) |
+| Force interrupt in-flight provider | — | **not supported** |
+
 ---
 
 ## 7. Lock and lease model (Option B — frozen)
@@ -236,13 +311,37 @@ Job table remains SoT. **No dedicated lock table.**
 
 Default lease TTL: **5 minutes**; heartbeat every **60 seconds** of item work.
 
+```mermaid
+flowchart TD
+  create[Create job set active_lock_key]
+  dup{UNIQUE conflict?}
+  reject[Reject lock_key_conflict]
+  claim[Atomic claim lease_owner expiry]
+  beat[Heartbeat extend expiry]
+  work[Process items under lease]
+  expire{Lease expired?}
+  recover[Sweep reclaim reset running items]
+  release[Clear lease fields]
+  terminal[Terminal clear active_lock_key NULL]
+  create --> dup
+  dup -->|yes| reject
+  dup -->|no| claim
+  claim --> beat
+  beat --> work
+  work --> expire
+  expire -->|yes| recover
+  recover --> claim
+  expire -->|no| release
+  release --> terminal
+```
+
 ---
 
 ## 8. Idempotency keys
 
 | Key | Canonical inputs | Behavior |
 |---|---|---|
-| **Job creation** | SHA-256 over: job type, normalized post/lang scope, sorted segment keys, provider ID, prompt profile + version, requesting user ID, optional client token | Unique among active + retained completed; `force_new` bypass; cancel allows recreate; same client token with different params → **409** |
+| **Job creation** | SHA-256 over: job type, normalized post/lang scope, sorted segment keys, provider ID, prompt profile + version, requesting user ID, optional client token | Unique among **active** jobs and **retained completed** jobs (aligned with retention: 30d completed / 90d failed-cancelled window for key reuse checks); `force_new` bypass; cancel allows recreate; same client token with different params → **409** `idempotency_conflict` |
 | **Item identity** | `(job_id, segment_key)` UNIQUE | Fixed at materialization |
 | **AS callback** | Hook + `job_id` + attempt token; plus lease/state checks | Duplicate → **no-op** |
 | **Store persist** | Existing Store upsert by segment identity + hash checks via TranslationService | Retry must not duplicate rows |
@@ -260,6 +359,23 @@ No secrets or unstable timestamps in deterministic keys. Completed jobs may be r
 - Permission checks run **per child job** at creation.
 - Cleanup/retention is per job/item; `batch_id` is a column only.
 - UI shows a derived batch summary.
+
+```mermaid
+flowchart LR
+  bulk[Bulk create request]
+  bid[Generate batch_id]
+  j1[Job postA lang]
+  j2[Job postB lang]
+  j3[Job postC lang]
+  prog[Derived batch progress]
+  bulk --> bid
+  bid --> j1
+  bid --> j2
+  bid --> j3
+  j1 --> prog
+  j2 --> prog
+  j3 --> prog
+```
 
 ---
 
@@ -298,6 +414,19 @@ Persisted machine output (via existing services only):
 
 Stable item result / status codes: `completed`, `failed`, `stale_source`, `skipped_conflict`, `cancelled`, plus transient `retry_wait` before terminal failure.
 
+### 11.1 Review Workflow safety
+
+Jobs automate generation only. Review Workflow remains the sole approval owner ([ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md)).
+
+| Rule | Frozen |
+|---|---|
+| Auto-approve | **Forbidden** |
+| Auto-submit for review | **Forbidden** (MVP) |
+| Worker TM write-back | **Forbidden** |
+| Persist path | Existing TranslationService → Store (`machine_translated`, review cleared/defaulted to `not_submitted`) |
+| Approved / pending / rejected / human-edited rows | Never silently overwritten (`skipped_conflict`) |
+| Rendering | Unchanged; jobs must not touch BlockRenderGate / FrontendRenderer |
+
 ---
 
 ## 12. Glossary and execution-context consistency
@@ -322,6 +451,15 @@ Stable item result / status codes: `completed`, `failed`, `stale_source`, `skipp
 **Glossary drift (MVP):** **allowed**; current glossary is used; intended and actual versions recorded; source/translation conflicts remain hard stops.
 
 Prefer stamping Store `glossary_version` on persist when existing columns support it (additive improvement inside ItemProcessor/TranslationService call path — no second writer).
+
+### 12.1 Provider and prompt-profile consistency
+
+| At create | At execution |
+|---|---|
+| Record `provider_id`, `prompt_profile`, `prompt_version`, `provider_config_fp` (no secrets) | Require same provider/profile contract |
+| Capability check before queue | Re-check availability before item work |
+| — | Unavailable → **pause** + `provider_unavailable`; **no silent fallback** to another provider/profile |
+| — | Never persist raw prompts or provider request/response bodies in job tables |
 
 ---
 
@@ -548,6 +686,32 @@ Cleanup (`aiml_jobs_sweep`):
 
 Controllers, CLI, and AS callbacks remain thin.
 
+### 19.1 Worker execution sequence
+
+```mermaid
+sequenceDiagram
+  participant AS as ActionScheduler
+  participant Sch as Scheduler
+  participant W as Worker
+  participant P as ItemProcessor
+  participant TS as TranslationService
+  participant Store as Store
+  AS->>Sch: aiml_run_job
+  Sch->>W: wake
+  W->>W: claimLease heartbeat
+  W->>W: check requested_action budget
+  alt pauseOrCancelOrBudget
+    W->>W: transition job pause cancel
+  else claim next item
+    W->>P: processItem
+    P->>P: validate hashes eligibility
+    P->>TS: translate via existing path
+    TS->>Store: persist machine_translated
+    P-->>W: item result
+    W->>W: record result reconcile counters
+  end
+```
+
 ---
 
 ## 20. REST, CLI, and Workspace UI
@@ -647,6 +811,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | Review Workflow on `main` |
 | **Files** | `docs/plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md`, `docs/adr/0011-resumable-job-pipeline.md`, ROADMAP/POST_V1 |
 | **Tests** | Markdown link validation |
+| **Validation** | Plan completeness vs frozen contracts; ADR gate text present; no `src/` changes |
 | **Rollback** | Revert docs |
 | **Stop** | Coding J1 without Gate A/B |
 | **Commit** | `docs(jobs): create Background Translation Jobs implementation plan` |
@@ -660,6 +825,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | **Amended ADR-0011 Gate A or complete Gate B** |
 | **Files** | `Schema.php`, `Migrator.php`, `src/Jobs/*Repository*`, uninstall |
 | **Tests** | Migration idempotence; unique `active_lock_key`; item uniqueness |
+| **Validation** | TARGET=6; Store/TM/Glossary/Review columns unchanged; no FKs |
 | **Rollback** | Dev-only down; prod additive-forward |
 | **Stop** | SQL FKs; bodies in job rows; TARGET≠6 |
 | **Commit** | `feat(jobs): add aiml_jobs schema v6` |
@@ -673,6 +839,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | J1 |
 | **Files** | `BackgroundTranslationJobService`, repositories, lock helpers |
 | **Tests** | Transition matrix; duplicate create 409; lease contention; cancel/pause boundaries |
+| **Validation** | Illegal transitions rejected; Option B lock; no parent batch aggregate |
 | **Rollback** | Leave unused |
 | **Stop** | Parent job aggregate; partial unique indexes |
 | **Commit** | `feat(jobs): add job lifecycle and leases` |
@@ -686,6 +853,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | J2 |
 | **Files** | `BackgroundTranslationWorker`, `BackgroundTranslationItemProcessor`, Scheduler |
 | **Tests** | No direct provider/Store from Worker; machine_translated + not_submitted; no TM write; stale/skip |
+| **Validation** | Architecture boundary tests; Review safety; no second pipeline |
 | **Rollback** | Unschedule AS |
 | **Stop** | Second translation pipeline; worker→provider calls |
 | **Commit** | `feat(jobs): add worker and item processor` |
@@ -699,6 +867,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | J3 |
 | **Files** | Retry/Budget services; diagnostics hooks |
 | **Tests** | Taxonomy; backoff; budget pause; AS unavailable create reject |
+| **Validation** | Integer counters; fail-closed AS missing; no second queue |
 | **Rollback** | Disable budgeting (fail closed preferred) |
 | **Stop** | Second queue; float currency billing |
 | **Commit** | `feat(jobs): add retry and budget controls` |
@@ -712,6 +881,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | J2–J4 |
 | **Files** | Controllers, CLI, `Plugin.php` caps |
 | **Tests** | Permission matrix; 403/409; create scope validation |
+| **Validation** | Additive F10/F11 compatibility; no secrets in responses |
 | **Rollback** | Disable routes |
 | **Stop** | Controller bulk domain loops |
 | **Commit** | `feat(jobs): add jobs REST CLI and capabilities` |
@@ -725,6 +895,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | J5 |
 | **Files** | `assets/translator-workspace/*` |
 | **Tests** | Targeted UI smoke; no F9 35-suite |
+| **Validation** | Progress matches item reconcile; batch derived summary |
 | **Rollback** | Hide UI |
 | **Stop** | Second workspace app |
 | **Commit** | `feat(jobs): add Workspace jobs UI` |
@@ -738,6 +909,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | J3–J6 |
 | **Files** | Audit/diagnostics, sweep, docs/runbook |
 | **Tests** | Privacy; cleanup bounds; no active delete |
+| **Validation** | No bodies/prompts/secrets; retention defaults; frontend independence under AS outage |
 | **Rollback** | Disable sweep |
 | **Stop** | Bodies in audit |
 | **Commit** | `feat(jobs): add audit diagnostics and retention` |
@@ -751,6 +923,7 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 | **Deps** | J1–J7 |
 | **Files** | `BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md` |
 | **Tests** | Full acceptance criteria; concurrency; AS duplicate; provider outage |
+| **Validation** | All §25 ACs; validation log PASS; closure gates |
 | **Rollback** | Hold merge |
 | **Stop** | Render regressions; second pipeline |
 | **Commit** | `test(jobs): complete Background Translation Jobs validation` |
@@ -841,23 +1014,50 @@ Queued/running/retry/failed counts; throughput; p50/p95 item duration; retry rat
 
 ---
 
-## 29. Definition of Done
+## 29. Definition of Ready (implementation)
+
+Implementation branch may open and **J1** may start only when all are true:
+
+1. This plan remains the frozen Jobs architecture.
+2. Amended [ADR-0011](../adr/0011-resumable-job-pipeline.md) has **Gate A** Accept **or** complete **Gate B** provisional record.
+3. Dedicated implementation branch created from updated `main` (not from planning-only commits alone unless merged).
+4. Glossary MVP and Review Workflow remain complete on baseline.
+5. Production Migrator `TARGET` is still **5** until J1 lands additive step **6**.
+6. Action Scheduler availability approach agreed (reject-create-if-missing).
+7. No concurrent initiative has started that reopens Store/Review/TM ownership.
+
+---
+
+## 30. Definition of Done
 
 All §25 ACs green; J0–J8 complete; validation log PASS; amended ADR-0011 Accepted (or Gate B then Accepted at closure); no architecture boundary violations; uninstall/migration safe; frontend FP unaffected.
 
 ---
 
-## 30. Exact next step
+## 31. Closure gates
 
-1. Review this plan and the [ADR-0011 amendment](../adr/0011-resumable-job-pipeline.md).
-2. Record **Gate A** (Accept amendment) or complete **Gate B** provisional approval.
+| Gate | When | Evidence |
+|---|---|---|
+| J0 complete | Planning docs merged / plan frozen | This document + ADR amendment text |
+| ADR disposition | Before J1 | Gate A or Gate B record on ADR-0011 |
+| J8 validation | Before merge to `main` | Validation log PASS; ACs 1–31 |
+| Release readiness | Before broad enablement | Runbook sign-off; AS health green; capability-gated default |
+
+---
+
+## 32. Exact next step
+
+1. Product Owner dispositions the [ADR-0011 amendment](../adr/0011-resumable-job-pipeline.md) (**Gate A** Accept or complete **Gate B**).
+2. Keep this plan frozen.
 3. Open a dedicated **implementation** branch from updated `main` and begin **J1** only after the gate.
 
 ---
 
-## 31. Confirmation
+## 33. Confirmation
 
 - Planning documents only on `feature/background-translation-jobs-plan`.
-- **No** `src/`, `assets/`, `tests/`, migrations, REST, schema PHP, releases, or tags in this planning delivery.
+- **No** `src/`, `assets/`, `tests/`, migrations, REST, schema PHP, Action Scheduler hooks, capabilities, UI, releases, or tags in this planning delivery.
+- Production schema target remains **5**.
+- Review / Glossary / TM ownership unchanged.
 - Background Translation Jobs architecture is ready for final review.
 - Implementation may begin only after the amended ADR-0011 receives the required explicit disposition.

@@ -1,6 +1,6 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Review Workflow **complete** — merged to `main` @ `c8b383c67`, tag `review-workflow-complete` ([REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md)); ADR-0015 **Accepted**; **Background Translation Jobs** planning on `feature/background-translation-jobs-plan` — ADR-0011 amendment **Proposed** (J1+ gated)  
+**Status:** Review Workflow **complete** — merged to `main` @ `c8b383c67`, tag `review-workflow-complete` ([REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md)); ADR-0015 **Accepted**; **Background Translation Jobs** plan **frozen** on `feature/background-translation-jobs-plan` — ADR-0011 amendment **Proposed** (J1+ gated)  
 **Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary `feature/glossary-mvp` (merged); Review `feature/review-workflow` (merged); Jobs plan `feature/background-translation-jobs-plan`  
 **Baseline:** `main` @ `adf38640f` after Review Workflow closure  
 **Scope:** Product priorities after the Strategy F platform program  
@@ -257,8 +257,8 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Validation** | Concurrency/idempotency tests; failure injection; cost/bounds tests; no FP on render allowlist. |
 | **Stop conditions** | J1 without ADR amendment disposition; provider-specific job logic; unbounded fan-out; worker TM write-back; auto-approve. |
 | **Release boundary** | Independently shippable; default-off or capability-gated until ops ready. |
-| **Readiness gate** | Canonical plan written; ADR-0011 amendment Proposed — **J1 blocked** until Gate A Accept or complete Gate B. |
-| **Planning status** | Plan on `feature/background-translation-jobs-plan`; **no implementation started**. |
+| **Readiness gate** | Canonical plan **frozen**; ADR-0011 amendment Proposed — **J1 blocked** until Gate A Accept or complete Gate B. |
+| **Planning status** | Plan frozen on `feature/background-translation-jobs-plan`; **no implementation started**. |
 
 **Why jobs before broader automation:** Retries, bounded concurrency, cost control, failure recovery, operator visibility, idempotency, and safe bulk translation are prerequisites for responsible AI automation at scale.
 

@@ -24,7 +24,7 @@
 
 A generic “ADR-0011 was already Accepted” is **insufficient** for these material amendments.
 
-Canonical plan: [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md).  
+Canonical plan: [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) — **architecture frozen** (planning approved); amendment disposition still required before J1.  
 Product context: [POST_V1_PRODUCT_ROADMAP.md](../plans/POST_V1_PRODUCT_ROADMAP.md) §11.3.  
 Related: [ADR-0015](0015-review-workflow-and-tm-approval-policy.md) (Review + approval-gated TM), [ADR-0014](0014-glossary-platform-lexicon.md) (Glossary).
 
