@@ -127,37 +127,53 @@ cd /opt/biopentra/apps/wordpress && docker compose run --rm -T -e AIML_P1_SIMULA
 
 ## S5 — Acceptance index + RC baseline
 
-**Result:** _(pending)_
+**Result:** **PASS** (2026-08-06)
 
----
+- `acceptance/README.md` indexes P1 harnesses + freezes OpenAI RC as v1.x provider baseline
+- Future-provider equivalent-outcomes philosophy documented
+- Evidence: [V1_RC_OPENAI_VALIDATION.md](V1_RC_OPENAI_VALIDATION.md) prior **56/56 PASS** remains canonical baseline (no RC redesign; no paid re-run required for non-AI-change P1)
 
 ## S6 — Release checklist
 
-**Result:** _(pending)_
+**Result:** **PASS** (2026-08-06)
 
----
+- [P1_RELEASE_VALIDATION_CHECKLIST.md](P1_RELEASE_VALIDATION_CHECKLIST.md) published with Tier 0, zip rules, P1 harnesses, and RC gate when AI changes
+- Dry-run recorded in checklist (no new production tag)
 
 ## S7 — Backup / restore rehearsal
 
-**Result:** _(pending)_
+**Result:** **PASS** (2026-08-06) — tabletop
 
----
+| Field | Value |
+|---|---|
+| Date | 2026-08-06 |
+| Owner | engineering (P1 implementation) |
+| Type | Tabletop against [BACKUP_AND_RESTORE.md](../ops/BACKUP_AND_RESTORE.md) |
+| Outcome | Inventory of `aiml_*` tables/options confirmed via schema-verify; restore order and forbidden partial deletes reviewed; full host restore not scheduled |
 
 ## S8 — Rollback rehearsal
 
-**Result:** _(pending)_
+**Result:** **PASS** (2026-08-06) — tabletop + flag readability
 
----
+| Field | Value |
+|---|---|
+| Date | 2026-08-06 |
+| Owner | engineering (P1 implementation) |
+| Type | Tabletop walkthrough of [ROLLBACK_REHEARSAL.md](../ops/ROLLBACK_REHEARSAL.md) + F12/F13 checklists |
+| Evidence | `deploy-verify.php` confirmed block render flag and rollout config readable; primary kill switch = frontend rendering / rollout flags; Jobs pause/cancel per existing runbook |
+| Note | Production flags were **not** flipped on the shared dev site during rehearsal (visitor safety); procedure validated as operable |
 
 ## S9 — Operational readiness sign-off
 
 | Sign-off item | Status | Evidence |
 |---|---|---|
-| Deployment verified | pending | S1 |
-| Upgrade verified | pending | S4 |
-| Rollback verified | pending | S8 |
-| Diagnostics verified | pending | S3 |
-| Provider validation complete | pending | OpenAI RC baseline |
-| Release checklist complete | pending | S6 |
+| Deployment verified | **PASS** | S1 `deploy-verify.php` 16/16 |
+| Upgrade verified | **PASS** | S4 `schema-verify.php` 14/14 with simulate |
+| Rollback verified | **PASS** | S8 tabletop + flag readability |
+| Diagnostics verified | **PASS** | S3 Q&A + `diagnostics-smoke.php` 12/12 |
+| Provider validation complete | **PASS** | Canonical OpenAI RC baseline frozen; prior 56/56 PASS cited (AI behaviour unchanged in P1) |
+| Release checklist complete | **PASS** | S6 checklist dry-run |
 
-**Overall:** IN PROGRESS
+Supporting: [V1_0_X_MAINTENANCE.md](../ops/V1_0_X_MAINTENANCE.md)
+
+**Overall:** **PASS** — P1 Platform Stabilization complete on `feature/p1-platform-stabilization`
