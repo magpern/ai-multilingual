@@ -1,10 +1,10 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Review Workflow **complete** — merged to `main` @ `c8b383c67`, tag `review-workflow-complete` ([REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md)); ADR-0015 **Accepted**; next initiative **Background Translation Jobs** (planning only)  
-**Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary implementation `feature/glossary-mvp` (merged)  
-**Baseline:** `main` after F1–F14 + Glossary MVP merge  
+**Status:** Review Workflow **complete** — merged to `main` @ `c8b383c67`, tag `review-workflow-complete` ([REVIEW_WORKFLOW_VALIDATION_LOG.md](REVIEW_WORKFLOW_VALIDATION_LOG.md)); ADR-0015 **Accepted**; **Background Translation Jobs** plan **frozen** on `feature/background-translation-jobs-plan` — ADR-0011 amendment **Proposed** (J1+ gated)  
+**Branch:** planning originally `feature/post-v1-roadmap` (merged); Glossary `feature/glossary-mvp` (merged); Review `feature/review-workflow` (merged); Jobs plan `feature/background-translation-jobs-plan`  
+**Baseline:** `main` @ `adf38640f` after Review Workflow closure  
 **Scope:** Product priorities after the Strategy F platform program  
-**Code changes:** Glossary MVP + Review Workflow shipped; Background Translation Jobs **not started**
+**Code changes:** Glossary MVP + Review Workflow shipped; Background Translation Jobs **not started** (docs only)
 
 ---
 
@@ -14,9 +14,9 @@ Strategy F milestones **F1–F14** are the completed **platform-foundation progr
 
 The next phase is **not** an automatic F15 chain. It is a set of **named, independently shippable product initiatives** ordered for Biopentra merchant and translator value **without reopening frozen architecture**.
 
-**Next planning initiative: Background Translation Jobs**
+**Next initiative: Background Translation Jobs**
 
-**Immediately after Jobs planning freeze:** implement Jobs only after ADR-0011 revalidation.
+Canonical plan: [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md). Implement J1+ only after the [ADR-0011](../adr/0011-resumable-job-pipeline.md) amendment receives Gate A Accept or complete Gate B provisional approval.
 
 **Glossary MVP (complete):** High translator and merchant value — brand and scientific terminology stay consistent across Swedish content. Delivered via F11-reserved seams (`glossary_fragment`, `glossary_version`, `SuggestionProvider` tier, Workspace extension hooks) without a parallel suggestion path, UUID/Store/rollout/routing changes, or provider-architecture changes. See [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md) and tag `glossary-mvp-complete`.
 
@@ -95,7 +95,7 @@ Columns: Merchant value | Translator value | Arch risk | Size | Ops risk | Deps 
 1. **Nested identity** — Needed for layout-heavy Gutenberg; recursive identity is a real architecture extension. Biopentra storefront is Elementor-primary, so urgency is Medium, not blocking.
 2. **Glossary** — Immediate quality win on existing GA content; F11 seams reserved; Low architecture risk.
 3. **Review** — Merchant trust and TM hygiene; additive to Workspace/QA/TM write-back; no version history prerequisite.
-4. **Jobs** — Prerequisite for safe bulk AI; ADR-0011 already accepted as design; do not start during Glossary/Review.
+4. **Jobs** — Prerequisite for safe bulk AI; canonical plan written; J1+ gated on ADR-0011 amendment disposition.
 5. **Import/export** — Useful later; not required for Biopentra’s current `sv` editorial loop.
 6. **Media** — High complexity (alt text, captions, files); low current urgency.
 7. **WooCommerce** — High merchant value for a shop, but F-track GA is `post`/`page`; cart/email/Store API is a large surface — reassess after #1–#3.
@@ -116,7 +116,7 @@ Columns: Merchant value | Translator value | Arch risk | Size | Ops risk | Deps 
 |---|---|---|
 | 1 | **Glossary MVP** | Product implementation — **complete** (`glossary-mvp-complete`) |
 | 2 | **Review Workflow** | **Complete** — merged + tagged |
-| 3 | **Background Translation Jobs** | Product planning / implementation — **next** (ADR-0011) |
+| 3 | **Background Translation Jobs** | Canonical plan written; ADR-0011 amendment Proposed — J1 gated |
 | Parallel optional | **Nested Block Identity Spike** | Research only — does **not** block #2 |
 
 No F15/F16 numbering. Each initiative is independently shippable with its own plan, validation, and release boundary.
@@ -158,7 +158,7 @@ No F15/F16 numbering. Each initiative is independently shippable with its own pl
 |---|---|---|---|---|---|---|
 | Glossary MVP | Partially (suggestion + prompt seams) | Likely | Possibly Workspace glossary routes | Likely term store | No (plan first) | **If** new persistent storage |
 | Review Workflow | Mostly Workspace/Store/TM | Possibly status fields | Possibly review routes | Possibly minimal | No | Maybe status model |
-| Background Jobs | ADR-0011 design | **Yes** (`aiml_jobs`) | Job status APIs | Job table | No (design exists) | ADR-0011 already Accepted |
+| Background Jobs | ADR-0011 + plan | **Yes** (`aiml_jobs`, `aiml_job_items`) | Job status APIs | Job tables (target 6) | Plan only | Amendment Proposed — Gate A/B |
 | Nested Block Spike | Research | No in spike | No in spike | No in spike | **Yes** | Decide in spike output |
 | WooCommerce (deferred) | Limited today | Likely | Likely | Possibly | Likely | Likely |
 | Elementor (deferred) | Deny paths only | Likely | Likely | Likely | **Required** | **Required** |
@@ -172,7 +172,7 @@ No F15/F16 numbering. Each initiative is independently shippable with its own pl
 | Glossary storage ADR | Before Glossary coding if a new table/option model is chosen | Own glossary persistence; versioning; invalidation vs TM `glossary_version` |
 | Nested Block Identity Spike | Optional parallel | Evidence whether recursive identity needs a new ADR; **no production change** |
 | Elementor spike + ADR | Only if PO prioritizes storefront body i18n | Segment identity for Elementor data model |
-| ADR-0011 | Already Accepted | Baseline for Background Translation Jobs — **do not re-litigate** during Glossary/Review |
+| ADR-0011 | Accepted baseline; **amendment Proposed** (2026-08-06) | Jobs implementation gated on Gate A Accept or Gate B provisional — see [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) |
 
 ---
 
@@ -251,13 +251,14 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **User outcome** | Operators can queue large translation work with retries, visibility, and cost control. |
 | **Scope** | Job table/storage per ADR-0011; Action Scheduler as trigger only; bounded concurrency; checkpoints; failure recovery; operator visibility; idempotent stages. |
 | **Out of scope** | Expanding AI provider architecture; new suggestion pipelines; Glossary/Review feature work inside job milestone; Elementor/Woo surfaces. |
-| **Dependencies** | ADR-0011 Accepted; Glossary and Review should complete first so jobs automate an approved quality loop. |
+| **Dependencies** | Amended ADR-0011 Gate A or Gate B; Glossary and Review complete so jobs automate an approved quality loop. |
 | **Architecture impact** | New job storage and APIs; must call existing AI/TM/Store paths; no alternate translation pipeline. |
-| **Likely work packages** | Schema/migrator → job service → AS wiring → Workspace/ops UI → validation/runbooks. |
+| **Likely work packages** | J0–J8 per [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md). |
 | **Validation** | Concurrency/idempotency tests; failure injection; cost/bounds tests; no FP on render allowlist. |
-| **Stop conditions** | Starting jobs during Glossary/Review implementation; provider-specific job logic; unbounded fan-out. |
+| **Stop conditions** | J1 without ADR amendment disposition; provider-specific job logic; unbounded fan-out; worker TM write-back; auto-approve. |
 | **Release boundary** | Independently shippable; default-off or capability-gated until ops ready. |
-| **Readiness gate** | Dedicated Jobs plan; ADR-0011 compliance checklist; Glossary+Review shipped or PO-approved exception. |
+| **Readiness gate** | Canonical plan **frozen**; ADR-0011 amendment Proposed — **J1 blocked** until Gate A Accept or complete Gate B. |
+| **Planning status** | Plan frozen on `feature/background-translation-jobs-plan`; **no implementation started**. |
 
 **Why jobs before broader automation:** Retries, bounded concurrency, cost control, failure recovery, operator visibility, idempotency, and safe bulk translation are prerequisites for responsible AI automation at scale.
 
@@ -319,12 +320,12 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 - Glossary MVP is **complete**, merged, and tagged (`glossary-mvp-complete`).
 - ADR-0014 remains **Accepted**.
 - F1–F14 remain **complete**.
-- Review Workflow is **complete** (merged + tagged).
-- Background Translation Jobs is **next** — planning only until ADR-0011 compliance is revalidated.
+- Review Workflow is **complete** (merged + tagged); ADR-0015 **Accepted**.
+- Background Translation Jobs **canonical plan written**; ADR-0011 amendment **Proposed** (implementation gate open).
 - **No** Background Translation Jobs implementation has started.
 
 ---
 
 ## 15. Exact next step
 
-Review and accept [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), freeze [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), then create a dedicated **implementation** branch from updated `main` and begin R1 only after the ADR gate.
+Review and disposition the [ADR-0011 amendment](../adr/0011-resumable-job-pipeline.md) (Gate A Accept or complete Gate B provisional), freeze [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md), then create a dedicated **implementation** branch from updated `main` and begin **J1** only after the gate.
