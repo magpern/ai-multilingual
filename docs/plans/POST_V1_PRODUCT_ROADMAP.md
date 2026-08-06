@@ -1,10 +1,10 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-**Status:** Background Translation Jobs **J0–J8 complete** on `feature/background-translation-jobs` — ADR-0011 amendment **Accepted**; validation log PASS (browser smoke pending deploy)  
-**Branch:** implementation `feature/background-translation-jobs`  
-**Baseline:** `main` after Jobs planning merge  
+**Status:** Background Translation Jobs **Completed / merged / tagged** — ADR-0011 **Accepted**; tag `background-translation-jobs-complete`; merge `b308138c4`  
+**Branch:** `main`  
+**Baseline:** `main` after Jobs merge  
 **Scope:** Product priorities after the Strategy F platform program  
-**Code changes:** Glossary + Review shipped; Jobs implemented on feature branch (not yet merged)
+**Code changes:** Glossary + Review + Background Translation Jobs shipped on `main`
 
 ---
 
@@ -14,9 +14,7 @@ Strategy F milestones **F1–F14** are the completed **platform-foundation progr
 
 The next phase is **not** an automatic F15 chain. It is a set of **named, independently shippable product initiatives** ordered for Biopentra merchant and translator value **without reopening frozen architecture**.
 
-**Next initiative: Background Translation Jobs**
-
-Canonical plan: [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md). Implement J1+ only after the [ADR-0011](../adr/0011-resumable-job-pipeline.md) amendment receives Gate A Accept or complete Gate B provisional approval.
+**Next initiative:** Post-v1 platform track (Glossary → Review → Jobs) is **complete**. Further initiatives are independently planned (see §6 deferred list); optional Nested Block Identity Spike remains research-only.
 
 **Glossary MVP (complete):** High translator and merchant value — brand and scientific terminology stay consistent across Swedish content. Delivered via F11-reserved seams (`glossary_fragment`, `glossary_version`, `SuggestionProvider` tier, Workspace extension hooks) without a parallel suggestion path, UUID/Store/rollout/routing changes, or provider-architecture changes. See [GLOSSARY_MVP_VALIDATION_LOG.md](GLOSSARY_MVP_VALIDATION_LOG.md) and tag `glossary-mvp-complete`.
 
@@ -116,7 +114,7 @@ Columns: Merchant value | Translator value | Arch risk | Size | Ops risk | Deps 
 |---|---|---|
 | 1 | **Glossary MVP** | Product implementation — **complete** (`glossary-mvp-complete`) |
 | 2 | **Review Workflow** | **Complete** — merged + tagged |
-| 3 | **Background Translation Jobs** | Canonical plan written; ADR-0011 amendment Proposed — J1 gated |
+| 3 | **Background Translation Jobs** | **Complete** — merged + tagged (`background-translation-jobs-complete`) |
 | Parallel optional | **Nested Block Identity Spike** | Research only — does **not** block #2 |
 
 No F15/F16 numbering. Each initiative is independently shippable with its own plan, validation, and release boundary.
@@ -158,7 +156,7 @@ No F15/F16 numbering. Each initiative is independently shippable with its own pl
 |---|---|---|---|---|---|---|
 | Glossary MVP | Partially (suggestion + prompt seams) | Likely | Possibly Workspace glossary routes | Likely term store | No (plan first) | **If** new persistent storage |
 | Review Workflow | Mostly Workspace/Store/TM | Possibly status fields | Possibly review routes | Possibly minimal | No | Maybe status model |
-| Background Jobs | ADR-0011 + plan | **Yes** (`aiml_jobs`, `aiml_job_items`) | Job status APIs | Job tables (target 6) | Plan only | Amendment Proposed — Gate A/B |
+| Background Jobs | ADR-0011 + plan | **Yes** (`aiml_jobs`, `aiml_job_items`) | Job status APIs | Job tables (target 6) | Plan only | Amendment **Accepted** |
 | Nested Block Spike | Research | No in spike | No in spike | No in spike | **Yes** | Decide in spike output |
 | WooCommerce (deferred) | Limited today | Likely | Likely | Possibly | Likely | Likely |
 | Elementor (deferred) | Deny paths only | Likely | Likely | Likely | **Required** | **Required** |
@@ -172,7 +170,7 @@ No F15/F16 numbering. Each initiative is independently shippable with its own pl
 | Glossary storage ADR | Before Glossary coding if a new table/option model is chosen | Own glossary persistence; versioning; invalidation vs TM `glossary_version` |
 | Nested Block Identity Spike | Optional parallel | Evidence whether recursive identity needs a new ADR; **no production change** |
 | Elementor spike + ADR | Only if PO prioritizes storefront body i18n | Segment identity for Elementor data model |
-| ADR-0011 | Accepted baseline; **amendment Proposed** (2026-08-06) | Jobs implementation gated on Gate A Accept or Gate B provisional — see [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) |
+| ADR-0011 | **Accepted** (amendment Gate A, 2026-08-06) | Jobs complete — see [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) |
 
 ---
 
@@ -258,7 +256,7 @@ Formal packaging/hardening remains Roadmap M7 territory and does not block namin
 | **Stop conditions** | J1 without ADR amendment disposition; provider-specific job logic; unbounded fan-out; worker TM write-back; auto-approve. |
 | **Release boundary** | Independently shippable; default-off or capability-gated until ops ready. |
 | **Readiness gate** | Canonical plan frozen; **ADR-0011 amendment Accepted** (Gate A, 2026-08-06) — J1 authorized. |
-| **Planning status** | J0–J8 complete on `feature/background-translation-jobs`; [validation log](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md) PASS; merge/tag pending. |
+| **Planning status** | **Complete** — merged to `main` @ `b308138c4`; tag `background-translation-jobs-complete`. Live smoke **35/35 PASS**; browser Jobs UI PASS. See [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) and [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md). |
 
 **Why jobs before broader automation:** Retries, bounded concurrency, cost control, failure recovery, operator visibility, idempotency, and safe bulk translation are prerequisites for responsible AI automation at scale.
 
@@ -321,10 +319,10 @@ Strategy F absorbed platform identity (F1–F14) and a productivity subset of M3
 - ADR-0014 remains **Accepted**.
 - F1–F14 remain **complete**.
 - Review Workflow is **complete** (merged + tagged); ADR-0015 **Accepted**.
-- Background Translation Jobs: ADR-0011 **Accepted**; J0–J8 complete on feature branch; validation log PASS.
+- Background Translation Jobs is **complete** (merged + tagged `background-translation-jobs-complete`); ADR-0011 **Accepted**.
 
 ---
 
 ## 15. Exact next step
 
-Deploy `feature/background-translation-jobs` to `dev.biopentra.eu`, run the Jobs smoke checklist in [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md), then merge to `main` and tag when smoke is green.
+Controlled production deployment of AI Multilingual Platform v1.0 (Glossary + Review + Background Translation Jobs) per ops runbooks; no further post-v1 platform-track coding required for this release boundary.
