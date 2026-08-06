@@ -2,9 +2,9 @@
 
 Operator-facing runbooks and verification for Platform **v1.0.x**.
 
-Long-term product planning: [POST_V1_PLATFORM_ROADMAP.md](../plans/POST_V1_PLATFORM_ROADMAP.md).  
-Active stabilization plan: [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](../plans/P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md).  
-Validation log: [P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md](../plans/P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md).  
+Long-term product planning: [POST_V1_PLATFORM_ROADMAP.md](../plans/POST_V1_PLATFORM_ROADMAP.md).
+Active stabilization plan: [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](../plans/P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md).
+Validation log: [P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md](../plans/P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md).
 Release checklist: [P1_RELEASE_VALIDATION_CHECKLIST.md](../plans/P1_RELEASE_VALIDATION_CHECKLIST.md).
 
 ## Runbooks
@@ -47,7 +47,7 @@ Harness index: [acceptance/README.md](../../acceptance/README.md).
 OpenAI behavioural baseline (when AI changes): `acceptance/rc/v1-openai-rc.php` +
 [V1_RC_OPENAI_VALIDATION.md](../plans/V1_RC_OPENAI_VALIDATION.md).
 
-Deployment procedures: [DEPLOYMENT.md](../DEPLOYMENT.md) (Platform v1.0.0 section).  
+Deployment procedures: [DEPLOYMENT.md](../DEPLOYMENT.md) (Platform v1.0.0 section).
 REST catalogue: [HOOKS.md](../HOOKS.md).
 
 **Secrets:** Never paste API keys, Authorization headers, prompts, or full ciphertext into tickets or validation logs—record lengths / redacted prefixes only.

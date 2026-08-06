@@ -1,9 +1,9 @@
 # P1 Platform Stabilization — Validation Log
 
-**Milestone:** P1 — Platform Stabilization  
-**Plan:** [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md)  
-**Branch:** `feature/p1-platform-stabilization`  
-**Baseline:** Platform v1.0.0 / plan freeze `1205ad081`  
+**Milestone:** P1 — Platform Stabilization
+**Plan:** [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md)
+**Branch:** `feature/p1-platform-stabilization`
+**Baseline:** Platform v1.0.0 / plan freeze `1205ad081`
 **Environment:** `https://dev.biopentra.eu` (dev / production-like for this VPS)
 
 ---
@@ -54,7 +54,7 @@
 
 ## S0 — Health probe evidence
 
-**Harness:** `acceptance/p1/health-probe.php`  
+**Harness:** `acceptance/p1/health-probe.php`
 **Command:**
 
 ```bash
@@ -76,7 +76,7 @@ Probe covered: schema 6, all `aiml_*` tables, Jobs/Glossary/Providers/Workspace 
 
 ## S1 — Deploy verify
 
-**Harness:** `acceptance/p1/deploy-verify.php`  
+**Harness:** `acceptance/p1/deploy-verify.php`
 **Command:**
 
 ```bash
@@ -107,13 +107,13 @@ cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
 
 ## S3 — Diagnostics
 
-**Docs:** `docs/ops/DIAGNOSTICS_AND_HEALTH.md`  
-**Harness:** `acceptance/p1/diagnostics-smoke.php`  
+**Docs:** `docs/ops/DIAGNOSTICS_AND_HEALTH.md`
+**Harness:** `acceptance/p1/diagnostics-smoke.php`
 **Result:** **12/12 PASS** (2026-08-06) — AI/providers, jobs, review, TM table, glossary, rollout; no secrets in payloads.
 
 ## S4 — Schema verify
 
-**Harness:** `acceptance/p1/schema-verify.php`  
+**Harness:** `acceptance/p1/schema-verify.php`
 **Command (with upgrade simulation):**
 
 ```bash
