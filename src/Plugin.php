@@ -9,6 +9,14 @@ declare( strict_types=1 );
 
 namespace AIMultilingual;
 
+use AIMultilingual\Jobs\BackgroundTranslationItemProcessor;
+use AIMultilingual\Jobs\BackgroundTranslationItemRepository;
+use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
+use AIMultilingual\Jobs\BackgroundTranslationJobService;
+use AIMultilingual\Jobs\BackgroundTranslationScheduler;
+use AIMultilingual\Jobs\BackgroundTranslationWorker;
+use AIMultilingual\Jobs\JobLeaseService;
+use AIMultilingual\Jobs\JobProgressReconciler;
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
@@ -252,6 +260,36 @@ final class Plugin {
 			$tm_service,
 			$review
 		);
+
+		$job_repo       = new BackgroundTranslationJobRepository();
+		$item_repo      = new BackgroundTranslationItemRepository();
+		$job_leases     = new JobLeaseService( $job_repo, $item_repo );
+		$job_reconciler = new JobProgressReconciler( $job_repo, $item_repo );
+		$job_service    = new BackgroundTranslationJobService(
+			$job_repo,
+			$item_repo,
+			$job_leases,
+			$job_reconciler,
+			$store,
+			$assembler
+		);
+		$job_processor  = new BackgroundTranslationItemProcessor(
+			$store,
+			$translation,
+			$glossary_service,
+			$assembler
+		);
+		$job_worker     = new BackgroundTranslationWorker(
+			$job_processor,
+			$job_service,
+			$job_repo,
+			$item_repo,
+			$job_leases,
+			$job_reconciler
+		);
+		$job_scheduler  = new BackgroundTranslationScheduler();
+		$job_scheduler->register_hooks( $job_worker );
+		unset( $job_service, $job_worker, $job_scheduler, $job_processor, $job_repo, $item_repo, $job_leases, $job_reconciler );
 
 		( new WorkspaceController(
 			$workspace,

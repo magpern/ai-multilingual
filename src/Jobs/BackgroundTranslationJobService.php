@@ -9,7 +9,10 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Jobs;
 
+use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\SegmentAssembler;
 use WP_Error;
+use WP_Post;
 
 /**
  * Job orchestration domain service — no Action Scheduler wake in J2 (plan §19).
@@ -45,23 +48,43 @@ final class BackgroundTranslationJobService {
 	private JobProgressReconciler $reconciler;
 
 	/**
+	 * Segment store for create-time resolution (J3).
+	 *
+	 * @var Store|null
+	 */
+	private ?Store $store;
+
+	/**
+	 * Segment assembler for create-time resolution (J3).
+	 *
+	 * @var SegmentAssembler|null
+	 */
+	private ?SegmentAssembler $assembler;
+
+	/**
 	 * Builds the job service.
 	 *
 	 * @param BackgroundTranslationJobRepository|null  $jobs       Job repository.
 	 * @param BackgroundTranslationItemRepository|null $items      Item repository.
 	 * @param JobLeaseService|null                     $leases     Lease service.
 	 * @param JobProgressReconciler|null               $reconciler Progress reconciler.
+	 * @param Store|null                               $store      Segment store.
+	 * @param SegmentAssembler|null                    $assembler  Segment assembler.
 	 */
 	public function __construct(
 		?BackgroundTranslationJobRepository $jobs = null,
 		?BackgroundTranslationItemRepository $items = null,
 		?JobLeaseService $leases = null,
-		?JobProgressReconciler $reconciler = null
+		?JobProgressReconciler $reconciler = null,
+		?Store $store = null,
+		?SegmentAssembler $assembler = null
 	) {
 		$this->jobs       = $jobs ?? new BackgroundTranslationJobRepository();
 		$this->items      = $items ?? new BackgroundTranslationItemRepository();
 		$this->leases     = $leases ?? new JobLeaseService( $this->jobs, $this->items );
 		$this->reconciler = $reconciler ?? new JobProgressReconciler( $this->jobs, $this->items );
+		$this->store      = $store;
+		$this->assembler  = $assembler;
 	}
 
 	/**
@@ -69,7 +92,8 @@ final class BackgroundTranslationJobService {
 	 *
 	 * J2 note: translate_missing and retranslate_stale accept a pre-resolved
 	 * segment_keys list (and optional source_hash_captured / translation_hash_captured
-	 * per item via segment_snapshots). Store resolution arrives in J3.
+	 * per item via segment_snapshots). When segment_keys are omitted, J3 resolves
+	 * eligible keys from Store via SegmentAssembler.
 	 *
 	 * @param array<string, mixed> $args Create arguments.
 	 * @return object|WP_Error
@@ -457,10 +481,6 @@ final class BackgroundTranslationJobService {
 	 * @return list<string>|WP_Error
 	 */
 	private function resolve_segment_keys( array $args, string $job_type ) {
-		if ( ! JobTypes::requires_explicit_segments( $job_type ) ) {
-			return new WP_Error( 'invalid_job_type', 'Job type requires explicit segment_keys in J2.' );
-		}
-
 		$keys = array_values(
 			array_unique(
 				array_map(
@@ -469,14 +489,94 @@ final class BackgroundTranslationJobService {
 				)
 			)
 		);
-
 		$keys = array_values( array_filter( $keys, static fn( string $key ): bool => '' !== $key ) );
 
-		if ( JobTypes::TRANSLATE_SELECTED === $job_type && array() === $keys ) {
-			return new WP_Error( 'empty_workload', 'translate_selected requires segment_keys.' );
+		if ( JobTypes::TRANSLATE_SELECTED === $job_type ) {
+			if ( array() === $keys ) {
+				return new WP_Error( 'empty_workload', 'translate_selected requires segment_keys.' );
+			}
+
+			return $keys;
+		}
+
+		if ( array() !== $keys ) {
+			return $keys;
+		}
+
+		if ( in_array( $job_type, array( JobTypes::TRANSLATE_MISSING, JobTypes::RETRANSLATE_STALE ), true ) ) {
+			return $this->resolve_segments_from_store( $args, $job_type );
+		}
+
+		if ( array() === $keys ) {
+			return new WP_Error( 'empty_workload', 'Job requires segment_keys.' );
 		}
 
 		return $keys;
+	}
+
+	/**
+	 * Resolve missing or stale segment keys at create time via Store assembly.
+	 *
+	 * @param array<string, mixed> $args     Create arguments.
+	 * @param string               $job_type Job type.
+	 * @return list<string>|WP_Error
+	 */
+	private function resolve_segments_from_store( array $args, string $job_type ) {
+		if ( null === $this->store || null === $this->assembler ) {
+			return new WP_Error( 'segment_resolution_unavailable', 'Segment resolution requires Store and SegmentAssembler.' );
+		}
+
+		$post = get_post( (int) ( $args['source_id'] ?? 0 ) );
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error( 'source_not_found', 'Job source post not found.' );
+		}
+
+		$language_id = (int) ( $args['language_id'] ?? 0 );
+		$segments    = $this->assembler->assemble_for_post( $post, $language_id );
+		$keys        = array();
+
+		foreach ( $segments as $segment ) {
+			if ( empty( $segment['can_edit'] ) ) {
+				continue;
+			}
+
+			$segment_key = (string) ( $segment['segment_key'] ?? '' );
+			if ( '' === $segment_key ) {
+				continue;
+			}
+
+			if ( JobTypes::TRANSLATE_MISSING === $job_type && $this->is_missing_segment( $segment ) ) {
+				$keys[] = $segment_key;
+				continue;
+			}
+
+			if ( JobTypes::RETRANSLATE_STALE === $job_type && $this->is_stale_segment( $segment ) ) {
+				$keys[] = $segment_key;
+			}
+		}
+
+		return $keys;
+	}
+
+	/**
+	 * Whether a merged segment DTO is eligible for translate_missing.
+	 *
+	 * @param array<string, mixed> $segment Assembled segment.
+	 */
+	private function is_missing_segment( array $segment ): bool {
+		$status = (string) ( $segment['status'] ?? Store::STATUS_MISSING );
+		$text   = trim( (string) ( $segment['translated_text'] ?? '' ) );
+
+		return Store::STATUS_MISSING === $status || '' === $text;
+	}
+
+	/**
+	 * Whether a merged segment DTO is eligible for retranslate_stale.
+	 *
+	 * @param array<string, mixed> $segment Assembled segment.
+	 */
+	private function is_stale_segment( array $segment ): bool {
+		return ! empty( $segment['is_stale'] );
 	}
 
 	/**

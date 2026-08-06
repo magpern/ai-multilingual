@@ -253,6 +253,52 @@ final class BackgroundTranslationItemRepository {
 	}
 
 	/**
+	 * Atomically claim the next queued or retry_wait item for a job.
+	 *
+	 * @param int $job_id Job id.
+	 */
+	public function claim_next( int $job_id ): ?object {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$candidate = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT item_id, status FROM ' . Schema::job_items() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' WHERE job_id = %d AND status IN (%s, %s) ORDER BY item_id ASC LIMIT 1',
+				$job_id,
+				ItemStatuses::QUEUED,
+				ItemStatuses::RETRY_WAIT
+			)
+		);
+
+		if ( ! $candidate instanceof \stdClass ) {
+			return null;
+		}
+
+		$now = current_time( 'mysql', true );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$updated = $wpdb->query(
+			$wpdb->prepare(
+				'UPDATE ' . Schema::job_items() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' SET status = %s, started_at = %s, attempt_count = attempt_count + 1, updated_at = %s'
+				. ' WHERE item_id = %d AND status = %s',
+				ItemStatuses::RUNNING,
+				$now,
+				$now,
+				(int) $candidate->item_id,
+				(string) $candidate->status
+			)
+		);
+
+		if ( ! $updated ) {
+			return null;
+		}
+
+		return $this->find( (int) $candidate->item_id );
+	}
+
+	/**
 	 * Reset running items for a job back to queued (stale lease recovery).
 	 *
 	 * @param int $job_id Job id.
