@@ -1,0 +1,311 @@
+{
+    "provenance": {
+        "source_post_id": 4484,
+        "source_post_type": "elementor_library",
+        "template_type": "page",
+        "elementor": "4.2.1",
+        "elementor_pro": "4.2.1",
+        "exported_at": "2026-08-06T19:08:57+00:00",
+        "sanitized": true,
+        "note": "A.R1 research fixture \u2014 emails/tokens redacted; not for production."
+    },
+    "elements": [
+        {
+            "id": "bp_root",
+            "elType": "container",
+            "settings": {
+                "_title": "Status page shell",
+                "content_width": "full",
+                "min_height": {
+                    "unit": "vh",
+                    "size": 100
+                },
+                "flex_direction": "column",
+                "flex_justify_content": "center",
+                "flex_align_items": "center",
+                "padding": {
+                    "unit": "px",
+                    "top": "32",
+                    "right": "20",
+                    "bottom": "32",
+                    "left": "20",
+                    "isLinked": false
+                },
+                "background_background": "classic",
+                "background_color": "#0F1F33",
+                "background_overlay_background": "classic",
+                "background_overlay_image": {
+                    "url": "https://www.biopentra.eu/wp-content/uploads/2026/04/glas_molecole.webp",
+                    "id": 3502
+                },
+                "background_overlay_position": "center center",
+                "background_overlay_repeat": "no-repeat",
+                "background_overlay_size": "cover",
+                "background_overlay_opacity": {
+                    "unit": "px",
+                    "size": 0.14
+                }
+            },
+            "elements": [
+                {
+                    "id": "bp_card",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "width": {
+                            "unit": "px",
+                            "size": 680
+                        },
+                        "width_tablet": {
+                            "unit": "px",
+                            "size": 620
+                        },
+                        "flex_direction": "column",
+                        "flex_align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#FFFFFF",
+                        "border_border": "solid",
+                        "border_width": {
+                            "unit": "px",
+                            "top": "1",
+                            "right": "1",
+                            "bottom": "1",
+                            "left": "1",
+                            "isLinked": true
+                        },
+                        "border_color": "#E3EAF2",
+                        "border_radius": {
+                            "unit": "px",
+                            "top": "12",
+                            "right": "12",
+                            "bottom": "12",
+                            "left": "12",
+                            "isLinked": true
+                        },
+                        "padding": {
+                            "unit": "px",
+                            "top": "44",
+                            "right": "40",
+                            "bottom": "40",
+                            "left": "40",
+                            "isLinked": false
+                        },
+                        "padding_mobile": {
+                            "unit": "px",
+                            "top": "32",
+                            "right": "24",
+                            "bottom": "32",
+                            "left": "24",
+                            "isLinked": false
+                        },
+                        "box_shadow_box_shadow_type": "yes",
+                        "box_shadow_box_shadow": {
+                            "horizontal": 0,
+                            "vertical": 16,
+                            "blur": 48,
+                            "spread": 0,
+                            "color": "rgba(15, 31, 51, 0.18)"
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "bp_hide_chrome",
+                            "elType": "widget",
+                            "widgetType": "html",
+                            "settings": {
+                                "html": "<style id=\"bp-status-chrome\">body.elementor-maintenance-mode .ct-header,body.elementor-maintenance-mode header[data-id],body.elementor-maintenance-mode #header,body.elementor-maintenance-mode .ct-footer,body.elementor-maintenance-mode footer{display:none!important}body.elementor-maintenance-mode #main-container,body.elementor-maintenance-mode .site-main{padding-top:0!important;margin-top:0!important}body.elementor-maintenance-mode .ct-breadcrumbs,body.elementor-maintenance-mode .hero-section{display:none!important}</style>"
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "bp_logo",
+                            "elType": "widget",
+                            "widgetType": "image",
+                            "settings": {
+                                "image": {
+                                    "url": "https://www.biopentra.eu/wp-content/uploads/2026/04/biopentra_logo_r0_c0.webp",
+                                    "id": 3517
+                                },
+                                "image_size": "medium",
+                                "align": "center",
+                                "width": {
+                                    "unit": "px",
+                                    "size": 168
+                                },
+                                "_margin": {
+                                    "unit": "px",
+                                    "top": "0",
+                                    "right": "0",
+                                    "bottom": "28",
+                                    "left": "0",
+                                    "isLinked": false
+                                }
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "bp_eyebrow",
+                            "elType": "widget",
+                            "widgetType": "heading",
+                            "settings": {
+                                "title": "Scheduled maintenance",
+                                "header_size": "p",
+                                "align": "center",
+                                "title_color": "#1F5FAE",
+                                "typography_typography": "custom",
+                                "typography_font_size": {
+                                    "unit": "px",
+                                    "size": 11
+                                },
+                                "typography_font_weight": "600",
+                                "typography_letter_spacing": {
+                                    "unit": "px",
+                                    "size": 2.4
+                                },
+                                "typography_text_transform": "uppercase",
+                                "_margin": {
+                                    "unit": "px",
+                                    "top": "0",
+                                    "right": "0",
+                                    "bottom": "12",
+                                    "left": "0",
+                                    "isLinked": false
+                                }
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "bp_heading",
+                            "elType": "widget",
+                            "widgetType": "heading",
+                            "settings": {
+                                "title": "We'll be back shortly",
+                                "header_size": "h1",
+                                "align": "center",
+                                "title_color": "#0F1F33",
+                                "typography_typography": "custom",
+                                "typography_font_size": {
+                                    "unit": "px",
+                                    "size": 34
+                                },
+                                "typography_font_size_tablet": {
+                                    "unit": "px",
+                                    "size": 30
+                                },
+                                "typography_font_size_mobile": {
+                                    "unit": "px",
+                                    "size": 26
+                                },
+                                "typography_font_weight": "600",
+                                "typography_line_height": {
+                                    "unit": "em",
+                                    "size": 1.2
+                                },
+                                "_margin": {
+                                    "unit": "px",
+                                    "top": "0",
+                                    "right": "0",
+                                    "bottom": "16",
+                                    "left": "0",
+                                    "isLinked": false
+                                }
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "bp_subheading",
+                            "elType": "widget",
+                            "widgetType": "text-editor",
+                            "settings": {
+                                "editor": "<p style=\"text-align:center;margin:0;\">We are performing scheduled maintenance to improve your experience.</p>",
+                                "text_color": "#5A6B7F",
+                                "typography_typography": "custom",
+                                "typography_font_size": {
+                                    "unit": "px",
+                                    "size": 17
+                                },
+                                "typography_line_height": {
+                                    "unit": "em",
+                                    "size": 1.65
+                                },
+                                "_margin": {
+                                    "unit": "px",
+                                    "top": "0",
+                                    "right": "0",
+                                    "bottom": "20",
+                                    "left": "0",
+                                    "isLinked": false
+                                }
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "bp_divider",
+                            "elType": "widget",
+                            "widgetType": "divider",
+                            "settings": {
+                                "style": "solid",
+                                "weight": {
+                                    "unit": "px",
+                                    "size": 1
+                                },
+                                "color": "#E3EAF2",
+                                "width": {
+                                    "unit": "px",
+                                    "size": 72
+                                },
+                                "align": "center",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 0
+                                },
+                                "_margin": {
+                                    "unit": "px",
+                                    "top": "0",
+                                    "right": "0",
+                                    "bottom": "18",
+                                    "left": "0",
+                                    "isLinked": false
+                                }
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "bp_small",
+                            "elType": "widget",
+                            "widgetType": "text-editor",
+                            "settings": {
+                                "editor": "<p style=\"text-align:center;margin:0;\">Please check back soon.</p>",
+                                "text_color": "#7E93AB",
+                                "typography_typography": "custom",
+                                "typography_font_size": {
+                                    "unit": "px",
+                                    "size": 14
+                                },
+                                "typography_line_height": {
+                                    "unit": "em",
+                                    "size": 1.5
+                                }
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                }
+            ],
+            "isInner": false
+        }
+    ],
+    "walk_summary": {
+        "nodes": 9,
+        "widget_types": [
+            "html",
+            "image",
+            "heading",
+            "text-editor",
+            "divider"
+        ],
+        "dynamic_nodes": 0,
+        "repeater_nodes": 0
+    }
+}

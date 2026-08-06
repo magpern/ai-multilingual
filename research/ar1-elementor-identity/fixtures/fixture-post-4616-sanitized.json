@@ -1,0 +1,1194 @@
+{
+    "provenance": {
+        "source_post_id": 4616,
+        "source_post_type": "page",
+        "template_type": "wp-page",
+        "elementor": "4.2.1",
+        "elementor_pro": "4.2.1",
+        "exported_at": "2026-08-06T19:08:57+00:00",
+        "sanitized": true,
+        "note": "A.R1 research fixture \u2014 emails/tokens redacted; not for production."
+    },
+    "elements": [
+        {
+            "id": "c806c57",
+            "elType": "container",
+            "settings": {
+                "content_width": "full",
+                "flex_direction": "column",
+                "align_items": "stretch"
+            },
+            "elements": [
+                {
+                    "id": "941e6d4",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "f551448",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "695c187",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        }
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "ec04b2e",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "How to pay with crypto",
+                                                "header_size": "h1"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "51170be",
+                                            "elType": "widget",
+                                            "widgetType": "text-editor",
+                                            "settings": {
+                                                "editor": "<p>Biopentra accepts crypto payments in two ways: pay with Bitcoin directly, or pay with your card through an independent third-party provider that converts your payment to crypto. This guide explains what to expect at checkout.</p>"
+                                            },
+                                            "elements": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "d33f3d8",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#FFFFFF",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "3616e68",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "786af1c",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        },
+                                        "_element_id": "pay-with-bitcoin"
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "681383c",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "Pay with Bitcoin (BTCPay)",
+                                                "header_size": "h2"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "be7abf2",
+                                            "elType": "widget",
+                                            "widgetType": "text-editor",
+                                            "settings": {
+                                                "editor": "<ol><li>At checkout, select the <strong>Bitcoin / BTCPay</strong> payment method (the exact label is shown at checkout).</li><li>Click <strong>Place order</strong>. You may be redirected to BTCPay or see an invoice modal, depending on store configuration.</li><li>Pay the invoice amount using your wallet (QR code, copy address, or wallet connect, as offered).</li><li>Complete payment before the invoice expires.</li><li>Order confirmation is sent by email. Timing depends on network confirmation. You may or may not return to the shop afterward.</li></ol>"
+                                            },
+                                            "elements": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "25a832c",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "de1f751",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "493d513",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        },
+                                        "_element_id": "pay-with-card"
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "f871769",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "Pay with card (card-to-crypto overview)",
+                                                "header_size": "h2"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "adef96e",
+                                            "elType": "widget",
+                                            "widgetType": "text-editor",
+                                            "settings": {
+                                                "editor": "<p>When you select the Blockchain.com payment method \u2014 or any other method labelled <strong>\u201cCard to\u2026\u201d</strong> \u2014 you are redirected to a third-party payment provider. The process is usually similar: register (first time) or log in (returning). First-time users <strong>often</strong> need identity verification (KYC). Follow the provider\u2019s instructions.</p><p><strong>Important:</strong> Do not change the cryptocurrency or wallet/blockchain address shown during checkout \u2014 these are set by the payment flow.</p><ol><li>At checkout, select a <strong>card-to-crypto</strong> payment method (the provider name is shown at checkout).</li><li>Click <strong>Place order</strong> \u2014 you are redirected to that provider\u2019s hosted checkout (not Biopentra).</li><li>The provider may request identity verification, depending on their requirements and your history with them.</li><li>Pay using a payment method accepted by that provider. Debit cards are often more reliable than credit cards, but acceptance varies.</li><li>After the provider completes payment, Biopentra receives confirmation asynchronously. You should receive an order confirmation email. You may or may not be redirected back to the shop.</li></ol>"
+                                            },
+                                            "elements": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "c4d3725",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#FFFFFF",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "3389d80",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "c6dd679",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        },
+                                        "_element_id": "pay-with-blockchain-com"
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "e078b03",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "Pay with Blockchain.com",
+                                                "header_size": "h2"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "213d621",
+                                            "elType": "widget",
+                                            "widgetType": "text-editor",
+                                            "settings": {
+                                                "editor": "<p id=\"pay-with-blockchain-com\">Detailed walkthrough for the Blockchain.com card-to-crypto gateway. Other <strong>Card to\u2026</strong> providers follow a similar pattern, but screens and options may differ.</p>"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "38e4c08",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "On the provider checkout",
+                                                "header_size": "h3"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "5177b81",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "af7b781",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p><strong>Step 1 \u2014 Amount:</strong> You are presented with a screen for the order amount. Accept it and press <strong>Preview buy</strong>.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "31f5979",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/blockchain-amount-preview-buy.png",
+                                                            "id": 4606,
+                                                            "size": "large",
+                                                            "alt": "Blockchain.com checkout showing order amount and Preview buy button",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "c79e26e",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "e00e700",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p><strong>Step 2 \u2014 Email:</strong> Log in or supply your email address.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "41f663e",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/blockchain-login-email.png",
+                                                            "id": 4607,
+                                                            "size": "large",
+                                                            "alt": "Blockchain.com login or email entry screen",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "cef42ed",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "a29c08a",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p><strong>Step 3 \u2014 Verify email:</strong> Complete email verification as instructed.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "cadb15a",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/blockchain-verify-email.png",
+                                                            "id": 4608,
+                                                            "size": "large",
+                                                            "alt": "Email verification step on Blockchain.com",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "f6e2fe4",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "09818fc",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p><strong>Step 4 \u2014 KYC form:</strong> Fill out identity verification if required. This information is sent to the payment provider only \u2014 not to Biopentra.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "f46091d",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/blockchain-kyc-form.png",
+                                                            "id": 4609,
+                                                            "size": "large",
+                                                            "alt": "KYC information form on payment provider",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "ee10315",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "1244d8b",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p><strong>Step 5 \u2014 Government ID:</strong> If instructed to complete KYC, you may need a government-issued ID (such as a passport).</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "4f912d3",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/blockchain-kyc-id.png",
+                                                            "id": 4610,
+                                                            "size": "large",
+                                                            "alt": "Government ID upload for KYC verification",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "714a695",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "609a27b",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p><strong>Step 6 \u2014 Payment method:</strong> Select a payment option accepted by the provider. The example below shows <strong>Google Pay</strong> \u2014 <em>example only; available payment methods depend on the provider and your region.</em></p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "270be54",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/blockchain-payment-google-pay.png",
+                                                            "id": 4611,
+                                                            "size": "large",
+                                                            "alt": "Payment method selection example using Google Pay on Blockchain.com",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "da4aec7",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "d2dc91c",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p><strong>Step 7 \u2014 Complete purchase:</strong> Review and complete the purchase. The wallet address and cryptocurrency type are pre-set for this order \u2014 do not modify them.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "030b1ed",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/blockchain-complete-purchase.png",
+                                                            "id": 4612,
+                                                            "size": "large",
+                                                            "alt": "Final purchase confirmation with pre-set crypto address on Blockchain.com",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "1f4fbc3",
+                                            "elType": "widget",
+                                            "widgetType": "text-editor",
+                                            "settings": {
+                                                "editor": "<p><strong>Step 8 \u2014 Payment completed:</strong> Once payment is completed on the provider site, you can ignore any subsequent pages there. The crypto transfer may take several minutes; timing varies.</p><p><strong>Step 9 \u2014 After payment:</strong> Typically you are <strong>not</strong> returned to the shop automatically. If you return manually, your order may temporarily appear unpaid and your cart may still look populated while settlement completes \u2014 this can be normal.</p>"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "08bc2ad",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "What you\u2019ll see back in the store",
+                                                "header_size": "h3"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "08ad821",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "76811af",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p>While the payment is being registered, your order may show as awaiting payment. Wait rather than placing a duplicate order.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "b875659",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/biopentra-order-pending-payment.png",
+                                                            "id": 4613,
+                                                            "size": "large",
+                                                            "alt": "Biopentra order showing pending payment while settlement completes",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "c938d27",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "2772f19",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p>After a few minutes, the status should change to <strong>Processing</strong> once payment is confirmed.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "626d761",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/biopentra-order-processing.png",
+                                                            "id": 4614,
+                                                            "size": "large",
+                                                            "alt": "Biopentra order status changed to Processing",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "id": "db9ea36",
+                                            "elType": "container",
+                                            "settings": {
+                                                "content_width": "full",
+                                                "flex_direction": "column",
+                                                "padding": {
+                                                    "unit": "px",
+                                                    "top": "0",
+                                                    "right": "0",
+                                                    "bottom": "24",
+                                                    "left": "0",
+                                                    "isLinked": false
+                                                }
+                                            },
+                                            "elements": [
+                                                {
+                                                    "id": "b093499",
+                                                    "elType": "widget",
+                                                    "widgetType": "text-editor",
+                                                    "settings": {
+                                                        "editor": "<p>When payment is registered, you will receive a confirmation email. You will receive a separate email when your order is shipped.</p>"
+                                                    },
+                                                    "elements": []
+                                                },
+                                                {
+                                                    "id": "9a35881",
+                                                    "elType": "widget",
+                                                    "widgetType": "image",
+                                                    "settings": {
+                                                        "image": {
+                                                            "url": "https://dev.biopentra.eu/wp-content/uploads/2026/07/biopentra-order-confirmation-email.png",
+                                                            "id": 4615,
+                                                            "size": "large",
+                                                            "alt": "Order confirmation email from Biopentra",
+                                                            "source": "library"
+                                                        }
+                                                    },
+                                                    "elements": []
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "1689a95",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "9eb3899",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "b756e02",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        }
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "bae0ab7",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "Other card-to-crypto providers",
+                                                "header_size": "h2"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "da4b1bc",
+                                            "elType": "widget",
+                                            "widgetType": "text-editor",
+                                            "settings": {
+                                                "editor": "<p><strong>Revolut</strong> and <strong>Bitnovo</strong> use the same general flow described above. Screens, verification steps, accepted cards, and redirect behaviour <strong>may differ</strong> from Blockchain.com. Select the provider shown at checkout and follow its instructions.</p>"
+                                            },
+                                            "elements": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "e632d89",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#FFFFFF",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "ebffd97",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "496e2c6",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        }
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "837d004",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "Fees",
+                                                "header_size": "h2"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "4dc19a9",
+                                            "elType": "widget",
+                                            "widgetType": "text-editor",
+                                            "settings": {
+                                                "editor": "<p>Payment fees, if any, are shown on the payment method label and in your order total at checkout.</p><table><thead><tr><th></th><th>Bitcoin (BTCPay)</th><th>Card-to-crypto</th></tr></thead><tbody><tr><td>Fee</td><td>Shown at checkout</td><td>Shown at checkout</td></tr></tbody></table>"
+                                            },
+                                            "elements": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "6ab73a6",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "71e22fe",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "8472fde",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        }
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "8a128c7",
+                                            "elType": "widget",
+                                            "widgetType": "heading",
+                                            "settings": {
+                                                "title": "Frequently asked questions",
+                                                "header_size": "h2"
+                                            },
+                                            "elements": []
+                                        },
+                                        {
+                                            "id": "772beff",
+                                            "elType": "widget",
+                                            "widgetType": "toggle",
+                                            "settings": {
+                                                "tabs": [
+                                                    {
+                                                        "tab_title": "Why was I sent to another website to pay?",
+                                                        "tab_content": "Card-to-crypto payments are completed on the provider\u2019s secure checkout. Biopentra does not process card details directly."
+                                                    },
+                                                    {
+                                                        "tab_title": "Does Biopentra see my card, ID, or KYC details?",
+                                                        "tab_content": "No. Identity verification and card payment are handled entirely by the third-party provider."
+                                                    },
+                                                    {
+                                                        "tab_title": "Why does my order still look unpaid after I paid?",
+                                                        "tab_content": "Settlement can take several minutes. Your order should update once the provider confirms payment to Biopentra."
+                                                    },
+                                                    {
+                                                        "tab_title": "Why wasn\u2019t I returned to the shop?",
+                                                        "tab_content": "Many provider checkouts do not redirect back to the store. Wait for your confirmation email instead of placing a duplicate order."
+                                                    },
+                                                    {
+                                                        "tab_title": "How long until my order is confirmed?",
+                                                        "tab_content": "Often within a few minutes, but timing varies depending on the provider and payment method."
+                                                    },
+                                                    {
+                                                        "tab_title": "Which payment method should I choose?",
+                                                        "tab_content": "Bitcoin (BTCPay) suits customers with a crypto wallet. Card-to-crypto suits customers who prefer paying by card."
+                                                    },
+                                                    {
+                                                        "tab_title": "What if payment fails or I close the browser?",
+                                                        "tab_content": "Return to checkout and try again, or contact support with your order number if you were charged but the order did not update."
+                                                    }
+                                                ]
+                                            },
+                                            "elements": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "eb6cd4d",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "align_items": "center",
+                        "background_background": "classic",
+                        "background_color": "#FFFFFF",
+                        "padding": {
+                            "unit": "px",
+                            "top": "48",
+                            "right": "40",
+                            "bottom": "48",
+                            "left": "40",
+                            "isLinked": false
+                        }
+                    },
+                    "elements": [
+                        {
+                            "id": "aae756e",
+                            "elType": "container",
+                            "settings": {
+                                "content_width": "full",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 1240,
+                                    "unit": "px"
+                                },
+                                "flex_direction": "column",
+                                "align_items": "flex-start"
+                            },
+                            "elements": [
+                                {
+                                    "id": "afb4b67",
+                                    "elType": "container",
+                                    "settings": {
+                                        "width": {
+                                            "size": 100,
+                                            "unit": "%"
+                                        },
+                                        "max_width": {
+                                            "size": 820,
+                                            "unit": "px"
+                                        },
+                                        "flex_direction": "column",
+                                        "align_items": "flex-start",
+                                        "gap": {
+                                            "unit": "px",
+                                            "size": 16,
+                                            "sizes": [],
+                                            "column": "16",
+                                            "row": "16",
+                                            "isLinked": true
+                                        }
+                                    },
+                                    "elements": [
+                                        {
+                                            "id": "7d11449",
+                                            "elType": "widget",
+                                            "widgetType": "button",
+                                            "settings": {
+                                                "text": "Proceed to checkout",
+                                                "link": {
+                                                    "url": "https://dev.biopentra.eu/checkout/",
+                                                    "is_external": "",
+                                                    "nofollow": ""
+                                                },
+                                                "align": "left"
+                                            },
+                                            "elements": []
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "walk_summary": {
+        "nodes": 73,
+        "widget_types": [
+            "heading",
+            "text-editor",
+            "image",
+            "toggle",
+            "button"
+        ],
+        "dynamic_nodes": 0,
+        "repeater_nodes": 0
+    }
+}

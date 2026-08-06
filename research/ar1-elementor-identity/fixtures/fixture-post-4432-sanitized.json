@@ -1,0 +1,599 @@
+{
+    "provenance": {
+        "source_post_id": 4432,
+        "source_post_type": "page",
+        "template_type": "",
+        "elementor": "4.2.1",
+        "elementor_pro": "4.2.1",
+        "exported_at": "2026-08-06T19:08:57+00:00",
+        "sanitized": true,
+        "note": "A.R1 research fixture \u2014 emails/tokens redacted; not for production."
+    },
+    "elements": [
+        {
+            "id": "lyoroot",
+            "elType": "container",
+            "settings": {
+                "content_width": "full",
+                "flex_direction": "column",
+                "align_items": "center",
+                "css_classes": "lyoroot"
+            },
+            "elements": [
+                {
+                    "id": "lyohero",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "background_background": "classic",
+                        "background_color": "#F6F9FC",
+                        "padding": {
+                            "unit": "px",
+                            "top": "40",
+                            "right": "20",
+                            "bottom": "36",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center",
+                        "background_overlay_background": "classic",
+                        "background_overlay_image": {
+                            "url": "https://www.biopentra.eu/wp-content/uploads/2026/04/glas_molecole.webp",
+                            "id": 3502,
+                            "size": "",
+                            "alt": "",
+                            "source": "library"
+                        },
+                        "background_overlay_position": "center center",
+                        "background_overlay_repeat": "no-repeat",
+                        "background_overlay_size": "cover",
+                        "background_overlay_opacity": {
+                            "unit": "px",
+                            "size": 0.55,
+                            "sizes": []
+                        },
+                        "css_classes": "bp-seo-hero"
+                    },
+                    "elements": [
+                        {
+                            "id": "lyoheroin",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 10,
+                                    "sizes": []
+                                },
+                                "align_items": "flex-start",
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "lyobc",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\"><a href=\"https://www.biopentra.eu/\" style=\"color:#1F5FAE;text-decoration:none\">Home</a> &gt; Resources &gt; Lyophilized Research Materials</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoH1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h1",
+                                        "title": "Lyophilized Research Materials",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyointro",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Lyophilized research materials are freeze-dried preparations used widely in laboratory settings. In simple terms, lyophilization removes moisture from a material while it is frozen, leaving a dry powder or cake that is easier to store and ship than many liquid forms.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Research suppliers often use this format for peptide stability during transport and inventory holding. Dry materials can reduce routine moisture exposure in the lab, provided they are kept cool, protected from light, and handled according to institutional protocols.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Many peptide products in research commerce are supplied as lyophilized peptides because the format aligns with common laboratory workflows and catalog organization. This page explains the terminology, practical handling themes, and how lyophilized listings relate to other BioPentra resource guides.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">The content is educational and intended for qualified laboratory research contexts only. It does not describe medical use, preparation steps for administration, or guarantees about shelf life.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2sr7c51",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-search-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2ss7c5",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_home_search]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2ct7c51",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-cats-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2cc7c5",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_home_categories]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "b2gr7c51",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "css_classes": "bp-seo-grid-section"
+                    },
+                    "elements": [
+                        {
+                            "id": "b2grid4432",
+                            "elType": "widget",
+                            "widgetType": "loop-grid",
+                            "settings": {
+                                "_skin": "product",
+                                "template_id": "3608",
+                                "columns": 4,
+                                "columns_tablet": 3,
+                                "columns_mobile": 2,
+                                "posts_per_page": 8,
+                                "equal_height": "yes",
+                                "query_post_type": "product",
+                                "query_orderby": "post_date",
+                                "query_order": "desc",
+                                "pagination_type": "",
+                                "nothing_found_message_text": "No products matched this category guide."
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "b2lk7c5",
+                            "elType": "widget",
+                            "widgetType": "shortcode",
+                            "settings": {
+                                "shortcode": "[biopentra_wc_archive_link slug=\"research-peptides\"]"
+                            },
+                            "elements": []
+                        }
+                    ],
+                    "isInner": true
+                },
+                {
+                    "id": "lyobody",
+                    "elType": "container",
+                    "settings": {
+                        "content_width": "full",
+                        "flex_direction": "column",
+                        "padding": {
+                            "unit": "px",
+                            "top": "32",
+                            "right": "20",
+                            "bottom": "48",
+                            "left": "20",
+                            "isLinked": false
+                        },
+                        "align_items": "center",
+                        "css_classes": "bp-seo-body"
+                    },
+                    "elements": [
+                        {
+                            "id": "lyoinner",
+                            "elType": "container",
+                            "settings": {
+                                "flex_direction": "column",
+                                "gap": {
+                                    "unit": "px",
+                                    "size": 6,
+                                    "sizes": []
+                                },
+                                "width": {
+                                    "size": 100,
+                                    "unit": "%"
+                                },
+                                "max_width": {
+                                    "size": 920,
+                                    "unit": "px"
+                                }
+                            },
+                            "elements": [
+                                {
+                                    "id": "lyosec1",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "What does lyophilized mean?",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec2",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Lyophilized means freeze-dried. A material is frozen, then moisture is removed under controlled vacuum conditions so the solid structure remains largely intact. The result is typically a light powder or porous solid rather than a liquid solution.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Moisture removal is the central idea. By reducing water content, lyophilized research materials are often discussed in terms of peptide stability during storage and handling, especially when laboratories aim to limit unnecessary exposure to humidity and temperature fluctuations.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Researchers encounter this format across many research compounds, not only peptides. On a storefront, the label helps distinguish dry supplied materials from other presentations and signals that storage and handling guidance should be read alongside catalog details.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec3",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Why are lyophilized materials commonly used in research?",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec4",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Freeze-dried presentation is common in research supply chains because it can support transport stability when packaging and cold-chain practices are appropriate. Laboratories receiving shipments often document conditions on arrival and move materials into controlled storage promptly.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Long-term storage considerations depend on institutional standards, labeling, and how inventories are organized. Lyophilized materials are typically handled with attention to moisture, light, and temperature\u2014themes that appear repeatedly in laboratory research documentation.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Consistency of material handling matters for inventory control: reconciling SKUs, variation strengths, and storage location labels reduces mix-ups when multiple lyophilized peptides are stored in parallel. Reduced moisture exposure during routine handling is a practical reason freeze-dried formats remain common in peptide catalogs.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">These are operational themes for laboratory research, not instructions for use outside qualified research settings. Individual compounds may have different labeling notes, and each facility applies its own storage standards.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec5",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Storage and handling considerations",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec6",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Cool and dry storage is a recurring recommendation for lyophilized research materials. Direct light exposure is generally minimized, and containers are kept closed until needed for a defined laboratory procedure.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Minimizing unnecessary opening, transfer, and ambient exposure helps maintain orderly handling, even though specific requirements vary by compound and facility. Environmental considerations such as humidity monitoring and clean storage areas are part of routine laboratory management.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">BioPentra publishes broader guidance on receiving, labeling, and inventory practices on the <a href=\"https://www.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none\">Storage &amp; Handling</a> page. Researchers should also follow any documentation supplied with a given material and their institution's standard operating procedures.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec7",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Lyophilized peptides and product variations",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec8",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Lyophilized peptides are often listed with multiple strengths or concentrations so researchers can select a catalog option aligned with an experimental design. Variation labels on product pages describe the supplied amount per vial or unit, not a use protocol.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">On BioPentra, variation selection appears on individual product listings where applicable. Organizing materials by strength supports laboratory inventory planning and order reconciliation when the same compound is stocked at more than one level.</p><p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">For a focused explanation of how variations are presented across the catalog, see <a href=\"https://www.biopentra.eu/product-variations-and-concentrations/\" style=\"color:#1F5FAE;text-decoration:none\">Product Variations &amp; Concentrations</a>. Related category pages such as <a href=\"https://www.biopentra.eu/metabolic-research-peptides/\" style=\"color:#1F5FAE;text-decoration:none\">Metabolic Research Peptides</a> and <a href=\"https://www.biopentra.eu/growth-hormone-releasing-peptides/\" style=\"color:#1F5FAE;text-decoration:none\">Growth Hormone Releasing Peptides</a> also link back to lyophilized handling themes where relevant.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd0",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Commonly supplied lyophilized research products",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd1",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Examples below illustrate how lyophilized peptides appear across the catalog. Mentions are for reference only and link to individual product pages.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd2",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "BPC-157",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd3",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">BPC-157 is supplied as a lyophilized research peptide in the catalog. See <a href=\"https://www.biopentra.eu/product/bpc-157/\" style=\"color:#1F5FAE;text-decoration:none\">BPC-157</a> for listing details and available strengths.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd4",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "TB-500",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd5",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">TB-500 appears among lyophilized peptide listings used in laboratory research inventories. View <a href=\"https://www.biopentra.eu/product/tb-500/\" style=\"color:#1F5FAE;text-decoration:none\">TB-500</a> for product information.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd6",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "CJC-1295 No DAC + IPA",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd7",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">This dual-peptide listing is provided in lyophilized form where noted on the product page. See <a href=\"https://www.biopentra.eu/product/cjc-1295-no-dac-ipa/\" style=\"color:#1F5FAE;text-decoration:none\">CJC-1295 No DAC + IPA</a> for catalog context.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd8",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "MOTS-C",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd9",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">MOTS-C is listed as a lyophilized research material with variation options on its product page. Review <a href=\"https://www.biopentra.eu/product/mots-c/\" style=\"color:#1F5FAE;text-decoration:none\">MOTS-C</a> for current availability.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd10",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Triple G (Retatrutide)",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd11",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Retatrutide is among metabolic research peptides commonly supplied in lyophilized presentation. See <a href=\"https://www.biopentra.eu/product/triple-g/\" style=\"color:#1F5FAE;text-decoration:none\">Triple G (Retatrutide)</a> for strengths and listing notes.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd12",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h3",
+                                        "title": "Kisspeptin",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyoprd13",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Kisspeptin is cataloged as a lyophilized research peptide for laboratory reference. Visit <a href=\"https://www.biopentra.eu/product/kisspeptin/\" style=\"color:#1F5FAE;text-decoration:none\">Kisspeptin</a> for product-specific details.</p>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec9",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Frequently asked questions",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyofaq",
+                                    "elType": "widget",
+                                    "widgetType": "accordion",
+                                    "settings": {
+                                        "tabs": [
+                                            {
+                                                "_id": "ca4722d4",
+                                                "tab_title": "What does lyophilized mean?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Lyophilized means freeze-dried. Moisture is removed from a frozen material under controlled conditions, producing a dry powder or solid commonly used for research inventory and transport.</p>"
+                                            },
+                                            {
+                                                "_id": "bf34136c",
+                                                "tab_title": "Why are research materials freeze-dried?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Freeze-drying is widely used to reduce moisture content and support handling workflows in research supply chains. Laboratories often prefer dry formats for storage organization and transport stability when appropriate packaging is used.</p>"
+                                            },
+                                            {
+                                                "_id": "5832fc5a",
+                                                "tab_title": "How should lyophilized materials be stored?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Store cool and dry, protect from unnecessary light exposure, and follow institutional protocols plus any labeling supplied with the material. See Storage &amp; Handling for general BioPentra guidance.</p>"
+                                            },
+                                            {
+                                                "_id": "92fff08e",
+                                                "tab_title": "Why are products available in multiple strengths?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Multiple strengths let researchers order a catalog variation suited to an experimental plan. Available options are shown on each product page where variations exist.</p>"
+                                            },
+                                            {
+                                                "_id": "80625cad",
+                                                "tab_title": "Are lyophilized products intended for human use?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">No. BioPentra materials are for laboratory research use only and are not intended for human or veterinary consumption, diagnosis, or treatment.</p>"
+                                            },
+                                            {
+                                                "_id": "3820c109",
+                                                "tab_title": "Why are some materials supplied in powder form?",
+                                                "tab_content": "<p style=\"margin:0 0 14px;font-size:16px;line-height:1.55;color:#3D4F66\">Powder or cake form is the typical appearance of lyophilized material after freeze-drying. The dry presentation is a supply format for research handling and storage, not a statement about application outside the laboratory.</p>"
+                                            }
+                                        ],
+                                        "selected_icon": {
+                                            "value": "fas fa-angle-down",
+                                            "library": "fa-solid"
+                                        },
+                                        "selected_active_icon": {
+                                            "value": "fas fa-angle-up",
+                                            "library": "fa-solid"
+                                        },
+                                        "title_html_tag": "div",
+                                        "faq_schema": "yes",
+                                        "icon_align": "right",
+                                        "border_width": {
+                                            "unit": "px",
+                                            "size": 1,
+                                            "sizes": []
+                                        },
+                                        "border_color": "#E3EAF2",
+                                        "title_background": "#FFFFFF",
+                                        "title_color": "#0F1F33",
+                                        "tab_active_color": "#1F5FAE",
+                                        "icon_color": "#1F5FAE",
+                                        "icon_active_color": "#1F5FAE",
+                                        "content_background_color": "#FFFFFF",
+                                        "content_color": "#3D4F66",
+                                        "title_padding": {
+                                            "unit": "px",
+                                            "top": "12",
+                                            "right": "14",
+                                            "bottom": "12",
+                                            "left": "14",
+                                            "isLinked": false
+                                        },
+                                        "content_padding": {
+                                            "unit": "px",
+                                            "top": "10",
+                                            "right": "14",
+                                            "bottom": "14",
+                                            "left": "14",
+                                            "isLinked": false
+                                        }
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec10",
+                                    "elType": "widget",
+                                    "widgetType": "heading",
+                                    "settings": {
+                                        "header_size": "h2",
+                                        "title": "Related information",
+                                        "title_color": "#0F1F33"
+                                    },
+                                    "elements": []
+                                },
+                                {
+                                    "id": "lyosec11",
+                                    "elType": "widget",
+                                    "widgetType": "text-editor",
+                                    "settings": {
+                                        "editor": "<ul style=\"margin:0;padding:0 0 0 1.1em;color:#3D4F66;font-size:15px;line-height:1.6\"><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/faq/\" style=\"color:#1F5FAE;text-decoration:none\">FAQ</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/storage-handling/\" style=\"color:#1F5FAE;text-decoration:none\">Storage &amp; Handling</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/research-use-disclaimer/\" style=\"color:#1F5FAE;text-decoration:none\">Research &amp; Intended Use</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/product-variations-and-concentrations/\" style=\"color:#1F5FAE;text-decoration:none\">Product Variations &amp; Concentrations</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/growth-hormone-releasing-peptides/\" style=\"color:#1F5FAE;text-decoration:none\">Growth Hormone Releasing Peptides</a></li><li style=\"margin-bottom:8px\"><a href=\"https://www.biopentra.eu/metabolic-research-peptides/\" style=\"color:#1F5FAE;text-decoration:none\">Metabolic Research Peptides</a></li></ul>",
+                                        "text_color": "#3D4F66"
+                                    },
+                                    "elements": []
+                                }
+                            ],
+                            "isInner": true
+                        }
+                    ],
+                    "isInner": true
+                }
+            ]
+        }
+    ],
+    "walk_summary": {
+        "nodes": 41,
+        "widget_types": [
+            "text-editor",
+            "heading",
+            "shortcode",
+            "loop-grid",
+            "accordion"
+        ],
+        "dynamic_nodes": 0,
+        "repeater_nodes": 1
+    }
+}
