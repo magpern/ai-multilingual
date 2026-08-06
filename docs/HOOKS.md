@@ -149,6 +149,34 @@ include `X-AIML-Glossary-Api-Version: 1` and serialize ViewModels only — never
 
 Admin UI: `src/Admin/GlossaryAdminPage.php` (submenu under Multilingual).
 
+## Background Translation Jobs REST — `src/Jobs/JobsController.php`
+
+| Hook | Purpose |
+|---|---|
+| `rest_api_init` | Registers `aiml/v1/jobs/*` for orchestration (ADR-0011). |
+
+Capabilities: `aiml_view_translation_jobs`, `aiml_manage_translation_jobs`,
+`aiml_run_translation_jobs`, `aiml_cancel_translation_jobs` (see
+`JobsCapabilities`). Controllers never hold canonical translation bodies;
+Store remains SoT for content. Diagnostics never include secrets, prompts, or
+segment bodies. Operator runbook:
+[`docs/ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md`](ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md).
+
+| Method | Route |
+|---|---|
+| GET | `/aiml/v1/jobs/health` |
+| GET | `/aiml/v1/jobs/diagnostics` |
+| GET | `/aiml/v1/jobs` |
+| POST | `/aiml/v1/jobs` |
+| GET | `/aiml/v1/jobs/{id}` |
+| GET | `/aiml/v1/jobs/batch/{batch_id}` |
+| POST | `/aiml/v1/jobs/{id}/pause` |
+| POST | `/aiml/v1/jobs/{id}/resume` |
+| POST | `/aiml/v1/jobs/{id}/cancel` |
+| POST | `/aiml/v1/jobs/{id}/retry-failed` |
+
+CLI: `wp aiml jobs {list\|show\|run\|pause\|resume\|cancel\|retry-failed\|cleanup}`.
+
 ## Deliberately not hooked
 
 - **No rewrite rules.** `add_rewrite_rule`, `add_rewrite_tag` and
@@ -157,7 +185,7 @@ Admin UI: `src/Admin/GlossaryAdminPage.php` (submenu under Multilingual).
 - **No cookie.** The URL is the only language authority in this milestone, so
   front-end responses carry no `Set-Cookie` and stay cacheable at the edge.
 - **REST under `aiml/v1` only.** Allowed controllers: `WorkspaceController`,
-  `ProviderController`, and `GlossaryController`.
+  `ProviderController`, `GlossaryController`, and `JobsController`.
 - **No deactivation hook.** Deactivation must remove nothing, so there is
   nothing for it to do.
 - **No WooCommerce hooks yet** beyond the compatibility declaration.

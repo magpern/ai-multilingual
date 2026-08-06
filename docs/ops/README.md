@@ -27,10 +27,16 @@ Additional P1 ops docs (diagnostics, backup, rollback, maintenance) are added in
 ```bash
 cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
   wp eval-file wp-content/plugins/ai-multilingual/acceptance/p1/health-probe.php
+
+cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
+  wp eval-file wp-content/plugins/ai-multilingual/acceptance/p1/deploy-verify.php
 ```
 
-Further harnesses (`deploy-verify.php`, `schema-verify.php`, `diagnostics-smoke.php`) land in S1–S4.
+Further harnesses (`schema-verify.php`, `diagnostics-smoke.php`) land in S3–S4.
 
 OpenAI behavioural baseline (when AI changes): `acceptance/rc/v1-openai-rc.php`.
+
+Deployment procedures: [DEPLOYMENT.md](../DEPLOYMENT.md) (Platform v1.0.0 section).  
+REST catalogue: [HOOKS.md](../HOOKS.md).
 
 **Secrets:** Never paste API keys, Authorization headers, prompts, or full ciphertext into tickets or validation logs—record lengths / redacted prefixes only.

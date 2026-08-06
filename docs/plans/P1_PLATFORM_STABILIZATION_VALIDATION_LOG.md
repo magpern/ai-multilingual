@@ -96,7 +96,12 @@ cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
 
 ## S2 — Ops/docs alignment
 
-**Result:** _(pending)_
+**Result:** **PASS** (2026-08-06)
+
+- `docs/HOOKS.md` — Jobs REST family documented; allowlist includes `JobsController`
+- `docs/DEPLOYMENT.md` — Platform v1.0.0 deploy/upgrade/rollback section
+- `docs/ops/README.md` — updated verification commands
+- Live probes from S0/S1 already exercised the documented Jobs/Workspace/Glossary/Provider routes
 
 ---
 
