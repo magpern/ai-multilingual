@@ -1,25 +1,23 @@
 # Background Translation Jobs — Implementation Plan
 
-**Status:** Architecture **frozen** (planning approved 2026-08-06); ADR-0011 amendment **Proposed** — **J1+ blocked** until Gate A or Gate B  
-**Branch:** `feature/background-translation-jobs-plan`  
-**Baseline:** `main` @ `adf38640f71b99ec027f7fef8d9131233e366618` (after Review Workflow closure)  
-**ADR:** [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) — Accepted baseline; **amendment Proposed** (implementation gate)  
+**Status:** ADR-0011 amendment **Accepted** (2026-08-06) — **J1 implementation authorized**  
+**Branch:** `feature/background-translation-jobs`  
+**Baseline:** `main` after Jobs planning merge (`3f7341a31`)  
+**ADR:** [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) — **Amended ADR Accepted** (Gate A)  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) §11.3  
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md)
 
-**Production schema today:** Migrator `TARGET = 5` (unchanged by this planning delivery). Jobs schema target **6** is documentation-only until J1.  
-**J0 gate:** **OPEN** — plan frozen; amended ADR-0011 disposition required before J1.  
-**Implementation scope / WP order:** J0–J8 (unchanged). **No production code in this planning delivery.**
+**Production schema today:** Migrator `TARGET = 5` until J1 lands additive step **6**.  
+**J0 gate:** **PASS** — Amended ADR-0011 Accepted — J1 authorized.  
+**Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance
 
-| Gate | Requirement | J1+ |
+| Gate | Requirement | Status |
 |---|---|---|
-| Plan freeze | This document approved | Required |
-| **Gate A** | Amended ADR-0011 explicitly **Accepted** after amendment review | Sufficient alone |
-| **Gate B** | Complete PO provisional approval (decision maker, date, scope, residual risks, review date, expiration/revalidation) | Sufficient alone |
-
-A generic “ADR-0011 was already Accepted” is **insufficient**. This plan does **not** Accept the amendment; Product Owner disposition is required.
+| Plan freeze | This document approved | **PASS** |
+| **Gate A** | Amended ADR-0011 explicitly **Accepted** | **PASS** (2026-08-06) |
+| **Gate B** | Complete PO provisional approval | **Not applicable** |
 
 ---
 
