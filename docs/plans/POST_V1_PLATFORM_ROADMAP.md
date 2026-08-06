@@ -37,7 +37,7 @@ Navigation aid only. Does not replace the detailed programs below.
 ### NOW
 
 - Platform **v1.0.0** released and in use as the engineering baseline
-- **P1 — Platform Stabilization** is the active program (production validation, ops/docs alignment, v1.0.x maintenance)
+- **P1 — Platform Stabilization** is the active program — implementation plan: [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md)
 
 ### NEXT
 
@@ -118,7 +118,8 @@ Types aid planning. They do not change ordering.
 **Why:** A just-released platform needs deploy evidence and ops discipline more than new extractors.  
 **Success:** Controlled production validation; schema target 6 confirmed; rollback/kill-switch rehearsal current; docs match shipped surfaces; render cache remains off until a measured GO.  
 **Boundaries:** Fixes, docs, packaging, diagnostics clarity, provider compatibility—no new identity families.  
-**Size / risk:** Small / Low.
+**Size / risk:** Small / Low.  
+**Implementation plan:** [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md) (awaiting architecture review and freeze).
 
 | ID | Milestone | Type |
 |---|---|---|
@@ -395,7 +396,7 @@ That end-state is approached through programs A–E after P1; it is not a single
 
 ## 12. First milestone and stopping guidance
 
-**Start:** P1.1 Production deployment validation.  
+**Start:** P1.1 Production deployment validation — see [P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md](P1_PLATFORM_STABILIZATION_IMPLEMENTATION_PLAN.md).  
 **Then:** A.R1 + A.R2 + A.1 + A.0 in parallel with early B/C/D.  
 **Stop and freeze** at the points in §9 before opening the next identity family or data-mobility surface.
 
@@ -434,6 +435,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | Roadmap version | Date | Summary |
 |---|---|---|
 | **v1.0** | 2026-08-06 | Initial frozen canonical long-term roadmap (programs P1, A–E; governance and maintenance policy). |
+| v1.0 (editorial) | 2026-08-06 | Linked P1 implementation plan under Program P1 / Now (no structural change). |
 
 ---
 
