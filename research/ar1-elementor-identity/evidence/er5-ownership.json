@@ -1,0 +1,129 @@
+{
+    "captured_at": "2026-08-06T19:09:42+00:00",
+    "library_templates": [
+        {
+            "ID": 4484,
+            "title": "Maintenance \u2014 Brand",
+            "template_type": "page",
+            "edit_mode": "builder",
+            "raw_bytes": 4714,
+            "element_count": 9,
+            "error": null
+        },
+        {
+            "ID": 4472,
+            "title": "New Customer Welcome",
+            "template_type": "popup",
+            "edit_mode": "builder",
+            "raw_bytes": 4093,
+            "element_count": 8,
+            "error": null
+        },
+        {
+            "ID": 3823,
+            "title": "Footer \u2013 EU / research (v2 preview)",
+            "template_type": "footer",
+            "edit_mode": "builder",
+            "raw_bytes": 10759,
+            "element_count": 26,
+            "error": null
+        },
+        {
+            "ID": 3782,
+            "title": "Elementor Header #3782",
+            "template_type": "header",
+            "edit_mode": "builder",
+            "raw_bytes": 16505,
+            "element_count": 32,
+            "error": null
+        },
+        {
+            "ID": 3608,
+            "title": "Shop \u2014 Product card (loop)",
+            "template_type": "loop-item",
+            "edit_mode": "builder",
+            "raw_bytes": 2090,
+            "element_count": 5,
+            "error": null
+        },
+        {
+            "ID": 3423,
+            "title": "Coming Soon \u2014 Brand",
+            "template_type": "page",
+            "edit_mode": "builder",
+            "raw_bytes": 5653,
+            "element_count": 11,
+            "error": null
+        },
+        {
+            "ID": 7,
+            "title": "Default Kit",
+            "template_type": "kit",
+            "edit_mode": "builder",
+            "raw_bytes": 2,
+            "element_count": 0,
+            "error": null
+        },
+        {
+            "ID": 570,
+            "title": "Default Kit",
+            "template_type": "kit",
+            "edit_mode": "builder",
+            "raw_bytes": 0,
+            "element_count": 0,
+            "error": "empty_elementor_data"
+        }
+    ],
+    "template_refs_in_pages": [],
+    "ownership_decision_matrix": [
+        {
+            "content_kind": "Ordinary page Elementor widgets",
+            "ownership_scope": "document-owned",
+            "collision_rule": "Identity must include owning post/document ID",
+            "confidence": "supported by evidence",
+            "notes": "ER1 page duplicate copies identical element IDs across posts."
+        },
+        {
+            "content_kind": "elementor_library saved template (definition)",
+            "ownership_scope": "shared-definition-owned",
+            "collision_rule": "Translate against library post ID when reliably referenced",
+            "confidence": "inferred",
+            "notes": "Requires stable reference semantics from consuming documents."
+        },
+        {
+            "content_kind": "Theme Builder header/footer/single (library)",
+            "ownership_scope": "shared-definition-owned",
+            "collision_rule": "One overlay set for definition; not per consuming URL",
+            "confidence": "supported by evidence",
+            "notes": "Library posts observed with template_type header/footer/etc."
+        },
+        {
+            "content_kind": "Template widget reference into page",
+            "ownership_scope": "shared-definition-owned when template_id present; else unsupported",
+            "collision_rule": "Do not bind translation to consuming page element ID alone",
+            "confidence": "supported by evidence",
+            "notes": "Refs observed: 0"
+        },
+        {
+            "content_kind": "Copied template content (paste / insert as copy)",
+            "ownership_scope": "consuming-document-owned (independent)",
+            "collision_rule": "New document owns copied IDs; do not share overlays with definition",
+            "confidence": "inferred",
+            "notes": "Elementor copy creates independent tree; silent sharing forbidden."
+        },
+        {
+            "content_kind": "Global widget without clear reference id",
+            "ownership_scope": "explicitly unsupported (ambiguous ownership)",
+            "collision_rule": "Leave source",
+            "confidence": "assumption requiring validation",
+            "notes": "Deny reason: ownership ambiguity"
+        },
+        {
+            "content_kind": "Dynamic-tag driven values",
+            "ownership_scope": "explicitly unsupported",
+            "collision_rule": "Leave source",
+            "confidence": "supported by evidence",
+            "notes": "Deny reason: dynamic runtime value"
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "captured_at": "2026-08-06T19:09:53+00:00",
+    "performance": {
+        "attempted": true,
+        "post_id": 6401,
+        "widget_count": 40,
+        "walk_ms": 0.148,
+        "id_count": 41,
+        "render_ms": 605.523,
+        "render_bytes": 12470,
+        "render_second_ms": 11.705,
+        "cache_observation": "Second render timing captured; Elementor CSS/content cache may apply \u2014 language-scoped cache keys required for any overlay design.",
+        "simulated_overlay_lookup_ms": 0.035,
+        "simulated_hits": 41,
+        "confidence": "supported by evidence",
+        "notes": [
+            "Walk of 40 widgets is cheap in PHP.",
+            "Render cost dominated by Elementor frontend pipeline.",
+            "Overlay map keyed by owner+element+field remains O(n) lookups \u2014 batch by document.",
+            "Do not claim universal performance from one environment."
+        ],
+        "trashed": true
+    },
+    "version_matrix": {
+        "current_environment": {
+            "wp": "7.0.2",
+            "php": "8.4.23",
+            "elementor": "4.2.1",
+            "elementor_pro": "4.2.1",
+            "theme": "blocksy-child",
+            "confidence": "proven by experiment"
+        },
+        "earlier_elementor_version": {
+            "tested": false,
+            "confidence": "assumption requiring validation",
+            "note": "Not practical to downgrade shared dev Elementor in this spike; multi-version matrix deferred."
+        }
+    }
+}
