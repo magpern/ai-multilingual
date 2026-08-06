@@ -1,9 +1,10 @@
 # Background Translation Jobs — Implementation Plan
 
-**Status:** ADR-0011 amendment **Accepted** (2026-08-06) — **J1 implementation authorized**  
+**Status:** **J0–J8 complete** — ADR-0011 amendment **Accepted**; validation log **PASS** (interactive UI smoke recommended before merge)  
 **Branch:** `feature/background-translation-jobs`  
 **Baseline:** `main` after Jobs planning merge (`3f7341a31`)  
 **ADR:** [0011-resumable-job-pipeline.md](../adr/0011-resumable-job-pipeline.md) — **Amended ADR Accepted** (Gate A)  
+**Validation log:** [BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md](BACKGROUND_TRANSLATION_JOBS_VALIDATION_LOG.md)  
 **Product parent:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) §11.3  
 **Prior freezes:** [F11_FROZEN_API.md](F11_FROZEN_API.md), [GLOSSARY_MVP_IMPLEMENTATION_PLAN.md](GLOSSARY_MVP_IMPLEMENTATION_PLAN.md), [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md)
 
