@@ -23,9 +23,37 @@ class BackgroundTranslationScheduler {
 	public const GROUP = 'aiml-jobs';
 
 	/**
-	 * Maximum jobs processed per sweep run (bounded stub for J7 retention).
+	 * Maximum jobs processed per sweep run (bounded retention batch).
 	 */
 	public const SWEEP_BATCH_LIMIT = 50;
+
+	/**
+	 * Retention cleanup service.
+	 *
+	 * @var BackgroundTranslationRetentionCleanup|null
+	 */
+	private ?BackgroundTranslationRetentionCleanup $retention;
+
+	/**
+	 * Bounded diagnostics.
+	 *
+	 * @var BackgroundTranslationDiagnostics|null
+	 */
+	private ?BackgroundTranslationDiagnostics $diagnostics;
+
+	/**
+	 * Builds the scheduler.
+	 *
+	 * @param BackgroundTranslationRetentionCleanup|null $retention   Retention cleanup.
+	 * @param BackgroundTranslationDiagnostics|null      $diagnostics Diagnostics.
+	 */
+	public function __construct(
+		?BackgroundTranslationRetentionCleanup $retention = null,
+		?BackgroundTranslationDiagnostics $diagnostics = null
+	) {
+		$this->retention   = $retention;
+		$this->diagnostics = $diagnostics;
+	}
 
 	/**
 	 * Whether Action Scheduler enqueue APIs are available.
@@ -126,27 +154,24 @@ class BackgroundTranslationScheduler {
 	}
 
 	/**
-	 * Bounded sweep: stale lease recovery + retention stub (plan §18; full retention in J7).
+	 * Bounded sweep: stale lease recovery + retention cleanup (plan §18).
 	 *
 	 * @param JobLeaseService $leases Lease service.
 	 */
 	public function run_sweep( JobLeaseService $leases ): void {
 		$recovered = $leases->recover_stale_leases();
 		$count     = count( $recovered );
-		$limit     = self::SWEEP_BATCH_LIMIT;
 
-		if ( $count > $limit ) {
-			$recovered = array_slice( $recovered, 0, $limit );
+		if ( null !== $this->diagnostics && $count > 0 ) {
+			$this->diagnostics->increment(
+				BackgroundTranslationDiagnostics::STUCK_LEASES_RECOVERED,
+				$count
+			);
 		}
 
-		/**
-		 * Retention cleanup stub — J7 implements bounded deletion.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param int $recovered_count Leases reclaimed this sweep.
-		 */
-		do_action( 'aiml_jobs_sweep_retention_stub', count( $recovered ) );
+		if ( null !== $this->retention ) {
+			$this->retention->run( self::SWEEP_BATCH_LIMIT );
+		}
 	}
 
 	/**

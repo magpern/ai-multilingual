@@ -100,6 +100,221 @@ final class BackgroundTranslationJobRepository {
 	}
 
 	/**
+	 * Count jobs with an active (non-expired) lease.
+	 */
+	public function count_stuck_leases(): int {
+		global $wpdb;
+
+		$now = current_time( 'mysql', true );
+
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM ' . Schema::jobs() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' WHERE lease_owner != %s'
+				. ' AND lease_expires_at IS NOT NULL'
+				. ' AND lease_expires_at <= %s'
+				. ' AND status IN (%s, %s, %s)',
+				'',
+				$now,
+				JobStatuses::QUEUED,
+				JobStatuses::RUNNING,
+				JobStatuses::RETRY_WAIT
+			)
+		);
+
+		return (int) $count;
+	}
+
+	/**
+	 * Oldest queued job age stats (bounded).
+	 *
+	 * @return array{count: int, max_seconds: int}
+	 */
+	public function queue_age_stats(): array {
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT COUNT(*) AS cnt, MIN(created_at) AS oldest FROM ' . Schema::jobs() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' WHERE status = %s',
+				JobStatuses::QUEUED
+			)
+		);
+
+		$count = null !== $row ? (int) ( $row->cnt ?? 0 ) : 0;
+		if ( $count <= 0 || empty( $row->oldest ) ) {
+			return array(
+				'count'       => 0,
+				'max_seconds' => 0,
+			);
+		}
+
+		$oldest_ts = strtotime( (string) $row->oldest . ' UTC' );
+		$age       = false === $oldest_ts ? 0 : max( 0, time() - $oldest_ts );
+
+		return array(
+			'count'       => $count,
+			'max_seconds' => min( BackgroundTranslationDiagnostics::QUEUE_AGE_BOUND_SECONDS, $age ),
+		);
+	}
+
+	/**
+	 * Completed item throughput hints from finished jobs (last hour).
+	 *
+	 * @return array{completed_items_last_hour: int, jobs_finished_last_hour: int}
+	 */
+	public function throughput_stats(): array {
+		global $wpdb;
+
+		$since = gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS );
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT COUNT(*) AS jobs_finished, COALESCE(SUM(completed_items), 0) AS items_completed FROM ' . Schema::jobs() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' WHERE finished_at IS NOT NULL AND finished_at >= %s'
+				. ' AND status IN (%s, %s, %s)',
+				$since,
+				JobStatuses::COMPLETED,
+				JobStatuses::COMPLETED_WITH_ERRORS,
+				JobStatuses::FAILED
+			)
+		);
+
+		return array(
+			'completed_items_last_hour' => null !== $row ? (int) ( $row->items_completed ?? 0 ) : 0,
+			'jobs_finished_last_hour'   => null !== $row ? (int) ( $row->jobs_finished ?? 0 ) : 0,
+		);
+	}
+
+	/**
+	 * Counts of terminal jobs eligible for retention cleanup.
+	 *
+	 * @return array{completed: int, failed_or_cancelled: int}
+	 */
+	public function cleanup_backlog_counts(): array {
+		$now              = time();
+		$completed_cutoff = gmdate( 'Y-m-d H:i:s', $now - BackgroundTranslationRetentionCleanup::COMPLETED_RETENTION_SECONDS );
+		$failed_cutoff    = gmdate( 'Y-m-d H:i:s', $now - BackgroundTranslationRetentionCleanup::FAILED_RETENTION_SECONDS );
+
+		return array(
+			'completed'           => $this->count_retention_candidates(
+				array( JobStatuses::COMPLETED, JobStatuses::COMPLETED_WITH_ERRORS ),
+				$completed_cutoff
+			),
+			'failed_or_cancelled' => $this->count_retention_candidates(
+				array( JobStatuses::FAILED, JobStatuses::CANCELLED ),
+				$failed_cutoff
+			),
+		);
+	}
+
+	/**
+	 * Terminal, unleased jobs older than cutoff eligible for deletion.
+	 *
+	 * @param string[] $statuses Terminal statuses.
+	 * @param string   $cutoff   UTC finished_at cutoff.
+	 * @param int      $limit    Max rows.
+	 * @return list<object>
+	 */
+	public function find_retention_candidates( array $statuses, string $cutoff, int $limit ): array {
+		global $wpdb;
+
+		if ( array() === $statuses || $limit <= 0 ) {
+			return array();
+		}
+
+		$now          = current_time( 'mysql', true );
+		$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+		$params       = array_merge(
+			$statuses,
+			array( $cutoff, '', '', $now, $limit )
+		);
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$sql = 'SELECT * FROM ' . Schema::jobs()
+			. ' WHERE status IN (' . $placeholders . ')'
+			. ' AND finished_at IS NOT NULL AND finished_at <= %s'
+			. ' AND (active_lock_key IS NULL OR active_lock_key = %s)'
+			. ' AND (lease_owner = %s OR lease_expires_at IS NULL OR lease_expires_at <= %s)'
+			. ' ORDER BY finished_at ASC LIMIT %d';
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+
+		return is_array( $rows ) ? array_values( $rows ) : array();
+	}
+
+	/**
+	 * Count retention-eligible jobs for one cutoff bucket.
+	 *
+	 * @param string[] $statuses Terminal statuses.
+	 * @param string   $cutoff   UTC finished_at cutoff.
+	 */
+	private function count_retention_candidates( array $statuses, string $cutoff ): int {
+		global $wpdb;
+
+		if ( array() === $statuses ) {
+			return 0;
+		}
+
+		$now          = current_time( 'mysql', true );
+		$placeholders = implode( ', ', array_fill( 0, count( $statuses ), '%s' ) );
+		$params       = array_merge( $statuses, array( $cutoff, '', '', $now ) );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$sql = 'SELECT COUNT(*) FROM ' . Schema::jobs()
+			. ' WHERE status IN (' . $placeholders . ')'
+			. ' AND finished_at IS NOT NULL AND finished_at <= %s'
+			. ' AND (active_lock_key IS NULL OR active_lock_key = %s)'
+			. ' AND (lease_owner = %s OR lease_expires_at IS NULL OR lease_expires_at <= %s)';
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+	}
+
+	/**
+	 * Deletes one terminal job row when still eligible.
+	 *
+	 * @param int $job_id Job id.
+	 * @return bool|WP_Error True when deleted, false when skipped.
+	 */
+	public function delete_terminal( int $job_id ) {
+		global $wpdb;
+
+		$job = $this->find( $job_id );
+		if ( null === $job ) {
+			return false;
+		}
+
+		if ( ! JobStatuses::is_terminal( (string) $job->status ) ) {
+			return false;
+		}
+
+		if ( null !== $job->active_lock_key && '' !== (string) $job->active_lock_key ) {
+			return false;
+		}
+
+		if ( '' !== (string) ( $job->lease_owner ?? '' ) ) {
+			$expires = (string) ( $job->lease_expires_at ?? '' );
+			if ( '' !== $expires && $expires > current_time( 'mysql', true ) ) {
+				return false;
+			}
+		}
+
+		$deleted = $wpdb->delete(
+			Schema::jobs(),
+			array( 'job_id' => $job_id ),
+			array( '%d' )
+		);
+
+		if ( false === $deleted ) {
+			return new WP_Error( 'job_delete_failed', 'Failed to delete job.' );
+		}
+
+		return $deleted > 0;
+	}
+
+	/**
 	 * Count jobs with a given status.
 	 *
 	 * @param string $status Job status.

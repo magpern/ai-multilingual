@@ -67,14 +67,22 @@ final class JobsController {
 	private JobsViewModelSerializer $serializer;
 
 	/**
+	 * Bounded diagnostics (J7).
+	 *
+	 * @var BackgroundTranslationDiagnostics
+	 */
+	private BackgroundTranslationDiagnostics $diagnostics;
+
+	/**
 	 * Builds the controller.
 	 *
-	 * @param BackgroundTranslationJobService       $jobs       Job service.
-	 * @param BackgroundTranslationBatchCoordinator $batches    Batch coordinator.
-	 * @param BackgroundTranslationScheduler        $scheduler  Scheduler.
-	 * @param BackgroundTranslationWorker           $worker     Worker.
-	 * @param Languages                             $languages  Languages.
-	 * @param JobsViewModelSerializer|null          $serializer Serializer.
+	 * @param BackgroundTranslationJobService       $jobs         Job service.
+	 * @param BackgroundTranslationBatchCoordinator $batches      Batch coordinator.
+	 * @param BackgroundTranslationScheduler        $scheduler    Scheduler.
+	 * @param BackgroundTranslationWorker           $worker       Worker.
+	 * @param Languages                             $languages    Languages.
+	 * @param JobsViewModelSerializer|null          $serializer   Serializer.
+	 * @param BackgroundTranslationDiagnostics|null $diagnostics  Diagnostics.
 	 */
 	public function __construct(
 		BackgroundTranslationJobService $jobs,
@@ -82,14 +90,16 @@ final class JobsController {
 		BackgroundTranslationScheduler $scheduler,
 		BackgroundTranslationWorker $worker,
 		Languages $languages,
-		?JobsViewModelSerializer $serializer = null
+		?JobsViewModelSerializer $serializer = null,
+		?BackgroundTranslationDiagnostics $diagnostics = null
 	) {
-		$this->jobs       = $jobs;
-		$this->batches    = $batches;
-		$this->scheduler  = $scheduler;
-		$this->worker     = $worker;
-		$this->languages  = $languages;
-		$this->serializer = $serializer ?? new JobsViewModelSerializer();
+		$this->jobs        = $jobs;
+		$this->batches     = $batches;
+		$this->scheduler   = $scheduler;
+		$this->worker      = $worker;
+		$this->languages   = $languages;
+		$this->serializer  = $serializer ?? new JobsViewModelSerializer();
+		$this->diagnostics = $diagnostics ?? new BackgroundTranslationDiagnostics();
 	}
 
 	/**
@@ -112,6 +122,16 @@ final class JobsController {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'health' ),
+				'permission_callback' => array( $this, 'can_view' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/jobs/diagnostics',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'diagnostics' ),
 				'permission_callback' => array( $this, 'can_view' ),
 			)
 		);
@@ -362,6 +382,21 @@ final class JobsController {
 		unset( $request );
 
 		return $this->respond( $this->scheduler->health() );
+	}
+
+	/**
+	 * Returns bounded job diagnostics aggregates.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public function diagnostics( WP_REST_Request $request ): WP_REST_Response {
+		unset( $request );
+
+		$snapshot                     = $this->diagnostics->snapshot();
+		$snapshot['action_scheduler'] = $this->scheduler->health();
+
+		return $this->respond( $snapshot );
 	}
 
 	/**

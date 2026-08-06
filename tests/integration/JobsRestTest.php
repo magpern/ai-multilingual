@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Tests\Integration;
 
 use AIMultilingual\Jobs\BackgroundTranslationBatchCoordinator;
+use AIMultilingual\Jobs\BackgroundTranslationDiagnostics;
 use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
 use AIMultilingual\Jobs\BackgroundTranslationJobService;
 use AIMultilingual\Jobs\BackgroundTranslationScheduler;
@@ -52,6 +53,7 @@ final class JobsRestTest extends AimlTestCase {
 		$this->assertArrayHasKey( '/aiml/v1/jobs/(?P<id>\\d+)/run', $routes );
 		$this->assertArrayHasKey( '/aiml/v1/jobs/batch/(?P<batch_id>[a-zA-Z0-9\\-]+)', $routes );
 		$this->assertArrayHasKey( '/aiml/v1/jobs/health', $routes );
+		$this->assertArrayHasKey( '/aiml/v1/jobs/diagnostics', $routes );
 	}
 
 	public function test_subscriber_cannot_list_jobs(): void {
@@ -59,6 +61,27 @@ final class JobsRestTest extends AimlTestCase {
 
 		$response = rest_do_request( new WP_REST_Request( 'GET', '/aiml/v1/jobs' ) );
 		$this->assertSame( 403, $response->get_status() );
+	}
+
+	public function test_diagnostics_route_requires_view_capability_and_returns_bounded_shape(): void {
+		wp_set_current_user( (int) self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		$denied = rest_do_request( new WP_REST_Request( 'GET', '/aiml/v1/jobs/diagnostics' ) );
+		$this->assertSame( 403, $denied->get_status() );
+
+		wp_set_current_user( $this->create_translator() );
+		$allowed = rest_do_request( new WP_REST_Request( 'GET', '/aiml/v1/jobs/diagnostics' ) );
+		$this->assertSame( 200, $allowed->get_status() );
+
+		$data = $allowed->get_data();
+		$this->assertArrayHasKey( 'status_counts', $data );
+		$this->assertArrayHasKey( 'queue_age', $data );
+		$this->assertArrayHasKey( 'counters', $data );
+		$this->assertArrayHasKey( 'action_scheduler', $data );
+		$this->assertArrayNotHasKey( 'prompt', $data );
+		$this->assertSame(
+			BackgroundTranslationDiagnostics::counter_keys(),
+			array_keys( $data['counters'] )
+		);
 	}
 
 	public function test_editor_can_list_jobs_but_cannot_run(): void {

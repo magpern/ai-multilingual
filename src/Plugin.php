@@ -10,12 +10,15 @@ declare( strict_types=1 );
 namespace AIMultilingual;
 
 use AIMultilingual\Jobs\BackgroundTranslationBatchCoordinator;
+use AIMultilingual\Jobs\BackgroundTranslationDiagnostics;
 use AIMultilingual\Jobs\BackgroundTranslationItemProcessor;
 use AIMultilingual\Jobs\BackgroundTranslationItemRepository;
+use AIMultilingual\Jobs\BackgroundTranslationJobAuditLogger;
 use AIMultilingual\Jobs\BackgroundTranslationJobProviderValidator;
 use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
 use AIMultilingual\Jobs\BackgroundTranslationJobService;
 use AIMultilingual\Jobs\BackgroundTranslationBudgetPolicy;
+use AIMultilingual\Jobs\BackgroundTranslationRetentionCleanup;
 use AIMultilingual\Jobs\BackgroundTranslationRetryPolicy;
 use AIMultilingual\Jobs\BackgroundTranslationScheduler;
 use AIMultilingual\Jobs\BackgroundTranslationWorker;
@@ -269,15 +272,20 @@ final class Plugin {
 			$review
 		);
 
-		$job_repo       = new BackgroundTranslationJobRepository();
-		$item_repo      = new BackgroundTranslationItemRepository();
-		$job_leases     = new JobLeaseService( $job_repo, $item_repo );
-		$job_reconciler = new JobProgressReconciler( $job_repo, $item_repo );
-		$job_scheduler  = new BackgroundTranslationScheduler();
-		$job_budget     = new BackgroundTranslationBudgetPolicy( $job_repo );
-		$job_retry      = new BackgroundTranslationRetryPolicy();
-		$job_provider   = new BackgroundTranslationJobProviderValidator( $provider_registry );
-		$job_service    = new BackgroundTranslationJobService(
+		$job_repo        = new BackgroundTranslationJobRepository();
+		$item_repo       = new BackgroundTranslationItemRepository();
+		$job_leases      = new JobLeaseService( $job_repo, $item_repo );
+		$job_reconciler  = new JobProgressReconciler( $job_repo, $item_repo );
+		$job_audit       = new BackgroundTranslationJobAuditLogger();
+		$job_diagnostics = new BackgroundTranslationDiagnostics( $job_repo, $item_repo );
+		$job_scheduler   = new BackgroundTranslationScheduler(
+			new BackgroundTranslationRetentionCleanup( $job_repo, $item_repo, $job_diagnostics ),
+			$job_diagnostics
+		);
+		$job_budget      = new BackgroundTranslationBudgetPolicy( $job_repo );
+		$job_retry       = new BackgroundTranslationRetryPolicy();
+		$job_provider    = new BackgroundTranslationJobProviderValidator( $provider_registry );
+		$job_service     = new BackgroundTranslationJobService(
 			$job_repo,
 			$item_repo,
 			$job_leases,
@@ -286,16 +294,18 @@ final class Plugin {
 			$assembler,
 			$job_scheduler,
 			$job_budget,
-			$job_provider
+			$job_provider,
+			$job_audit,
+			$job_diagnostics
 		);
-		$job_processor  = new BackgroundTranslationItemProcessor(
+		$job_processor   = new BackgroundTranslationItemProcessor(
 			$store,
 			$translation,
 			$glossary_service,
 			$assembler,
 			$job_retry
 		);
-		$job_worker     = new BackgroundTranslationWorker(
+		$job_worker      = new BackgroundTranslationWorker(
 			$job_processor,
 			$job_service,
 			$job_repo,
@@ -305,9 +315,11 @@ final class Plugin {
 			$job_retry,
 			$job_budget,
 			$job_scheduler,
-			$job_provider
+			$job_provider,
+			$job_audit,
+			$job_diagnostics
 		);
-		$job_batches    = new BackgroundTranslationBatchCoordinator( $job_service, $job_repo, $job_scheduler );
+		$job_batches     = new BackgroundTranslationBatchCoordinator( $job_service, $job_repo, $job_scheduler );
 		$job_scheduler->register_hooks( $job_worker, $job_leases );
 		add_action(
 			'init',
@@ -323,7 +335,8 @@ final class Plugin {
 			$job_scheduler,
 			$job_worker,
 			$languages,
-			new JobsViewModelSerializer()
+			new JobsViewModelSerializer(),
+			$job_diagnostics
 		) )->register();
 
 		( new WorkspaceController(

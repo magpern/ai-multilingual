@@ -93,6 +93,20 @@ final class BackgroundTranslationWorker {
 	private ?BackgroundTranslationJobProviderValidator $provider_validator;
 
 	/**
+	 * Audit logger (J7).
+	 *
+	 * @var BackgroundTranslationJobAuditLogger|null
+	 */
+	private ?BackgroundTranslationJobAuditLogger $audit;
+
+	/**
+	 * Bounded diagnostics (J7).
+	 *
+	 * @var BackgroundTranslationDiagnostics|null
+	 */
+	private ?BackgroundTranslationDiagnostics $diagnostics;
+
+	/**
 	 * Builds the worker.
 	 *
 	 * @param BackgroundTranslationItemProcessor             $processor           Item processor.
@@ -105,6 +119,8 @@ final class BackgroundTranslationWorker {
 	 * @param BackgroundTranslationBudgetPolicy|null         $budget              Budget policy.
 	 * @param BackgroundTranslationScheduler|null            $scheduler           AS scheduler.
 	 * @param BackgroundTranslationJobProviderValidator|null $provider_validator  Provider validator.
+	 * @param BackgroundTranslationJobAuditLogger|null       $audit               Audit logger.
+	 * @param BackgroundTranslationDiagnostics|null          $diagnostics         Diagnostics.
 	 */
 	public function __construct(
 		BackgroundTranslationItemProcessor $processor,
@@ -116,7 +132,9 @@ final class BackgroundTranslationWorker {
 		?BackgroundTranslationRetryPolicy $retry_policy = null,
 		?BackgroundTranslationBudgetPolicy $budget = null,
 		?BackgroundTranslationScheduler $scheduler = null,
-		?BackgroundTranslationJobProviderValidator $provider_validator = null
+		?BackgroundTranslationJobProviderValidator $provider_validator = null,
+		?BackgroundTranslationJobAuditLogger $audit = null,
+		?BackgroundTranslationDiagnostics $diagnostics = null
 	) {
 		$this->processor          = $processor;
 		$this->job_repo           = $job_repo ?? new BackgroundTranslationJobRepository();
@@ -127,6 +145,8 @@ final class BackgroundTranslationWorker {
 		$this->budget             = $budget ?? new BackgroundTranslationBudgetPolicy( $this->job_repo );
 		$this->scheduler          = $scheduler;
 		$this->provider_validator = $provider_validator;
+		$this->audit              = $audit;
+		$this->diagnostics        = $diagnostics;
 		$this->jobs               = $jobs ?? new BackgroundTranslationJobService(
 			$this->job_repo,
 			$this->items,
@@ -136,7 +156,9 @@ final class BackgroundTranslationWorker {
 			null,
 			$scheduler,
 			$this->budget,
-			$provider_validator
+			$provider_validator,
+			$audit,
+			$diagnostics
 		);
 	}
 
@@ -157,6 +179,8 @@ final class BackgroundTranslationWorker {
 			return $job;
 		}
 
+		$prior_status = (string) $job->status;
+
 		if ( '' === $owner_token ) {
 			$owner_token = $this->generate_owner_token();
 		}
@@ -170,6 +194,13 @@ final class BackgroundTranslationWorker {
 		}
 
 		$job = $lease_check;
+
+		if (
+			JobStatuses::RUNNING === (string) $job->status
+			&& in_array( $prior_status, array( JobStatuses::QUEUED, JobStatuses::RETRY_WAIT ), true )
+		) {
+			$this->audit_started( $job );
+		}
 
 		if ( null !== $this->provider_validator && ! $this->provider_validator->is_provider_available( $job ) ) {
 			$paused = $this->jobs->pause_for_orchestration_error(
@@ -381,6 +412,91 @@ final class BackgroundTranslationWorker {
 		}
 
 		$this->items->update( $item_id, $fields );
+
+		$this->audit_item_result( $job_id, $item_id, $status, $result );
+	}
+
+	/**
+	 * Emits item-level audit events and increments diagnostics counters.
+	 *
+	 * @param int        $job_id  Job id.
+	 * @param int        $item_id Item id.
+	 * @param string     $status  Final item status.
+	 * @param ItemResult $result  Processor outcome.
+	 */
+	private function audit_item_result( int $job_id, int $item_id, string $status, ItemResult $result ): void {
+		$job  = $this->job_repo->find( $job_id );
+		$item = $this->items->find( $item_id );
+		if ( null === $job || null === $item ) {
+			return;
+		}
+
+		if ( ItemStatuses::STALE_SOURCE === $status ) {
+			if ( null !== $this->diagnostics ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::STALE_SOURCE_CONFLICTS );
+			}
+			if ( null !== $this->audit ) {
+				$this->audit->log(
+					BackgroundTranslationJobAuditEvents::STALE_SOURCE,
+					$this->audit->payload_from_job(
+						$job,
+						array(
+							'item_id'        => $item_id,
+							'segment_key'    => (string) $item->segment_key,
+							'attempts'       => (int) ( $item->attempt_count ?? 0 ),
+							'result_class'   => $result->error_class,
+							'error_code'     => $result->error_code,
+							'source_surface' => 'worker',
+						)
+					)
+				);
+			}
+			return;
+		}
+
+		if ( ItemStatuses::RETRY_WAIT === $status && $result->is_retryable() ) {
+			if ( null !== $this->diagnostics ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::ITEM_RETRIES );
+			}
+		}
+
+		if ( ItemStatuses::FAILED === $status ) {
+			if ( null !== $this->diagnostics && 'retryable' === $result->error_class ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::PROVIDER_ERRORS );
+			}
+			if ( null !== $this->audit ) {
+				$this->audit->log(
+					BackgroundTranslationJobAuditEvents::ITEM_FAILED,
+					$this->audit->payload_from_job(
+						$job,
+						array(
+							'item_id'        => $item_id,
+							'segment_key'    => (string) $item->segment_key,
+							'attempts'       => (int) ( $item->attempt_count ?? 0 ),
+							'result_class'   => $result->error_class,
+							'error_code'     => $result->error_code,
+							'source_surface' => 'worker',
+						)
+					)
+				);
+			}
+		}
+	}
+
+	/**
+	 * Emits translation_job_started when a worker claims a runnable job.
+	 *
+	 * @param object $job Job row after lease claim.
+	 */
+	private function audit_started( object $job ): void {
+		if ( null === $this->audit ) {
+			return;
+		}
+
+		$this->audit->log(
+			BackgroundTranslationJobAuditEvents::STARTED,
+			$this->audit->payload_from_job( $job, array( 'source_surface' => 'worker' ) )
+		);
 	}
 
 	/**

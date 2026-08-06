@@ -326,6 +326,67 @@ final class BackgroundTranslationItemRepository {
 	}
 
 	/**
+	 * Deletes all items for one job.
+	 *
+	 * @param int $job_id Job id.
+	 * @return int|WP_Error Number of rows deleted.
+	 */
+	public function delete_by_job( int $job_id ) {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$deleted = $wpdb->query(
+			$wpdb->prepare(
+				'DELETE FROM ' . Schema::job_items() . ' WHERE job_id = %d', // phpcs:ignore WordPress.DB.PreparedSQL
+				$job_id
+			)
+		);
+
+		if ( false === $deleted ) {
+			return new WP_Error( 'job_item_delete_failed', 'Failed to delete job items.' );
+		}
+
+		return (int) $deleted;
+	}
+
+	/**
+	 * Deletes orphan items whose parent job no longer exists.
+	 *
+	 * @param int $limit Maximum rows to delete.
+	 * @return int|WP_Error Number of orphan rows deleted.
+	 */
+	public function delete_orphans( int $limit ) {
+		global $wpdb;
+
+		if ( $limit <= 0 ) {
+			return 0;
+		}
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- table names from Schema helper in subquery.
+		$deleted = $wpdb->query(
+			$wpdb->prepare(
+				'DELETE FROM ' . Schema::job_items()
+				. ' WHERE item_id IN ('
+				. ' SELECT item_id FROM ('
+				. ' SELECT i.item_id FROM ' . Schema::job_items() . ' AS i'
+				. ' LEFT JOIN ' . Schema::jobs() . ' AS j ON j.job_id = i.job_id'
+				. ' WHERE j.job_id IS NULL'
+				. ' LIMIT %d'
+				. ' ) AS orphan_ids'
+				. ' )',
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( false === $deleted ) {
+			return new WP_Error( 'job_item_orphan_delete_failed', 'Failed to delete orphan job items.' );
+		}
+
+		return (int) $deleted;
+	}
+
+	/**
 	 * Reject forbidden payload keys.
 	 *
 	 * @param array<string, mixed> $data Payload.

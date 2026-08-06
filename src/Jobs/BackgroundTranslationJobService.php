@@ -83,6 +83,20 @@ final class BackgroundTranslationJobService {
 	private ?BackgroundTranslationJobProviderValidator $provider_validator;
 
 	/**
+	 * Audit logger (J7).
+	 *
+	 * @var BackgroundTranslationJobAuditLogger|null
+	 */
+	private ?BackgroundTranslationJobAuditLogger $audit;
+
+	/**
+	 * Bounded diagnostics (J7).
+	 *
+	 * @var BackgroundTranslationDiagnostics|null
+	 */
+	private ?BackgroundTranslationDiagnostics $diagnostics;
+
+	/**
 	 * Builds the job service.
 	 *
 	 * @param BackgroundTranslationJobRepository|null        $jobs                Job repository.
@@ -94,6 +108,8 @@ final class BackgroundTranslationJobService {
 	 * @param BackgroundTranslationScheduler|null            $scheduler           AS scheduler.
 	 * @param BackgroundTranslationBudgetPolicy|null         $budget              Budget policy.
 	 * @param BackgroundTranslationJobProviderValidator|null $provider_validator  Provider validator.
+	 * @param BackgroundTranslationJobAuditLogger|null       $audit               Audit logger.
+	 * @param BackgroundTranslationDiagnostics|null          $diagnostics         Diagnostics.
 	 */
 	public function __construct(
 		?BackgroundTranslationJobRepository $jobs = null,
@@ -104,7 +120,9 @@ final class BackgroundTranslationJobService {
 		?SegmentAssembler $assembler = null,
 		?BackgroundTranslationScheduler $scheduler = null,
 		?BackgroundTranslationBudgetPolicy $budget = null,
-		?BackgroundTranslationJobProviderValidator $provider_validator = null
+		?BackgroundTranslationJobProviderValidator $provider_validator = null,
+		?BackgroundTranslationJobAuditLogger $audit = null,
+		?BackgroundTranslationDiagnostics $diagnostics = null
 	) {
 		$this->jobs               = $jobs ?? new BackgroundTranslationJobRepository();
 		$this->items              = $items ?? new BackgroundTranslationItemRepository();
@@ -115,6 +133,8 @@ final class BackgroundTranslationJobService {
 		$this->scheduler          = $scheduler;
 		$this->budget             = $budget ?? new BackgroundTranslationBudgetPolicy( $this->jobs );
 		$this->provider_validator = $provider_validator;
+		$this->audit              = $audit;
+		$this->diagnostics        = $diagnostics;
 	}
 
 	/**
@@ -273,11 +293,16 @@ final class BackgroundTranslationJobService {
 				return $failed;
 			}
 			$this->leases->clear_active_lock_on_terminal( (int) $inserted->job_id );
+			$final = $this->jobs->find( (int) $inserted->job_id );
+			$this->audit_job( BackgroundTranslationJobAuditEvents::FAILED, $final, array( 'source_surface' => 'create' ) );
 
-			return $this->jobs->find( (int) $inserted->job_id );
+			return $final;
 		}
 
-		return $this->jobs->find( (int) $inserted->job_id );
+		$created = $this->jobs->find( (int) $inserted->job_id );
+		$this->audit_job( BackgroundTranslationJobAuditEvents::CREATED, $created, array( 'source_surface' => 'create' ) );
+
+		return $created;
 	}
 
 	/**
@@ -374,7 +399,13 @@ final class BackgroundTranslationJobService {
 			)
 		);
 
-		return is_wp_error( $updated ) ? $updated : $updated;
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+
+		$this->audit_job( BackgroundTranslationJobAuditEvents::RESUMED, $updated, array( 'source_surface' => 'operator' ) );
+
+		return $updated;
 	}
 
 	/**
@@ -402,7 +433,7 @@ final class BackgroundTranslationJobService {
 		}
 
 		if ( JobStatuses::PAUSED === (string) $job->status ) {
-			return $this->jobs->update(
+			$updated = $this->jobs->update(
 				$job_id,
 				array(
 					'last_error_code'    => $error_code,
@@ -410,9 +441,14 @@ final class BackgroundTranslationJobService {
 					'last_error_message' => $message,
 				)
 			);
+			if ( 'budget_exceeded' === $error_code ) {
+				$this->audit_budget_exceeded( is_object( $updated ) ? $updated : $job );
+			}
+
+			return $updated;
 		}
 
-		return $this->transition_job(
+		$updated = $this->transition_job(
 			$job_id,
 			JobTransitionPolicy::pause_target(),
 			array(
@@ -422,6 +458,23 @@ final class BackgroundTranslationJobService {
 				'last_error_message' => $message,
 			)
 		);
+
+		if ( ! is_wp_error( $updated ) ) {
+			$this->audit_job(
+				BackgroundTranslationJobAuditEvents::PAUSED,
+				$updated,
+				array(
+					'source_surface' => 'worker',
+					'error_code'     => $error_code,
+					'error_class'    => $error_class,
+				)
+			);
+			if ( 'budget_exceeded' === $error_code ) {
+				$this->audit_budget_exceeded( $updated );
+			}
+		}
+
+		return $updated;
 	}
 
 	/**
@@ -450,6 +503,10 @@ final class BackgroundTranslationJobService {
 				)
 			);
 
+			if ( ! is_wp_error( $updated ) ) {
+				$this->audit_job( BackgroundTranslationJobAuditEvents::PAUSED, $updated, array( 'source_surface' => 'operator' ) );
+			}
+
 			return is_wp_error( $updated ) ? $updated : $updated;
 		}
 
@@ -473,7 +530,10 @@ final class BackgroundTranslationJobService {
 			$this->jobs->archive_idempotency_key( $job_id );
 			$this->reconciler->reconcile( $job_id );
 
-			return $this->jobs->find( $job_id );
+			$final = $this->jobs->find( $job_id );
+			$this->audit_job( BackgroundTranslationJobAuditEvents::CANCELLED, $final, array( 'source_surface' => 'operator' ) );
+
+			return $final;
 		}
 
 		return null;
@@ -594,7 +654,16 @@ final class BackgroundTranslationJobService {
 
 		$this->reconciler->reconcile( $job_id );
 
-		return $this->jobs->find( $job_id );
+		$final = $this->jobs->find( $job_id );
+		if ( null !== $final ) {
+			if ( in_array( $target, array( JobStatuses::COMPLETED, JobStatuses::COMPLETED_WITH_ERRORS ), true ) ) {
+				$this->audit_job( BackgroundTranslationJobAuditEvents::COMPLETED, $final, array( 'source_surface' => 'worker' ) );
+			} elseif ( JobStatuses::FAILED === $target ) {
+				$this->audit_job( BackgroundTranslationJobAuditEvents::FAILED, $final, array( 'source_surface' => 'worker' ) );
+			}
+		}
+
+		return $final;
 	}
 
 	/**
@@ -943,5 +1012,41 @@ final class BackgroundTranslationJobService {
 		}
 
 		return $updated ?? $this->jobs->find( $job_id );
+	}
+
+	/**
+	 * Emits a safe job audit event when audit is configured.
+	 *
+	 * @param string               $event  Event name.
+	 * @param object|null          $job    Job row.
+	 * @param array<string, mixed> $extras Optional safe extras.
+	 */
+	private function audit_job( string $event, ?object $job, array $extras = array() ): void {
+		if ( null === $this->audit || null === $job ) {
+			return;
+		}
+
+		$this->audit->log( $event, $this->audit->payload_from_job( $job, $extras ) );
+	}
+
+	/**
+	 * Records budget-exceeded audit and diagnostics counter.
+	 *
+	 * @param object $job Job row.
+	 */
+	private function audit_budget_exceeded( object $job ): void {
+		if ( null !== $this->diagnostics ) {
+			$this->diagnostics->increment( BackgroundTranslationDiagnostics::BUDGET_STOPS );
+		}
+
+		$this->audit_job(
+			BackgroundTranslationJobAuditEvents::BUDGET_EXCEEDED,
+			$job,
+			array(
+				'source_surface' => 'worker',
+				'error_code'     => 'budget_exceeded',
+				'error_class'    => 'permanent',
+			)
+		);
 	}
 }

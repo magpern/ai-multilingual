@@ -15,6 +15,7 @@
 **J4 status:** **PASS** — RetryPolicy, BudgetPolicy, provider validation, AS health reject-on-create, worker budget/retry wiring; unit + integration tests green.
 **J5 status:** **PASS** — Jobs REST/CLI, capabilities, ViewModels; permission matrix, 409 idempotency, AS 503, post-level auth; phpcs + Jobs-filtered PHPUnit green.
 **J6 status:** **PASS** — Translator Workspace extended with Jobs tab (capability-aware), list/progress/actions, create dialog, batch summary, bounded errors, AS/provider health banner; Jest + webpack build green.
+**J7 status:** **PASS** — Audit hook `aiml_translation_job_audit` with stable event names; bounded diagnostics + `GET /jobs/diagnostics`; retention cleanup in sweep (30d completed / 90d failed-cancelled, bounded, no active/leased delete); runbook `docs/ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md`; unit + integration tests green.
 **Implementation scope / WP order:** J0–J8 (unchanged).
 
 ### Governance
