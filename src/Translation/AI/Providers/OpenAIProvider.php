@@ -178,8 +178,8 @@ final class OpenAIProvider implements AIProviderInterface {
 		foreach ( $batch->segments as $segment ) {
 			$user = $this->build_user_prompt( $batch, $segment->source_text, $segment->existing_target );
 			$body = array(
-				'model'       => $this->model,
-				'messages'    => array(
+				'model'    => $this->model,
+				'messages' => array(
 					array(
 						'role'    => 'system',
 						'content' => $system,
@@ -189,8 +189,11 @@ final class OpenAIProvider implements AIProviderInterface {
 						'content' => $user,
 					),
 				),
-				'temperature' => 0.2,
 			);
+
+			if ( $this->supports_temperature( $this->model ) ) {
+				$body['temperature'] = 0.2;
+			}
 
 			$response = $this->request(
 				'POST',
@@ -258,6 +261,26 @@ final class OpenAIProvider implements AIProviderInterface {
 		}
 
 		return implode( "\n", $parts );
+	}
+
+	/**
+	 * Whether the model accepts a non-default temperature parameter.
+	 *
+	 * GPT-5* and o-series chat models reject custom temperature values.
+	 *
+	 * @param string $model Model id.
+	 */
+	private function supports_temperature( string $model ): bool {
+		$id = strtolower( trim( $model ) );
+		if ( '' === $id ) {
+			return true;
+		}
+
+		if ( str_starts_with( $id, 'gpt-5' ) || preg_match( '/^o[0-9]/', $id ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

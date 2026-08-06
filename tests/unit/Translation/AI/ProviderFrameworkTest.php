@@ -15,7 +15,10 @@ use AIMultilingual\Translation\AI\NullAIProvider;
 use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderCapabilities;
 use AIMultilingual\Translation\AI\ProviderRegistry;
+use AIMultilingual\Translation\AI\ProviderResult;
+use AIMultilingual\Translation\AI\ProviderSegment;
 use AIMultilingual\Translation\AI\Providers\OpenAIProvider;
+use AIMultilingual\Translation\AI\TranslationBatch;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -94,6 +97,65 @@ final class ProviderFrameworkTest extends TestCase {
 		$this->assertIsArray( $models );
 		$this->assertContains( 'gpt-4o-mini', $models );
 		$this->assertTrue( true === $provider->test_connection() );
+	}
+
+	public function test_gpt5_omits_temperature_on_translate(): void {
+		$seen = array();
+		$http = static function ( string $method, string $url, array $args ) use ( &$seen ) {
+			unset( $method, $url );
+			$body = json_decode( (string) ( $args['body'] ?? '' ), true );
+			$seen = is_array( $body ) ? $body : array();
+
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"choices":[{"message":{"content":"Hej"}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}',
+			);
+		};
+
+		$provider = new OpenAIProvider( 'sk-test', 'gpt-5-mini', null, $http );
+		$result   = $provider->translate_batch(
+			new TranslationBatch(
+				'en',
+				'sv',
+				'default',
+				'1',
+				'',
+				array( new ProviderSegment( 'title', 'Hello', 'plain' ) )
+			)
+		);
+
+		$this->assertInstanceOf( ProviderResult::class, $result );
+		$this->assertArrayNotHasKey( 'temperature', $seen );
+		$this->assertSame( 'gpt-5-mini', $seen['model'] ?? '' );
+	}
+
+	public function test_gpt4o_includes_temperature_on_translate(): void {
+		$seen = array();
+		$http = static function ( string $method, string $url, array $args ) use ( &$seen ) {
+			unset( $method, $url );
+			$body = json_decode( (string) ( $args['body'] ?? '' ), true );
+			$seen = is_array( $body ) ? $body : array();
+
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"choices":[{"message":{"content":"Hej"}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}',
+			);
+		};
+
+		$provider = new OpenAIProvider( 'sk-test', 'gpt-4o-mini', null, $http );
+		$result   = $provider->translate_batch(
+			new TranslationBatch(
+				'en',
+				'sv',
+				'default',
+				'1',
+				'',
+				array( new ProviderSegment( 'title', 'Hello', 'plain' ) )
+			)
+		);
+
+		$this->assertInstanceOf( ProviderResult::class, $result );
+		$this->assertSame( 0.2, $seen['temperature'] ?? null );
 	}
 
 	public function test_settings_sanitize_keeps_encrypted_key_shape(): void {
