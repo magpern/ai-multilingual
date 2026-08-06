@@ -133,3 +133,63 @@ left published so the slice can be viewed. It can be deleted at any time.
   because the hook is not registered. Re-checking on activation is a Milestone 2
   addition.
 - One translation write invalidates the whole language's cache.
+
+---
+
+## Platform v1.0.0 — Scoped production release
+
+Version **1.0.0**. Schema target **6**.
+
+### What shipped (summary)
+
+- Strategy F Gutenberg leaf UUID pipeline + seven leaf adapters
+- Translator Workspace (F10/F11), Glossary MVP, Review Workflow, Background Jobs
+- Limited Rollout + General Availability configuration
+- OpenAI Chat Completions via provider framework (encrypted credentials)
+- Release packaging: GitHub Actions `v*` tags → `ai-multilingual-{version}.zip`
+
+### Database
+
+`aiml_db_version` **TARGET = 6**. Tables include languages, translations (Store +
+review columns), TM, metrics_daily, glossary, jobs, job_items. Migrations run on
+activation and `admin_init` drift (`Migrator::maybe_migrate()`).
+
+### Deploying / upgrading to v1.0.x
+
+1. Back up the database **outside the web root** (mode 600).
+2. Install from the GitHub Release ZIP (preferred) or bind-mount the plugin on
+   both web and WP-CLI services.
+3. Activate or let drift migration run; confirm `aiml_db_version = 6`.
+4. Confirm Action Scheduler is reachable for the `aiml-jobs` group (host cron /
+   `scripts/wp-cron.sh` when `DISABLE_WP_CRON` is set).
+5. Configure languages, rollout/GA, and encrypted OpenAI credentials as needed.
+6. Run engineering verification:
+
+```bash
+cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
+  wp eval-file wp-content/plugins/ai-multilingual/acceptance/p1/deploy-verify.php
+
+cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
+  wp eval-file wp-content/plugins/ai-multilingual/acceptance/p1/schema-verify.php
+```
+
+7. When AI behaviour changes, run the canonical OpenAI RC baseline:
+   `acceptance/rc/v1-openai-rc.php` (see [V1_RC_OPENAI_VALIDATION.md](plans/V1_RC_OPENAI_VALIDATION.md)).
+
+### Rollback
+
+- Primary kill switches: disable frontend block rendering / rollout flags (F12/F13
+  checklists); pause or cancel jobs per Jobs runbook.
+- ZIP rollback: replace plugin files with the prior Release ZIP; schema is
+  forward-compatible within TARGET 6 — do **not** partially drop `aiml_*` tables.
+- Uninstall with `remove_data_on_uninstall` default **off** retains all plugin
+  data (ADR-0004).
+
+### Render cache
+
+Implemented but **default-off**. Do not enable in production without a measured
+GO (roadmap D.9) — out of scope for P1.
+
+### Hooks reference
+
+See [HOOKS.md](HOOKS.md) for Workspace, Provider, Glossary, and Jobs REST.
