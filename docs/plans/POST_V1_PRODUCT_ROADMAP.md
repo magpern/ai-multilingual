@@ -1,6 +1,6 @@
 # Post-v1 Product Roadmap — AI Multilingual
 
-> **Superseded for long-term planning.** The canonical post-v1 platform roadmap is [`POST_V1_PLATFORM_ROADMAP.md`](POST_V1_PLATFORM_ROADMAP.md). This document remains as the historical archive of the v1 platform track (Glossary → Review → Jobs).
+> **Superseded for long-term planning.** Do not extend this document with new strategic programs or milestones. The canonical long-term product roadmap is [`POST_V1_PLATFORM_ROADMAP.md`](POST_V1_PLATFORM_ROADMAP.md) (**Roadmap v1.0**, frozen). This file remains as the historical archive of the completed v1 platform track (Glossary → Review → Jobs) and as the product-parent reference for those shipped initiatives.
 
 **Status:** Background Translation Jobs **Completed / merged / tagged** — ADR-0011 **Accepted**; tag `background-translation-jobs-complete`; merge `b308138c4`  
 **Branch:** `main`  

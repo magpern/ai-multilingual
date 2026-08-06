@@ -1,10 +1,11 @@
 # Post-v1 Platform Roadmap — AI Multilingual
 
-**Status:** Canonical long-term product roadmap  
+**Roadmap version:** **v1.0** (frozen strategic baseline)  
+**Status:** Canonical long-term product roadmap — **frozen**  
 **Baseline:** AI Multilingual Platform **v1.0.0**  
 **Supersedes:** [POST_V1_PRODUCT_ROADMAP.md](POST_V1_PRODUCT_ROADMAP.md) (historical — v1 platform-track planning only)  
 **Planning model:** Durable programs (P1, A–E). Strategy F / F15+ numbering is retired. Classic M4–M7 themes are absorbed into programs.  
-**Scope of this document:** Product strategy, program boundaries, milestone ordering, dependencies, freezes.  
+**Scope of this document:** Product strategy, program boundaries, milestone ordering, dependencies, freezes, governance.  
 **Out of scope here:** Implementation plans, ADRs, schemas, APIs, code.
 
 ---
@@ -400,10 +401,49 @@ That end-state is approached through programs A–E after P1; it is not a single
 
 ---
 
+## 13. Governance
+
+This document is the **sole canonical long-term product roadmap** for AI Multilingual after Platform v1.0.0. Earlier post-v1 planning documents are historical archives and must not be extended as competing strategy.
+
+### Evolution rules (frozen)
+
+- **Programs are intended to remain stable.** P1 and Programs A–E are the durable planning structure. Do not invent parallel program taxonomies for routine work.
+- **Milestone ordering may change only with explicit architectural or product justification.** Reordering is exceptional; document the justification in the revision history.
+- **New milestones should normally be additive** rather than restructuring existing programs. Prefer appending or inserting within a program over renaming or splitting programs.
+- **Future implementation plans must reference the roadmap milestone they implement** (for example `A.2`, `B.1`, `P1.1`). Plans that cannot name a milestone are out of process.
+- **Research spikes should precede architecture-heavy implementation** where this roadmap identifies a Research Spike (notably Elementor identity and nested Gutenberg identity).
+- **Architecture freezes (this roadmap §9) and ADRs remain the mechanism for locking technical decisions.** The roadmap does not replace ADRs; ADRs do not replace this roadmap.
+
+### What this roadmap does not govern
+
+Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not require roadmap revision. They must still respect frozen platform principles (§3).
+
+---
+
+## 14. Maintenance policy
+
+- **Minor editorial improvements** (clarity, typos, cross-links, Now/Next/Later refresh) may occur **without** changing roadmap intent and without bumping the major roadmap version.
+- **Product priorities may evolve** within the existing program structure (for example which additive milestone is scheduled next). Reflect priority shifts in Now/Next/Later and the revision history.
+- **Major structural changes** (new programs, removal of a program, wholesale reordering, redefinition of frozen principles) require an **explicit roadmap revision** and a roadmap version bump (for example v1.0 → v1.1 or v2.0 for structural breaks).
+- **Historical milestone records remain valid** even if future priorities change. Completed spikes, freezes, and shipped milestones are not rewritten out of history; supersession is additive commentary only.
+
+---
+
+## 15. Revision history
+
+| Roadmap version | Date | Summary |
+|---|---|---|
+| **v1.0** | 2026-08-06 | Initial frozen canonical long-term roadmap (programs P1, A–E; governance and maintenance policy). |
+
+---
+
 ## Document control
 
 | Item | Value |
 |---|---|
 | Canonical path | `docs/plans/POST_V1_PLATFORM_ROADMAP.md` |
+| Roadmap version | **v1.0** |
+| Governance | §13–§14 |
 | Replaces | Milestone-by-milestone / F15-style planning for post-v1 work |
 | Historical companion | `docs/plans/POST_V1_PRODUCT_ROADMAP.md` (v1 platform-track archive) |
+| Classic milestone table | `docs/ROADMAP.md` (historical M0–M7 + Strategy F status; points here for long-term planning) |
