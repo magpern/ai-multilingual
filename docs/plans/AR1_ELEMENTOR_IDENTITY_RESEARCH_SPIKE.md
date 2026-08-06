@@ -1,21 +1,21 @@
 # A.R1 — Elementor Identity Research Spike
 
-**Status:** Research execution **complete** — recommendation **CONDITIONAL GO** (see [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md))  
+**Status:** Research execution **complete** — recommendation **CONDITIONAL GO**; ADR-0016 **Accepted** (see [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md))  
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.R1** (Research Spike)  
 **Baseline:** Platform **v1.0.0**; **P1 complete** ([validation log PASS](P1_PLATFORM_STABILIZATION_VALIDATION_LOG.md)); planning merged to `main` @ `b310190c4766696e6c42982bde4ffc76d435322c`  
 **Planning branch:** `feature/ar1-elementor-identity-spike-plan` (merged)  
 **Research branch:** `feature/ar1-elementor-identity`  
 **Evidence log:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md)  
-**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Proposed**. Expected acceptance freezes Hybrid D / ownership / deny-list for A.2 planning.  
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Accepted** (2026-08-06). Freezes Hybrid D / ownership / deny-list for A.2 planning.  
 **Elementor production implementation:** **Blocked**.  
-**A.2 Elementor Foundation:** **Blocked** until:
+**A.2 Elementor Foundation:** **Planning authorized**; **implementation blocked** until A.2 plan is reviewed and coding separately authorized.
 
 1. ER0–ER7 are complete — **done**  
 2. Result is **GO** or **CONDITIONAL GO** — **CONDITIONAL GO**  
-3. Required Elementor identity/ownership ADR is written — **ADR-0016 Proposed**  
-4. ADR is **explicitly Accepted** — **pending**
+3. Required Elementor identity/ownership ADR is written — **ADR-0016**  
+4. ADR is **explicitly Accepted** — **done** (2026-08-06)
 
-**This research milestone does not authorize Elementor production translation.** A.2 coding remains blocked pending ADR acceptance.
+**This research milestone does not authorize Elementor production translation.** A.2 coding remains blocked pending A.2 implementation authorization.
 
 ### Frozen research outcomes (post-execution documentation)
 

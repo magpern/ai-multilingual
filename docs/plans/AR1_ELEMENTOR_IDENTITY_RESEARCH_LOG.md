@@ -1,13 +1,14 @@
 # A.R1 — Elementor Identity Research Log
 
-**Status:** Research execution complete  
+**Status:** Research execution complete — **merged**; ADR-0016 **Accepted**  
 **Charter:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md)  
 **Research branch:** `feature/ar1-elementor-identity`  
 **Baseline main (plan merge):** `b310190c4766696e6c42982bde4ffc76d435322c`  
 **Recommendation:** **CONDITIONAL GO**  
-**A.2 / production Elementor translation:** Still **blocked** until ADR-0016 is **Accepted**  
+**A.2 production Elementor translation:** **Blocked** until A.2 is separately planned and authorized  
+**A.2 planning:** **Authorized** by ADR-0016 Accepted (2026-08-06)  
 **Evidence root:** `research/ar1-elementor-identity/evidence/`  
-**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Proposed** (authorizes A.2 **planning** only after Accepted; does not authorize implementation)
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Accepted** (authorizes A.2 **planning** only; does not authorize implementation)
 
 This log is the source of truth for A.R1 findings. Confidence labels follow the charter §14.1 model.
 
@@ -447,11 +448,11 @@ These gaps condition the GO; they do not invalidate measured ID/collision/path f
 
 ## Exact next step
 
-1. Review and **Accept** [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) (or request changes while Proposed).  
-2. Only after ADR-0016 is **Accepted**, open A.2 Elementor Foundation **planning** for the advisory first surface.  
-3. Do **not** implement Elementor production support until A.2 is separately authorized after acceptance.
+1. ADR-0016 is **Accepted** (2026-08-06).  
+2. Open A.2 Elementor Foundation **planning** for the advisory first surface (heading / text-editor / button).  
+3. Do **not** implement Elementor production support until A.2 is separately authorized after its plan is reviewed.
 
-**Do not begin A.2 coding while ADR-0016 remains Proposed.**
+**A.2 planning may begin. A.2 coding remains blocked.**
 
 ---
 

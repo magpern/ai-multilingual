@@ -2,16 +2,25 @@
 
 ## Status
 
-**Proposed** — architecture freeze pending acceptance.
+**Accepted** (2026-08-06) — Elementor identity and ownership model frozen from A.R1.
 
-**Decision maker:** Product Owner (pending)  
-**Approval date:** —  
-**Decision:** Not yet Accepted  
-**Scope:** Elementor visitor-facing translation identity, ownership precedence, Hybrid D conceptual contract, deny-list, adapter graduation, and first-surface planning bounds — derived exclusively from A.R1 research.
+**Decision maker:** Product Owner  
+**Approval date:** 2026-08-06  
+**Decision:** ADR-0016 **Accepted**  
+**Reason:** Architecture review of A.R1 research (CONDITIONAL GO) confirmed Hybrid D, ownership precedence, translation-unit granularity, deny-list, adapter graduation, Candidate B rejection, and overlay/Store/TM/Glossary/Review/Jobs/renderer invariants are consistent and evidence-backed. No architectural inconsistencies found. No production implementation was present on the research branch.
 
-**Implementation gate:** **Closed.** This ADR authorizes **planning of A.2 Elementor Foundation only**. It does **not** authorize production implementation, extractors, adapters, renderers, schema, REST, UI, migrations, or feature flags.
+**Scope:** Elementor visitor-facing translation identity, ownership precedence, Hybrid D conceptual contract, deny-list, adapter graduation, and first-surface planning bounds — derived exclusively from A.R1 research. Unchanged from Proposed draft.
 
-**A.2 may begin only after this ADR is Accepted.**
+**Residual risks accepted:**
+
+- Multi-version Elementor matrix incomplete in A.R1 (revalidate on upgrades)
+- Theme Builder definition-owned overlays not exercised end-to-end in research
+- First surface is intentionally narrow; product pressure must not expand without evidence
+- Concrete production key grammar deferred to A.2 planning (must match Hybrid D composition)
+
+**Implementation gate:** **Open for A.2 planning only.** This ADR does **not** authorize production implementation, extractors, adapters, renderers, schema, REST, UI, migrations, or feature flags. A.2 coding requires a separate implementation plan and delivery authorization.
+
+**A.2 Elementor Foundation planning may now begin.** Production Elementor implementation remains blocked until A.2 is separately authorized.
 
 **Evidence base:**
 
@@ -276,7 +285,7 @@ Future milestones **remove** entries through evidence — they do not replace th
 
 ## Future work
 
-1. **Accept this ADR** (Product Owner).  
+1. **Accept this ADR** — **done** (2026-08-06).  
 2. **Plan A.2 Elementor Foundation** within Decision §7 first surface, Hybrid D, ownership precedence, deny-list, and language-aware cache — **planning only** until separately authorized.  
 3. Define production key serialization consistent with Hybrid D (implementation plan / later commits — not this ADR).  
 4. Design Elementor-supported overlay injection points (e.g. document/widget filters researched in A.R1) without HTML scraping.  
@@ -294,15 +303,15 @@ Out of scope until later ADRs/milestones: Candidate B persistence exception; nes
 
 | Gate | Meaning |
 |---|---|
-| **Proposed (current)** | Architecture drafted from A.R1; implementation **blocked**; A.2 planning **not** yet authorized as an execution milestone |
-| **Accepted** | Product Owner accepts this ADR; **A.2 planning may begin**; production Elementor implementation remains unauthorized until A.2 plan + normal delivery gates say otherwise |
+| **Proposed** | Architecture drafted from A.R1; implementation **blocked**; A.2 planning not yet authorized |
+| **Accepted (current)** | Product Owner accepted this ADR (2026-08-06); **A.2 planning may begin**; production Elementor implementation remains unauthorized until A.2 plan + normal delivery gates say otherwise |
 | **Rejected / superseded** | Elementor support returns to research or NO-GO; do not implement Hybrid D production paths |
 
-**A.2 may begin only after this ADR is Accepted.**
+**A.2 planning may begin.** Production Elementor implementation remains blocked.
 
-Until Accepted:
+While Accepted for planning:
 
-- no Elementor production extractors, adapters, renderers, schema, REST, UI, migrations, or feature flags;  
+- no Elementor production extractors, adapters, renderers, schema, REST, UI, migrations, or feature flags until A.2 is separately authorized;  
 - no weakening of Store / TM / Glossary / Review / Jobs / Gutenberg renderer contracts;  
 - research artifacts remain non-runtime.
 
@@ -314,7 +323,8 @@ Until Accepted:
 |---|---|
 | ADR | 0016 |
 | Title | Elementor identity and ownership model |
-| Status | Proposed |
+| Status | Accepted |
+| Approval date | 2026-08-06 |
 | Supersedes | None |
 | Amends | Clarifies ADR-0013 open question on Elementor-primary coverage without changing Gutenberg acceptance |
 | Evidence | A.R1 CONDITIONAL GO research log |
