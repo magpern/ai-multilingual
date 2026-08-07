@@ -59,9 +59,33 @@ final class ElementorControlRegistry {
 				'tab_title'   => $this->repeater_entry( 'accordion', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
 				'tab_content' => $this->repeater_entry( 'accordion', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
 			),
-			'toggle'      => array(
+			'toggle'         => array(
 				'tab_title'   => $this->repeater_entry( 'toggle', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
 				'tab_content' => $this->repeater_entry( 'toggle', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
+			),
+			'image'          => array(
+				'caption' => array(
+					'widget_type'             => 'image',
+					'control_key'             => 'caption',
+					'nesting'                 => self::NESTING_NONE,
+					'identity'                => self::IDENTITY_DOCUMENT_CONTROL,
+					'extractor'               => ElementorStrategyFactory::EXTRACTOR_IMAGE_CUSTOM_CAPTION,
+					'renderer'                => ElementorStrategyFactory::EXTRACTOR_IMAGE_CUSTOM_CAPTION,
+					'sanitization'            => self::SANITIZE_PLAIN,
+					'ownership'               => self::OWNERSHIP_DOCUMENT,
+					'support_state'           => self::SUPPORT_ADAPTER,
+					'text_format'             => 'plain',
+					'compatibility'           => array( 'elementor' => '4.2' ),
+					'caption_source_required' => 'custom',
+				),
+			),
+			'icon-list'      => array(
+				'text' => $this->repeater_entry( 'icon-list', 'icon_list', 'text', self::SANITIZE_PLAIN, 'plain' ),
+			),
+			'call-to-action' => array(
+				'title'       => $this->flat_entry( 'call-to-action', 'title', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
+				'description' => $this->flat_entry( 'call-to-action', 'description', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
+				'button'      => $this->flat_entry( 'call-to-action', 'button', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
 			),
 		);
 	}
