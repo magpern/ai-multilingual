@@ -126,3 +126,18 @@ No new identity family. P5/P7 keys distinct. Catalog terms use `owner_type` = ta
 | Cache invalidation on product save | Yes |
 | Review / TM / Glossary / Jobs | Unchanged Integration API path (`surface=plugin_integration`) |
 | Woo-specific workflow | None |
+
+## A7A.6 — Lifecycle / security / diagnostics
+
+**Status:** PASS
+
+| Scenario | Behavior |
+|---|---|
+| Plugin missing/inactive | `unavailable` |
+| Version &lt; 10.0.0 | `unsupported_version` |
+| Hooks missing | `missing_required_hook` |
+| `aiml_woocommerce_integration_disabled` | `disabled`; extract empty; no overlay; Store retained by platform |
+| Attribute slug rename | New identity; no fuzzy rematch |
+| Overlay sanitization | Plain for names; `wp_kses_post` for term descriptions |
+| Foreign Woo persistence | No writes — overlay filters only |
+| Diagnostics | Existing IntegrationDiagnostics counters via frontend bridge |
