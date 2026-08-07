@@ -59,6 +59,10 @@ final class ElementorControlRegistry {
 				'tab_title'   => $this->repeater_entry( 'accordion', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
 				'tab_content' => $this->repeater_entry( 'accordion', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
 			),
+			'toggle'      => array(
+				'tab_title'   => $this->repeater_entry( 'toggle', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
+				'tab_content' => $this->repeater_entry( 'toggle', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
+			),
 		);
 	}
 

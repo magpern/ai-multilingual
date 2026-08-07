@@ -127,6 +127,23 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 | Limitations | legacy rows without `_id` stay source; duplicate `_id` denies whole repeater |
 | Disposition | **Directly Supported** (adapter-backed repeater strategy) |
 
+## A33 — Toggle admission
+
+**Status:** PASS — **Directly Supported** (adapter-backed; same repeater strategy as Accordion)
+
+| Field | Value |
+|---|---|
+| Candidate | toggle |
+| Prior state | Research |
+| Owning WP | A33 |
+| Identity | nested `_id` on `tabs` |
+| Ownership | document |
+| Controls | `tab_title`, `tab_content` |
+| Evidence | ToggleAdmissionTest; live 4616/4617 lack `_id` → source; fixture rows with `_id` translate |
+| Unit | PASS |
+| Limitations | Legacy content without `_id` remains source until Elementor assigns IDs in editor |
+| Disposition | **Directly Supported** |
+
 ## Subsequent WPs
 
-*(A33–A38 sections appended below as work completes.)*
+*(A34–A38 sections appended below as work completes.)*

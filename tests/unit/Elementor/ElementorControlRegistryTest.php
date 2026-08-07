@@ -37,7 +37,8 @@ final class ElementorControlRegistryTest extends TestCase {
 		$this->assertFalse( $this->registry->is_supported( 'heading', 'title_mobile' ) );
 		$this->assertFalse( $this->registry->is_supported( 'heading', 'header_size' ) );
 		$this->assertFalse( $this->registry->is_supported_widget( 'image' ) );
-		$this->assertFalse( $this->registry->is_supported( 'toggle', 'tab_title' ) );
+		$this->assertTrue( $this->registry->is_supported( 'toggle', 'tab_title' ) );
+		$this->assertFalse( $this->registry->is_supported( 'loop-grid', 'title' ) );
 	}
 
 	public function test_entries_declare_strategies(): void {

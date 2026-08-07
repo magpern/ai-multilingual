@@ -29,7 +29,7 @@ final class AccordionAdmissionTest extends TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->registry = new ElementorControlRegistry();
+		$this->registry  = new ElementorControlRegistry();
 		$this->diag      = new ElementorDiagnostics();
 		$this->extractor = new ElementorExtractor(
 			new ElementorDocumentDetector(),
