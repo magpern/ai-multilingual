@@ -1,0 +1,16 @@
+{
+  "milestone": "A.3",
+  "wp": "A38",
+  "branch": "feature/a3-elementor-widget-coverage",
+  "head": "6174437f1f91a5080e43b4c1b05e44c8c0e431b0",
+  "unit": {"tests": 491, "skipped": 2, "result": "PASS"},
+  "integration": {"tests": 507, "skipped": 2, "result": "PASS"},
+  "plugin_guard": {"tests": 17, "assertions": 8054, "result": "PASS"},
+  "phpcs_elementor": "PASS",
+  "browser_leakage": 0,
+  "rendered_fp": 0,
+  "fixture_post_id": 6416,
+  "extract_unit_count": 17,
+  "merge": false,
+  "tag": false
+}

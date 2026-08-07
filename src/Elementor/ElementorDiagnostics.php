@@ -22,8 +22,12 @@ final class ElementorDiagnostics {
 	private array $counters = array(
 		'eligible_document'           => 0,
 		'supported_unit_extracted'    => 0,
+		'nested_unit_extracted'       => 0,
 		'unsupported_widget_skipped'  => 0,
 		'unsupported_control_skipped' => 0,
+		'missing_nested_id'           => 0,
+		'duplicate_nested_id'         => 0,
+		'adapter_failure'             => 0,
 		'store_hit'                   => 0,
 		'store_miss'                  => 0,
 		'stale_translation'           => 0,

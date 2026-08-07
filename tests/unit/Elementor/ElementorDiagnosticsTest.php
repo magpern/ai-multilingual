@@ -25,5 +25,9 @@ final class ElementorDiagnosticsTest extends TestCase {
 		$this->assertSame( 2, $snap['overlay_applied'] );
 		$this->assertArrayNotHasKey( 'unknown_metric', $snap );
 		$this->assertArrayHasKey( 'cache_isolation_failure', $snap );
+		$this->assertArrayHasKey( 'nested_unit_extracted', $snap );
+		$this->assertArrayHasKey( 'duplicate_nested_id', $snap );
+		$this->assertArrayHasKey( 'missing_nested_id', $snap );
+		$this->assertArrayHasKey( 'adapter_failure', $snap );
 	}
 }

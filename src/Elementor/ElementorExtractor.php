@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace AIMultilingual\Elementor;
 
-use AIMultilingual\Translation\Store;
+use AIMultilingual\Elementor\Strategy\ElementorStrategyFactory;
 
 /**
  * Read-only extractor over `_elementor_data`.
@@ -17,19 +17,30 @@ use AIMultilingual\Translation\Store;
 final class ElementorExtractor {
 
 	/**
+	 * Strategy resolver.
+	 *
+	 * @var ElementorStrategyFactory
+	 */
+	private ElementorStrategyFactory $strategies;
+
+	/**
 	 * Builds the extractor.
 	 *
-	 * @param ElementorDocumentDetector $detector    Document detector.
-	 * @param ElementorControlRegistry  $registry    Control registry.
-	 * @param ElementorIdentity         $identity    Identity builder.
-	 * @param ElementorDiagnostics|null $diagnostics Optional diagnostics.
+	 * @param ElementorDocumentDetector     $detector     Document detector.
+	 * @param ElementorControlRegistry      $registry     Control registry.
+	 * @param ElementorIdentity             $identity     Identity builder.
+	 * @param ElementorDiagnostics|null     $diagnostics  Optional diagnostics.
+	 * @param ElementorStrategyFactory|null $strategies   Optional strategy factory.
 	 */
 	public function __construct(
 		private ElementorDocumentDetector $detector,
 		private ElementorControlRegistry $registry,
 		private ElementorIdentity $identity,
-		private ?ElementorDiagnostics $diagnostics = null
-	) {}
+		private ?ElementorDiagnostics $diagnostics = null,
+		?ElementorStrategyFactory $strategies = null
+	) {
+		$this->strategies = $strategies ?? new ElementorStrategyFactory();
+	}
 
 	/**
 	 * Extract supported units from a document.
@@ -107,7 +118,7 @@ final class ElementorExtractor {
 	}
 
 	/**
-	 * Extract allowlisted controls from one widget.
+	 * Extract allowlisted controls from one widget via registry strategies.
 	 *
 	 * @param int                  $post_id     Owner post ID.
 	 * @param string               $element_id  Element ID.
@@ -127,49 +138,23 @@ final class ElementorExtractor {
 				continue;
 			}
 
-			$control_key = (string) ( $entry['control_key'] ?? '' );
-			if ( '' === $control_key || ! array_key_exists( $control_key, $settings ) ) {
+			$strategy = $this->strategies->for_entry( $entry );
+			if ( null === $strategy ) {
+				$this->diagnostics?->inc( 'adapter_failure' );
 				continue;
 			}
 
-			$value = $settings[ $control_key ];
-			if ( ! is_string( $value ) ) {
-				$this->diagnostics?->inc( 'identity_error' );
-				continue;
-			}
-
-			if ( '' === trim( $value ) ) {
-				continue;
-			}
-
-			$key = $this->identity->build( $post_id, $element_id, $control_key );
-			if ( '' === $key ) {
-				$this->diagnostics?->inc( 'identity_error' );
-				continue;
-			}
-
-			$format  = (string) ( $entry['text_format'] ?? Store::FORMAT_PLAIN );
-			$units[] = new ElementorTranslationUnit(
-				$key,
+			$extracted = $strategy->extract(
 				$post_id,
 				$element_id,
 				$widget_type,
-				$control_key,
-				$value,
-				Store::source_hash( $value, $format ),
-				$format
+				$settings,
+				$entry,
+				$this->identity,
+				$this->diagnostics
 			);
-			$this->diagnostics?->inc( 'supported_unit_extracted' );
-		}
-
-		// Count unsupported controls present on supported widgets (best-effort).
-		foreach ( array_keys( $settings ) as $setting_key ) {
-			if ( ! is_string( $setting_key ) ) {
-				continue;
-			}
-			if ( ! $this->registry->is_supported( $widget_type, $setting_key ) && is_string( $settings[ $setting_key ] ?? null ) ) {
-				// Only count string-looking controls once per unsupported key presence — bounded.
-				$this->diagnostics?->inc( 'unsupported_control_skipped' );
+			foreach ( $extracted as $unit ) {
+				$units[] = $unit;
 			}
 		}
 	}

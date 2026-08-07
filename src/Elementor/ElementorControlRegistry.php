@@ -1,6 +1,6 @@
 <?php
 /**
- * A.2 Elementor control registry (allowlist).
+ * A.2/A.3 Elementor control registry (allowlist).
  *
  * @package AIMultilingual
  */
@@ -9,16 +9,30 @@ declare(strict_types=1);
 
 namespace AIMultilingual\Elementor;
 
+use AIMultilingual\Elementor\Strategy\ElementorStrategyFactory;
+
 /**
- * Registry-driven allowlist for A.2 first surface.
+ * Registry-driven allowlist — sole production admission surface.
  */
 final class ElementorControlRegistry {
 
 	public const SUPPORT_DIRECT = 'directly_supported';
 
+	public const SUPPORT_ADAPTER = 'adapter';
+
 	public const SANITIZE_PLAIN = 'plain';
 
 	public const SANITIZE_HTML = 'html';
+
+	public const NESTING_NONE = 'none';
+
+	public const NESTING_REPEATER = 'repeater';
+
+	public const IDENTITY_DOCUMENT_CONTROL = 'document_control';
+
+	public const IDENTITY_REPEATER_ID = 'repeater_id';
+
+	public const OWNERSHIP_DOCUMENT = 'document';
 
 	/**
 	 * Registry entries keyed by widget then control.
@@ -28,42 +42,50 @@ final class ElementorControlRegistry {
 	private array $entries;
 
 	/**
-	 * Seeds the frozen A.2 allowlist.
+	 * Seeds the admitted allowlist.
 	 */
 	public function __construct() {
 		$this->entries = array(
-			'heading'     => array(
-				'title' => array(
-					'widget_type'   => 'heading',
-					'control_key'   => 'title',
-					'extractor'     => 'settings_string',
-					'renderer'      => 'settings_string',
-					'sanitization'  => self::SANITIZE_PLAIN,
-					'support_state' => self::SUPPORT_DIRECT,
-					'text_format'   => 'plain',
+			'heading'        => array(
+				'title' => $this->flat_entry( 'heading', 'title', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
+			),
+			'text-editor'    => array(
+				'editor' => $this->flat_entry( 'text-editor', 'editor', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_HTML, 'html' ),
+			),
+			'button'         => array(
+				'text' => $this->flat_entry( 'button', 'text', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
+			),
+			'accordion'      => array(
+				'tab_title'   => $this->repeater_entry( 'accordion', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
+				'tab_content' => $this->repeater_entry( 'accordion', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
+			),
+			'toggle'         => array(
+				'tab_title'   => $this->repeater_entry( 'toggle', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
+				'tab_content' => $this->repeater_entry( 'toggle', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
+			),
+			'image'          => array(
+				'caption' => array(
+					'widget_type'             => 'image',
+					'control_key'             => 'caption',
+					'nesting'                 => self::NESTING_NONE,
+					'identity'                => self::IDENTITY_DOCUMENT_CONTROL,
+					'extractor'               => ElementorStrategyFactory::EXTRACTOR_IMAGE_CUSTOM_CAPTION,
+					'renderer'                => ElementorStrategyFactory::EXTRACTOR_IMAGE_CUSTOM_CAPTION,
+					'sanitization'            => self::SANITIZE_PLAIN,
+					'ownership'               => self::OWNERSHIP_DOCUMENT,
+					'support_state'           => self::SUPPORT_ADAPTER,
+					'text_format'             => 'plain',
+					'compatibility'           => array( 'elementor' => '4.2' ),
+					'caption_source_required' => 'custom',
 				),
 			),
-			'text-editor' => array(
-				'editor' => array(
-					'widget_type'   => 'text-editor',
-					'control_key'   => 'editor',
-					'extractor'     => 'settings_string',
-					'renderer'      => 'settings_string',
-					'sanitization'  => self::SANITIZE_HTML,
-					'support_state' => self::SUPPORT_DIRECT,
-					'text_format'   => 'html',
-				),
+			'icon-list'      => array(
+				'text' => $this->repeater_entry( 'icon-list', 'icon_list', 'text', self::SANITIZE_PLAIN, 'plain' ),
 			),
-			'button'      => array(
-				'text' => array(
-					'widget_type'   => 'button',
-					'control_key'   => 'text',
-					'extractor'     => 'settings_string',
-					'renderer'      => 'settings_string',
-					'sanitization'  => self::SANITIZE_PLAIN,
-					'support_state' => self::SUPPORT_DIRECT,
-					'text_format'   => 'plain',
-				),
+			'call-to-action' => array(
+				'title'       => $this->flat_entry( 'call-to-action', 'title', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
+				'description' => $this->flat_entry( 'call-to-action', 'description', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
+				'button'      => $this->flat_entry( 'call-to-action', 'button', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
 			),
 		);
 	}
@@ -118,5 +140,69 @@ final class ElementorControlRegistry {
 	 */
 	public function is_supported_widget( string $widget_type ): bool {
 		return isset( $this->entries[ $widget_type ] ) && array() !== $this->entries[ $widget_type ];
+	}
+
+	/**
+	 * Admit a control entry (used by admission WPs / tests).
+	 *
+	 * @param string               $widget_type Widget type.
+	 * @param string               $control_key Control key.
+	 * @param array<string, mixed> $entry       Full entry.
+	 */
+	public function admit( string $widget_type, string $control_key, array $entry ): void {
+		$this->entries[ $widget_type ][ $control_key ] = $entry;
+	}
+
+	/**
+	 * Flat document-control entry helper.
+	 *
+	 * @param string $widget_type Widget.
+	 * @param string $control_key Control.
+	 * @param string $extractor   Strategy name.
+	 * @param string $sanitize    Sanitization.
+	 * @param string $format      Text format.
+	 * @return array<string, mixed>
+	 */
+	public function flat_entry( string $widget_type, string $control_key, string $extractor, string $sanitize, string $format ): array {
+		return array(
+			'widget_type'   => $widget_type,
+			'control_key'   => $control_key,
+			'nesting'       => self::NESTING_NONE,
+			'identity'      => self::IDENTITY_DOCUMENT_CONTROL,
+			'extractor'     => $extractor,
+			'renderer'      => $extractor,
+			'sanitization'  => $sanitize,
+			'ownership'     => self::OWNERSHIP_DOCUMENT,
+			'support_state' => self::SUPPORT_DIRECT,
+			'text_format'   => $format,
+			'compatibility' => array( 'elementor' => '4.2' ),
+		);
+	}
+
+	/**
+	 * Nested repeater-field entry helper.
+	 *
+	 * @param string $widget_type  Widget.
+	 * @param string $repeater_key Repeater settings key.
+	 * @param string $control_key  Nested field key.
+	 * @param string $sanitize     Sanitization.
+	 * @param string $format       Text format.
+	 * @return array<string, mixed>
+	 */
+	public function repeater_entry( string $widget_type, string $repeater_key, string $control_key, string $sanitize, string $format ): array {
+		return array(
+			'widget_type'   => $widget_type,
+			'control_key'   => $control_key,
+			'repeater_key'  => $repeater_key,
+			'nesting'       => self::NESTING_REPEATER,
+			'identity'      => self::IDENTITY_REPEATER_ID,
+			'extractor'     => ElementorStrategyFactory::EXTRACTOR_REPEATER_FIELD,
+			'renderer'      => ElementorStrategyFactory::EXTRACTOR_REPEATER_FIELD,
+			'sanitization'  => $sanitize,
+			'ownership'     => self::OWNERSHIP_DOCUMENT,
+			'support_state' => self::SUPPORT_ADAPTER,
+			'text_format'   => $format,
+			'compatibility' => array( 'elementor' => '4.2' ),
+		);
 	}
 }

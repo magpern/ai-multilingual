@@ -1,0 +1,28 @@
+{
+  "captured_at": "2026-08-07T07:50:00+00:00",
+  "host": "https://dev.biopentra.eu",
+  "elementor": "4.2.2",
+  "elementor_pro": "4.2.1",
+  "a2_surface": ["heading/title", "text-editor/editor", "button/text"],
+  "top_widgets_sample": {
+    "heading": 224,
+    "image": 160,
+    "button": 151,
+    "text-editor": 77,
+    "icon": 47,
+    "loop-grid": 22,
+    "call-to-action": 3,
+    "html": 8,
+    "fluent-form-widget": 1
+  },
+  "wave1": {
+    "accordion": {"present": true, "sample_post": 4124, "repeater": "tabs", "fields": ["tab_title", "tab_content"], "_id": "present_unique"},
+    "toggle": {"present": true, "sample_posts": [4616, 4617], "repeater": "tabs", "fields": ["tab_title", "tab_content"], "_id": "missing_on_live_legacy"},
+    "image": {"present": true, "sample_post": 3423, "notes": "attachment-centric; caption_source gate required"}
+  },
+  "a35_pool": {
+    "icon-list": {"present": true, "sample_post": 3825, "repeater": "icon_list", "fields": ["text"], "_id": "present"},
+    "call-to-action": {"present": true, "sample_post": 3520, "fields": ["title", "description", "button"]}
+  },
+  "excluded_present": ["loop-grid", "woocommerce-*", "html", "fluent-form-widget", "theme-post-featured-image"]
+}
