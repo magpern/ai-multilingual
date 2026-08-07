@@ -1,16 +1,16 @@
 # A.R2 / A.4 — Nested Gutenberg Identity Research & Architecture Plan
 
-**Status:** **A.R2 research complete — CONDITIONAL GO** (see [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md)); A.4 production implementation planning authorized after merge/F5; coding still requires an A.4 implementation plan  
-**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestones **A.R2** (Research Spike — **complete**) then **A.4** (Architecture / implementation post–identity decision)  
-**Baseline:** `main` @ planning merge `42b306d462672e6ddc9b2a43e32cb5067376d136` (from `5672938a8060a07687e201dd6cb1ebf330d5c891`)  
-**Planning branch:** `feature/a4-nested-gutenberg-identity-plan` (merged)  
-**Research branch:** `feature/ar2-nested-gutenberg-identity`  
-**ADR (leaf identity):** [0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) — **Accepted** (Strategy F; `b:<uuid>:<field>`) — **no new ADR required** for bounded A.4 surface  
-**Prior coverage:** F14 leaf expansion — [STRATEGY_F_F14_BLOCK_EXPANSION.md](STRATEGY_F_F14_BLOCK_EXPANSION.md); [F14_IMPLEMENTATION_SUMMARY.md](F14_IMPLEMENTATION_SUMMARY.md)  
-**A.3:** [A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**Complete / merged / tagged**) — Elementor contracts must **not** leak into Gutenberg design  
-**Research log:** [A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) — **Complete**; recommendation **CONDITIONAL GO**; F5 may PASS for bounded surface  
+**Status:** **A.R2 research complete — CONDITIONAL GO** (see [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md)); A.4 production implementation planning authorized after merge/F5; coding still requires an A.4 implementation plan
+**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestones **A.R2** (Research Spike — **complete**) then **A.4** (Architecture / implementation post–identity decision)
+**Baseline:** `main` @ planning merge `42b306d462672e6ddc9b2a43e32cb5067376d136` (from `5672938a8060a07687e201dd6cb1ebf330d5c891`)
+**Planning branch:** `feature/a4-nested-gutenberg-identity-plan` (merged)
+**Research branch:** `feature/ar2-nested-gutenberg-identity`
+**ADR (leaf identity):** [0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) — **Accepted** (Strategy F; `b:<uuid>:<field>`) — **no new ADR required** for bounded A.4 surface
+**Prior coverage:** F14 leaf expansion — [STRATEGY_F_F14_BLOCK_EXPANSION.md](STRATEGY_F_F14_BLOCK_EXPANSION.md); [F14_IMPLEMENTATION_SUMMARY.md](F14_IMPLEMENTATION_SUMMARY.md)
+**A.3:** [A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**Complete / merged / tagged**) — Elementor contracts must **not** leak into Gutenberg design
+**Research log:** [A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) — **Complete**; recommendation **CONDITIONAL GO**; F5 may PASS for bounded surface
 
-**Document role:** Combined strategic charter for **Phase 1 — A.R2 evidence/research** (complete) and **Phase 2 — A.4 implementation readiness decision**.  
+**Document role:** Combined strategic charter for **Phase 1 — A.R2 evidence/research** (complete) and **Phase 2 — A.4 implementation readiness decision**.
 
 **This document is NOT an A.4 production implementation plan.** A.4 coding still requires a separate implementation-plan freeze.
 
@@ -332,7 +332,7 @@ A42 must evaluate whether current extract:
 - handles nested depth safely;
 - treats dynamic / server-rendered blocks conservatively.
 
-**Frozen principle:** Traversal may become recursive; admission remains registry-driven.  
+**Frozen principle:** Traversal may become recursive; admission remains registry-driven.
 Do **not** create a generic “translate every string attribute” walker.
 
 ---
@@ -364,8 +364,8 @@ Reuse F14 admission architecture. For each family define:
 - new field admission;
 - unsupported / deferred.
 
-Do **not** create a second nested-block registry.  
-Any new adapter must remain block-specific and deterministic.  
+Do **not** create a second nested-block registry.
+Any new adapter must remain block-specific and deterministic.
 Do **not** create a general external Adapter SDK (Program E).
 
 ---
@@ -425,7 +425,7 @@ Every important A.R2 conclusion must be labelled:
 | **Inferred** | Reasonable but not measured |
 | **Remaining assumption** | Explicitly not yet proven |
 
-Fast-track architectural claims may rely only on the first two.  
+Fast-track architectural claims may rely only on the first two.
 Do **not** silently promote assumptions into A.4 contracts.
 
 ---
@@ -592,45 +592,45 @@ Do **not** create an ADR in this planning task.
 
 ## 26. Acceptance criteria (research / planning)
 
-1. Existing `b:<uuid>:<field>` grammar preserved as default hypothesis.  
-2. No structural-path identity proposed without ADR REQUIRED.  
-3. Recursive traversal model documented against current walker.  
-4. Reorder stability experiments defined.  
-5. Move-between-container stability experiments defined.  
-6. Duplicate isolation experiments defined.  
-7. Page-duplicate isolation experiments defined.  
-8. List / list-item no double extraction is a hard gate.  
-9. Nested list stability experiments defined.  
-10. Quote citation ownership research defined.  
-11. Pullquote / details attribute research defined.  
-12. Media ownership gate mirrors document-owned-only discipline.  
-13. Unsupported parent + supported child behavior specified.  
-14. Supported parent + unsupported child behavior specified.  
-15. Malformed recursion safety required.  
-16. Dynamic blocks conservative by default.  
-17. Navigation ownership disposition required at A48.  
-18. Reusable / synced pattern disposition required at A48.  
-19. No Store redesign in scope.  
-20. No TM / Review / Glossary / Jobs redesign in scope.  
-21. No HTML scraping.  
-22. Local source fallback preserved.  
-23. Performance evidence required before budgets.  
-24. Clear minimum A.4 surface recommendation at A48.  
-25. Explicit ADR decision at A48.  
-26. Evidence confidence labels mandatory.  
-27. A.R2 vs A.4 milestone boundary documented.  
-28. F5 remains the coding gate.  
-29. Completing A40–A48 does not authorize production coding.  
-30. Elementor identity contracts do not leak into Gutenberg design.  
-31. BlockRegistry / AdapterRegistry remain sole admission surfaces.  
-32. No second nested registry.  
-33. No generic “translate every string” walker.  
-34. Workspace parent context is metadata-only if present.  
-35. Candidate-local deferral allowed without failing A.R2.  
-36. Research log created only at A40 on research branch.  
-37. Planning branch remains docs-only.  
-38. Stop conditions §27 enforced.  
-39. Out of scope §28 enforced.  
+1. Existing `b:<uuid>:<field>` grammar preserved as default hypothesis.
+2. No structural-path identity proposed without ADR REQUIRED.
+3. Recursive traversal model documented against current walker.
+4. Reorder stability experiments defined.
+5. Move-between-container stability experiments defined.
+6. Duplicate isolation experiments defined.
+7. Page-duplicate isolation experiments defined.
+8. List / list-item no double extraction is a hard gate.
+9. Nested list stability experiments defined.
+10. Quote citation ownership research defined.
+11. Pullquote / details attribute research defined.
+12. Media ownership gate mirrors document-owned-only discipline.
+13. Unsupported parent + supported child behavior specified.
+14. Supported parent + unsupported child behavior specified.
+15. Malformed recursion safety required.
+16. Dynamic blocks conservative by default.
+17. Navigation ownership disposition required at A48.
+18. Reusable / synced pattern disposition required at A48.
+19. No Store redesign in scope.
+20. No TM / Review / Glossary / Jobs redesign in scope.
+21. No HTML scraping.
+22. Local source fallback preserved.
+23. Performance evidence required before budgets.
+24. Clear minimum A.4 surface recommendation at A48.
+25. Explicit ADR decision at A48.
+26. Evidence confidence labels mandatory.
+27. A.R2 vs A.4 milestone boundary documented.
+28. F5 remains the coding gate.
+29. Completing A40–A48 does not authorize production coding.
+30. Elementor identity contracts do not leak into Gutenberg design.
+31. BlockRegistry / AdapterRegistry remain sole admission surfaces.
+32. No second nested registry.
+33. No generic “translate every string” walker.
+34. Workspace parent context is metadata-only if present.
+35. Candidate-local deferral allowed without failing A.R2.
+36. Research log created only at A40 on research branch.
+37. Planning branch remains docs-only.
+38. Stop conditions §27 enforced.
+39. Out of scope §28 enforced.
 40. Fast-track uses only Proven / Supported claims for architecture.
 
 ---
@@ -684,9 +684,9 @@ A.4 production coding still requires an implementation-plan freeze
 
 **Exact next step:**
 
-1. Review / merge the research branch to `main`.  
-2. Freeze an A.4 implementation plan for the minimum surface only.  
-3. Do not admit Navigation / Query / reusable patterns without a dedicated ADR.  
+1. Review / merge the research branch to `main`.
+2. Freeze an A.4 implementation plan for the minimum surface only.
+3. Do not admit Navigation / Query / reusable patterns without a dedicated ADR.
 4. Do not start another nested-identity research cycle.
 
 ---

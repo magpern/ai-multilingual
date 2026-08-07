@@ -1,12 +1,12 @@
 # A.R2 — Nested Gutenberg Identity Research Log
 
-**Status:** Complete  
-**Charter:** [A4_NESTED_GUTENBERG_IDENTITY_PLAN.md](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md)  
-**Research branch:** `feature/ar2-nested-gutenberg-identity`  
-**Planning merge:** `42b306d462672e6ddc9b2a43e32cb5067376d136`  
-**Recommendation:** **CONDITIONAL GO**  
-**ADR decision:** **No new ADR required** for the bounded minimum A.4 surface (deferred shared-definition families would need a separate ADR if later admitted)  
-**F5 readiness:** **PASS** for the bounded approved surface  
+**Status:** Complete
+**Charter:** [A4_NESTED_GUTENBERG_IDENTITY_PLAN.md](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md)
+**Research branch:** `feature/ar2-nested-gutenberg-identity`
+**Planning merge:** `42b306d462672e6ddc9b2a43e32cb5067376d136`
+**Recommendation:** **CONDITIONAL GO**
+**ADR decision:** **No new ADR required** for the bounded minimum A.4 surface (deferred shared-definition families would need a separate ADR if later admitted)
+**F5 readiness:** **PASS** for the bounded approved surface
 
 This log is the source of truth for A.R2 findings. Confidence labels:
 
@@ -35,7 +35,7 @@ Fast-track architectural claims below rely only on **Proven by experiment** or *
 
 ## A40 — Baseline nested-block inventory + fixture corpus
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a40-environment.json`](../../research/ar2-nested-gutenberg-identity/evidence/a40-environment.json), [`a40-inventory.json`](../../research/ar2-nested-gutenberg-identity/evidence/a40-inventory.json), [`a40-summary.json`](../../research/ar2-nested-gutenberg-identity/evidence/a40-summary.json)
 
 ### Production contracts verified
@@ -65,7 +65,7 @@ Authored corpus reused read-only: `list-nested.html`, `nested-group-columns.html
 
 ## A41 — UUID stability under nesting / move / duplicate
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a41-uuid-stability.json`](../../research/ar2-nested-gutenberg-identity/evidence/a41-uuid-stability.json)
 
 **Result:** **16/16 experiments PASS**
@@ -94,7 +94,7 @@ Authored corpus reused read-only: `list-nested.html`, `nested-group-columns.html
 
 ## A42 — Recursive extraction / traversal model
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a42-traversal.json`](../../research/ar2-nested-gutenberg-identity/evidence/a42-traversal.json)
 
 | Case | Result |
@@ -121,7 +121,7 @@ Authored corpus reused read-only: `list-nested.html`, `nested-group-columns.html
 
 ## A43 — Structural container classification
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a43-structural.json`](../../research/ar2-nested-gutenberg-identity/evidence/a43-structural.json)
 
 | Family | Classification |
@@ -136,7 +136,7 @@ No container translation units; no adapters; container reorder preserves child k
 
 ## A44 — Textual container admission
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a44-textual.json`](../../research/ar2-nested-gutenberg-identity/evidence/a44-textual.json)
 
 ### List hard gate
@@ -165,7 +165,7 @@ Identity grammar `b:<uuid>:<field>` remains sufficient. — **Proven by experime
 
 ## A45 — Media / layout ownership
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a45-media.json`](../../research/ar2-nested-gutenberg-identity/evidence/a45-media.json)
 
 | Family | Verdict |
@@ -180,7 +180,7 @@ Identity grammar `b:<uuid>:<field>` remains sufficient. — **Proven by experime
 
 ## A46 — Navigation / shared / dynamic ownership
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a46-shared-dynamic.json`](../../research/ar2-nested-gutenberg-identity/evidence/a46-shared-dynamic.json)
 
 | Family | Ownership | Disposition |
@@ -196,7 +196,7 @@ Candidate-local deferral is acceptable and does **not** fail A.R2. — **Proven 
 
 ## A47 — Rendering / cache / performance
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** [`a47-render-perf.json`](../../research/ar2-nested-gutenberg-identity/evidence/a47-render-perf.json)
 
 | Case | Result |
@@ -225,7 +225,7 @@ Candidate-local deferral is acceptable and does **not** fail A.R2. — **Proven 
 
 ## A48 — Synthesis / verdict / F5 decision
 
-**Status:** Complete  
+**Status:** Complete
 **Evidence:** this log + [`a48-containment-audit.json`](../../research/ar2-nested-gutenberg-identity/evidence/a48-containment-audit.json)
 
 ### 1. Identity verdict
@@ -313,14 +313,14 @@ Separately:
 
 ### 13. ADR decision
 
-**No new ADR required** for the bounded minimum A.4 surface.  
-ADR-0013 remains authoritative.  
+**No new ADR required** for the bounded minimum A.4 surface.
+ADR-0013 remains authoritative.
 Shared-definition families remain blocked pending a future ADR if pursued.
 
 ### 14. F5 readiness
 
-**F5 may PASS** for the bounded approved surface above.  
-A.4 implementation planning may begin after this research is reviewed/merged.  
+**F5 may PASS** for the bounded approved surface above.
+A.4 implementation planning may begin after this research is reviewed/merged.
 Completing A40–A48 does **not** itself merge production code.
 
 ### Verdict choice
@@ -360,8 +360,8 @@ Reasons:
 
 ## Exact next step
 
-1. Review / merge `feature/ar2-nested-gutenberg-identity` to `main`.  
-2. Treat F5 as satisfied for the bounded surface.  
-3. Create A.4 implementation planning branch and freeze an A.4 implementation plan for the minimum surface only.  
-4. Do **not** start another research cycle.  
+1. Review / merge `feature/ar2-nested-gutenberg-identity` to `main`.
+2. Treat F5 as satisfied for the bounded surface.
+3. Create A.4 implementation planning branch and freeze an A.4 implementation plan for the minimum surface only.
+4. Do **not** start another research cycle.
 5. Do **not** admit Navigation / Query / reusable patterns without a dedicated ADR.
