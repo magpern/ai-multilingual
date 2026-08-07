@@ -1,13 +1,13 @@
 # A.4 — Nested Gutenberg — Implementation Plan
 
-**Status:** **Architecture Frozen** — implementation authorized for the bounded F5-approved surface; coding not started
+**Status:** **Complete on branch** — ready for independent merge review (do not begin next Program A milestone until merged/tagged)
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.4** (Architecture / Coverage)
 **Baseline:** `main` @ `39f41ebdd335725b9e74f534670d101f601728f8` (A.R2 merged; tag `ar2-nested-gutenberg-identity-research-complete`)
 **Planning branch:** `feature/a4-nested-gutenberg-implementation-plan`
 **Implementation branch:** `feature/a4-nested-gutenberg` (create from updated `main` when coding starts)
 **ADR:** [0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) — **Accepted** — **no new ADR** for this bounded surface
 **Evidence:** [A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; F5 **PASS** for bounded surface); [A4_NESTED_GUTENBERG_IDENTITY_PLAN.md](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md)
-**Validation log (reserved):** `docs/plans/A4_NESTED_GUTENBERG_VALIDATION_LOG.md` — create when A4.0 begins on the implementation branch
+**Validation log:** [A4_NESTED_GUTENBERG_VALIDATION_LOG.md](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**PASS on branch**)
 
 **Operational success:** Nested supported Gutenberg leaves inside structural / host containers translate under existing `b:<uuid>:<field>` identity, without a new recursion engine, Store redesign, or renderer replacement.
 
@@ -626,8 +626,7 @@ Do not implement on the planning branch.
 
 ## 25. Exact next step
 
-1. Review / merge this planning document to `main`.
-2. Create `feature/a4-nested-gutenberg` from updated `main`.
-3. Begin **A4.0**.
-4. Create `docs/plans/A4_NESTED_GUTENBERG_VALIDATION_LOG.md`.
-5. Execute A4.1–A4.8 within the frozen surface.
+1. Independent review of `feature/a4-nested-gutenberg`.
+2. Merge to `main` with normal `--no-ff`.
+3. Tag `a4-nested-gutenberg-complete`.
+4. Do **not** begin the next Program A milestone until closed.
