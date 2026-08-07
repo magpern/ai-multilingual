@@ -1,99 +1,152 @@
 # A.4 — Nested Gutenberg — Validation Log
 
-**Milestone:** A.4 Nested Gutenberg  
-**Implementation branch:** `feature/a4-nested-gutenberg`  
-**Plan:** [A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**)  
-**ADR:** [0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) (**Accepted** — no new ADR)  
-**Evidence:** [A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; F5 **PASS**)  
-**Baseline main (pre-plan merge):** `39f41ebdd335725b9e74f534670d101f601728f8`  
-**Plan merge commit:** `7ea2aed7ec566618762328d573584ed9cfccb87a`  
-**Research tag:** `ar2-nested-gutenberg-identity-research-complete`  
-**Closure status:** In progress  
+**Milestone:** A.4 Nested Gutenberg
+**Implementation branch:** `feature/a4-nested-gutenberg`
+**Plan:** [A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** → implementation complete on branch)
+**ADR:** [0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) (**Accepted** — no new ADR)
+**Evidence:** [A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; F5 **PASS**)
+**Baseline main (pre-plan merge):** `39f41ebdd335725b9e74f534670d101f601728f8`
+**Plan merge commit:** `7ea2aed7ec566618762328d573584ed9cfccb87a`
+**Research tag:** `ar2-nested-gutenberg-identity-research-complete`
+**Closure status:** Complete on branch — ready for independent merge review
 
 ---
 
 ## A4.0 — Baseline / F5 contract verification
 
-**Status:** PASS (docs / baseline only — no production behavior change at A4.0)
-
-### Environment
-
-| Item | Value |
-|---|---|
-| Host | https://dev.biopentra.eu |
-| Grammar | `b:<uuid>:<field>` |
-| UUID attr | `aimlBlockId` |
-| Production leaves | paragraph, heading, button, list-item, preformatted, verse, code |
-| Walker | `BlockTreeWalker` DFS `innerBlocks` |
-| F5 | PASS for bounded surface (A.R2) |
-
-### Contract verification
-
-| Check | Result |
-|---|---|
-| F5 CONDITIONAL GO evidence present | PASS |
-| `b:` grammar unchanged (`Contract::SEGMENT_KEY_GRAMMAR`) | PASS |
-| `BlockTreeWalker` recursion intact | PASS |
-| BlockRegistry / AdapterRegistry ownership intact | PASS |
-| Seven production leaves unchanged | PASS |
-| No nested container adapters in production | PASS |
-| Elementor A.2/A.3 surface untouched at A4.0 | PASS |
-| No A.4 production `src/` changes at A4.0 start | PASS |
-
-### Baseline quality gates (A4.0)
+**Status:** PASS
 
 | Gate | Result |
 |---|---|
-| Unit | 491 tests, 1182 assertions — OK (2 skipped) |
-| Integration | _pending A4.0 close / recorded below_ |
-| PluginGuard | _pending_ |
-| PHPCS | _pending_ |
-| `git diff --check` | PASS (clean tree at branch open) |
+| F5 / CONDITIONAL GO evidence | PASS |
+| `b:<uuid>:<field>` unchanged | PASS |
+| Walker / Registry / Adapter ownership | PASS |
+| Seven production leaves unchanged | PASS |
+| Unit (pre-code) | 491 OK (2 skipped) |
+| PluginGuard | 17 OK |
+| PHPCS | PASS (pre-existing warnings only) |
 
 ---
 
 ## A4.1 — Eligibility / structural transparency
 
-**Status:** pending
+**Status:** PASS
+
+- Added `STRUCTURAL_TRANSPARENT_BLOCKS` / `CHILD_TRAVERSAL_HOST_BLOCKS` + helpers
+- Kept leaf-local empty-`innerBlocks` guards (not globally removed)
+- Nested supported leaves remain independently eligible
 
 ---
 
 ## A4.2 — List / list-item admission
 
-**Status:** pending
+**Status:** PASS
+
+- `core/list` produces zero units
+- Nested leaf `list-item` uses `b:<uuid>:content`
+- Parent list-item with `innerBlocks` deferred (source fallback)
+- Reorder preserves keys; duplicate keys prevented
 
 ---
 
 ## A4.3 — Structural container child traversal
 
-**Status:** pending
+**Status:** PASS
+
+- group / columns / column / list transparent
+- Locked by `NestedGutenbergAdmissionTest`
 
 ---
 
 ## A4.4 — Host container child traversal
 
-**Status:** pending
+**Status:** PASS
+
+- quote / details / cover / media-text children extract
+- No parent citation/summary/pullquote admission
 
 ---
 
 ## A4.5 — Diagnostics + regression hardening
 
-**Status:** pending
+**Status:** PASS
+
+Counters: `structural_container_seen`, `nested_supported_leaf`, `nested_unsupported_leaf`, `duplicate_unit_prevented`, `nested_source_fallback`
+
+No source text; no path telemetry.
 
 ---
 
 ## A4.6 — Performance / render safety
 
-**Status:** pending
+**Status:** PASS
+
+Evidence: [a4-performance.json](a4-evidence/a4-performance.json)
+
+Observation-only timings (no invented budgets). No pathological recursion observed in unit fixtures.
 
 ---
 
 ## A4.7 — Full Tier 0 + targeted acceptance
 
-**Status:** pending
+**Status:** PASS
+
+| Gate | Result |
+|---|---|
+| Unit | 508 tests, 1247 assertions — OK (2 skipped) |
+| Integration | 507 tests, 10998 assertions — OK (2 skipped) |
+| PluginGuard | 17 OK |
+| PHPCS | PASS |
+| `git diff --check` | PASS |
+| Browser/HTTP matrix | **18/18 PASS** — [a4-http-acceptance.json](a4-evidence/a4-http-acceptance.json) |
+| Fixture | page `6419` `/a4-nested-gutenberg-fixture/` (+ `/sv/`) |
+| Units extracted | 12 |
+| Duplicate logical units | 0 |
+| Rendered FP | **0** |
+| Language leakage (main content) | **0** |
+| Elementor A.2/A.3 regression | PASS (no cross-leak) |
 
 ---
 
-## A4.8 — Closure
+## A4.8 — Closure / final supported surface
 
-**Status:** pending
+**Status:** PASS
+
+### Structural-transparent
+
+- `core/group`
+- `core/columns`
+- `core/column`
+- `core/list`
+
+### Nested child traversal validated
+
+- nested `core/list-item` leaves
+- quote / details / cover / media-text children
+- existing supported leaves inside structural containers
+
+### Deferred
+
+- quote citation; pullquote fields; details summary
+- gallery / Media Library metadata
+- parent list-item with non-empty `innerBlocks`
+- Navigation / Query / post-template / reusable-synced
+
+### Limitations
+
+- Rank Math meta may still echo EN strings outside block overlay
+- Scenario 15 validated as coexistence of separate fixtures (not one mixed document)
+- Parent list-item host text remains source by design
+
+### Technical debt
+
+- Optional later admission for citation/summary/pullquote/image caption
+- Shared-definition families require a future ADR if pursued
+
+---
+
+## Merge readiness
+
+Branch `feature/a4-nested-gutenberg` is complete for independent review.
+Recommended tag after merge: `a4-nested-gutenberg-complete`
+Do not begin the next Program A milestone until merged and closed.
