@@ -26,7 +26,7 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
 **First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
-**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface. **A.4 Nested Gutenberg** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**Complete / merged / tagged** `a4-nested-gutenberg-complete`). **A.1 Plugin Integration Framework** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**Complete / merged / tagged** `a1-plugin-integration-framework-complete`). **A.0 Gutenberg Leaf Expansion** — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md); [validation log PASS](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md) (**Complete / merged / tagged** `a0-gutenberg-leaf-expansion-complete`). **A.8** first production bridge — [selection matrix](A8_INTEGRATION_CANDIDATE_SELECTION.md); [implementation plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a8-fluentforms-contact-integration-complete`; admission **Supported**).
+**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface. **A.4 Nested Gutenberg** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**Complete / merged / tagged** `a4-nested-gutenberg-complete`). **A.1 Plugin Integration Framework** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**Complete / merged / tagged** `a1-plugin-integration-framework-complete`). **A.0 Gutenberg Leaf Expansion** — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md); [validation log PASS](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md) (**Complete / merged / tagged** `a0-gutenberg-leaf-expansion-complete`). **A.8** first production bridge — [selection matrix](A8_INTEGRATION_CANDIDATE_SELECTION.md); [implementation plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a8-fluentforms-contact-integration-complete`; admission **Supported**). **A.7** WooCommerce Visitor Coverage — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started).
 
 ---
 
@@ -47,8 +47,11 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **Priority decision** among early parallel tracks: **B.1** additional providers; **C.1–C.3** Workspace productivity; **D.1** unified health/diagnostics; or next Program A product wave (**A.6** visitor chrome / **A.7** WooCommerce / **A.SEO** / another A.8 third-party bridge)
-- Do not start another production integration until this priority is planned
+- **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; first coding wave = **A.7a** after freeze on `main`)
+- Early **B.1** additional providers
+- Early **C.1–C.3** Workspace productivity
+- Early **D.1** unified health/diagnostics
+- Remaining Program A options: **A.6** visitor chrome / **A.SEO** / further **A.8** bridges (after priority choice)
 
 ### LATER
 
@@ -149,7 +152,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`) |
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — **Complete** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md); tag `a4-nested-gutenberg-complete`; no new ADR |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
-| A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product |
+| A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; waves A.7a–A.7d; implementation not started) |
 | A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — **Complete** — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md); tag `a8-fluentforms-contact-integration-complete` |
 | A.SEO | Visitor SEO adapters (hreflang/title/alternates) | Product |
 
@@ -262,16 +265,18 @@ Illustrative visitor-facing surfaces (admit via deterministic integrations):
 - Search (visitor results/labels in scope)
 - Storefront notices
 
-**Suggested planning waves (ordering unchanged in spirit—catalog before highly dynamic commerce chrome):**
+**Suggested planning waves (ordering: catalog → archives → customer workflow → Woo-owned emails):**
 
 | Wave | Focus | Type |
 |---|---|---|
-| A.7a | Product pages, archives, attributes, variations (visitor) | Product |
-| A.7b | Cart, mini-cart, checkout display, storefront notices | Product |
-| A.7c | Customer account, order views, customer-facing emails | Product |
-| A.7d | Search and remaining visitor chrome | Product |
+| A.7a | Product & catalog content (visitor) | Product |
+| A.7b | Archives (shop / category / tag / search listing chrome) | Product |
+| A.7c | Customer workflow (cart, checkout, account, order received) | Product |
+| A.7d | WooCommerce-owned customer emails only | Product |
 
-Waves may slip across minors; the family definition is stable.
+**Canonical family plan:** [A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started).
+
+Waves may slip across minors; the family definition is stable. Third-party commerce plugins remain out of A.7.
 
 ### 6.3 Third-party and SEO
 
@@ -449,6 +454,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-07 | A.8 Fluent Forms Contact architecture freeze finalized (single-embed Contact 3410; verified 6.2.9 field-data hooks; sanitization contract); implementation authorized after merge (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | A.8 Fluent Forms Contact implementation complete on `feature/a8-fluentforms-contact-integration` (validation PASS; admission Supported); not merged/tagged (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | A.8 Fluent Forms Contact marked complete/merged/tagged `a8-fluentforms-contact-integration-complete`; Now/Next advances to post-A.8 priority decision (no structural change). |
+| v1.0 (editorial) | 2026-08-07 | A.7 WooCommerce Visitor Coverage family plan linked (**Architecture Frozen (planning)**; waves A.7a–A.7d refined); implementation not started (no structural change). |
 
 ---
 
