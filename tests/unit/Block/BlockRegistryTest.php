@@ -104,4 +104,27 @@ final class BlockRegistryTest extends TestCase {
 		);
 		$this->assertNull( $registry->get_adapter( 'core/group' ) );
 	}
+
+	public function test_structural_and_host_classification(): void {
+		$this->assertTrue( $this->registry->is_structural_transparent( 'core/group' ) );
+		$this->assertTrue( $this->registry->is_structural_transparent( 'core/list' ) );
+		$this->assertTrue( $this->registry->is_child_traversal_host( 'core/quote' ) );
+		$this->assertTrue( $this->registry->is_child_traversal_host( 'core/cover' ) );
+		$this->assertFalse( $this->registry->is_structural_transparent( 'core/paragraph' ) );
+		$this->assertFalse( $this->registry->is_child_traversal_host( 'core/list-item' ) );
+	}
+
+	public function test_supported_leaf_with_inner_blocks_is_ineligible(): void {
+		$this->assertFalse(
+			$this->registry->is_eligible(
+				array(
+					'blockName'   => 'core/list-item',
+					'innerBlocks' => array(
+						array( 'blockName' => 'core/list' ),
+					),
+					'innerHTML'   => '<li>Parent</li>',
+				)
+			)
+		);
+	}
 }

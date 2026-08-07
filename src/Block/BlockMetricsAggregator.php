@@ -39,6 +39,11 @@ final class BlockMetricsAggregator {
 	public const COUNTER_CONCURRENT_MODIFICATIONS   = 'concurrent_modifications';
 	public const COUNTER_FEATURE_FLAGS_CHANGED      = 'feature_flags_changed';
 	public const COUNTER_FLAG_COMBINATIONS_REJECTED = 'flag_combinations_rejected';
+	public const COUNTER_STRUCTURAL_CONTAINER_SEEN  = 'structural_container_seen';
+	public const COUNTER_NESTED_SUPPORTED_LEAF      = 'nested_supported_leaf';
+	public const COUNTER_NESTED_UNSUPPORTED_LEAF    = 'nested_unsupported_leaf';
+	public const COUNTER_DUPLICATE_UNIT_PREVENTED   = 'duplicate_unit_prevented';
+	public const COUNTER_NESTED_SOURCE_FALLBACK     = 'nested_source_fallback';
 
 	/**
 	 * In-process counter values keyed by stable metric name.
@@ -125,6 +130,11 @@ final class BlockMetricsAggregator {
 			self::COUNTER_CONCURRENT_MODIFICATIONS,
 			self::COUNTER_FEATURE_FLAGS_CHANGED,
 			self::COUNTER_FLAG_COMBINATIONS_REJECTED,
+			self::COUNTER_STRUCTURAL_CONTAINER_SEEN,
+			self::COUNTER_NESTED_SUPPORTED_LEAF,
+			self::COUNTER_NESTED_UNSUPPORTED_LEAF,
+			self::COUNTER_DUPLICATE_UNIT_PREVENTED,
+			self::COUNTER_NESTED_SOURCE_FALLBACK,
 		);
 	}
 
@@ -237,6 +247,21 @@ final class BlockMetricsAggregator {
 				break;
 			case BlockExtractionLogger::EVENT_ADAPTER_MISSING:
 				$this->increment( self::COUNTER_EXTRACTION_FAILED );
+				break;
+			case BlockExtractionLogger::EVENT_STRUCTURAL_CONTAINER_SEEN:
+				$this->increment( self::COUNTER_STRUCTURAL_CONTAINER_SEEN );
+				break;
+			case BlockExtractionLogger::EVENT_NESTED_SUPPORTED_LEAF:
+				$this->increment( self::COUNTER_NESTED_SUPPORTED_LEAF );
+				break;
+			case BlockExtractionLogger::EVENT_NESTED_UNSUPPORTED_LEAF:
+				$this->increment( self::COUNTER_NESTED_UNSUPPORTED_LEAF );
+				break;
+			case BlockExtractionLogger::EVENT_DUPLICATE_UNIT_PREVENTED:
+				$this->increment( self::COUNTER_DUPLICATE_UNIT_PREVENTED );
+				break;
+			case BlockExtractionLogger::EVENT_NESTED_SOURCE_FALLBACK:
+				$this->increment( self::COUNTER_NESTED_SOURCE_FALLBACK );
 				break;
 		}
 	}

@@ -1,0 +1,21 @@
+{
+    "work_package": "A4.6",
+    "measurements": {
+        "deep": {
+            "extract_ms": 2.8636,
+            "unit_count": 1,
+            "duplicate_unit_count": 0
+        },
+        "list": {
+            "extract_ms": 0.055,
+            "unit_count": 2,
+            "duplicate_unit_count": 0
+        },
+        "columns": {
+            "extract_ms": 0.0309,
+            "unit_count": 2,
+            "duplicate_unit_count": 0
+        }
+    },
+    "budgets": "not_invented"
+}

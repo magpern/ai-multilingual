@@ -57,12 +57,22 @@ final class BlockMetricsAggregatorTest extends TestCase {
 		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_BLOCK_EXTRACTED, array( 'block_name' => 'core/paragraph' ) );
 		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_FIELD_SKIPPED, array( 'block_name' => 'core/paragraph' ) );
 		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_ADAPTER_MISSING, array( 'block_name' => 'core/paragraph' ) );
+		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_STRUCTURAL_CONTAINER_SEEN, array( 'block_name' => 'core/group' ) );
+		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_NESTED_SUPPORTED_LEAF, array( 'block_name' => 'core/paragraph' ) );
+		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_NESTED_UNSUPPORTED_LEAF, array( 'block_name' => 'core/separator' ) );
+		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_DUPLICATE_UNIT_PREVENTED, array( 'segment_key' => 'b:x:content' ) );
+		$this->metrics->on_extraction_log( BlockExtractionLogger::EVENT_NESTED_SOURCE_FALLBACK, array( 'block_name' => 'core/list-item' ) );
 
 		$snapshot = $this->metrics->snapshot();
 
 		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_FIELDS_EXTRACTED ] );
 		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_FIELDS_SKIPPED ] );
 		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_EXTRACTION_FAILED ] );
+		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_STRUCTURAL_CONTAINER_SEEN ] );
+		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_NESTED_SUPPORTED_LEAF ] );
+		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_NESTED_UNSUPPORTED_LEAF ] );
+		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_DUPLICATE_UNIT_PREVENTED ] );
+		$this->assertSame( 1, $snapshot->counters[ BlockMetricsAggregator::COUNTER_NESTED_SOURCE_FALLBACK ] );
 		$this->assertSame( 0, $snapshot->counters[ BlockMetricsAggregator::COUNTER_EXTRACTION_STARTED ] );
 	}
 

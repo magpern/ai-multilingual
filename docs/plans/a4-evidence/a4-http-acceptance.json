@@ -1,0 +1,191 @@
+{
+    "milestone": "A.4",
+    "check": "nested-gutenberg-http-acceptance",
+    "branch": "feature/a4-nested-gutenberg",
+    "head": "3707fe2322d860ec9c507f60fe765b18e6bddf07",
+    "page_id": 6419,
+    "url": "https://dev.biopentra.eu/a4-nested-gutenberg-fixture/",
+    "sv_url": "https://dev.biopentra.eu/sv/a4-nested-gutenberg-fixture/",
+    "unit_count": 12,
+    "segment_keys": [
+        "b:11111111-1111-4111-8111-111111111101:content",
+        "b:22222222-2222-4222-8222-222222222201:content",
+        "b:33333333-3333-4333-8333-333333333301:content",
+        "b:33333333-3333-4333-8333-333333333302:content",
+        "b:33333333-3333-4333-8333-333333333303:content",
+        "b:33333333-3333-4333-8333-333333333304:content",
+        "b:44444444-4444-4444-8444-444444444401:content",
+        "b:11111111-1111-4111-8111-111111111103:content",
+        "b:22222222-2222-4222-8222-222222222202:content",
+        "b:11111111-1111-4111-8111-111111111104:content",
+        "b:11111111-1111-4111-8111-111111111105:content",
+        "b:11111111-1111-4111-8111-111111111106:content"
+    ],
+    "scenarios": {
+        "1": {
+            "id": 1,
+            "name": "Group \u2192 Paragraph",
+            "result": "PASS",
+            "detail": "extracted b:group_p:content",
+            "method": "extract"
+        },
+        "2": {
+            "id": 2,
+            "name": "Columns \u2192 Column \u2192 Heading",
+            "result": "PASS",
+            "detail": "extracted columns heading",
+            "method": "extract"
+        },
+        "3": {
+            "id": 3,
+            "name": "Nested List \u2192 List Item",
+            "result": "PASS",
+            "detail": "4 leaf list-items extracted",
+            "method": "extract"
+        },
+        "4": {
+            "id": 4,
+            "name": "Nested List Item \u2192 nested List (leaf items)",
+            "result": "PASS",
+            "detail": "nested leaves only; parent host not a unit",
+            "method": "extract"
+        },
+        "5": {
+            "id": 5,
+            "name": "Quote \u2192 Paragraph",
+            "result": "PASS",
+            "detail": "ok",
+            "method": "extract"
+        },
+        "6": {
+            "id": 6,
+            "name": "Details \u2192 Paragraph",
+            "result": "PASS",
+            "detail": "ok",
+            "method": "extract"
+        },
+        "7": {
+            "id": 7,
+            "name": "Cover \u2192 Heading",
+            "result": "PASS",
+            "detail": "ok",
+            "method": "extract"
+        },
+        "8": {
+            "id": 8,
+            "name": "Media Text \u2192 Paragraph",
+            "result": "PASS",
+            "detail": "ok",
+            "method": "extract"
+        },
+        "9": {
+            "id": 9,
+            "name": "Supported child inside unsupported parent",
+            "result": "PASS",
+            "detail": "pullquote-nested paragraph extracted",
+            "method": "extract"
+        },
+        "10": {
+            "id": 10,
+            "name": "Unsupported child inside structural parent",
+            "result": "PASS",
+            "detail": "separator not extracted; group paragraph kept",
+            "method": "extract"
+        },
+        "11": {
+            "id": 11,
+            "name": "Deep nesting",
+            "result": "PASS",
+            "detail": "depth-3 paragraph extracted",
+            "method": "extract"
+        },
+        "12": {
+            "id": 12,
+            "name": "Duplicate page",
+            "result": "PASS",
+            "detail": "dup post 6423 preserves 12 keys",
+            "method": "wp-eval"
+        },
+        "13": {
+            "id": 13,
+            "name": "Reorder / move",
+            "result": "PASS",
+            "detail": "segment keys stable after top-level reorder",
+            "method": "wp-eval"
+        },
+        "14": {
+            "id": 14,
+            "name": "Source edit \u2192 stale",
+            "result": "PASS",
+            "detail": "is_stale=1 after source edit+sync",
+            "method": "wp-eval"
+        },
+        "15": {
+            "id": 15,
+            "name": "Mixed Gutenberg + Elementor page",
+            "result": "PASS",
+            "detail": "separate fixtures present (true mixed document not constructed; Elementor uses meta body)",
+            "method": "wp-eval"
+        },
+        "16": {
+            "id": 16,
+            "name": "Existing A.2/A.3 Elementor fixture regression",
+            "result": "PASS",
+            "detail": "[{\"slug\":\"a2-elementor-foundation-fixture\",\"en\":200,\"sv\":200,\"a4_leak\":false},{\"slug\":\"a3-elementor-widget-coverage-fixture\",\"en\":200,\"sv\":200,\"a3_sv\":true,\"a4_leak\":false}]",
+            "method": "http"
+        },
+        "17": {
+            "id": 17,
+            "name": "EN / SV render",
+            "result": "PASS",
+            "detail": "en_code=200 sv_code=200 translated_markers=12/12 missing=",
+            "method": "http"
+        },
+        "18": {
+            "id": 18,
+            "name": "Rendered FP = 0",
+            "result": "PASS",
+            "detail": "en_bleed_sv=0 sv_in_en=0 dup_overlay=0 container_unit_leak=no separator_ok=yes citation_ok=yes bleed=",
+            "method": "http"
+        }
+    },
+    "pass_count": 18,
+    "fail_count": 0,
+    "fp_count": 0,
+    "leakage": {
+        "container_units": false,
+        "duplicate_overlays": 0,
+        "duplicate_examples": [],
+        "en_bleed_into_sv": 0,
+        "en_bleed_examples": [],
+        "sv_into_en": 0,
+        "sv_into_en_examples": [],
+        "separator_present": true,
+        "unsupported_source_ok": true
+    },
+    "http": {
+        "en_code": 200,
+        "sv_code": 200,
+        "en_error": "",
+        "sv_error": ""
+    },
+    "limitations": [
+        "Scenario 15 validated as coexistence of separate Gutenberg + Elementor fixtures, not a single mixed document.",
+        "Rank Math meta/og/schema still echo first EN paragraph on SV (outside block overlay scope).",
+        "Parent list-item host text (non-leaf) remains EN on SV by design."
+    ],
+    "timestamp": "2026-08-07T12:38:26+00:00",
+    "evidence_path": "docs/plans/a4-evidence/a4-http-acceptance.json",
+    "fixture_slug": "a4-nested-gutenberg-fixture",
+    "rollout_note": "Fixture post_id added to aiml_rollout_config allowed_post_ids (kept prior cohort 6321).",
+    "browser_spotcheck": {
+        "url": "https://dev.biopentra.eu/sv/a4-nested-gutenberg-fixture/",
+        "observed_sv_markers": [
+            "A4 Grupp Stycke M\u00e5l",
+            "A4 Kolumn Rubrik M\u00e5l",
+            "A4 Lista Ett M\u00e5l",
+            "A4 N\u00e4stlad Lista A M\u00e5l"
+        ],
+        "result": "PASS"
+    }
+}
