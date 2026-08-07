@@ -1,0 +1,167 @@
+{
+    "work_package": "A45",
+    "extract_keys": [
+        "b:11111111-1111-4111-8111-111111111101:content",
+        "b:11111111-1111-4111-8111-111111111102:content"
+    ],
+    "rows": [
+        {
+            "path": "0",
+            "block_name": "core/cover",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 1,
+            "attr_keys": [
+                "overlayColor",
+                "isUserOverlayColor",
+                "minHeight",
+                "dimRatio"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": false,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 225,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "0/0",
+            "block_name": "core/paragraph",
+            "uuid": "11111111-1111-4111-8111-111111111101",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [
+                "align",
+                "aimlBlockId"
+            ],
+            "has_aiml_block_id": true,
+            "is_supported": true,
+            "is_dynamic": false,
+            "is_eligible": true,
+            "has_adapter": true,
+            "adapter_translatable": true,
+            "inner_html_len": 104,
+            "inner_html_preview": "Cover overlay paragraph text owned by the nested paragraph block."
+        },
+        {
+            "path": "2",
+            "block_name": "core/media-text",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 1,
+            "attr_keys": [
+                "mediaId",
+                "mediaType"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": false,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 224,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "2/0",
+            "block_name": "core/paragraph",
+            "uuid": "11111111-1111-4111-8111-111111111102",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [
+                "aimlBlockId"
+            ],
+            "has_aiml_block_id": true,
+            "is_supported": true,
+            "is_dynamic": false,
+            "is_eligible": true,
+            "has_adapter": true,
+            "adapter_translatable": true,
+            "inner_html_len": 45,
+            "inner_html_preview": "Media-text content column paragraph."
+        },
+        {
+            "path": "4",
+            "block_name": "core/gallery",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 2,
+            "attr_keys": [
+                "linkTo"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": false,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 91,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "4/0",
+            "block_name": "core/image",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [
+                "id",
+                "sizeSlug",
+                "linkDestination"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": false,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 229,
+            "inner_html_preview": "Gallery caption A in block markup"
+        },
+        {
+            "path": "4/1",
+            "block_name": "core/image",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [
+                "id",
+                "sizeSlug",
+                "linkDestination"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": false,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 229,
+            "inner_html_preview": "Gallery caption B in block markup"
+        }
+    ],
+    "classification": {
+        "core/cover": {
+            "nested_child_text": "existing_child_traversal",
+            "block_owned_attrs": "none_required_for_minimum_surface",
+            "media_library": "external_not_owned",
+            "disposition": "child_traversal_safe; cover_itself_structural_for_text"
+        },
+        "core/media-text": {
+            "nested_child_text": "existing_child_traversal",
+            "media_side": "external_media_or_empty_alt",
+            "disposition": "child_traversal_safe"
+        },
+        "core/gallery": {
+            "captions_alts": "block_markup_on_core_image_children",
+            "core_image_adapter": false,
+            "media_library_persistence": "external_not_owned_by_default",
+            "disposition": "deferred_adapter_field_admission_for_image_caption_alt; not_required_for_nested_identity"
+        }
+    },
+    "conclusion": {
+        "claim": "Cover/media-text nested paragraphs extract today. Gallery captions/alts live on core/image markup and are not Media Library ownership by default, but core/image has no adapter \u2014 defer image caption admission. No Media Library translation system required for nested identity.",
+        "confidence": "Proven by experiment"
+    }
+}
