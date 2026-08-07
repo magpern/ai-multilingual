@@ -141,3 +141,39 @@ No new identity family. P5/P7 keys distinct. Catalog terms use `owner_type` = ta
 | Overlay sanitization | Plain for names; `wp_kses_post` for term descriptions |
 | Foreign Woo persistence | No writes — overlay filters only |
 | Diagnostics | Existing IntegrationDiagnostics counters via frontend bridge |
+
+## A7A.7 — Full acceptance
+
+**Status:** PASS
+
+| Gate | Result |
+|---|---|
+| Unit | **560** tests / **1417** assertions — OK (2 skipped) |
+| Integration | **512** tests / **11761** assertions — OK (2 skipped) |
+| PluginGuard | Included in integration suite — PASS |
+| PHPCS (touched paths) | **0 errors** (warnings only on foreign Woo hook names in tests — same class as A.8) |
+| TARGET | **6** unchanged |
+| Hook EN→SV (product attrs) | `wc_attribute_label` → `Styrka-var` |
+| Hook EN→SV (category) | `single_term_title` / `woocommerce_page_title` → `Återhämtningsstöd`; `term_description` → SV HTML |
+| Foreign Woo source audit | Product title / shop title / term name unchanged in WP/Woo tables |
+| Rendered FP on admitted hooks | **0** |
+| Cross-language leakage on admitted hooks | **0** |
+| A.8 Contact smoke | SV Contact still shows Namn / E-post / Skicka meddelande |
+| Gutenberg / Elementor / Integration API | No intentional changes; suites green |
+| Performance | No global product crawl; extract scoped to product attrs + shop-hosted terms |
+
+### Live HTML notes
+
+Visitor HTML is partially obscured by Age Gate and theme/Elementor/Rank Math chrome. Custom `biopentra-loop-card` i18n owns some “Strength:” strings outside Woo’s attribute-label filter. Official-hook overlays are verified via WP-CLI filter application against Store.
+
+## A7A.8 — Closure
+
+**Status:** PASS
+
+| Artifact | Path |
+|---|---|
+| Supported surface | [a7a-evidence/a7a-supported-surface.md](a7a-evidence/a7a-supported-surface.md) |
+
+**Merge readiness:** Ready for architecture review / merge. **Do not merge/tag in this implementation session.**  
+**Recommended tag after merge:** `a7a-woocommerce-product-catalog-complete`  
+**Exact next step:** Merge → tag → open A.7b branch from tagged main.

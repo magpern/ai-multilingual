@@ -56,14 +56,14 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	/**
 	 * Builds the WooCommerce integration.
 	 *
-	 * @param PluginIdentity                                                              $identity                 Serializer.
-	 * @param bool|null                                                                   $installed                Test override.
-	 * @param bool|null                                                                   $active                   Test override.
-	 * @param string|null                                                                 $version                  Test override.
-	 * @param bool|null                                                                   $disabled                 Test override.
-	 * @param bool|null                                                                   $hooks_present            Test override.
-	 * @param int|null                                                                    $shop_page_id             Test override shop page ID.
-	 * @param (callable(int): list<array{slug:string,label:string,variation:bool}>)|null $attributes_provider      Test product attributes.
+	 * @param PluginIdentity                                                                             $identity                 Serializer.
+	 * @param bool|null                                                                                  $installed                Test override.
+	 * @param bool|null                                                                                  $active                   Test override.
+	 * @param string|null                                                                                $version                  Test override.
+	 * @param bool|null                                                                                  $disabled                 Test override.
+	 * @param bool|null                                                                                  $hooks_present            Test override.
+	 * @param int|null                                                                                   $shop_page_id             Test override shop page ID.
+	 * @param (callable(int): list<array{slug:string,label:string,variation:bool}>)|null                 $attributes_provider      Test product attributes.
 	 * @param (callable(): list<array{taxonomy:string,term_id:int,name:string,description:string}>)|null $terms_provider Test catalog terms.
 	 */
 	public function __construct(
@@ -329,6 +329,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Whether a product attribute is variation-enabled.
+	 *
 	 * @param mixed  $product Product object.
 	 * @param string $name    Attribute name.
 	 * @param string $slug    Normalized slug.
@@ -338,7 +340,7 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			return false;
 		}
 		foreach ( $product->get_attributes() as $key => $attribute ) {
-			$key_slug = $this->normalize_token( is_string( $key ) ? $key : '' );
+			$key_slug  = $this->normalize_token( is_string( $key ) ? $key : '' );
 			$attr_name = is_object( $attribute ) && method_exists( $attribute, 'get_name' )
 				? (string) $attribute->get_name()
 				: '';
@@ -356,6 +358,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Current queried product_cat / product_tag term, if any.
+	 *
 	 * @return array{taxonomy:string,term_id:int}|null
 	 */
 	private function current_catalog_term(): ?array {
@@ -428,9 +432,11 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * @param list<TranslationUnitDescriptor> $units Units.
-	 * @param array<string, true>              $seen  Seen keys.
-	 * @param TranslationUnitDescriptor        $unit  Unit.
+	 * Append a unit if its segment key is unique.
+	 *
+	 * @param array<int, TranslationUnitDescriptor> $units Units.
+	 * @param array<string, true>                   $seen  Seen keys.
+	 * @param TranslationUnitDescriptor             $unit  Unit.
 	 * @throws \RuntimeException Duplicate keys.
 	 */
 	private function append_unique( array &$units, array &$seen, TranslationUnitDescriptor $unit ): void {
@@ -442,6 +448,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Extract Supported attribute-name units for one product.
+	 *
 	 * @param int $product_id Product post ID.
 	 * @return list<TranslationUnitDescriptor>
 	 */
@@ -511,6 +519,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Extract Supported catalog term units for the shop page host.
+	 *
 	 * @return list<TranslationUnitDescriptor>
 	 */
 	private function extract_catalog_term_units(): array {
@@ -577,6 +587,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Read product attributes via WooCommerce API or test provider.
+	 *
 	 * @param int $product_id Product ID.
 	 * @return list<array{slug:string,label:string,variation:bool}>
 	 */
@@ -601,7 +613,7 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 				} elseif ( '' === $slug ) {
 					$slug = sanitize_title( $name );
 				}
-				$label = function_exists( 'wc_attribute_label' )
+				$label     = function_exists( 'wc_attribute_label' )
 					? (string) wc_attribute_label( $name, $product )
 					: $name;
 				$variation = method_exists( $attribute, 'get_variation' ) && $attribute->get_variation();
@@ -616,6 +628,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Read allowlisted product_cat / product_tag terms.
+	 *
 	 * @return list<array{taxonomy:string,term_id:int,name:string,description:string}>
 	 */
 	private function read_catalog_terms(): array {
@@ -652,6 +666,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Whether the post is the WooCommerce shop page.
+	 *
 	 * @param WP_Post $post Post.
 	 */
 	private function is_shop_page( WP_Post $post ): bool {
@@ -660,6 +676,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Normalize an identity token to PluginIdentity-safe characters.
+	 *
 	 * @param string $token Raw token.
 	 */
 	private function normalize_token( string $token ): string {
@@ -700,6 +718,13 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		if ( null !== $this->disabled ) {
 			return $this->disabled;
 		}
+		/**
+		 * Filters whether the WooCommerce A.7a integration is disabled.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param bool $disabled Whether the integration is disabled.
+		 */
 		return (bool) apply_filters( 'aiml_woocommerce_integration_disabled', false );
 	}
 

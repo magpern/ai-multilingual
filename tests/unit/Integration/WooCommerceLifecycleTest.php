@@ -75,7 +75,7 @@ final class WooCommerceLifecycleTest extends TestCase {
 	}
 
 	public function test_attribute_rename_does_not_fuzzy_rematch(): void {
-		$integration = new WooCommerceIntegration(
+		$integration       = new WooCommerceIntegration(
 			new PluginIdentity(),
 			true,
 			true,
