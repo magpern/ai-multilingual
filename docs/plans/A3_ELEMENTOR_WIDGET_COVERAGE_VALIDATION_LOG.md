@@ -144,6 +144,22 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 | Limitations | Legacy content without `_id` remains source until Elementor assigns IDs in editor |
 | Disposition | **Directly Supported** |
 
+## A34 — Image ownership decision
+
+**Status:** PASS — Outcome **C** (documented subset)
+
+| Field | Value |
+|---|---|
+| Candidate | image |
+| Prior state | Research |
+| Owning WP | A34 |
+| Ownership analysis | Alt/title from Media Library attachment meta (`_wp_attachment_image_alt` / post_title). Attachment caption via `caption_source=attachment`. Elementor-owned only when `caption_source=custom` + `caption` string in widget settings. |
+| Controls admitted | `caption` when `caption_source === custom` |
+| Controls denied | attachment alt, attachment caption, title, dynamic tags |
+| Identity | A.2 flat `e:d:…:caption` |
+| Disposition | **Adapter / Directly Supported subset** (Outcome C) |
+| Unit | PASS ImageAdmissionTest |
+
 ## Subsequent WPs
 
-*(A34–A38 sections appended below as work completes.)*
+*(A35–A38 sections appended below as work completes.)*

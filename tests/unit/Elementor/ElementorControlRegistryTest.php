@@ -36,7 +36,7 @@ final class ElementorControlRegistryTest extends TestCase {
 	public function test_unsupported_widgets_and_controls_denied(): void {
 		$this->assertFalse( $this->registry->is_supported( 'heading', 'title_mobile' ) );
 		$this->assertFalse( $this->registry->is_supported( 'heading', 'header_size' ) );
-		$this->assertFalse( $this->registry->is_supported_widget( 'image' ) );
+		$this->assertTrue( $this->registry->is_supported( 'image', 'caption' ) );
 		$this->assertTrue( $this->registry->is_supported( 'toggle', 'tab_title' ) );
 		$this->assertFalse( $this->registry->is_supported( 'loop-grid', 'title' ) );
 	}
