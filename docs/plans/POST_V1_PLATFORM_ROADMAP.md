@@ -38,7 +38,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 - Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main`
 - **A.R1** Elementor Identity Research Spike **complete**; [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**
-- Active planning focus: **A.2** Elementor Foundation **planning** (implementation not started)
+- Active planning focus: **A.2** Elementor Foundation — [implementation plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md) (**planning complete on branch**; implementation not started)
 
 ### NEXT
 
@@ -144,7 +144,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.R2 | Nested Gutenberg Identity Research Spike | Research Spike |
 | A.1 | Plugin Integration Framework | Architecture |
 | A.0 | Additional Gutenberg leaf blocks and fields | Product |
-| A.2 | Elementor Foundation (post–identity decision) | Architecture |
+| A.2 | Elementor Foundation (post–identity decision) | Architecture — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md) (**planning**; implementation not started; ADR-0016 Accepted) |
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product |
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
