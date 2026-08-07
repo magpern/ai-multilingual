@@ -1,9 +1,10 @@
 # A.8 — Integration Candidate Selection Matrix
 
-**Status:** Selection locked for A.8 planning  
+**Status:** Selection locked; architecture **Frozen** for Form #5 Contact embed  
 **Canonical implementation plan:** [A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md)  
 **Environment:** https://dev.biopentra.eu (live WP-CLI inventory)  
-**Baseline:** `main` @ `5d51a69ada67be7c2d7048aaf16e9a11d2ea789a`
+**Baseline:** `main` @ `5d51a69ada67be7c2d7048aaf16e9a11d2ea789a`  
+**Single-embed verification:** Contact page **3410** / `contact` / Elementor `fluent-form-widget` `form_list: "5"` — **PASS** (exactly one published visitor embed)
 
 ---
 

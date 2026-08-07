@@ -1,9 +1,10 @@
 # A.8 — First Production Plugin Integration (Fluent Forms) — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — ready for architecture review / freeze; implementation not started
+**Status:** **Architecture Frozen** — implementation authorized after merge to `main`; no further A.8 planning cycle
 **Selected integration:** Fluent Forms — Contact Form **#5** (`fluentform`)
-**Plan freeze:** Integration API v1 consumer only; record-owned form fields; official Fluent Forms render filters; `p:` via `PluginIdentity`
-**ADR assessment:** **No new ADR required** if A.8 stays within ADR-0017 + Integration API v1 (see §22)
+**Plan freeze:** Integration API v1 consumer only; record-owned form fields; official Fluent Forms 6.2.9 field-data filters; `p:` via `PluginIdentity`
+**Single-embed scope:** Contact page **ID 3410** (`contact`) via Elementor `fluent-form-widget` `form_list: "5"` — exactly one published visitor embed (verified)
+**ADR assessment:** **No new ADR required** — ADR-0017 + Integration API v1 sufficient
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Program A — milestone **A.8**
 **Selection matrix:** [A8_INTEGRATION_CANDIDATE_SELECTION.md](A8_INTEGRATION_CANDIDATE_SELECTION.md)
 **Planning branch:** `feature/a8-first-production-integration-plan`
@@ -68,13 +69,15 @@ Full matrix: [A8_INTEGRATION_CANDIDATE_SELECTION.md](A8_INTEGRATION_CANDIDATE_SE
 
 ### In scope (exactly three units)
 
-| # | Surface | Source | Overlay hook |
-|---|---|---|---|
-| 1 | Name field label | Form 5 field `full_name` → `label` | `fluentform/rendering_field_data_input_text` (and/or element-specific data filter) |
-| 2 | Email field label | Form 5 field `email` → `label` | same family |
-| 3 | Submit button text | Form 5 submit → `button_ui.text` / submit settings | `fluentform/rendering_field_data_button` / `fluentform/render_item_submit_button` |
+| # | Surface | Source JSON path | Overlay hook | Mutation |
+|---|---|---|---|---|
+| 1 | Name field label | `fields[]` `attributes.name=full_name` → `settings.label` | `fluentform/rendering_field_data_input_text` | Guard `name===full_name`; set `settings.label` |
+| 2 | Email field label | `fields[]` `attributes.name=email` → `settings.label` | `fluentform/rendering_field_data_input_email` | Guard `name===email`; set `settings.label` |
+| 3 | Submit button text | `submitButton.settings.button_ui.text` | `fluentform/rendering_field_data_button` | Set `settings.button_ui.text` |
 
-Primary visitor URL: Contact page on https://dev.biopentra.eu (Elementor embeds form id `5`).
+Primary visitor URL: https://dev.biopentra.eu/contact/ (page **3410**).
+
+**Forbidden overlays:** `fluentform/rendering_field_html_*`, HTML scraping, output buffering, DOM rewrite.
 
 ### Explicitly deferred (not A.8)
 
@@ -122,15 +125,15 @@ p:<integration_id>:<owner_type>:<owner_id>:<field>[:<nested>...]
 | `owner_id` | `5` |
 | Field / nested | see below |
 
-Frozen keys:
+Serializer component mapping:
 
-```text
-p:fluentform:form:5:full_name:label
-p:fluentform:form:5:email:label
-p:fluentform:form:5:submit_text
-```
+| Key | integration_id | owner_type | owner_id | field | nested_id | `PluginIdentity::build(...)` |
+|---|---|---|---|---|---|---|
+| `p:fluentform:form:5:full_name:label` | `fluentform` | `form` | `5` | `full_name` | `label` | `build('fluentform','form','5','full_name','label')` |
+| `p:fluentform:form:5:email:label` | `fluentform` | `form` | `5` | `email` | `label` | `build('fluentform','form','5','email','label')` |
+| `p:fluentform:form:5:submit_text` | `fluentform` | `form` | `5` | `submit_text` | *(none)* | `build('fluentform','form','5','submit_text')` |
 
-Construction: `PluginIdentity::build( 'fluentform', 'form', '5', 'full_name', 'label' )` etc. — **never** free-form concatenation.
+Key lengths: 36 / 32 / 32 — all ≤ 191. **Never** free-form concatenation.
 
 | Invariant | Rule |
 |---|---|
@@ -161,14 +164,12 @@ Verify key lengths at A81 (< 60 chars expected).
 ## 8. Output-hook strategy
 
 1. `register_output_hooks( $resolve )` registers **only** when compatibility allows overlay.
-2. Prefer Fluent Forms official filters that receive field data arrays before HTML emit:
-   - `fluentform/rendering_form`
-   - `fluentform/rendering_field_data_{element}`
-   - submit-button render filters
-3. Resolver looks up `p:` keys via existing IntegrationFrontendBridge / Store path for the queried post.
-4. **Forbidden:** HTML scraping, DOM rewrite, unscoped output buffering, mutating form JSON in DB.
+2. Register exactly three verified Fluent Forms **6.2.9** field-data filters (see §4).
+3. Resolver looks up `p:` keys via IntegrationFrontendBridge / Store for the queried post (Contact **3410**).
+4. Overlay places **plain unescaped** strings into `$data` arrays; Fluent Forms owns final escaping (`fluentform_sanitize_html`).
+5. **Forbidden:** `rendering_field_html_*`, HTML scraping, DOM rewrite, unscoped output buffering, mutating form JSON in DB.
 
-Local miss → leave source label; continue.
+Local miss / stale / error → leave source; continue. One field failure must not break the form.
 
 ---
 
@@ -183,9 +184,11 @@ Local miss → leave source label; continue.
 | Integration disabled (AIML setting) | `disabled` — Store retained; no overlay |
 | Compatible | extract + overlay |
 | Form 5 deleted | no units; source fallback |
+| Field removed / renamed | no overlay for missing identity; **no fuzzy rematch** |
 | Reactivation | resume after compatibility PASS |
+| Second published Form #5 embed | **STOP** A.8 — do not invent multi-embed Store semantics |
 
-Supported version floor (plan freeze): Fluent Forms **≥ 6.2.0** (adjust at A81 with evidence; do not chase every minor).
+Supported fixture: Fluent Forms **6.2.9**. Runtime floor: **≥ 6.2.0** within the verified field-data filter family. Unknown/incompatible → source fallback. Do not claim broader compatibility without evidence.
 
 ---
 
@@ -193,7 +196,7 @@ Supported version floor (plan freeze): Fluent Forms **≥ 6.2.0** (adjust at A81
 
 | Field | Format | Rule |
 |---|---|---|
-| Labels / submit text | `plain` | `esc_html` on overlay; strip tags on ingest |
+| Labels / submit text | `plain` | Ingest: `IntegrationSecurity::sanitize_plain` (strip tags). Overlay: plain unescaped strings. Escaping owner: Fluent Forms. **No** pre-`esc_html` (avoids double-encoding). |
 
 No HTML confirmation message in A.8. No secrets in diagnostics. PluginGuard unchanged.
 
