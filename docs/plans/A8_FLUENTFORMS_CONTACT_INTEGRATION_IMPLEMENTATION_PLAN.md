@@ -1,7 +1,9 @@
 # A.8 — First Production Plugin Integration (Fluent Forms) — Implementation Plan
 
-**Status:** **Architecture Frozen** — implementation authorized after merge to `main`; no further A.8 planning cycle
+**Status:** **Implementation complete on branch** — ready for independent review / merge; no further A.8 planning cycle
 **Selected integration:** Fluent Forms — Contact Form **#5** (`fluentform`)
+**Admission disposition:** **Supported** — [a8-fluentforms-contact-admission.md](a8-evidence/a8-fluentforms-contact-admission.md)
+**Validation:** [A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md)
 **Plan freeze:** Integration API v1 consumer only; record-owned form fields; official Fluent Forms 6.2.9 field-data filters; `p:` via `PluginIdentity`
 **Single-embed scope:** Contact page **ID 3410** (`contact`) via Elementor `fluent-form-widget` `form_list: "5"` — exactly one published visitor embed (verified)
 **ADR assessment:** **No new ADR required** — ADR-0017 + Integration API v1 sufficient
