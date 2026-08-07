@@ -48,6 +48,7 @@ use AIMultilingual\Block\SavePipeline;
 use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
+use AIMultilingual\Elementor\ElementorCacheInvalidation;
 use AIMultilingual\Elementor\ElementorCompatibility;
 use AIMultilingual\Elementor\ElementorControlRegistry;
 use AIMultilingual\Elementor\ElementorDiagnostics;
@@ -255,6 +256,7 @@ final class Plugin {
 			$elementor_applier,
 			$elementor_diagnostics
 		) )->register();
+		( new ElementorCacheInvalidation( $elementor_detector, $elementor_compatibility ) )->register();
 
 		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
 		$status_calculator = new TranslationStatusCalculator( $store );
