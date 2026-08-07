@@ -23,7 +23,7 @@ final class RenderGateContext {
 	 *
 	 * @var list<string>
 	 */
-	public const SUPPORTED_POST_TYPES = array( 'post', 'page' );
+	public const SUPPORTED_POST_TYPES = array( 'post', 'page', 'product' );
 
 	/**
 	 * Builds a render gate context.

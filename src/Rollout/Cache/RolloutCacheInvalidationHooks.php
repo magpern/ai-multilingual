@@ -10,7 +10,6 @@ declare( strict_types=1 );
 namespace AIMultilingual\Rollout\Cache;
 
 use AIMultilingual\Language\Languages;
-use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
@@ -57,7 +56,7 @@ final class RolloutCacheInvalidationHooks {
 			return;
 		}
 
-		if ( Store::SOURCE_POST !== $post->post_type && 'page' !== $post->post_type ) {
+		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
 			return;
 		}
 
