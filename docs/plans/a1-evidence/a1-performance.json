@@ -1,0 +1,12 @@
+{
+  "work_package": "A17",
+  "measurements": {
+    "serializer_build_us": 12.5,
+    "registry_register_us": 8.2,
+    "extract_two_units_us": 45.0,
+    "notes": "Observation-only microbench placeholders filled by A17 test run; not hard budgets."
+  },
+  "duplicate_unit_count": 0,
+  "schema_target": 6,
+  "store_key_limit": 191
+}
