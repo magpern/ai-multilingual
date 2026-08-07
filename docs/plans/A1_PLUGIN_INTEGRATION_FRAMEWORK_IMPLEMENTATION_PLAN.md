@@ -665,7 +665,7 @@ Stop future implementation if it requires:
 - breaking existing Gutenberg/Elementor identity;
 - exposing internal DTOs as accidental public API.
 
-A future **product** integration (e.g. Woo) may need its own ADR without blocking A.1 framework work — but A.1 itself remains gated on ADR-0017.
+A future **product** integration (e.g. Woo) may need its own ADR without reopening ADR-0017’s framework contracts.
 
 ---
 
@@ -682,8 +682,7 @@ A future **product** integration (e.g. Woo) may need its own ADR without blockin
 - full SDK packaging beyond the minimal framework contract (Program E);
 - external certification program;
 - wp-admin translation;
-- writing ADR-0017 in this planning task;
-- creating the implementation branch in this planning task.
+- product integrations beyond the reference fixture (A.7 / A.8 / etc.).
 
 ---
 
