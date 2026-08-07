@@ -1,10 +1,12 @@
 # A.1 — Plugin Integration Framework — Implementation Plan
 
-**Status:** **Implementation complete on branch** — ready for independent review/merge; coding finished on `feature/a1-plugin-integration-framework`
+**Status:** **Complete / merged / tagged** `a1-plugin-integration-framework-complete`
 **Plan freeze:** Ownership, Integration API v1, `p:` identity, registry, lifecycle, reference fixture, and admission contracts frozen
 **ADR:** [0017-plugin-integration-framework-ownership-and-identity.md](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted** 2026-08-07)
-**Validation:** [A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md)
+**Validation:** [A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) **PASS — closed**
 **API docs:** [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md)
+**Merge commit:** `a70991c3bc00c7c09f64620c87b0959fcdb39106`
+**Tag:** `a1-plugin-integration-framework-complete`
 **Roadmap:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) Program A — A.1
 **Planning branch (merged):** `feature/a1-plugin-integration-framework-plan`
 **Implementation branch:** `feature/a1-plugin-integration-framework` (create from `main` after ADR acceptance; coding starts with A10)

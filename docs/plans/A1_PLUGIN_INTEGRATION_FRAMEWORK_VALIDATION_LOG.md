@@ -91,8 +91,13 @@
 | Public API docs | [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md) + HOOKS.md |
 | Containment | Fixture not in Plugin.php; ZIP packs `src/` only |
 
-### Merge readiness
+### Merge / post-merge validation
 
-Branch `feature/a1-plugin-integration-framework` is ready for independent review.
-Recommended tag after merge: `a1-plugin-integration-framework-complete`
-Do not begin a production plugin integration (A.8) until A.1 is merged and closed.
+| Gate | Result |
+|---|---|
+| Merge | `--no-ff` into `main` @ `a70991c3bc00c7c09f64620c87b0959fcdb39106` |
+| Post-merge unit | 523 tests, 1283 assertions — OK (2 skipped) |
+| Post-merge core (Reference + PluginGuard) | 20 tests — OK |
+| Tag | `a1-plugin-integration-framework-complete` on merge commit |
+
+A.1 Plugin Integration Framework is closed. Integration API v1 is active. Reference fixture remains Experimental/test-only. No production merchant integrations yet. Next Program A milestone is a product priority decision between **A.0** and **A.8** (roadmap).
