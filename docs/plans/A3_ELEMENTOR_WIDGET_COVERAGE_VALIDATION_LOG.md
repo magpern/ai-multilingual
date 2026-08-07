@@ -160,6 +160,16 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 | Disposition | **Adapter / Directly Supported subset** (Outcome C) |
 | Unit | PASS ImageAdmissionTest |
 
+## A36 — Workspace, diagnostics, compatibility consolidation
+
+**Status:** PASS
+
+- Nested units flow through existing Extractor → Store → Workspace assembler (`nested_item_id` in meta)
+- Diagnostics extended: `nested_unit_extracted`, `missing_nested_id`, `duplicate_nested_id`, `adapter_failure`
+- No redesign of Review / TM / Glossary / Jobs / conflict handling
+- Compatibility remains `ElementorCompatibility` 4.2.x boundary
+- Deny-list updated with A.3 graduation records
+
 ## Subsequent WPs
 
-*(A36–A38 sections appended below as work completes.)*
+*(A37–A38 sections appended below as work completes.)*

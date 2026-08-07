@@ -52,3 +52,19 @@ Source fallback: deny-listed values remain **untranslated (source)**.
 ## Governance
 
 Future milestones **remove** entries through evidence — they do not replace this deny-list with an unstructured allow-only policy.
+
+---
+
+## A.3 graduation records (evidence-backed removals / subset admissions)
+
+Admitted to production allowlist via A.3 (`feature/a3-elementor-widget-coverage`); see [A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md](../../docs/plans/A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md).
+
+| Family | Disposition | Notes |
+|---|---|---|
+| accordion (`tab_title`, `tab_content`) | Graduated | Nested `_id` identity; adapter strategy |
+| toggle (`tab_title`, `tab_content`) | Graduated | Same model; missing `_id` → source |
+| image (`caption` when `caption_source=custom`) | Graduated subset | Media Library alt/attachment caption remain denied |
+| icon-list (`text`) | Graduated | Nested `_id` on `icon_list` |
+| call-to-action (`title`, `description`, `button`) | Graduated | Flat document controls |
+
+Still denied (unchanged): Theme Builder / globals, loop-grid cells, Woo Elementor widgets, Fluent Forms, html/shortcode, dynamic tags, Candidate B, HTML scrape.
