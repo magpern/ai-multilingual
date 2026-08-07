@@ -46,7 +46,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.8** Fluent Forms Contact Form #5 via A.1 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; implementation authorized after merge)
+- **A.8** Fluent Forms Contact Form #5 via A.1 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md) (**implementation complete on branch** `feature/a8-fluentforms-contact-integration`; not merged/tagged)
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -151,7 +151,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — **Complete** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md); tag `a4-nested-gutenberg-complete`; no new ADR |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
 | A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product |
-| A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; implementation authorized after merge) |
+| A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md) (**implementation complete on branch**; not merged/tagged) |
 | A.SEO | Visitor SEO adapters (hreflang/title/alternates) | Product |
 
 ### Program B — Translation Intelligence
@@ -448,6 +448,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-07 | A.0 Gutenberg Leaf Expansion marked complete/merged/tagged `a0-gutenberg-leaf-expansion-complete`; Now/Next advances to A.8 planning (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | A.8 first production integration plan linked — Fluent Forms Contact Form #5 selected; Architecture Frozen (planning); implementation not started (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | A.8 Fluent Forms Contact architecture freeze finalized (single-embed Contact 3410; verified 6.2.9 field-data hooks; sanitization contract); implementation authorized after merge (no structural change). |
+| v1.0 (editorial) | 2026-08-07 | A.8 Fluent Forms Contact implementation complete on `feature/a8-fluentforms-contact-integration` (validation PASS; admission Supported); not merged/tagged (no structural change). |
 
 ---
 
