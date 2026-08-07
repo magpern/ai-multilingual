@@ -57,7 +57,7 @@ final class RolloutCacheInvalidationHooks {
 			return;
 		}
 
-		if ( Store::SOURCE_POST !== $post->post_type && 'page' !== $post->post_type ) {
+		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
 			return;
 		}
 

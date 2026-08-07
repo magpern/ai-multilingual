@@ -21,7 +21,7 @@ final class RolloutConfiguration {
 	 *
 	 * @var list<string>
 	 */
-	public const APPROVED_POST_TYPES = array( 'post', 'page' );
+	public const APPROVED_POST_TYPES = array( 'post', 'page', 'product' );
 
 	/**
 	 * Stages that require a non-empty post allowlist when rollout render is on

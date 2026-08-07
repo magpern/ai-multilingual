@@ -113,3 +113,16 @@ No new identity family. P5/P7 keys distinct. Catalog terms use `owner_type` = ta
 | Bridge | `IntegrationFrontendBridge` resolves shop page for `product_cat`/`product_tag` archives |
 | Unit tests | Overlay suite OK; miss → source |
 | Woo DB mutation | None |
+
+## A7A.5 — Workspace / platform path
+
+**Status:** PASS
+
+| Item | Result |
+|---|---|
+| Workspace post types | `post`, `page`, **`product`** |
+| Rollout approved types | includes **`product`** |
+| RenderGateContext | includes **`product`** |
+| Cache invalidation on product save | Yes |
+| Review / TM / Glossary / Jobs | Unchanged Integration API path (`surface=plugin_integration`) |
+| Woo-specific workflow | None |

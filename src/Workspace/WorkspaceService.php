@@ -30,7 +30,7 @@ use WP_Query;
  */
 final class WorkspaceService {
 
-	public const SUPPORTED_POST_TYPES = array( 'post', 'page' );
+	public const SUPPORTED_POST_TYPES = array( 'post', 'page', 'product' );
 
 	/**
 	 * Injected dependency.
