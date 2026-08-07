@@ -2,8 +2,8 @@
 
 Public extension surface for visitor-facing third-party plugin integrations.
 
-**ADR:** [0017-plugin-integration-framework-ownership-and-identity.md](../adr/0017-plugin-integration-framework-ownership-and-identity.md)  
-**Plan:** [A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md)
+**ADR:** [0017-plugin-integration-framework-ownership-and-identity.md](adr/0017-plugin-integration-framework-ownership-and-identity.md)  
+**Plan:** [A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md](plans/A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md)
 
 ## Register
 
