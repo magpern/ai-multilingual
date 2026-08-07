@@ -26,7 +26,7 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
 **First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
-**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface. **A.4 Nested Gutenberg** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**Complete / merged / tagged** `a4-nested-gutenberg-complete`). **A.1 Plugin Integration Framework** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**Complete / merged / tagged** `a1-plugin-integration-framework-complete`). Parallel next priority: **A.0** / **A.8**.
+**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface. **A.4 Nested Gutenberg** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**Complete / merged / tagged** `a4-nested-gutenberg-complete`). **A.1 Plugin Integration Framework** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**Complete / merged / tagged** `a1-plugin-integration-framework-complete`). **A.0 Gutenberg Leaf Expansion** — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; implementation not started). **A.8** remains later/parallel.
 
 ---
 
@@ -42,17 +42,19 @@ Navigation aid only. Does not replace the detailed programs below.
 - **A.R2** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; complete; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface
 - **A.4** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**complete / merged / tagged** `a4-nested-gutenberg-complete`); Navigation/shared/dynamic remain deferred
 - **A.1** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**complete / merged / tagged** `a1-plugin-integration-framework-complete`)
+- **A.0** — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; implementation not started)
 
 ### NEXT
 
-- Product priority decision: **A.0** (additional Gutenberg leaf blocks/fields) **or** **A.8** (first third-party bridge via A.1)
+- **A.0** implementation (A00–A08) after planning merge to `main`
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
+- **A.8** remains later/parallel (first third-party bridge via A.1)
 
 ### LATER
 
-- Nested Gutenberg deferred admissions (citation/summary/pullquote/gallery; parent list-item+innerBlocks)
+- Nested Gutenberg deferred admissions not admitted by A.0 (parent list-item+innerBlocks; Media Library; remaining Wave 2/3 deferrals)
 - Navigation / Query / reusable (require separate ADR if pursued)
 - Elementor widget coverage beyond first A.3 surface
 - WordPress visitor chrome (navigation, theme/widgets, declared residual strings)
@@ -144,7 +146,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.R1 | Elementor Identity Research Spike | Research Spike — **Complete**; [plan](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md); [research log](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**; A.2 planning authorized; Elementor production implementation not started |
 | A.R2 | Nested Gutenberg Identity Research Spike | Research Spike — **Complete**; [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); tag `ar2-nested-gutenberg-identity-research-complete`; **F5 PASS** for bounded surface |
 | A.1 | Plugin Integration Framework | Architecture — **Complete** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md); tag `a1-plugin-integration-framework-complete` |
-| A.0 | Additional Gutenberg leaf blocks and fields | Product |
+| A.0 | Additional Gutenberg leaf blocks and fields | Product — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; implementation not started) |
 | A.2 | Elementor Foundation (post–identity decision) | Architecture — **Complete** — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md); tag `a2-elementor-foundation-complete` |
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`) |
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — **Complete** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md); tag `a4-nested-gutenberg-complete`; no new ADR |
@@ -442,6 +444,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-07 | A.1 Plugin Integration Framework plan linked; implementation not started; ADR-0017 required before A11+ (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | ADR-0017 Accepted; A.1 implementation authorized; coding not started (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | A.1 Plugin Integration Framework marked complete/merged/tagged `a1-plugin-integration-framework-complete`; Now/Next advances to A.0 / A.8 priority decision (no structural change). |
+| v1.0 (editorial) | 2026-08-07 | A.0 Gutenberg Leaf Expansion implementation plan linked (**Architecture Frozen**); implementation not started; A.8 remains later/parallel (no structural change). |
 
 ---
 
