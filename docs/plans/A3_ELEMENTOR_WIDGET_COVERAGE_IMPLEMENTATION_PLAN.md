@@ -1,6 +1,6 @@
 # A.3 — Elementor Widget Coverage — Implementation Plan
 
-**Status:** **Implementation Complete** — pending independent review / merge / tag (do not begin A.4)
+**Status:** **Complete / Merged / Validated / Closed** — tag  (do not begin A.4 implementation until A.4 plan exists)
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.3** (Product / Coverage)
 **Baseline:** `main` @ `adb39f7183be695a36793a3a0c293b79848c0263` (A.2 complete; tag `a2-elementor-foundation-complete`)
 **Planning branch:** `feature/a3-elementor-widget-coverage-plan`

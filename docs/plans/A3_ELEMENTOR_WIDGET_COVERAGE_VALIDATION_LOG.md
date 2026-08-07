@@ -189,7 +189,7 @@ Performance (HTTP wall-clock, anonymous, fixture page): cold EN ≈ 1244 ms, col
 
 ## A38 — Full validation and closure
 
-**Status:** PASS — implementation complete on branch (not merged)
+**Status:** PASS — **merged to main**, validated, closed
 
 | Gate | Result |
 |---|---|

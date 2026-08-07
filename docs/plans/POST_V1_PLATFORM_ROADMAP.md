@@ -38,7 +38,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 - Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main`
 - **A.R1** Elementor Identity Research Spike **complete**; [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**
-- Active merge gate: **A.3** Elementor Widget Coverage — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Implementation Complete**; pending review). **A.2** — [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) (**complete / merged**)
+- Active planning gate: **A.4** Nested Gutenberg Identity (planning only). **A.3** — [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**complete / merged / tagged**). **A.2** — [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) (**complete / merged**)
 
 ### NEXT
 
@@ -145,7 +145,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.1 | Plugin Integration Framework | Architecture |
 | A.0 | Additional Gutenberg leaf blocks and fields | Product |
 | A.2 | Elementor Foundation (post–identity decision) | Architecture — **Complete** — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md); tag `a2-elementor-foundation-complete` |
-| A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Implementation Complete**; pending review/merge) |
+| A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** ) |
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
 | A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product |
