@@ -70,16 +70,28 @@ final class BlockExtractor {
 	 * @return array<string, array<string, mixed>> Segments keyed by segment key.
 	 */
 	public function extract_blocks( array $blocks ): array {
-		$segments = array();
-		$order    = 0;
+		$segments       = array();
+		$order          = 0;
+		$nested_uuids   = $this->uuids_under_containers( $blocks );
+		$seen_container = false;
 
 		( new BlockTreeWalker() )->walk(
 			$blocks,
-			function ( array $block ) use ( &$segments, &$order ): void {
+			function ( array $block ) use ( &$segments, &$order, $nested_uuids, &$seen_container ): void {
 				$name = (string) ( $block['blockName'] ?? '' );
 
 				if ( '' === $name || $this->registry->is_dynamic( $name ) ) {
 					return;
+				}
+
+				if ( $this->registry->is_structural_transparent( $name ) || $this->registry->is_child_traversal_host( $name ) ) {
+					$seen_container = true;
+					$this->logger->log(
+						BlockExtractionLogger::EVENT_STRUCTURAL_CONTAINER_SEEN,
+						array(
+							'block_name' => $name,
+						)
+					);
 				}
 
 				$adapter = $this->adapters->get( $name );
@@ -91,12 +103,37 @@ final class BlockExtractor {
 								'block_name' => $name,
 							)
 						);
+					} elseif (
+						$seen_container
+						&& ! $this->registry->is_structural_transparent( $name )
+						&& ! $this->registry->is_child_traversal_host( $name )
+					) {
+						$inner = $block['innerBlocks'] ?? array();
+						if ( ! is_array( $inner ) || array() === $inner ) {
+							$this->logger->log(
+								BlockExtractionLogger::EVENT_NESTED_UNSUPPORTED_LEAF,
+								array(
+									'block_name' => $name,
+								)
+							);
+						}
 					}
 
 					return;
 				}
 
 				if ( ! $adapter->is_translatable_instance( $block ) ) {
+					$uuid = $this->block_uuid( $block );
+					if ( '' !== $uuid && isset( $nested_uuids[ $uuid ] ) ) {
+						$this->logger->log(
+							BlockExtractionLogger::EVENT_NESTED_SOURCE_FALLBACK,
+							array(
+								'block_name' => $name,
+								'reason'     => 'non_empty_inner_blocks',
+							)
+						);
+					}
+
 					return;
 				}
 
@@ -105,10 +142,7 @@ final class BlockExtractor {
 					return;
 				}
 
-				$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
-				$uuid  = isset( $attrs[ Contract::ATTR_NAME ] )
-					? (string) $attrs[ Contract::ATTR_NAME ]
-					: '';
+				$uuid = $this->block_uuid( $block );
 
 				if ( ! UuidValidator::is_valid_non_empty( $uuid ) ) {
 					$this->logger->log(
@@ -158,6 +192,13 @@ final class BlockExtractor {
 								'reason'         => 'duplicate_segment_key',
 							)
 						);
+						$this->logger->log(
+							BlockExtractionLogger::EVENT_DUPLICATE_UNIT_PREVENTED,
+							array(
+								'block_name'  => $name,
+								'segment_key' => $segment_key,
+							)
+						);
 						continue;
 					}
 
@@ -190,10 +231,67 @@ final class BlockExtractor {
 							'segment_key' => $segment_key,
 						)
 					);
+
+					if ( isset( $nested_uuids[ $uuid ] ) ) {
+						$this->logger->log(
+							BlockExtractionLogger::EVENT_NESTED_SUPPORTED_LEAF,
+							array(
+								'block_name'  => $name,
+								'segment_key' => $segment_key,
+							)
+						);
+					}
 				}
 			}
 		);
 
 		return $segments;
+	}
+
+	/**
+	 * Collects UUIDs of blocks that sit under structural/host containers.
+	 *
+	 * @param array<int, array<string, mixed>> $blocks Parsed tree.
+	 * @param bool                             $under  Whether ancestors include a container/host.
+	 * @return array<string, true>
+	 */
+	private function uuids_under_containers( array $blocks, bool $under = false ): array {
+		$uuids = array();
+
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) || null === ( $block['blockName'] ?? null ) ) {
+				continue;
+			}
+
+			$name         = (string) $block['blockName'];
+			$is_container = $this->registry->is_structural_transparent( $name )
+				|| $this->registry->is_child_traversal_host( $name );
+			$child_under  = $under || $is_container;
+			$uuid         = $this->block_uuid( $block );
+
+			if ( $child_under && '' !== $uuid && ! $is_container ) {
+				$uuids[ $uuid ] = true;
+			}
+
+			$inner = is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array();
+			if ( array() !== $inner ) {
+				$uuids += $this->uuids_under_containers( $inner, $child_under );
+			}
+		}
+
+		return $uuids;
+	}
+
+	/**
+	 * Reads aimlBlockId from a parsed block.
+	 *
+	 * @param array<string, mixed> $block Parsed block.
+	 */
+	private function block_uuid( array $block ): string {
+		$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+
+		return isset( $attrs[ Contract::ATTR_NAME ] )
+			? (string) $attrs[ Contract::ATTR_NAME ]
+			: '';
 	}
 }

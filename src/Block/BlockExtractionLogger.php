@@ -14,9 +14,14 @@ namespace AIMultilingual\Block;
  */
 final class BlockExtractionLogger {
 
-	public const EVENT_BLOCK_EXTRACTED = 'block_extracted';
-	public const EVENT_ADAPTER_MISSING = 'adapter_missing';
-	public const EVENT_FIELD_SKIPPED   = 'field_skipped';
+	public const EVENT_BLOCK_EXTRACTED           = 'block_extracted';
+	public const EVENT_ADAPTER_MISSING           = 'adapter_missing';
+	public const EVENT_FIELD_SKIPPED             = 'field_skipped';
+	public const EVENT_STRUCTURAL_CONTAINER_SEEN = 'structural_container_seen';
+	public const EVENT_NESTED_SUPPORTED_LEAF     = 'nested_supported_leaf';
+	public const EVENT_NESTED_UNSUPPORTED_LEAF   = 'nested_unsupported_leaf';
+	public const EVENT_DUPLICATE_UNIT_PREVENTED  = 'duplicate_unit_prevented';
+	public const EVENT_NESTED_SOURCE_FALLBACK    = 'nested_source_fallback';
 
 	/**
 	 * Logs a structured extraction event.
