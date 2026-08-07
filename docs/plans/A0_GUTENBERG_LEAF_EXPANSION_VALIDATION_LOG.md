@@ -43,3 +43,15 @@ No new block support in A00.
 ## Subsequent work packages
 
 _Records appended as A01–A08 complete._
+
+## A01 — Candidate inventory + admission matrix
+
+**Status:** PASS
+
+| Artifact | Path |
+|---|---|
+| Admission matrix | [A0_ADMISSION_MATRIX.md](A0_ADMISSION_MATRIX.md) |
+
+Live publish counts (dev): quote=1, details=1, pullquote=1, table=0, image=0, file=0, audio=0, video=0, social-link=0, buttons=0.
+
+Wave 3 default: **zero admissions** (no deterministic extra leaves in inventory).
