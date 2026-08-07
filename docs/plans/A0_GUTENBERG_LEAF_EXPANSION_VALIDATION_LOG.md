@@ -86,3 +86,75 @@ Wave 3 default: **zero admissions** (no deterministic extra leaves in inventory)
 | `core/video` | **Admitted** | `caption` |
 
 Media Library attachment metadata: **Unsupported**.
+
+
+## A05 — Workspace + diagnostics consolidation
+
+**Status:** PASS
+
+Existing `BlockExtractionLogger` / `BlockRenderLogger` events cover newly admitted fields (`block_extracted`, `field_skipped`, `block_rendered`, nested/host counters). No new high-cardinality telemetry. New segments use existing Store → Workspace → Review → TM → Glossary → Jobs path without redesign.
+
+## A06 — Performance + regression hardening
+
+**Status:** PASS
+
+| Observation | Value |
+|---|---|
+| Live A4 fixture inject | ~4.4 ms |
+| Live A4 fixture extract (15 units) | ~1.7 ms |
+| Live render citation+summary | ~19 ms |
+| Duplicate logical units | **0** |
+| N+1 Store behavior | Not introduced (existing per-key lookup) |
+
+Regression locks: unit NestedGutenbergAdmission + A0LeafAdmission + full suites green.
+
+## A07 — Full acceptance
+
+**Status:** PASS
+
+| Gate | Result |
+|---|---|
+| Unit | **531** / **1324** — OK (2 skipped) |
+| Integration | **510** / **11573** — OK (2 skipped) |
+| PluginGuard | **17** / **8598** — OK |
+| PHPCS (`src/Block`) | PASS |
+| `git diff --check` | PASS |
+| Live EN `/a4-nested-gutenberg-fixture/` | HTTP 200; citation/summary/source present |
+| Live SV `/sv/a4-nested-gutenberg-fixture/` | HTTP 200 after IntegrationFrontendBridge fix |
+| Rendered FP (render map smoke) | **0** |
+| Language leakage (render map smoke) | **0** |
+| Duplicate logical units | **0** |
+
+Collateral fix: `IntegrationFrontendBridge` used undefined `LanguageContext::language()`; corrected to `current()` (A.1 regression).
+
+## A08 — Documentation closure
+
+**Status:** PASS — final supported-surface table below.
+
+### Existing baseline
+`core/paragraph|heading|button|list-item|preformatted|verse|code` → `content`
+
+### Newly admitted
+| Block | Fields |
+|---|---|
+| `core/quote` | `citation` |
+| `core/details` | `summary` |
+| `core/pullquote` | `content`, `citation` (leaf form) |
+| `core/image` | `caption` |
+| `core/file` | `fileName`, `downloadButtonText` |
+| `core/audio` | `caption` |
+| `core/video` | `caption` |
+
+### Partially admitted
+`core/pullquote` with nested children and no host citation → child-only (host not eligible).
+
+### Evaluated but deferred
+| Candidate | Reason |
+|---|---|
+| `core/table` | Cell arrays require path/index identity |
+
+### Hard deferred
+Navigation, Query, post-template, reusable/shared, synced patterns, dynamic bindings, Media Library ownership, parent list-item + innerBlocks ambiguity, wp-admin, email.
+
+### Wave 3
+**Zero admissions** (PASS).
