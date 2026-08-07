@@ -26,7 +26,7 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
 **First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
-**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; F5 may PASS for bounded surface); A.4 implementation planning next (no coding started). Parallel: A.1, A.0.
+**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface. **A.4 Nested Gutenberg** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**); coding **not started**. Parallel: A.1, A.0.
 
 ---
 
@@ -39,11 +39,12 @@ Navigation aid only. Does not replace the detailed programs below.
 - Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main`
 - **A.R1** Elementor Identity Research Spike **complete**; [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**
 - **A.3** — [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**complete / merged / tagged**). **A.2** — [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) (**complete / merged**)
-- **A.R2 / A.4** — [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); A.4 implementation planning next; **F5** may PASS for bounded surface; production coding not started
+- **A.R2** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; complete; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface
+- **A.4** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**); coding **not started**; Navigation/shared/dynamic remain deferred
 
 ### NEXT
 
-- **A.4** Nested / container Gutenberg implementation planning (bounded surface from A.R2; no new ADR required)
+- **A.4** Nested Gutenberg implementation (bounded F5 surface; begin after plan merge on `feature/a4-nested-gutenberg`)
 - **A.1** Plugin Integration Framework
 - **A.0** Additional Gutenberg leaf/field expansion
 - Early **B.1** additional providers
@@ -52,7 +53,8 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### LATER
 
-- Nested/container Gutenberg coding (**A.4** — after implementation-plan freeze; Navigation/Query/reusable remain deferred)
+- Nested Gutenberg deferred admissions (citation/summary/pullquote/gallery; parent list-item+innerBlocks)
+- Navigation / Query / reusable (require separate ADR if pursued)
 - Elementor widget coverage beyond first A.3 surface
 - WordPress visitor chrome (navigation, theme/widgets, declared residual strings)
 - WooCommerce visitor-facing coverage family
@@ -141,12 +143,12 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | ID | Milestone | Type |
 |---|---|---|
 | A.R1 | Elementor Identity Research Spike | Research Spike — **Complete**; [plan](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md); [research log](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**; A.2 planning authorized; Elementor production implementation not started |
-| A.R2 | Nested Gutenberg Identity Research Spike | Research Spike — [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; complete on research branch) |
+| A.R2 | Nested Gutenberg Identity Research Spike | Research Spike — **Complete**; [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); tag `ar2-nested-gutenberg-identity-research-complete`; **F5 PASS** for bounded surface |
 | A.1 | Plugin Integration Framework | Architecture |
 | A.0 | Additional Gutenberg leaf blocks and fields | Product |
 | A.2 | Elementor Foundation (post–identity decision) | Architecture — **Complete** — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md); tag `a2-elementor-foundation-complete` |
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`) |
-| A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); implementation planning authorized after A.R2 **CONDITIONAL GO**; coding not started |
+| A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**); coding not started; no new ADR |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
 | A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product |
 | A.8 | Third-party plugin bridges (via A.1) | Product |
@@ -331,7 +333,7 @@ flowchart TB
 | Topic | Classification |
 |---|---|
 | Elementor identity | Research Spike → future ADR → A.2 |
-| Nested Gutenberg identity | A.R2 **complete** (**CONDITIONAL GO**) → **F5** may PASS for bounded surface → A.4 planning ([charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md); no new ADR for minimum surface) |
+| Nested Gutenberg identity | A.R2 **complete** (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`) → **F5 PASS** → A.4 [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; no new ADR) |
 | Large-scale performance | Research Spike before deep D.4 / D.9 |
 | Provider transport evolution (e.g. Responses API) | Optional Research Spike; default remains current Chat Completions integration until proven |
 
@@ -360,7 +362,7 @@ Minor versions remain **additive** to frozen contracts.
 | **F2 — after A.1 + E.0** | Integration vocabulary | Ownership rules; no-scrape; non-ownership of foreign persistence | Which bridges ship |
 | **F3 — Elementor identity accepted** | Before A.2 coding | Elementor identity model | Widget allowlist |
 | **F4 — after A.2** | Before widget sprawl | Foundation contracts | A.3 growth |
-| **F5 — Nested identity accepted** | Before A.4 coding | Container identity rules | Which containers admit |
+| **F5 — Nested identity accepted** | Before A.4 coding | Container identity rules for bounded surface (**PASS**) | Which deferred families admit later |
 | **F6 — after meaningful A.3 + A.4** | Mid-term Coverage | Editor coverage architecture | Woo/chrome waves |
 | **F7 — before D.7** | Data mobility | Export integrity principles | Tooling UX |
 | **F8 — before v2.0** | Major gate | Decision to break F0 | Entire v2 program |
