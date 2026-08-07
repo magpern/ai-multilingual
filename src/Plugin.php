@@ -48,6 +48,15 @@ use AIMultilingual\Block\SavePipeline;
 use AIMultilingual\Block\UuidInjector;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Database\Migrator;
+use AIMultilingual\Elementor\ElementorCompatibility;
+use AIMultilingual\Elementor\ElementorControlRegistry;
+use AIMultilingual\Elementor\ElementorDiagnostics;
+use AIMultilingual\Elementor\ElementorDocumentDetector;
+use AIMultilingual\Elementor\ElementorExtractor;
+use AIMultilingual\Elementor\ElementorFrontendBridge;
+use AIMultilingual\Elementor\ElementorIdentity;
+use AIMultilingual\Elementor\ElementorOverlayApplier;
+use AIMultilingual\Elementor\ElementorOverlayResolver;
 use AIMultilingual\Frontend\Switcher;
 use AIMultilingual\Glossary\GlossaryCapabilities;
 use AIMultilingual\Glossary\GlossaryMatcher;
@@ -182,16 +191,29 @@ final class Plugin {
 		$context        = new LanguageContext();
 		$store          = new Store( $cache );
 
-		$adapter_registry    = new AdapterRegistry();
-		$block_registry      = new BlockRegistry( $adapter_registry );
-		$block_logger        = new BlockIdentityLogger();
-		$uuid_injector       = new UuidInjector( $block_registry, $block_logger );
-		$block_extractor     = new BlockExtractor(
+		$adapter_registry = new AdapterRegistry();
+		$block_registry   = new BlockRegistry( $adapter_registry );
+		$block_logger     = new BlockIdentityLogger();
+		$uuid_injector    = new UuidInjector( $block_registry, $block_logger );
+		$block_extractor  = new BlockExtractor(
 			$adapter_registry,
 			$block_registry,
 			new BlockExtractionLogger()
 		);
-		$extractor           = new Extractor( $settings, $block_extractor );
+
+		$elementor_diagnostics   = new ElementorDiagnostics();
+		$elementor_compatibility = new ElementorCompatibility();
+		$elementor_detector      = new ElementorDocumentDetector();
+		$elementor_registry      = new ElementorControlRegistry();
+		$elementor_identity      = new ElementorIdentity();
+		$elementor_extractor     = new ElementorExtractor(
+			$elementor_detector,
+			$elementor_registry,
+			$elementor_identity,
+			$elementor_diagnostics
+		);
+
+		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor );
 		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
 		$config_repo         = new RolloutConfigurationRepository();
 		$rollout_bridge      = new RolloutRenderGateBridge(
@@ -220,6 +242,19 @@ final class Plugin {
 		$router->register();
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
 		( new Switcher( $settings, $languages, $context ) )->register();
+
+		$elementor_resolver = new ElementorOverlayResolver( $store, $elementor_diagnostics );
+		$elementor_applier  = new ElementorOverlayApplier( $elementor_registry, $elementor_diagnostics );
+		( new ElementorFrontendBridge(
+			$settings,
+			$context,
+			$elementor_compatibility,
+			$elementor_detector,
+			$elementor_extractor,
+			$elementor_resolver,
+			$elementor_applier,
+			$elementor_diagnostics
+		) )->register();
 
 		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
 		$status_calculator = new TranslationStatusCalculator( $store );
