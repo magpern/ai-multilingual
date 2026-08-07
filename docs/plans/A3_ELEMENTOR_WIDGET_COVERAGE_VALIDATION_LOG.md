@@ -1,10 +1,10 @@
 # A.3 — Elementor Widget Coverage — Validation Log
 
-**Milestone:** A.3 Elementor Widget Coverage  
-**Implementation branch:** `feature/a3-elementor-widget-coverage`  
-**Plan:** [A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**)  
-**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) (**Accepted**)  
-**Baseline main (pre-plan merge):** `adb39f7183be695a36793a3a0c293b79848c0263` (`a2-elementor-foundation-complete`)  
+**Milestone:** A.3 Elementor Widget Coverage
+**Implementation branch:** `feature/a3-elementor-widget-coverage`
+**Plan:** [A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**)
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) (**Accepted**)
+**Baseline main (pre-plan merge):** `adb39f7183be695a36793a3a0c293b79848c0263` (`a2-elementor-foundation-complete`)
 **Plan merge commit:** `22b0907ff3b77ff0fd6348464402949d6687de28`
 
 ---
