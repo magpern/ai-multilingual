@@ -65,6 +65,12 @@ if ( ! class_exists( 'WP_Post', false ) ) {
 
 		/** @var string */
 		public $post_type = 'post';
+
+		/** @var string */
+		public $post_content = '';
+
+		/** @var string */
+		public $post_status = 'publish';
 	}
 }
 
@@ -116,6 +122,65 @@ if ( ! function_exists( 'add_action' ) ) {
 	 * @return true
 	 */
 	function add_action( $hook, $callback, $priority = 10, $args = 1 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+	/**
+	 * @param string $text Text.
+	 */
+	function wp_strip_all_tags( $text ): string {
+		return trim( strip_tags( (string) $text ) );
+	}
+}
+
+if ( ! isset( $GLOBALS['aiml_unit_filters'] ) ) {
+	$GLOBALS['aiml_unit_filters'] = array();
+}
+
+if ( ! function_exists( 'add_filter' ) ) {
+	/**
+	 * @param string   $hook     Hook.
+	 * @param callable $callback Callback.
+	 * @param int      $priority Priority.
+	 * @param int      $accepted Accepted args.
+	 * @return true
+	 */
+	function add_filter( $hook, $callback, $priority = 10, $accepted = 1 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		$GLOBALS['aiml_unit_filters'][ (string) $hook ][ (int) $priority ][] = $callback;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'apply_filters' ) ) {
+	/**
+	 * @param string $hook Hook.
+	 * @param mixed  $value Value.
+	 * @param mixed  ...$args Extra args.
+	 * @return mixed
+	 */
+	function apply_filters( $hook, $value, ...$args ) {
+		$hook = (string) $hook;
+		if ( empty( $GLOBALS['aiml_unit_filters'][ $hook ] ) ) {
+			return $value;
+		}
+		ksort( $GLOBALS['aiml_unit_filters'][ $hook ] );
+		foreach ( $GLOBALS['aiml_unit_filters'][ $hook ] as $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				$value = $callback( $value, ...$args );
+			}
+		}
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'remove_all_filters' ) ) {
+	/**
+	 * @param string $hook Hook.
+	 */
+	function remove_all_filters( $hook ): bool {
+		unset( $GLOBALS['aiml_unit_filters'][ (string) $hook ] );
 		return true;
 	}
 }

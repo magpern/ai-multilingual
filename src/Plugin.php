@@ -64,6 +64,8 @@ use AIMultilingual\Glossary\GlossaryMatcher;
 use AIMultilingual\Glossary\GlossaryNormalizer;
 use AIMultilingual\Glossary\GlossaryRepository;
 use AIMultilingual\Glossary\GlossaryService;
+use AIMultilingual\Integration\FluentForms\FluentFormsIntegration;
+use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationDiagnostics;
 use AIMultilingual\Integration\IntegrationFrontendBridge;
 use AIMultilingual\Integration\IntegrationRegistry;
@@ -219,6 +221,9 @@ final class Plugin {
 
 		$integration_diagnostics = new IntegrationDiagnostics();
 		$integration_registry    = new IntegrationRegistry( $integration_diagnostics );
+		$integration_registry->register(
+			FluentFormsIntegration::create_default( new PluginIdentity( $integration_diagnostics ) )
+		);
 		/**
 		 * Register typed Integration API v1 integrations.
 		 *
