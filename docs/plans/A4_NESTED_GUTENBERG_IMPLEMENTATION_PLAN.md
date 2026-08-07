@@ -1,6 +1,6 @@
 # A.4 — Nested Gutenberg — Implementation Plan
 
-**Status:** **Complete on branch** — ready for independent merge review (do not begin next Program A milestone until merged/tagged)
+**Status:** **Complete / merged / tagged** `a4-nested-gutenberg-complete` — do not begin next Program A implementation until its planning branch is authorized
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.4** (Architecture / Coverage)
 **Baseline:** `main` @ `39f41ebdd335725b9e74f534670d101f601728f8` (A.R2 merged; tag `ar2-nested-gutenberg-identity-research-complete`)
 **Planning branch:** `feature/a4-nested-gutenberg-implementation-plan`
@@ -586,13 +586,13 @@ One implementation-oriented refinement is allowed only if coding reveals a concr
 
 ## 22. Roadmap status (pointers)
 
-After this plan merges:
+After A.4 merge + tag:
 
 - A.R2 complete
 - F5 PASS for bounded surface
-- A.4 implementation plan exists / frozen
-- A.4 coding not started until implementation branch opens
+- A.4 implementation plan frozen; coding complete; merged; tagged `a4-nested-gutenberg-complete`
 - Navigation / shared / dynamic remain deferred
+- Next Program A milestone (A.1 / A.0 as prioritized) may enter planning only
 
 ---
 

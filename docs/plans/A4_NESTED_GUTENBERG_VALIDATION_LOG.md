@@ -8,7 +8,9 @@
 **Baseline main (pre-plan merge):** `39f41ebdd335725b9e74f534670d101f601728f8`
 **Plan merge commit:** `7ea2aed7ec566618762328d573584ed9cfccb87a`
 **Research tag:** `ar2-nested-gutenberg-identity-research-complete`
-**Closure status:** Complete on branch — ready for independent merge review
+**Merge commit:** `3855b23b4898f2a35748fc0b6364e219d2c85231`
+**Closure tag:** `a4-nested-gutenberg-complete`
+**Closure status:** **Complete / merged / validated / tagged**
 
 ---
 
@@ -145,8 +147,17 @@ Observation-only timings (no invented budgets). No pathological recursion observ
 
 ---
 
-## Merge readiness
+## Merge / post-merge validation
 
-Branch `feature/a4-nested-gutenberg` is complete for independent review.
-Recommended tag after merge: `a4-nested-gutenberg-complete`
-Do not begin the next Program A milestone until merged and closed.
+| Gate | Result |
+|---|---|
+| Merge | `--no-ff` into `main` @ `3855b23b4898f2a35748fc0b6364e219d2c85231` |
+| Post-merge unit | 508 tests, 1247 assertions — OK (2 skipped) |
+| Post-merge integration | 507 tests, 10998 assertions — OK (2 skipped) |
+| PluginGuard | 17 tests, 8054 assertions — OK |
+| PHPCS | PASS (0 errors; pre-existing warnings only) |
+| `git diff --check` | PASS |
+| Live HTTP matrix (re-run) | **18/18 PASS**; FP=0; duplicate logical units=0; leakage=0 |
+| Tag | `a4-nested-gutenberg-complete` on merge commit |
+
+A.4 Nested Gutenberg is closed. Next Program A milestone may enter planning only — no implementation started.
