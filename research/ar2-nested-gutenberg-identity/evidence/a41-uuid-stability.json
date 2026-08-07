@@ -1,0 +1,143 @@
+{
+    "work_package": "A41",
+    "baseline_keys": [
+        "b:11111111-1111-4111-8111-111111111101:content",
+        "b:22222222-2222-4222-8222-222222222201:content",
+        "b:11111111-1111-4111-8111-111111111102:content"
+    ],
+    "inject_baseline_changed": false,
+    "experiments": {
+        "edit_nested_child_text": {
+            "uuid_before": "11111111-1111-4111-8111-111111111101",
+            "uuid_after": "11111111-1111-4111-8111-111111111101",
+            "key_before": "b:11111111-1111-4111-8111-111111111101:content",
+            "key_after": "b:11111111-1111-4111-8111-111111111101:content",
+            "hash_changed": true,
+            "key_retained": true,
+            "expected_retention": "retain_key_reset_stale_via_hash",
+            "pass": true
+        },
+        "reorder_siblings": {
+            "keys_before": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:22222222-2222-4222-8222-222222222201:content",
+                "b:11111111-1111-4111-8111-111111111102:content"
+            ],
+            "keys_after": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:11111111-1111-4111-8111-111111111102:content",
+                "b:22222222-2222-4222-8222-222222222201:content"
+            ],
+            "uuid_set_same": true,
+            "all_keys_present": true,
+            "pass": true
+        },
+        "move_child_between_containers": {
+            "key": "b:11111111-1111-4111-8111-111111111101:content",
+            "key_retained": true,
+            "uuid_retained": false,
+            "parent_path_changed": true,
+            "identity_independent_of_path": true,
+            "pass": true
+        },
+        "move_container": {
+            "keys_retained": true,
+            "pass": true
+        },
+        "duplicate_child_same_uuid": {
+            "extract_before_repair_count": 3,
+            "extract_skips_duplicate_key": true,
+            "repair_changed": true,
+            "keys_after_repair": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:22222222-2222-4222-8222-222222222201:content",
+                "b:11111111-1111-4111-8111-111111111102:content",
+                "b:1f516207-3872-4894-bb3a-67b4acc6b455:content"
+            ],
+            "unique_keys_after_repair": true,
+            "pass": true
+        },
+        "duplicate_container": {
+            "extract_before_repair": 3,
+            "repair_changed": true,
+            "extract_after_repair": 6,
+            "unique_keys": true,
+            "pass": true
+        },
+        "duplicate_page": {
+            "extract_before_repair": 3,
+            "repair_changed": true,
+            "extract_after_repair": 6,
+            "unique_keys": true,
+            "pass": true
+        },
+        "same_document_copy_paste": {
+            "extract_before_repair_count": 3,
+            "extract_skips_duplicate_key": true,
+            "repair_changed": true,
+            "keys_after_repair": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:22222222-2222-4222-8222-222222222201:content",
+                "b:11111111-1111-4111-8111-111111111102:content",
+                "b:1f516207-3872-4894-bb3a-67b4acc6b455:content"
+            ],
+            "unique_keys_after_repair": true,
+            "pass": true
+        },
+        "cross_document_copy_paste": {
+            "note": "Segment keys collide only within a document extraction; Store is document-scoped (ADR-0013).",
+            "same_keys_across_docs": true,
+            "document_local_ownership": true,
+            "pass": true,
+            "confidence": "Supported by evidence"
+        },
+        "wrap_in_group": {
+            "keys_retained": true,
+            "pass": true
+        },
+        "unwrap_group": {
+            "keys_retained": true,
+            "pass": true
+        },
+        "list_item_reorder": {
+            "keys_before": [
+                "b:33333333-3333-4333-8333-333333333301:content",
+                "b:33333333-3333-4333-8333-333333333302:content",
+                "b:33333333-3333-4333-8333-333333333303:content",
+                "b:33333333-3333-4333-8333-333333333304:content"
+            ],
+            "keys_after": [
+                "b:33333333-3333-4333-8333-333333333304:content",
+                "b:33333333-3333-4333-8333-333333333302:content",
+                "b:33333333-3333-4333-8333-333333333303:content",
+                "b:33333333-3333-4333-8333-333333333301:content"
+            ],
+            "pass": true
+        },
+        "list_item_duplicate": {
+            "repair_changed": true,
+            "unique_keys": true,
+            "pass": true
+        },
+        "column_reorder": {
+            "keys_retained": true,
+            "pass": true
+        },
+        "revision_restore_reparse": {
+            "keys_match_baseline": true,
+            "pass": true
+        },
+        "invalid_block_recovery": {
+            "extract_count": 3,
+            "keys_retained": true,
+            "pass": true
+        }
+    },
+    "pass_count": 16,
+    "fail": [],
+    "primary_decision": {
+        "question": "Does existing child UUID identity remain deterministic without parent/path identity?",
+        "answer": true,
+        "confidence": "Proven by experiment"
+    }
+}
