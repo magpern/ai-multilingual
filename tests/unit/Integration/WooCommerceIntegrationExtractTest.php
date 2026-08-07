@@ -153,9 +153,9 @@ final class WooCommerceIntegrationExtractTest extends TestCase {
 	}
 
 	/**
-	 * @param list<array{slug:string,label:string,variation:bool}>                                              $attrs Attributes.
-	 * @param list<array{taxonomy:string,term_id:int,name:string,description:string}>                            $terms Terms.
-	 * @param int|null                                                                                           $shop  Shop page ID.
+	 * @param list<array{slug:string,label:string,variation:bool}>                    $attrs Attributes.
+	 * @param list<array{taxonomy:string,term_id:int,name:string,description:string}> $terms Terms.
+	 * @param int|null                                                                $shop  Shop page ID.
 	 */
 	private function make_integration( array $attrs = array(), array $terms = array(), ?int $shop = null ): WooCommerceIntegration {
 		return new WooCommerceIntegration(

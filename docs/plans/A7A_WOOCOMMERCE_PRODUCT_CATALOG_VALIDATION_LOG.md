@@ -8,7 +8,7 @@
 **A.7 family plan merge on main:** `55c866c9c`
 **A.7a plan merge on main:** `b1c7edffd2a59fb66e8fb2faa07772495d09ef83`
 **Implementation baseline HEAD:** `b1c7edffd2a59fb66e8fb2faa07772495d09ef83`
-**Merged / tagged:** _not yet — stop after implementation; do not merge/tag_
+**Merged / tagged:** `a8094dcd7` / `a7a-woocommerce-product-catalog-complete`
 
 ---
 
@@ -174,6 +174,23 @@ Visitor HTML is partially obscured by Age Gate and theme/Elementor/Rank Math chr
 |---|---|
 | Supported surface | [a7a-evidence/a7a-supported-surface.md](a7a-evidence/a7a-supported-surface.md) |
 
-**Merge readiness:** Ready for architecture review / merge. **Do not merge/tag in this implementation session.**  
-**Recommended tag after merge:** `a7a-woocommerce-product-catalog-complete`  
-**Exact next step:** Merge → tag → open A.7b branch from tagged main.
+**Merge readiness:** **Merged** to `main` @ `a8094dcd7`. Tagged `a7a-woocommerce-product-catalog-complete`.  
+**Exact next step (planning only):** Plan **A.7b** Archives listing chrome from tagged `main` — do not start coding until the A.7b plan freezes.
+
+
+## Closure merge validation
+
+**Status:** PASS
+
+| Gate | Result |
+|---|---|
+| Pre-merge unit | 560 / 1417 OK (2 skipped) |
+| Pre-merge integration / PluginGuard | 512 / 11761 OK (2 skipped) |
+| Pre-merge PHPCS | 0 errors after extract-test docblock fix |
+| Post-merge unit | 560 / 1417 OK (2 skipped) |
+| Post-merge PHPCS | 0 errors (warnings only on foreign Woo hooks in tests) |
+| Live hooks EN→SV | attrs `Styrka-var`; cat title/desc SV |
+| Foreign Woo persistence | Unchanged |
+| A.8 regression | Namn / E-post / Skicka meddelande |
+| Merge | `--no-ff` `a8094dcd7` |
+| Tag | `a7a-woocommerce-product-catalog-complete` |

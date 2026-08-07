@@ -1,20 +1,18 @@
 # A.7a — WooCommerce Product & Catalog — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — ready for architecture review / freeze; implementation not started
-**Parent family plan:** [A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md) (**source of truth for A.7 family contracts**)
-**Milestone:** Program A — **A.7a** Product & Catalog (first coding wave of A.7)
-**Plan freeze:** Visitor-facing product + catalog presentation only; per-surface admission; reuse existing post / `b:` / `e:` / `p:` paths; no Woo persistence mutation; TARGET **6**
-**ADR assessment:** **No new ADR required** if A.7a stays within ADR-0001 / ADR-0007 / ADR-0013 / ADR-0016 / ADR-0017 + Integration API v1. Stop and open an ADR before coding if identity/Store evidence demands otherwise.
+**Status:** **Complete / merged / tagged** `a7a-woocommerce-product-catalog-complete` — visitor-facing product + catalog presentation; per-surface admission; reuse existing post / `b:` / `e:` / `p:` paths; no Woo persistence mutation; TARGET **6**
+**ADR assessment:** **No new ADR required** — stayed within ADR-0001 / ADR-0007 / ADR-0013 / ADR-0016 / ADR-0017 + Integration API v1.
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.2 / A.7 family
-**Planning branch:** `feature/a7a-woocommerce-product-catalog-plan`
-**Implementation branch:** `feature/a7a-woocommerce-product-catalog` (**create only after this plan freezes on `main`**)
-**Baseline (plan authoring):** `main` @ `b4932a0aeedc8d0304c7a0d8de941358f3fa1f82` (+ A.7 family plan merge on this branch)
+**Planning branch:** `feature/a7a-woocommerce-product-catalog-plan` (merged)
+**Implementation branch:** `feature/a7a-woocommerce-product-catalog` (merged)
+**Baseline (plan authoring):** `main` @ `b4932a0aeedc8d0304c7a0d8de941358f3fa1f82` (+ A.7 family plan merge)
 **Depends on:** A.7 family plan; P1; A.R1–A.3; A.R2/A.4; A.1; A.0; A.8; ADR-0013 / 0016 / 0017 **Accepted**
 **Related:** [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md); [A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md)
 
-**Operational success:** Merchants can translate admitted product and catalog visitor strings (titles, descriptions, tabs, attribute/variation labels as separately admitted units, Woo notices/breadcrumbs where deterministic, shop/category/tag titles & descriptions) through existing AIML platform paths, with FP=0 / leakage=0, without mutating WooCommerce data.
+**Operational success:** Merchants can translate admitted product and catalog visitor strings (titles, descriptions, attribute/variation labels as separately admitted units, shop/category/tag titles & descriptions) through existing AIML platform paths, with FP=0 / leakage=0 on admitted hook surfaces, without mutating WooCommerce data.
 
-**This plan is the frozen implementation contract for A.7a.** Do not implement production code on the planning branch.
+**This plan was the frozen implementation contract for A.7a.** Implementation is complete on `main`.
+
 
 ---
 

@@ -1,8 +1,8 @@
 # A.7a — Closure / Supported surface
 
 **Milestone:** A.7a WooCommerce Product & Catalog  
-**Status:** Implementation complete on branch (not merged / not tagged)  
-**Recommended tag (after merge):** `a7a-woocommerce-product-catalog-complete`
+**Status:** **Complete / merged / tagged** `a7a-woocommerce-product-catalog-complete`  
+**Merge commit:** see validation log  
 
 ## Supported surface (final)
 
@@ -37,6 +37,6 @@
 - Catalog term Store host is the shop page (no `SOURCE_TERM`).
 - No A.7b listing chrome.
 
-## Exact next step
+## Exact next step (planning only)
 
-Merge `feature/a7a-woocommerce-product-catalog` → `main`, tag `a7a-woocommerce-product-catalog-complete`, then begin **A.7b** on a new branch from that tag — do not start A.7b on this branch.
+Plan **A.7b** Archives (shop / category / tag / search listing chrome) from tagged `main`. Do not start A.7b implementation until that plan freezes.
