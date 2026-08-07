@@ -162,4 +162,4 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 
 ## Subsequent WPs
 
-*(A35–A38 sections appended below as work completes.)*
+*(A36–A38 sections appended below as work completes.)*

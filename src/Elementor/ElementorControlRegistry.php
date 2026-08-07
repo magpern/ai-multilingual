@@ -46,16 +46,16 @@ final class ElementorControlRegistry {
 	 */
 	public function __construct() {
 		$this->entries = array(
-			'heading'     => array(
+			'heading'        => array(
 				'title' => $this->flat_entry( 'heading', 'title', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
 			),
-			'text-editor' => array(
+			'text-editor'    => array(
 				'editor' => $this->flat_entry( 'text-editor', 'editor', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_HTML, 'html' ),
 			),
-			'button'      => array(
+			'button'         => array(
 				'text' => $this->flat_entry( 'button', 'text', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
 			),
-			'accordion'   => array(
+			'accordion'      => array(
 				'tab_title'   => $this->repeater_entry( 'accordion', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
 				'tab_content' => $this->repeater_entry( 'accordion', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
 			),
