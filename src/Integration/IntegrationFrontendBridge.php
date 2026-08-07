@@ -56,13 +56,12 @@ final class IntegrationFrontendBridge {
 			return;
 		}
 
-		$post = get_queried_object();
-		if ( ! $post instanceof \WP_Post ) {
+		$source_id = $this->resolve_source_id( get_queried_object() );
+		if ( $source_id <= 0 ) {
 			return;
 		}
 
 		$language_id = (int) $language->language_id;
-		$source_id   = (int) $post->ID;
 
 		$resolve = function ( string $segment_key ) use ( $source_id, $language_id ): ?string {
 			$row = $this->store->get( 'post', $source_id, $language_id, $segment_key );
@@ -80,5 +79,31 @@ final class IntegrationFrontendBridge {
 		};
 
 		$this->registry->register_output_hooks( $resolve );
+	}
+
+	/**
+	 * Resolve Store source_id for the current query.
+	 *
+	 * Posts/pages/products use the queried post ID. WooCommerce product_cat /
+	 * product_tag archives resolve against the shop page host (A.7a catalog).
+	 *
+	 * @param mixed $queried Queried object.
+	 */
+	private function resolve_source_id( $queried ): int {
+		if ( $queried instanceof \WP_Post ) {
+			return (int) $queried->ID;
+		}
+
+		if ( is_object( $queried ) && isset( $queried->taxonomy, $queried->term_id ) ) {
+			$taxonomy = (string) $queried->taxonomy;
+			if ( 'product_cat' === $taxonomy || 'product_tag' === $taxonomy ) {
+				if ( function_exists( 'wc_get_page_id' ) ) {
+					$shop_id = (int) wc_get_page_id( 'shop' );
+					return $shop_id > 0 ? $shop_id : 0;
+				}
+			}
+		}
+
+		return 0;
 	}
 }

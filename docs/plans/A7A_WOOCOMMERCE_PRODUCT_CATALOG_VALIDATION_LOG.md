@@ -100,3 +100,16 @@ No new identity family. P5/P7 keys distinct. Catalog terms use `owner_type` = ta
 | Shop units | C3–C6 term name/description |
 | Unit tests | `WooCommerceIntegrationExtractTest` OK |
 | Overlay | Deferred to A7A.4 (empty `register_output_hooks`) |
+
+## A7A.4 — Overlay
+
+**Status:** PASS
+
+| Item | Result |
+|---|---|
+| Attribute overlay | `woocommerce_attribute_label` (P7 preferred when variation) |
+| Catalog title | `single_term_title` + `woocommerce_page_title` |
+| Catalog description | `term_description` + `wp_kses_post` |
+| Bridge | `IntegrationFrontendBridge` resolves shop page for `product_cat`/`product_tag` archives |
+| Unit tests | Overlay suite OK; miss → source |
+| Woo DB mutation | None |

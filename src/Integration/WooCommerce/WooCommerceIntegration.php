@@ -155,13 +155,229 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Overlay hooks are registered in A7A.4.
+	 * Register official Woo/WP overlay filters for Supported A.7a surfaces.
 	 *
 	 * @param callable(string): (?string) $resolve Segment key resolver.
 	 */
 	public function register_output_hooks( callable $resolve ): void {
-		unset( $resolve );
-		// Intentionally empty until A7A.4 overlay commit.
+		if ( ! $this->get_compatibility()->allows_overlay() ) {
+			return;
+		}
+
+		add_filter(
+			self::HOOK_ATTRIBUTE_LABEL,
+			function ( $label, $name, $product = null ) use ( $resolve ) {
+				return $this->overlay_attribute_label( $label, $name, $product, $resolve );
+			},
+			10,
+			3
+		);
+
+		add_filter(
+			self::HOOK_SINGLE_TERM_TITLE,
+			function ( $title ) use ( $resolve ) {
+				return $this->overlay_current_term_name( $title, $resolve );
+			},
+			10,
+			1
+		);
+
+		add_filter(
+			self::HOOK_PAGE_TITLE,
+			function ( $title ) use ( $resolve ) {
+				return $this->overlay_current_term_name( $title, $resolve );
+			},
+			10,
+			1
+		);
+
+		add_filter(
+			self::HOOK_TERM_DESCRIPTION,
+			function ( $description, $term_id ) use ( $resolve ) {
+				return $this->overlay_term_description( $description, $term_id, $resolve );
+			},
+			10,
+			2
+		);
+	}
+
+	/**
+	 * Overlay attribute / variation attribute labels (P5 / P7).
+	 *
+	 * @param mixed                       $label    Source label.
+	 * @param mixed                       $name     Attribute name/slug.
+	 * @param mixed                       $product  Optional WC product.
+	 * @param callable(string): (?string) $resolve  Resolver.
+	 * @return mixed
+	 */
+	private function overlay_attribute_label( $label, $name, $product, callable $resolve ) {
+		if ( ! is_string( $label ) || ! is_string( $name ) || '' === $name ) {
+			return $label;
+		}
+		$product_id = 0;
+		if ( is_object( $product ) && method_exists( $product, 'get_id' ) ) {
+			$product_id = (int) $product->get_id();
+		}
+		if ( $product_id <= 0 && function_exists( 'get_the_ID' ) ) {
+			$product_id = (int) get_the_ID();
+		}
+		if ( $product_id <= 0 ) {
+			return $label;
+		}
+
+		$slug = $this->normalize_token( $name );
+		if ( '' === $slug ) {
+			$slug = $this->normalize_token( sanitize_title( $name ) );
+		}
+		if ( '' === $slug ) {
+			return $label;
+		}
+
+		$is_variation = $this->product_attribute_is_variation( $product, $name, $slug );
+		$keys         = array();
+		if ( $is_variation ) {
+			$keys[] = array( self::FIELD_VARIATION_ATTRIBUTE_NAME, $slug );
+		}
+		$keys[] = array( self::FIELD_ATTRIBUTE_NAME, $slug );
+
+		foreach ( $keys as $parts ) {
+			try {
+				$key = $this->identity->build( self::ID, 'product', (string) $product_id, $parts[0], $parts[1] );
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				continue;
+			}
+			$translated = $resolve( $key );
+			if ( ! is_string( $translated ) ) {
+				continue;
+			}
+			$plain = IntegrationSecurity::sanitize_plain( $translated );
+			if ( '' !== $plain ) {
+				return $plain;
+			}
+		}
+
+		return $label;
+	}
+
+	/**
+	 * Overlay term archive titles (C3 / C5).
+	 *
+	 * @param mixed                       $title   Source title.
+	 * @param callable(string): (?string) $resolve Resolver.
+	 * @return mixed
+	 */
+	private function overlay_current_term_name( $title, callable $resolve ) {
+		if ( ! is_string( $title ) ) {
+			return $title;
+		}
+		$term = $this->current_catalog_term();
+		if ( null === $term ) {
+			return $title;
+		}
+		try {
+			$key = $this->identity->build( self::ID, $term['taxonomy'], (string) $term['term_id'], self::FIELD_NAME );
+		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			return $title;
+		}
+		$translated = $resolve( $key );
+		if ( ! is_string( $translated ) ) {
+			return $title;
+		}
+		$plain = IntegrationSecurity::sanitize_plain( $translated );
+		return '' !== $plain ? $plain : $title;
+	}
+
+	/**
+	 * Overlay term descriptions (C4 / C6).
+	 *
+	 * @param mixed                       $description Source description.
+	 * @param mixed                       $term_id     Term ID.
+	 * @param callable(string): (?string) $resolve     Resolver.
+	 * @return mixed
+	 */
+	private function overlay_term_description( $description, $term_id, callable $resolve ) {
+		if ( ! is_string( $description ) ) {
+			return $description;
+		}
+		$term_id = (int) $term_id;
+		if ( $term_id <= 0 ) {
+			return $description;
+		}
+		$taxonomy = '';
+		if ( function_exists( 'get_term' ) ) {
+			$term = get_term( $term_id );
+			if ( is_object( $term ) && ! is_wp_error( $term ) && isset( $term->taxonomy ) ) {
+				$taxonomy = (string) $term->taxonomy;
+			}
+		}
+		if ( self::TAXONOMY_CAT !== $taxonomy && self::TAXONOMY_TAG !== $taxonomy ) {
+			return $description;
+		}
+		try {
+			$key = $this->identity->build( self::ID, $taxonomy, (string) $term_id, self::FIELD_DESCRIPTION );
+		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			return $description;
+		}
+		$translated = $resolve( $key );
+		if ( ! is_string( $translated ) || '' === $translated ) {
+			return $description;
+		}
+		if ( function_exists( 'wp_kses_post' ) ) {
+			return wp_kses_post( $translated );
+		}
+		return $translated;
+	}
+
+	/**
+	 * @param mixed  $product Product object.
+	 * @param string $name    Attribute name.
+	 * @param string $slug    Normalized slug.
+	 */
+	private function product_attribute_is_variation( $product, string $name, string $slug ): bool {
+		if ( ! is_object( $product ) || ! method_exists( $product, 'get_attributes' ) ) {
+			return false;
+		}
+		foreach ( $product->get_attributes() as $key => $attribute ) {
+			$key_slug = $this->normalize_token( is_string( $key ) ? $key : '' );
+			$attr_name = is_object( $attribute ) && method_exists( $attribute, 'get_name' )
+				? (string) $attribute->get_name()
+				: '';
+			$matches   = ( $slug === $key_slug )
+				|| ( $slug === $this->normalize_token( $attr_name ) )
+				|| ( $name === $attr_name );
+			if ( ! $matches ) {
+				continue;
+			}
+			return is_object( $attribute )
+				&& method_exists( $attribute, 'get_variation' )
+				&& (bool) $attribute->get_variation();
+		}
+		return false;
+	}
+
+	/**
+	 * @return array{taxonomy:string,term_id:int}|null
+	 */
+	private function current_catalog_term(): ?array {
+		if ( ! function_exists( 'get_queried_object' ) ) {
+			return null;
+		}
+		$obj = get_queried_object();
+		if ( ! is_object( $obj ) || ! isset( $obj->term_id, $obj->taxonomy ) ) {
+			return null;
+		}
+		$taxonomy = (string) $obj->taxonomy;
+		if ( self::TAXONOMY_CAT !== $taxonomy && self::TAXONOMY_TAG !== $taxonomy ) {
+			return null;
+		}
+		$term_id = (int) $obj->term_id;
+		if ( $term_id <= 0 ) {
+			return null;
+		}
+		return array(
+			'taxonomy' => $taxonomy,
+			'term_id'  => $term_id,
+		);
 	}
 
 	/**
