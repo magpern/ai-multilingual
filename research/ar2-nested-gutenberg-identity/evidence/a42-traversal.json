@@ -1,0 +1,88 @@
+{
+    "work_package": "A42",
+    "cases": {
+        "supported_leaf_in_unsupported_parent": {
+            "walker_visited": [
+                "core/group",
+                "core/columns",
+                "core/column",
+                "core/paragraph",
+                "core/column",
+                "core/heading",
+                "core/paragraph"
+            ],
+            "extract_keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:22222222-2222-4222-8222-222222222201:content",
+                "b:11111111-1111-4111-8111-111111111102:content"
+            ],
+            "extract_count": 3,
+            "pass": true
+        },
+        "list_nested_extraction": {
+            "extract_keys": [
+                "b:33333333-3333-4333-8333-333333333301:content",
+                "b:33333333-3333-4333-8333-333333333302:content",
+                "b:33333333-3333-4333-8333-333333333303:content",
+                "b:33333333-3333-4333-8333-333333333304:content"
+            ],
+            "extract_count": 4,
+            "includes_nested_leaves": true,
+            "excludes_parent_with_inner_blocks": true,
+            "pass": true
+        },
+        "unsupported_child_in_structural_parent": {
+            "extract_count": 3,
+            "still_extracts_supported": true,
+            "pass": true
+        },
+        "multiple_nesting_levels": {
+            "extract_keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:33333333-3333-4333-8333-333333333301:content",
+                "b:11111111-1111-4111-8111-111111111102:content",
+                "b:11111111-1111-4111-8111-111111111103:content"
+            ],
+            "extract_count": 4,
+            "pass": true
+        },
+        "empty_innerhtml_leaf": {
+            "eligible": false,
+            "extract_count": 0,
+            "pass": true
+        },
+        "malformed_but_parseable": {
+            "extract_count": 1,
+            "pass": true
+        },
+        "dynamic_server_rendered_boundary": {
+            "visited": [
+                "core/navigation",
+                "core/query",
+                "core/post-template",
+                "core/post-title",
+                "core/block",
+                "core/block"
+            ],
+            "extract_count": 0,
+            "pass": true
+        },
+        "gap_classification": {
+            "walker_recurses": true,
+            "nested_list_item_eligible": false,
+            "nested_list_item_adapter_translatable": false,
+            "true_gap": "eligibility_and_adapter_admission_for_non_empty_innerBlocks_leaves",
+            "not_gap": [
+                "missing_recursion",
+                "identity_grammar",
+                "renderer_architecture"
+            ],
+            "pass": true
+        }
+    },
+    "fail": [],
+    "conclusion": {
+        "claim": "Existing BlockTreeWalker + BlockExtractor already recurse innerBlocks; production gap is eligibility/adapter admission for non-empty innerBlocks instances (e.g. nested list-item parents), not missing recursion.",
+        "confidence": "Proven by experiment"
+    }
+}

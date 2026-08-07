@@ -1,0 +1,139 @@
+{
+    "work_package": "A46",
+    "rows": [
+        {
+            "path": "0",
+            "block_name": "core/navigation",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [
+                "ref"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": true,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 0,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "2",
+            "block_name": "core/query",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 1,
+            "attr_keys": [
+                "queryId",
+                "query"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": true,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 36,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "2/0",
+            "block_name": "core/post-template",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 1,
+            "attr_keys": [],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": false,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 2,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "2/0/0",
+            "block_name": "core/post-title",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": true,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 0,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "4",
+            "block_name": "core/block",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [
+                "ref"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": true,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 0,
+            "inner_html_preview": ""
+        },
+        {
+            "path": "6",
+            "block_name": "core/block",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 0,
+            "attr_keys": [
+                "ref"
+            ],
+            "has_aiml_block_id": false,
+            "is_supported": false,
+            "is_dynamic": true,
+            "is_eligible": false,
+            "has_adapter": false,
+            "adapter_translatable": false,
+            "inner_html_len": 0,
+            "inner_html_preview": ""
+        }
+    ],
+    "extract_count": 0,
+    "classification": {
+        "core/navigation": {
+            "in_dynamic_list": true,
+            "ownership": "shared_or_dynamic",
+            "disposition": "deferred",
+            "adr_required_for_family": true
+        },
+        "core/query": {
+            "in_dynamic_list": true,
+            "ownership": "dynamic_runtime",
+            "disposition": "unsupported_deferred",
+            "adr_required_for_family": false
+        },
+        "core/post-template": {
+            "ownership": "dynamic_runtime_inside_query",
+            "disposition": "unsupported_deferred"
+        },
+        "synced_reusable_core_block": {
+            "in_dynamic_list": true,
+            "ownership": "shared_definition_ref",
+            "disposition": "deferred",
+            "adr_required_for_family": true
+        }
+    },
+    "conclusion": {
+        "claim": "Navigation, Query/Post Template, and reusable/synced patterns are deferred. Shared-definition families would need a separate ADR if later admitted; they are NOT required for minimum useful A.4 scope.",
+        "confidence": "Proven by experiment"
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "work_package": "A40",
+    "environment": {
+        "wp_version": "7.0.3",
+        "php_version": "8.4.23",
+        "siteurl": "https://dev.biopentra.eu",
+        "plugin_active": true,
+        "grammar": "b:<uuid>:<field>",
+        "attr_name": "aimlBlockId",
+        "supported_blocks": [
+            "core/paragraph",
+            "core/heading",
+            "core/button",
+            "core/list-item",
+            "core/preformatted",
+            "core/verse",
+            "core/code"
+        ],
+        "dynamic_blocks": [
+            "core/latest-posts",
+            "core/block",
+            "core/query",
+            "core/post-title",
+            "core/navigation",
+            "core/template-part"
+        ],
+        "adapter_blocks": [
+            "core/paragraph",
+            "core/heading",
+            "core/button",
+            "core/list-item",
+            "core/preformatted",
+            "core/verse",
+            "core/code"
+        ],
+        "timestamp_utc": "2026-08-07T11:14:54+00:00"
+    },
+    "contracts": {
+        "grammar": "b:<uuid>:<field>",
+        "uuid_on_attrs": "aimlBlockId",
+        "walker_recurses": "BlockTreeWalker::walk recurses innerBlocks (source inspection + unit test)",
+        "eligibility_requires_empty_innerBlocks": true,
+        "list_has_adapter": false,
+        "list_item_has_adapter": true,
+        "group_has_adapter": false,
+        "navigation_is_dynamic": true,
+        "query_is_dynamic": true,
+        "core_block_is_dynamic": true
+    }
+}

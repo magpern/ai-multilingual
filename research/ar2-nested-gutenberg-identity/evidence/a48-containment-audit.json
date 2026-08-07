@@ -1,0 +1,24 @@
+{
+    "work_package": "A48",
+    "research_root": "/var/www/html/wp-content/plugins/ai-multilingual/research/ar2-nested-gutenberg-identity",
+    "loaded_by_plugin_php": false,
+    "plugin_scan": {
+        "ai-multilingual/ai-multilingual.php": {
+            "path": "/var/www/html/wp-content/plugins/ai-multilingual/ai-multilingual.php",
+            "mentions_ar2": false,
+            "mentions_research_dir": false
+        },
+        "src/Plugin.php": {
+            "path": "/var/www/html/wp-content/plugins/ai-multilingual/src/Plugin.php",
+            "mentions_ar2": false,
+            "mentions_research_dir": false
+        }
+    },
+    "zip_exclusion_doc": true,
+    "readme_marks_experimental": true,
+    "schema_changed": false,
+    "rest_changed": false,
+    "runtime_src_changed": false,
+    "note": "Research artifacts live under research/ar2-nested-gutenberg-identity only; deleting that directory leaves production bootstrap unchanged.",
+    "confidence": "Proven by experiment"
+}

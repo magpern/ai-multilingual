@@ -1,0 +1,102 @@
+{
+    "work_package": "A47",
+    "measurements": {
+        "shallow_structural": {
+            "extract_ms": 1.00664,
+            "unit_count": 3,
+            "walker_nodes": 7,
+            "max_depth": 4,
+            "keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:22222222-2222-4222-8222-222222222201:content",
+                "b:11111111-1111-4111-8111-111111111102:content"
+            ]
+        },
+        "deep_nested": {
+            "extract_ms": 0.056415,
+            "unit_count": 4,
+            "walker_nodes": 11,
+            "max_depth": 5,
+            "keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:33333333-3333-4333-8333-333333333301:content",
+                "b:11111111-1111-4111-8111-111111111102:content",
+                "b:11111111-1111-4111-8111-111111111103:content"
+            ]
+        },
+        "list_nested": {
+            "extract_ms": 0.046717,
+            "unit_count": 4,
+            "walker_nodes": 7,
+            "max_depth": 4,
+            "keys": [
+                "b:33333333-3333-4333-8333-333333333301:content",
+                "b:33333333-3333-4333-8333-333333333302:content",
+                "b:33333333-3333-4333-8333-333333333303:content",
+                "b:33333333-3333-4333-8333-333333333304:content"
+            ]
+        },
+        "media_mixed": {
+            "extract_ms": 0.033032,
+            "unit_count": 2,
+            "walker_nodes": 7,
+            "max_depth": 2,
+            "keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:11111111-1111-4111-8111-111111111102:content"
+            ]
+        },
+        "shared_dynamic": {
+            "extract_ms": 0.012012,
+            "unit_count": 0,
+            "walker_nodes": 6,
+            "max_depth": 3,
+            "keys": []
+        }
+    },
+    "render_cases": {
+        "supported_child_in_unsupported_parent": {
+            "changed": true,
+            "render_ms": 3.647758,
+            "left_html": "\n<p>[SV] Left column paragraph about nested identity retention.</p>\n",
+            "contains_sv": true,
+            "events_count": 3,
+            "pass": true
+        },
+        "unsupported_sibling_source_fallback": {
+            "separator_unchanged": true,
+            "supported_still_translated": true,
+            "pass": true
+        },
+        "local_source_fallback": {
+            "left_translated": true,
+            "heading_source": true,
+            "pass": true
+        },
+        "no_duplicate_overlay_application": {
+            "html_after_first": "\n<p>ONCE</p>\n",
+            "html_after_second": "\n<p>ONCE</p>\n",
+            "stable": true,
+            "pass": true
+        },
+        "nested_failure_isolation": {
+            "heading_translated": true,
+            "pass": true
+        },
+        "source_only_empty_map": {
+            "changed": false,
+            "pass": true
+        },
+        "no_final_html_scraping": {
+            "mechanism": "BlockRenderer walks parsed tree and calls adapter->apply_translation per segment key",
+            "confidence": "Proven by experiment",
+            "pass": true
+        }
+    },
+    "fail": [],
+    "budgets": "not_invented_observations_only",
+    "conclusion": {
+        "claim": "Existing BlockRenderer overlays nested supported children inside unsupported parents without a second renderer or HTML scraping. Local source fallback and failure isolation hold. Performance numbers recorded without invented budgets.",
+        "confidence": "Proven by experiment"
+    }
+}

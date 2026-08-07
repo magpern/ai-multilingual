@@ -1,0 +1,25 @@
+{
+    "work_package": "A40",
+    "findings": [
+        {
+            "claim": "Production grammar remains b:<uuid>:<field> with aimlBlockId attribute ownership.",
+            "confidence": "Proven by experiment"
+        },
+        {
+            "claim": "Supported adapters are seven F14 leaves; no container adapters registered.",
+            "confidence": "Proven by experiment"
+        },
+        {
+            "claim": "core/list has no adapter; core/list-item does. Structural containers have no adapters.",
+            "confidence": "Proven by experiment"
+        },
+        {
+            "claim": "core/navigation, core/query, and core/block appear in DYNAMIC_BLOCK_NAMES.",
+            "confidence": "Proven by experiment"
+        },
+        {
+            "claim": "Research fixtures cover structural, textual, media, and shared/dynamic families.",
+            "confidence": "Proven by experiment"
+        }
+    ]
+}

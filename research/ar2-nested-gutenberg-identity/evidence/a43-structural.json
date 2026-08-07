@@ -1,0 +1,49 @@
+{
+    "work_package": "A43",
+    "classification": {
+        "core/group": "structural_only_existing_child_traversal",
+        "core/columns": "structural_only_existing_child_traversal",
+        "core/column": "structural_only_existing_child_traversal"
+    },
+    "attr_audit": {
+        "0": {
+            "block_name": "core/group",
+            "attr_keys": [
+                "layout",
+                "aimlBlockId"
+            ],
+            "visitor_text_preview": "",
+            "extracted_as_unit": false
+        },
+        "0/0": {
+            "block_name": "core/columns",
+            "attr_keys": [],
+            "visitor_text_preview": "",
+            "extracted_as_unit": false
+        },
+        "0/0/0": {
+            "block_name": "core/column",
+            "attr_keys": [],
+            "visitor_text_preview": "",
+            "extracted_as_unit": false
+        },
+        "0/0/1": {
+            "block_name": "core/column",
+            "attr_keys": [],
+            "visitor_text_preview": "",
+            "extracted_as_unit": false
+        }
+    },
+    "extract_count": 3,
+    "no_container_units": true,
+    "reorder_preserves_child_keys": true,
+    "adapters_present": {
+        "group": false,
+        "columns": false,
+        "column": false
+    },
+    "conclusion": {
+        "claim": "group/columns/column are structural-only; no adapter required; supported descendants remain independently addressable; container reorder does not alter child keys.",
+        "confidence": "Proven by experiment"
+    }
+}
