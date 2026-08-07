@@ -6,6 +6,8 @@
 **ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) (**Accepted**)
 **Baseline main (pre-plan merge):** `adb39f7183be695a36793a3a0c293b79848c0263` (`a2-elementor-foundation-complete`)
 **Plan merge commit:** `22b0907ff3b77ff0fd6348464402949d6687de28`
+**A.3 merge commit:** `ae863c36b0b97351655307f8e4ff1bcb5a585f3f`
+**Closure status:** Complete / merged / validated / tagged `a3-elementor-widget-coverage-complete`
 
 ---
 
@@ -108,7 +110,7 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 
 ## A32 — Accordion admission
 
-**Status:** PASS — **Adapter → Directly Supported (allowlisted)**
+**Status:** PASS — **merged to main**, validated, closed
 
 | Field | Value |
 |---|---|
@@ -215,6 +217,7 @@ Performance (HTTP wall-clock, anonymous, fixture page): cold EN ≈ 1244 ms, col
 
 ### Closure
 
-- Do **not** merge / tag / release from this agent pass.
-- Suggested future tag after independent review + merge: `a3-elementor-widget-coverage-complete`
-- Exact next step: independent review → merge to `main` → tag → then A.4 planning/implementation may begin.
+- Merged to `main` @ `ae863c36b0b97351655307f8e4ff1bcb5a585f3f`
+- Tag: `a3-elementor-widget-coverage-complete`
+- Independent review gates PASS (unit 491 / integration 507 / PluginGuard 17 / PHPCS / live leakage=0 FP=0)
+- Exact next step: A.4 Nested Gutenberg Identity **planning** on `feature/a4-nested-gutenberg-identity-plan` (no A.4 implementation)
