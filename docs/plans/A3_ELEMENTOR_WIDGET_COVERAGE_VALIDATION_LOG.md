@@ -1,0 +1,102 @@
+# A.3 — Elementor Widget Coverage — Validation Log
+
+**Milestone:** A.3 Elementor Widget Coverage  
+**Implementation branch:** `feature/a3-elementor-widget-coverage`  
+**Plan:** [A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**)  
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) (**Accepted**)  
+**Baseline main (pre-plan merge):** `adb39f7183be695a36793a3a0c293b79848c0263` (`a2-elementor-foundation-complete`)  
+**Plan merge commit:** `22b0907ff3b77ff0fd6348464402949d6687de28`
+
+---
+
+## A30 — Baseline, inventory, admission matrix
+
+**Status:** PASS (docs / evidence only — no production support added)
+
+### Environment
+
+| Item | Value |
+|---|---|
+| Host | https://dev.biopentra.eu |
+| Elementor | 4.2.2 |
+| Elementor Pro | 4.2.1 |
+| A.2 surface (unchanged) | `heading/title`, `text-editor/editor`, `button/text` |
+| Nested grammar (A.3 reserved) | `e:d:<owner>:<element_id>:<control_key>:<nested_item_id>` — not production-enabled at A30 |
+| Cache strategy | Matches A.2 (element-cache TTL disable while overlays on; document cache bust; language-aware unique_id) |
+
+### A.2 regression baseline
+
+| Check | Result |
+|---|---|
+| Production `src/Elementor` surface still A.2-only at A30 start | PASS |
+| Registry allowlist count = 3 | PASS (pre-admission) |
+| No Accordion/Toggle/Image adapters in production tree at A30 start | PASS |
+| A.R1 deny-list present | PASS — `research/ar1-elementor-identity/DENY_LIST.md` |
+
+### Candidate inventory (dev.biopentra.eu — published `_elementor_data`)
+
+Sampled from postmeta documents (counts are approximate across inventory walk):
+
+| Widget family | Observed | Wave | Notes |
+|---|---|---|---|
+| heading | high (224+) | A.2 retained | Directly supported |
+| image | high (160+) | Wave 1 / A34 | Mostly media-only settings; caption ownership gated |
+| button | high (151+) | A.2 retained | Directly supported |
+| text-editor | medium (77+) | A.2 retained | Directly supported |
+| icon | medium | out of scope unless A35 | Icon glyph, not primary text |
+| icon-list | present (e.g. 3825+) | A35 candidate | Repeater `icon_list` with `_id` + `text` |
+| call-to-action | present (3520+) | A35 candidate | Flat `title`, `description`, `button` |
+| accordion | present (4124+, FAQ pages) | Wave 1 / A32 | Repeater `tabs` with `_id`, `tab_title`, `tab_content` |
+| toggle | present (4616, 4617) | Wave 1 / A33 | Same control shape as accordion; **live rows often lack `_id`** |
+| loop-grid / Woo / html / fluent-form | present | excluded | Deny-list / out of scope |
+
+### Wave 1 candidates (frozen)
+
+1. Accordion — `tabs` / `tab_title` / `tab_content` / `_id`
+2. Toggle — same nested model; legacy missing `_id` → source until editor assigns IDs
+3. Image — ownership gate A34 (Elementor-owned only)
+
+### A35 bounded pool (max 3; from inventory)
+
+1. Icon List (`icon-list` / `icon_list` / `text` / `_id`)
+2. Call to Action (`call-to-action` / `title`, `description`, `button`)
+3. *(third slot reserved after A34 — evaluate only if low-risk; zero admissions OK)*
+
+### Admission matrix (canonical — updated through A38)
+
+| Candidate | Prior state | Owning WP | Identity | Ownership | Controls | Evidence | Unit | Integration | Browser | Cache/lang | Perf | Limitations | Disposition |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| heading/title | A.2 Direct | A.2 | `e:d:…:title` | document | title | A2 log | PASS | PASS | PASS | PASS | OK | none new | Directly Supported (retained) |
+| text-editor/editor | A.2 Direct | A.2 | `e:d:…:editor` | document | editor | A2 log | PASS | PASS | PASS | PASS | OK | HTML kses | Directly Supported (retained) |
+| button/text | A.2 Direct | A.2 | `e:d:…:text` | document | text | A2 log | PASS | PASS | PASS | PASS | OK | none new | Directly Supported (retained) |
+| accordion | Research | A32 | nested `_id` | document | *(pending)* | *(pending)* | | | | | | | Research |
+| toggle | Research | A33 | nested `_id` | document | *(pending)* | *(pending)* | | | | | | | Research |
+| image | Research | A34 | *(pending)* | *(pending)* | *(pending)* | *(pending)* | | | | | | | Research |
+| icon-list | Research | A35 | nested `_id` | document | *(pending)* | *(pending)* | | | | | | | Research |
+| call-to-action | Research | A35 | flat A.2 grammar | document | *(pending)* | *(pending)* | | | | | | | Research |
+
+### Evidence paths (A30 seeds)
+
+- Inventory commands: WP-CLI eval over `_elementor_data` on dev
+- Accordion sample post `4124` — tabs with unique `_id`
+- Toggle sample posts `4616`/`4617` — tabs **without** `_id` (source-fallback risk documented)
+- Icon-list sample `3825` — `_id` + `text`
+- CTA sample `3520` — `title` / `description` / `button`
+- Image sample `3423` — attachment settings only (no custom caption)
+- AR1: `research/ar1-elementor-identity/evidence/er1-stability.json`, `er0-widget-frequency.json`
+
+### A30 validation
+
+| Gate | Result |
+|---|---|
+| No production support added | PASS |
+| Candidate inventory recorded | PASS |
+| Admission matrix scaffolded | PASS |
+| Deny-list baseline verified | PASS |
+| Versions recorded | PASS |
+
+---
+
+## Subsequent WPs
+
+*(A31–A38 sections appended below as work completes.)*
