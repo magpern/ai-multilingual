@@ -90,7 +90,7 @@ Min version: **10.0.0**
 |---|---|
 | Owner | WP `product_cat` term name |
 | Ownership class | record |
-| Identity | `p:woocommerce:term:product_cat:{term_id}:name` |
+| Identity | `p:woocommerce:product_cat:{term_id}:name` |
 | Host source | Shop page **3755** Store rows |
 | Overlay | `single_term_title` / `woocommerce_page_title` |
 | Sanitization | plain |
@@ -101,7 +101,7 @@ Min version: **10.0.0**
 | Field | Value |
 |---|---|
 | Owner | WP `product_cat` term description |
-| Identity | `p:woocommerce:term:product_cat:{term_id}:description` |
+| Identity | `p:woocommerce:product_cat:{term_id}:description` |
 | Overlay | `term_description` |
 | Sanitization | HTML (`FORMAT_HTML`) |
 | Disposition | **Supported** |
@@ -111,7 +111,7 @@ Min version: **10.0.0**
 | Field | Value |
 |---|---|
 | Owner | WP `product_tag` term name |
-| Identity | `p:woocommerce:term:product_tag:{term_id}:name` |
+| Identity | `p:woocommerce:product_tag:{term_id}:name` |
 | Disposition | **Supported** |
 
 ### C6 Tag description
@@ -119,7 +119,7 @@ Min version: **10.0.0**
 | Field | Value |
 |---|---|
 | Owner | WP `product_tag` term description |
-| Identity | `p:woocommerce:term:product_tag:{term_id}:description` |
+| Identity | `p:woocommerce:product_tag:{term_id}:description` |
 | Disposition | **Supported** (skip empty) |
 
 ---

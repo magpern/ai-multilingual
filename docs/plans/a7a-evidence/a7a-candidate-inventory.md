@@ -98,7 +98,7 @@ Reuse existing page Extractor + Renderer for shop page **3755**. No `p:` require
 |---|---|
 | Owner | WordPress terms (`product_cat` / `product_tag`) |
 | Ownership class | `record` |
-| Identity | TBD A7A.2 — `p:woocommerce:term:{taxonomy}:{term_id}:name` / `:description` |
+| Identity | TBD A7A.2 — `p:woocommerce:{taxonomy}:{term_id}:name` / `:description` |
 | Extraction | On shop page context only (canonical host); `get_terms` allowlisted taxonomies |
 | Overlay | `single_term_title` / `woocommerce_page_title` / `term_description` with Store resolve from **shop page source_id** |
 | Sanitization | name=plain; description=HTML (`Store::FORMAT_HTML`) |

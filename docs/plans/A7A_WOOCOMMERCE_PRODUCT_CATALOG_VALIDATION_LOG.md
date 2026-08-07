@@ -76,3 +76,14 @@ _Records appended as A7A.1–A7A.8 complete._
 | Admission shells | [a7a-evidence/a7a-admission-records.md](a7a-evidence/a7a-admission-records.md) |
 
 Every P1–P10 / C1–C6 has a stub disposition. Four attribute splits have independent shells. P4/P6/P8/P9/P10 stubbed **Deferred**.
+
+## A7A.2 — Identity freeze
+
+**Status:** PASS
+
+| Artifact | Path |
+|---|---|
+| Identity matrix | [a7a-evidence/a7a-identity-matrix.md](a7a-evidence/a7a-identity-matrix.md) |
+| Unit tests | `tests/unit/Integration/WooCommerceIdentityMatrixTest.php` (5 tests OK) |
+
+No new identity family. P5/P7 keys distinct. Catalog terms use `owner_type` = taxonomy. Store host for C3–C6 = shop page 3755. P6/P8 remain Deferred.
