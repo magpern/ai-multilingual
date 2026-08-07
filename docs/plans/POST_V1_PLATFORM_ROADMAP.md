@@ -26,7 +26,7 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
 **First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
-**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface. **A.4 Nested Gutenberg** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**Complete / merged / tagged** `a4-nested-gutenberg-complete`). **A.1 Plugin Integration Framework** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**Complete / merged / tagged** `a1-plugin-integration-framework-complete`). **A.0 Gutenberg Leaf Expansion** — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md); [validation log PASS](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md) (**Complete / merged / tagged** `a0-gutenberg-leaf-expansion-complete`). Next Program A candidate: **A.8**.
+**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 Nested Gutenberg Identity** — [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**; tag `ar2-nested-gutenberg-identity-research-complete`); **F5 PASS** for bounded surface. **A.4 Nested Gutenberg** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md) (**Complete / merged / tagged** `a4-nested-gutenberg-complete`). **A.1 Plugin Integration Framework** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**Complete / merged / tagged** `a1-plugin-integration-framework-complete`). **A.0 Gutenberg Leaf Expansion** — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md); [validation log PASS](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md) (**Complete / merged / tagged** `a0-gutenberg-leaf-expansion-complete`). **A.8** first production bridge — [selection matrix](A8_INTEGRATION_CANDIDATE_SELECTION.md); [implementation plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; selected = Fluent Forms Contact Form #5; implementation not started).
 
 ---
 
@@ -46,7 +46,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.8** first third-party bridge via A.1 (planning)
+- **A.8** Fluent Forms Contact Form #5 via A.1 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started)
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -151,7 +151,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — **Complete** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md); tag `a4-nested-gutenberg-complete`; no new ADR |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
 | A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product |
-| A.8 | Third-party plugin bridges (via A.1) | Product |
+| A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started) |
 | A.SEO | Visitor SEO adapters (hreflang/title/alternates) | Product |
 
 ### Program B — Translation Intelligence
@@ -276,7 +276,7 @@ Waves may slip across minors; the family definition is stable.
 
 ### 6.3 Third-party and SEO
 
-- **A.8** — One third-party bridge at a time via A.1
+- **A.8** — One third-party bridge at a time via A.1 (first: Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md))
 - **A.SEO** — Late, low coupling to editor identity work
 
 ---
@@ -446,6 +446,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-07 | A.0 Gutenberg Leaf Expansion implementation plan linked (**Architecture Frozen**); implementation not started; A.8 remains later/parallel (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | A.0 Gutenberg Leaf Expansion complete on branch `feature/a0-gutenberg-leaf-expansion` (validation PASS); not merged/tagged; A.8 remains later (no structural change). |
 | v1.0 (editorial) | 2026-08-07 | A.0 Gutenberg Leaf Expansion marked complete/merged/tagged `a0-gutenberg-leaf-expansion-complete`; Now/Next advances to A.8 planning (no structural change). |
+| v1.0 (editorial) | 2026-08-07 | A.8 first production integration plan linked — Fluent Forms Contact Form #5 selected; Architecture Frozen (planning); implementation not started (no structural change). |
 
 ---
 
