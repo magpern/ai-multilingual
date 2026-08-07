@@ -1,13 +1,14 @@
 # A.2 — Elementor Foundation — Implementation Plan
 
-**Status:** **Architecture Frozen** — implementation **may begin**; no further planning cycle required  
-**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.2** (Architecture / Foundation)  
-**Baseline:** `main` @ `fbf8a553813172794bc37c3a84210de6e865e2cd` (A.R1 complete; ADR-0016 Accepted; tag `ar1-elementor-identity-research-complete`)  
-**Planning branch:** `feature/a2-elementor-foundation-plan`  
-**Implementation branch:** `feature/a2-elementor-foundation` (create from updated `main` when coding starts)  
-**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Accepted** (immutable for A.2)  
+**Status:** **Implementation complete on branch** — ready for independent review; **not merged**  
+**Plan freeze:** Architecture remains frozen; no scope expansion beyond A.2 allowlist  
+**Validation:** [A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) **PASS**  
+**ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) **Accepted**  
 **Evidence:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [DENY_LIST.md](../../research/ar1-elementor-identity/DENY_LIST.md)  
-**Validation log (reserved):** `docs/plans/A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md` — create when A20 begins  
+**Validation log:** `docs/plans/A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md`  
+**Implementation branch:** `feature/a2-elementor-foundation`  
+**Planning branch (merged):** `feature/a2-elementor-foundation-plan`  
+**Baseline:** `main` @ `fbf8a553813172794bc37c3a84210de6e865e2cd` (at plan authoring)  
 
 **Operational success:** A merchant can translate ordinary Elementor pages built from Heading, Text Editor, and Button widgets without affecting Gutenberg behaviour or any existing AIML subsystem.
 
