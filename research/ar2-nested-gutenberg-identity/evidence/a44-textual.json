@@ -1,0 +1,67 @@
+{
+    "work_package": "A44",
+    "list_hard_gate": {
+        "list_adapter_exists": false,
+        "list_units_extracted": 0,
+        "nested_fixture_extract_count": 4,
+        "nested_leaf_keys_present": {
+            "li1": true,
+            "nested_a": true,
+            "nested_b": true,
+            "li3": true
+        },
+        "parent_list_item_with_inner": {
+            "path": "0/1",
+            "block_name": "core/list-item",
+            "uuid": "",
+            "parent_uuid": null,
+            "inner_block_count": 1,
+            "attr_keys": [],
+            "has_aiml_block_id": false,
+            "is_supported": true,
+            "is_dynamic": false,
+            "is_eligible": false,
+            "has_adapter": true,
+            "adapter_translatable": false,
+            "inner_html_len": 50,
+            "inner_html_preview": "Parent list item with nested list text."
+        },
+        "parent_with_inner_extracted": false,
+        "duplicate_source_texts": false,
+        "authored_after_inject_count": 4,
+        "authored_list_units": 0,
+        "no_duplicate_list_vs_list_item": true,
+        "pass_no_duplicate_extraction": true
+    },
+    "quote_pullquote_details": {
+        "extract_keys": [
+            "b:44444444-4444-4444-8444-444444444401:content",
+            "b:11111111-1111-4111-8111-111111111103:content"
+        ],
+        "quote": {
+            "has_inner_blocks": 1,
+            "citation_in_parent_markup": true,
+            "child_paragraph_extracted": true,
+            "citation_extracted": false,
+            "disposition": "child_traversal_for_paragraph; citation_requires_adapter_field_admission"
+        },
+        "pullquote": {
+            "has_inner_blocks": 0,
+            "body_and_citation_in_parent_html": true,
+            "extracted": false,
+            "disposition": "adapter_field_admission_required_or_deferred; no_child_paragraph_in_fixture"
+        },
+        "details": {
+            "has_inner_blocks": 1,
+            "summary_in_parent_markup": true,
+            "child_paragraph_extracted": true,
+            "summary_extracted": false,
+            "disposition": "child_traversal_for_body; summary_requires_adapter_field_admission"
+        },
+        "identity_grammar_sufficient": true
+    },
+    "conclusion": {
+        "claim": "List hard gate PASSES for no duplicate list/list-item extraction. Nested leaf list-items extract under existing grammar. Parent list-item with innerBlocks is skipped (admission gap, not identity gap). Quote/details children extract; citation/summary need field admission. Pullquote needs adapter or deferral.",
+        "confidence": "Proven by experiment"
+    }
+}
