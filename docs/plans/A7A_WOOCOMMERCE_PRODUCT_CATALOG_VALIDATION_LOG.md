@@ -65,3 +65,14 @@
 ## Subsequent work packages
 
 _Records appended as A7A.1–A7A.8 complete._
+
+## A7A.1 — Candidate inventory + admission shells
+
+**Status:** PASS
+
+| Artifact | Path |
+|---|---|
+| Inventory | [a7a-evidence/a7a-candidate-inventory.md](a7a-evidence/a7a-candidate-inventory.md) |
+| Admission shells | [a7a-evidence/a7a-admission-records.md](a7a-evidence/a7a-admission-records.md) |
+
+Every P1–P10 / C1–C6 has a stub disposition. Four attribute splits have independent shells. P4/P6/P8/P9/P10 stubbed **Deferred**.
