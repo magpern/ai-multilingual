@@ -69,11 +69,11 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 | heading/title | A.2 Direct | A.2 | `e:d:…:title` | document | title | A2 log | PASS | PASS | PASS | PASS | OK | none new | Directly Supported (retained) |
 | text-editor/editor | A.2 Direct | A.2 | `e:d:…:editor` | document | editor | A2 log | PASS | PASS | PASS | PASS | OK | HTML kses | Directly Supported (retained) |
 | button/text | A.2 Direct | A.2 | `e:d:…:text` | document | text | A2 log | PASS | PASS | PASS | PASS | OK | none new | Directly Supported (retained) |
-| accordion | Research | A32 | nested `_id` | document | *(pending)* | *(pending)* | | | | | | | Research |
-| toggle | Research | A33 | nested `_id` | document | *(pending)* | *(pending)* | | | | | | | Research |
-| image | Research | A34 | *(pending)* | *(pending)* | *(pending)* | *(pending)* | | | | | | | Research |
-| icon-list | Research | A35 | nested `_id` | document | *(pending)* | *(pending)* | | | | | | | Research |
-| call-to-action | Research | A35 | flat A.2 grammar | document | *(pending)* | *(pending)* | | | | | | | Research |
+| accordion | Research | A32 | nested `_id` | document | tab_title, tab_content | A32 log + fixture | PASS | PASS | PASS | PASS | OK | missing `_id` → source | Directly Supported |
+| toggle | Research | A33 | nested `_id` | document | tab_title, tab_content | A33 log + fixture | PASS | PASS | PASS | PASS | OK | legacy no `_id` | Directly Supported |
+| image | Research | A34 | flat caption | document (custom only) | caption@custom | A34 log | PASS | PASS | PASS | PASS | OK | Outcome C subset | Adapter subset |
+| icon-list | Research | A35 | nested `_id` | document | text | A35 log | PASS | PASS | PASS | PASS | OK | — | Directly Supported |
+| call-to-action | Research | A35 | flat A.2 grammar | document | title, description, button | A35 log | PASS | PASS | PASS | PASS | OK | — | Directly Supported |
 
 ### Evidence paths (A30 seeds)
 
@@ -170,6 +170,51 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 - Compatibility remains `ElementorCompatibility` 4.2.x boundary
 - Deny-list updated with A.3 graduation records
 
-## Subsequent WPs
+## A37 — Cache, language, performance hardening
 
-*(A37–A38 sections appended below as work completes.)*
+**Status:** PASS
+
+| Matrix cell | Result |
+|---|---|
+| cold EN / cold SV | PASS |
+| warm EN / warm SV | PASS |
+| EN → SV → EN | PASS |
+| SV → EN → SV | PASS |
+| mixed A.2 + A.3 page (fixture 6416) | PASS |
+| unsupported/missing `_id` toggle legacy | source fallback (unit) |
+| cross-language leakage | **0** |
+| rendered false positives | **0** |
+
+Performance (HTTP wall-clock, anonymous, fixture page): cold EN ≈ 1244 ms, cold SV ≈ 1638 ms (includes full page + Elementor). Unit extract count = 17. No candidate denied for performance.
+
+## A38 — Full validation and closure
+
+**Status:** PASS — implementation complete on branch (not merged)
+
+| Gate | Result |
+|---|---|
+| PHPUnit unit | PASS — 491 tests (2 skipped) |
+| PHPUnit integration | PASS — 507 tests (2 skipped) |
+| PluginGuard | PASS — 17 tests / 8054 assertions |
+| PHPCS (`src/Elementor`, SegmentAssembler) | PASS |
+| git diff --check | PASS |
+| Browser fixture EN/SV matrix | PASS — leakage 0, FP 0 |
+| A.2 controls retained | PASS |
+| Gutenberg unaffected | PASS (no Gutenberg code path changes) |
+
+### Final supported-surface table
+
+| Surface | Controls | Notes |
+|---|---|---|
+| **Retained A.2** | `heading/title`, `text-editor/editor`, `button/text` | Directly Supported |
+| **A.3 nested** | `accordion` → `tab_title`, `tab_content`; `toggle` → `tab_title`, `tab_content`; `icon-list` → `text` | Adapter (`repeater_field`); `_id` required |
+| **A.3 flat** | `call-to-action` → `title`, `description`, `button` | Directly Supported |
+| **A.3 image subset** | `image/caption` when `caption_source=custom` | Adapter; Outcome C |
+| **Evaluated / denied or out of scope** | Media Library image alt/caption; loop-grid; Woo widgets; html; fluent-form; Theme Builder | Remain on deny-list |
+| **Known limitations** | Legacy toggle rows without `_id` → source; duplicate `_id` → whole repeater denied; nested-of-nested deferred; responsive deferred | |
+
+### Closure
+
+- Do **not** merge / tag / release from this agent pass.
+- Suggested future tag after independent review + merge: `a3-elementor-widget-coverage-complete`
+- Exact next step: independent review → merge to `main` → tag → then A.4 planning/implementation may begin.

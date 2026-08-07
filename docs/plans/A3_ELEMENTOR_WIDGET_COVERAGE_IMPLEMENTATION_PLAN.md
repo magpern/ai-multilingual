@@ -1,13 +1,13 @@
 # A.3 — Elementor Widget Coverage — Implementation Plan
 
-**Status:** **Architecture Frozen** — implementation **may begin**; no further planning cycle required
+**Status:** **Implementation Complete** — pending independent review / merge / tag (do not begin A.4)
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.3** (Product / Coverage)
 **Baseline:** `main` @ `adb39f7183be695a36793a3a0c293b79848c0263` (A.2 complete; tag `a2-elementor-foundation-complete`)
 **Planning branch:** `feature/a3-elementor-widget-coverage-plan`
 **Implementation branch:** `feature/a3-elementor-widget-coverage` (create from updated `main` when coding starts)
 **ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Accepted** (immutable; A.3 adds only reserved nested identity)
 **Evidence:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [DENY_LIST.md](../../research/ar1-elementor-identity/DENY_LIST.md); [A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) (**PASS — closed**)
-**Validation log (reserved):** `docs/plans/A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md` — create when A30 begins
+**Validation log:** [A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**PASS — implementation branch**)
 
 **Operational success:** A merchant can translate additional Elementor widget families (starting with Accordion/Toggle when admitted, and Image only if Elementor-owned) on top of the proven A.2 Heading / Text Editor / Button surface, without redesigning identity, Store, cache isolation, or any AIML subsystem.
 
