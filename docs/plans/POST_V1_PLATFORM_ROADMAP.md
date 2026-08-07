@@ -26,7 +26,7 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
 **First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
-**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — implementation complete on `feature/a2-elementor-foundation` (pending review/merge). Parallel: A.R2, A.1, A.0.
+**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). Next planning: A.3. Parallel: A.R2, A.1, A.0.
 
 ---
 
@@ -38,7 +38,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 - Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main`
 - **A.R1** Elementor Identity Research Spike **complete**; [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**
-- Active implementation focus: **A.2** Elementor Foundation — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) on `feature/a2-elementor-foundation` (**ready for review; not merged**)
+- Next planning focus: **A.3** Elementor Widget Coverage — planning branch only after A.2 closure. **A.2** — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) (**complete / merged**)
 
 ### NEXT
 
@@ -144,7 +144,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.R2 | Nested Gutenberg Identity Research Spike | Research Spike |
 | A.1 | Plugin Integration Framework | Architecture |
 | A.0 | Additional Gutenberg leaf blocks and fields | Product |
-| A.2 | Elementor Foundation (post–identity decision) | Architecture — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) on `feature/a2-elementor-foundation` (**implementation complete; pending review/merge**) |
+| A.2 | Elementor Foundation (post–identity decision) | Architecture — **Complete** — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md); tag `a2-elementor-foundation-complete` |
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product |
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
