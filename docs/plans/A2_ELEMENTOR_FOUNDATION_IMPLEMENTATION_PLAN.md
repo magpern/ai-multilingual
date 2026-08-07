@@ -1,15 +1,17 @@
 # A.2 — Elementor Foundation — Implementation Plan
 
-**Status:** Planning complete — implementation **not started**  
+**Status:** **Architecture Frozen** — implementation **may begin**; no further planning cycle required  
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestone **A.2** (Architecture / Foundation)  
 **Baseline:** `main` @ `fbf8a553813172794bc37c3a84210de6e865e2cd` (A.R1 complete; ADR-0016 Accepted; tag `ar1-elementor-identity-research-complete`)  
 **Planning branch:** `feature/a2-elementor-foundation-plan`  
-**Implementation branch (later):** `feature/a2-elementor-foundation` (create only after this plan is reviewed/frozen and coding is authorized)  
+**Implementation branch:** `feature/a2-elementor-foundation` (create from updated `main` when coding starts)  
 **ADR:** [0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md) — **Accepted** (immutable for A.2)  
 **Evidence:** [AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [DENY_LIST.md](../../research/ar1-elementor-identity/DENY_LIST.md)  
 **Validation log (reserved):** `docs/plans/A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md` — create when A20 begins  
 
-**This document authorizes planning only.** It does **not** authorize Elementor production coding until separately approved after plan freeze.
+**Operational success:** A merchant can translate ordinary Elementor pages built from Heading, Text Editor, and Button widgets without affecting Gutenberg behaviour or any existing AIML subsystem.
+
+**This plan is the frozen implementation contract for A.2.** Create the implementation branch and begin **A20**. Do not open another planning milestone.
 
 ---
 
@@ -18,6 +20,7 @@
 Prove the Accepted ADR-0016 architecture on the **smallest safe production surface**: three Elementor widget controls, document-owned only, with deterministic Hybrid D identities, Store overlays, Elementor-supported request-time rendering, language-safe caching, and source fallback for everything else.
 
 A.2 is **Elementor Foundation**, not broad Elementor translation.
+
 
 ---
 
@@ -85,32 +88,45 @@ Deferred homes: **A.3+** (widget coverage), **A.4** (nested Gutenberg — unrela
 
 ---
 
-## 6. Additive production identity grammar (A.2 contract)
+## 6. Frozen translation-key grammar (A.2 implementation contract)
 
-ADR-0016 freezes composition, not serialization. A.2 defines this **additive** Store `segment_key` grammar, consistent with Hybrid D and disjoint from Gutenberg:
+ADR-0016 freezes Hybrid D composition. A.2 **freezes** this additive Store `segment_key` grammar as the production serialization for document-owned first-surface units. It is an implementation contract: do not invent alternate A.2 key shapes.
+
+### Frozen A.2 grammar
 
 ```text
 e:d:<owner_post_id>:<element_id>:<control_key>
 ```
 
-| Token | Meaning |
+| Token | Frozen meaning |
 |---|---|
-| `e` | Elementor identity family (≠ `b` Gutenberg) |
-| `d` | Owner scope = **document-owned** (only scope shipped in A.2) |
-| `owner_post_id` | Decimal WordPress post ID |
+| `e` | Elementor identity family (≠ Gutenberg `b:`) |
+| `d` | Owner scope = **document-owned** (only scope in A.2) |
+| `owner_post_id` | Decimal WordPress post ID of the owning Elementor document |
 | `element_id` | Native Elementor element `id` (required; non-empty) |
-| `control_key` | Allowlisted control (`title` \| `editor` \| `text`) |
+| `control_key` | Allowlisted control only: `title` \| `editor` \| `text` |
 
-**Rules:**
+### A.2 segment rules (mandatory)
 
-- No nested-item segment in A.2 (not required for the three controls).  
-- No responsive suffix in A.2 (base controls only; do not invent variants).  
-- `source_hash` = freshness only (ADR-0007); never part of the key.  
+- Owner scope in A.2 is **document** only (`d`).  
+- **No nested-item segment** in A.2.  
+- **No responsive-variant segment** in A.2.  
+- `source_hash` is **freshness only** (ADR-0007) — **never** identity and **never** part of the key.  
 - Source/translated text are Store payload, not identity.  
-- Missing element ID, unknown widget/control, or non-document ownership → **do not extract** (source).  
-- Keys must not collide with `b:…` (different prefix). Intra-document uniqueness = element_id + control_key under owner.
+- Missing element ID, unknown widget/control, or non-document ownership → **do not extract** (leave source).  
+- Keys must not collide with `b:…`. Intra-document uniqueness = `element_id` + `control_key` under owner.
 
-Future scopes (e.g. definition-owned) would use a different scope token under a later milestone/ADR amendment — **not** A.2.
+### Reserved future extensions (extend, do not replace)
+
+Later milestones **extend** this grammar additively. They must not replace the `e:` family or reinterpret A.2 keys.
+
+| Future need | Extension approach (not A.2) |
+|---|---|
+| Nested identifier | Additional path segment(s) after `control_key` (or documented nested token) under a later milestone |
+| Responsive variant | Additional responsive token for distinct device values under a later milestone |
+| Template / definition ownership | Different owner-scope token (not `d`) under ADR/ownership evidence — never silently reuse `d` |
+
+Document-owned A.2 keys remain forever parsable as `e:d:<owner>:<element>:<control>`.
 
 ---
 
@@ -130,7 +146,20 @@ Dedicated Elementor extraction path (do **not** fold into Gutenberg block extrac
 4. For each widget in allowlist, read only approved controls.  
 5. Emit translation units with Hybrid D fields + `segment_key` + source text + source hash.  
 6. Skip deny-listed / unknown / malformed nodes with source fallback (no throw to visitors).  
-7. Never write `_elementor_data`. Never scrape rendered HTML. Never fuzzy-match.
+7. Never write `_elementor_data`. Never scrape rendered HTML. Never fuzzy-match.  
+8. Obey **local-failure policy** (§7.1): per-unit failure never aborts the document.
+
+### 7.1 Local-failure policy (mandatory)
+
+Deterministic behaviour when extraction or rendering fails for a unit:
+
+1. **Fail only the affected translation unit** — not the whole document.  
+2. **Continue** processing remaining supported widgets/controls.  
+3. **Render original source** for the failed unit.  
+4. **Record diagnostics** (bounded counters/events; no body logging).  
+5. **Never fail the complete document** (no visitor-facing fatal, no blank page attributable to A.2).
+
+This applies to malformed nodes, missing IDs, Store errors, overlay application errors, and per-control sanitization failures. Document-level hard failures are reserved for true platform fatals unrelated to A.2 overlays.
 
 ### Gutenberg isolation
 
@@ -206,12 +235,40 @@ Do **not** enable the existing AIML render cache as part of A.2.
 
 ---
 
-## 11. Allowlist + deny-list
+## 11. Allowlist, deny-list, and control registry
 
 - Translation is **allowlist-driven** (three pairs only).  
 - A.R1 [DENY_LIST.md](../../research/ar1-elementor-identity/DENY_LIST.md) remains authoritative for known unsupported classes.  
 - No recursive “string-looking” setting extraction.  
-- Unsupported → source.
+- Unsupported → source.  
+- Implementation is **registry-driven**, not ad-hoc switch/case sprawl across extract/render paths.
+
+### 11.1 Control registry contract (first-class component)
+
+`ElementorControlRegistry` (name illustrative) is a **formal architectural component**. Every supported control is a declared registry entry.
+
+Each entry **must** declare:
+
+| Field | Purpose |
+|---|---|
+| **widget type** | Elementor `widgetType` (e.g. `heading`) |
+| **control key** | Setting key (e.g. `title`) |
+| **extractor** | How the source value is read from element settings |
+| **renderer** | How the overlay value is applied at request time |
+| **sanitization strategy** | Plain text vs rich text / kses policy |
+| **support state** | A.2: `directly_supported` for the three pairs; others absent or explicitly unsupported |
+
+A.2 registry contents (exclusive):
+
+| widget type | control key | sanitization (intent) | support state |
+|---|---|---|---|
+| `heading` | `title` | plain / text | directly_supported |
+| `text-editor` | `editor` | rich text (platform kses) | directly_supported |
+| `button` | `text` | plain / text | directly_supported |
+
+Extractor and renderer call through the registry. Adding a control later means adding a registry entry (and evidence) — not scattering new `if (widget === …)` branches.
+
+**Design freeze only** — do not implement in this documentation task.
 
 ---
 
@@ -222,16 +279,29 @@ Prefer focused classes under a dedicated Elementor namespace (e.g. `src/Elemento
 | Component | Responsibility |
 |---|---|
 | `ElementorDocumentDetector` | Deterministic Elementor document detection |
-| `ElementorControlRegistry` | Allowlist + deny awareness for A.2 |
-| `ElementorIdentity` | Hybrid D → `e:d:…` key build/parse |
-| `ElementorExtractor` | Read-only walk + units |
+| `ElementorControlRegistry` | First-class allowlist registry (§11.1) |
+| `ElementorIdentity` | Hybrid D → frozen `e:d:…` key build/parse |
+| `ElementorExtractor` | Read-only walk + units; local-failure policy |
 | `ElementorTranslationUnit` | Unit DTO |
 | `ElementorOverlayResolver` | Batched Store lookup + stale/fallback |
 | `ElementorFrontendBridge` | Hook registration + request-time overlay |
 | `ElementorDiagnostics` | Bounded counters/events |
-| `ElementorCompatibility` | Version policy / safe fail |
+| `ElementorCompatibility` | Dedicated compatibility boundary (§12.1) |
 
 No Elementor logic inside TM/Review/Glossary/Jobs services.
+
+### 12.1 Compatibility boundary
+
+Require a **dedicated** Elementor compatibility layer (`ElementorCompatibility` or equivalent).
+
+**Purpose:**
+
+- Isolate Elementor version differences behind one boundary.  
+- Avoid scattered version checks across extractor/bridge/registry.  
+- Expose compatibility diagnostics (supported / unsupported / degraded).  
+- Enforce fail-safe: unsupported or unknown versions → Elementor overlays off (source), core AIML continues.
+
+No implementation in this documentation task — architecture only. A27 hardens and validates this boundary.
 
 ---
 
@@ -318,7 +388,30 @@ Detection; extraction; Store upsert/get; stale; Gutenberg regression; Elementor 
 
 ### Acceptance / browser (targeted — not F9 35-suite)
 
-Heading/Text Editor/Button translated; unsupported remains source; EN/SV isolation; cache warm/cold isolation; page duplicate does not share translations; edit retains identity when source unchanged; source change → stale; Elementor disabled → AIML healthy; editor/wp-admin unaffected; **rendered FP = 0**.
+Core:
+
+- Heading / Text Editor / Button translated when eligible  
+- Unsupported widget remains source  
+- EN/SV (or configured pair) isolation  
+- Cache warm/cold isolation  
+- Page duplicate does not share translations  
+- Edit retains identity when source unchanged; source change → stale  
+- Elementor disabled → AIML healthy  
+- Editor / wp-admin unaffected  
+- **Rendered FP = 0**
+
+**Expanded acceptance matrix (mandatory):**
+
+| Scenario | Expected |
+|---|---|
+| Supported + unsupported widgets on the **same** page | Supported overlay; unsupported source |
+| Duplicate-page identity isolation | Distinct owners → distinct `e:d:` keys; no silent share |
+| Multilingual cache warm/cold | No cross-language leak |
+| Deactivate then reactivate Elementor | AIML core healthy while inactive; overlays resume safely when compatible |
+| Disable Elementor after translations exist | Store rows retained; no fatals; Gutenberg unaffected; no overlay application without Elementor |
+| Malformed `_elementor_data` | Local-failure policy; document still renders source; diagnostics recorded |
+| Unsupported widget fallback | Source; no partial wrong overlay |
+| Mixed Gutenberg + Elementor pages | `b:` and `e:` coexist; neither pipeline corrupts the other |
 
 ---
 
@@ -332,10 +425,10 @@ Ordering is fixed. One package at a time on `feature/a2-elementor-foundation` af
 |---|---|
 | **Objective** | Confirm ADR-0016 Accepted, baseline versions, no premature Elementor code, open validation log |
 | **Scope** | Docs/harness scaffolding only; version capture |
-| **Dependencies** | Plan freeze; coding authorization |
+| **Dependencies** | Architecture Frozen; coding start on implementation branch |
 | **Likely files** | `docs/plans/A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md`; optional `acceptance/a2-elementor/` README |
 | **Tests** | N/A (verification) |
-| **Validation** | Elementor/Pro versions recorded; ADR Accepted; `src/` clean of Elementor foundation |
+| **Validation** | Elementor/Pro versions recorded; ADR Accepted; plan marked Architecture Frozen; `src/` clean of Elementor foundation at A20 start |
 | **Rollback** | Delete validation log scaffolding |
 | **Stop** | ADR not Accepted; production Elementor code already present unexpectedly |
 | **Commit boundary** | `docs(elementor): open A.2 validation log` |
@@ -344,12 +437,12 @@ Ordering is fixed. One package at a time on `feature/a2-elementor-foundation` af
 
 | Field | Content |
 |---|---|
-| **Objective** | Detector + allowlist registry for three controls |
-| **Scope** | Detection + registry; no Store writes yet |
+| **Objective** | Detector + first-class control registry (§11.1) for three controls |
+| **Scope** | Detection + registry contract; no Store writes yet |
 | **Dependencies** | A20 |
 | **Likely files** | `src/Elementor/ElementorDocumentDetector.php`, `ElementorControlRegistry.php`, registration guard |
-| **Tests** | Unit: allowlist/deny; detector true/false |
-| **Validation** | Elementor absent → detector false; Gutenberg unaffected |
+| **Tests** | Unit: registry entries; allowlist/deny; detector true/false |
+| **Validation** | Elementor absent → detector false; Gutenberg unaffected; registry is sole allowlist authority |
 | **Rollback** | Remove registration |
 | **Stop** | Detection requires HTML scrape |
 | **Commit boundary** | `feat(elementor): add A.2 document detector and control allowlist` |
@@ -363,7 +456,7 @@ Ordering is fixed. One package at a time on `feature/a2-elementor-foundation` af
 | **Dependencies** | A21 |
 | **Likely files** | `ElementorIdentity.php`, `ElementorExtractor.php`, `ElementorTranslationUnit.php` |
 | **Tests** | Unit identity; extraction fixtures (sanitized); no meta writes |
-| **Validation** | Only three controls emitted; malformed → skip |
+| **Validation** | Only three controls emitted; malformed → skip under local-failure policy |
 | **Rollback** | Disable extractor registration |
 | **Stop** | Value-level identity impossible for allowlist; schema change demanded |
 | **Commit boundary** | `feat(elementor): extract A.2 Hybrid D translation units` |
@@ -428,12 +521,12 @@ Ordering is fixed. One package at a time on `feature/a2-elementor-foundation` af
 
 | Field | Content |
 |---|---|
-| **Objective** | Version policy enforcement + performance evidence |
-| **Scope** | Compatibility gate; metrics vs A.R1 |
+| **Objective** | Dedicated compatibility boundary + performance evidence |
+| **Scope** | `ElementorCompatibility` gate; metrics vs A.R1; no scattered version checks |
 | **Dependencies** | A24–A26 |
 | **Likely files** | `ElementorCompatibility.php`; acceptance perf notes |
-| **Tests** | Unsupported version fail-safe; perf harness |
-| **Validation** | Policy documented; measurements logged |
+| **Tests** | Unsupported version fail-safe; perf harness; compatibility diagnostics |
+| **Validation** | Policy documented; measurements logged; version checks only in compatibility boundary |
 | **Rollback** | Disable Elementor overlays by default on unknown versions |
 | **Stop** | Cannot fail safely on version mismatch |
 | **Commit boundary** | `feat(elementor): harden A.2 compatibility and performance evidence` |
@@ -492,9 +585,19 @@ Ordering is fixed. One package at a time on `feature/a2-elementor-foundation` af
 34. Targeted browser acceptance PASS.  
 35. Rendered false positives = 0.  
 36. AIML render cache not enabled by A.2.  
-37. Release notes claim Foundation/first-surface only — not broad Elementor support.
+37. Release notes claim Foundation/first-surface only — not broad Elementor support.  
+38. Frozen key grammar `e:d:<owner_post_id>:<element_id>:<control_key>` used exclusively for A.2 units.  
+39. Control registry is the sole allowlist authority (registry-driven extract/render).  
+40. Local-failure policy enforced (per-unit fail → source; document continues).  
+41. Compatibility boundary centralizes version policy (no scattered version checks).  
+42. Same-page supported + unsupported mix validated.  
+43. Duplicate-page identity isolation validated.  
+44. Multilingual cache warm/cold isolation validated.  
+45. Elementor deactivate/reactivate and disable-after-translations scenarios validated.  
+46. Malformed `_elementor_data` handled under local-failure policy.  
+47. Mixed Gutenberg + Elementor page coexistence validated.
 
-**Acceptance-criteria count: 37.**
+**Acceptance-criteria count: 47.**
 
 ---
 
@@ -547,12 +650,13 @@ Stop planning revisions or implementation if:
 
 ## 25. Exact next step
 
-1. Review and freeze this plan.  
-2. Authorize coding.  
-3. Create `feature/a2-elementor-foundation` from updated `main`.  
-4. Execute **A20** (validation log + baseline verification).  
+Architecture is **frozen**. No further planning milestone is required.
 
-Do not start A21+ until A20 PASS.
+1. Merge or carry this frozen plan onto `main` through normal process if not already present.  
+2. Create `feature/a2-elementor-foundation` from updated `main`.  
+3. Begin **A20** immediately (validation log + baseline verification).  
+
+Do not start A21+ until A20 PASS. Do not reopen ADR-0016, Hybrid D, ownership, deny-list, or A.2 surface scope.
 
 ---
 
@@ -561,5 +665,7 @@ Do not start A21+ until A20 PASS.
 | Item | Value |
 |---|---|
 | Canonical plan | `docs/plans/A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md` |
+| Architecture status | **Frozen** |
+| Implementation | **May begin** (A20) |
 | Supersedes | None |
 | Related | ADR-0016, ADR-0001, ADR-0007, ADR-0013; A.R1 research log; DENY_LIST |
