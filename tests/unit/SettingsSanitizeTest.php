@@ -31,6 +31,8 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertFalse( $defaults['block_uuid_injection_enabled'] );
 		$this->assertFalse( $defaults['block_extraction_enabled'] );
 		$this->assertFalse( $defaults['block_frontend_rendering_enabled'] );
+		$this->assertFalse( $defaults['elementor_extraction_enabled'] );
+		$this->assertFalse( $defaults['elementor_frontend_rendering_enabled'] );
 		$this->assertSame( Settings::SCHEMA_VERSION, $defaults['schema_version'] );
 	}
 

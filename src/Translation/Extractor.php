@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Translation;
 
+use AIMultilingual\Elementor\Contract as ElementorContract;
+use AIMultilingual\Elementor\ElementorExtractor;
 use AIMultilingual\Settings;
 use WP_Post;
 
@@ -38,12 +40,14 @@ final class Extractor {
 	/**
 	 * Builds the extractor.
 	 *
-	 * @param Settings|null       $settings        Plugin settings.
-	 * @param BlockExtractor|null $block_extractor Block segment extractor.
+	 * @param Settings|null           $settings            Plugin settings.
+	 * @param BlockExtractor|null     $block_extractor     Block segment extractor.
+	 * @param ElementorExtractor|null $elementor_extractor Elementor segment extractor.
 	 */
 	public function __construct(
 		private ?Settings $settings = null,
 		private ?BlockExtractor $block_extractor = null,
+		private ?ElementorExtractor $elementor_extractor = null,
 	) {
 	}
 
@@ -146,7 +150,7 @@ final class Extractor {
 				return __( 'This page is built with the block editor. Block-level translation arrives in a later milestone; translating the body as one field would corrupt the block markup, so it is disabled here. The title and excerpt can still be translated.', 'ai-multilingual' );
 
 			case self::BODY_ELEMENTOR:
-				return __( 'This page is built with Elementor, which stores its content outside the post body. Elementor translation arrives in a later milestone. The title and excerpt can still be translated.', 'ai-multilingual' );
+				return __( 'This page is built with Elementor. The post body field is not translated as a whole string; allowlisted Elementor widget controls are translated as separate segments when Elementor extraction is enabled. The title and excerpt can still be translated.', 'ai-multilingual' );
 
 			default:
 				return '';
@@ -194,7 +198,36 @@ final class Extractor {
 			);
 		}
 
+		if ( $this->should_extract_elementor( $post ) ) {
+			$order = 1000;
+			foreach ( $this->elementor_extractor->extract( (int) $post->ID ) as $unit ) {
+				$segments[ $unit->segment_key ] = array(
+					'field_key'     => ElementorContract::FIELD_KEY,
+					'segment_key'   => $unit->segment_key,
+					'source_text'   => $unit->source_text,
+					'source_hash'   => $unit->source_hash,
+					'text_format'   => $unit->text_format,
+					'segment_order' => $order++,
+					'segment_kind'  => Store::KIND_FIELD,
+					'block_name'    => '',
+					'surface'       => 'elementor',
+					'widget_type'   => $unit->widget_type,
+					'element_id'    => $unit->element_id,
+					'control_key'   => $unit->control_key,
+				);
+			}
+		}
+
 		return $segments;
+	}
+
+	/**
+	 * Whether Elementor widget segments should be extracted for this post.
+	 *
+	 * @param WP_Post $post Canonical post.
+	 */
+	public function uses_elementor_workspace( WP_Post $post ): bool {
+		return $this->should_extract_elementor( $post );
 	}
 
 	/**
@@ -221,5 +254,22 @@ final class Extractor {
 		}
 
 		return self::BODY_BLOCKS === $this->body_status( $post );
+	}
+
+	/**
+	 * Whether Elementor extraction should run for this post.
+	 *
+	 * @param WP_Post $post Canonical post.
+	 */
+	private function should_extract_elementor( WP_Post $post ): bool {
+		if ( null === $this->settings || null === $this->elementor_extractor ) {
+			return false;
+		}
+
+		if ( ! $this->settings->elementor_extraction_enabled() ) {
+			return false;
+		}
+
+		return self::BODY_ELEMENTOR === $this->body_status( $post );
 	}
 }

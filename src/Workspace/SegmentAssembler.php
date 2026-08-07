@@ -123,6 +123,7 @@ final class SegmentAssembler {
 		$source     = (string) ( $extracted['source_text'] ?? '' );
 		$format     = (string) ( $extracted['text_format'] ?? Store::FORMAT_PLAIN );
 		$hash       = (string) ( $extracted['source_hash'] ?? Store::source_hash( $source, $format ) );
+		$surface    = (string) ( $extracted['surface'] ?? '' );
 
 		$status = Store::STATUS_MISSING;
 		$text   = '';
@@ -154,6 +155,21 @@ final class SegmentAssembler {
 			$rejected_at                = $row->rejected_at ?? null;
 		}
 
+		$can_edit = '' === $block_name || $this->block_registry->is_supported( $block_name );
+		if ( 'elementor' === $surface ) {
+			$can_edit = true;
+		}
+
+		$meta = array();
+		if ( 'elementor' === $surface ) {
+			$meta = array(
+				'surface'     => 'elementor',
+				'widget_type' => (string) ( $extracted['widget_type'] ?? '' ),
+				'element_id'  => (string) ( $extracted['element_id'] ?? '' ),
+				'control_key' => (string) ( $extracted['control_key'] ?? '' ),
+			);
+		}
+
 		return array(
 			'segment_key'                => $segment_key,
 			'field_key'                  => (string) ( $extracted['field_key'] ?? '' ),
@@ -166,9 +182,9 @@ final class SegmentAssembler {
 			'status'                     => $status,
 			'is_stale'                   => $stale,
 			'text_format'                => $format,
-			'can_edit'                   => '' === $block_name || $this->block_registry->is_supported( $block_name ),
+			'can_edit'                   => $can_edit,
 			'segment_kind'               => (string) ( $extracted['segment_kind'] ?? Store::KIND_FIELD ),
-			'meta'                       => array(),
+			'meta'                       => $meta,
 			'review_status'              => $review_status,
 			'submitted_translation_hash' => $submitted_translation_hash,
 			'review_submitted_by'        => $review_submitted_by,
