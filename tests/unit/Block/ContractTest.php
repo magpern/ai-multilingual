@@ -26,10 +26,14 @@ final class ContractTest extends TestCase {
 		$this->assertSame( 'b', Contract::SEGMENT_KEY_PREFIX );
 	}
 
-	public function test_initial_supported_field_is_content_only(): void {
-		$this->assertSame( array( 'content' ), Contract::SUPPORTED_FIELDS );
+	public function test_initial_supported_fields_include_a0_additions(): void {
+		$this->assertContains( 'content', Contract::SUPPORTED_FIELDS );
+		$this->assertContains( 'citation', Contract::SUPPORTED_FIELDS );
+		$this->assertContains( 'summary', Contract::SUPPORTED_FIELDS );
+		$this->assertContains( 'caption', Contract::SUPPORTED_FIELDS );
 		$this->assertTrue( Contract::is_supported_field( 'content' ) );
-		$this->assertFalse( Contract::is_supported_field( 'caption' ) );
+		$this->assertTrue( Contract::is_supported_field( 'caption' ) );
+		$this->assertFalse( Contract::is_supported_field( 'unknown_field' ) );
 	}
 
 	public function test_attribute_definition_is_shared_schema(): void {

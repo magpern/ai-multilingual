@@ -31,7 +31,7 @@ final class BlockRegistry {
 	}
 
 	/**
-	 * Initial proof and adapter allowlist.
+	 * Adapter allowlist (F14 leaves + A.0 admissions).
 	 *
 	 * @var list<string>
 	 */
@@ -43,6 +43,13 @@ final class BlockRegistry {
 		'core/preformatted',
 		'core/verse',
 		'core/code',
+		'core/quote',
+		'core/details',
+		'core/pullquote',
+		'core/image',
+		'core/file',
+		'core/audio',
+		'core/video',
 	);
 
 	/**
@@ -75,8 +82,10 @@ final class BlockRegistry {
 	);
 
 	/**
-	 * Child-traversal hosts that may wrap supported leaves without parent-field
-	 * admission in A.4 (citation/summary/pullquote remain deferred).
+	 * Child-traversal hosts that may wrap supported leaves.
+	 *
+	 * A.0 may also admit parent-owned fields on quote/details/pullquote via
+	 * dedicated adapters; cover/media-text remain child-only.
 	 *
 	 * @var list<string>
 	 */
@@ -85,6 +94,21 @@ final class BlockRegistry {
 		'core/details',
 		'core/cover',
 		'core/media-text',
+		'core/pullquote',
+	);
+
+	/**
+	 * Supported blocks that may receive a UUID while retaining innerBlocks.
+	 *
+	 * Parent-field hosts extract only explicit parent fields (citation/summary);
+	 * nested children remain independently addressed.
+	 *
+	 * @var list<string>
+	 */
+	public const PARENT_FIELD_HOST_BLOCKS = array(
+		'core/quote',
+		'core/details',
+		'core/pullquote',
 	);
 
 	/**
@@ -118,7 +142,7 @@ final class BlockRegistry {
 	}
 
 	/**
-	 * Whether a block type is a child-traversal host without A.4 parent fields.
+	 * Whether a block type is a child-traversal host.
 	 *
 	 * @param string $block_name Block type name.
 	 */
@@ -127,12 +151,21 @@ final class BlockRegistry {
 	}
 
 	/**
+	 * Whether a supported block may own parent fields while having children.
+	 *
+	 * @param string $block_name Block type name.
+	 */
+	public function is_parent_field_host( string $block_name ): bool {
+		return in_array( $block_name, self::PARENT_FIELD_HOST_BLOCKS, true );
+	}
+
+	/**
 	 * Whether a parsed block instance should receive a persistent UUID.
 	 *
-	 * Eligibility is leaf-local: ancestry does not suppress a supported leaf.
-	 * Non-empty {@see innerBlocks} rejects the *current* node only (parents that
-	 * own nested children are not auto-admitted). Structural/host containers are
-	 * never eligible because they are not on {@see SUPPORTED_BLOCKS}.
+	 * Eligibility is leaf-local for ordinary leaves: ancestry does not suppress a
+	 * supported leaf. Non-empty {@see innerBlocks} rejects ordinary leaves.
+	 * Parent-field hosts (A.0) may remain eligible with children when their
+	 * adapter reports a translatable parent field.
 	 *
 	 * @param array<string, mixed> $block Parsed block array.
 	 */
@@ -151,12 +184,21 @@ final class BlockRegistry {
 			return false;
 		}
 
-		// Leaf guard: do not globally delete this check. Having children does not
-		// make a parent extractable; nested *descendant* leaves remain eligible
-		// when visited independently by BlockTreeWalker.
-		$inner = $block['innerBlocks'] ?? array();
-		if ( is_array( $inner ) && array() !== $inner ) {
+		$inner         = $block['innerBlocks'] ?? array();
+		$has_children  = is_array( $inner ) && array() !== $inner;
+		$parent_fields = $this->is_parent_field_host( $name );
+
+		if ( $has_children && ! $parent_fields ) {
 			return false;
+		}
+
+		if ( $parent_fields ) {
+			$adapter = $this->get_adapter( $name );
+			if ( null === $adapter || ! $adapter->is_translatable_instance( $block ) ) {
+				return false;
+			}
+
+			return true;
 		}
 
 		if ( '' === trim( (string) ( $block['innerHTML'] ?? '' ) ) ) {
@@ -173,11 +215,13 @@ final class BlockRegistry {
 	 * @param string $field      Field identifier.
 	 */
 	public function supports_field( string $block_name, string $field ): bool {
-		return $this->is_supported( $block_name ) && Contract::is_supported_field( $field );
+		return in_array( $field, $this->get_supported_fields( $block_name ), true );
 	}
 
 	/**
 	 * Returns supported field identifiers for a block type.
+	 *
+	 * Prefers the adapter allowlist when an adapter registry is injected.
 	 *
 	 * @param string $block_name Block type name.
 	 * @return list<string>
@@ -187,7 +231,12 @@ final class BlockRegistry {
 			return array();
 		}
 
-		return Contract::SUPPORTED_FIELDS;
+		$adapter = $this->get_adapter( $block_name );
+		if ( null !== $adapter ) {
+			return $adapter->get_supported_fields();
+		}
+
+		return array( Contract::FIELD_CONTENT );
 	}
 
 	/**

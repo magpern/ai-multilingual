@@ -51,7 +51,7 @@ final class IntegrationFrontendBridge {
 			return;
 		}
 
-		$language = $this->context->language();
+		$language = $this->context->current();
 		if ( null === $language ) {
 			return;
 		}

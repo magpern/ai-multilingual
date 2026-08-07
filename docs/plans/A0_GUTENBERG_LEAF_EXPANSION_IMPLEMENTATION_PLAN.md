@@ -1,11 +1,13 @@
 # A.0 — Gutenberg Leaf Expansion — Implementation Plan
 
-**Status:** **Architecture Frozen** — A.0 implementation authorized after this plan merges to `main`; coding starts with **A00** on a separate implementation branch (not created by this planning task)
+**Status:** **Complete on branch** `feature/a0-gutenberg-leaf-expansion` — ready for independent review / merge; not tagged
 **Plan freeze:** Coverage-expansion only; existing `b:<uuid>:<field>` grammar; block-specific adapters; evidence-gated admission waves; no new architectural concepts
 **ADR assessment:** **No new ADR required** (see §22)
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Program A — milestone **A.0** (Product)
 **Planning branch:** `feature/a0-gutenberg-leaf-expansion-plan`
-**Implementation branch:** `feature/a0-gutenberg-leaf-expansion` (**create after this plan merges to `main`**; do not create during plan authoring)
+**Implementation branch:** `feature/a0-gutenberg-leaf-expansion`
+**Validation log:** [A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md) (**PASS on branch**)
+**Admission matrix:** [A0_ADMISSION_MATRIX.md](A0_ADMISSION_MATRIX.md)
 **Baseline (plan authoring):** `main` @ `51d01da1a92b0228364cd1c29a23d1f915d15154`
 **Related:** ADR-0001 (overlay); ADR-0007 (hash ≠ identity); ADR-0013 (`b:` Accepted); ADR-0017 (Plugin Integration — coexistence); [A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); F14 block expansion
 

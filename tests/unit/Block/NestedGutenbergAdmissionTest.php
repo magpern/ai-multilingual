@@ -57,8 +57,11 @@ final class NestedGutenbergAdmissionTest extends TestCase {
 		}
 		foreach ( BlockRegistry::CHILD_TRAVERSAL_HOST_BLOCKS as $name ) {
 			$this->assertTrue( $this->registry->is_child_traversal_host( $name ) );
-			$this->assertFalse( $this->registry->is_supported( $name ) );
 		}
+		$this->assertTrue( $this->registry->is_supported( 'core/quote' ) );
+		$this->assertTrue( $this->registry->is_supported( 'core/details' ) );
+		$this->assertFalse( $this->registry->is_supported( 'core/cover' ) );
+		$this->assertFalse( $this->registry->is_supported( 'core/media-text' ) );
 		$this->assertTrue( $this->registry->is_dynamic( 'core/navigation' ) );
 		$this->assertTrue( $this->registry->is_dynamic( 'core/query' ) );
 		$this->assertTrue( $this->registry->is_dynamic( 'core/block' ) );
@@ -195,7 +198,7 @@ final class NestedGutenbergAdmissionTest extends TestCase {
 		$this->assertSame( array(), $this->units_for_names( $segments, array( 'core/list', 'core/group', 'core/columns', 'core/column' ) ) );
 	}
 
-	public function test_quote_child_extracts_without_citation_unit(): void {
+	public function test_quote_child_still_extracts_when_host_lacks_uuid(): void {
 		$blocks   = array(
 			$this->container(
 				'core/quote',

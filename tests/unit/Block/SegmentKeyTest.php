@@ -43,7 +43,7 @@ final class SegmentKeyTest extends TestCase {
 	public function test_rejects_unsupported_field_on_build(): void {
 		$this->expectException( \InvalidArgumentException::class );
 
-		SegmentKey::build( self::UUID, 'caption' );
+		SegmentKey::build( self::UUID, 'unknown_field' );
 	}
 
 	public function test_rejects_invalid_uuid_on_build(): void {
@@ -68,7 +68,7 @@ final class SegmentKeyTest extends TestCase {
 			'empty'             => array( '' ),
 			'wrong prefix'      => array( 'x:' . self::UUID . ':content' ),
 			'missing field'     => array( 'b:' . self::UUID ),
-			'unsupported field' => array( 'b:' . self::UUID . ':caption' ),
+			'unsupported field' => array( 'b:' . self::UUID . ':unknown_field' ),
 			'invalid uuid'      => array( 'b:not-a-uuid:content' ),
 		);
 	}
