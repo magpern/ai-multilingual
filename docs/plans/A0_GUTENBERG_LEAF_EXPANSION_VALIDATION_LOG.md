@@ -5,6 +5,7 @@
 **Plan:** [A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md)
 **Plan merge on main:** `074b920d8c72ca67e75b95ed4572043ff0408695`
 **Baseline (pre-admission coding):** `074b920d8c72ca67e75b95ed4572043ff0408695`
+**Merged / tagged:** `a0-gutenberg-leaf-expansion-complete` on `6e654bc37d03e13b20f0c9af477ce053362840fa`
 
 ---
 
@@ -158,3 +159,10 @@ Navigation, Query, post-template, reusable/shared, synced patterns, dynamic bind
 
 ### Wave 3
 **Zero admissions** (PASS).
+
+
+## Closure
+
+**Status:** PASS — merged to `main`, tagged `a0-gutenberg-leaf-expansion-complete`.
+
+Post-merge gates (after clean test DB): unit 533/1332 OK; integration 510/11573 OK; PluginGuard 17/8598 OK; PHPCS PASS; live EN/SV HTTP 200; FP=0; leakage=0; duplicates=0.
