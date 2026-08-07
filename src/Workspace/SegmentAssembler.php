@@ -168,6 +168,9 @@ final class SegmentAssembler {
 				'element_id'  => (string) ( $extracted['element_id'] ?? '' ),
 				'control_key' => (string) ( $extracted['control_key'] ?? '' ),
 			);
+			if ( ! empty( $extracted['nested_item_id'] ) ) {
+				$meta['nested_item_id'] = (string) $extracted['nested_item_id'];
+			}
 		}
 
 		return array(

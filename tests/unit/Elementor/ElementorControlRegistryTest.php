@@ -45,5 +45,8 @@ final class ElementorControlRegistryTest extends TestCase {
 		$this->assertSame( 'settings_string', $entry['renderer'] );
 		$this->assertSame( ElementorControlRegistry::SANITIZE_HTML, $entry['sanitization'] );
 		$this->assertSame( ElementorControlRegistry::SUPPORT_DIRECT, $entry['support_state'] );
+		$this->assertSame( ElementorControlRegistry::NESTING_NONE, $entry['nesting'] );
+		$this->assertSame( ElementorControlRegistry::IDENTITY_DOCUMENT_CONTROL, $entry['identity'] );
+		$this->assertSame( ElementorControlRegistry::OWNERSHIP_DOCUMENT, $entry['ownership'] );
 	}
 }
