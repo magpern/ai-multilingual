@@ -1,9 +1,9 @@
 # A.0 — Gutenberg Leaf Expansion — Validation Log
 
-**Milestone:** A.0 Gutenberg Leaf Expansion  
-**Implementation branch:** `feature/a0-gutenberg-leaf-expansion`  
-**Plan:** [A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md)  
-**Plan merge on main:** `074b920d8c72ca67e75b95ed4572043ff0408695`  
+**Milestone:** A.0 Gutenberg Leaf Expansion
+**Implementation branch:** `feature/a0-gutenberg-leaf-expansion`
+**Plan:** [A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md)
+**Plan merge on main:** `074b920d8c72ca67e75b95ed4572043ff0408695`
 **Baseline (pre-admission coding):** `074b920d8c72ca67e75b95ed4572043ff0408695`
 
 ---

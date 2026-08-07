@@ -1,8 +1,8 @@
 # A.0 — Candidate Admission Inventory
 
-**Milestone:** A.0 Gutenberg Leaf Expansion  
-**Parent plan:** [A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md)  
-**Validation log:** [A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md)  
+**Milestone:** A.0 Gutenberg Leaf Expansion
+**Parent plan:** [A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md)
+**Validation log:** [A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md)
 **WP parse evidence:** WordPress `parse_blocks()` on this VPS (2026-08-07)
 
 ---
