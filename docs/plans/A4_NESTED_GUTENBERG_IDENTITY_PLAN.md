@@ -1,18 +1,18 @@
 # A.R2 / A.4 — Nested Gutenberg Identity Research & Architecture Plan
 
-**Status:** **Planning Frozen** — A.R2 research authorized **only after this document is merged**; A.4 production implementation **blocked** pending A48 verdict + F5 gate  
-**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestones **A.R2** (Research Spike) then **A.4** (Architecture / implementation post–identity decision)  
-**Baseline:** `main` @ `5672938a8060a07687e201dd6cb1ebf330d5c891` (A.3 complete; tag `a3-elementor-widget-coverage-complete`)  
-**Planning branch:** `feature/a4-nested-gutenberg-identity-plan`  
-**Research branch (create after planning merge):** `feature/ar2-nested-gutenberg-identity`  
-**ADR (leaf identity):** [0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) — **Accepted** (Strategy F; `b:<uuid>:<field>`)  
+**Status:** **A.R2 research complete — CONDITIONAL GO** (see [research log](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md)); A.4 production implementation planning authorized after merge/F5; coding still requires an A.4 implementation plan  
+**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — milestones **A.R2** (Research Spike — **complete**) then **A.4** (Architecture / implementation post–identity decision)  
+**Baseline:** `main` @ planning merge `42b306d462672e6ddc9b2a43e32cb5067376d136` (from `5672938a8060a07687e201dd6cb1ebf330d5c891`)  
+**Planning branch:** `feature/a4-nested-gutenberg-identity-plan` (merged)  
+**Research branch:** `feature/ar2-nested-gutenberg-identity`  
+**ADR (leaf identity):** [0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md) — **Accepted** (Strategy F; `b:<uuid>:<field>`) — **no new ADR required** for bounded A.4 surface  
 **Prior coverage:** F14 leaf expansion — [STRATEGY_F_F14_BLOCK_EXPANSION.md](STRATEGY_F_F14_BLOCK_EXPANSION.md); [F14_IMPLEMENTATION_SUMMARY.md](F14_IMPLEMENTATION_SUMMARY.md)  
 **A.3:** [A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**Complete / merged / tagged**) — Elementor contracts must **not** leak into Gutenberg design  
-**Research log (reserved):** `docs/plans/A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md` — create when **A40** begins on the research branch  
+**Research log:** [A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md](A4_NESTED_GUTENBERG_IDENTITY_RESEARCH_LOG.md) — **Complete**; recommendation **CONDITIONAL GO**; F5 may PASS for bounded surface  
 
-**Document role:** Combined strategic charter for **Phase 1 — A.R2 evidence/research** and **Phase 2 — A.4 implementation readiness decision**.  
+**Document role:** Combined strategic charter for **Phase 1 — A.R2 evidence/research** (complete) and **Phase 2 — A.4 implementation readiness decision**.  
 
-**This document is NOT an A.4 production implementation plan.** Completing A40–A48 does **not** authorize nested Gutenberg production coding.
+**This document is NOT an A.4 production implementation plan.** A.4 coding still requires a separate implementation-plan freeze.
 
 ---
 
@@ -673,21 +673,21 @@ A candidate family may be deferred without failing the entire A.R2 spike.
 
 ## 29. Status and exact next step
 
-**Status after this planning document:**
+**Status after A.R2 research:**
 
 ```text
-Planning frozen / A.R2 research authorized after merge
-A.4 production implementation still blocked
+A.R2 complete — CONDITIONAL GO
+F5 may PASS for bounded surface
+A.4 implementation planning may begin
+A.4 production coding still requires an implementation-plan freeze
 ```
 
 **Exact next step:**
 
-1. Review / merge this planning document to `main`.  
-2. Create `feature/ar2-nested-gutenberg-identity` from updated `main`.  
-3. Begin **A40**.  
-4. Create the research log at A40.  
-5. Execute A40–A48.  
-6. Use the A48 verdict to decide whether A.4 may fast-track or requires an ADR; pass F5 before A.4 coding.
+1. Review / merge the research branch to `main`.  
+2. Freeze an A.4 implementation plan for the minimum surface only.  
+3. Do not admit Navigation / Query / reusable patterns without a dedicated ADR.  
+4. Do not start another nested-identity research cycle.
 
 ---
 
