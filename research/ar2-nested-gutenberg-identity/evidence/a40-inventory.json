@@ -1,0 +1,1226 @@
+{
+    "work_package": "A40",
+    "family_hits": {
+        "core/group": 5,
+        "core/columns": 3,
+        "core/column": 6,
+        "core/list": 5,
+        "core/list-item": 11,
+        "core/quote": 2,
+        "core/pullquote": 1,
+        "core/details": 1,
+        "core/cover": 1,
+        "core/media-text": 1,
+        "core/gallery": 1,
+        "core/image": 2,
+        "core/navigation": 1,
+        "core/query": 1,
+        "core/post-template": 1,
+        "core/block": 5,
+        "core/paragraph": 12,
+        "core/heading": 1
+    },
+    "fixtures": [
+        "structural-group-columns.html",
+        "list-nested-with-uuids.html",
+        "textual-quote-pullquote-details.html",
+        "media-cover-mediatext-gallery.html",
+        "shared-dynamic-navigation-query-reusable.html",
+        "deep-nested-performance.html",
+        "authored/list-nested.html",
+        "authored/nested-group-columns.html",
+        "authored/quote-with-citation.html",
+        "authored/reusable-block.html",
+        "authored/synced-pattern.html",
+        "authored/dynamic-block.html"
+    ],
+    "inventory": {
+        "structural-group-columns.html": {
+            "block_count": 7,
+            "extract_count": 3,
+            "extract_keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:22222222-2222-4222-8222-222222222201:content",
+                "b:11111111-1111-4111-8111-111111111102:content"
+            ],
+            "max_depth": 4,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/group",
+                    "uuid": "should-not-matter-on-group",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [
+                        "layout",
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 36,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/columns",
+                    "uuid": "",
+                    "parent_uuid": "should-not-matter-on-group",
+                    "inner_block_count": 2,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 40,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/0",
+                    "block_name": "core/column",
+                    "uuid": "",
+                    "parent_uuid": "should-not-matter-on-group",
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 37,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/0/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111101",
+                    "parent_uuid": "should-not-matter-on-group",
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 63,
+                    "inner_html_preview": "Left column paragraph about nested identity retention."
+                },
+                {
+                    "path": "0/0/1",
+                    "block_name": "core/column",
+                    "uuid": "",
+                    "parent_uuid": "should-not-matter-on-group",
+                    "inner_block_count": 2,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 39,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/1/0",
+                    "block_name": "core/heading",
+                    "uuid": "22222222-2222-4222-8222-222222222201",
+                    "parent_uuid": "should-not-matter-on-group",
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "level",
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 56,
+                    "inner_html_preview": "Right column heading"
+                },
+                {
+                    "path": "0/0/1/1",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111102",
+                    "parent_uuid": "should-not-matter-on-group",
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 62,
+                    "inner_html_preview": "Right column paragraph sibling under the same column."
+                }
+            ]
+        },
+        "list-nested-with-uuids.html": {
+            "block_count": 7,
+            "extract_count": 4,
+            "extract_keys": [
+                "b:33333333-3333-4333-8333-333333333301:content",
+                "b:33333333-3333-4333-8333-333333333302:content",
+                "b:33333333-3333-4333-8333-333333333303:content",
+                "b:33333333-3333-4333-8333-333333333304:content"
+            ],
+            "max_depth": 4,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/list",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 3,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 37,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/list-item",
+                    "uuid": "33333333-3333-4333-8333-333333333301",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 49,
+                    "inner_html_preview": "Top-level list item one \u2014 flat leaf."
+                },
+                {
+                    "path": "0/1",
+                    "block_name": "core/list-item",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": true,
+                    "adapter_translatable": false,
+                    "inner_html_len": 50,
+                    "inner_html_preview": "Parent list item with nested list text."
+                },
+                {
+                    "path": "0/1/0",
+                    "block_name": "core/list",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 2,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 35,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/1/0/0",
+                    "block_name": "core/list-item",
+                    "uuid": "33333333-3333-4333-8333-333333333302",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 35,
+                    "inner_html_preview": "Nested leaf list item A."
+                },
+                {
+                    "path": "0/1/0/1",
+                    "block_name": "core/list-item",
+                    "uuid": "33333333-3333-4333-8333-333333333303",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 35,
+                    "inner_html_preview": "Nested leaf list item B."
+                },
+                {
+                    "path": "0/2",
+                    "block_name": "core/list-item",
+                    "uuid": "33333333-3333-4333-8333-333333333304",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 62,
+                    "inner_html_preview": "Top-level list item three \u2014 flat leaf after nest."
+                }
+            ]
+        },
+        "textual-quote-pullquote-details.html": {
+            "block_count": 5,
+            "extract_count": 2,
+            "extract_keys": [
+                "b:44444444-4444-4444-8444-444444444401:content",
+                "b:11111111-1111-4111-8111-111111111103:content"
+            ],
+            "max_depth": 2,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/quote",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 108,
+                    "inner_html_preview": "Citation text owned by the quote block markup"
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "44444444-4444-4444-8444-444444444401",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 67,
+                    "inner_html_preview": "Quoted paragraph body that should remain a child identity."
+                },
+                {
+                    "path": "2",
+                    "block_name": "core/pullquote",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 158,
+                    "inner_html_preview": "Pullquote body text living in pullquote innerHTMLPullquote citation"
+                },
+                {
+                    "path": "4",
+                    "block_name": "core/details",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 108,
+                    "inner_html_preview": "Details summary attribute-like visitor text"
+                },
+                {
+                    "path": "4/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111103",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 38,
+                    "inner_html_preview": "Details body paragraph child."
+                }
+            ]
+        },
+        "media-cover-mediatext-gallery.html": {
+            "block_count": 7,
+            "extract_count": 2,
+            "extract_keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:11111111-1111-4111-8111-111111111102:content"
+            ],
+            "max_depth": 2,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/cover",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [
+                        "overlayColor",
+                        "isUserOverlayColor",
+                        "minHeight",
+                        "dimRatio"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 225,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111101",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "align",
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 104,
+                    "inner_html_preview": "Cover overlay paragraph text owned by the nested paragraph block."
+                },
+                {
+                    "path": "2",
+                    "block_name": "core/media-text",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [
+                        "mediaId",
+                        "mediaType"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 224,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "2/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111102",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 45,
+                    "inner_html_preview": "Media-text content column paragraph."
+                },
+                {
+                    "path": "4",
+                    "block_name": "core/gallery",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 2,
+                    "attr_keys": [
+                        "linkTo"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 91,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "4/0",
+                    "block_name": "core/image",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "id",
+                        "sizeSlug",
+                        "linkDestination"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 229,
+                    "inner_html_preview": "Gallery caption A in block markup"
+                },
+                {
+                    "path": "4/1",
+                    "block_name": "core/image",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "id",
+                        "sizeSlug",
+                        "linkDestination"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 229,
+                    "inner_html_preview": "Gallery caption B in block markup"
+                }
+            ]
+        },
+        "shared-dynamic-navigation-query-reusable.html": {
+            "block_count": 6,
+            "extract_count": 0,
+            "extract_keys": [],
+            "max_depth": 3,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/navigation",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "ref"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "2",
+                    "block_name": "core/query",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [
+                        "queryId",
+                        "query"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 36,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "2/0",
+                    "block_name": "core/post-template",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 2,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "2/0/0",
+                    "block_name": "core/post-title",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "4",
+                    "block_name": "core/block",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "ref"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "6",
+                    "block_name": "core/block",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "ref"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                }
+            ]
+        },
+        "deep-nested-performance.html": {
+            "block_count": 11,
+            "extract_count": 4,
+            "extract_keys": [
+                "b:11111111-1111-4111-8111-111111111101:content",
+                "b:33333333-3333-4333-8333-333333333301:content",
+                "b:11111111-1111-4111-8111-111111111102:content",
+                "b:11111111-1111-4111-8111-111111111103:content"
+            ],
+            "max_depth": 5,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/group",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 2,
+                    "attr_keys": [
+                        "layout"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 38,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/group",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [
+                        "layout"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 36,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/0",
+                    "block_name": "core/group",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 2,
+                    "attr_keys": [
+                        "layout"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 38,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/0/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111101",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 46,
+                    "inner_html_preview": "Deep nested paragraph at depth three."
+                },
+                {
+                    "path": "0/0/0/1",
+                    "block_name": "core/list",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 33,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/0/1/0",
+                    "block_name": "core/list-item",
+                    "uuid": "33333333-3333-4333-8333-333333333301",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 38,
+                    "inner_html_preview": "Deep nested flat list item."
+                },
+                {
+                    "path": "0/1",
+                    "block_name": "core/columns",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 2,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 40,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/1/0",
+                    "block_name": "core/column",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 37,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/1/0/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111102",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 31,
+                    "inner_html_preview": "Many-sibling column A."
+                },
+                {
+                    "path": "0/1/1",
+                    "block_name": "core/column",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 37,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/1/1/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "11111111-1111-4111-8111-111111111103",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "aimlBlockId"
+                    ],
+                    "has_aiml_block_id": true,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 31,
+                    "inner_html_preview": "Many-sibling column B."
+                }
+            ]
+        },
+        "authored/list-nested.html": {
+            "block_count": 7,
+            "extract_count": 0,
+            "extract_keys": [],
+            "max_depth": 4,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/list",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 3,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 37,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/list-item",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 69,
+                    "inner_html_preview": "Segment identity must survive a reorder of sibling blocks."
+                },
+                {
+                    "path": "0/1",
+                    "block_name": "core/list-item",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": true,
+                    "adapter_translatable": false,
+                    "inner_html_len": 95,
+                    "inner_html_preview": "Nested lists introduce a second level of block boundaries inside a single list i"
+                },
+                {
+                    "path": "0/1/0",
+                    "block_name": "core/list",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 2,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 35,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/1/0/0",
+                    "block_name": "core/list-item",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 57,
+                    "inner_html_preview": "The sub-list's first item, about offset drift."
+                },
+                {
+                    "path": "0/1/0/1",
+                    "block_name": "core/list-item",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 65,
+                    "inner_html_preview": "The sub-list's second item, about duplicate detection."
+                },
+                {
+                    "path": "0/2",
+                    "block_name": "core/list-item",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 70,
+                    "inner_html_preview": "The third top-level item, after the nested sub-list closes."
+                }
+            ]
+        },
+        "authored/nested-group-columns.html": {
+            "block_count": 6,
+            "extract_count": 0,
+            "extract_keys": [],
+            "max_depth": 4,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/group",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [
+                        "layout"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 36,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/columns",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 2,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 40,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/0",
+                    "block_name": "core/column",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 37,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/0/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 96,
+                    "inner_html_preview": "The left column holds a short paragraph about latency budgets in the assembly pi"
+                },
+                {
+                    "path": "0/0/1",
+                    "block_name": "core/column",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 37,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "0/0/1/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 116,
+                    "inner_html_preview": "The right column holds a different paragraph, about how offset tracking behaves "
+                }
+            ]
+        },
+        "authored/quote-with-citation.html": {
+            "block_count": 2,
+            "extract_count": 0,
+            "extract_keys": [],
+            "max_depth": 2,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/quote",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 1,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": false,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 84,
+                    "inner_html_preview": "Spike S5 corpus notes"
+                },
+                {
+                    "path": "0/0",
+                    "block_name": "core/paragraph",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [],
+                    "has_aiml_block_id": false,
+                    "is_supported": true,
+                    "is_dynamic": false,
+                    "is_eligible": true,
+                    "has_adapter": true,
+                    "adapter_translatable": true,
+                    "inner_html_len": 94,
+                    "inner_html_preview": "Evidence beats assumption when the assumption is about how software actually beh"
+                }
+            ]
+        },
+        "authored/reusable-block.html": {
+            "block_count": 2,
+            "extract_count": 0,
+            "extract_keys": [],
+            "max_depth": 1,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/block",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "ref"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                },
+                {
+                    "path": "2",
+                    "block_name": "core/block",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "ref"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                }
+            ]
+        },
+        "authored/synced-pattern.html": {
+            "block_count": 1,
+            "extract_count": 0,
+            "extract_keys": [],
+            "max_depth": 1,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/block",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "ref"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                }
+            ]
+        },
+        "authored/dynamic-block.html": {
+            "block_count": 1,
+            "extract_count": 0,
+            "extract_keys": [],
+            "max_depth": 1,
+            "blocks": [
+                {
+                    "path": "0",
+                    "block_name": "core/latest-posts",
+                    "uuid": "",
+                    "parent_uuid": null,
+                    "inner_block_count": 0,
+                    "attr_keys": [
+                        "postsToShow",
+                        "displayPostDate"
+                    ],
+                    "has_aiml_block_id": false,
+                    "is_supported": false,
+                    "is_dynamic": true,
+                    "is_eligible": false,
+                    "has_adapter": false,
+                    "adapter_translatable": false,
+                    "inner_html_len": 0,
+                    "inner_html_preview": ""
+                }
+            ]
+        }
+    }
+}
