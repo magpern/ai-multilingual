@@ -125,17 +125,13 @@ final class IntegrationRegistry {
 				continue;
 			}
 			$this->diagnostics?->increment( IntegrationDiagnostics::COUNTER_INTEGRATION_AVAILABLE );
-			try {
-				foreach ( $integration->extract_for_post( $post ) as $unit ) {
-					if ( ! $unit instanceof TranslationUnitDescriptor ) {
-						$this->diagnostics?->increment( IntegrationDiagnostics::COUNTER_UNIT_SKIPPED );
-						continue;
-					}
-					$units[] = $unit;
-					$this->diagnostics?->increment( IntegrationDiagnostics::COUNTER_UNIT_EXTRACTED );
+			foreach ( $integration->extract_for_post( $post ) as $unit ) {
+				if ( ! $unit instanceof TranslationUnitDescriptor ) {
+					$this->diagnostics?->increment( IntegrationDiagnostics::COUNTER_UNIT_SKIPPED );
+					continue;
 				}
-			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
-				$this->diagnostics?->increment( IntegrationDiagnostics::COUNTER_SOURCE_FALLBACK );
+				$units[] = $unit;
+				$this->diagnostics?->increment( IntegrationDiagnostics::COUNTER_UNIT_EXTRACTED );
 			}
 		}
 		return $units;
@@ -155,7 +151,7 @@ final class IntegrationRegistry {
 			}
 			try {
 				$integration->register_output_hooks( $resolve );
-			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 				$this->diagnostics?->increment( IntegrationDiagnostics::COUNTER_SOURCE_FALLBACK );
 			}
 		}

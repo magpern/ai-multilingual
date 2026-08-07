@@ -190,6 +190,16 @@ CLI: `wp aiml jobs {list\|show\|run\|pause\|resume\|cancel\|retry-failed\|cleanu
   nothing for it to do.
 - **No WooCommerce hooks yet** beyond the compatibility declaration.
 
+## Integration API v1 — `src/Integration/`
+
+| Hook | Priority | Purpose |
+|---|---|---|
+| `aiml_register_integrations` | default | Receives `IntegrationRegistry`; code-owned `PluginIntegrationInterface` registration only |
+| `aiml_integration_diagnostics_log` | — | Bounded diagnostics counter increments (no bodies/secrets) |
+| `wp` (via `IntegrationFrontendBridge`) | 20 | Registers integration overlay hooks for non-default languages |
+
+See [INTEGRATION_API_V1.md](INTEGRATION_API_V1.md).
+
 ## Workspace translation + suggestions — `src/Workspace/`
 
 F10+F11 route automatic **persist** translation through `TranslationService` →
