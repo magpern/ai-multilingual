@@ -50,10 +50,8 @@ final class ElementorFrontendBridge {
 			return;
 		}
 
-		if ( ! $this->compatibility->overlays_allowed() ) {
-			return;
-		}
-
+		// Register even when Elementor is not yet loaded — availability is
+		// re-checked inside the filter. Elementor may boot after AIML init.
 		add_filter( self::HOOK, array( $this, 'filter_builder_content_data' ), 20, 2 );
 	}
 
@@ -65,58 +63,57 @@ final class ElementorFrontendBridge {
 	 * @return mixed
 	 */
 	public function filter_builder_content_data( $data, $document = null ) {
-		$original = $data;
-
-		try {
-			if ( ! is_array( $data ) ) {
-				return $data;
-			}
-
-			if ( function_exists( 'is_admin' ) && is_admin() && ! ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) ) {
-				return $data;
-			}
-
-			if ( ! $this->settings->elementor_frontend_rendering_enabled() ) {
-				return $data;
-			}
-
-			if ( ! $this->compatibility->overlays_allowed() ) {
-				return $data;
-			}
-
-			$language_id = (int) $this->language->current_id();
-			if ( $language_id <= 0 || $this->language->is_default() ) {
-				return $data;
-			}
-
-			$post_id = $this->resolve_document_post_id( $document );
-			if ( $post_id <= 0 || ! $this->detector->is_elementor_document( $post_id ) ) {
-				return $data;
-			}
-
-			$units = $this->extractor->extract( $post_id );
-			if ( array() === $units ) {
-				return $data;
-			}
-
-			$overlays = $this->resolver->resolve( $post_id, $language_id, $units );
-			if ( array() === $overlays ) {
-				return $data;
-			}
-
-			return $this->applier->apply( $data, $overlays, $units );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-			$this->diagnostics?->inc( 'source_fallback' );
-			return $original;
+		if ( ! is_array( $data ) ) {
+			return $data;
 		}
+
+		if ( function_exists( 'is_admin' ) && is_admin() && ! ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) ) {
+			return $data;
+		}
+
+		if ( ! $this->settings->elementor_frontend_rendering_enabled() ) {
+			return $data;
+		}
+
+		if ( ! $this->compatibility->overlays_allowed() ) {
+			return $data;
+		}
+
+		$language_id = (int) $this->language->current_id();
+		if ( $language_id <= 0 || $this->language->is_default() ) {
+			return $data;
+		}
+
+		$post_id = $this->resolve_document_post_id( $document );
+		if ( $post_id <= 0 || ! $this->detector->is_elementor_document( $post_id ) ) {
+			return $data;
+		}
+
+		$units = $this->extractor->extract( $post_id );
+		if ( array() === $units ) {
+			return $data;
+		}
+
+		$overlays = $this->resolver->resolve( $post_id, $language_id, $units );
+		if ( array() === $overlays ) {
+			return $data;
+		}
+
+		return $this->applier->apply( $data, $overlays, $units );
 	}
 
 	/**
-	 * Resolve owning post ID from an Elementor document object.
+	 * Resolve owning post ID from an Elementor document object or post ID.
 	 *
-	 * @param mixed $document Elementor document or null.
+	 * Elementor's `builder_content_data` filter passes `( $data, int $post_id )`.
+	 *
+	 * @param mixed $document Elementor document, post ID, or null.
 	 */
 	private function resolve_document_post_id( $document ): int {
+		if ( is_numeric( $document ) ) {
+			return (int) $document;
+		}
+
 		if ( is_object( $document ) && method_exists( $document, 'get_main_id' ) ) {
 			$id = (int) $document->get_main_id();
 			if ( $id > 0 ) {

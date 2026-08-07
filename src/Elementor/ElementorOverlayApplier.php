@@ -81,15 +81,11 @@ final class ElementorOverlayApplier {
 						continue;
 					}
 
-					try {
-						$node['settings'][ $control_key ] = $this->sanitize(
-							$translated,
-							(string) ( $entry['sanitization'] ?? ElementorControlRegistry::SANITIZE_PLAIN )
-						);
-						$this->diagnostics?->inc( 'overlay_applied' );
-					} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-						$this->diagnostics?->inc( 'source_fallback' );
-					}
+					$node['settings'][ $control_key ] = $this->sanitize(
+						$translated,
+						(string) ( $entry['sanitization'] ?? ElementorControlRegistry::SANITIZE_PLAIN )
+					);
+					$this->diagnostics?->inc( 'overlay_applied' );
 				}
 			}
 

@@ -256,7 +256,7 @@ final class Plugin {
 			$elementor_applier,
 			$elementor_diagnostics
 		) )->register();
-		( new ElementorCacheInvalidation( $elementor_detector, $elementor_compatibility ) )->register();
+		( new ElementorCacheInvalidation( $elementor_detector, $elementor_compatibility, $settings, $context ) )->register();
 
 		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
 		$status_calculator = new TranslationStatusCalculator( $store );
