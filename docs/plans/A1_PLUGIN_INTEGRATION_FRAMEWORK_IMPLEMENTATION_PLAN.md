@@ -1,17 +1,17 @@
 # A.1 — Plugin Integration Framework — Implementation Plan
 
-**Status:** **Planning complete** — architecture contracts frozen for review; **production implementation not authorized**
-**Plan freeze:** Implementation-ready except public extension API / namespaced identity — **blocked on ADR-0017**
-**ADR (required):** **ADR-0017 — Plugin Integration Framework, Ownership, and Identity** (**not written in this task**; must be **Accepted** before A11+)
+**Status:** **Architecture Accepted** — ADR-0017 **Accepted**; A.1 implementation **authorized**; production coding **not started**
+**Plan freeze:** Ownership, Integration API v1, `p:` identity, registry, lifecycle, reference fixture, and admission contracts frozen
+**ADR:** [0017-plugin-integration-framework-ownership-and-identity.md](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted** 2026-08-07)
 **Roadmap:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) Program A — A.1
-**Planning branch:** `feature/a1-plugin-integration-framework-plan`
-**Implementation branch (do not create yet):** `feature/a1-plugin-integration-framework`
-**Baseline:** `main` @ `0d26b848f2c36e787c553a9f87579e09b079c982`
+**Planning branch (merged):** `feature/a1-plugin-integration-framework-plan`
+**Implementation branch:** `feature/a1-plugin-integration-framework` (create from `main` after ADR acceptance; coding starts with A10)
+**Baseline (plan authoring):** `main` @ `0d26b848f2c36e787c553a9f87579e09b079c982`
 **Related:** ADR-0001 (overlay), ADR-0005/0007 (segment + hash), ADR-0013 (`b:`), ADR-0016 (Elementor ownership principles), A.2/A.3/A.4 evidence
 
-**Operational success (after ADR + implementation):** External plugins can expose visitor-facing translatable values to AI Multilingual through a versioned Integration API without AIML owning foreign persistence, without a second translation pipeline, and without weakening Gutenberg `b:` or Elementor `e:` families.
+**Operational success (after implementation):** External plugins can expose visitor-facing translatable values to AI Multilingual through a versioned Integration API without AIML owning foreign persistence, without a second translation pipeline, and without weakening Gutenberg `b:` or Elementor `e:` families.
 
-**This plan is the frozen planning contract for A.1.** Do not begin A11+ production code until ADR-0017 is Accepted. Do not open WooCommerce, forms, or other product integrations under A.1.
+**This plan is the frozen implementation contract for A.1.** ADR-0017 is Accepted. Create the implementation branch and begin **A10**. Do not open WooCommerce, forms, or other product integrations under A.1.
 
 ---
 
@@ -441,30 +441,22 @@ No undocumented integration admission. Mirrors A.3 admission discipline (gate + 
 
 ## 23. ADR requirement — hard gate
 
-**A dedicated ADR IS REQUIRED before production implementation.**
+**ADR-0017 is Accepted** (2026-08-07). See [0017-plugin-integration-framework-ownership-and-identity.md](../adr/0017-plugin-integration-framework-ownership-and-identity.md).
 
-**Recommended title:**
-
-> **ADR-0017 — Plugin Integration Framework, Ownership, and Identity**
-
-**Reasons A.1 needs a new ADR (not covered sufficiently by existing ADRs alone):**
+**Reasons this ADR was required:**
 
 1. third-party integration ownership vocabulary as a public platform contract;
 2. Integration API v1 as a long-lived extension surface;
 3. namespaced `p:` identity family + serializer validation rules.
 
-Existing ADRs govern overlays (0001), segment storage (0005), hash≠identity (0007), Gutenberg `b:` (0013), and Elementor ownership (0016), but they do **not** freeze this third-party public extension surface.
-
-**Do not write ADR-0017 in this planning task.**
-
 ### Implementation gate
 
 | Work package | Gate |
 |---|---|
-| **A10** | Documentation / baseline / inventory only — may proceed without ADR |
-| **A11+** | **BLOCKED** until ADR-0017 is **Accepted** |
+| **A10** | Authorized — documentation / baseline / inventory |
+| **A11+** | **Authorized** — ADR-0017 Accepted |
 
-Vague “existing ADRs probably cover it” is **not** an acceptable disposition.
+A.1 production implementation may proceed on `feature/a1-plugin-integration-framework`.
 
 ---
 
@@ -476,7 +468,7 @@ Vague “existing ADRs probably cover it” is **not** an acceptable disposition
 |---|---|
 | **Objective** | Inventory current Extractor / Store / Workspace / Elementor / Gutenberg touchpoints; confirm no framework exists; open validation log |
 | **Scope** | Docs + inventory only; no production classes |
-| **Deps** | This plan merged; ADR-0017 may be in parallel draft |
+| **Deps** | This plan merged; ADR-0017 Accepted |
 | **Likely files** | Validation log; inventory notes under `docs/plans/` or `research/` |
 | **Public/internal** | N/A |
 | **Tests** | None required beyond link/doc checks |
@@ -710,11 +702,9 @@ A future **product** integration (e.g. Woo) may need its own ADR without blockin
 
 ## 29. Fast-track / architecture assessment
 
-A.1 is **architecture-sensitive**: it creates a long-lived third-party extension API and a new identity family.
+A.1 is **architecture-sensitive**. ADR-0017 is **Accepted**.
 
-**Disposition:** **Not fast-track to production coding.** One planning freeze is enough for docs, but **ADR-0017 is mandatory** before A11+.
-
-After ADR-0017 Accepted: implement on `feature/a1-plugin-integration-framework` per A10–A18.
+**Disposition:** Implementation authorized per A10–A18. No further architecture review required unless a stop condition is discovered during coding.
 
 ---
 
@@ -722,21 +712,19 @@ After ADR-0017 Accepted: implement on `feature/a1-plugin-integration-framework` 
 
 | Stage | Branch |
 |---|---|
-| Planning (this doc) | `feature/a1-plugin-integration-framework-plan` |
-| ADR-0017 | Separate ADR authoring workflow (not this branch’s production code) |
-| After plan + ADR merge | Create `feature/a1-plugin-integration-framework` from updated `main` |
+| Planning (merged) | `feature/a1-plugin-integration-framework-plan` |
+| ADR-0017 | Accepted on `main` |
+| Implementation | `feature/a1-plugin-integration-framework` from updated `main` |
 | A10–A18 | Implementation branch only |
 | Closure | Merge + tag per repo convention (e.g. `a1-plugin-integration-framework-complete`) |
 
-Do not implement on the planning branch.
+Do not implement product integrations (Woo/forms/etc.) on the A.1 framework branch beyond the reference fixture.
 
 ---
 
 ## 31. Exact next step
 
-1. Merge this planning document to `main` after review (docs only).
-2. Author and Accept **ADR-0017 — Plugin Integration Framework, Ownership, and Identity**.
-3. Only then create `feature/a1-plugin-integration-framework` and begin **A10** (baseline) / **A11** (registry).
+Begin **A10** on `feature/a1-plugin-integration-framework`: baseline inventory + validation log. Then A11 registry / API v1.
 
 ---
 
@@ -747,5 +735,5 @@ Do not implement on the planning branch.
 | Canonical path | `docs/plans/A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md` |
 | Milestone | A.1 Plugin Integration Framework |
 | Type | Architecture |
-| Planning status | Complete — awaiting ADR-0017 before implementation |
-| Implementation authorized | **No** |
+| Planning status | Merged; ADR-0017 Accepted |
+| Implementation authorized | **Yes** (coding not started) |
