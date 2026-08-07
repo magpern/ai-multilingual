@@ -69,3 +69,13 @@ Hard defer remains: Navigation, Query, post-template, reusable/shared, synced pa
 Dev site uses Gutenberg extensively for product/content pages. Highest-leverage admissions are Wave 1 deferred A.4 fields (citation/summary/pullquote) and block-local media captions. Table cell translation is not promised.
 
 Detailed per-candidate admission records are appended in the validation log as A02–A04 complete.
+
+---
+
+## A03 — core/table disposition
+
+**Disposition: Deferred**
+
+Reason: WordPress `core/table` stores cell text in query-sourced `head`/`body`/`foot` attribute arrays. Deterministic per-cell addressing would require path/index identity (row/column), which violates frozen `b:<uuid>:<field>` semantics. Table-level `caption` alone was considered insufficient visitor coverage without a safe cell model.
+
+No adapter registered. `core/table` remains unsupported.

@@ -55,3 +55,34 @@ _Records appended as A01–A08 complete._
 Live publish counts (dev): quote=1, details=1, pullquote=1, table=0, image=0, file=0, audio=0, video=0, social-link=0, buttons=0.
 
 Wave 3 default: **zero admissions** (no deterministic extra leaves in inventory).
+
+## A02 — Wave 1 field admissions
+
+**Status:** PASS
+
+| Candidate | Disposition | Segment keys |
+|---|---|---|
+| `core/quote` citation | **Admitted** | `b:<uuid>:citation` |
+| `core/details` summary | **Admitted** | `b:<uuid>:summary` |
+| `core/pullquote` content/citation | **Admitted** (leaf form); nested-child-only hosts without citation remain child-only | `b:<uuid>:content`, `b:<uuid>:citation` |
+
+## A03 — Structured textual candidates
+
+**Status:** PASS (deferral)
+
+| Candidate | Disposition | Reason |
+|---|---|---|
+| `core/table` | **Deferred** | Cell arrays need path/index identity |
+
+## A04 — Block-local media/text candidates
+
+**Status:** PASS
+
+| Candidate | Disposition | Fields |
+|---|---|---|
+| `core/image` | **Admitted** | `caption` (figcaption only; alt/title denied) |
+| `core/file` | **Admitted** | `fileName`, `downloadButtonText` |
+| `core/audio` | **Admitted** | `caption` |
+| `core/video` | **Admitted** | `caption` |
+
+Media Library attachment metadata: **Unsupported**.
