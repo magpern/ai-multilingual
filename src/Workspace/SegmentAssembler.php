@@ -156,7 +156,7 @@ final class SegmentAssembler {
 		}
 
 		$can_edit = '' === $block_name || $this->block_registry->is_supported( $block_name );
-		if ( 'elementor' === $surface ) {
+		if ( 'elementor' === $surface || 'plugin_integration' === $surface ) {
 			$can_edit = true;
 		}
 
@@ -171,6 +171,16 @@ final class SegmentAssembler {
 			if ( ! empty( $extracted['nested_item_id'] ) ) {
 				$meta['nested_item_id'] = (string) $extracted['nested_item_id'];
 			}
+		} elseif ( 'plugin_integration' === $surface ) {
+			$meta = array(
+				'surface'         => 'plugin_integration',
+				'integration_id'  => (string) ( $extracted['integration_id'] ?? '' ),
+				'owner_type'      => (string) ( $extracted['owner_type'] ?? '' ),
+				'owner_id'        => (string) ( $extracted['owner_id'] ?? '' ),
+				'field_label'     => (string) ( $extracted['field_label'] ?? '' ),
+				'parent_context'  => (string) ( $extracted['parent_context'] ?? '' ),
+				'ownership_class' => (string) ( $extracted['ownership_class'] ?? '' ),
+			);
 		}
 
 		return array(

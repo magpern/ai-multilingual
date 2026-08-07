@@ -11,6 +11,7 @@ namespace AIMultilingual\Translation;
 
 use AIMultilingual\Elementor\Contract as ElementorContract;
 use AIMultilingual\Elementor\ElementorExtractor;
+use AIMultilingual\Integration\IntegrationRegistry;
 use AIMultilingual\Settings;
 use WP_Post;
 
@@ -40,14 +41,16 @@ final class Extractor {
 	/**
 	 * Builds the extractor.
 	 *
-	 * @param Settings|null           $settings            Plugin settings.
-	 * @param BlockExtractor|null     $block_extractor     Block segment extractor.
-	 * @param ElementorExtractor|null $elementor_extractor Elementor segment extractor.
+	 * @param Settings|null            $settings             Plugin settings.
+	 * @param BlockExtractor|null      $block_extractor      Block segment extractor.
+	 * @param ElementorExtractor|null  $elementor_extractor  Elementor segment extractor.
+	 * @param IntegrationRegistry|null $integration_registry Integration API v1 registry.
 	 */
 	public function __construct(
 		private ?Settings $settings = null,
 		private ?BlockExtractor $block_extractor = null,
 		private ?ElementorExtractor $elementor_extractor = null,
+		private ?IntegrationRegistry $integration_registry = null,
 	) {
 	}
 
@@ -215,6 +218,13 @@ final class Extractor {
 					'element_id'    => $unit->element_id,
 					'control_key'   => $unit->control_key,
 				);
+			}
+		}
+
+		if ( null !== $this->integration_registry && ! $this->integration_registry->is_empty() ) {
+			$order = 2000;
+			foreach ( $this->integration_registry->extract_for_post( $post ) as $unit ) {
+				$segments[ $unit->segment_key ] = $unit->to_segment_array( $order++ );
 			}
 		}
 

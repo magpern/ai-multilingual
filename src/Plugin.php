@@ -64,6 +64,9 @@ use AIMultilingual\Glossary\GlossaryMatcher;
 use AIMultilingual\Glossary\GlossaryNormalizer;
 use AIMultilingual\Glossary\GlossaryRepository;
 use AIMultilingual\Glossary\GlossaryService;
+use AIMultilingual\Integration\IntegrationDiagnostics;
+use AIMultilingual\Integration\IntegrationFrontendBridge;
+use AIMultilingual\Integration\IntegrationRegistry;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
@@ -214,7 +217,21 @@ final class Plugin {
 			$elementor_diagnostics
 		);
 
-		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor );
+		$integration_diagnostics = new IntegrationDiagnostics();
+		$integration_registry    = new IntegrationRegistry( $integration_diagnostics );
+		/**
+		 * Register typed Integration API v1 integrations.
+		 *
+		 * Callbacks must call `$registry->register( PluginIntegrationInterface )`
+		 * with code-owned objects only. Database/serialized callbacks are forbidden.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param IntegrationRegistry $integration_registry Registry.
+		 */
+		do_action( 'aiml_register_integrations', $integration_registry );
+
+		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor, $integration_registry );
 		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
 		$config_repo         = new RolloutConfigurationRepository();
 		$rollout_bridge      = new RolloutRenderGateBridge(
@@ -257,6 +274,14 @@ final class Plugin {
 			$elementor_diagnostics
 		) )->register();
 		( new ElementorCacheInvalidation( $elementor_detector, $elementor_compatibility, $settings, $context ) )->register();
+
+		( new IntegrationFrontendBridge(
+			$settings,
+			$context,
+			$integration_registry,
+			$store,
+			$integration_diagnostics
+		) )->register();
 
 		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
 		$status_calculator = new TranslationStatusCalculator( $store );
