@@ -27,7 +27,7 @@ final class WpFluentFormDefinitionReader implements FluentFormDefinitionReader {
 
 		try {
 			$row = wpFluent()->table( 'fluentform_forms' )->find( $form_id );
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		} catch ( \RuntimeException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			return null;
 		}
 
