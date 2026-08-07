@@ -51,6 +51,8 @@ abstract class AbstractBlockAdapter implements TranslatableBlockAdapter {
 			return false;
 		}
 
+		// Leaf-local guard (A.4): non-empty innerBlocks rejects this instance only.
+		// Nested descendant leaves remain independently translatable when empty.
 		$inner = $block['innerBlocks'] ?? array();
 
 		return ! is_array( $inner ) || array() === $inner;
