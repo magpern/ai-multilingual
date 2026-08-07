@@ -26,7 +26,7 @@ Long-term evolution is **not** an automatic feature chain. It is **P1 Platform S
 | **E** | Platform Ecosystem | *Who else* can extend the platform safely |
 
 **First milestone after v1.0.0:** P1 Platform Stabilization — **complete** (merged).
-**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). Next: **A.4** Nested Gutenberg Identity planning. Parallel: A.R2, A.1, A.0.
+**Coverage research:** A.R1 Elementor identity spike — **complete**; ADR-0016 **Accepted**. **A.2 Elementor Foundation** — **complete** (merged + tagged `a2-elementor-foundation-complete`). **A.3 Elementor Widget Coverage** — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`). [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md). **A.R2 / A.4 Nested Gutenberg** — [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md) (**planning frozen**); A.R2 research **not started**; A.4 implementation **blocked** pending A48 verdict + **F5**. Parallel: A.1, A.0.
 
 ---
 
@@ -38,12 +38,12 @@ Navigation aid only. Does not replace the detailed programs below.
 
 - Platform **v1.0.0** released; **P1 Platform Stabilization complete** on `main`
 - **A.R1** Elementor Identity Research Spike **complete**; [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**
-- Active planning gate: **A.4** Nested Gutenberg Identity (planning only). **A.3** — [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**complete / merged / tagged**). **A.2** — [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) (**complete / merged**)
+- **A.3** — [validation log PASS](A3_ELEMENTOR_WIDGET_COVERAGE_VALIDATION_LOG.md) (**complete / merged / tagged**). **A.2** — [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md) (**complete / merged**)
+- **A.R2 / A.4** — [Nested Gutenberg Identity charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md) (**planning frozen**); A.R2 research **not started**; A.4 implementation **blocked**; **F5** remains the architecture gate before A.4 coding
 
 ### NEXT
 
-- **A.2** Elementor Foundation (post–ADR-0016; planning then implementation under separate authorization)
-- **A.R2** Nested Gutenberg Identity Research Spike
+- **A.R2** Nested Gutenberg Identity Research Spike (after planning charter merge; A40–A48)
 - **A.1** Plugin Integration Framework
 - **A.0** Additional Gutenberg leaf/field expansion
 - Early **B.1** additional providers
@@ -52,8 +52,8 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### LATER
 
-- Elementor widget coverage beyond first surface (A.3+)
-- Nested/container Gutenberg (post-spike/ADR)
+- Nested/container Gutenberg (**A.4** — only after A48 verdict + **F5**; may require ADR)
+- Elementor widget coverage beyond first A.3 surface
 - WordPress visitor chrome (navigation, theme/widgets, declared residual strings)
 - WooCommerce visitor-facing coverage family
 - Deeper Intelligence, Translator Experience, Operations, and Ecosystem milestones through **v1.1.x → v1.3.x**
@@ -141,12 +141,12 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | ID | Milestone | Type |
 |---|---|---|
 | A.R1 | Elementor Identity Research Spike | Research Spike — **Complete**; [plan](AR1_ELEMENTOR_IDENTITY_RESEARCH_SPIKE.md); [research log](AR1_ELEMENTOR_IDENTITY_RESEARCH_LOG.md) (**CONDITIONAL GO**); [ADR-0016](../adr/0016-elementor-identity-and-ownership.md) **Accepted**; A.2 planning authorized; Elementor production implementation not started |
-| A.R2 | Nested Gutenberg Identity Research Spike | Research Spike |
+| A.R2 | Nested Gutenberg Identity Research Spike | Research Spike — [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md) (**planning frozen**; research **not started**; A40–A48) |
 | A.1 | Plugin Integration Framework | Architecture |
 | A.0 | Additional Gutenberg leaf blocks and fields | Product |
 | A.2 | Elementor Foundation (post–identity decision) | Architecture — **Complete** — [plan](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A2_ELEMENTOR_FOUNDATION_VALIDATION_LOG.md); tag `a2-elementor-foundation-complete` |
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`) |
-| A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture |
+| A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — [charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); **implementation blocked** pending A48 + **F5** |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
 | A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product |
 | A.8 | Third-party plugin bridges (via A.1) | Product |
@@ -331,7 +331,7 @@ flowchart TB
 | Topic | Classification |
 |---|---|
 | Elementor identity | Research Spike → future ADR → A.2 |
-| Nested Gutenberg identity | Research Spike → future ADR → A.4 |
+| Nested Gutenberg identity | A.R2 Research Spike (A40–A48) → A48 verdict → **F5** → A.4 ([charter](A4_NESTED_GUTENBERG_IDENTITY_PLAN.md); ADR only if required) |
 | Large-scale performance | Research Spike before deep D.4 / D.9 |
 | Provider transport evolution (e.g. Responses API) | Optional Research Spike; default remains current Chat Completions integration until proven |
 
