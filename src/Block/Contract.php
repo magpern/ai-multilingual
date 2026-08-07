@@ -13,8 +13,8 @@ namespace AIMultilingual\Block;
  * Frozen Strategy F identity contract (ADR-0013 planning baseline).
  *
  * Segment keys use grammar {@see self::SEGMENT_KEY_GRAMMAR}: `b:<uuid>:<field>`.
- * Only {@see self::FIELD_CONTENT} is supported in the initial rollout; additional
- * field identifiers are reserved for future adapters without schema change.
+ * Field identifiers are an allowlist for the grammar component; per-block fields
+ * are declared by adapters.
  */
 final class Contract {
 
@@ -34,9 +34,34 @@ final class Contract {
 	public const SEGMENT_KEY_GRAMMAR = 'b:<uuid>:<field>';
 
 	/**
-	 * Initial supported translatable field identifier.
+	 * Leaf body / rich-text content field.
 	 */
 	public const FIELD_CONTENT = 'content';
+
+	/**
+	 * Quote / pullquote citation field.
+	 */
+	public const FIELD_CITATION = 'citation';
+
+	/**
+	 * Details summary field.
+	 */
+	public const FIELD_SUMMARY = 'summary';
+
+	/**
+	 * Block-local caption field (image/audio/video figcaption).
+	 */
+	public const FIELD_CAPTION = 'caption';
+
+	/**
+	 * File block display name field.
+	 */
+	public const FIELD_FILE_NAME = 'fileName';
+
+	/**
+	 * File block download button label field.
+	 */
+	public const FIELD_DOWNLOAD_BUTTON_TEXT = 'downloadButtonText';
 
 	/**
 	 * RFC 4122 version-4 UUID maximum serialized length.
@@ -52,12 +77,17 @@ final class Contract {
 	public const REPAIR_POLICY_FIRST_WINS = 'first_wins';
 
 	/**
-	 * Fields supported by the initial Strategy F rollout.
+	 * Grammar-valid field identifiers (A.0 additive allowlist).
 	 *
 	 * @var list<string>
 	 */
 	public const SUPPORTED_FIELDS = array(
 		self::FIELD_CONTENT,
+		self::FIELD_CITATION,
+		self::FIELD_SUMMARY,
+		self::FIELD_CAPTION,
+		self::FIELD_FILE_NAME,
+		self::FIELD_DOWNLOAD_BUTTON_TEXT,
 	);
 
 	/**

@@ -123,9 +123,9 @@ final class BlockRendererTest extends TestCase {
 	}
 
 	public function test_unsupported_block_is_unchanged(): void {
-		$html   = '<blockquote class="wp-block-quote"><p>Quote</p></blockquote>';
+		$html   = '<hr class="wp-block-separator"/>';
 		$blocks = array(
-			$this->block( 'core/quote', $html, self::UUID_A ),
+			$this->block( 'core/separator', $html, self::UUID_A ),
 		);
 		$before = $blocks[0];
 

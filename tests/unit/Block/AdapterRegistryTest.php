@@ -9,13 +9,20 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Tests\Unit\Block;
 
+use AIMultilingual\Block\Adapter\AudioAdapter;
 use AIMultilingual\Block\Adapter\ButtonAdapter;
 use AIMultilingual\Block\Adapter\CodeAdapter;
+use AIMultilingual\Block\Adapter\DetailsAdapter;
+use AIMultilingual\Block\Adapter\FileAdapter;
 use AIMultilingual\Block\Adapter\HeadingAdapter;
+use AIMultilingual\Block\Adapter\ImageAdapter;
 use AIMultilingual\Block\Adapter\ListItemAdapter;
 use AIMultilingual\Block\Adapter\ParagraphAdapter;
 use AIMultilingual\Block\Adapter\PreformattedAdapter;
+use AIMultilingual\Block\Adapter\PullquoteAdapter;
+use AIMultilingual\Block\Adapter\QuoteAdapter;
 use AIMultilingual\Block\Adapter\VerseAdapter;
+use AIMultilingual\Block\Adapter\VideoAdapter;
 use AIMultilingual\Block\AdapterRegistry;
 use PHPUnit\Framework\TestCase;
 
@@ -36,6 +43,13 @@ final class AdapterRegistryTest extends TestCase {
 				'core/preformatted',
 				'core/verse',
 				'core/code',
+				'core/quote',
+				'core/details',
+				'core/pullquote',
+				'core/image',
+				'core/file',
+				'core/audio',
+				'core/video',
 			),
 			$registry->block_names()
 		);
@@ -51,6 +65,13 @@ final class AdapterRegistryTest extends TestCase {
 		$this->assertInstanceOf( PreformattedAdapter::class, $registry->get( 'core/preformatted' ) );
 		$this->assertInstanceOf( VerseAdapter::class, $registry->get( 'core/verse' ) );
 		$this->assertInstanceOf( CodeAdapter::class, $registry->get( 'core/code' ) );
+		$this->assertInstanceOf( QuoteAdapter::class, $registry->get( 'core/quote' ) );
+		$this->assertInstanceOf( DetailsAdapter::class, $registry->get( 'core/details' ) );
+		$this->assertInstanceOf( PullquoteAdapter::class, $registry->get( 'core/pullquote' ) );
+		$this->assertInstanceOf( ImageAdapter::class, $registry->get( 'core/image' ) );
+		$this->assertInstanceOf( FileAdapter::class, $registry->get( 'core/file' ) );
+		$this->assertInstanceOf( AudioAdapter::class, $registry->get( 'core/audio' ) );
+		$this->assertInstanceOf( VideoAdapter::class, $registry->get( 'core/video' ) );
 	}
 
 	public function test_lookup_returns_null_for_unsupported_blocks(): void {
@@ -58,6 +79,7 @@ final class AdapterRegistryTest extends TestCase {
 
 		$this->assertNull( $registry->get( 'core/group' ) );
 		$this->assertNull( $registry->get( 'core/latest-posts' ) );
+		$this->assertNull( $registry->get( 'core/table' ) );
 	}
 
 	public function test_duplicate_registration_is_rejected(): void {

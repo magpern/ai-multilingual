@@ -36,8 +36,17 @@ final class BlockRegistryTest extends TestCase {
 		$this->assertContains( 'core/code', BlockRegistry::SUPPORTED_BLOCKS );
 	}
 
-	public function test_supported_blocks_are_eligible_leaves(): void {
-		foreach ( BlockRegistry::SUPPORTED_BLOCKS as $block_name ) {
+	public function test_supported_baseline_leaves_are_eligible(): void {
+		$baseline = array(
+			'core/paragraph',
+			'core/heading',
+			'core/button',
+			'core/list-item',
+			'core/preformatted',
+			'core/verse',
+			'core/code',
+		);
+		foreach ( $baseline as $block_name ) {
 			$this->assertTrue( $this->registry->is_supported( $block_name ) );
 			$this->assertTrue(
 				$this->registry->is_eligible(
@@ -88,11 +97,24 @@ final class BlockRegistryTest extends TestCase {
 		);
 	}
 
-	public function test_content_field_is_supported_for_allowlisted_blocks(): void {
-		foreach ( BlockRegistry::SUPPORTED_BLOCKS as $block_name ) {
-			$this->assertTrue( $this->registry->supports_field( $block_name, Contract::FIELD_CONTENT ) );
-			$this->assertSame( array( 'content' ), $this->registry->get_supported_fields( $block_name ) );
+	public function test_content_field_is_supported_for_baseline_leaves(): void {
+		$registry = new BlockRegistry( new \AIMultilingual\Block\AdapterRegistry() );
+		$baseline = array(
+			'core/paragraph',
+			'core/heading',
+			'core/button',
+			'core/list-item',
+			'core/preformatted',
+			'core/verse',
+			'core/code',
+		);
+		foreach ( $baseline as $block_name ) {
+			$this->assertTrue( $registry->supports_field( $block_name, Contract::FIELD_CONTENT ) );
+			$this->assertSame( array( 'content' ), $registry->get_supported_fields( $block_name ) );
 		}
+		$this->assertSame( array( 'citation' ), $registry->get_supported_fields( 'core/quote' ) );
+		$this->assertSame( array( 'summary' ), $registry->get_supported_fields( 'core/details' ) );
+		$this->assertSame( array( 'caption' ), $registry->get_supported_fields( 'core/image' ) );
 	}
 
 	public function test_adapter_lookup_returns_production_adapters(): void {

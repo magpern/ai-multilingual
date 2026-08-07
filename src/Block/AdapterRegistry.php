@@ -9,13 +9,20 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Block;
 
+use AIMultilingual\Block\Adapter\AudioAdapter;
 use AIMultilingual\Block\Adapter\ButtonAdapter;
 use AIMultilingual\Block\Adapter\CodeAdapter;
+use AIMultilingual\Block\Adapter\DetailsAdapter;
+use AIMultilingual\Block\Adapter\FileAdapter;
 use AIMultilingual\Block\Adapter\HeadingAdapter;
+use AIMultilingual\Block\Adapter\ImageAdapter;
 use AIMultilingual\Block\Adapter\ListItemAdapter;
 use AIMultilingual\Block\Adapter\ParagraphAdapter;
 use AIMultilingual\Block\Adapter\PreformattedAdapter;
+use AIMultilingual\Block\Adapter\PullquoteAdapter;
+use AIMultilingual\Block\Adapter\QuoteAdapter;
 use AIMultilingual\Block\Adapter\VerseAdapter;
+use AIMultilingual\Block\Adapter\VideoAdapter;
 
 /**
  * Explicit adapter lookup by block name.
@@ -42,6 +49,13 @@ final class AdapterRegistry {
 		$this->register( new PreformattedAdapter() );
 		$this->register( new VerseAdapter() );
 		$this->register( new CodeAdapter() );
+		$this->register( new QuoteAdapter() );
+		$this->register( new DetailsAdapter() );
+		$this->register( new PullquoteAdapter() );
+		$this->register( new ImageAdapter() );
+		$this->register( new FileAdapter() );
+		$this->register( new AudioAdapter() );
+		$this->register( new VideoAdapter() );
 	}
 
 	/**
