@@ -6,6 +6,8 @@
 **Selection:** [A8_INTEGRATION_CANDIDATE_SELECTION.md](A8_INTEGRATION_CANDIDATE_SELECTION.md)
 **Plan merge on main:** `d932fee1f94d2df136f7f81c4f3da405927de1f5`
 **Initial main HEAD (pre-merge):** `5d51a69ada67be7c2d7048aaf16e9a11d2ea789a`
+**Implementation merge on main:** `16677a3fa63cc96b424009fa6555836cae1f1b22`
+**Merged / tagged:** `a8-fluentforms-contact-integration-complete`
 
 ---
 
@@ -116,4 +118,16 @@ All 30 targeted ACs from the implementation brief: **PASS** (platform Review/TM/
 | Final surface | Form #5 Name label, Email label, Submit text |
 | ADR-0017 / Integration API v1 | Unchanged |
 | Schema TARGET | **6** |
-| Merge/tag | Not performed (implementation branch only) |
+| Merge commit | `16677a3fa63cc96b424009fa6555836cae1f1b22` |
+| Tag | `a8-fluentforms-contact-integration-complete` |
+
+### Post-merge validation
+
+| Gate | Result |
+|---|---|
+| Unit | **542** / **1365** — OK (2 skipped) |
+| Integration | **512** tests / **11727** assertions — OK (2 skipped) |
+| PHPCS | PASS |
+| Live Contact EN/SV | Name/Email/Send message → Namn/E-post/Skicka meddelande |
+| FP / leakage (admitted form labels) | **0** / **0** |
+| Foreign submit source | `Send message` unchanged |

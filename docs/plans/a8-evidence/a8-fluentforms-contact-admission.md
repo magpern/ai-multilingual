@@ -21,7 +21,7 @@
 | Fallback | Store miss/stale/error → original Fluent Forms source; continue |
 | Platform | Store / Workspace / Review / TM / Glossary / Jobs unchanged |
 | Performance | See validation log A87 |
-| Disposition | **Supported** (after A87/A88 gates) |
+| Disposition | **Supported** |
 | Limitations | Form #5 only; three surfaces only; single published embed required; no confirmation HTML / options / other forms |
 
 ## Evidence pointers

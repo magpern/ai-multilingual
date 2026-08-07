@@ -1,6 +1,6 @@
 # A.8 — First Production Plugin Integration (Fluent Forms) — Implementation Plan
 
-**Status:** **Implementation complete on branch** — ready for independent review / merge; no further A.8 planning cycle
+**Status:** **Complete / merged / tagged** `a8-fluentforms-contact-integration-complete`
 **Selected integration:** Fluent Forms — Contact Form **#5** (`fluentform`)
 **Admission disposition:** **Supported** — [a8-fluentforms-contact-admission.md](a8-evidence/a8-fluentforms-contact-admission.md)
 **Validation:** [A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md)

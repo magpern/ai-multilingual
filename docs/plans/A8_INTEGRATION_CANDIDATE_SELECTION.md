@@ -1,6 +1,6 @@
 # A.8 — Integration Candidate Selection Matrix
 
-**Status:** Selection locked; architecture **Frozen** for Form #5 Contact embed  
+**Status:** Selection locked; architecture **Frozen**; implementation **Complete / merged / tagged** `a8-fluentforms-contact-integration-complete`  
 **Canonical implementation plan:** [A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md)  
 **Environment:** https://dev.biopentra.eu (live WP-CLI inventory)  
 **Baseline:** `main` @ `5d51a69ada67be7c2d7048aaf16e9a11d2ea789a`  
