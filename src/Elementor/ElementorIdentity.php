@@ -80,10 +80,10 @@ final class ElementorIdentity {
 		}
 
 		return array(
-			'owner_post_id'   => $owner,
-			'element_id'      => $parts[3],
-			'control_key'     => $parts[4],
-			'nested_item_id'  => $nested,
+			'owner_post_id'  => $owner,
+			'element_id'     => $parts[3],
+			'control_key'    => $parts[4],
+			'nested_item_id' => $nested,
 		);
 	}
 

@@ -23,9 +23,18 @@ use AIMultilingual\Translation\Store;
  */
 final class RepeaterFieldStrategy implements ElementorControlStrategy {
 
-	/**
-	 * {@inheritdoc}
-	 */
+		/**
+		 * Extract zero or more units for one registry entry.
+		 *
+		 * @param int                       $owner_post_id Owner post.
+		 * @param string                    $element_id    Element ID.
+		 * @param string                    $widget_type   Widget type.
+		 * @param array<string, mixed>      $settings      Widget settings.
+		 * @param array<string, mixed>      $entry         Registry entry.
+		 * @param ElementorIdentity         $identity      Identity builder.
+		 * @param ElementorDiagnostics|null $diagnostics   Optional diagnostics.
+		 * @return list<ElementorTranslationUnit>
+		 */
 	public function extract(
 		int $owner_post_id,
 		string $element_id,
@@ -124,9 +133,15 @@ final class RepeaterFieldStrategy implements ElementorControlStrategy {
 		return $units;
 	}
 
-	/**
-	 * {@inheritdoc}
-	 */
+		/**
+		 * Apply overlays onto settings for matching units.
+		 *
+		 * @param array<string, mixed>                 $settings    Widget settings (by ref).
+		 * @param array<string, mixed>                 $entry       Registry entry.
+		 * @param array<string, string>                $overlays    segment_key => text.
+		 * @param array<int, ElementorTranslationUnit> $units       Units for this element/control.
+		 * @param ElementorDiagnostics|null            $diagnostics Optional diagnostics.
+		 */
 	public function apply(
 		array &$settings,
 		array $entry,

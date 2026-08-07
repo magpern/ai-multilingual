@@ -97,6 +97,36 @@ Sampled from postmeta documents (counts are approximate across inventory walk):
 
 ---
 
+## A31 — Nested identity extension
+
+**Status:** PASS
+
+- Additive grammar `e:d:<owner>:<element>:<control>:<nested_item_id>` implemented
+- Missing/empty `_id` → no extract; duplicate `_id` → repeater extract abort + `duplicate_nested_id`
+- No array-index identity; A.2 five-segment keys unchanged
+- Strategy dispatch: `settings_string`, `repeater_field`, `image_custom_caption` (factory ready; admissions gated by registry)
+
+## A32 — Accordion admission
+
+**Status:** PASS — **Adapter → Directly Supported (allowlisted)**
+
+| Field | Value |
+|---|---|
+| Candidate | accordion |
+| Prior state | Research / unsupported |
+| Owning WP | A32 |
+| Identity | nested `_id` on `tabs` |
+| Ownership | document |
+| Controls | `tab_title` (plain), `tab_content` (html) |
+| Evidence | unit AccordionAdmissionTest; live posts 4124+; fixture seed |
+| Unit | PASS |
+| Integration | *(A38)* |
+| Browser | *(A37 matrix)* |
+| Cache/lang | *(A37)* |
+| Perf | nested extract O(rows); acceptable vs A.2 |
+| Limitations | legacy rows without `_id` stay source; duplicate `_id` denies whole repeater |
+| Disposition | **Directly Supported** (adapter-backed repeater strategy) |
+
 ## Subsequent WPs
 
-*(A31–A38 sections appended below as work completes.)*
+*(A33–A38 sections appended below as work completes.)*

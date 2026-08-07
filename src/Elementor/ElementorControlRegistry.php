@@ -55,6 +55,10 @@ final class ElementorControlRegistry {
 			'button'      => array(
 				'text' => $this->flat_entry( 'button', 'text', ElementorStrategyFactory::EXTRACTOR_SETTINGS_STRING, self::SANITIZE_PLAIN, 'plain' ),
 			),
+			'accordion'   => array(
+				'tab_title'   => $this->repeater_entry( 'accordion', 'tabs', 'tab_title', self::SANITIZE_PLAIN, 'plain' ),
+				'tab_content' => $this->repeater_entry( 'accordion', 'tabs', 'tab_content', self::SANITIZE_HTML, 'html' ),
+			),
 		);
 	}
 

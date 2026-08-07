@@ -24,18 +24,20 @@ final class ElementorControlRegistryTest extends TestCase {
 		$this->registry = new ElementorControlRegistry();
 	}
 
-	public function test_exactly_three_supported_pairs(): void {
-		$this->assertCount( 3, $this->registry->all() );
+	public function test_a2_and_admitted_pairs(): void {
 		$this->assertTrue( $this->registry->is_supported( 'heading', 'title' ) );
 		$this->assertTrue( $this->registry->is_supported( 'text-editor', 'editor' ) );
 		$this->assertTrue( $this->registry->is_supported( 'button', 'text' ) );
+		$this->assertTrue( $this->registry->is_supported( 'accordion', 'tab_title' ) );
+		$this->assertTrue( $this->registry->is_supported( 'accordion', 'tab_content' ) );
+		$this->assertGreaterThanOrEqual( 5, count( $this->registry->all() ) );
 	}
 
 	public function test_unsupported_widgets_and_controls_denied(): void {
-		$this->assertFalse( $this->registry->is_supported( 'accordion', 'tab_title' ) );
 		$this->assertFalse( $this->registry->is_supported( 'heading', 'title_mobile' ) );
 		$this->assertFalse( $this->registry->is_supported( 'heading', 'header_size' ) );
 		$this->assertFalse( $this->registry->is_supported_widget( 'image' ) );
+		$this->assertFalse( $this->registry->is_supported( 'toggle', 'tab_title' ) );
 	}
 
 	public function test_entries_declare_strategies(): void {

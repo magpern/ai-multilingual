@@ -32,9 +32,9 @@ final class ElementorStrategyFactory {
 	 */
 	public function __construct() {
 		$this->strategies = array(
-			self::EXTRACTOR_SETTINGS_STRING       => new SettingsStringStrategy(),
-			self::EXTRACTOR_REPEATER_FIELD         => new RepeaterFieldStrategy(),
-			self::EXTRACTOR_IMAGE_CUSTOM_CAPTION  => new ImageCustomCaptionStrategy(),
+			self::EXTRACTOR_SETTINGS_STRING      => new SettingsStringStrategy(),
+			self::EXTRACTOR_REPEATER_FIELD       => new RepeaterFieldStrategy(),
+			self::EXTRACTOR_IMAGE_CUSTOM_CAPTION => new ImageCustomCaptionStrategy(),
 		);
 	}
 

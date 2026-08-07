@@ -16,16 +16,21 @@ use AIMultilingual\Elementor\Strategy\ElementorStrategyFactory;
  */
 final class ElementorExtractor {
 
+	/**
+	 * Strategy resolver.
+	 *
+	 * @var ElementorStrategyFactory
+	 */
 	private ElementorStrategyFactory $strategies;
 
 	/**
 	 * Builds the extractor.
 	 *
-	 * @param ElementorDocumentDetector      $detector     Document detector.
-	 * @param ElementorControlRegistry       $registry     Control registry.
-	 * @param ElementorIdentity              $identity     Identity builder.
-	 * @param ElementorDiagnostics|null      $diagnostics  Optional diagnostics.
-	 * @param ElementorStrategyFactory|null  $strategies   Optional strategy factory.
+	 * @param ElementorDocumentDetector     $detector     Document detector.
+	 * @param ElementorControlRegistry      $registry     Control registry.
+	 * @param ElementorIdentity             $identity     Identity builder.
+	 * @param ElementorDiagnostics|null     $diagnostics  Optional diagnostics.
+	 * @param ElementorStrategyFactory|null $strategies   Optional strategy factory.
 	 */
 	public function __construct(
 		private ElementorDocumentDetector $detector,

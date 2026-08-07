@@ -88,6 +88,7 @@ final class ElementorExtractorTest extends TestCase {
 		$this->assertContains( 'e:d:99:hd1:title', $keys );
 		$this->assertContains( 'e:d:99:te1:editor', $keys );
 		$this->assertContains( 'e:d:99:btn1:text', $keys );
+		// Accordion present but empty tabs → no nested units.
 		$this->assertCount( 3, $units );
 		$this->assertNotContains( 'e:d:99:hd1:title_mobile', $keys );
 	}

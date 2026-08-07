@@ -16,6 +16,11 @@ use AIMultilingual\Elementor\Strategy\ElementorStrategyFactory;
  */
 final class ElementorOverlayApplier {
 
+	/**
+	 * Strategy resolver.
+	 *
+	 * @var ElementorStrategyFactory
+	 */
 	private ElementorStrategyFactory $strategies;
 
 	/**
@@ -56,9 +61,9 @@ final class ElementorOverlayApplier {
 	/**
 	 * Walk nodes applying overlays.
 	 *
-	 * @param array<int, mixed>                              $nodes      Elementor nodes.
-	 * @param array<string, string>                          $overlays   Overlays.
-	 * @param array<string, list<ElementorTranslationUnit>>  $by_element Units by element ID.
+	 * @param array<int, mixed>                             $nodes      Elementor nodes.
+	 * @param array<string, string>                         $overlays   Overlays.
+	 * @param array<string, list<ElementorTranslationUnit>> $by_element Units by element ID.
 	 */
 	private function walk( array &$nodes, array $overlays, array $by_element ): void {
 		foreach ( $nodes as &$node ) {
