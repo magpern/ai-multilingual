@@ -87,3 +87,16 @@ Every P1–P10 / C1–C6 has a stub disposition. Four attribute splits have inde
 | Unit tests | `tests/unit/Integration/WooCommerceIdentityMatrixTest.php` (5 tests OK) |
 
 No new identity family. P5/P7 keys distinct. Catalog terms use `owner_type` = taxonomy. Store host for C3–C6 = shop page 3755. P6/P8 remain Deferred.
+
+## A7A.3 — Extraction
+
+**Status:** PASS
+
+| Item | Result |
+|---|---|
+| Package | `src/Integration/WooCommerce/WooCommerceIntegration.php` |
+| Wired | `Plugin.php` registers alongside Fluent Forms |
+| Product units | P5 + P7 attribute name keys |
+| Shop units | C3–C6 term name/description |
+| Unit tests | `WooCommerceIntegrationExtractTest` OK |
+| Overlay | Deferred to A7A.4 (empty `register_output_hooks`) |
