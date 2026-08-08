@@ -90,7 +90,48 @@
 
 ## A6.7 — Full acceptance
 
-**Status:** Pending
+**Status:** PASS
+
+### Quality gates
+
+| Gate | Result |
+|---|---|
+| Unit | **586** tests / **1559** assertions (2 skipped) — OK |
+| Integration | **519** tests / **11865** assertions (2 skipped) — OK |
+| PluginGuard | **17** tests / **8836** assertions — OK |
+| PHPCS (touched PHP) | **PASS** (`Extractor.php`, `Renderer.php`, `WorkspaceService.php`) |
+| TARGET | **6** unchanged |
+
+### Live EN → SV → EN (`wp_nav_menu` menu **34**)
+
+| Step | menu-item-3474 (custom) | menu-item-3756 (object title) |
+|---|---|---|
+| EN | Home | Shop |
+| SV | **Hem** | **Butik** (page title AC1) |
+| EN | Home | Shop |
+
+- False positives on N1: **0**
+- Language leakage EN↔SV: **0**
+- Empty custom title extract count for item 3756: **0**
+
+**Note:** Homepage header chrome uses Elementor mega-menu (`n-menu`) with document `item_title` strings — **Elementor-owned** (AC3 / not A.6). N1 applies to WordPress `nav_menu_item` / `wp_nav_menu` (locations `menu_1`, `menu_mobile`). No ownership theft.
+
+### Regressions (suite-level)
+
+| Surface | Result |
+|---|---|
+| Gutenberg / Elementor / Woo A.7a–A.7d / Fluent A.8 | Covered by full integration suite — **PASS** (no A.6-related failures) |
+
+### Architecture audit
+
+| Check | Result |
+|---|---|
+| Supported = N1 only | Pass |
+| Deferred D1–D20 untouched | Pass |
+| Identity = `post_title` / menu item `source_id` | Pass |
+| No PluginIdentity / `p:` for N1 | Pass |
+| No Store/schema redesign | Pass |
+| No HTML scrape / gettext capture | Pass |
 
 ---
 
