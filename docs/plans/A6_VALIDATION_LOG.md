@@ -5,7 +5,8 @@
 **Plan:** [A6_WORDPRESS_VISITOR_CHROME_IMPLEMENTATION_PLAN.md](A6_WORDPRESS_VISITOR_CHROME_IMPLEMENTATION_PLAN.md)  
 **Evidence:** [a6-evidence/](a6-evidence/)  
 **Planning freeze on main:** `8db7d5c67fd0f78314232c8730000fa2ff9abe55`  
-**Implementation baseline HEAD:** `8db7d5c67fd0f78314232c8730000fa2ff9abe55`
+**Implementation baseline HEAD:** `8db7d5c67fd0f78314232c8730000fa2ff9abe55`  
+**Merged / tagged:** merge `45af553cd943b52fd5c1f214aa57574e1bbe8af5`; tag `a6-wordpress-visitor-chrome-complete`
 
 ---
 
@@ -137,4 +138,15 @@
 
 ## A6.8 — Closure
 
-**Status:** PASS — plan/log/roadmap mark Supported **N1** Complete on impl branch; Deferred unchanged; recommended tag `a6-wordpress-visitor-chrome-complete` after independent review/merge. No merge/tag in this milestone execution.
+**Status:** PASS — Supported **N1** Complete; Deferred unchanged; merged to `main`; tag `a6-wordpress-visitor-chrome-complete`.
+
+### Post-merge revalidation (closure)
+
+| Gate | Result |
+|---|---|
+| Unit | **586** / **1559** (2 skipped) — OK |
+| Integration | **519** / **11865** (2 skipped) — OK |
+| PluginGuard | **17** / **8836** — OK |
+| PHPCS | PASS |
+| Live EN→SV→EN `wp_nav_menu(34)` | Home→Hem→Home; Shop→Butik→Shop; FP=0; LEAK=0 |
+| TARGET | **6** |

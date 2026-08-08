@@ -1,6 +1,6 @@
 # A.6 — WordPress Visitor Chrome — Implementation Plan
 
-**Status:** **Complete** — implemented and validated on `feature/a6-wordpress-visitor-chrome` (not merged / not tagged)
+**Status:** **Complete** — merged to `main`; tag `a6-wordpress-visitor-chrome-complete`
 **Milestone:** Program A — **A.6** Remaining WordPress visitor chrome
 **Plan freeze:** Visitor-facing WordPress chrome **not** already owned by Gutenberg, Elementor, WooCommerce (A.7*), Fluent Forms (A.8), or SEO (A.SEO); per-surface admission via evidence; Supported = **N1** only unless new evidence upgrades Deferred without architecture violation; TARGET **6**
 **ADR assessment:** **No new ADR required** for the admitted Supported set (N1). Site-global theme_mods / widget_block hosts / Age Gate-style shared definitions remain Deferred — pursuing them requires a **focused ADR**, not silent Store redesign.
@@ -422,7 +422,7 @@ Recommend a **future focused ADR** (not part of A.6) only if product prioritizes
 
 Deferred D1–D20 remain explicitly out of implementation scope until evidence + (if needed) ADR.
 
-**Next:** independent review → merge → tag `a6-wordpress-visitor-chrome-complete` → then A.SEO (or next Product Priorities target).
+**Next:** A.SEO (or next Product Priorities target). A.6 Deferred surfaces remain Deferred.
 
 ---
 
