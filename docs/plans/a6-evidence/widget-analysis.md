@@ -33,8 +33,8 @@ Examples:
 
 ### Why Deferred (D11)
 
-1. No `source_id` post for widget instances.  
-2. Scraping rendered sidebar HTML is Unsupported.  
+1. No `source_id` post for widget instances.
+2. Scraping rendered sidebar HTML is Unsupported.
 3. Mapping option keys → synthetic posts would be a Store/host design change → focused ADR, not silent A.6 scope.
 
 ---

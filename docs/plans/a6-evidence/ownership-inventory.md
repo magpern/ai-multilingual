@@ -1,10 +1,10 @@
 # A.6 — Live ownership inventory
 
-**Environment:** https://dev.biopentra.eu  
-**Captured:** 2026-08-08  
-**Baseline:** `main` @ `063a5d1bc40c7a6b46c0856c173199b77b2e37c2`  
-**Theme:** Blocksy Child — BioPentra (`blocksy-child`); parent Blocksy + Blocksy Companion  
-**Menus:** Main Menu `term_id=34` on `menu_1` + `menu_mobile` (4 items)  
+**Environment:** https://dev.biopentra.eu
+**Captured:** 2026-08-08
+**Baseline:** `main` @ `063a5d1bc40c7a6b46c0856c173199b77b2e37c2`
+**Theme:** Blocksy Child — BioPentra (`blocksy-child`); parent Blocksy + Blocksy Companion
+**Menus:** Main Menu `term_id=34` on `menu_1` + `menu_mobile` (4 items)
 **Home / blog:** home=`4444`, blog=`557`
 
 Hard rule: visible placement on a URL does **not** imply AIML ownership. Owner = who owns the string persistence / official render seam.

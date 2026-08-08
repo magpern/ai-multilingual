@@ -4,9 +4,9 @@
 
 From [POST_V1_PLATFORM_ROADMAP.md](../POST_V1_PLATFORM_ROADMAP.md) §6.1 and A.7* lessons:
 
-- Prefer official pre-render data filters that mutate **labels**.  
-- Gettext-only templates without such filters → **Deferred**.  
-- Do not hijack `gettext` / `ngettext` by msgid.  
+- Prefer official pre-render data filters that mutate **labels**.
+- Gettext-only templates without such filters → **Deferred**.
+- Do not hijack `gettext` / `ngettext` by msgid.
 - Do not key Store rows by source English string (fuzzy identity).
 
 ---

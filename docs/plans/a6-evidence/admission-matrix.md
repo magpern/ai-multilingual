@@ -1,6 +1,6 @@
 # A.6 — Admission matrix
 
-**Status:** Frozen for planning  
+**Status:** Frozen for planning
 **Rule:** Evidence decides. Do not assume candidates survive.
 
 | Disposition | Meaning |

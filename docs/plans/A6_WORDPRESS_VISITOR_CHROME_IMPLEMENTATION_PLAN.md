@@ -1,20 +1,20 @@
 # A.6 — WordPress Visitor Chrome — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)**  
-**Milestone:** Program A — **A.6** Remaining WordPress visitor chrome  
-**Plan freeze:** Visitor-facing WordPress chrome **not** already owned by Gutenberg, Elementor, WooCommerce (A.7*), Fluent Forms (A.8), or SEO (A.SEO); per-surface admission via evidence; Supported = **N1** only unless new evidence upgrades Deferred without architecture violation; TARGET **6**  
-**ADR assessment:** **No new ADR required** for the admitted Supported set (N1). Site-global theme_mods / widget_block hosts / Age Gate-style shared definitions remain Deferred — pursuing them requires a **focused ADR**, not silent Store redesign.  
-**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.1 / A.6 family  
-**Planning branch:** `feature/a6-wordpress-visitor-chrome-plan`  
-**Implementation branch:** `feature/a6-wordpress-visitor-chrome` (**create only after this plan merges to `main`**)  
-**Baseline (plan authoring):** `main` @ `063a5d1bc40c7a6b46c0856c173199b77b2e37c2`  
-**Depends on:** A.7a–A.7d complete; A.8 complete; A.SEO parent architecture present; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; schema TARGET **6**  
-**Evidence:** [a6-evidence/ownership-inventory.md](a6-evidence/ownership-inventory.md); [a6-evidence/admission-matrix.md](a6-evidence/admission-matrix.md); [a6-evidence/theme-analysis.md](a6-evidence/theme-analysis.md); [a6-evidence/widget-analysis.md](a6-evidence/widget-analysis.md); [a6-evidence/shortcode-analysis.md](a6-evidence/shortcode-analysis.md); [a6-evidence/gettext-analysis.md](a6-evidence/gettext-analysis.md); [a6-evidence/visitor-chrome-inventory.md](a6-evidence/visitor-chrome-inventory.md)  
-**Product direction:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md) — A.6 next after A.7d (**do not modify that file in this planning milestone**)
+**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation authorized, not started
+**Milestone:** Program A — **A.6** Remaining WordPress visitor chrome
+**Plan freeze:** Visitor-facing WordPress chrome **not** already owned by Gutenberg, Elementor, WooCommerce (A.7*), Fluent Forms (A.8), or SEO (A.SEO); per-surface admission via evidence; Supported = **N1** only unless new evidence upgrades Deferred without architecture violation; TARGET **6**
+**ADR assessment:** **No new ADR required** for the admitted Supported set (N1). Site-global theme_mods / widget_block hosts / Age Gate-style shared definitions remain Deferred — pursuing them requires a **focused ADR**, not silent Store redesign.
+**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.1 / A.6 family
+**Planning branch:** `feature/a6-wordpress-visitor-chrome-plan` (merged)
+**Implementation branch:** `feature/a6-wordpress-visitor-chrome` (**create from current `main` after this freeze**)
+**Baseline (plan authoring):** `main` @ `063a5d1bc40c7a6b46c0856c173199b77b2e37c2`
+**Depends on:** A.7a–A.7d complete; A.8 complete; A.SEO parent architecture present; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; schema TARGET **6**
+**Evidence:** [a6-evidence/ownership-inventory.md](a6-evidence/ownership-inventory.md); [a6-evidence/admission-matrix.md](a6-evidence/admission-matrix.md); [a6-evidence/theme-analysis.md](a6-evidence/theme-analysis.md); [a6-evidence/widget-analysis.md](a6-evidence/widget-analysis.md); [a6-evidence/shortcode-analysis.md](a6-evidence/shortcode-analysis.md); [a6-evidence/gettext-analysis.md](a6-evidence/gettext-analysis.md); [a6-evidence/visitor-chrome-inventory.md](a6-evidence/visitor-chrome-inventory.md)
+**Product direction:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md) — A.6 next after A.7d
 
 **Operational success:** Merchants can translate **custom navigation menu item titles** through existing Store / Workspace / Review / TM / Glossary / Jobs paths in SV (and other non-default languages), without stealing theme/Elementor/Woo/Fluent/SEO ownership and without Store redesign.
 
-**This plan is the frozen implementation contract for A.6.** Do not implement production code on the planning branch. Implementation not started.
+**This plan is the canonical frozen implementation contract for A.6 on `main`.** Implementation not started.
 
 ---
 
@@ -104,10 +104,10 @@ If any precondition regresses before coding: **STOP**.
 
 Full matrix: [a6-evidence/ownership-inventory.md](a6-evidence/ownership-inventory.md).
 
-**Theme:** Blocksy Child — BioPentra; builder header text “Free shipping over €200”; copyright “Copyright © {current_year} - Biopentra”.  
-**Menus:** Main Menu 34 — one custom title (**Home** / item 3474); three object-title items already covered by page titles.  
-**Widgets:** Almost entirely `widget_block_*` Gutenberg-in-options + one Woo products widget.  
-**First-party:** storefront/loop-card shortcodes gettext-only.  
+**Theme:** Blocksy Child — BioPentra; builder header text “Free shipping over €200”; copyright “Copyright © {current_year} - Biopentra”.
+**Menus:** Main Menu 34 — one custom title (**Home** / item 3474); three object-title items already covered by page titles.
+**Widgets:** Almost entirely `widget_block_*` Gutenberg-in-options + one Woo products widget.
+**First-party:** storefront/loop-card shortcodes gettext-only.
 **Fluent / Woo / Elementor documents:** no remaining A.6 admissions.
 
 ---
@@ -138,9 +138,9 @@ U1–U7 scrape / fuzzy gettext / ownership theft / Store redesign / new identity
 |---|---|---|
 | N1 | Existing segment field `post_title` (Extractor `FIELD_TITLE`) | `source_id` = `nav_menu_item` post ID |
 
-- No `p:` keys for N1.  
-- No path identity.  
-- Empty custom title → WordPress resolves object title via object ID; those labels remain **Already covered** (AC1) — do not duplicate Store rows on the menu item.  
+- No `p:` keys for N1.
+- No path identity.
+- Empty custom title → WordPress resolves object title via object ID; those labels remain **Already covered** (AC1) — do not duplicate Store rows on the menu item.
 - Custom title present → extract/overlay on the menu item post only.
 
 ### Workspace
@@ -155,10 +155,10 @@ No N1 usage. Future plugin-owned Deferred upgrades may use `PluginIdentity` unde
 
 ## 8. Extraction / overlay strategy
 
-1. **Extract:** On `nav_menu_item` save / stale detection, extract **title only** when `post_title` is non-empty. Skip block/Elementor body paths for this post type.  
-2. **Overlay:** `the_title` applies for `nav_menu_item` when language ≠ default; Store miss → source title; errors isolated.  
-3. **Menus without custom titles:** unchanged; object-title path continues to use page/product translations.  
-4. **No HTML scrape** of `wp_nav_menu` output.  
+1. **Extract:** On `nav_menu_item` save / stale detection, extract **title only** when `post_title` is non-empty. Skip block/Elementor body paths for this post type.
+2. **Overlay:** `the_title` applies for `nav_menu_item` when language ≠ default; Store miss → source title; errors isolated.
+3. **Menus without custom titles:** unchanged; object-title path continues to use page/product translations.
+4. **No HTML scrape** of `wp_nav_menu` output.
 5. Sanitization: existing plain title rules.
 
 ---
@@ -169,9 +169,9 @@ Unchanged: Store, Suggestions, Review, TM, Glossary, Jobs, Integration diagnosti
 
 Workspace presentation for N1:
 
-- surface = post title (existing)  
-- human label e.g. “Menu item: Home”  
-- `source_subtype` / post_type = `nav_menu_item`  
+- surface = post title (existing)
+- human label e.g. “Menu item: Home”
+- `source_subtype` / post_type = `nav_menu_item`
 - no theme-chrome second pipeline
 
 ---
@@ -314,70 +314,70 @@ Workspace presentation for N1:
 
 ### Ownership & admissions (1–8)
 
-1. Only N1 is Supported unless evidence upgrades a Deferred row.  
-2. Gutenberg document ownership unchanged.  
-3. Elementor document ownership unchanged.  
-4. WooCommerce A.7* Supported/Deferred tables unchanged by A.6 code.  
-5. Fluent Forms A.8 surfaces unchanged.  
-6. Rank Math / SEO not translated by A.6.  
-7. Blocksy theme_mods not written by AIML.  
+1. Only N1 is Supported unless evidence upgrades a Deferred row.
+2. Gutenberg document ownership unchanged.
+3. Elementor document ownership unchanged.
+4. WooCommerce A.7* Supported/Deferred tables unchanged by A.6 code.
+5. Fluent Forms A.8 surfaces unchanged.
+6. Rank Math / SEO not translated by A.6.
+7. Blocksy theme_mods not written by AIML.
 8. No duplicate ownership of the same visible string under two Store keys.
 
 ### Identity & Store (9–16)
 
-9. No new identity family.  
-10. N1 uses `post_title` field only.  
-11. `source_id` = menu item post ID.  
-12. PluginIdentity not required for N1.  
-13. No path identity.  
-14. No fuzzy msgid identity.  
-15. TARGET remains **6**.  
+9. No new identity family.
+10. N1 uses `post_title` field only.
+11. `source_id` = menu item post ID.
+12. PluginIdentity not required for N1.
+13. No path identity.
+14. No fuzzy msgid identity.
+15. TARGET remains **6**.
 16. No Store / schema redesign.
 
 ### Workspace / Review / TM / Glossary / Jobs (17–24)
 
-17. `nav_menu_item` is Workspace-supported for title translation.  
-18. Translator can load N1 segments for a custom-titled item.  
-19. Review workflow accepts N1 segments.  
-20. TM suggestions available via existing path.  
-21. Glossary applies via existing path.  
-22. Background jobs can process N1 segments.  
-23. No second translation pipeline.  
+17. `nav_menu_item` is Workspace-supported for title translation.
+18. Translator can load N1 segments for a custom-titled item.
+19. Review workflow accepts N1 segments.
+20. TM suggestions available via existing path.
+21. Glossary applies via existing path.
+22. Background jobs can process N1 segments.
+23. No second translation pipeline.
 24. Workspace does not claim theme_mod ownership for Deferred chrome.
 
 ### Overlay & LanguageContext (25–32)
 
-25. Default language (EN) menus unchanged when no translation.  
-26. SV overlays custom title when Store has approved/applicable translation.  
-27. Store miss → source title.  
-28. Isolated overlay failure does not blank the menu.  
-29. Non-custom items still follow object-title translations (AC1).  
-30. LanguageContext / routing unchanged (ADR-0002 / 0008).  
-31. No language leakage into admin menus unintentionally (admin inert per Renderer gates).  
+25. Default language (EN) menus unchanged when no translation.
+26. SV overlays custom title when Store has approved/applicable translation.
+27. Store miss → source title.
+28. Isolated overlay failure does not blank the menu.
+29. Non-custom items still follow object-title translations (AC1).
+30. LanguageContext / routing unchanged (ADR-0002 / 0008).
+31. No language leakage into admin menus unintentionally (admin inert per Renderer gates).
 32. Re-entrancy guards remain safe.
 
 ### Visitor chrome & false positives (33–40)
 
-33. Live Main Menu custom “Home” translates under `/sv/…` (or active SV prefix).  
-34. False positives = 0 on Supported surface.  
-35. No translation of option values / URLs / CSS.  
-36. Header “Free shipping…” remains untranslated unless future ADR admits it (Deferred).  
-37. Footer copyright remains Deferred.  
-38. Block widget footer demo copy remains Deferred.  
-39. storefront search placeholders remain Deferred.  
+33. Live Main Menu custom “Home” translates under `/sv/…` (or active SV prefix).
+34. False positives = 0 on Supported surface.
+35. No translation of option values / URLs / CSS.
+36. Header “Free shipping…” remains untranslated unless future ADR admits it (Deferred).
+37. Footer copyright remains Deferred.
+38. Block widget footer demo copy remains Deferred.
+39. storefront search placeholders remain Deferred.
 40. Age Gate / Cookie banner remain Deferred / out of lane.
 
 ### Compatibility (41–50)
 
-41. Blocksy header/footer builder still renders.  
-42. Woo catalog/archive/journey/email Supported surfaces regress = 0.  
-43. Elementor Contact/Header documents regress = 0.  
-44. Gutenberg leaf/nested Supported surfaces regress = 0.  
-45. Fluent Forms #5 regress = 0.  
-46. Unit + integration tests cover N1 extract/overlay.  
-47. PluginGuard / PHPCS clean for touched PHP.  
-48. Diagnostics contain no PII.  
-49. HOOKS.md documents `nav_menu_item` title overlay behavior.  
+41. Blocksy header/footer builder still renders.
+42. Woo catalog/archive/journey/email Supported surfaces regress = 0.
+43. Elementor Contact/Header documents regress = 0.
+44. Gutenberg leaf/nested Supported surfaces regress = 0.
+45. Fluent Forms #5 regress = 0.
+46. Unit + integration tests cover N1 extract/overlay.
+47. PluginGuard / PHPCS clean for touched PHP.
+48. Diagnostics contain no PII.
+49. HOOKS.md documents `nav_menu_item` title overlay behavior.
 50. Validation log records Supported≠Deferred exactly.
 
 ---
@@ -388,12 +388,12 @@ Workspace presentation for N1:
 
 **Milestone STOP → focused ADR instead of coding:**
 
-- Store redesign / schema bump  
-- new identity family  
-- theme ownership changes (AIML writing theme_mods)  
-- duplicate ownership  
-- HTML scraping as primary strategy  
-- second translation pipeline  
+- Store redesign / schema bump
+- new identity family
+- theme ownership changes (AIML writing theme_mods)
+- duplicate ownership
+- HTML scraping as primary strategy
+- second translation pipeline
 
 ---
 
@@ -409,7 +409,7 @@ SEO; canonical URLs; hreflang; Rank Math; OpenGraph; Twitter; XML Sitemap; WooCo
 
 Recommend a **future focused ADR** (not part of A.6) only if product prioritizes:
 
-- site-scoped Store hosts for Blocksy theme_mods / Age Gate messages, or  
+- site-scoped Store hosts for Blocksy theme_mods / Age Gate messages, or
 - widget_block / option-hosted Gutenberg extraction hosts.
 
 ---
@@ -430,7 +430,7 @@ Deferred D1–D19 remain explicitly out of implementation scope until evidence +
 
 Update only:
 
-- [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md)  
-- [docs/ROADMAP.md](../ROADMAP.md)  
+- [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md)
+- [docs/ROADMAP.md](../ROADMAP.md)
 
 Do not renumber milestones. Do not modify `PRODUCT_PRIORITIES.md` in this planning commit.

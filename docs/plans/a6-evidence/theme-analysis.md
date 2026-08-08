@@ -1,8 +1,8 @@
 # A.6 — Theme analysis (Blocksy)
 
-**Parent theme:** Blocksy  
-**Child:** `blocksy-child` (BioPentra)  
-**Companion:** Blocksy Companion active  
+**Parent theme:** Blocksy
+**Child:** `blocksy-child` (BioPentra)
+**Companion:** Blocksy Companion active
 **Options host:** `theme_mods_blocksy` (≈77 keys; ~34 KB)
 
 ---
@@ -21,7 +21,7 @@ Visitor-facing custom content found:
 
 No AIML post identity. Overlay would require either:
 
-1. site-scoped Store resolution (framework change → ADR), or  
+1. site-scoped Store resolution (framework change → ADR), or
 2. HTML scrape of rendered header (Unsupported).
 
 **Disposition:** Deferred (D1).
