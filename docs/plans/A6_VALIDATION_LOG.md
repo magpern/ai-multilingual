@@ -72,7 +72,7 @@
 
 ## A6.5 — Deferred chrome
 
-**Status:** Pending
+**Status:** PASS — D1–D20 remain Deferred; no theme_mod/widget_block/gettext/storefront code. See [a6-evidence/deferred-surfaces-confirmed.md](a6-evidence/deferred-surfaces-confirmed.md).
 
 ---
 
