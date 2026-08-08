@@ -137,4 +137,4 @@
 
 ## A6.8 — Closure
 
-**Status:** Pending
+**Status:** PASS — plan/log/roadmap mark Supported **N1** Complete on impl branch; Deferred unchanged; recommended tag `a6-wordpress-visitor-chrome-complete` after independent review/merge. No merge/tag in this milestone execution.
