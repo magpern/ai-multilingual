@@ -60,7 +60,7 @@
 
 ## A6.3 — Extraction (N1)
 
-**Status:** Pending
+**Status:** PASS — `Extractor` returns title-only for non-empty `nav_menu_item.post_title`; empty custom titles → no units.
 
 ---
 

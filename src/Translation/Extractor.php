@@ -171,6 +171,13 @@ final class Extractor {
 	 * @return array<string, array{field_key: string, segment_key: string, source_text: string, text_format: string, segment_order: int, segment_kind: string}>
 	 */
 	public function extract( WP_Post $post ): array {
+		// A.6 N1: custom nav menu titles only — never excerpt/content/blocks/
+		// Elementor/integration units on this post type (object-title menus
+		// keep empty post_title and are covered by the linked object).
+		if ( 'nav_menu_item' === $post->post_type ) {
+			return $this->extract_nav_menu_item_title( $post );
+		}
+
 		$segments = array();
 
 		foreach ( self::fields() as $field_key => $spec ) {
@@ -247,6 +254,33 @@ final class Extractor {
 	 */
 	public function uses_block_workspace( WP_Post $post ): bool {
 		return $this->should_extract_blocks( $post );
+	}
+
+	/**
+	 * Extracts the custom title segment for a navigation menu item (A.6 N1).
+	 *
+	 * @param WP_Post $post Menu item post.
+	 * @return array<string, array{field_key: string, segment_key: string, source_text: string, text_format: string, segment_order: int, segment_kind: string}>
+	 */
+	private function extract_nav_menu_item_title( WP_Post $post ): array {
+		$source = (string) $post->post_title;
+
+		if ( '' === trim( $source ) ) {
+			return array();
+		}
+
+		$spec = self::fields()[ self::FIELD_TITLE ];
+
+		return array(
+			self::FIELD_TITLE => array(
+				'field_key'     => self::FIELD_TITLE,
+				'segment_key'   => self::FIELD_TITLE,
+				'source_text'   => $source,
+				'text_format'   => $spec['format'],
+				'segment_order' => $spec['order'],
+				'segment_kind'  => Store::KIND_FIELD,
+			),
+		);
 	}
 
 	/**
