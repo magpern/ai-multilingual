@@ -23,8 +23,11 @@ use PHPUnit\Framework\TestCase;
  */
 final class WorkspaceServiceTest extends TestCase {
 
-	public function test_supported_post_types_are_posts_and_pages(): void {
-		$this->assertSame( array( 'post', 'page', 'product' ), WorkspaceService::SUPPORTED_POST_TYPES );
+	public function test_supported_post_types_include_nav_menu_item_for_a6(): void {
+		$this->assertSame(
+			array( 'post', 'page', 'product', 'nav_menu_item' ),
+			WorkspaceService::SUPPORTED_POST_TYPES
+		);
 	}
 
 	public function test_conflict_exception_carries_refreshed_segments_and_status_code(): void {

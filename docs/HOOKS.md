@@ -29,7 +29,7 @@ becomes `enska-sidan/` and 404s. `parse_request` fires at the very end of
 
 | Hook | Priority | Notes |
 |---|---|---|
-| `the_title` | 10 (2 args) | Skips `nav_menu_item`; menus are a later milestone. |
+| `the_title` | 10 (2 args) | Overlays `post_title` for posts/pages/products and custom `nav_menu_item` titles (A.6 N1). Object-title menu entries call this filter with the linked object ID instead. |
 | `the_content` | **1** | Must run before core's `apply_block_hooks_to_content_from_post_object` (8) and `do_blocks` (9). Only substitutes when the incoming string is byte-identical to the queried post's raw `post_content`, because plugins apply this filter to arbitrary strings. |
 | `get_the_excerpt` | 10 (2 args) | Manual excerpts only; a generated excerpt derives from the already-translated body. |
 | `document_title_parts` | 20 | Singular views only. |

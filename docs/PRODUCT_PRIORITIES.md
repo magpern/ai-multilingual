@@ -50,7 +50,7 @@ Work the **first incomplete** milestone in this list. Completed waves remain lis
 | 4 | **A.6** | Remaining WordPress visitor chrome |
 | 5 | **A.SEO** | Visitor SEO as a first-class completion milestone |
 
-**A.7a** / **A.7b** / **A.7c** / **A.7d** are complete on `main` (A.7d tag `a7d-woocommerce-customer-emails-complete`; ADR-0018 implemented; Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred). The next target is **A.6** (Remaining WordPress visitor chrome) — not started.
+**A.7a** / **A.7b** / **A.7c** / **A.7d** are complete on `main` (A.7d tag `a7d-woocommerce-customer-emails-complete`; ADR-0018 implemented; Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred). **A.6** (Remaining WordPress visitor chrome) is **Complete** on `feature/a6-wordpress-visitor-chrome` (Supported N1; validation PASS; not merged/tagged). Next after A.6 merge/tag: **A.SEO** (unless priorities change).
 
 #### A.7c — WooCommerce Customer Journey
 

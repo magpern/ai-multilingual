@@ -30,7 +30,7 @@ use WP_Query;
  */
 final class WorkspaceService {
 
-	public const SUPPORTED_POST_TYPES = array( 'post', 'page', 'product' );
+	public const SUPPORTED_POST_TYPES = array( 'post', 'page', 'product', 'nav_menu_item' );
 
 	/**
 	 * Injected dependency.
@@ -240,7 +240,7 @@ final class WorkspaceService {
 
 			$items[] = array(
 				'post_id'        => (int) $post->ID,
-				'post_title'     => (string) $post->post_title,
+				'post_title'     => $this->workspace_list_title( $post ),
 				'post_type'      => (string) $post->post_type,
 				'post_status'    => (string) $post->post_status,
 				'modified_gmt'   => (string) $post->post_modified_gmt,
@@ -1205,6 +1205,32 @@ final class WorkspaceService {
 			'review_status_counts' => $this->store->review_status_counts( Store::SOURCE_POST, $source_id, $language_id ),
 			'pending_age'          => $this->store->review_pending_age_stats( Store::SOURCE_POST, $source_id, $language_id ),
 			'counters'             => $this->review_diagnostics->counters(),
+		);
+	}
+
+	/**
+	 * List/picker title for a workspace post.
+	 *
+	 * Nav menu items get a stable human prefix so N1 rows are recognizable
+	 * beside pages/products without a second workflow product.
+	 *
+	 * @param WP_Post $post Canonical post.
+	 */
+	private function workspace_list_title( WP_Post $post ): string {
+		$title = (string) $post->post_title;
+
+		if ( 'nav_menu_item' !== $post->post_type ) {
+			return $title;
+		}
+
+		if ( '' === trim( $title ) ) {
+			$title = __( '(untitled menu item)', 'ai-multilingual' );
+		}
+
+		return sprintf(
+			/* translators: %s: navigation menu item title */
+			__( 'Menu item: %s', 'ai-multilingual' ),
+			$title
 		);
 	}
 

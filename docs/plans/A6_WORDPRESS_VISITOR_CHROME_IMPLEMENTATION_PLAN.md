@@ -1,20 +1,22 @@
 # A.6 — WordPress Visitor Chrome — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation authorized, not started
+**Status:** **Complete** — implemented and validated on `feature/a6-wordpress-visitor-chrome` (not merged / not tagged)
 **Milestone:** Program A — **A.6** Remaining WordPress visitor chrome
 **Plan freeze:** Visitor-facing WordPress chrome **not** already owned by Gutenberg, Elementor, WooCommerce (A.7*), Fluent Forms (A.8), or SEO (A.SEO); per-surface admission via evidence; Supported = **N1** only unless new evidence upgrades Deferred without architecture violation; TARGET **6**
 **ADR assessment:** **No new ADR required** for the admitted Supported set (N1). Site-global theme_mods / widget_block hosts / Age Gate-style shared definitions remain Deferred — pursuing them requires a **focused ADR**, not silent Store redesign.
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.1 / A.6 family
 **Planning branch:** `feature/a6-wordpress-visitor-chrome-plan` (merged)
-**Implementation branch:** `feature/a6-wordpress-visitor-chrome` (**create from current `main` after this freeze**)
+**Implementation branch:** `feature/a6-wordpress-visitor-chrome`
+**Validation log:** [A6_VALIDATION_LOG.md](A6_VALIDATION_LOG.md)
 **Baseline (plan authoring):** `main` @ `063a5d1bc40c7a6b46c0856c173199b77b2e37c2`
+**Implementation baseline:** `main` @ `8db7d5c67fd0f78314232c8730000fa2ff9abe55`
 **Depends on:** A.7a–A.7d complete; A.8 complete; A.SEO parent architecture present; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; schema TARGET **6**
 **Evidence:** [a6-evidence/ownership-inventory.md](a6-evidence/ownership-inventory.md); [a6-evidence/admission-matrix.md](a6-evidence/admission-matrix.md); [a6-evidence/theme-analysis.md](a6-evidence/theme-analysis.md); [a6-evidence/widget-analysis.md](a6-evidence/widget-analysis.md); [a6-evidence/shortcode-analysis.md](a6-evidence/shortcode-analysis.md); [a6-evidence/gettext-analysis.md](a6-evidence/gettext-analysis.md); [a6-evidence/visitor-chrome-inventory.md](a6-evidence/visitor-chrome-inventory.md)
-**Product direction:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md) — A.6 next after A.7d
+**Product direction:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md)
 
 **Operational success:** Merchants can translate **custom navigation menu item titles** through existing Store / Workspace / Review / TM / Glossary / Jobs paths in SV (and other non-default languages), without stealing theme/Elementor/Woo/Fluent/SEO ownership and without Store redesign.
 
-**This plan is the canonical frozen implementation contract for A.6 on `main`.** Implementation not started.
+**This plan remains the canonical implementation contract for A.6.** Supported surface shipped: **N1** only.
 
 ---
 
@@ -416,13 +418,11 @@ Recommend a **future focused ADR** (not part of A.6) only if product prioritizes
 
 ## 16. Architecture verdict
 
-**Architecture Frozen (planning)** for Supported **N1** only.
+**Complete** for Supported **N1** only (validated on implementation branch).
 
-Deferred D1–D19 remain explicitly out of implementation scope until evidence + (if needed) ADR.
+Deferred D1–D20 remain explicitly out of implementation scope until evidence + (if needed) ADR.
 
-**Implementation not started.**
-
-**Next after this planning branch merges:** create `feature/a6-wordpress-visitor-chrome` and execute A6.0+.
+**Next:** independent review → merge → tag `a6-wordpress-visitor-chrome-complete` → then A.SEO (or next Product Priorities target).
 
 ---
 
