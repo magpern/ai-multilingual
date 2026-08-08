@@ -78,7 +78,13 @@
 
 ## A6.6 — Workspace / lifecycle
 
-**Status:** Pending
+**Status:** PASS
+
+- `nav_menu_item` in Workspace allowlist (A6.2)
+- List label `Menu item: …`
+- Existing `save_post` stale detection syncs N1 via Extractor title-only path
+- Review / TM / Glossary / Jobs reuse Store `post_title` segments — no second pipeline
+- Diagnostics: no new counters; no PII
 
 ---
 
