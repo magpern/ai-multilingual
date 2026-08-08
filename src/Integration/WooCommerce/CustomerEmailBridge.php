@@ -27,12 +27,14 @@ final class CustomerEmailBridge {
 	public const FIELD_HEADING = 'heading';
 
 	/**
-	 * @param WooCommerceIntegration                                    $integration        Woo integration.
-	 * @param OrderTransactionalLanguage                                 $transactional      Language snapshot service.
-	 * @param Store                                                      $store              Translation store.
-	 * @param PluginIdentity                                             $identity           Identity builder.
-	 * @param IntegrationDiagnostics|null                                $diagnostics        Counters.
-	 * @param (callable(int,int,string): (?string))|null                 $translation_lookup Test Store override.
+	 * Builds the customer email overlay bridge.
+	 *
+	 * @param WooCommerceIntegration                     $integration        Woo integration.
+	 * @param OrderTransactionalLanguage                 $transactional      Language snapshot service.
+	 * @param Store                                      $store              Translation store.
+	 * @param PluginIdentity                             $identity           Identity builder.
+	 * @param IntegrationDiagnostics|null                $diagnostics        Counters.
+	 * @param (callable(int,int,string): (?string))|null $translation_lookup Test Store override.
 	 */
 	public function __construct(
 		private WooCommerceIntegration $integration,
@@ -55,16 +57,16 @@ final class CustomerEmailBridge {
 		foreach ( WooCommerceIntegration::EMAIL_ID_ALLOWLIST as $email_id ) {
 			add_filter(
 				'woocommerce_email_subject_' . $email_id,
-				function ( $subject, $object = null, $email = null ) use ( $email_id ) {
-					return $this->overlay_email_chrome( $subject, $object, $email, $email_id, self::FIELD_SUBJECT );
+				function ( $subject, $order_object = null, $email = null ) use ( $email_id ) {
+					return $this->overlay_email_chrome( $subject, $order_object, $email, $email_id, self::FIELD_SUBJECT );
 				},
 				10,
 				3
 			);
 			add_filter(
 				'woocommerce_email_heading_' . $email_id,
-				function ( $heading, $object = null, $email = null ) use ( $email_id ) {
-					return $this->overlay_email_chrome( $heading, $object, $email, $email_id, self::FIELD_HEADING );
+				function ( $heading, $order_object = null, $email = null ) use ( $email_id ) {
+					return $this->overlay_email_chrome( $heading, $order_object, $email, $email_id, self::FIELD_HEADING );
 				},
 				10,
 				3
@@ -75,19 +77,19 @@ final class CustomerEmailBridge {
 	/**
 	 * Overlay one subject or heading using ADR-0018 language resolution.
 	 *
-	 * @param mixed  $formatted Already format_string'd source from Woo.
-	 * @param mixed  $object    Order object.
-	 * @param mixed  $email     WC_Email instance.
-	 * @param string $email_id  Email id token.
-	 * @param string $field     subject|heading.
+	 * @param mixed  $formatted    Already format_string'd source from Woo.
+	 * @param mixed  $order_object Order object.
+	 * @param mixed  $email        WC_Email instance.
+	 * @param string $email_id     Email id token.
+	 * @param string $field        subject|heading.
 	 * @return mixed
 	 */
-	private function overlay_email_chrome( $formatted, $object, $email, string $email_id, string $field ) {
+	private function overlay_email_chrome( $formatted, $order_object, $email, string $email_id, string $field ) {
 		if ( ! is_string( $formatted ) ) {
 			return $formatted;
 		}
 
-		$order = is_object( $object ) ? $object : null;
+		$order = is_object( $order_object ) ? $order_object : null;
 
 		return $this->transactional->with_order_language(
 			$order,
@@ -135,9 +137,11 @@ final class CustomerEmailBridge {
 	}
 
 	/**
-	 * @param int    $source_id    Checkout page ID.
-	 * @param int    $language_id  Language ID.
-	 * @param string $segment_key  Segment key.
+	 * Look up an approved translation for an email chrome segment.
+	 *
+	 * @param int    $source_id   Checkout page ID.
+	 * @param int    $language_id Language ID.
+	 * @param string $segment_key Segment key.
 	 */
 	private function lookup_translation( int $source_id, int $language_id, string $segment_key ): ?string {
 		if ( null !== $this->translation_lookup ) {
@@ -153,6 +157,8 @@ final class CustomerEmailBridge {
 	}
 
 	/**
+	 * Apply Woo format_string so placeholders remain runtime.
+	 *
 	 * @param string $template Translated template (may include {placeholders}).
 	 * @param mixed  $email    WC_Email.
 	 */
@@ -165,6 +171,8 @@ final class CustomerEmailBridge {
 	}
 
 	/**
+	 * Increment a bounded diagnostics counter.
+	 *
 	 * @param string $key Counter.
 	 */
 	private function bump( string $key ): void {

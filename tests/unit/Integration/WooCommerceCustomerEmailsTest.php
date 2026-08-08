@@ -86,10 +86,12 @@ final class WooCommerceCustomerEmailsTest extends TestCase {
 		$order = $this->fake_order( array( OrderTransactionalLanguage::META_KEY => 'sv' ) );
 		$email = new class() {
 			/**
-			 * @param string $string Template.
+			 * Format placeholders in an email template string.
+			 *
+			 * @param string $template Template.
 			 */
-			public function format_string( string $string ): string {
-				return str_replace( '{site_title}', 'Biopentra', $string );
+			public function format_string( string $template ): string {
+				return str_replace( '{site_title}', 'Biopentra', $template );
 			}
 		};
 
@@ -119,7 +121,7 @@ final class WooCommerceCustomerEmailsTest extends TestCase {
 			null,
 			array( $en, $sv )
 		);
-		$bridge = new CustomerEmailBridge(
+		$bridge        = new CustomerEmailBridge(
 			$integration,
 			$transactional,
 			new Store( new Cache() ),
@@ -191,7 +193,9 @@ final class WooCommerceCustomerEmailsTest extends TestCase {
 			/** @var array<string, string> */
 			public array $meta;
 
-			/** @param array<string, string> $meta Meta. */
+			/**
+			 * @param array<string, string> $meta Meta map.
+			 */
 			public function __construct( array $meta ) {
 				$this->meta = $meta;
 			}

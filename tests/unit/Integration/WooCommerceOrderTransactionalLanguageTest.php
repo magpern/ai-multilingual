@@ -61,7 +61,7 @@ final class WooCommerceOrderTransactionalLanguageTest extends TestCase {
 			array( $en, $sv )
 		);
 
-		$order = $this->fake_order( array( OrderTransactionalLanguage::META_KEY => 'sv' ) );
+		$order    = $this->fake_order( array( OrderTransactionalLanguage::META_KEY => 'sv' ) );
 		$resolved = $service->resolve_language_for_order( $order );
 		$this->assertNotNull( $resolved );
 		$this->assertSame( 'sv', $resolved->code );
@@ -112,7 +112,7 @@ final class WooCommerceOrderTransactionalLanguageTest extends TestCase {
 			null,
 			array( $en, $sv )
 		);
-		$order = $this->fake_order( array( OrderTransactionalLanguage::META_KEY => 'sv' ) );
+		$order   = $this->fake_order( array( OrderTransactionalLanguage::META_KEY => 'sv' ) );
 
 		try {
 			$service->with_order_language(
@@ -150,7 +150,9 @@ final class WooCommerceOrderTransactionalLanguageTest extends TestCase {
 			/** @var array<string, string> */
 			public array $meta;
 
-			/** @param array<string, string> $meta Meta. */
+			/**
+			 * @param array<string, string> $meta Meta map.
+			 */
 			public function __construct( array $meta ) {
 				$this->meta = $meta;
 			}

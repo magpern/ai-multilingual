@@ -1183,8 +1183,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			if ( ! is_array( $row ) ) {
 				continue;
 			}
-			$subject = isset( $row['subject'] ) ? (string) $row['subject'] : '';
-			$heading = isset( $row['heading'] ) ? (string) $row['heading'] : '';
+			$subject      = isset( $row['subject'] ) ? (string) $row['subject'] : '';
+			$heading      = isset( $row['heading'] ) ? (string) $row['heading'] : '';
 			$subject_unit = $this->make_journey_unit(
 				self::OWNER_EMAIL,
 				$email_id,

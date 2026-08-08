@@ -23,19 +23,21 @@ final class OrderTransactionalLanguage {
 
 	public const META_KEY = '_aiml_transactional_language';
 
-	public const COUNTER_SNAPSHOT_CAPTURED              = 'snapshot_captured';
-	public const COUNTER_SNAPSHOT_PRESENT               = 'snapshot_present';
-	public const COUNTER_SNAPSHOT_MISSING               = 'snapshot_missing';
-	public const COUNTER_SNAPSHOT_INVALID               = 'snapshot_invalid';
+	public const COUNTER_SNAPSHOT_CAPTURED               = 'snapshot_captured';
+	public const COUNTER_SNAPSHOT_PRESENT                = 'snapshot_present';
+	public const COUNTER_SNAPSHOT_MISSING                = 'snapshot_missing';
+	public const COUNTER_SNAPSHOT_INVALID                = 'snapshot_invalid';
 	public const COUNTER_TRANSACTIONAL_LANGUAGE_RESOLVED = 'transactional_language_resolved';
-	public const COUNTER_SOURCE_LANGUAGE_FALLBACK       = 'source_language_fallback';
-	public const COUNTER_CONTEXT_RESTORED               = 'context_restored';
+	public const COUNTER_SOURCE_LANGUAGE_FALLBACK        = 'source_language_fallback';
+	public const COUNTER_CONTEXT_RESTORED                = 'context_restored';
 
 	/**
-	 * @param LanguageContext             $context             Request language state.
-	 * @param Languages                   $languages           Language rows.
-	 * @param IntegrationDiagnostics|null $diagnostics         Optional counters.
-	 * @param list<object>|null           $languages_override  Test language rows.
+	 * Builds the transactional language service.
+	 *
+	 * @param LanguageContext             $context            Request language state.
+	 * @param Languages                   $languages          Language rows.
+	 * @param IntegrationDiagnostics|null $diagnostics        Optional counters.
+	 * @param list<object>|null           $languages_override Test language rows.
 	 */
 	public function __construct(
 		private LanguageContext $context,
@@ -143,8 +145,8 @@ final class OrderTransactionalLanguage {
 	 *
 	 * Callback receives the resolved language row (or null).
 	 *
-	 * @param object|null                $order    Order.
-	 * @param callable(?object): mixed   $callback Work.
+	 * @param object|null              $order    Order.
+	 * @param callable(?object): mixed $callback Work.
 	 * @return mixed
 	 */
 	public function with_order_language( ?object $order, callable $callback ) {
@@ -162,6 +164,8 @@ final class OrderTransactionalLanguage {
 	}
 
 	/**
+	 * Read the AIML transactional language meta value.
+	 *
 	 * @param object $order Order.
 	 */
 	private function read_meta( object $order ): ?string {
@@ -177,6 +181,8 @@ final class OrderTransactionalLanguage {
 	}
 
 	/**
+	 * Whether the code is a configured non-disabled language.
+	 *
 	 * @param string $code Candidate code.
 	 */
 	private function is_supported_code( string $code ): bool {
@@ -187,6 +193,8 @@ final class OrderTransactionalLanguage {
 	}
 
 	/**
+	 * Find a configured language by code.
+	 *
 	 * @param string $code Language code.
 	 */
 	private function find_language_by_code( string $code ): ?object {
@@ -207,6 +215,8 @@ final class OrderTransactionalLanguage {
 	}
 
 	/**
+	 * Language row list.
+	 *
 	 * @return list<object>
 	 */
 	private function all_languages(): array {
@@ -232,6 +242,8 @@ final class OrderTransactionalLanguage {
 	}
 
 	/**
+	 * Normalize an order reference.
+	 *
 	 * @param mixed $order_id Order ID.
 	 * @param mixed $order    Order object.
 	 */
@@ -248,6 +260,8 @@ final class OrderTransactionalLanguage {
 	}
 
 	/**
+	 * Increment a bounded diagnostics counter.
+	 *
 	 * @param string $key Counter key.
 	 */
 	private function bump( string $key ): void {

@@ -224,8 +224,8 @@ final class Plugin {
 
 		$integration_diagnostics = new IntegrationDiagnostics();
 		$integration_registry    = new IntegrationRegistry( $integration_diagnostics );
-		$plugin_identity = new PluginIdentity( $integration_diagnostics );
-		$woo_integration = WooCommerceIntegration::create_default( $plugin_identity );
+		$plugin_identity         = new PluginIdentity( $integration_diagnostics );
+		$woo_integration         = WooCommerceIntegration::create_default( $plugin_identity );
 		$integration_registry->register(
 			FluentFormsIntegration::create_default( $plugin_identity )
 		);
