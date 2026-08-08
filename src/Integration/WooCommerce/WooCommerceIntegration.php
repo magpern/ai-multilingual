@@ -1,6 +1,6 @@
 <?php
 /**
- * WooCommerce Product & Catalog Integration API v1 consumer (A.7a).
+ * WooCommerce Product, Catalog, and Archive Chrome Integration API v1 consumer (A.7a / A.7b).
  *
  * @package AIMultilingual
  */
@@ -19,10 +19,11 @@ use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
- * Record-owned WooCommerce bridge for A.7a Supported product/catalog surfaces.
+ * Record-owned WooCommerce bridge for A.7a product/catalog and A.7b archive chrome.
  *
  * Product: attribute names (P5) and variation attribute names (P7).
  * Catalog: product_cat / product_tag name + description (C3–C6) on shop page host.
+ * Archive chrome: catalog orderby / orderedby labels (B1–B2) on shop page technical anchor.
  * Title/excerpt/content (P1–P3, C1–C2) remain on the existing post Extractor/Renderer path.
  */
 final class WooCommerceIntegration implements PluginIntegrationInterface {
@@ -41,9 +42,17 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 
 	public const HOOK_PAGE_TITLE = 'woocommerce_page_title';
 
+	public const HOOK_CATALOG_ORDERBY = 'woocommerce_catalog_orderby';
+
+	public const HOOK_CATALOG_ORDEREDBY = 'woocommerce_catalog_orderedby';
+
 	public const TAXONOMY_CAT = 'product_cat';
 
 	public const TAXONOMY_TAG = 'product_tag';
+
+	public const OWNER_CATALOG_ORDERBY = 'catalog_orderby';
+
+	public const OWNER_CATALOG_ORDEREDBY = 'catalog_orderedby';
 
 	public const FIELD_ATTRIBUTE_NAME = 'attribute_name';
 
@@ -52,6 +61,23 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	public const FIELD_NAME = 'name';
 
 	public const FIELD_DESCRIPTION = 'description';
+
+	public const FIELD_LABEL = 'label';
+
+	/**
+	 * Frozen B1/B2 functional option keys (never translated).
+	 *
+	 * @var list<string>
+	 */
+	public const ORDERBY_ALLOWLIST = array(
+		'menu_order',
+		'popularity',
+		'rating',
+		'date',
+		'price',
+		'price-desc',
+		'relevance',
+	);
 
 	/**
 	 * Builds the WooCommerce integration.
@@ -65,6 +91,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	 * @param int|null                                                                                   $shop_page_id             Test override shop page ID.
 	 * @param (callable(int): list<array{slug:string,label:string,variation:bool}>)|null                 $attributes_provider      Test product attributes.
 	 * @param (callable(): list<array{taxonomy:string,term_id:int,name:string,description:string}>)|null $terms_provider Test catalog terms.
+	 * @param (callable(): array<string, string>)|null                                                   $orderby_labels_provider  Test B1 labels.
+	 * @param (callable(): array<string, string>)|null                                                   $orderedby_labels_provider Test B2 labels.
 	 */
 	public function __construct(
 		private PluginIdentity $identity,
@@ -76,6 +104,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		private ?int $shop_page_id = null,
 		private $attributes_provider = null,
 		private $terms_provider = null,
+		private $orderby_labels_provider = null,
+		private $orderedby_labels_provider = null,
 	) {
 	}
 
@@ -149,6 +179,9 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			foreach ( $this->extract_catalog_term_units() as $unit ) {
 				$this->append_unique( $units, $seen, $unit );
 			}
+			foreach ( $this->extract_catalog_order_units() as $unit ) {
+				$this->append_unique( $units, $seen, $unit );
+			}
 		}
 
 		return $units;
@@ -199,6 +232,69 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			10,
 			2
 		);
+
+		add_filter(
+			self::HOOK_CATALOG_ORDERBY,
+			function ( $options ) use ( $resolve ) {
+				return $this->overlay_catalog_order_map( $options, self::OWNER_CATALOG_ORDERBY, $resolve );
+			},
+			10,
+			1
+		);
+
+		add_filter(
+			self::HOOK_CATALOG_ORDEREDBY,
+			function ( $options ) use ( $resolve ) {
+				return $this->overlay_catalog_order_map( $options, self::OWNER_CATALOG_ORDEREDBY, $resolve );
+			},
+			10,
+			1
+		);
+	}
+
+	/**
+	 * Overlay catalog orderby / orderedby option labels (B1 / B2).
+	 *
+	 * Mutates map values only. Functional option keys are never changed.
+	 *
+	 * @param mixed                       $options    Option map.
+	 * @param string                      $owner_type Identity owner_type (catalog_orderby|catalog_orderedby).
+	 * @param callable(string): (?string) $resolve    Resolver.
+	 * @return mixed
+	 */
+	private function overlay_catalog_order_map( $options, string $owner_type, callable $resolve ) {
+		if ( ! is_array( $options ) ) {
+			return $options;
+		}
+
+		$out = array();
+		foreach ( $options as $key => $label ) {
+			if ( ! is_string( $key ) || ! is_string( $label ) ) {
+				$out[ $key ] = $label;
+				continue;
+			}
+			if ( ! in_array( $key, self::ORDERBY_ALLOWLIST, true ) ) {
+				$out[ $key ] = $label;
+				continue;
+			}
+
+			try {
+				$segment_key = $this->identity->build( self::ID, $owner_type, $key, self::FIELD_LABEL );
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				$out[ $key ] = $label;
+				continue;
+			}
+
+			$translated = $resolve( $segment_key );
+			if ( ! is_string( $translated ) ) {
+				$out[ $key ] = $label;
+				continue;
+			}
+			$plain = IntegrationSecurity::sanitize_plain( $translated );
+			$out[ $key ] = '' !== $plain ? $plain : $label;
+		}
+
+		return $out;
 	}
 
 	/**
@@ -584,6 +680,104 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			}
 		}
 		return $units;
+	}
+
+	/**
+	 * Extract Supported B1/B2 catalog ordering label units for the shop technical host.
+	 *
+	 * @return list<TranslationUnitDescriptor>
+	 */
+	private function extract_catalog_order_units(): array {
+		$units = array();
+		foreach ( $this->read_catalog_orderby_labels() as $key => $label ) {
+			$unit = $this->make_catalog_order_unit( self::OWNER_CATALOG_ORDERBY, $key, $label, 'Catalog orderby: ' . $key );
+			if ( null !== $unit ) {
+				$units[] = $unit;
+			}
+		}
+		foreach ( $this->read_catalog_orderedby_labels() as $key => $label ) {
+			$unit = $this->make_catalog_order_unit( self::OWNER_CATALOG_ORDEREDBY, $key, $label, 'Catalog orderedby: ' . $key );
+			if ( null !== $unit ) {
+				$units[] = $unit;
+			}
+		}
+		return $units;
+	}
+
+	/**
+	 * Build one B1/B2 translation unit when key and label are valid.
+	 *
+	 * @param string $owner_type Identity owner_type.
+	 * @param string $key        Functional Woo option key.
+	 * @param string $label      Display label source.
+	 * @param string $field_label Workspace field label.
+	 */
+	private function make_catalog_order_unit( string $owner_type, string $key, string $label, string $field_label ): ?TranslationUnitDescriptor {
+		if ( ! in_array( $key, self::ORDERBY_ALLOWLIST, true ) ) {
+			return null;
+		}
+		$plain = IntegrationSecurity::sanitize_plain( $label );
+		if ( '' === $plain ) {
+			return null;
+		}
+		try {
+			$segment_key = $this->identity->build( self::ID, $owner_type, $key, self::FIELD_LABEL );
+		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			return null;
+		}
+
+		return new TranslationUnitDescriptor(
+			$segment_key,
+			$plain,
+			Store::source_hash( $plain, Store::FORMAT_PLAIN ),
+			Store::FORMAT_PLAIN,
+			Contract::OWNERSHIP_RECORD,
+			$owner_type,
+			$key,
+			self::FIELD_LABEL,
+			$field_label,
+			self::ID,
+			'WooCommerce archive chrome'
+		);
+	}
+
+	/**
+	 * Canonical B1 display labels (classic archive orderby map + relevance).
+	 *
+	 * @return array<string, string>
+	 */
+	private function read_catalog_orderby_labels(): array {
+		if ( null !== $this->orderby_labels_provider ) {
+			return ( $this->orderby_labels_provider )();
+		}
+		return array(
+			'menu_order'  => 'Default sorting',
+			'popularity'  => 'Sort by popularity',
+			'rating'      => 'Sort by average rating',
+			'date'        => 'Sort by latest',
+			'price'       => 'Sort by price: low to high',
+			'price-desc'  => 'Sort by price: high to low',
+			'relevance'   => 'Relevance',
+		);
+	}
+
+	/**
+	 * Canonical B2 display labels (classic orderedby / result-count SR map).
+	 *
+	 * @return array<string, string>
+	 */
+	private function read_catalog_orderedby_labels(): array {
+		if ( null !== $this->orderedby_labels_provider ) {
+			return ( $this->orderedby_labels_provider )();
+		}
+		return array(
+			'menu_order' => 'Default sorting',
+			'popularity' => 'Sorted by popularity',
+			'rating'     => 'Sorted by average rating',
+			'date'       => 'Sorted by latest',
+			'price'      => 'Sorted by price: low to high',
+			'price-desc' => 'Sorted by price: high to low',
+		);
 	}
 
 	/**
