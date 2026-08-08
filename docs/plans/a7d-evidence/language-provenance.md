@@ -1,12 +1,13 @@
 # A.7d — Customer-language provenance (hard gate)
 
-**Verdict:** **Blocked pending language-context architecture decision**
+**Verdict (planning discovery):** Blocked — no existing deterministic source.
+**Verdict (architecture gate):** **Pass** — satisfied by Accepted [ADR-0018](../../adr/0018-woocommerce-order-transactional-language-context.md) (`_aiml_transactional_language` on the Woo order).
 
 Wrong-language leakage is a hard failure. Planning **must not** freeze: “use whatever locale is active when the email sends.”
 
-## Executive finding
+## Executive finding (planning-time)
 
-There is **no existing deterministic persisted customer-language source** on orders or customers that covers the admitted email send paths.
+At A.7d planning time there was **no existing deterministic persisted customer-language source** on orders or customers that covered the admitted email send paths.
 
 | Source examined | Result |
 |---|---|
@@ -18,9 +19,9 @@ There is **no existing deterministic persisted customer-language source** on ord
 | Woo billing country | Geography ≠ language |
 | Current request locale at send time | Available only for some sync paths; **untrustworthy** for admin/cron/resend |
 
-Therefore meaningful A.7d for CE1–CE6 requires a **new AIML-owned persistent language-context contract** (order and/or customer snapshot). That is a new architectural contract → **focused language-context ADR required**. **Do not author the ADR in A.7d planning.** **Do not implement the snapshot in A.7d planning.**
+Therefore meaningful A.7d for CE1–CE6 required a **new AIML-owned persistent language-context contract**. That contract is now frozen in **ADR-0018** (order meta snapshot). **Do not implement the snapshot in planning docs alone** — implementation belongs to A.7d coding.
 
-CE7/CE8 may defer independently if their non-order provenance remains weaker after the ADR; **do not block CE1–CE6 solely because CE7/CE8 fail**, once order language is solved — but **today both are blocked** by the missing contract.
+CE7/CE8 remain **Deferred** (ADR-0018 does not cover non-order emails). They **do not block** CE1–CE6 / CE9–CE10 order-backed admissions.
 
 ---
 
@@ -120,22 +121,21 @@ Legend: **Y** = available and usable; **N** = not available; **?** = sometimes /
 
 ### Does an existing deterministic source cover admitted paths?
 
-**No.**
+**At planning time: No.**
+**After ADR-0018: Yes (contractual)** — implementation must materialize `_aiml_transactional_language` per the ADR.
 
-### If A.7d required a new AIML-owned snapshot
+### Frozen snapshot contract (ADR-0018)
 
-Document for the future ADR (not decided here):
-
-| Topic | Planning note |
+| Topic | Decision |
 |---|---|
-| Owner of metadata | AIML (integration meta), **not** rewriting Woo business fields |
-| Capture time | Likely checkout / account registration when `LanguageContext` is trustworthy |
-| HPOS implications | Must use Woo order meta APIs compatible with HPOS (live: HPOS **yes**) |
-| Retries / resends | Read snapshot at send; wrap render in `LanguageContext::with()` |
-| Cleanup / lifecycle | Align with order/user retention; no orphan PII |
-| Privacy | Language code only — **no** names, emails, addresses in the marker |
-| New architectural contract? | **Yes** |
-| Focused ADR required? | **Yes** — do not invent the contract inside A.7d coding |
+| Owner of metadata | AIML operational meta on Woo order |
+| Key | `_aiml_transactional_language` |
+| Capture time | Visitor order creation when `LanguageContext` is deterministic |
+| HPOS | Woo CRUD order meta (HPOS-compatible) |
+| Retries / resends | Resolve snapshot; `LanguageContext::with()` |
+| Immutability | Default immutable after capture |
+| Privacy | Language code only |
+| Schema | No TARGET bump |
 
 ### Forbidden freeze
 
@@ -147,7 +147,7 @@ Document for the future ADR (not decided here):
 
 | Outcome | Condition |
 |---|---|
-| Architecture Frozen | Existing deterministic provenance sufficient for admitted CE set |
-| **Blocked pending language-context architecture decision** | **← current** — new persistence contract required |
+| **Architecture Frozen** | **← current** — ADR-0018 Accepted; order-backed CE subject/heading admitted |
+| Blocked pending language-context architecture decision | Planning-time state (historical) |
 
-**A.7d production implementation must not start** until the language-context ADR is Accepted (or an alternative existing source is proven). After that ADR, return to A.7d admission freeze (subjects/headings first) without reopening excluded owners.
+**A.7d production implementation is authorized** on `feature/a7d-woocommerce-customer-emails` per the frozen plan + ADR-0018. Snapshot + email overlays are implementation work — not started in the ADR/docs gate.

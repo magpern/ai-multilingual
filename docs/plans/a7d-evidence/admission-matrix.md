@@ -1,90 +1,104 @@
-# A.7d — Admission matrix (planning)
+# A.7d — Admission matrix (Architecture Frozen)
 
-**Status:** **Not Architecture Frozen** — language provenance gate **Blocked** ([language-provenance.md](language-provenance.md)).
-
-Dispositions below are **conditional candidates** for a future freeze **after** a language-context ADR. None are Supported for implementation today.
+**Status:** **Architecture Frozen** — language provenance gate **Pass** via [ADR-0018](../../adr/0018-woocommerce-order-transactional-language-context.md).
+Prior planning evidence: [language-provenance.md](language-provenance.md).
 
 ## Disposition legend
 
 | Disposition | Meaning |
 |---|---|
-| **Blocked (provenance)** | Woo-owned chrome candidate, but customer language cannot be resolved safely |
-| **Deferred** | Wrong seam, niche, gettext-only, shared-definition, or not live-registered |
+| **Supported** | Admitted for A.7d implementation (subject to AC + ADR-0018 language contract) |
+| **Deferred** | Wrong seam, niche, gettext-only, shared-definition, non-order provenance, or not live-registered |
 | **Exclude** | Wrong owner / hard out of scope |
-| **Supported** | *Reserved — none until Architecture Frozen* |
 
-## CE matrix
+## Final CE matrix
 
-| ID | Surface | Order? | HTML/plain | Identity hypothesis (not frozen) | Disposition |
-|---|---|---|---|---|---|
-| CE1 | Processing Order | Y | both templates exist | `p:woocommerce:email:customer_processing_order:subject\|heading` (+ body tokens if filter-proven) | **Blocked (provenance)** |
-| CE2 | Completed Order | Y | both | `…:customer_completed_order:…` | **Blocked (provenance)** |
-| CE3 | On-Hold Order | Y | both | `…:customer_on_hold_order:…` | **Blocked (provenance)** |
-| CE4 | Customer Invoice / Order Details | Y | both | `…:customer_invoice:…` | **Blocked (provenance)** |
-| CE5 | Customer Note | Y | both | chrome only; note body = runtime/PII | **Blocked (provenance)** |
-| CE6 | Refunded Order | Y | both | `…:customer_refunded_order:…` | **Blocked (provenance)** |
-| CE7 | New Account | N | both | `…:customer_new_account:…` | **Blocked (provenance)** — may **Defer** independently after order ADR |
-| CE8 | Reset Password | N | both | `…:customer_reset_password:…` | **Blocked (provenance)** — may **Defer** independently |
-| CE9 | Failed Order | Y | both | `…:customer_failed_order:…` | **Blocked (provenance)** — secondary to CE1–CE6 |
-| CE10 | Cancelled Order | Y | both | `…:customer_cancelled_order:…` | **Blocked (provenance)** — secondary |
-| CE11 | POS Completed | Y | both | — | **Deferred** (POS niche) |
-| CE12 | POS Refunded | Y | both | — | **Deferred** (POS niche) |
-| CE13–CE15 | Fulfillment / partial refund / review | — | — | — | **Deferred** (not live-registered) |
-| — | VCCP / admin / Fluent / WP core / marketing | — | — | — | **Exclude** |
-| — | Global email footer/header option text | shared | — | shared-definition risk | **Deferred** |
-| — | Template gettext body sentences without filters | — | — | — | **Deferred** |
-| — | Product titles inside email tables | — | — | A.7a identities | **Reuse A.7a** (not new A.7d keys) |
+| ID | Surface | Order? | Admitted chrome | HTML/plain | Identity (frozen) | Disposition |
+|---|---|---|---|---|---|---|
+| **CE1** | Processing Order | Y | subject + heading | **Supported in both** (via `WC_Email::get_subject` / `get_heading`) | `p:woocommerce:email:customer_processing_order:subject` / `:heading` | **Supported** |
+| **CE2** | Completed Order | Y | subject + heading | Supported in both | `…:customer_completed_order:subject` / `:heading` | **Supported** |
+| **CE3** | On-Hold Order | Y | subject + heading | Supported in both | `…:customer_on_hold_order:subject` / `:heading` | **Supported** |
+| **CE4** | Customer Invoice | Y | subject + heading | Supported in both | `…:customer_invoice:subject` / `:heading` | **Supported** |
+| **CE5** | Customer Note | Y | subject + heading only (note body = runtime/PII) | Supported in both | `…:customer_note:subject` / `:heading` | **Supported** |
+| **CE6** | Refunded Order | Y | subject + heading | Supported in both | `…:customer_refunded_order:subject` / `:heading` | **Supported** |
+| **CE7** | New Account | N | — | — | — | **Deferred** (ADR-0018 does not cover non-order) |
+| **CE8** | Reset Password | N | — | — | — | **Deferred** (ADR-0018 does not cover non-order) |
+| **CE9** | Failed Order | Y | subject + heading | Supported in both | `…:customer_failed_order:subject` / `:heading` | **Supported** |
+| **CE10** | Cancelled Order | Y | subject + heading | Supported in both | `…:customer_cancelled_order:subject` / `:heading` | **Supported** |
+| CE11–CE12 | POS emails | Y | — | — | — | **Deferred** (POS niche) |
+| CE13–CE15 | Fulfillment / partial / review | — | — | — | — | **Deferred** (not live-registered) |
+| — | VCCP / admin / Fluent / WP core / marketing | — | — | — | — | **Exclude** |
+| — | Global email footer/header option text | shared | — | — | — | **Deferred** (shared-definition Store risk) |
+| — | Template gettext body sentences | — | — | — | — | **Deferred** (no dedicated filter) |
+| — | Product titles inside email tables | — | — | — | A.7a | **Reuse A.7a** |
 
-## Identity matrix rules (for future freeze)
+**Body labels/fragments:** remain **Deferred** until a filter-proven token exists; do not scrape templates. A7D.4 may admit additional tokens only with new evidence — not part of the frozen Supported set above.
+
+## Language contract (frozen)
+
+Per [ADR-0018](../../adr/0018-woocommerce-order-transactional-language-context.md):
+
+- Meta key: `_aiml_transactional_language`
+- Capture once at visitor order creation; immutable by default
+- Resolve: valid snapshot → (no second source) → source/default
+- Switch via `LanguageContext::with()` / guaranteed restore
+- Forbidden: active locale at send, admin locale, country/currency guess
+
+## Identity matrix rules (frozen)
 
 Use existing **`PluginIdentity`** / integration id **`woocommerce`** only. **No `email:` family.**
 
 | Allowed in key | Forbidden in key |
 |---|---|
 | Stable Woo email `id` token (`customer_processing_order`) | Order ID, customer ID |
-| Stable role token (`subject`, `heading`, `body:{token}`) | Customer name, email address |
-| Functional field tokens | Rendered HTML / full sentences as identity |
+| Role token `subject` or `heading` | Customer name, email address |
+| | Rendered HTML / full sentences as identity |
 | | Current request URL |
 | | Runtime prices, SKUs, coupon codes |
 
 Source hash = freshness only (ADR-0007).
 
-### Example keys (hypothesis — not frozen)
+### Frozen keys (Supported set)
 
 ```
 p:woocommerce:email:customer_processing_order:subject
 p:woocommerce:email:customer_processing_order:heading
-p:woocommerce:email:customer_processing_order:body:intro_hi
+p:woocommerce:email:customer_completed_order:subject
+p:woocommerce:email:customer_completed_order:heading
+p:woocommerce:email:customer_on_hold_order:subject
+p:woocommerce:email:customer_on_hold_order:heading
+p:woocommerce:email:customer_invoice:subject
+p:woocommerce:email:customer_invoice:heading
+p:woocommerce:email:customer_note:subject
+p:woocommerce:email:customer_note:heading
+p:woocommerce:email:customer_refunded_order:subject
+p:woocommerce:email:customer_refunded_order:heading
+p:woocommerce:email:customer_failed_order:subject
+p:woocommerce:email:customer_failed_order:heading
+p:woocommerce:email:customer_cancelled_order:subject
+p:woocommerce:email:customer_cancelled_order:heading
 ```
 
 Build only via `PluginIdentity::build()`.
 
 ## HTML / plain admission rule
 
-| Claim | Rule |
-|---|---|
-| Supported | Both variants overlayed **or** explicit Partial |
-| Partially Supported | Matrix states which variant |
-| Deferred | Variant unproven |
+Subject/heading overlays apply through `WC_Email` getters used by **both** HTML and plain sends → **Supported in both** for the frozen set. Body variants remain Deferred.
 
 ## Runtime-value policy
 
-Never admit as email chrome:
+Never admit as email chrome: order numbers, names, addresses, phones, emails, prices, quantities, product IDs, coupon codes, payment values, tracking numbers, reset keys, raw order notes, raw customer email bodies.
 
-- order numbers, names, addresses, phones, emails  
-- prices, quantities, product IDs, coupon codes  
-- payment values, tracking numbers  
-- reset keys, raw order notes, raw customer email bodies  
+## Store strategy (frozen for first wave)
 
-## Store strategy (hypothesis — blocked)
-
-| Unit class | Likely technical host | Risk |
+| Unit class | Technical host | Notes |
 |---|---|---|
-| Per-email-type subject/heading | Shared across orders — may need shared-definition **or** a stable non-order Store anchor | A.8 shared-definition lesson |
-| Order-scoped product lines | Product posts (A.7a) | Reuse |
-| Global footer text | Woo options | **Defer** |
+| Admitted email subject/heading | `wc_get_page_id('checkout')` | **Technical anchor only** (A.7b/A.7c pattern) — not a claim that checkout content owns Woo email options |
+| Product lines in emails | Product posts | **A.7a reuse** |
+| Global footer text | — | **Deferred** |
+| Language snapshot | Order meta `_aiml_transactional_language` | ADR-0018 — **not** a Store segment |
 
-Do **not** redesign Store. Do **not** bump schema for A.7d email chrome alone. Language snapshot persistence (if ADR requires) is a **separate** contract from Store segments.
+Do **not** redesign Store. Do **not** bump schema for A.7d email chrome. Snapshot persistence is separate from Store segments.
 
 ## Platform reuse (unchanged)
 
