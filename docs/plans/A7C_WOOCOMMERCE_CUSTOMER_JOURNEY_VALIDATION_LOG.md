@@ -5,7 +5,7 @@
 **Plan:** [A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md)
 **Planning merge on main:** `92774944c40409ec19a8a79e55b635ddb86afd69`
 **Initial main HEAD (pre plan merge):** `b5010949993bf3e66b90f625d285670feab9b0ec`
-**Merged / tagged:** _pending_
+**Merged / tagged:** merge `0105fe37ab093b1c8be74226a2e26a1f33126c9d`; tag `a7c-woocommerce-customer-journey-complete`
 
 ---
 
