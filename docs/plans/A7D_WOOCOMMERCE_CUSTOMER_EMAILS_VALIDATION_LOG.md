@@ -2,10 +2,10 @@
 
 **Milestone:** A.7d WooCommerce Customer Emails
 **Implementation branch:** `feature/a7d-woocommerce-customer-emails`
-**Plan:** [A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**)
+**Plan:** [A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md) (**Complete**)
 **Language ADR:** [ADR-0018](../adr/0018-woocommerce-order-transactional-language-context.md) (**Accepted**)
-**Baseline main:** `48985be3395c8e9baa99260d80395e044584a18d`
-**Merged / tagged:** **Not in this task** — ready for independent review
+**Authoritative main at merge-up:** `845ab91cbe77910b7bb5e0ee08c839c40745b7f1`
+**Merged / tagged:** merge `654c9be18947e029fa0a269b4c7af4564d1918e9`; tag `a7d-woocommerce-customer-emails-complete`
 
 ---
 

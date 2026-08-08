@@ -1,8 +1,8 @@
 # Product Priorities — AI Multilingual
 
-**Status:** Canonical product-direction document  
-**Date:** 2026-08-08  
-**Scope:** Implementation priority and product strategy only  
+**Status:** Canonical product-direction document
+**Date:** 2026-08-08
+**Scope:** Implementation priority and product strategy only
 **Does not change:** Architecture, ADRs, schemas, APIs, milestone definitions, or roadmap program structure
 
 Milestone IDs and program boundaries remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). This document records **which** of those milestones to pursue next when priorities conflict. It is not an implementation plan.
@@ -50,7 +50,7 @@ Work the **first incomplete** milestone in this list. Completed waves remain lis
 | 4 | **A.6** | Remaining WordPress visitor chrome |
 | 5 | **A.SEO** | Visitor SEO as a first-class completion milestone |
 
-**A.7a** / **A.7b** / **A.7c** are complete on `main`. **A.7d** (Customer Emails) is **Architecture Frozen** ([ADR-0018](adr/0018-woocommerce-order-transactional-language-context.md) Accepted); implementation authorized, not started. After A.7d, **A.6** remains next per the table above.
+**A.7a** / **A.7b** / **A.7c** / **A.7d** are complete on `main` (A.7d tag `a7d-woocommerce-customer-emails-complete`; ADR-0018 implemented; Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred). The next target is **A.6** (Remaining WordPress visitor chrome) — not started.
 
 #### A.7c — WooCommerce Customer Journey
 

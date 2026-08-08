@@ -49,7 +49,8 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a** Product & Catalog — **Complete** (`a7a-woocommerce-product-catalog-complete`); **A.7b** Archive Chrome — **Complete** (`a7b-woocommerce-archive-chrome-complete`); **A.7c** Customer Journey — **Complete** (`a7c-woocommerce-customer-journey-complete`); **A.7d** Customer Emails — [plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; ADR-0018 Accepted; implementation authorized, not started)
+- **A.6** Remaining WordPress visitor chrome (next product priority after A.7d) — not started
+- **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7d Complete** (`a7a-woocommerce-product-catalog-complete`, `a7b-woocommerce-archive-chrome-complete`, `a7c-woocommerce-customer-journey-complete`, `a7d-woocommerce-customer-emails-complete`); A.7d Supported = CE1–CE6/CE9–CE10 subject+heading; ADR-0018 implemented; CE7/CE8 Deferred
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -154,7 +155,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`) |
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — **Complete** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md); tag `a4-nested-gutenberg-complete`; no new ADR |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
-| A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product — [family plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7c Complete**; **A.7d Architecture Frozen** — [A7D plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md); [ADR-0018](../adr/0018-woocommerce-order-transactional-language-context.md) Accepted; implementation authorized, not started |
+| A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product — [family plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7d Complete**; A.7d — [plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md); [validation](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_VALIDATION_LOG.md); tag `a7d-woocommerce-customer-emails-complete`; ADR-0018 implemented |
 | A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — **Complete** — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md); tag `a8-fluentforms-contact-integration-complete` |
 | A.SEO | Visitor SEO adapters (hreflang/title/alternates) — family A.SEOa–A.SEOf | Product — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); [evidence](aseo-evidence/); implementation not started |
 
@@ -274,7 +275,7 @@ Illustrative visitor-facing surfaces (admit via deterministic integrations):
 | A.7a | Product & catalog content (visitor) | Product — **Complete** — [plan](A7A_WOOCOMMERCE_PRODUCT_CATALOG_IMPLEMENTATION_PLAN.md); [validation](A7A_WOOCOMMERCE_PRODUCT_CATALOG_VALIDATION_LOG.md); tag `a7a-woocommerce-product-catalog-complete` |
 | A.7b | Archives listing chrome (Woo-owned orderby labels) | Product — **Complete** — [plan](A7B_WOOCOMMERCE_ARCHIVE_CHROME_IMPLEMENTATION_PLAN.md); [validation](A7B_WOOCOMMERCE_ARCHIVE_CHROME_VALIDATION_LOG.md); tag `a7b-woocommerce-archive-chrome-complete` |
 | A.7c | Customer Journey (checkout/account/thank-you labels) | Product — **Complete** — [plan](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md); [validation](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_VALIDATION_LOG.md); tag `a7c-woocommerce-customer-journey-complete` |
-| A.7d | WooCommerce-owned customer emails only | Product — [plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; [ADR-0018](../adr/0018-woocommerce-order-transactional-language-context.md); implementation authorized, not started) |
+| A.7d | WooCommerce-owned customer emails only | Product — **Complete** — [plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md); [validation](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_VALIDATION_LOG.md); tag `a7d-woocommerce-customer-emails-complete`; Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred; ADR-0018 |
 
 **Canonical family plan:** [A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started).
 
@@ -482,6 +483,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-08 | ADR-0018 Accepted (Woo order transactional language context); A.7d plan updated to **Architecture Frozen** (Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred); implementation authorized, not started (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | A.SEO parent architecture linked (**Architecture Frozen (planning)**; waves A.SEOa–A.SEOf); [plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); implementation not started (no structural change; no milestone renumbering). |
 | v1.0 (editorial) | 2026-08-08 | A.SEO parent architecture plan freeze merged to `main` (**Architecture Frozen (planning)**; waves A.SEOa–A.SEOf); implementation not started; no child SEO branches opened (no structural change; no milestone renumbering). |
+| v1.0 (editorial) | 2026-08-08 | A.7d Customer Emails marked complete (Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred; ADR-0018 implemented; tag `a7d-woocommerce-customer-emails-complete`); Next advances to A.6; A.SEO parent docs remain intact (no structural change). |
 
 ---
 
