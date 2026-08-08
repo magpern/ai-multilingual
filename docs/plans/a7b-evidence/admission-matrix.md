@@ -1,6 +1,6 @@
 # A.7b — Admission matrix
 
-**Frozen for planning.** Implementation may only code **Supported** rows.
+**Frozen and implemented.** Production codes only **Supported** rows (B1–B2).
 
 ## Supported (Woo-owned + deterministic filter + Store-anchor PASS)
 
@@ -10,6 +10,8 @@
 | B2 | Catalog “sorted by” status labels | Woo | `p:woocommerce:catalog_orderedby:{key}:label` | From `woocommerce_catalog_orderedby` defaults | Filter `woocommerce_catalog_orderedby` | Static labels | **Supported** |
 
 Functional keys never translated: `menu_order`, `popularity`, `rating`, `date`, `price`, `price-desc`, `relevance`.
+
+**Live note:** Woo merges search `relevance` after `woocommerce_catalog_orderby`; the unit is still extracted/Store-backed, but the post-filter injection may keep the search Relevance option as source text until Woo exposes it in the filter payload.
 
 ## Deferred (evidence)
 
