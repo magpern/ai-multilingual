@@ -175,7 +175,7 @@ final class WooCommerceIntegrationOverlayTest extends TestCase {
 			}
 		);
 
-		$in = array(
+		$in  = array(
 			'menu_order' => 'Default sorting',
 			'popularity' => 'Sort by popularity',
 			'price'      => 'Sort by price: low to high',
@@ -202,7 +202,7 @@ final class WooCommerceIntegrationOverlayTest extends TestCase {
 			}
 		);
 
-		$in = array(
+		$in  = array(
 			'rating' => 'Sorted by average rating',
 			'date'   => 'Sorted by latest',
 		);

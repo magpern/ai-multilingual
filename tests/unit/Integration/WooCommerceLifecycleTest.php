@@ -134,7 +134,7 @@ final class WooCommerceLifecycleTest extends TestCase {
 	}
 
 	public function test_archive_chrome_units_use_woo_ownership_not_shop_page_body(): void {
-		$integration = new WooCommerceIntegration(
+		$integration       = new WooCommerceIntegration(
 			new PluginIdentity(),
 			true,
 			true,

@@ -290,7 +290,7 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 				$out[ $key ] = $label;
 				continue;
 			}
-			$plain = IntegrationSecurity::sanitize_plain( $translated );
+			$plain       = IntegrationSecurity::sanitize_plain( $translated );
 			$out[ $key ] = '' !== $plain ? $plain : $label;
 		}
 
@@ -751,13 +751,13 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			return ( $this->orderby_labels_provider )();
 		}
 		return array(
-			'menu_order'  => 'Default sorting',
-			'popularity'  => 'Sort by popularity',
-			'rating'      => 'Sort by average rating',
-			'date'        => 'Sort by latest',
-			'price'       => 'Sort by price: low to high',
-			'price-desc'  => 'Sort by price: high to low',
-			'relevance'   => 'Relevance',
+			'menu_order' => 'Default sorting',
+			'popularity' => 'Sort by popularity',
+			'rating'     => 'Sort by average rating',
+			'date'       => 'Sort by latest',
+			'price'      => 'Sort by price: low to high',
+			'price-desc' => 'Sort by price: high to low',
+			'relevance'  => 'Relevance',
 		);
 	}
 

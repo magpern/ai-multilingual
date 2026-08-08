@@ -149,7 +149,7 @@ final class WooCommerceIntegrationExtractTest extends TestCase {
 		$units = $integration->extract_for_post( $this->fake_post( 100, 'page' ) );
 		$keys  = array_map( static fn( $u ) => $u->segment_key, $units );
 
-		$expected_orderby = array(
+		$expected_orderby   = array(
 			'p:woocommerce:catalog_orderby:menu_order:label',
 			'p:woocommerce:catalog_orderby:popularity:label',
 			'p:woocommerce:catalog_orderby:rating:label',
