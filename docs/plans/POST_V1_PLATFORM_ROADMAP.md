@@ -46,15 +46,16 @@ Navigation aid only. Does not replace the detailed programs below.
 - **A.1** — [implementation plan](A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md); [ADR-0017](../adr/0017-plugin-integration-framework-ownership-and-identity.md) (**Accepted**); [validation log PASS](A1_PLUGIN_INTEGRATION_FRAMEWORK_VALIDATION_LOG.md) (**complete / merged / tagged** `a1-plugin-integration-framework-complete`)
 - **A.0** — [implementation plan](A0_GUTENBERG_LEAF_EXPANSION_IMPLEMENTATION_PLAN.md); [validation log PASS](A0_GUTENBERG_LEAF_EXPANSION_VALIDATION_LOG.md) (**complete / merged / tagged** `a0-gutenberg-leaf-expansion-complete`)
 - **A.8** — Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md) (**complete / merged / tagged** `a8-fluentforms-contact-integration-complete`)
+- **A.6** Remaining WordPress visitor chrome — [plan](A6_WORDPRESS_VISITOR_CHROME_IMPLEMENTATION_PLAN.md); [validation](A6_VALIDATION_LOG.md) (**complete / merged / tagged** `a6-wordpress-visitor-chrome-complete`; Supported **N1**)
+- **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7d Complete** (`a7a-woocommerce-product-catalog-complete`, `a7b-woocommerce-archive-chrome-complete`, `a7c-woocommerce-customer-journey-complete`, `a7d-woocommerce-customer-emails-complete`); A.7d Supported = CE1–CE6/CE9–CE10 subject+heading; ADR-0018 implemented; CE7/CE8 Deferred
 
 ### NEXT
 
-- **A.6** Remaining WordPress visitor chrome — [plan](A6_WORDPRESS_VISITOR_CHROME_IMPLEMENTATION_PLAN.md); [validation](A6_VALIDATION_LOG.md) (**Complete / merged / tagged** `a6-wordpress-visitor-chrome-complete`; Supported **N1**)
-- **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7d Complete** (`a7a-woocommerce-product-catalog-complete`, `a7b-woocommerce-archive-chrome-complete`, `a7c-woocommerce-customer-journey-complete`, `a7d-woocommerce-customer-emails-complete`); A.7d Supported = CE1–CE6/CE9–CE10 subject+heading; ADR-0018 implemented; CE7/CE8 Deferred
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — next product priority after A.6
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
-- Remaining Program A options: **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) / further **A.8** bridges / A.6 Deferred chrome
+- Remaining Program A options: further **A.8** bridges / A.6 Deferred chrome
 
 ### LATER
 
