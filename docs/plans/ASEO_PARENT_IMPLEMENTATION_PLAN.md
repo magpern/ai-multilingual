@@ -1,14 +1,15 @@
 # A.SEO — Parent SEO Architecture — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — ready for architecture review / freeze; implementation not started
+**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation not started
 **Milestone family:** Program A — **A.SEO** Visitor SEO adapters
 **Plan freeze:** Canonical SEO architecture for waves **A.SEOa–A.SEOf**; overlay-not-duplication; reuse Store / Workspace / Review / TM / Glossary / Jobs / Integration API v1 / LanguageContext / Diagnostics / PluginIdentity; no parallel SEO subsystem; no HTML scraping; TARGET **6**
 **ADR assessment:** **No new ADR required at plan freeze** if waves stay within ADR-0001 / ADR-0002 / ADR-0007 / ADR-0008 / ADR-0013 / ADR-0016 / ADR-0017 / ADR-0018 + Integration API v1. A wave that needs a new identity family, Store redesign, schema redesign, second translation pipeline, or reopening ADR-0002 (translated rewrite bases) must open a focused ADR **before** coding — not silently.
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Program A — §6.3 (wave boundaries refined by this plan)
 **Canonical dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)
-**Planning branch:** `feature/aseo-parent-plan`
-**Implementation branch:** create **per wave** after this family plan freezes on `main` (first child planning: `feature/aseoa-slugs-permalinks-plan` after merge)
+**Planning branch:** `feature/aseo-parent-plan` (merged)
+**Implementation branch:** create **per wave** after dedicated wave plan freeze (first child planning: `feature/aseoa-slugs-permalinks-plan`)
 **Baseline (plan authoring):** `main` @ `48985be3395c8e9baa99260d80395e044584a18d`
+**Freeze merge:** `main` @ plan-freeze merge `merge: complete A.SEO parent architecture plan freeze`
 **Depends on:** P1; A.R1/A.2/A.3; A.R2/A.4; A.1; A.0; A.8 — complete/tagged where applicable; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; schema TARGET **6**; Integration API v1 unchanged
 **Related:** [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md); [adr/0002-prefix-strip-routing.md](../adr/0002-prefix-strip-routing.md); [adr/0008-language-state-model.md](../adr/0008-language-state-model.md); [adr/0017-plugin-integration-framework-ownership-and-identity.md](../adr/0017-plugin-integration-framework-ownership-and-identity.md); [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md); [aseo-evidence/](aseo-evidence/)
 
