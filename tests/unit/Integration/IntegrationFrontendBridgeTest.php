@@ -36,4 +36,14 @@ final class IntegrationFrontendBridgeTest extends TestCase {
 		$this->assertStringNotContainsString( '$this->context->language()', $src );
 		$this->assertTrue( class_exists( IntegrationFrontendBridge::class ) );
 	}
+
+	public function test_frontend_bridge_resolves_product_search_via_shop_anchor(): void {
+		$path = dirname( __DIR__, 3 ) . '/src/Integration/IntegrationFrontendBridge.php';
+		$src  = file_get_contents( $path );
+
+		$this->assertIsString( $src );
+		$this->assertStringContainsString( 'is_woocommerce_product_search', $src );
+		$this->assertStringContainsString( 'shop_page_source_id', $src );
+		$this->assertStringContainsString( "wc_get_page_id( 'shop' )", $src );
+	}
 }
