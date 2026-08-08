@@ -1,6 +1,6 @@
 <?php
 /**
- * WooCommerce Product, Catalog, Archive Chrome, and Customer Journey Integration API v1 consumer (A.7a / A.7b / A.7c).
+ * WooCommerce Product, Catalog, Archive Chrome, Customer Journey, and Customer Emails Integration API v1 consumer (A.7a–A.7d).
  *
  * @package AIMultilingual
  */
@@ -19,14 +19,15 @@ use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
- * Record-owned WooCommerce bridge for A.7a–A.7c Supported surfaces.
+ * Record-owned WooCommerce bridge for A.7a–A.7d Supported surfaces.
  *
  * Product: attribute names (P5) and variation attribute names (P7).
  * Catalog: product_cat / product_tag name + description (C3–C6) on shop page host.
  * Archive chrome: catalog orderby / orderedby labels (B1–B2) on shop page technical anchor.
  * Customer journey: checkout field labels + place order (CJ3); account menu + endpoint titles (CJ4);
  * thank-you text + order totals labels (CJ6). CJ1/CJ2/CJ5 remain Deferred.
- * Title/excerpt/content (P1–P3, C1–C2) remain on the existing post Extractor/Renderer path.
+ * Customer emails (A.7d): subject + heading for CE1–CE6/CE9–CE10 on checkout technical host.
+ * CE7/CE8, body gettext, global footer remain Deferred. Title/excerpt/content remain on Extractor/Renderer.
  */
 final class WooCommerceIntegration implements PluginIntegrationInterface {
 
@@ -76,6 +77,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 
 	public const OWNER_ORDER_TOTALS = 'order_totals';
 
+	public const OWNER_EMAIL = 'email';
+
 	public const FIELD_ATTRIBUTE_NAME = 'attribute_name';
 
 	public const FIELD_VARIATION_ATTRIBUTE_NAME = 'variation_attribute_name';
@@ -88,9 +91,61 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 
 	public const FIELD_TITLE = 'title';
 
+	public const FIELD_SUBJECT = 'subject';
+
+	public const FIELD_HEADING = 'heading';
+
 	public const CHECKOUT_ORDER_BUTTON_ID = 'order_button';
 
 	public const CHECKOUT_THANKYOU_ID = 'thankyou_received';
+
+	/**
+	 * Frozen A.7d Supported customer email IDs (CE1–CE6, CE9–CE10).
+	 *
+	 * @var list<string>
+	 */
+	public const EMAIL_ID_ALLOWLIST = array(
+		'customer_processing_order',
+		'customer_completed_order',
+		'customer_on_hold_order',
+		'customer_invoice',
+		'customer_note',
+		'customer_refunded_order',
+		'customer_failed_order',
+		'customer_cancelled_order',
+	);
+
+	/**
+	 * Default EN subject chrome templates (placeholders preserved).
+	 *
+	 * @var array<string, string>
+	 */
+	public const EMAIL_DEFAULT_SUBJECTS = array(
+		'customer_processing_order' => 'Your {site_title} order has been received!',
+		'customer_completed_order'  => 'Your order from {site_title} is on its way!',
+		'customer_on_hold_order'    => 'Your {site_title} order has been received!',
+		'customer_invoice'          => 'Details for order #{order_number} on {site_title}',
+		'customer_note'             => 'A note has been added to your order from {site_title}',
+		'customer_refunded_order'   => 'Your {site_title} order #{order_number} has been refunded',
+		'customer_failed_order'     => 'Your order at {site_title} was unsuccessful',
+		'customer_cancelled_order'  => '[{site_title}]: Your order #{order_number} has been cancelled',
+	);
+
+	/**
+	 * Default EN heading chrome templates (placeholders preserved).
+	 *
+	 * @var array<string, string>
+	 */
+	public const EMAIL_DEFAULT_HEADINGS = array(
+		'customer_processing_order' => 'Thank you for your order',
+		'customer_completed_order'  => 'Good things are heading your way!',
+		'customer_on_hold_order'    => 'Thank you for your order',
+		'customer_invoice'          => 'Details for order #{order_number}',
+		'customer_note'             => 'A note has been added to your order',
+		'customer_refunded_order'   => 'Order refunded: {order_number}',
+		'customer_failed_order'     => 'Sorry, your order was unsuccessful',
+		'customer_cancelled_order'  => 'Order cancelled: #{order_number}',
+	);
 
 	/**
 	 * Frozen B1/B2 functional option keys (never translated).
@@ -139,6 +194,7 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	 * @param (callable(): array<string, string>)|null                                                   $checkout_field_labels_provider Test CJ3.1 field labels.
 	 * @param (callable(): array<string, string>)|null                                                   $account_menu_provider    Test CJ4.1 menu.
 	 * @param (callable(): array<string, string>)|null                                                   $order_totals_labels_provider Test CJ6.2 labels.
+	 * @param (callable(): array<string, array{subject:string,heading:string}>)|null                     $email_chrome_provider Test A.7d email chrome.
 	 */
 	public function __construct(
 		private PluginIdentity $identity,
@@ -157,6 +213,7 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		private $checkout_field_labels_provider = null,
 		private $account_menu_provider = null,
 		private $order_totals_labels_provider = null,
+		private $email_chrome_provider = null,
 	) {
 	}
 
@@ -237,6 +294,9 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 
 		if ( $this->is_checkout_page( $post ) ) {
 			foreach ( $this->extract_checkout_journey_units() as $unit ) {
+				$this->append_unique( $units, $seen, $unit );
+			}
+			foreach ( $this->extract_customer_email_units() as $unit ) {
 				$this->append_unique( $units, $seen, $unit );
 			}
 		}
@@ -1111,6 +1171,97 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Extract Supported A.7d email subject/heading units (checkout technical host).
+	 *
+	 * @return list<TranslationUnitDescriptor>
+	 */
+	private function extract_customer_email_units(): array {
+		$units  = array();
+		$chrome = $this->read_email_chrome();
+		foreach ( self::EMAIL_ID_ALLOWLIST as $email_id ) {
+			$row = $chrome[ $email_id ] ?? null;
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$subject      = isset( $row['subject'] ) ? (string) $row['subject'] : '';
+			$heading      = isset( $row['heading'] ) ? (string) $row['heading'] : '';
+			$subject_unit = $this->make_journey_unit(
+				self::OWNER_EMAIL,
+				$email_id,
+				self::FIELD_SUBJECT,
+				$subject,
+				'Email subject: ' . $email_id,
+				'WooCommerce customer emails'
+			);
+			if ( null !== $subject_unit ) {
+				$units[] = $subject_unit;
+			}
+			$heading_unit = $this->make_journey_unit(
+				self::OWNER_EMAIL,
+				$email_id,
+				self::FIELD_HEADING,
+				$heading,
+				'Email heading: ' . $email_id,
+				'WooCommerce customer emails'
+			);
+			if ( null !== $heading_unit ) {
+				$units[] = $heading_unit;
+			}
+		}
+		return $units;
+	}
+
+	/**
+	 * Source subject/heading chrome templates for Supported emails.
+	 *
+	 * @return array<string, array{subject:string,heading:string}>
+	 */
+	private function read_email_chrome(): array {
+		if ( null !== $this->email_chrome_provider ) {
+			$provided = ( $this->email_chrome_provider )();
+			return is_array( $provided ) ? $provided : array();
+		}
+
+		$out = array();
+		foreach ( self::EMAIL_ID_ALLOWLIST as $email_id ) {
+			$subject = self::EMAIL_DEFAULT_SUBJECTS[ $email_id ] ?? '';
+			$heading = self::EMAIL_DEFAULT_HEADINGS[ $email_id ] ?? '';
+			if ( function_exists( 'WC' ) && is_object( WC() ) && is_callable( array( WC(), 'mailer' ) ) ) {
+				$mailer = WC()->mailer();
+				if ( is_object( $mailer ) && is_callable( array( $mailer, 'get_emails' ) ) ) {
+					foreach ( (array) $mailer->get_emails() as $email ) {
+						if ( ! is_object( $email ) || ! isset( $email->id ) || (string) $email->id !== $email_id ) {
+							continue;
+						}
+						if ( is_callable( array( $email, 'get_default_subject' ) ) ) {
+							$subject = (string) $email->get_default_subject();
+						}
+						if ( is_callable( array( $email, 'get_default_heading' ) ) ) {
+							$heading = (string) $email->get_default_heading();
+						}
+						if ( is_callable( array( $email, 'get_option' ) ) ) {
+							$opt_subject = $email->get_option( 'subject' );
+							$opt_heading = $email->get_option( 'heading' );
+							if ( is_string( $opt_subject ) && '' !== $opt_subject ) {
+								$subject = $opt_subject;
+							}
+							if ( is_string( $opt_heading ) && '' !== $opt_heading ) {
+								$heading = $opt_heading;
+							}
+						}
+						break;
+					}
+				}
+			}
+			$out[ $email_id ] = array(
+				'subject' => $subject,
+				'heading' => $heading,
+			);
+		}
+		return $out;
+	}
+
+	/**
 	 * Extract Supported CJ4 units for the myaccount technical host.
 	 *
 	 * @return list<TranslationUnitDescriptor>
@@ -1148,20 +1299,22 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Build one A.7c journey translation unit.
+	 * Build one journey / email translation unit.
 	 *
-	 * @param string $owner_type  Identity owner_type.
-	 * @param string $owner_id    Identity owner_id.
-	 * @param string $field       Identity field.
-	 * @param string $label       Source label.
-	 * @param string $field_label Workspace label.
+	 * @param string $owner_type     Identity owner_type.
+	 * @param string $owner_id       Identity owner_id.
+	 * @param string $field          Identity field.
+	 * @param string $label          Source label.
+	 * @param string $field_label    Workspace label.
+	 * @param string $parent_context Parent context string.
 	 */
 	private function make_journey_unit(
 		string $owner_type,
 		string $owner_id,
 		string $field,
 		string $label,
-		string $field_label
+		string $field_label,
+		string $parent_context = 'WooCommerce customer journey'
 	): ?TranslationUnitDescriptor {
 		$owner_id = $this->normalize_token( $owner_id );
 		$plain    = IntegrationSecurity::sanitize_plain( $label );
@@ -1185,7 +1338,7 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			$field,
 			$field_label,
 			self::ID,
-			'WooCommerce customer journey'
+			$parent_context
 		);
 	}
 
