@@ -1,6 +1,6 @@
 # A.7d — WooCommerce Customer Emails — Implementation Plan
 
-**Status:** **Architecture Frozen** — implementation complete on branch (awaiting merge)
+**Status:** **Architecture Frozen** — implementation authorized
 **Parent family plan:** [A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md)
 **Prior wave:** [A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md) — **Complete** (`a7c-woocommerce-customer-journey-complete`)
 **Milestone:** Program A — **A.7d** Customer Emails (Woo-owned only)
