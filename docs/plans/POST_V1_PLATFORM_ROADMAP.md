@@ -53,7 +53,7 @@ Navigation aid only. Does not replace the detailed programs below.
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
-- Remaining Program A options: **A.6** visitor chrome / **A.SEO** / further **A.8** bridges (after A.7a)
+- Remaining Program A options: **A.6** visitor chrome / **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) / further **A.8** bridges (after A.7a)
 
 ### LATER
 
@@ -156,7 +156,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
 | A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product — [family plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7c Complete**; **A.7d Architecture Frozen** — [A7D plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md); [ADR-0018](../adr/0018-woocommerce-order-transactional-language-context.md) Accepted; implementation authorized, not started |
 | A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — **Complete** — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md); tag `a8-fluentforms-contact-integration-complete` |
-| A.SEO | Visitor SEO adapters (hreflang/title/alternates) | Product |
+| A.SEO | Visitor SEO adapters (hreflang/title/alternates) — family A.SEOa–A.SEOf | Product — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); [evidence](aseo-evidence/); implementation not started |
 
 ### Program B — Translation Intelligence
 
@@ -283,7 +283,18 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 ### 6.3 Third-party and SEO
 
 - **A.8** — One third-party bridge at a time via A.1 (first: Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md))
-- **A.SEO** — Late, low coupling to editor identity work
+- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); implementation not started
+
+| ID | Wave | Type |
+|---|---|---|
+| A.SEOa | Slugs and permalink translation | Product |
+| A.SEOb | Canonical URLs, hreflang, language relationships | Product |
+| A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product |
+| A.SEOd | OpenGraph / Twitter / social metadata | Product |
+| A.SEOe | XML sitemaps, robots, indexability, discovery | Product |
+| A.SEOf | SEO diagnostics, validation, health, verification | Operational |
+
+**Canonical family plan:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md). Required order: A.SEOa → A.SEOb → A.SEOc → A.SEOd → A.SEOe → A.SEOf ([matrix](A_SEO_DEPENDENCY_MATRIX.md)).
 
 ---
 
@@ -469,6 +480,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-08 | Linked canonical implementation-priority guidance [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md) (no structural change; no milestone renumbering). |
 | v1.0 (editorial) | 2026-08-08 | A.7d Customer Emails planning complete (**Blocked pending language-context architecture decision**); [plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md); implementation not started; A.6 remains next after A.7d per Product Priorities (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | ADR-0018 Accepted (Woo order transactional language context); A.7d plan updated to **Architecture Frozen** (Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred); implementation authorized, not started (no structural change). |
+| v1.0 (editorial) | 2026-08-08 | A.SEO parent architecture linked (**Architecture Frozen (planning)**; waves A.SEOa–A.SEOf); [plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); implementation not started (no structural change; no milestone renumbering). |
 
 ---
 
