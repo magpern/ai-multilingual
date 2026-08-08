@@ -2,6 +2,8 @@
 
 **Long-term product planning (canonical):** [POST_V1_PLATFORM_ROADMAP.md](plans/POST_V1_PLATFORM_ROADMAP.md) — Roadmap **v1.0** (frozen). Do not duplicate strategic planning in this file.
 
+**Implementation priority (canonical):** [PRODUCT_PRIORITIES.md](PRODUCT_PRIORITIES.md) — product-direction guidance for which frozen milestones to pursue next. Does not redefine milestones or architecture.
+
 This document retains the classic milestone table (M0–M7) and Strategy F completion status for historical orientation. One approved milestone at a time. Each is accepted before the next begins.
 
 | M | Name | Delivers | Schema |

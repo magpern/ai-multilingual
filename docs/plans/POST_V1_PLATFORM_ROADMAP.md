@@ -8,6 +8,8 @@
 **Scope of this document:** Product strategy, program boundaries, milestone ordering, dependencies, freezes, governance.
 **Out of scope here:** Implementation plans, ADRs, schemas, APIs, code.
 
+**Implementation priority (canonical):** When choosing *which* frozen milestone to pursue next for Biopentra, follow [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md). That document does not redefine programs, milestone IDs, or architecture; it records product-direction sequencing only.
+
 ---
 
 ## 1. Executive summary
@@ -412,6 +414,8 @@ That end-state is approached through programs A–E after P1; it is not a single
 
 This document is the **sole canonical long-term product roadmap** for AI Multilingual after Platform v1.0.0. Earlier post-v1 planning documents are historical archives and must not be extended as competing strategy.
 
+**Implementation priority** within this frozen structure is governed by [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md) (product-direction only; no milestone renumbering or architecture change).
+
 ### Evolution rules (frozen)
 
 - **Programs are intended to remain stable.** P1 and Programs A–E are the durable planning structure. Do not invent parallel program taxonomies for routine work.
@@ -430,7 +434,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 ## 14. Maintenance policy
 
 - **Minor editorial improvements** (clarity, typos, cross-links, Now/Next/Later refresh) may occur **without** changing roadmap intent and without bumping the major roadmap version.
-- **Product priorities may evolve** within the existing program structure (for example which additive milestone is scheduled next). Reflect priority shifts in Now/Next/Later and the revision history.
+- **Product priorities may evolve** within the existing program structure (for example which additive milestone is scheduled next). Record the canonical sequencing in [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md); also reflect material shifts in Now/Next/Later and the revision history when status tracking requires it.
 - **Major structural changes** (new programs, removal of a program, wholesale reordering, redefinition of frozen principles) require an **explicit roadmap revision** and a roadmap version bump (for example v1.0 → v1.1 or v2.0 for structural breaks).
 - **Historical milestone records remain valid** even if future priorities change. Completed spikes, freezes, and shipped milestones are not rewritten out of history; supersession is additive commentary only.
 
@@ -460,6 +464,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-07 | A.7a Product & Catalog marked complete/merged/tagged `a7a-woocommerce-product-catalog-complete`; Next advances to A.7b planning only (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | A.7b Archive Chrome implementation plan linked (**Architecture Frozen (planning)**; Supported B1–B2 orderby labels; Store shop-page host = technical anchor only); implementation not started (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | A.7b Archive Chrome marked complete (Supported B1–B2; tag `a7b-woocommerce-archive-chrome-complete`); Next advances to A.7c planning only (no structural change). |
+| v1.0 (editorial) | 2026-08-08 | Linked canonical implementation-priority guidance [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md) (no structural change; no milestone renumbering). |
 
 ---
 
@@ -471,5 +476,6 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | Roadmap version | **v1.0** |
 | Governance | §13–§14 |
 | Replaces | Milestone-by-milestone / F15-style planning for post-v1 work |
+| Implementation priority | `docs/PRODUCT_PRIORITIES.md` (product-direction sequencing within this frozen structure) |
 | Historical companion | `docs/plans/POST_V1_PRODUCT_ROADMAP.md` (v1 platform-track archive) |
 | Classic milestone table | `docs/ROADMAP.md` (historical M0–M7 + Strategy F status; points here for long-term planning) |
