@@ -65,7 +65,9 @@ use AIMultilingual\Glossary\GlossaryNormalizer;
 use AIMultilingual\Glossary\GlossaryRepository;
 use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Integration\FluentForms\FluentFormsIntegration;
-use AIMultilingual\Integration\WooCommerce\WooCommerceIntegration;
+		use AIMultilingual\Integration\WooCommerce\WooCommerceIntegration;
+		use AIMultilingual\Integration\WooCommerce\OrderTransactionalLanguage;
+		use AIMultilingual\Integration\WooCommerce\CustomerEmailBridge;
 use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationDiagnostics;
 use AIMultilingual\Integration\IntegrationFrontendBridge;
@@ -223,12 +225,11 @@ final class Plugin {
 		$integration_diagnostics = new IntegrationDiagnostics();
 		$integration_registry    = new IntegrationRegistry( $integration_diagnostics );
 		$plugin_identity = new PluginIdentity( $integration_diagnostics );
+		$woo_integration = WooCommerceIntegration::create_default( $plugin_identity );
 		$integration_registry->register(
 			FluentFormsIntegration::create_default( $plugin_identity )
 		);
-		$integration_registry->register(
-			WooCommerceIntegration::create_default( $plugin_identity )
-		);
+		$integration_registry->register( $woo_integration );
 		/**
 		 * Register typed Integration API v1 integrations.
 		 *
@@ -240,6 +241,28 @@ final class Plugin {
 		 * @param IntegrationRegistry $integration_registry Registry.
 		 */
 		do_action( 'aiml_register_integrations', $integration_registry );
+
+		$order_transactional_language = new OrderTransactionalLanguage(
+			$context,
+			$languages,
+			$integration_diagnostics
+		);
+		$order_transactional_language->register();
+		$email_bridge = new CustomerEmailBridge(
+			$woo_integration,
+			$order_transactional_language,
+			$store,
+			$plugin_identity,
+			$integration_diagnostics
+		);
+		// Defer until WooCommerce has loaded so compatibility/hooks are accurate.
+		add_action(
+			'init',
+			static function () use ( $email_bridge ): void {
+				$email_bridge->register();
+			},
+			20
+		);
 
 		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor, $integration_registry );
 		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
