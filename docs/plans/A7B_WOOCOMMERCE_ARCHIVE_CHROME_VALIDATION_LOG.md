@@ -6,7 +6,7 @@
 **Planning merge on main:** `eee83f13cfb911d33baf3cbadc0aaedd4ae49d72`
 **Initial main HEAD (pre plan merge):** `ef1a63563d553ab018a33498072e3cef5f03ccaf`
 **Implementation baseline HEAD:** `eee83f13cfb911d33baf3cbadc0aaedd4ae49d72`
-**Merged / tagged:** _pending merge/tag on main_
+**Merged / tagged:** merge `1cf9df5eb61a5b8894659ae538c531bd17e4157f`; tag `a7b-woocommerce-archive-chrome-complete`
 
 ---
 
