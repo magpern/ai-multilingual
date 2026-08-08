@@ -49,7 +49,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a** Product & Catalog — **Complete** (`a7a-woocommerce-product-catalog-complete`); **A.7b** Archive Chrome — **Complete** (`a7b-woocommerce-archive-chrome-complete`); **A.7c** Customer Journey — [plan](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started); A.7d unchanged
+- **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a** Product & Catalog — **Complete** (`a7a-woocommerce-product-catalog-complete`); **A.7b** Archive Chrome — **Complete** (`a7b-woocommerce-archive-chrome-complete`); **A.7c** Customer Journey — **Complete** (`a7c-woocommerce-customer-journey-complete`); A.7d planning next (not started)
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -154,7 +154,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.3 | Elementor Widget Coverage (incremental allowlist) | Product — [plan](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md) (**Complete / merged / tagged** `a3-elementor-widget-coverage-complete`) |
 | A.4 | Nested / container Gutenberg identity (post–identity decision) | Architecture — **Complete** — [implementation plan](A4_NESTED_GUTENBERG_IMPLEMENTATION_PLAN.md); [validation log PASS](A4_NESTED_GUTENBERG_VALIDATION_LOG.md); tag `a4-nested-gutenberg-complete`; no new ADR |
 | A.6 | WordPress visitor chrome family (see §6.1) | Product |
-| A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product — [family plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a Complete**; **A.7b Complete** (`a7b-woocommerce-archive-chrome-complete`); **A.7c** [plan](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started) |
+| A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product — [family plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a Complete**; **A.7b Complete** (`a7b-woocommerce-archive-chrome-complete`); **A.7c Complete** (`a7c-woocommerce-customer-journey-complete`); next = A.7d planning |
 | A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — **Complete** — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md); tag `a8-fluentforms-contact-integration-complete` |
 | A.SEO | Visitor SEO adapters (hreflang/title/alternates) | Product |
 
@@ -273,7 +273,7 @@ Illustrative visitor-facing surfaces (admit via deterministic integrations):
 |---|---|---|
 | A.7a | Product & catalog content (visitor) | Product — **Complete** — [plan](A7A_WOOCOMMERCE_PRODUCT_CATALOG_IMPLEMENTATION_PLAN.md); [validation](A7A_WOOCOMMERCE_PRODUCT_CATALOG_VALIDATION_LOG.md); tag `a7a-woocommerce-product-catalog-complete` |
 | A.7b | Archives listing chrome (Woo-owned orderby labels) | Product — **Complete** — [plan](A7B_WOOCOMMERCE_ARCHIVE_CHROME_IMPLEMENTATION_PLAN.md); [validation](A7B_WOOCOMMERCE_ARCHIVE_CHROME_VALIDATION_LOG.md); tag `a7b-woocommerce-archive-chrome-complete` |
-| A.7c | Customer Journey (checkout/account/thank-you labels) | Product — [plan](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported CJ3/CJ4/CJ6 subsets; CJ1/CJ2/CJ5 Deferred) |
+| A.7c | Customer Journey (checkout/account/thank-you labels) | Product — **Complete** — [plan](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_IMPLEMENTATION_PLAN.md); [validation](A7C_WOOCOMMERCE_CUSTOMER_JOURNEY_VALIDATION_LOG.md); tag `a7c-woocommerce-customer-journey-complete` |
 | A.7d | WooCommerce-owned customer emails only | Product |
 
 **Canonical family plan:** [A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started).
@@ -465,6 +465,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-08 | A.7b Archive Chrome implementation plan linked (**Architecture Frozen (planning)**; Supported B1–B2 orderby labels; Store shop-page host = technical anchor only); implementation not started (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | A.7b Archive Chrome marked complete (Supported B1–B2; tag `a7b-woocommerce-archive-chrome-complete`); Next advances to A.7c planning only (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | A.7c Customer Journey implementation plan linked (**Architecture Frozen (planning)**; Supported CJ3/CJ4/CJ6 subsets; CJ1/CJ2/CJ5 Deferred); implementation not started (no structural change). |
+| v1.0 (editorial) | 2026-08-08 | A.7c Customer Journey marked complete (Supported CJ3/CJ4/CJ6 subsets; tag `a7c-woocommerce-customer-journey-complete`); Next advances to A.7d planning only (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | Linked canonical implementation-priority guidance [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md) (no structural change; no milestone renumbering). |
 
 ---

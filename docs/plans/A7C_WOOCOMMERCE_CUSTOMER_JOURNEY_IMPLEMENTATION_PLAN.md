@@ -1,6 +1,6 @@
 # A.7c — WooCommerce Customer Journey — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — ready for merge to `main`; implementation not started  
+**Status:** **Complete** — implemented and validated; tag `a7c-woocommerce-customer-journey-complete`  
 **Parent family plan:** [A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md)  
 **Prior wave:** [A7B_WOOCOMMERCE_ARCHIVE_CHROME_IMPLEMENTATION_PLAN.md](A7B_WOOCOMMERCE_ARCHIVE_CHROME_IMPLEMENTATION_PLAN.md) — **Complete** (`a7b-woocommerce-archive-chrome-complete`)  
 **Milestone:** Program A — **A.7c** Customer Journey (Woo-owned only)  
@@ -205,8 +205,8 @@ A.7d emails; admin; merchant UI; Age Gate; SEO; theme/storefront/loop-card redes
 
 ## 11. Architecture verdict
 
-**Architecture Frozen** for Supported **CJ3.1–CJ3.2, CJ4.1–CJ4.2, CJ6.1–CJ6.2** only.
+**Complete** for Supported **CJ3.1–CJ3.2, CJ4.1–CJ4.2, CJ6.1–CJ6.2** only.
 
 CJ1, CJ2, CJ5 remain Deferred with evidence.
 
-Implementation may begin **only after this planning document is merged to `main`**.
+**Next milestone:** A.7d planning (not started).
