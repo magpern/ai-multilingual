@@ -42,7 +42,7 @@
 
 ## A6.1 — Admission freeze
 
-**Status:** Pending
+**Status:** PASS — Supported **N1** only. Records: [a6-evidence/a6-admission-records.md](a6-evidence/a6-admission-records.md).
 
 ---
 
