@@ -1,6 +1,6 @@
 <?php
 /**
- * WooCommerce Product, Catalog, and Archive Chrome Integration API v1 consumer (A.7a / A.7b).
+ * WooCommerce Product, Catalog, Archive Chrome, and Customer Journey Integration API v1 consumer (A.7a / A.7b / A.7c).
  *
  * @package AIMultilingual
  */
@@ -19,11 +19,13 @@ use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
- * Record-owned WooCommerce bridge for A.7a product/catalog and A.7b archive chrome.
+ * Record-owned WooCommerce bridge for A.7a–A.7c Supported surfaces.
  *
  * Product: attribute names (P5) and variation attribute names (P7).
  * Catalog: product_cat / product_tag name + description (C3–C6) on shop page host.
  * Archive chrome: catalog orderby / orderedby labels (B1–B2) on shop page technical anchor.
+ * Customer journey: checkout field labels + place order (CJ3); account menu + endpoint titles (CJ4);
+ * thank-you text + order totals labels (CJ6). CJ1/CJ2/CJ5 remain Deferred.
  * Title/excerpt/content (P1–P3, C1–C2) remain on the existing post Extractor/Renderer path.
  */
 final class WooCommerceIntegration implements PluginIntegrationInterface {
@@ -46,6 +48,16 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 
 	public const HOOK_CATALOG_ORDEREDBY = 'woocommerce_catalog_orderedby';
 
+	public const HOOK_CHECKOUT_FIELDS = 'woocommerce_checkout_fields';
+
+	public const HOOK_ORDER_BUTTON_TEXT = 'woocommerce_order_button_text';
+
+	public const HOOK_ACCOUNT_MENU_ITEMS = 'woocommerce_account_menu_items';
+
+	public const HOOK_THANKYOU_RECEIVED = 'woocommerce_thankyou_order_received_text';
+
+	public const HOOK_ORDER_ITEM_TOTALS = 'woocommerce_get_order_item_totals';
+
 	public const TAXONOMY_CAT = 'product_cat';
 
 	public const TAXONOMY_TAG = 'product_tag';
@@ -53,6 +65,16 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	public const OWNER_CATALOG_ORDERBY = 'catalog_orderby';
 
 	public const OWNER_CATALOG_ORDEREDBY = 'catalog_orderedby';
+
+	public const OWNER_CHECKOUT_FIELD = 'checkout_field';
+
+	public const OWNER_CHECKOUT = 'checkout';
+
+	public const OWNER_ACCOUNT_MENU = 'account_menu';
+
+	public const OWNER_ENDPOINT = 'endpoint';
+
+	public const OWNER_ORDER_TOTALS = 'order_totals';
 
 	public const FIELD_ATTRIBUTE_NAME = 'attribute_name';
 
@@ -63,6 +85,12 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	public const FIELD_DESCRIPTION = 'description';
 
 	public const FIELD_LABEL = 'label';
+
+	public const FIELD_TITLE = 'title';
+
+	public const CHECKOUT_ORDER_BUTTON_ID = 'order_button';
+
+	public const CHECKOUT_THANKYOU_ID = 'thankyou_received';
 
 	/**
 	 * Frozen B1/B2 functional option keys (never translated).
@@ -80,6 +108,19 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	);
 
 	/**
+	 * Frozen CJ6.2 order totals row keys (labels only).
+	 *
+	 * @var list<string>
+	 */
+	public const ORDER_TOTALS_ALLOWLIST = array(
+		'cart_subtotal',
+		'shipping',
+		'discount',
+		'order_total',
+		'payment_method',
+	);
+
+	/**
 	 * Builds the WooCommerce integration.
 	 *
 	 * @param PluginIdentity                                                                             $identity                 Serializer.
@@ -93,6 +134,11 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	 * @param (callable(): list<array{taxonomy:string,term_id:int,name:string,description:string}>)|null $terms_provider Test catalog terms.
 	 * @param (callable(): array<string, string>)|null                                                   $orderby_labels_provider  Test B1 labels.
 	 * @param (callable(): array<string, string>)|null                                                   $orderedby_labels_provider Test B2 labels.
+	 * @param int|null                                                                                   $checkout_page_id         Test checkout page ID.
+	 * @param int|null                                                                                   $myaccount_page_id        Test myaccount page ID.
+	 * @param (callable(): array<string, string>)|null                                                   $checkout_field_labels_provider Test CJ3.1 field labels.
+	 * @param (callable(): array<string, string>)|null                                                   $account_menu_provider    Test CJ4.1 menu.
+	 * @param (callable(): array<string, string>)|null                                                   $order_totals_labels_provider Test CJ6.2 labels.
 	 */
 	public function __construct(
 		private PluginIdentity $identity,
@@ -106,6 +152,11 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		private $terms_provider = null,
 		private $orderby_labels_provider = null,
 		private $orderedby_labels_provider = null,
+		private ?int $checkout_page_id = null,
+		private ?int $myaccount_page_id = null,
+		private $checkout_field_labels_provider = null,
+		private $account_menu_provider = null,
+		private $order_totals_labels_provider = null,
 	) {
 	}
 
@@ -184,6 +235,18 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			}
 		}
 
+		if ( $this->is_checkout_page( $post ) ) {
+			foreach ( $this->extract_checkout_journey_units() as $unit ) {
+				$this->append_unique( $units, $seen, $unit );
+			}
+		}
+
+		if ( $this->is_myaccount_page( $post ) ) {
+			foreach ( $this->extract_account_journey_units() as $unit ) {
+				$this->append_unique( $units, $seen, $unit );
+			}
+		}
+
 		return $units;
 	}
 
@@ -249,6 +312,85 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			},
 			10,
 			1
+		);
+
+		add_filter(
+			self::HOOK_CHECKOUT_FIELDS,
+			function ( $fields ) use ( $resolve ) {
+				return $this->overlay_checkout_fields( $fields, $resolve );
+			},
+			10,
+			1
+		);
+
+		add_filter(
+			self::HOOK_ORDER_BUTTON_TEXT,
+			function ( $text ) use ( $resolve ) {
+				return $this->overlay_plain_singleton(
+					$text,
+					self::OWNER_CHECKOUT,
+					self::CHECKOUT_ORDER_BUTTON_ID,
+					self::FIELD_LABEL,
+					$resolve
+				);
+			},
+			10,
+			1
+		);
+
+		add_filter(
+			self::HOOK_ACCOUNT_MENU_ITEMS,
+			function ( $items ) use ( $resolve ) {
+				return $this->overlay_string_map( $items, self::OWNER_ACCOUNT_MENU, self::FIELD_LABEL, $resolve );
+			},
+			10,
+			1
+		);
+
+		foreach ( array_keys( $this->read_account_menu_labels() ) as $endpoint ) {
+			$endpoint = $this->normalize_token( (string) $endpoint );
+			if ( '' === $endpoint ) {
+				continue;
+			}
+			$hook = 'woocommerce_endpoint_' . $endpoint . '_title';
+			add_filter(
+				$hook,
+				function ( $title ) use ( $resolve, $endpoint ) {
+					return $this->overlay_plain_singleton(
+						$title,
+						self::OWNER_ENDPOINT,
+						$endpoint,
+						self::FIELD_TITLE,
+						$resolve
+					);
+				},
+				10,
+				1
+			);
+		}
+
+		add_filter(
+			self::HOOK_THANKYOU_RECEIVED,
+			function ( $text, $order = null ) use ( $resolve ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return $this->overlay_plain_singleton(
+					$text,
+					self::OWNER_CHECKOUT,
+					self::CHECKOUT_THANKYOU_ID,
+					self::FIELD_LABEL,
+					$resolve
+				);
+			},
+			10,
+			2
+		);
+
+		add_filter(
+			self::HOOK_ORDER_ITEM_TOTALS,
+			function ( $totals, $order = null, $tax_display = '' ) use ( $resolve ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return $this->overlay_order_item_totals( $totals, $resolve );
+			},
+			10,
+			3
 		);
 	}
 
@@ -857,6 +999,432 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * Whether the post is the configured WooCommerce checkout page.
+	 *
+	 * @param WP_Post $post Post.
+	 */
+	private function is_checkout_page( WP_Post $post ): bool {
+		$id = $this->resolved_checkout_page_id();
+		return $id > 0 && (int) $post->ID === $id;
+	}
+
+	/**
+	 * Whether the post is the configured WooCommerce myaccount page.
+	 *
+	 * @param WP_Post $post Post.
+	 */
+	private function is_myaccount_page( WP_Post $post ): bool {
+		$id = $this->resolved_myaccount_page_id();
+		return $id > 0 && (int) $post->ID === $id;
+	}
+
+	/**
+	 * Resolved checkout page ID.
+	 */
+	public function resolved_checkout_page_id(): int {
+		if ( null !== $this->checkout_page_id ) {
+			return $this->checkout_page_id;
+		}
+		if ( function_exists( 'wc_get_page_id' ) ) {
+			$id = (int) wc_get_page_id( 'checkout' );
+			return $id > 0 ? $id : 0;
+		}
+		return 0;
+	}
+
+	/**
+	 * Resolved myaccount page ID.
+	 */
+	public function resolved_myaccount_page_id(): int {
+		if ( null !== $this->myaccount_page_id ) {
+			return $this->myaccount_page_id;
+		}
+		if ( function_exists( 'wc_get_page_id' ) ) {
+			$id = (int) wc_get_page_id( 'myaccount' );
+			return $id > 0 ? $id : 0;
+		}
+		return 0;
+	}
+
+	/**
+	 * Extract Supported CJ3 + CJ6 units for the checkout technical host.
+	 *
+	 * @return list<TranslationUnitDescriptor>
+	 */
+	private function extract_checkout_journey_units(): array {
+		$units = array();
+		foreach ( $this->read_checkout_field_labels() as $field_key => $label ) {
+			$unit = $this->make_journey_unit(
+				self::OWNER_CHECKOUT_FIELD,
+				(string) $field_key,
+				self::FIELD_LABEL,
+				$label,
+				'Checkout field: ' . $field_key
+			);
+			if ( null !== $unit ) {
+				$units[] = $unit;
+			}
+		}
+
+		$button = $this->make_journey_unit(
+			self::OWNER_CHECKOUT,
+			self::CHECKOUT_ORDER_BUTTON_ID,
+			self::FIELD_LABEL,
+			'Place order',
+			'Place order button'
+		);
+		if ( null !== $button ) {
+			$units[] = $button;
+		}
+
+		$thanks = $this->make_journey_unit(
+			self::OWNER_CHECKOUT,
+			self::CHECKOUT_THANKYOU_ID,
+			self::FIELD_LABEL,
+			'Thank you. Your order has been received.',
+			'Order received text'
+		);
+		if ( null !== $thanks ) {
+			$units[] = $thanks;
+		}
+
+		foreach ( $this->read_order_totals_labels() as $row_key => $label ) {
+			if ( ! in_array( $row_key, self::ORDER_TOTALS_ALLOWLIST, true ) ) {
+				continue;
+			}
+			$unit = $this->make_journey_unit(
+				self::OWNER_ORDER_TOTALS,
+				(string) $row_key,
+				self::FIELD_LABEL,
+				$label,
+				'Order totals: ' . $row_key
+			);
+			if ( null !== $unit ) {
+				$units[] = $unit;
+			}
+		}
+
+		return $units;
+	}
+
+	/**
+	 * Extract Supported CJ4 units for the myaccount technical host.
+	 *
+	 * @return list<TranslationUnitDescriptor>
+	 */
+	private function extract_account_journey_units(): array {
+		$units = array();
+		$menu  = $this->read_account_menu_labels();
+		foreach ( $menu as $endpoint => $label ) {
+			$endpoint = $this->normalize_token( (string) $endpoint );
+			if ( '' === $endpoint ) {
+				continue;
+			}
+			$menu_unit = $this->make_journey_unit(
+				self::OWNER_ACCOUNT_MENU,
+				$endpoint,
+				self::FIELD_LABEL,
+				$label,
+				'Account menu: ' . $endpoint
+			);
+			if ( null !== $menu_unit ) {
+				$units[] = $menu_unit;
+			}
+			$title_unit = $this->make_journey_unit(
+				self::OWNER_ENDPOINT,
+				$endpoint,
+				self::FIELD_TITLE,
+				$label,
+				'Account endpoint: ' . $endpoint
+			);
+			if ( null !== $title_unit ) {
+				$units[] = $title_unit;
+			}
+		}
+		return $units;
+	}
+
+	/**
+	 * Build one A.7c journey translation unit.
+	 *
+	 * @param string $owner_type  Identity owner_type.
+	 * @param string $owner_id    Identity owner_id.
+	 * @param string $field       Identity field.
+	 * @param string $label       Source label.
+	 * @param string $field_label Workspace label.
+	 */
+	private function make_journey_unit(
+		string $owner_type,
+		string $owner_id,
+		string $field,
+		string $label,
+		string $field_label
+	): ?TranslationUnitDescriptor {
+		$owner_id = $this->normalize_token( $owner_id );
+		$plain    = IntegrationSecurity::sanitize_plain( $label );
+		if ( '' === $owner_id || '' === $plain ) {
+			return null;
+		}
+		try {
+			$segment_key = $this->identity->build( self::ID, $owner_type, $owner_id, $field );
+		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			return null;
+		}
+
+		return new TranslationUnitDescriptor(
+			$segment_key,
+			$plain,
+			Store::source_hash( $plain, Store::FORMAT_PLAIN ),
+			Store::FORMAT_PLAIN,
+			Contract::OWNERSHIP_RECORD,
+			$owner_type,
+			$owner_id,
+			$field,
+			$field_label,
+			self::ID,
+			'WooCommerce customer journey'
+		);
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private function read_checkout_field_labels(): array {
+		if ( null !== $this->checkout_field_labels_provider ) {
+			return ( $this->checkout_field_labels_provider )();
+		}
+		$out = array();
+		if ( function_exists( 'WC' ) && WC() && WC()->checkout() ) {
+			$fields = WC()->checkout()->get_checkout_fields();
+			if ( is_array( $fields ) ) {
+				foreach ( $fields as $group ) {
+					if ( ! is_array( $group ) ) {
+						continue;
+					}
+					foreach ( $group as $key => $field ) {
+						if ( ! is_array( $field ) || ! isset( $field['label'] ) || ! is_string( $field['label'] ) ) {
+							continue;
+						}
+						$key = $this->normalize_token( (string) $key );
+						if ( '' !== $key && '' !== $field['label'] ) {
+							$out[ $key ] = $field['label'];
+						}
+					}
+				}
+			}
+		}
+		if ( array() !== $out ) {
+			return $out;
+		}
+		return array(
+			'billing_first_name'  => 'First name',
+			'billing_last_name'   => 'Last name',
+			'billing_email'       => 'Email address',
+			'billing_phone'       => 'Phone',
+			'billing_country'     => 'Country / Region',
+			'billing_address_1'   => 'Street address',
+			'billing_city'        => 'Town / City',
+			'billing_postcode'    => 'Postcode / ZIP',
+			'shipping_first_name' => 'First name',
+			'shipping_last_name'  => 'Last name',
+			'order_comments'      => 'Order notes',
+		);
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private function read_account_menu_labels(): array {
+		if ( null !== $this->account_menu_provider ) {
+			return ( $this->account_menu_provider )();
+		}
+		$defaults = array(
+			'dashboard'       => 'Dashboard',
+			'orders'          => 'Orders',
+			'downloads'       => 'Downloads',
+			'edit-address'    => 'Addresses',
+			'edit-account'    => 'Account details',
+			'customer-logout' => 'Log out',
+			'gift-cards'      => 'Gift cards',
+		);
+		if ( function_exists( 'apply_filters' ) ) {
+			$filtered = apply_filters( 'woocommerce_account_menu_items', $defaults );
+			if ( is_array( $filtered ) ) {
+				$out = array();
+				foreach ( $filtered as $key => $label ) {
+					if ( is_string( $key ) && is_string( $label ) && '' !== $label ) {
+						$out[ $key ] = $label;
+					}
+				}
+				if ( array() !== $out ) {
+					return $out;
+				}
+			}
+		}
+		return $defaults;
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private function read_order_totals_labels(): array {
+		if ( null !== $this->order_totals_labels_provider ) {
+			return ( $this->order_totals_labels_provider )();
+		}
+		return array(
+			'cart_subtotal'  => 'Subtotal',
+			'shipping'       => 'Shipping',
+			'discount'       => 'Discount',
+			'order_total'    => 'Total',
+			'payment_method' => 'Payment method',
+		);
+	}
+
+	/**
+	 * Overlay checkout field labels (CJ3.1).
+	 *
+	 * @param mixed                       $fields  Checkout fields map.
+	 * @param callable(string): (?string) $resolve Resolver.
+	 * @return mixed
+	 */
+	private function overlay_checkout_fields( $fields, callable $resolve ) {
+		if ( ! is_array( $fields ) ) {
+			return $fields;
+		}
+		foreach ( $fields as $group => $group_fields ) {
+			if ( ! is_array( $group_fields ) ) {
+				continue;
+			}
+			foreach ( $group_fields as $key => $field ) {
+				if ( ! is_array( $field ) || ! isset( $field['label'] ) || ! is_string( $field['label'] ) ) {
+					continue;
+				}
+				$norm = $this->normalize_token( (string) $key );
+				if ( '' === $norm ) {
+					continue;
+				}
+				try {
+					$segment_key = $this->identity->build( self::ID, self::OWNER_CHECKOUT_FIELD, $norm, self::FIELD_LABEL );
+				} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+					continue;
+				}
+				$translated = $resolve( $segment_key );
+				if ( ! is_string( $translated ) ) {
+					continue;
+				}
+				$plain = IntegrationSecurity::sanitize_plain( $translated );
+				if ( '' !== $plain ) {
+					$fields[ $group ][ $key ]['label'] = $plain;
+				}
+			}
+		}
+		return $fields;
+	}
+
+	/**
+	 * Overlay a flat endpoint => label map (CJ4.1).
+	 *
+	 * @param mixed                       $items      Map.
+	 * @param string                      $owner_type Identity owner_type.
+	 * @param string                      $field      Identity field.
+	 * @param callable(string): (?string) $resolve    Resolver.
+	 * @return mixed
+	 */
+	private function overlay_string_map( $items, string $owner_type, string $field, callable $resolve ) {
+		if ( ! is_array( $items ) ) {
+			return $items;
+		}
+		$out = array();
+		foreach ( $items as $key => $label ) {
+			if ( ! is_string( $key ) || ! is_string( $label ) ) {
+				$out[ $key ] = $label;
+				continue;
+			}
+			$norm = $this->normalize_token( $key );
+			if ( '' === $norm ) {
+				$out[ $key ] = $label;
+				continue;
+			}
+			try {
+				$segment_key = $this->identity->build( self::ID, $owner_type, $norm, $field );
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				$out[ $key ] = $label;
+				continue;
+			}
+			$translated = $resolve( $segment_key );
+			if ( ! is_string( $translated ) ) {
+				$out[ $key ] = $label;
+				continue;
+			}
+			$plain       = IntegrationSecurity::sanitize_plain( $translated );
+			$out[ $key ] = '' !== $plain ? $plain : $label;
+		}
+		return $out;
+	}
+
+	/**
+	 * Overlay a singleton plain string (CJ3.2 / CJ4.2 / CJ6.1).
+	 *
+	 * @param mixed                       $text       Source text.
+	 * @param string                      $owner_type Owner type.
+	 * @param string                      $owner_id   Owner id.
+	 * @param string                      $field      Field.
+	 * @param callable(string): (?string) $resolve    Resolver.
+	 * @return mixed
+	 */
+	private function overlay_plain_singleton( $text, string $owner_type, string $owner_id, string $field, callable $resolve ) {
+		if ( ! is_string( $text ) ) {
+			return $text;
+		}
+		try {
+			$segment_key = $this->identity->build( self::ID, $owner_type, $owner_id, $field );
+		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			return $text;
+		}
+		$translated = $resolve( $segment_key );
+		if ( ! is_string( $translated ) ) {
+			return $text;
+		}
+		$plain = IntegrationSecurity::sanitize_plain( $translated );
+		return '' !== $plain ? $plain : $text;
+	}
+
+	/**
+	 * Overlay order item totals labels (CJ6.2); values untouched.
+	 *
+	 * @param mixed                       $totals  Totals rows.
+	 * @param callable(string): (?string) $resolve Resolver.
+	 * @return mixed
+	 */
+	private function overlay_order_item_totals( $totals, callable $resolve ) {
+		if ( ! is_array( $totals ) ) {
+			return $totals;
+		}
+		foreach ( $totals as $key => $row ) {
+			if ( ! is_string( $key ) || ! in_array( $key, self::ORDER_TOTALS_ALLOWLIST, true ) ) {
+				continue;
+			}
+			if ( ! is_array( $row ) || ! isset( $row['label'] ) || ! is_string( $row['label'] ) ) {
+				continue;
+			}
+			try {
+				$segment_key = $this->identity->build( self::ID, self::OWNER_ORDER_TOTALS, $key, self::FIELD_LABEL );
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				continue;
+			}
+			$translated = $resolve( $segment_key );
+			if ( ! is_string( $translated ) ) {
+				continue;
+			}
+			$plain = IntegrationSecurity::sanitize_plain( $translated );
+			if ( '' !== $plain ) {
+				$totals[ $key ]['label'] = $plain;
+			}
+		}
+		return $totals;
 	}
 
 	/**
