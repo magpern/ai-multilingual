@@ -85,7 +85,8 @@ final class IntegrationFrontendBridge {
 	 * Resolve Store source_id for the current query.
 	 *
 	 * Posts/pages/products use the queried post ID. WooCommerce product_cat /
-	 * product_tag archives resolve against the shop page host (A.7a catalog).
+	 * product_tag archives and product search resolve against the shop page
+	 * technical Store anchor (A.7a catalog + A.7b archive chrome).
 	 *
 	 * @param mixed $queried Queried object.
 	 */
@@ -97,13 +98,40 @@ final class IntegrationFrontendBridge {
 		if ( is_object( $queried ) && isset( $queried->taxonomy, $queried->term_id ) ) {
 			$taxonomy = (string) $queried->taxonomy;
 			if ( 'product_cat' === $taxonomy || 'product_tag' === $taxonomy ) {
-				if ( function_exists( 'wc_get_page_id' ) ) {
-					$shop_id = (int) wc_get_page_id( 'shop' );
-					return $shop_id > 0 ? $shop_id : 0;
-				}
+				return $this->shop_page_source_id();
 			}
 		}
 
+		if ( $this->is_woocommerce_product_search() ) {
+			return $this->shop_page_source_id();
+		}
+
 		return 0;
+	}
+
+	/**
+	 * WooCommerce shop page ID for technical Store anchoring.
+	 */
+	private function shop_page_source_id(): int {
+		if ( function_exists( 'wc_get_page_id' ) ) {
+			$shop_id = (int) wc_get_page_id( 'shop' );
+			return $shop_id > 0 ? $shop_id : 0;
+		}
+		return 0;
+	}
+
+	/**
+	 * Whether the main query is a WooCommerce product search.
+	 */
+	private function is_woocommerce_product_search(): bool {
+		if ( ! function_exists( 'is_search' ) || ! is_search() ) {
+			return false;
+		}
+		if ( function_exists( 'is_woocommerce' ) && is_woocommerce() ) {
+			return true;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( (string) $_GET['post_type'] ) ) : '';
+		return 'product' === $post_type;
 	}
 }

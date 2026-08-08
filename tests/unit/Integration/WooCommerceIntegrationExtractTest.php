@@ -127,15 +127,58 @@ final class WooCommerceIntegrationExtractTest extends TestCase {
 		$integration->configure( true, true, '10.9.4', false, true );
 		$units = $integration->extract_for_post( $this->fake_post( 3755, 'page' ) );
 		$keys  = array_map( static fn( $u ) => $u->segment_key, $units );
-		$this->assertSame(
-			array(
-				'p:woocommerce:product_cat:40:name',
-				'p:woocommerce:product_cat:40:description',
-				'p:woocommerce:product_tag:45:name',
-			),
-			$keys
+		$this->assertContains( 'p:woocommerce:product_cat:40:name', $keys );
+		$this->assertContains( 'p:woocommerce:product_cat:40:description', $keys );
+		$this->assertContains( 'p:woocommerce:product_tag:45:name', $keys );
+		$this->assertContains( 'p:woocommerce:catalog_orderby:popularity:label', $keys );
+		$this->assertContains( 'p:woocommerce:catalog_orderedby:popularity:label', $keys );
+		$desc = null;
+		foreach ( $units as $unit ) {
+			if ( 'p:woocommerce:product_cat:40:description' === $unit->segment_key ) {
+				$desc = $unit;
+				break;
+			}
+		}
+		$this->assertNotNull( $desc );
+		$this->assertSame( 'html', $desc->text_format );
+	}
+
+	public function test_extract_shop_page_emits_exact_orderby_and_orderedby_units(): void {
+		$integration = $this->make_integration( array(), array(), 100 );
+		$integration->configure( true, true, '10.9.4', false, true );
+		$units = $integration->extract_for_post( $this->fake_post( 100, 'page' ) );
+		$keys  = array_map( static fn( $u ) => $u->segment_key, $units );
+
+		$expected_orderby   = array(
+			'p:woocommerce:catalog_orderby:menu_order:label',
+			'p:woocommerce:catalog_orderby:popularity:label',
+			'p:woocommerce:catalog_orderby:rating:label',
+			'p:woocommerce:catalog_orderby:date:label',
+			'p:woocommerce:catalog_orderby:price:label',
+			'p:woocommerce:catalog_orderby:price-desc:label',
+			'p:woocommerce:catalog_orderby:relevance:label',
 		);
-		$this->assertSame( 'html', $units[1]->text_format );
+		$expected_orderedby = array(
+			'p:woocommerce:catalog_orderedby:menu_order:label',
+			'p:woocommerce:catalog_orderedby:popularity:label',
+			'p:woocommerce:catalog_orderedby:rating:label',
+			'p:woocommerce:catalog_orderedby:date:label',
+			'p:woocommerce:catalog_orderedby:price:label',
+			'p:woocommerce:catalog_orderedby:price-desc:label',
+		);
+		foreach ( array_merge( $expected_orderby, $expected_orderedby ) as $key ) {
+			$this->assertContains( $key, $keys );
+		}
+
+		$by_key = array();
+		foreach ( $units as $unit ) {
+			$by_key[ $unit->segment_key ] = $unit;
+		}
+		$this->assertSame( 'Sort by popularity', $by_key['p:woocommerce:catalog_orderby:popularity:label']->source_text );
+		$this->assertSame( 'Sorted by popularity', $by_key['p:woocommerce:catalog_orderedby:popularity:label']->source_text );
+		$this->assertSame( 'WooCommerce archive chrome', $by_key['p:woocommerce:catalog_orderby:popularity:label']->parent_context );
+		$this->assertSame( 'catalog_orderby', $by_key['p:woocommerce:catalog_orderby:popularity:label']->owner_type );
+		$this->assertSame( 'popularity', $by_key['p:woocommerce:catalog_orderby:popularity:label']->owner_id );
 	}
 
 	public function test_extract_skips_when_incompatible(): void {

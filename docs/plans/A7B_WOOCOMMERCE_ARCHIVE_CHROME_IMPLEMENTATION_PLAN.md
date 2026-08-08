@@ -1,6 +1,6 @@
 # A.7b — WooCommerce Archive Chrome — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — ready for merge to `main`; implementation not started  
+**Status:** **Complete** — implemented and validated on `feature/a7b-woocommerce-archive-chrome`; closure tag `a7b-woocommerce-archive-chrome-complete`  
 **Parent family plan:** [A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md)  
 **Prior wave:** [A7A_WOOCOMMERCE_PRODUCT_CATALOG_IMPLEMENTATION_PLAN.md](A7A_WOOCOMMERCE_PRODUCT_CATALOG_IMPLEMENTATION_PLAN.md) — **Complete** (`a7a-woocommerce-product-catalog-complete`)  
 **Milestone:** Program A — **A.7b** Archive / listing chrome (Woo-owned only)  
@@ -8,7 +8,8 @@
 **ADR assessment:** **No new ADR required** for the admitted Supported set (B1–B2). Deferred surfaces that lack pre-interpolation hooks or wrong owners do **not** justify silent Store redesign.  
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.2 / A.7 family  
 **Planning branch:** `feature/a7b-woocommerce-archive-chrome-plan`  
-**Implementation branch:** `feature/a7b-woocommerce-archive-chrome` (**create only after this plan merges to `main`**)  
+**Implementation branch:** `feature/a7b-woocommerce-archive-chrome`  
+**Validation log:** [A7B_WOOCOMMERCE_ARCHIVE_CHROME_VALIDATION_LOG.md](A7B_WOOCOMMERCE_ARCHIVE_CHROME_VALIDATION_LOG.md)  
 **Baseline (plan authoring):** `main` @ `ef1a63563d553ab018a33498072e3cef5f03ccaf`  
 **Depends on:** A.7 family plan; A.7a complete; ADR-0013 / 0016 / 0017 **Accepted**; Integration API v1; schema TARGET **6**  
 **Evidence:** [a7b-evidence/ownership-inventory.md](a7b-evidence/ownership-inventory.md); [a7b-evidence/admission-matrix.md](a7b-evidence/admission-matrix.md); [a7b-evidence/store-resolution-hypothesis.md](a7b-evidence/store-resolution-hypothesis.md)
@@ -409,13 +410,17 @@ A.7a product/catalog content; A.7c customer workflow; A.7d emails; extensions; m
 
 ## 18. Architecture verdict
 
-**Architecture Frozen** for admitted Woo-owned archive surface **B1–B2 only**.
+**Complete** for admitted Woo-owned archive surface **B1–B2 only**.
 
 - No new ADR required.  
 - Shop page Store host reuse is a **technical anchor** with evidence — not canonical content ownership.  
 - Broader archive UI remains Deferred to correct owners or future ADR if gettext-only Woo templates become strategic.
+- Search bridge maps product search → shop page Store anchor inside IntegrationFrontendBridge (no Store redesign).
+- Woo injects search `relevance` **after** `woocommerce_catalog_orderby`; filter-mediated B1 keys still translate on search.
 
-Implementation may begin **only after this planning document is merged to `main`**.
+**Final Supported:** B1 catalog orderby option labels; B2 orderedby/status labels.  
+**Final Deferred:** B3–B12 unchanged.  
+**Next milestone:** A.7c planning (not started).
 
 ---
 
