@@ -25,6 +25,8 @@ final class WooCommerceLifecycleTest extends TestCase {
 		remove_all_filters( WooCommerceIntegration::HOOK_SINGLE_TERM_TITLE );
 		remove_all_filters( WooCommerceIntegration::HOOK_PAGE_TITLE );
 		remove_all_filters( WooCommerceIntegration::HOOK_TERM_DESCRIPTION );
+		remove_all_filters( WooCommerceIntegration::HOOK_CATALOG_ORDERBY );
+		remove_all_filters( WooCommerceIntegration::HOOK_CATALOG_ORDEREDBY );
 	}
 
 	public function test_disabled_filter_retains_compatible_extract_empty_and_no_overlay(): void {
@@ -110,5 +112,52 @@ final class WooCommerceLifecycleTest extends TestCase {
 			}
 		);
 		$this->assertTrue( true );
+	}
+
+	public function test_archive_chrome_disabled_keeps_source_orderby_labels(): void {
+		$integration = new WooCommerceIntegration( new PluginIdentity(), true, true, '10.9.4', true, true, 100 );
+		$this->assertSame( Contract::STATE_DISABLED, $integration->get_compatibility()->state() );
+
+		$post              = new \WP_Post( new \stdClass() );
+		$post->ID          = 100;
+		$post->post_type   = 'page';
+		$post->post_status = 'publish';
+		$this->assertSame( array(), $integration->extract_for_post( $post ) );
+
+		$integration->register_output_hooks(
+			static function (): ?string {
+				return 'X';
+			}
+		);
+		$in = array( 'popularity' => 'Sort by popularity' );
+		$this->assertSame( $in, apply_filters( WooCommerceIntegration::HOOK_CATALOG_ORDERBY, $in ) );
+	}
+
+	public function test_archive_chrome_units_use_woo_ownership_not_shop_page_body(): void {
+		$integration = new WooCommerceIntegration(
+			new PluginIdentity(),
+			true,
+			true,
+			'10.9.4',
+			false,
+			true,
+			55
+		);
+		$post              = new \WP_Post( new \stdClass() );
+		$post->ID          = 55;
+		$post->post_type   = 'page';
+		$post->post_status = 'publish';
+		$units             = $integration->extract_for_post( $post );
+		$found             = false;
+		foreach ( $units as $unit ) {
+			if ( str_starts_with( $unit->segment_key, 'p:woocommerce:catalog_orderby:' ) ) {
+				$found = true;
+				$this->assertSame( 'woocommerce', $unit->integration_id );
+				$this->assertSame( 'WooCommerce archive chrome', $unit->parent_context );
+				$this->assertSame( 'catalog_orderby', $unit->owner_type );
+				$this->assertNotSame( '55', $unit->owner_id );
+			}
+		}
+		$this->assertTrue( $found );
 	}
 }
