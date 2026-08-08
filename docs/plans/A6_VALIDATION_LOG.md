@@ -48,7 +48,13 @@
 
 ## A6.2 — Identity + Workspace contract
 
-**Status:** Pending
+**Status:** PASS
+
+- N1 = `post_title` on `source_id` = menu item post ID; no `p:` / PluginIdentity
+- Workspace `SUPPORTED_POST_TYPES` includes `nav_menu_item`
+- List label prefix `Menu item: …`
+- Contract: [a6-evidence/identity-workspace-contract.md](a6-evidence/identity-workspace-contract.md)
+- No new identity family; TARGET **6**
 
 ---
 
