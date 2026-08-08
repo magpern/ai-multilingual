@@ -59,6 +59,42 @@ final class NavMenuItemTranslationTest extends AimlTestCase {
 		$this->assertContains( 'nav_menu_item', WorkspaceService::SUPPORTED_POST_TYPES );
 	}
 
+	public function test_custom_nav_menu_item_title_overlays_in_target_language(): void {
+		$swedish = $this->add_language();
+		$item    = $this->create_nav_menu_item( 'Home', 'https://example.com/' );
+
+		$this->translate( $item, $swedish, Extractor::FIELD_TITLE, 'Hem' );
+		$this->register_renderer();
+
+		$this->assertSame( 'Home', apply_filters( 'the_title', $item->post_title, $item->ID ) );
+
+		$this->context->set_current( $swedish );
+
+		$this->assertSame( 'Hem', apply_filters( 'the_title', $item->post_title, $item->ID ) );
+	}
+
+	public function test_page_title_overlay_unchanged_for_object_title_menus(): void {
+		$swedish = $this->add_language();
+		$page    = $this->create_page( 'Shop' );
+
+		$this->translate( $page, $swedish, Extractor::FIELD_TITLE, 'Butik' );
+		$this->register_renderer();
+		$this->context->set_current( $swedish );
+
+		// Object-title menu path calls the_title with the page ID, not the menu item.
+		$this->assertSame( 'Butik', apply_filters( 'the_title', $page->post_title, $page->ID ) );
+	}
+
+	public function test_nav_menu_item_store_miss_keeps_source_title(): void {
+		$swedish = $this->add_language();
+		$item    = $this->create_nav_menu_item( 'Home', 'https://example.com/' );
+
+		$this->register_renderer();
+		$this->context->set_current( $swedish );
+
+		$this->assertSame( 'Home', apply_filters( 'the_title', $item->post_title, $item->ID ) );
+	}
+
 	/**
 	 * @param string $title Custom menu title (empty = object-title style).
 	 * @param string $url   Menu item URL.

@@ -66,7 +66,7 @@
 
 ## A6.4 — Overlay (N1)
 
-**Status:** Pending
+**Status:** PASS — `Renderer::filter_title` overlays `nav_menu_item` via Store `post_title`; miss → source; HOOKS.md updated.
 
 ---
 

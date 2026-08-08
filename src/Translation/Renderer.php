@@ -119,11 +119,9 @@ final class Renderer {
 			return $title;
 		}
 
-		// Menu item labels are their own post type and are handled with the
-		// rest of the menu integration in a later milestone.
-		if ( 'nav_menu_item' === get_post_type( $post_id ) ) {
-			return $title;
-		}
+		// A.6 N1: custom nav_menu_item titles overlay via the same post_title
+		// Store field as pages/posts. Empty custom titles never reach this
+		// filter with the menu-item ID — WordPress uses the linked object ID.
 
 		$translated = $this->lookup( $post_id, Extractor::FIELD_TITLE );
 
