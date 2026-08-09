@@ -45,9 +45,39 @@ tests_add_filter(
 	}
 );
 
+/**
+ * Prepares Action Scheduler so WooCommerce install can call AS APIs safely.
+ *
+ * AS defers `store()->init()` to `init` priority 1 and only then sets
+ * `$data_store_initialized`. The harness must install WooCommerce on
+ * `setup_theme` (before `init`) so tables exist when `WooCommerce::init`
+ * runs at priority 0. Without this early store init, `WC_Install::install()`
+ * hits `as_unschedule_all_actions()` while the store is null, which emits
+ * `_doing_it_wrong` (AS 3.1.6+ / Woo 10.9.x). PHPUnit promotes that notice to
+ * an error for `@runTestsInSeparateProcesses` classes that re-bootstrap WP.
+ *
+ * Production never needs this: AIML schedules AS work on `init` priority 20.
+ */
+$aiml_ensure_action_scheduler_store = static function (): void {
+	if ( ! class_exists( \ActionScheduler::class ) || \ActionScheduler::is_initialized() ) {
+		return;
+	}
+
+	\ActionScheduler::store()->init();
+	\ActionScheduler::logger()->init();
+
+	$aiml_flag = new \ReflectionProperty( \ActionScheduler::class, 'data_store_initialized' );
+	$aiml_flag->setAccessible( true );
+	$aiml_flag->setValue( null, true );
+
+	do_action( 'action_scheduler_init' );
+};
+
 tests_add_filter(
 	'setup_theme',
-	function () {
+	function () use ( $aiml_ensure_action_scheduler_store ) {
+		$aiml_ensure_action_scheduler_store();
+
 		\WC_Install::install();
 
 		// Parity with the production stack (HPOS is enabled on the target site).

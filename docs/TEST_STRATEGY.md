@@ -104,8 +104,15 @@ docker rm -f aiml-test-db && docker network rm aiml-test
 
 Files created inside containers are root-owned; git reads them fine.
 
-CI runs the same four gates: phpcs, unit, integration against a `mariadb:11.4`
-service, and a packaging build.
+CI runs the same gates: phpcs (warnings fail), unit, integration against a
+`mariadb:11.4` service, and a packaging build that also runs `bin/audit-zip.sh`.
+See [CI_RELEASE_BASELINE.md](CI_RELEASE_BASELINE.md) for the recovered green
+baseline, Action Scheduler harness notes, and release readiness policy.
+
+Integration bootstrap installs WooCommerce on `setup_theme` after forcibly
+initializing the Action Scheduler data store so `WC_Install::install()` can call
+AS APIs without `_doing_it_wrong` notices (required for
+`@runTestsInSeparateProcesses` classes).
 
 ## Strategy F browser acceptance (F9+)
 

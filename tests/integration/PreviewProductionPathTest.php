@@ -18,10 +18,6 @@ final class PreviewProductionPathTest extends AimlTestCase {
 
 	use WorkspaceTestHelpers;
 
-	protected function setUp(): void {
-		parent::setUp();
-	}
-
 	public function test_preview_url_returns_public_route(): void {
 		$this->add_language();
 		$post = $this->create_block_page();

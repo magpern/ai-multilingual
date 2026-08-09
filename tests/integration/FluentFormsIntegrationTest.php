@@ -67,7 +67,9 @@ final class FluentFormsIntegrationTest extends AimlTestCase {
 		);
 
 		$reader = new class( $fields ) implements FluentFormDefinitionReader {
-			/** @param array<string, mixed> $fields Fields. */
+			/**
+			 * @param array<string, mixed> $fields Decoded Fluent Forms field map.
+			 */
 			public function __construct( private array $fields ) {
 			}
 			public function get_decoded_fields( int $form_id ): ?array {

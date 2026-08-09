@@ -54,6 +54,8 @@ final class RankMathSitemapOverlay {
 	private bool $registered = false;
 
 	/**
+	 * Builds the sitemap overlay helper.
+	 *
 	 * @param LanguageRelationshipService $relationships SB11 (consumed unchanged).
 	 */
 	public function __construct(
@@ -170,13 +172,13 @@ final class RankMathSitemapOverlay {
 	/**
 	 * Preserve Rank Math entry ownership — never invent inclusion.
 	 *
-	 * @param mixed  $url    Entry parts or empty.
-	 * @param mixed  $type   Entry type.
-	 * @param mixed  $object Source object.
+	 * @param mixed $url          Entry parts or empty.
+	 * @param mixed $type         Entry type.
+	 * @param mixed $entry_object Source object from Rank Math.
 	 * @return mixed
 	 */
-	public function filter_sitemap_entry( $url, $type = null, $object = null ) {
-		unset( $type, $object );
+	public function filter_sitemap_entry( $url, $type = null, $entry_object = null ) {
+		unset( $type, $entry_object );
 
 		if ( ! (bool) get_option( 'blog_public' ) ) {
 			// Honesty: do not enrich discovery when the site discourages indexing.
@@ -189,15 +191,15 @@ final class RankMathSitemapOverlay {
 	/**
 	 * Never force Rank Math to include noindex objects.
 	 *
-	 * @param mixed $include Current include_noindex value.
-	 * @param mixed $type    Sitemap type.
+	 * @param mixed $include_noindex Current include_noindex value.
+	 * @param mixed $type            Sitemap type.
 	 * @return mixed
 	 */
-	public function filter_include_noindex( $include, $type = null ) {
+	public function filter_include_noindex( $include_noindex, $type = null ) {
 		unset( $type );
 
-		if ( true === $include || 1 === $include || '1' === $include ) {
-			return $include;
+		if ( true === $include_noindex || 1 === $include_noindex || '1' === $include_noindex ) {
+			return $include_noindex;
 		}
 
 		return false;
@@ -217,7 +219,7 @@ final class RankMathSitemapOverlay {
 	/**
 	 * Build xhtml:link markup for public relationships (+ x-default).
 	 *
-	 * @param list<LanguageRelationship> $relationships Public SB11 set.
+	 * @param array<int, LanguageRelationship> $relationships Public SB11 set.
 	 */
 	private function build_xhtml_link_fragment( array $relationships ): string {
 		$seen_hreflang = array();

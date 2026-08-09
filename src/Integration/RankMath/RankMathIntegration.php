@@ -98,6 +98,13 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	private const TERM_TAXONOMIES = array( 'category', 'post_tag', 'product_cat', 'product_tag' );
 
 	/**
+	 * A.SEOe sitemap overlay helper (null until relationships available).
+	 *
+	 * @var RankMathSitemapOverlay|null
+	 */
+	private ?RankMathSitemapOverlay $sitemap_overlay = null;
+
+	/**
 	 * Builds the Rank Math integration.
 	 *
 	 * @param PluginIdentity                   $identity      Serializer.
@@ -110,13 +117,6 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	 * @param bool|null                        $disabled      Test override.
 	 * @param bool|null                        $hooks_present Test override.
 	 */
-	/**
-	 * A.SEOe sitemap overlay helper (null until relationships available).
-	 *
-	 * @var RankMathSitemapOverlay|null
-	 */
-	private ?RankMathSitemapOverlay $sitemap_overlay = null;
-
 	public function __construct(
 		private PluginIdentity $identity,
 		private Store $store,

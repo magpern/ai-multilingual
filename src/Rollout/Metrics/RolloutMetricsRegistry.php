@@ -94,6 +94,6 @@ final class RolloutMetricsRegistry {
 
 		ksort( $filtered );
 
-		return hash( 'sha1', $metric_key . '|' . json_encode( $filtered, JSON_THROW_ON_ERROR ) );
+		return hash( 'sha1', $metric_key . '|' . wp_json_encode( $filtered, JSON_THROW_ON_ERROR ) );
 	}
 }

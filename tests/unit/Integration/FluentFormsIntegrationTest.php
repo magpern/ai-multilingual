@@ -76,8 +76,8 @@ final class FluentFormsIntegrationTest extends TestCase {
 	public function test_extract_emits_exactly_three_units_for_embedded_form(): void {
 		$integration = $this->make_integration( $this->sample_fields(), true );
 		$integration->configure( true, true, '6.2.9', false, true );
-		$post        = $this->fake_post( 3410 );
-		$units       = $integration->extract_for_post( $post );
+		$post  = $this->fake_post( 3410 );
+		$units = $integration->extract_for_post( $post );
 		$this->assertCount( 3, $units );
 		$keys = array_map( static fn( $u ) => $u->segment_key, $units );
 		$this->assertSame(
@@ -104,7 +104,7 @@ final class FluentFormsIntegrationTest extends TestCase {
 		$fields = $this->sample_fields();
 		// Rename full_name → contact_name (must not rematch).
 		$fields['fields'][0]['attributes']['name'] = 'contact_name';
-		$integration = $this->make_integration( $fields, true );
+		$integration                               = $this->make_integration( $fields, true );
 		$integration->configure( true, true, '6.2.9', false, true );
 		$units = $integration->extract_for_post( $this->fake_post( 3410 ) );
 		$keys  = array_map( static fn( $u ) => $u->segment_key, $units );
