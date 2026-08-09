@@ -18,11 +18,15 @@ namespace AIMultilingual\Seo;
 final class DocumentSeoHead {
 
 	/**
+	 * SB11 relationship service.
+	 *
 	 * @var LanguageRelationshipService
 	 */
 	private LanguageRelationshipService $relationships;
 
 	/**
+	 * Builds the document SEO head emitter.
+	 *
 	 * @param LanguageRelationshipService $relationships SB11 contract.
 	 */
 	public function __construct( LanguageRelationshipService $relationships ) {
@@ -41,7 +45,7 @@ final class DocumentSeoHead {
 	/**
 	 * Language-aware WP canonical (SB1/SB2).
 	 *
-	 * @param string       $canonical Existing canonical.
+	 * @param string        $canonical Existing canonical.
 	 * @param \WP_Post|null $post     Post context.
 	 * @return string
 	 */

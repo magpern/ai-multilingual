@@ -22,16 +22,22 @@ use AIMultilingual\Language\Languages;
 final class LanguageRelationshipService {
 
 	/**
+	 * Language registry.
+	 *
 	 * @var Languages
 	 */
 	private Languages $languages;
 
 	/**
+	 * Request language state.
+	 *
 	 * @var LanguageContext
 	 */
 	private LanguageContext $context;
 
 	/**
+	 * Builds the relationship service.
+	 *
 	 * @param Languages       $languages Language registry.
 	 * @param LanguageContext $context   Request language state.
 	 */
@@ -59,8 +65,8 @@ final class LanguageRelationshipService {
 	 * @return list<LanguageRelationship>
 	 */
 	public function for_path( string $unprefixed_path, bool $include_preview = false ): array {
-		$path    = $this->normalize_path( $unprefixed_path );
-		$current = $this->context->current();
+		$path       = $this->normalize_path( $unprefixed_path );
+		$current    = $this->context->current();
 		$current_id = null === $current ? 0 : (int) $current->language_id;
 
 		$out = array();
@@ -147,6 +153,8 @@ final class LanguageRelationshipService {
 	}
 
 	/**
+	 * Normalizes a site-relative path to a leading-slash form.
+	 *
 	 * @param string $path Raw path.
 	 */
 	private function normalize_path( string $path ): string {

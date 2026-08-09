@@ -24,8 +24,8 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 		$this->add_language( 'de', 'de_DE', Languages::STATUS_PREVIEW );
 
 		$this->route( '/sv/about/' );
-		$svc  = new LanguageRelationshipService( $this->languages, $this->context );
-		$rels = $svc->for_public_request();
+		$svc   = new LanguageRelationshipService( $this->languages, $this->context );
+		$rels  = $svc->for_public_request();
 		$codes = array_map(
 			static function ( $r ) {
 				return $r->language_code;
@@ -69,8 +69,8 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 		$this->add_language();
 		$this->route( '/sv/hello/' );
 
-		$svc  = new LanguageRelationshipService( $this->languages, $this->context );
-		$head = new DocumentSeoHead( $svc );
+		$svc      = new LanguageRelationshipService( $this->languages, $this->context );
+		$head     = new DocumentSeoHead( $svc );
 		$external = 'https://example.com/other-canonical/';
 
 		$this->assertSame( $external, $head->filter_canonical_url( $external, null ) );

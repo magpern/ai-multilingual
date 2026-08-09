@@ -65,10 +65,10 @@ final class Switcher {
 		LanguageContext $context,
 		LanguageRelationshipService $relationships
 	) {
-		$this->settings       = $settings;
-		$this->languages      = $languages;
-		$this->context        = $context;
-		$this->relationships  = $relationships;
+		$this->settings      = $settings;
+		$this->languages     = $languages;
+		$this->context       = $context;
+		$this->relationships = $relationships;
 	}
 
 	/**

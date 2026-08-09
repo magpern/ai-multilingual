@@ -232,12 +232,14 @@ final class Router {
 		if ( '' !== $home && 0 === strpos( $path, '/' . $home . '/' ) ) {
 			$path = substr( $path, strlen( $home ) + 1 );
 			$path = '/' . ltrim( (string) $path, '/' );
-		} elseif ( '' !== $home && '/' . $home === rtrim( $path, '/' ) ) {
+		} elseif ( '' !== $home && rtrim( $path, '/' ) === '/' . $home ) {
 			$path = '/';
 		}
 
-		$prefix = '/' . $code . '/';
-		if ( 0 === strpos( $path, $prefix ) || '/' . $code === rtrim( $path, '/' ) ) {
+		$prefix        = '/' . $code . '/';
+		$path_noslash  = rtrim( $path, '/' );
+		$language_root = '/' . $code;
+		if ( 0 === strpos( $path, $prefix ) || $language_root === $path_noslash ) {
 			return $redirect_url;
 		}
 

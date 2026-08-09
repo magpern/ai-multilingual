@@ -50,6 +50,8 @@ final class LanguageRelationship {
 	public bool $is_current;
 
 	/**
+	 * Creates one relationship record.
+	 *
 	 * @param string $language_code Language code.
 	 * @param string $hreflang      BCP47 tag.
 	 * @param string $url           Absolute URL.
