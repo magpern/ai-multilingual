@@ -1,6 +1,6 @@
 # A.SEOf — SEO Diagnostics / Validation / Health — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — implementation not started
+**Status:** **Architecture Frozen (planning)** — plan freeze merged to `main`; implementation authorized, not started
 **Milestone:** Program A — **A.SEOf** (final wave of A.SEO)
 **Plan freeze:** Evidence-driven admissions SF1–SF15; diagnostics observe A.SEOa–e contracts; no second SEO pipeline; SF13 read-only result model; SF14 thin UI over SF13/SF1; TARGET **6**; Supported = **SF1–SF14**; Partially Supported = **SF15** (advisory); SE11/SD12 remain Deferred upstream
 **ADR assessment:** **No new ADR required** for the Supported set if Implementation stays on read-only diagnostics + SB11 + Integration API v1 + BlockHealth-like bounded scans without persistence/schema/TARGET changes
