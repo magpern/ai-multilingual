@@ -1,6 +1,6 @@
 # A.SEOc — Rank Math Integration — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — freeze merged admissions; implementation not started  
+**Status:** **Implementation Complete — Ready for Independent Review** — on `feature/aseoc-rankmath`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; **not** merged / **not** tagged
 **Milestone:** Program A — **A.SEOc** (third wave of A.SEO)  
 **Plan freeze:** Evidence-driven admissions SC1–SC14; Rank Math remains foreign owner; AIML overlays via official filters only; SB11 consumed unchanged; TARGET **6**; Supported = **SC1–SC6, SC10–SC14**; Partially Supported = **SC7–SC9**  
 **ADR assessment:** **No new ADR required** for the Supported / Partially Supported set if Implementation uses Integration API v1 + PluginIdentity `p:rankmath:…` + existing Store overlays. Do not reopen ADR-0001 / 0002 / 0008 / 0017. Do not change A.SEOa URL contracts or A.SEOb SB11.  
@@ -475,9 +475,9 @@ If implementation discovers a required public ownership/persistence contract bey
 
 ## 19. Architecture verdict
 
-**Architecture Frozen (planning).**
+**Implementation Complete — Ready for Independent Review.**
 
-The Supported set {SC1–SC6, SC10–SC14} plus Partially Supported {SC7–SC9} is coherent and implementable under existing contracts without redesigning Rank Math, SB11, Store, or TARGET. Implementation is authorized only after this plan is independently reviewed and merged to `main`. **A.SEOc production implementation has not started.**
+Supported {SC1–SC6, SC10–SC14} and Partially Supported {SC7–SC9} are implemented under Integration API v1 + PluginIdentity `p:rankmath:…` + official Rank Math filters. SB11 unchanged. A.SEOd has not been started.
 
 ---
 

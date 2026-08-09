@@ -51,7 +51,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa Complete**; **A.SEOb Complete** (tag `a-seob-canonical-hreflang-complete`; Supported SB1–SB11); **A.SEOc** [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; implementation not started); next after A.SEOc remains **A.SEOd**
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa Complete**; **A.SEOb Complete**; **A.SEOc** [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Implementation Complete — Ready for Independent Review** on `feature/aseoc-rankmath`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; not merged/tagged); next after closure remains **A.SEOd**
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -293,7 +293,7 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 |---|---|---|
 | A.SEOa | Slugs and permalink translation | Product — [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seoa-slugs-permalinks-complete`; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred; [validation log](ASEOA_SLUGS_PERMALINK_TRANSLATION_VALIDATION_LOG.md); [evidence](aseoa-evidence/)) |
 | A.SEOb | Canonical URLs, hreflang, language relationships | Product — [plan](ASEOB_CANONICAL_HREFLANG_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seob-canonical-hreflang-complete`; Supported SB1–SB11; [validation log](ASEOB_CANONICAL_HREFLANG_VALIDATION_LOG.md); [evidence](aseob-evidence/)) |
-| A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product — [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; [evidence](aseoc-evidence/); implementation not started; no tag; no impl branch; no A.SEOd) |
+| A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product — [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Implementation Complete — Ready for Independent Review** on `feature/aseoc-rankmath`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; [validation log](ASEOC_RANK_MATH_INTEGRATION_VALIDATION_LOG.md); [evidence](aseoc-evidence/); not merged/tagged) |
 | A.SEOd | OpenGraph / Twitter / social metadata | Product |
 | A.SEOe | XML sitemaps, robots, indexability, discovery | Product |
 | A.SEOf | SEO diagnostics, validation, health, verification | Operational |
@@ -500,6 +500,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-09 | A.SEOb Canonical URLs & hreflang implementation complete on `feature/aseob-canonical-hreflang` (Supported SB1–SB11; validation PASS; not merged/tagged; no A.SEOc) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOb Canonical URLs & hreflang marked complete/merged/tagged `a-seob-canonical-hreflang-complete` (Supported SB1–SB11); Next advances to A.SEOc planning/implementation decision only (A.SEOc not started) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOc Rank Math integration implementation plan linked (**Architecture Frozen (planning)**; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; SB11 consumed unchanged; [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md); [evidence](aseoc-evidence/); implementation not started; no milestone renumbering; no A.SEOd) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOc Rank Math integration implementation complete on `feature/aseoc-rankmath` (Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; validation PASS; not merged/tagged; no A.SEOd) (no structural change). |
 
 ---
 
