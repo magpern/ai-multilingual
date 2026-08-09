@@ -11,7 +11,7 @@ vary by request type.
 | `plugins_loaded` | 999 | Resolve the language, strip the prefix from `REQUEST_URI`, attach the filters below. Late enough that every plugin has loaded; early enough that `locale` is in place before `load_default_textdomain()` and before `WP::parse_request()` reads the URI. |
 | `locale` | 10 | Serve the active language's locale. |
 | `language_attributes` | 10 | Emit `lang` and `dir`. |
-| `redirect_canonical` | 10 | Return `false` for prefixed requests so core cannot "correct" the URL back and loop. |
+| `redirect_canonical` | 10 | Language-preserving policy for prefixed requests (A.SEOb): never strip the active language prefix; allow same-language corrections. |
 | `parse_request` | 0 | Attach the `home_url` filter — **after** routing. See below. |
 | `home_url` | 10 | Prefix generated URLs. Skips `/wp-admin`, `/wp-login.php` and the REST namespace. |
 
@@ -51,6 +51,16 @@ in the admin. A re-entrancy flag prevents a filter from re-entering itself.
 |---|---|
 | `aiml_switcher` (shortcode) | Renders the switcher. |
 | `wp_nav_menu_items` | Appends the switcher to a menu, opt-in only. |
+
+URLs come from `LanguageRelationshipService` (SB11).
+
+## SEO head — `src/Seo/DocumentSeoHead.php`
+
+| Hook | Priority | Purpose |
+|---|---|---|
+| `get_canonical_url` | 30 | Language-aware WP canonical (SB1/SB2); keeps cross-host overrides. |
+| `rank_math/frontend/canonical` | 20 | Language-aware Rank Math canonical cooperation. |
+| `wp_head` | 2 | Emit reciprocal `hreflang` + `x-default` from SB11 (SB3/SB4); preview excluded. |
 
 ## Admin — `src/Admin/`
 

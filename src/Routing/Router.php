@@ -200,21 +200,48 @@ final class Router {
 	}
 
 	/**
-	 * Stops core from redirecting a prefixed URL back to the unprefixed one.
+	 * Language-preserving redirect_canonical policy (A.SEOb).
 	 *
-	 * Core builds its canonical from the parsed query, which by this point has
-	 * no memory of the prefix, so its "correction" would strip the language and
-	 * loop. Canonical URL construction proper belongs to the SEO milestone.
+	 * Prefixed requests must never be redirected to an unprefixed equivalent
+	 * (that strips the language and can loop). Same-language corrections that
+	 * retain the active language prefix remain allowed.
 	 *
 	 * @param string|false $redirect_url URL core wants to redirect to.
 	 * @return string|false
 	 */
 	public function filter_redirect_canonical( $redirect_url ) {
-		if ( $this->prefixed ) {
+		if ( ! $this->prefixed ) {
+			return $redirect_url;
+		}
+
+		if ( ! is_string( $redirect_url ) || '' === $redirect_url ) {
 			return false;
 		}
 
-		return $redirect_url;
+		$language = $this->context->current();
+		if ( null === $language || ! empty( $language->is_default ) ) {
+			return false;
+		}
+
+		$code = (string) $language->code;
+		$path = (string) wp_parse_url( $redirect_url, PHP_URL_PATH );
+		$path = '/' . ltrim( $path, '/' );
+
+		$home = (string) wp_parse_url( (string) get_option( 'home' ), PHP_URL_PATH );
+		$home = trim( $home, '/' );
+		if ( '' !== $home && 0 === strpos( $path, '/' . $home . '/' ) ) {
+			$path = substr( $path, strlen( $home ) + 1 );
+			$path = '/' . ltrim( (string) $path, '/' );
+		} elseif ( '' !== $home && '/' . $home === rtrim( $path, '/' ) ) {
+			$path = '/';
+		}
+
+		$prefix = '/' . $code . '/';
+		if ( 0 === strpos( $path, $prefix ) || '/' . $code === rtrim( $path, '/' ) ) {
+			return $redirect_url;
+		}
+
+		return false;
 	}
 
 	/**
