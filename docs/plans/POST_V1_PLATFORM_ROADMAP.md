@@ -8,7 +8,9 @@
 **Scope of this document:** Product strategy, program boundaries, milestone ordering, dependencies, freezes, governance.
 **Out of scope here:** Implementation plans, ADRs, schemas, APIs, code.
 
-**Implementation priority (canonical):** When choosing *which* frozen milestone to pursue next for Biopentra, follow [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md). That document does not redefine programs, milestone IDs, or architecture; it records product-direction sequencing only.
+**Implementation priority (canonical):** When choosing *which* program to pursue next for Biopentra, follow [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md). That document does not redefine historical milestone IDs; it records product-direction sequencing only.
+
+**Post-v1.1 Translation Intelligence & Quality:** After AI Multilingual **v1.1.0** and A.SEO completion, intelligence/quality work is governed by [`TIQ_PARENT_IMPLEMENTATION_PLAN.md`](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (milestones **TQ.0–TI.7**). Historical Program B IDs (B.1–B.8) below remain in the catalog; **do not** treat early B.1 as the post-v1.1 default next step.
 
 ---
 
@@ -48,14 +50,14 @@ Navigation aid only. Does not replace the detailed programs below.
 - **A.8** — Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md) (**complete / merged / tagged** `a8-fluentforms-contact-integration-complete`)
 - **A.6** Remaining WordPress visitor chrome — [plan](A6_WORDPRESS_VISITOR_CHROME_IMPLEMENTATION_PLAN.md); [validation](A6_VALIDATION_LOG.md) (**complete / merged / tagged** `a6-wordpress-visitor-chrome-complete`; Supported **N1**)
 - **A.7** WooCommerce visitor-facing coverage family — [plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7d Complete** (`a7a-woocommerce-product-catalog-complete`, `a7b-woocommerce-archive-chrome-complete`, `a7c-woocommerce-customer-journey-complete`, `a7d-woocommerce-customer-emails-complete`); A.7d Supported = CE1–CE6/CE9–CE10 subject+heading; ADR-0018 implemented; CE7/CE8 Deferred
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) **Complete**; waves A.SEOa–A.SEOf) — **A.SEOf** [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seof-seo-diagnostics-complete`; Supported SF1–SF14; Partially Supported SF15; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/))
+- Platform package **v1.1.0** released (tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`)
 
 ### NEXT
 
-- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) **Complete**; waves A.SEOa–A.SEOf) — **A.SEOa–A.SEOf Complete**; **A.SEOf** [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seof-seo-diagnostics-complete`; Supported SF1–SF14; Partially Supported SF15; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/)); next: outside A.SEO family (no subsequent production milestone started here)
-- Early **B.1** additional providers
-- Early **C.1–C.3** Workspace productivity
-- Early **D.1** unified health/diagnostics
-- Remaining Program A options: further **A.8** bridges / A.6 Deferred chrome
+- **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen (planning) on branch `docs/tiq-program-roadmap-freeze`; authoritative for **TQ.0–TI.7** after merge to `main`). First child after parent freeze: **TQ.0 Translation Quality Baseline**
+- Remaining Program A options (not TIQ): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision
+- Later (not default next): historical **B.1** additional providers (Deferred under TIQ until measurement shows need); **C.1–C.3** Workspace productivity; **D.1** unified health/diagnostics
 
 ### LATER
 
@@ -173,16 +175,18 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 
 **Boundaries:** All providers behind the domain interface; suggestions only via the sole suggestion path; no visitor-triggered AI; confidence is advisory unless a future major decision changes publish policy.
 
+**Post-v1.1 execution:** Do **not** start from early B.1. Authoritative post-v1.1 ladder, invariants, and gates: [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**TQ.0–TI.7**). Historical B.* IDs below remain catalog entries; TIQ supersedes sequencing for intelligence/quality work after v1.1.0.
+
 | ID | Milestone | Type |
 |---|---|---|
-| B.1 | Additional AI providers | Product |
+| B.1 | Additional AI providers | Product — **Deferred under TIQ** until measurement shows need |
 | B.2 | Provider health, capabilities, and resilience | Operational |
 | B.3 | Prompt profiles and style guides | Product |
 | B.4 | Terminology intelligence (glossary depth) | Product |
-| B.5 | Confidence / quality scoring and AI-assisted review (advisory) | Product |
-| B.6 | Provider quality benchmarking | Operational |
+| B.5 | Confidence / quality scoring and AI-assisted review (advisory) | Product — TIQ replaces LLM-confidence publish authority with evidence-based risk (TI.5) |
+| B.6 | Provider quality benchmarking | Operational — subsumed conceptually by TIQ **TQ.0** measurement system |
 | B.7 | Automatic retranslation policies (human/review gates preserved) | Product |
-| B.8 | AI optimisation (batching, identical-segment reuse, cost controls) | Product |
+| B.8 | AI optimisation (batching, identical-segment reuse, cost controls) | Product — later TI.6 territory under TIQ |
 
 ### Program C — Translator Experience
 

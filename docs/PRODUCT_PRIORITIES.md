@@ -1,11 +1,13 @@
 # Product Priorities — AI Multilingual
 
 **Status:** Canonical product-direction document
-**Date:** 2026-08-08
+**Date:** 2026-08-09
 **Scope:** Implementation priority and product strategy only
-**Does not change:** Architecture, ADRs, schemas, APIs, milestone definitions, or roadmap program structure
+**Does not change:** Architecture, ADRs, schemas, APIs, or historical roadmap milestone IDs
 
-Milestone IDs and program boundaries remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). This document records **which** of those milestones to pursue next when priorities conflict. It is not an implementation plan.
+Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
+
+**Current next program:** Translation Intelligence & Quality (TIQ) — next milestone after TIQ parent Architecture Frozen on `main`: **TQ.0**.
 
 ---
 
@@ -36,21 +38,27 @@ Remaining priority order (highest first):
 
 ## 2. Current implementation priority
 
-Freeze the following order for active Program A work. Milestone definitions are unchanged; only sequencing guidance is recorded here.
+### Active next program (post-v1.1.0)
 
-Work the **first incomplete** milestone in this list. Completed waves remain listed for historical priority context but are not reopened.
-
-### Highest priority
-
-| Order | Milestone | Focus |
+| Order | Program / milestone | Focus |
 |---|---|---|
-| 1 | **A.7b** | WooCommerce Archive Chrome — complete Woo-owned archive chrome |
-| 2 | **A.7c** | WooCommerce Customer Journey |
-| 3 | **A.7d** | WooCommerce Customer Emails |
-| 4 | **A.6** | Remaining WordPress visitor chrome |
-| 5 | **A.SEO** | Visitor SEO as a first-class completion milestone |
+| 1 | **TIQ** / **TQ.0** | Translation Intelligence & Quality — [parent plan](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); first milestone **TQ.0 Translation Quality Baseline** after parent freeze on `main` |
 
-**A.7a** / **A.7b** / **A.7c** / **A.7d** are complete on `main` (A.7d tag `a7d-woocommerce-customer-emails-complete`; ADR-0018 implemented; Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred). **A.6** (Remaining WordPress visitor chrome) is **Complete** on `main` (tag `a6-wordpress-visitor-chrome-complete`; Supported N1). Next target: **A.SEO** (unless priorities change).
+**Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. CI/release baseline is green. `Migrator::TARGET` remains **6**.
+
+Visitor-facing Program A waves below remain listed for historical priority context and are **not** reopened by TIQ. Coverage-Deferred surfaces stay Deferred unless a separate product decision reopens them.
+
+### Historical Program A priority (complete)
+
+| Order | Milestone | Focus | Status |
+|---|---|---|---|
+| 1 | **A.7b** | WooCommerce Archive Chrome | Complete |
+| 2 | **A.7c** | WooCommerce Customer Journey | Complete |
+| 3 | **A.7d** | WooCommerce Customer Emails | Complete |
+| 4 | **A.6** | Remaining WordPress visitor chrome | Complete |
+| 5 | **A.SEO** | Visitor SEO (A.SEOa–A.SEOf) | **Complete** |
+
+**A.7a** / **A.7b** / **A.7c** / **A.7d** are complete on `main` (A.7d tag `a7d-woocommerce-customer-emails-complete`; ADR-0018 implemented; Supported CE1–CE6/CE9–CE10 subject+heading; CE7/CE8 Deferred). **A.6** is **Complete** (tag `a6-wordpress-visitor-chrome-complete`; Supported N1). **A.SEO** is **Complete** (family closed; tag `a-seof-seo-diagnostics-complete`).
 
 #### A.7c — WooCommerce Customer Journey
 
@@ -86,21 +94,9 @@ Examples:
 - Visitor-facing gettext
 - Remaining supported shortcode bridges
 
-#### A.SEO — First-class completion
+#### A.SEO — Complete
 
-SEO is a first-class completion milestone for the multilingual webshop.
-
-Future planning will likely split it into multiple implementation milestones covering:
-
-- Translated slugs
-- Canonical URLs
-- hreflang
-- Rank Math integration
-- OpenGraph / Twitter metadata
-- Sitemap / indexability
-- SEO validation
-
-The exact decomposition can be decided later. Do not treat that decomposition as a roadmap renumbering until it is explicitly planned.
+A.SEO was completed as waves A.SEOa–A.SEOf under [ASEO_PARENT_IMPLEMENTATION_PLAN.md](plans/ASEO_PARENT_IMPLEMENTATION_PLAN.md). Remaining SEO Deferred items (for example translated leaf slugs, some social/sitemap surfaces) stay Deferred and are **not** absorbed into TIQ.
 
 ---
 
@@ -120,23 +116,31 @@ Only implement integrations that Biopentra actually requires. All other integrat
 
 ## 4. Platform maturity (after visitor-facing translation)
 
-After visitor-facing translation is complete for the Biopentra webshop, continue in this program order:
+Visitor-facing Program A completion for the Biopentra webshop baseline (A.7 / A.6 / A.SEO Supported sets) is done as of **v1.1.0**. Post-v1.1 sequencing for intelligence and quality:
+
+### Translation Intelligence & Quality (TIQ) — active
+
+Authoritative parent: [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md).
+
+Ladder: **TQ.0 → TI.1 → TI.2 → TI.3 → TI.4 → TI.5 → TI.6 → TI.7**.
+
+This supersedes the earlier product-direction preference that Program C and Program D automatically precede Program B after visitor work. Historical Program B milestone IDs (B.1–B.8) remain in the long-term roadmap catalog; **post-v1.1 work follows TIQ**, not early B.1 (additional providers).
+
+### Later (after TIQ gates / separate product decisions)
 
 ### Program C — Translator experience
 
 Examples: Workspace UX, filtering, keyboard shortcuts, better review workflow.
 
-These reduce translation cost and improve long-term maintainability.
+These reduce translation cost and improve long-term maintainability. They do **not** replace TIQ measurement and intelligence work.
 
 ### Program D — Operational maturity
 
 Examples: Diagnostics, monitoring, performance tooling, maintenance, backup/export.
 
-### Program B — Translation intelligence
+### Historical Program B catalog
 
-Examples: Better prompting, provider improvements, quality scoring, retranslation policies.
-
-These improve translation quality but are **not** prerequisites for a multilingual webshop.
+Examples retained in [POST_V1_PLATFORM_ROADMAP.md](plans/POST_V1_PLATFORM_ROADMAP.md): providers, prompts, terminology depth, confidence, benchmarking, retranslation, optimisation. TIQ reshapes post-v1.1 execution order (measure first; providers Deferred).
 
 ---
 
@@ -155,6 +159,7 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 | Concern | Canonical document |
 |---|---|
 | Long-term programs, milestone IDs, freezes, architecture boundaries | [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) |
+| **TIQ program (TQ.0–TI.7) architecture** | [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) |
 | **Implementation priority / product direction** | **This file** |
 | Classic M0–M7 / Strategy F status (historical) | [`ROADMAP.md`](ROADMAP.md) |
 | Historical v1 platform-track archive | [`plans/POST_V1_PRODUCT_ROADMAP.md`](plans/POST_V1_PRODUCT_ROADMAP.md) |
@@ -162,8 +167,8 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 **Rules:**
 
 - This document may evolve when product strategy changes.
-- Changes here must **not** renumber milestones, rewrite ADRs, or alter frozen platform principles.
-- Implementation plans should still name a roadmap milestone (for example `A.7c`) and follow this priority order when choosing what to plan next.
+- Changes here must **not** renumber historical milestones, rewrite ADRs, or alter frozen platform principles.
+- TIQ child plans must name a TIQ milestone (for example `TQ.0`) and obey [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md).
 
 ---
 
