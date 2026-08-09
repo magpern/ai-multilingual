@@ -50,3 +50,11 @@
 | PluginGuard | **17** tests / **8836** assertions — OK |
 | PHPCS | Exit 0; pre-existing warnings/errors outside A.SEOa touch set (same posture as A.6/A.7d logs) |
 | `git diff --check` | **PASS** |
+
+---
+
+## ASEOA.1 — Inventory lock
+
+**Status:** PASS
+
+Runtime re-check recorded in [aseoa-evidence/implementation-inventory-lock.md](aseoa-evidence/implementation-inventory-lock.md). No material drift vs planning evidence. Supported = SA7/SA10; Deferred unchanged.
