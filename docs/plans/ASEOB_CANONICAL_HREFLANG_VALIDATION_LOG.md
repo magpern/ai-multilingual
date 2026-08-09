@@ -93,9 +93,25 @@ Full suite green; A.SEOa / Gutenberg / Elementor / Woo / Fluent / A.6 covered by
 
 ## ASEOB.8 — Closure
 
-**Status:** PASS (implementation complete on feature branch; **not** merged / **not** tagged)
+**Status:** PASS — merged to `main`; tagged `a-seob-canonical-hreflang-complete`
 
 | Item | Value |
 |---|---|
-| Recommended later tag | `a-seob-canonical-hreflang-complete` |
-| Next | Independent review → merge → tag; then A.SEOc only after closure |
+| Supported (final) | **SB1–SB11** |
+| Merge | `d99bf63e6` — `merge: complete A.SEOb Canonical & Hreflang` |
+| Tag | `a-seob-canonical-hreflang-complete` |
+| Next wave | **A.SEOc** planning/implementation decision only; **A.SEOc not started** |
+
+### Independent review / post-merge gates
+
+| Gate | Result |
+|---|---|
+| Unit | **586** / **1559** — OK (2 skipped) |
+| Integration | **555** / **12240** — OK (2 skipped) |
+| PluginGuard | **17** / **8938** — OK |
+| PHPCS | **PASS** |
+| Live EN/SV hreflang reciprocity | **PASS** |
+| Alternating EN↔SV | **PASS** (redirect=0) |
+| Preview exclusion | **PASS** |
+| FP / leakage | **0** / **0** |
+| Sitewide noindex | Honest note — Rank Math omits HTML canonical while noindex; filters/API ownership correct |
