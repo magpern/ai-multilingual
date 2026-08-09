@@ -1343,6 +1343,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Reads checkout field labels from WooCommerce or a test provider.
+	 *
 	 * @return array<string, string>
 	 */
 	private function read_checkout_field_labels(): array {
@@ -1388,6 +1390,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Reads My Account menu labels from WooCommerce or a test provider.
+	 *
 	 * @return array<string, string>
 	 */
 	private function read_account_menu_labels(): array {
@@ -1404,7 +1408,13 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			'gift-cards'      => 'Gift cards',
 		);
 		if ( function_exists( 'apply_filters' ) ) {
-			$filtered = apply_filters( 'woocommerce_account_menu_items', $defaults );
+			/**
+			 * WooCommerce My Account navigation items (foreign hook — cannot use aiml_ prefix).
+			 *
+			 * @since 1.0.0
+			 * @param array<string, string> $defaults Default endpoint => label map.
+			 */
+			$filtered = apply_filters( 'woocommerce_account_menu_items', $defaults ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce owns this filter; we only read labels for extraction.
 			if ( is_array( $filtered ) ) {
 				$out = array();
 				foreach ( $filtered as $key => $label ) {
@@ -1421,6 +1431,8 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Reads order totals row labels from a provider or defaults.
+	 *
 	 * @return array<string, string>
 	 */
 	private function read_order_totals_labels(): array {

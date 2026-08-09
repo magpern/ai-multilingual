@@ -93,7 +93,7 @@ if ( ! function_exists( 'wp_rand' ) ) {
 	 * @param int $min Minimum.
 	 * @param int $max Maximum.
 	 */
-	function wp_rand( $min = 0, $max = 0 ) {
+	function wp_rand( $min = 0, $max = 0 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- Signature mirrors wp_rand().
 		return (int) $min;
 	}
 }
@@ -131,6 +131,7 @@ if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 	 * @param string $text Text.
 	 */
 	function wp_strip_all_tags( $text ): string {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- Unit stub of wp_strip_all_tags itself.
 		return trim( strip_tags( (string) $text ) );
 	}
 }
