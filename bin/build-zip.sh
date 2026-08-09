@@ -30,8 +30,36 @@ cp "$ROOT/ai-multilingual.php" "$ROOT/uninstall.php" "$BUILD/"
 [ -f "$ROOT/LICENSE" ] && cp "$ROOT/LICENSE" "$BUILD/"
 cp -R "$ROOT/src" "$BUILD/src"
 cp -R "$ROOT/vendor" "$BUILD/vendor"
-[ -d "$ROOT/assets" ] && cp -R "$ROOT/assets" "$BUILD/assets"
 
-( cd "$DIST" && zip -rq "ai-multilingual-${VERSION}.zip" ai-multilingual )
+# Runtime assets only. Translator Workspace is consumed from build/; TypeScript
+# sources, Jest tests, package manifests, and node_modules are development-only.
+mkdir -p "$BUILD/assets"
+[ -f "$ROOT/assets/block-editor.js" ] && cp "$ROOT/assets/block-editor.js" "$BUILD/assets/"
+[ -d "$ROOT/assets/glossary-admin" ] && cp -R "$ROOT/assets/glossary-admin" "$BUILD/assets/glossary-admin"
+if [ -d "$ROOT/assets/translator-workspace/build" ]; then
+    mkdir -p "$BUILD/assets/translator-workspace"
+    cp -R "$ROOT/assets/translator-workspace/build" "$BUILD/assets/translator-workspace/build"
+fi
+
+if ! [ -f "$BUILD/assets/translator-workspace/build/index.js" ]; then
+    echo "Missing workspace bundle at assets/translator-workspace/build/index.js" >&2
+    exit 1
+fi
+
+ZIP_PATH="$DIST/ai-multilingual-${VERSION}.zip"
+if command -v zip >/dev/null 2>&1; then
+    ( cd "$DIST" && zip -rq "ai-multilingual-${VERSION}.zip" ai-multilingual )
+else
+    python3 - "$DIST" "$ZIP_PATH" <<'PY'
+import sys, zipfile
+from pathlib import Path
+dist, zip_path = Path(sys.argv[1]), Path(sys.argv[2])
+root = dist / "ai-multilingual"
+with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+    for path in sorted(root.rglob("*")):
+        if path.is_file():
+            zf.write(path, path.relative_to(dist).as_posix())
+PY
+fi
 
 echo "dist/ai-multilingual-${VERSION}.zip"

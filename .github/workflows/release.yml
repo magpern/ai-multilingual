@@ -34,6 +34,9 @@ jobs:
       - name: Build plugin zip
         run: bash bin/build-zip.sh "${GITHUB_REF_NAME#v}"
 
+      - name: Audit plugin zip
+        run: bash bin/audit-zip.sh
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
