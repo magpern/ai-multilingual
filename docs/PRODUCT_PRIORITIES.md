@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ) — next milestone after TIQ parent Architecture Frozen on `main`: **TQ.0**.
+**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. Next milestone: **TQ.0** (planning not started; implementation not started).
 
 ---
 

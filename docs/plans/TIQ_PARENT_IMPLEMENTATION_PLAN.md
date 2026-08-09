@@ -1,12 +1,15 @@
 # Translation Intelligence & Quality (TIQ) — Parent Program Architecture Plan
 
-**Status:** Architecture Frozen (planning) — awaiting merge to `main`
+**Status:** **Architecture Frozen** on `main`
 **Program:** Translation Intelligence & Quality (TIQ)
 **Plan freeze:** Canonical program architecture for milestones **TQ.0** and **TI.1–TI.7**; measurement first; one shared translation brain; quality gates; Deferred boundaries
 **ADR assessment:** **No ADR blocker** for this program freeze. TQ.0 methodology may be plan-locked unless a later investigation proves a cross-cutting ADR is necessary. ADR-0010 likely requires extension/review around TI.2/TI.3. Controlled auto-publication requires an ADR before TI.7. Store / identity / TARGET / Integration API conflicts are **STOP** conditions — not casually redesigned contracts.
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Program B catalog (historical B.1–B.8) retained; **post-v1.1 sequencing for intelligence/quality work is governed by this TIQ parent**, not by early B.1-first ordering
 **Implementation priority:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md)
-**Planning branch:** `docs/tiq-program-roadmap-freeze`
+**Planning branch:** `docs/tiq-program-roadmap-freeze` (merged)
+**Freeze merge:** `main` @ `452a46c1b3f68dae2c01ddbd8d762aef21152617` (`merge: freeze Translation Intelligence & Quality program roadmap`)
+**Next milestone:** **TQ.0** Translation Quality Baseline — planning **not started**; implementation **not started**
+**TI.1–TI.7:** planning/implementation **not started**
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main` (first child: TQ.0 planning — **not started**)
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
@@ -405,4 +408,4 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 | Kind | Program architecture / planning freeze (parent) |
 | Analog | [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md) |
 | Tag for this freeze | **Not required** |
-| Revision | 1.0 — 2026-08-09 — Architecture Frozen (planning) on branch `docs/tiq-program-roadmap-freeze` |
+| Revision | 1.0 — 2026-08-09 — Architecture Frozen on `main` (merge `452a46c1b…`) |
