@@ -161,3 +161,17 @@ SA10 characterizing suite green against existing `PreviewService` / LanguageReso
 ### Performance
 
 Router / permalink path unchanged vs baseline (no new filters, caches, or rewrite tables). No invented budgets; overhead observation = **baseline-equivalent** for Supported SA7/SA10.
+
+---
+
+## ASEOA.8 — Closure
+
+**Status:** PASS (implementation complete on feature branch; **not** merged / **not** tagged)
+
+| Item | Value |
+|---|---|
+| Supported (final) | **SA7**, **SA10** |
+| Deferred (final) | **SA1–SA6**, **SA8**, **SA9** |
+| Plan status | Implementation Complete — Ready for Independent Review |
+| Recommended later tag | `a-seoa-slugs-permalinks-complete` (do **not** create until independent review + merge) |
+| Next wave | Do **not** open A.SEOb until A.SEOa is reviewed, merged, tagged, and closed |
