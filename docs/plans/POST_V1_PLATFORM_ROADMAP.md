@@ -51,7 +51,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa Complete**; **A.SEOb Complete**; **A.SEOc Complete** (tag `a-seoc-rankmath-complete`); **A.SEOd** [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [evidence](aseod-evidence/); implementation not started); next: A.SEOd implementation after plan merge
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa Complete**; **A.SEOb Complete**; **A.SEOc Complete** (tag `a-seoc-rankmath-complete`); **A.SEOd** [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [evidence](aseod-evidence/); implementation authorized, not started); next: A.SEOd implementation on `feature/aseod-opengraph` only
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -503,6 +503,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-09 | A.SEOc Rank Math integration implementation complete on `feature/aseoc-rankmath` (Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; validation PASS; not merged/tagged; no A.SEOd) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOc Rank Math integration marked complete/merged/tagged `a-seoc-rankmath-complete` (Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9); Next advances to A.SEOd planning/implementation decision only (A.SEOd not started) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOd OpenGraph / Twitter implementation plan linked (**Architecture Frozen (planning)**; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md); [evidence](aseod-evidence/); implementation not started; no milestone renumbering; no A.SEOe) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOd OpenGraph / Twitter plan freeze merged to `main` (**Architecture Frozen (planning)**; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; implementation authorized, not started; no tag; no A.SEOe) (no structural change). |
 
 ---
 
