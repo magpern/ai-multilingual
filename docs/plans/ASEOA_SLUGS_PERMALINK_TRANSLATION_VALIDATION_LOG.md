@@ -166,12 +166,26 @@ Router / permalink path unchanged vs baseline (no new filters, caches, or rewrit
 
 ## ASEOA.8 — Closure
 
-**Status:** PASS (implementation complete on feature branch; **not** merged / **not** tagged)
+**Status:** PASS — merged to `main`; tagged `a-seoa-slugs-permalinks-complete`
 
 | Item | Value |
 |---|---|
 | Supported (final) | **SA7**, **SA10** |
 | Deferred (final) | **SA1–SA6**, **SA8**, **SA9** |
-| Plan status | Implementation Complete — Ready for Independent Review |
-| Recommended later tag | `a-seoa-slugs-permalinks-complete` (do **not** create until independent review + merge) |
-| Next wave | Do **not** open A.SEOb until A.SEOa is reviewed, merged, tagged, and closed |
+| Plan status | **Complete** |
+| Merge | `e21436f90` — `merge: complete A.SEOa Slugs & Permalink Translation` |
+| Tag | `a-seoa-slugs-permalinks-complete` |
+| Next wave | A.SEOb planning may begin only after this closure; **A.SEOb not started** |
+
+### Independent review / post-merge gates
+
+| Gate | Result |
+|---|---|
+| Unit | **586** / **1559** — OK (2 skipped) |
+| Integration | **544** / **12044** — OK (2 skipped) |
+| PluginGuard | **17** / **8836** — OK |
+| PHPCS (A.SEOa PHP) | **PASS** |
+| Live SA7/SA10 re-check | **PASS** (EN/SV page+product; double-prefix 404; alternating redirect=0; unauthorized `/de/` → 301 unprefixed) |
+| FP / leakage | **0** / **0** |
+| `src/` production delta | **None** |
+| TARGET | **6** |

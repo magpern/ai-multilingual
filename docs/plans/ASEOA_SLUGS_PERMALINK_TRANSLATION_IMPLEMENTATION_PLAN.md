@@ -1,6 +1,6 @@
 # A.SEOa — Slugs & Permalink Translation — Implementation Plan
 
-**Status:** **Implementation Complete — Ready for Independent Review** — on `feature/aseoa-slugs-permalinks`; Supported SA7/SA10; **not** merged / **not** tagged
+**Status:** **Complete** — merged to `main`; tag `a-seoa-slugs-permalinks-complete`
 **Milestone:** Program A — **A.SEOa** (first wave of A.SEO)
 **Plan freeze:** Evidence-driven admissions SA1–SA10; ADR-0002 prefix-strip preserved; translated rewrite bases Deferred; no URL-history DB / redirect registry / second router; TARGET **6**; Supported = **SA7**, **SA10** only
 **ADR assessment:** **No new ADR required** for the Supported set (SA7/SA10). Focused ADRs are **required before** any future Support of SA1–SA6/SA8/SA9 (see §8). Do not silently reopen ADR-0002.
@@ -17,7 +17,7 @@
 
 **Operational success (Supported):** Language-aware permalink generation (SA7) and preview URL routing (SA10) satisfy ADR-0002/0008 via existing Router / PreviewService / LanguageResolver — ASEOA.4/ASEOA.5 **no-op PASS** (no production `src/` delta). Deferred candidates stay Deferred until focused ADRs land.
 
-**This plan remains the frozen implementation contract for A.SEOa.** Do not widen Supported admissions without new evidence + ADR where gated. Do not open A.SEOb until this wave is independently reviewed, merged, tagged, and closed.
+**This plan remains the frozen implementation contract for A.SEOa.** Do not widen Supported admissions without new evidence + ADR where gated. A.SEOb may begin only as a separate planning/implementation effort after this closure.
 
 ---
 
@@ -395,7 +395,7 @@ Commit after each package on the implementation branch. Planning branch is docs-
 
 ## 15. Architecture verdict
 
-**Implementation Complete — Ready for Independent Review.**
+**Complete.**
 
 Supported set {SA7, SA10} is satisfied inside existing contracts (characterization + live acceptance; production no-op for SA7/SA10 hardening).
 End-to-end translated leaf slugs and historical redirects remain **honestly Deferred** with explicit ADR gates — not silently Supported.
@@ -410,6 +410,7 @@ End-to-end translated leaf slugs and historical redirects remain **honestly Defe
 | Evidence | `docs/plans/aseoa-evidence/` |
 | Validation log | `docs/plans/ASEOA_SLUGS_PERMALINK_TRANSLATION_VALIDATION_LOG.md` |
 | Planning branch | `feature/aseoa-slugs-permalinks-plan` (merged) |
-| Implementation branch | `feature/aseoa-slugs-permalinks` |
+| Implementation branch | `feature/aseoa-slugs-permalinks` (merged) |
 | Implementation baseline | `b42d9ccb885822c42d3a99e7805d65ba25b93ecd` |
-| Merge / tag | Not yet — independent review required; recommended tag `a-seoa-slugs-permalinks-complete` |
+| Merge commit | `e21436f90` (`merge: complete A.SEOa Slugs & Permalink Translation`) |
+| Tag | `a-seoa-slugs-permalinks-complete` |
