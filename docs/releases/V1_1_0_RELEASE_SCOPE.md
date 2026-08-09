@@ -1,10 +1,13 @@
 # AI Multilingual v1.1.0 — Release Scope Audit
 
+**Status:** **CLOSED / RELEASED**  
 **Date:** 2026-08-09  
-**Preparation branch:** `release/v1.1.0-preparation`  
+**Preparation branch:** `release/v1.1.0-preparation` (PR #3)  
 **Baseline main HEAD:** `7a30a33e867463a58ce7eaa1540624a3690c69fc`  
+**Merge / tag target:** `d9c2336182fa2e0ae0582ead78cc0a346670c92a`  
 **Schema:** Migrator `TARGET = 6` (unchanged)  
-**Decision:** TARGET RELEASE VERSION = **1.1.0** (first intentional/public release)
+**Decision:** TARGET RELEASE VERSION = **1.1.0** (first intentional/public release)  
+**Published:** tag `v1.1.0` + GitHub Release (workflow `31336993229`)
 
 ## Historical version/tag findings
 
@@ -13,7 +16,7 @@
 | Tag `v1.0.0` (2026-08-06) | Exists; GitHub Release “Latest” points here |
 | Tag `v0.1.0` | Exists |
 | Intentional public release | **None prior to 1.1.0** — historical tags/metadata must not be read as a completed public launch |
-| Tag `v1.1.0` | **Absent** (must remain absent until a separate publish task) |
+| Tag `v1.1.0` | **Published** on `d9c2336182fa2e0ae0582ead78cc0a346670c92a` (GitHub Release attached) |
 
 Post-`v1.0.0` closure tags included in this package (repository evidence):
 
