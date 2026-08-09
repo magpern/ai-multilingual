@@ -184,3 +184,28 @@ if ( ! function_exists( 'remove_all_filters' ) ) {
 		return true;
 	}
 }
+
+if ( ! function_exists( 'has_filter' ) ) {
+	/**
+	 * @param string         $hook              Hook.
+	 * @param callable|false $function_to_check Optional callback.
+	 * @return bool|int
+	 */
+	function has_filter( $hook, $function_to_check = false ) {
+		$hook = (string) $hook;
+		if ( empty( $GLOBALS['aiml_unit_filters'][ $hook ] ) ) {
+			return false;
+		}
+		if ( false === $function_to_check ) {
+			return true;
+		}
+		foreach ( $GLOBALS['aiml_unit_filters'][ $hook ] as $priority => $callbacks ) {
+			foreach ( $callbacks as $callback ) {
+				if ( $callback === $function_to_check ) {
+					return (int) $priority;
+				}
+			}
+		}
+		return false;
+	}
+}

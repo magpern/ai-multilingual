@@ -29,6 +29,13 @@ final class RankMathIntegrationTest extends TestCase {
 		remove_all_filters( RankMathIntegration::HOOK_DESCRIPTION );
 		remove_all_filters( RankMathIntegration::HOOK_REPLACEMENTS );
 		remove_all_filters( RankMathIntegration::HOOK_SCHEMA_ENTITY );
+		remove_all_filters( RankMathIntegration::HOOK_OG_TITLE );
+		remove_all_filters( RankMathIntegration::HOOK_OG_DESCRIPTION );
+		remove_all_filters( RankMathIntegration::HOOK_OG_LOCALE );
+		remove_all_filters( RankMathIntegration::HOOK_OG_URL );
+		remove_all_filters( RankMathIntegration::HOOK_TWITTER_TITLE );
+		remove_all_filters( RankMathIntegration::HOOK_TWITTER_DESCRIPTION );
+		remove_all_filters( RankMathIntegration::HOOK_OG_FACEBOOK );
 	}
 
 	public function test_identity_keys_match_plan_shape(): void {
@@ -45,11 +52,27 @@ final class RankMathIntegrationTest extends TestCase {
 			'p:rankmath:term:36:title',
 			$identity->build( 'rankmath', 'term', '36', 'title' )
 		);
+		$this->assertSame(
+			'p:rankmath:post:3594:facebook_title',
+			$identity->build( 'rankmath', 'post', '3594', 'facebook_title' )
+		);
+		$this->assertSame(
+			'p:rankmath:post:3594:facebook_description',
+			$identity->build( 'rankmath', 'post', '3594', 'facebook_description' )
+		);
+		$this->assertSame(
+			'p:rankmath:post:3594:twitter_title',
+			$identity->build( 'rankmath', 'post', '3594', 'twitter_title' )
+		);
 		foreach (
 			array(
 				'p:rankmath:post:3594:title',
 				'p:rankmath:post:3594:description',
 				'p:rankmath:term:36:title',
+				'p:rankmath:post:3594:facebook_title',
+				'p:rankmath:post:3594:facebook_description',
+				'p:rankmath:post:3594:twitter_title',
+				'p:rankmath:post:3594:twitter_description',
 			) as $key
 		) {
 			$this->assertLessThanOrEqual( Contract::MAX_SEGMENT_KEY_LENGTH, strlen( $key ) );
@@ -124,6 +147,35 @@ final class RankMathIntegrationTest extends TestCase {
 		$integration = $this->make_integration();
 		$this->assertSame( Contract::API_VERSION, $integration->get_api_version() );
 		$this->assertSame( RankMathIntegration::ID, $integration->get_id() );
+	}
+
+	public function test_aseod_registers_opengraph_and_twitter_hooks(): void {
+		$integration = $this->make_integration();
+		$integration->configure( true, true, '1.0.275', false, true );
+		$integration->register_output_hooks(
+			static function (): ?string {
+				return null;
+			}
+		);
+
+		$this->assertTrue( has_filter( RankMathIntegration::HOOK_OG_TITLE ) );
+		$this->assertTrue( has_filter( RankMathIntegration::HOOK_OG_DESCRIPTION ) );
+		$this->assertTrue( has_filter( RankMathIntegration::HOOK_TWITTER_TITLE ) );
+		$this->assertTrue( has_filter( RankMathIntegration::HOOK_TWITTER_DESCRIPTION ) );
+		$this->assertTrue( has_filter( RankMathIntegration::HOOK_OG_URL ) );
+		$this->assertTrue( has_filter( RankMathIntegration::HOOK_OG_LOCALE ) );
+	}
+
+	public function test_aseod_inactive_skips_opengraph_hooks(): void {
+		$integration = $this->make_integration();
+		$integration->configure( true, false, '1.0.275', false, true );
+		$integration->register_output_hooks(
+			static function (): ?string {
+				return 'x';
+			}
+		);
+		$this->assertFalse( has_filter( RankMathIntegration::HOOK_OG_TITLE ) );
+		$this->assertSame( 'Native', apply_filters( RankMathIntegration::HOOK_OG_TITLE, 'Native' ) );
 	}
 
 	private function make_integration(): RankMathIntegration {
