@@ -234,9 +234,15 @@ final class Plugin {
 			FluentFormsIntegration::create_default( $plugin_identity )
 		);
 		$integration_registry->register( $woo_integration );
-		$integration_registry->register(
-			RankMathIntegration::create_default( $plugin_identity, $store, $context, $relationships )
+		$rank_math_integration = RankMathIntegration::create_default(
+			$plugin_identity,
+			$store,
+			$context,
+			$relationships
 		);
+		$integration_registry->register( $rank_math_integration );
+		// A.SEOe: Rank Math serves sitemaps on parse_query (before `wp`).
+		$rank_math_integration->register_sitemap_hooks();
 		/**
 		 * Register typed Integration API v1 integrations.
 		 *
