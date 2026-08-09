@@ -1,14 +1,14 @@
 # A.SEOc — Rank Math Integration — Validation Log
 
-**Milestone:** A.SEOc Rank Math Integration  
-**Implementation branch:** `feature/aseoc-rankmath`  
-**Plan:** [ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md)  
-**Evidence:** [aseoc-evidence/](aseoc-evidence/)  
-**Planning freeze on main:** merge `c43364462`  
+**Milestone:** A.SEOc Rank Math Integration
+**Implementation branch:** `feature/aseoc-rankmath`
+**Plan:** [ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md)
+**Evidence:** [aseoc-evidence/](aseoc-evidence/)
+**Planning freeze on main:** merge `c43364462`
 **Implementation baseline HEAD:** `c433644623082f029822176e1b426438642dab2d`
 
-**Supported:** SC1–SC6, SC10–SC14  
-**Partially Supported:** SC7–SC9  
+**Supported:** SC1–SC6, SC10–SC14
+**Partially Supported:** SC7–SC9
 **Out of scope:** OG/Twitter (A.SEOd), sitemaps/robots product (A.SEOe), diagnostics UI (A.SEOf)
 
 ---

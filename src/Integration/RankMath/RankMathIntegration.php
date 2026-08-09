@@ -284,6 +284,8 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Extract explicit Rank Math SEO units for one post/product/page.
+	 *
 	 * @param WP_Post $post Post.
 	 * @return list<TranslationUnitDescriptor>
 	 */
@@ -328,7 +330,9 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * @param list<string> $taxonomies Taxonomies.
+	 * Extract explicit Rank Math SEO units for admitted taxonomies.
+	 *
+	 * @param array<int, string> $taxonomies Taxonomies.
 	 * @return list<TranslationUnitDescriptor>
 	 */
 	private function extract_term_units_for_taxonomies( array $taxonomies ): array {
@@ -394,6 +398,8 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Build one Rank Math translation unit descriptor.
+	 *
 	 * @param string $owner_type Owner type.
 	 * @param string $owner_id   Owner id.
 	 * @param string $field      Field.
@@ -435,9 +441,11 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * @param list<TranslationUnitDescriptor> $units Units.
-	 * @param array<string, true>             $seen  Seen keys.
-	 * @param TranslationUnitDescriptor       $unit  Unit.
+	 * Append a unit when its segment key has not been seen.
+	 *
+	 * @param array<int, TranslationUnitDescriptor> $units Units.
+	 * @param array<string, true>                   $seen  Seen keys.
+	 * @param TranslationUnitDescriptor             $unit  Unit.
 	 */
 	private function append_unique( array &$units, array &$seen, TranslationUnitDescriptor $unit ): void {
 		if ( isset( $seen[ $unit->segment_key ] ) ) {
@@ -450,9 +458,9 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	/**
 	 * Overlay Rank Math frontend title/description when an explicit Store hit exists.
 	 *
-	 * @param mixed                           $value   Rank Math resolved string.
-	 * @param string                          $field   title|description.
-	 * @param callable(string): (?string)     $resolve Resolver.
+	 * @param mixed                       $value   Rank Math resolved string.
+	 * @param string                      $field   title|description.
+	 * @param callable(string): (?string) $resolve Resolver.
 	 * @return mixed
 	 */
 	private function overlay_frontend_string( $value, string $field, callable $resolve ) {
@@ -609,6 +617,8 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Current queried term when on a taxonomy archive.
+	 *
 	 * @return WP_Term|null
 	 */
 	private function current_term(): ?WP_Term {
@@ -617,6 +627,8 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Whether the post is the WooCommerce shop host page.
+	 *
 	 * @param WP_Post $post Post.
 	 */
 	private function is_shop_host( WP_Post $post ): bool {
@@ -628,6 +640,8 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Whether the post is the posts page host for category SEO units.
+	 *
 	 * @param WP_Post $post Post.
 	 */
 	private function is_posts_page_host( WP_Post $post ): bool {
@@ -636,6 +650,8 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Read a Rank Math post meta string.
+	 *
 	 * @param int    $post_id Post ID.
 	 * @param string $key     Meta key.
 	 */
@@ -648,6 +664,8 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Read a Rank Math term meta string.
+	 *
 	 * @param int    $term_id Term ID.
 	 * @param string $key     Meta key.
 	 */
@@ -659,6 +677,9 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 		return is_string( $value ) ? $value : '';
 	}
 
+	/**
+	 * Whether Rank Math plugin files are installed.
+	 */
 	private function is_installed(): bool {
 		if ( null !== $this->installed ) {
 			return $this->installed;
@@ -670,6 +691,9 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 		return isset( $plugins[ self::PLUGIN_BASENAME ] );
 	}
 
+	/**
+	 * Whether Rank Math is active.
+	 */
 	private function is_active(): bool {
 		if ( null !== $this->active ) {
 			return $this->active;
@@ -679,6 +703,9 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 			: class_exists( '\RankMath\Helper', false );
 	}
 
+	/**
+	 * Whether the AIML Rank Math integration is disabled.
+	 */
 	private function is_disabled(): bool {
 		if ( null !== $this->disabled ) {
 			return $this->disabled;
@@ -686,11 +713,16 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 		/**
 		 * Disable the Rank Math AIML integration.
 		 *
+		 * @since 1.1.0
+		 *
 		 * @param bool $disabled Whether disabled.
 		 */
 		return (bool) apply_filters( 'aiml_rankmath_integration_disabled', false );
 	}
 
+	/**
+	 * Resolved Rank Math plugin version string.
+	 */
 	private function resolved_version(): string {
 		if ( null !== $this->version ) {
 			return $this->version;
@@ -708,6 +740,9 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 		return '0.0.0';
 	}
 
+	/**
+	 * Whether required Rank Math frontend/schema seams are available.
+	 */
 	private function required_hooks_present(): bool {
 		if ( null !== $this->hooks_present ) {
 			return $this->hooks_present;
