@@ -99,7 +99,7 @@ Env note: `/sv/` home 301-loop remains (pre-existing); acceptance used non-home 
 
 ## ASEOD.8 — Closure
 
-**Status:** PASS — plan + roadmaps updated for review-ready implementation; not merged/tagged
+**Status:** **PASS — Complete** — merged to `main`; tag `a-seod-opengraph-complete`
 
 **Final dispositions (unchanged from freeze):**
 
@@ -109,6 +109,8 @@ Env note: `/sv/` home 301-loop remains (pre-existing); acceptance used non-home 
 | Partially Supported | Explicit Facebook/Twitter text overrides |
 | Deferred | SD4, SD9, SD10, SD12 |
 
-**Recommended tag after independent review/merge:** `a-seod-opengraph-complete`
+**Known limitation (pre-existing, not A.SEOd):** `/sv/` (and `/sv`) front-page requests 301-loop to `https://dev.biopentra.eu/sv/` with the same redirect count on `main` without A.SEOd and with A.SEOd mounted. A.SEOd introduces **0** new redirect loops (Router/Seo unchanged; OG hooks run after redirect resolution). Track as existing technical debt outside A.SEOd.
 
-**Next:** Independent review → merge `--no-ff` → tag → then A.SEOe planning decision only.
+**Tag:** `a-seod-opengraph-complete`
+
+**Next:** A.SEOe planning/implementation decision only. **A.SEOe has not been started.**

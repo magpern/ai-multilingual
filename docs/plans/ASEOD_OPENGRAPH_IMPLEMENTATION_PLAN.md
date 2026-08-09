@@ -1,7 +1,7 @@
 # A.SEOd — OpenGraph / Twitter Metadata — Implementation Plan
 
-**Status:** **Implementation complete on `feature/aseod-opengraph`** — review-ready; not merged/tagged  
-**Validation log:** [ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md](ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md)  
+**Status:** **Complete** — merged to `main`; tag `a-seod-opengraph-complete`  
+**Validation log:** [ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md](ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md) (**PASS**)  
 **Milestone:** Program A — **A.SEOd** (fourth wave of A.SEO)  
 **Plan freeze:** Evidence-driven admissions SD1–SD12; Rank Math remains foreign owner of OG/Twitter emission; AIML overlays via official Rank Math hooks only; SB11 + A.SEOc consumed unchanged; TARGET **6**; Supported = **SD1, SD2, SD3, SD5, SD6, SD7, SD8, SD11**; Partially Supported = **explicit Facebook/Twitter text overrides**; Deferred = **SD4, SD9, SD10, SD12**  
 **ADR assessment:** **No new ADR required** for the Supported / Partially Supported set if Implementation uses Integration API v1 + PluginIdentity `p:rankmath:…` + existing Store overlays + SB11. Do not reopen ADR-0001 / 0002 / 0008 / 0017. Do not change A.SEOa URL contracts, A.SEOb SB11, or A.SEOc title/meta ownership.  
@@ -10,13 +10,14 @@
 **Dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)  
 **Evidence:** [aseod-evidence/](aseod-evidence/)  
 **Planning branch:** `feature/aseod-opengraph-plan`  
-**Implementation branch:** create only after this plan freezes on `main` — `feature/aseod-opengraph`  
+**Implementation branch:** `feature/aseod-opengraph`  
 **Baseline (plan authoring):** `main` @ `e4cd9ab36743e2d35da04040cbb5c6b1ece7b6d5`  
+**Merge commit:** see `main` history (`merge: complete A.SEOd OpenGraph / Twitter metadata`)  
 **Depends on:** A.SEOa **Complete**; A.SEOb **Complete** (SB11); A.SEOc **Complete** (`a-seoc-rankmath-complete`); A.1 / ADR-0017; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; TARGET **6**
 
 **Operational success (Supported):** When Rank Math is active, published-language documents expose language-correct OpenGraph and Twitter textual metadata for admitted surfaces via official Rank Math filters; `og:url` / `og:locale` remain language-correct via existing URL/locale contracts; `og:locale:alternate` lists published SB11 languages only; preview languages never appear as public social variants; Rank Math missing/inactive degrades safely; AIML never emits duplicate competing OG/Twitter tags.
 
-**This plan is the frozen implementation contract for A.SEOd.** Do not widen Supported admissions without new evidence + ADR where gated. Do not open an implementation branch until this plan is independently reviewed and merged to `main`.
+**This plan is the frozen implementation contract for A.SEOd.** Supported {SD1–SD3, SD5–SD8, SD11} and Partially Supported explicit Facebook/Twitter text are merged and tagged. Deferred {SD4, SD9, SD10, SD12} remain untouched. A.SEOe has not been started.
 
 ---
 
