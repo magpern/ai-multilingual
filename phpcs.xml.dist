@@ -50,8 +50,8 @@
 		<exclude-pattern>*/tests/integration/wp-tests-config.php</exclude-pattern>
 	</rule>
 
-	<!-- Warnings must not fail CI when zero errors remain (F10/F11 gate). -->
-	<config name="ignore_warnings_on_exit" value="1"/>
+	<!-- Recovery baseline: warnings are actionable and must fail the gate. -->
+	<config name="ignore_warnings_on_exit" value="0"/>
 
 	<!-- Test method names are self-describing; don't demand full docblocks
 	     there. Data-provider annotations still require a docblock, so relax the
@@ -74,8 +74,18 @@
 
 	<!-- Exercising an overlay means invoking the core hook it is attached to,
 	     e.g. apply_filters( 'the_title', ... ). Those are WordPress's hook
-	     names, deliberately unprefixed. -->
+	     names, deliberately unprefixed. DynamicHooknameFound covers the same
+	     case when the foreign hook is referenced via a class constant
+	     (WooCommerceIntegration::HOOK_*, RankMathIntegration::HOOK_*, …). -->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+	<!-- Rank Math (and similar) use slash-separated foreign hooks
+	     (rank_math/sitemap/...). Tests must invoke those exact names. -->
+	<rule ref="WordPress.NamingConventions.ValidHookName.UseUnderscores">
 		<exclude-pattern>*/tests/*</exclude-pattern>
 	</rule>
 
