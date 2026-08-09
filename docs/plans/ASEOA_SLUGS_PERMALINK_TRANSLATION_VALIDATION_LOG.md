@@ -102,3 +102,62 @@ SA10 characterizing suite green against existing `PreviewService` / LanguageReso
 
 - File: `tests/integration/AseoaDeferredSlugGuardTest.php`
 - Result: **8** tests — TARGET 6; no `SOURCE_TERM`; no reverse lookup API; no slug/history tables; Extractor omits `post_name`; Router adds no rewrite hooks; no SlugResolver/history classes; FORMAT_SLUG unused for end-to-end
+
+---
+
+## ASEOA.7 — Full acceptance
+
+**Status:** PASS
+
+### Quality gates (post–ASEOA.6)
+
+| Gate | Result |
+|---|---|
+| Unit | **586** tests / **1559** assertions — OK (2 skipped) |
+| Integration | **544** tests / **12044** assertions — OK (2 skipped) |
+| PluginGuard | **17** tests / **8836** assertions — OK |
+| PHPCS (`tests/integration/Aseoa*.php`) | **PASS** (exit 0) |
+| `git diff --check` | **PASS** |
+| Markdown relative links (A.SEOa plan/log/evidence + ROADMAP/POST_V1) | **PASS** — 188 links, 0 missing |
+
+### Live / HTTP (`https://dev.biopentra.eu`)
+
+| Check | Result |
+|---|---|
+| SA7 page EN unprefixed | **PASS** — `…/a4-nested-gutenberg-fixture/` → HTTP 200, `lang="en-US"`, source leaf retained |
+| SA7 page SV prefixed | **PASS** — `…/sv/a4-nested-gutenberg-fixture/` → HTTP 200, `lang="sv-SE"`, same source leaf |
+| SA7 product EN / SV | **PASS** — `…/product/p5-acceptance-widget-3/` and `…/sv/product/p5-acceptance-widget-3/` → 200; EN `en-US` / SV `sv-SE` |
+| SA7 post type | **PASS** (integration suite — live site has no published `post` fixtures) |
+| Double prefix | **PASS** — `…/sv/sv/a4-nested-gutenberg-fixture/` → **404** (no redirect loop) |
+| Query on SV URL | **PASS** — `?utm=1` → HTTP 200 (no strip/redirect loop) |
+| Alternating EN→SV→EN→SV | **PASS** — four requests, each HTTP 200, `redirect=0`, correct `lang` |
+| SA10 anonymous preview language (`/de/…`) | **PASS** — HTTP **301** → unprefixed source URL (not a public crawlable preview route) |
+| Canonical suppress | **Unchanged** — prefixed SV shortlink present; no unexpected redirect loops |
+| FP | **0** |
+| Leakage | **0** (EN body `en-US`, SV body `sv-SE` on Supported surfaces) |
+| Redirect loops | **0** |
+| Duplicate prefixes | **0** |
+
+### Production code delta
+
+| Area | Result |
+|---|---|
+| `src/Routing/Router.php` | **Unchanged** (ASEOA.4 no-op) |
+| Preview / LanguageResolver | **Unchanged** (ASEOA.5 no-op) |
+| Store / schema / TARGET | **Unchanged** (TARGET **6**) |
+| Rewrite rules / URL history / redirect registry | **Absent** |
+
+### Regression (suite-level; no production delta)
+
+| Surface | Result |
+|---|---|
+| Gutenberg | **PASS** — full suite green; no AIML SEO production changes |
+| Elementor | **PASS** |
+| Woo A.7a–A.7d | **PASS** — product live EN/SV + suite |
+| Fluent Forms A.8 | **PASS** |
+| A.6 visitor chrome | **PASS** |
+| Integration API v1 | **Unchanged** |
+
+### Performance
+
+Router / permalink path unchanged vs baseline (no new filters, caches, or rewrite tables). No invented budgets; overhead observation = **baseline-equivalent** for Supported SA7/SA10.
