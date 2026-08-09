@@ -51,7 +51,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa–A.SEOd Complete**; **A.SEOe** [plan](ASEOE_SITEMAPS_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SE1–SE9/SE12; Deferred SE10/SE11; [evidence](aseoe-evidence/); [validation log](ASEOE_SITEMAPS_IMPLEMENTATION_VALIDATION_LOG.md); implementation complete on `feature/aseoe-sitemaps` — review-ready, not merged/tagged); A.SEOf not started
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa–A.SEOe Complete** (A.SEOe tag `a-seoe-sitemaps-complete`; Supported SE1–SE9/SE12; Deferred SE10/SE11); next wave **A.SEOf** planning/implementation decision only (A.SEOf not started)
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -287,7 +287,7 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 ### 6.3 Third-party and SEO
 
 - **A.8** — One third-party bridge at a time via A.1 (first: Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md))
-- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); **A.SEOa–A.SEOd Complete**; **A.SEOe** [plan](ASEOE_SITEMAPS_IMPLEMENTATION_PLAN.md) (implementation complete on `feature/aseoe-sitemaps` — review-ready; [validation log](ASEOE_SITEMAPS_IMPLEMENTATION_VALIDATION_LOG.md); not merged/tagged); A.SEOf not started
+- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); **A.SEOa–A.SEOe Complete** (A.SEOe tag `a-seoe-sitemaps-complete`; Supported SE1–SE9/SE12; Deferred SE10/SE11); A.SEOf not started
 
 | ID | Wave | Type |
 |---|---|---|
@@ -295,7 +295,7 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 | A.SEOb | Canonical URLs, hreflang, language relationships | Product — [plan](ASEOB_CANONICAL_HREFLANG_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seob-canonical-hreflang-complete`; Supported SB1–SB11; [validation log](ASEOB_CANONICAL_HREFLANG_VALIDATION_LOG.md); [evidence](aseob-evidence/)) |
 | A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product — [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seoc-rankmath-complete`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; [validation log](ASEOC_RANK_MATH_INTEGRATION_VALIDATION_LOG.md); [evidence](aseoc-evidence/)) |
 | A.SEOd | OpenGraph / Twitter / social metadata | Product — [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seod-opengraph-complete`; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [validation log](ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseod-evidence/)) |
-| A.SEOe | XML sitemaps, robots, indexability, discovery | Product — [plan](ASEOE_SITEMAPS_IMPLEMENTATION_PLAN.md) (implementation complete on `feature/aseoe-sitemaps` — review-ready; [validation log](ASEOE_SITEMAPS_IMPLEMENTATION_VALIDATION_LOG.md); not merged/tagged) |
+| A.SEOe | XML sitemaps, robots, indexability, discovery | Product — [plan](ASEOE_SITEMAPS_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seoe-sitemaps-complete`; Supported SE1–SE9/SE12; Deferred SE10/SE11; [validation log](ASEOE_SITEMAPS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseoe-evidence/)) |
 | A.SEOf | SEO diagnostics, validation, health, verification | Operational |
 
 **Canonical family plan:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md). Required order: A.SEOa → A.SEOb → A.SEOc → A.SEOd → A.SEOe → A.SEOf ([matrix](A_SEO_DEPENDENCY_MATRIX.md)). **A.SEOa wave plan:** [ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md).
@@ -508,6 +508,8 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-09 | A.SEOd OpenGraph / Twitter marked complete/merged/tagged `a-seod-opengraph-complete` (Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12); Next advances to A.SEOe planning/implementation decision only (A.SEOe not started) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOe XML Sitemaps / Robots implementation plan linked (**Architecture Frozen (planning)**; Supported SE1–SE9/SE12; Deferred SE10/SE11; Rank Math remains sitemap owner; [plan](ASEOE_SITEMAPS_IMPLEMENTATION_PLAN.md); [evidence](aseoe-evidence/); implementation not started; no milestone renumbering; no A.SEOf) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOe XML Sitemaps / Robots plan freeze merged to `main` (**Architecture Frozen (planning)**; Supported SE1–SE9/SE12; Deferred SE10/SE11; implementation authorized, not started; no tag; no A.SEOf) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOe XML Sitemaps / Robots implementation complete on `feature/aseoe-sitemaps` (Supported SE1–SE9/SE12; Deferred SE10/SE11; validation PASS; review-ready; not merged/tagged; no A.SEOf) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOe XML Sitemaps / Robots marked complete/merged/tagged `a-seoe-sitemaps-complete` (Supported SE1–SE9/SE12; Deferred SE10/SE11); Next advances to A.SEOf planning/implementation decision only (A.SEOf not started) (no structural change). |
 
 ---
 

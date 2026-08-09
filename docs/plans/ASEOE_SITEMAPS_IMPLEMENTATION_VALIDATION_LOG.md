@@ -7,7 +7,9 @@
 **Planning freeze on main:** merge `d9bcb56a8`
 **Planning closure:** `cce180fdd`
 **Implementation baseline HEAD:** `cce180fdd`
-**Review-ready feature HEAD:** see git tip of `feature/aseoe-sitemaps`
+**Merged to main:** yes
+**Completion tag:** `a-seoe-sitemaps-complete`
+**Review-ready feature HEAD:** `62101023de0f658654dc9bed1dfb747c02fc436b`
 
 **Supported:** SE1, SE2, SE3, SE4, SE5, SE6, SE7, SE8, SE9, SE12
 **Deferred:** SE10, SE11
@@ -128,7 +130,7 @@ HTTP observational (stored `blog_public=0`): xhtml absent — honesty gate PASS
 
 ## ASEOE.8 — Documentation closure
 
-**Status:** PASS — this log; roadmap pointer to review-ready implementation; dispositions unchanged
+**Status:** PASS — milestone closed on main; tag `a-seoe-sitemaps-complete`; dispositions unchanged; A.SEOf not started
 
 ---
 
@@ -153,6 +155,4 @@ HTTP observational (stored `blog_public=0`): xhtml absent — honesty gate PASS
 
 ## Closure
 
-Implementation complete on `feature/aseoe-sitemaps` — **review-ready**. Not merged. Not tagged. A.SEOf not started.
-
-**Recommended tag (after independent review/merge):** `a-seoe-sitemaps-complete`
+**Complete** on `main`, tagged `a-seoe-sitemaps-complete`. A.SEOf not started.
