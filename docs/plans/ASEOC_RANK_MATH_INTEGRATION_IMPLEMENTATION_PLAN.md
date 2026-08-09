@@ -1,6 +1,6 @@
 # A.SEOc — Rank Math Integration — Implementation Plan
 
-**Status:** **Implementation Complete — Ready for Independent Review** — on `feature/aseoc-rankmath`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; **not** merged / **not** tagged
+**Status:** **Complete** — merged to `main`; tag `a-seoc-rankmath-complete`
 **Milestone:** Program A — **A.SEOc** (third wave of A.SEO)  
 **Plan freeze:** Evidence-driven admissions SC1–SC14; Rank Math remains foreign owner; AIML overlays via official filters only; SB11 consumed unchanged; TARGET **6**; Supported = **SC1–SC6, SC10–SC14**; Partially Supported = **SC7–SC9**  
 **ADR assessment:** **No new ADR required** for the Supported / Partially Supported set if Implementation uses Integration API v1 + PluginIdentity `p:rankmath:…` + existing Store overlays. Do not reopen ADR-0001 / 0002 / 0008 / 0017. Do not change A.SEOa URL contracts or A.SEOb SB11.  
@@ -475,9 +475,9 @@ If implementation discovers a required public ownership/persistence contract bey
 
 ## 19. Architecture verdict
 
-**Implementation Complete — Ready for Independent Review.**
+**Complete.**
 
-Supported {SC1–SC6, SC10–SC14} and Partially Supported {SC7–SC9} are implemented under Integration API v1 + PluginIdentity `p:rankmath:…` + official Rank Math filters. SB11 unchanged. A.SEOd has not been started.
+Supported {SC1–SC6, SC10–SC14} and Partially Supported {SC7–SC9} are merged and tagged. SB11 unchanged. A.SEOd has not been started.
 
 ---
 
@@ -488,6 +488,8 @@ Supported {SC1–SC6, SC10–SC14} and Partially Supported {SC7–SC9} are imple
 | Canonical path | `docs/plans/ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md` |
 | Evidence | `docs/plans/aseoc-evidence/` |
 | Planning branch | `feature/aseoc-rankmath-plan` |
-| Implementation branch | `feature/aseoc-rankmath` (not created) |
-| Validation log | create at implementation time |
-| Baseline | `488e62f930bce4a08cb22059e8d963ec4a805d23` |
+| Implementation branch | `feature/aseoc-rankmath` |
+| Merge commit | `fe64d7edc` |
+| Tag | `a-seoc-rankmath-complete` |
+| Validation log | `docs/plans/ASEOC_RANK_MATH_INTEGRATION_VALIDATION_LOG.md` |
+| Baseline | `c433644623082f029822176e1b426438642dab2d` |

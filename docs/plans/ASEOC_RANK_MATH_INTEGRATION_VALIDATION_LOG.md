@@ -84,9 +84,20 @@
 
 ## ASEOC.8 — Closure
 
-**Status:** PASS (implementation complete on feature branch; **not** merged / **not** tagged)
+**Status:** PASS — merged to `main`; tagged `a-seoc-rankmath-complete`
 
 | Item | Value |
 |---|---|
-| Recommended later tag | `a-seoc-rankmath-complete` |
-| Next | Independent review → merge → tag; then A.SEOd planning only |
+| Supported (final) | **SC1–SC6, SC10–SC14** |
+| Partially Supported (final) | **SC7–SC9** |
+| Merge | `fe64d7edc` — `merge: complete A.SEOc Rank Math integration` |
+| Tag | `a-seoc-rankmath-complete` |
+| Next wave | **A.SEOd** planning/implementation decision only; **A.SEOd not started** |
+
+### Independent review / post-merge notes
+
+| Item | Result |
+|---|---|
+| Duplicate `<title>` on some products | Pre-existing (Rank Math block + post-Rank-Math emitter); AIML adds **0** title tags |
+| Page/object cache | May serve stale SEO head until flush; no new cache architecture |
+| Sitewide noindex | Canonical HTML may be omitted; title/description validated |
