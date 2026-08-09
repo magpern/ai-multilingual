@@ -51,7 +51,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa–A.SEOe Complete**; **A.SEOf** [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**implementation complete — review-ready** on `feature/aseof-seo-diagnostics`; Supported SF1–SF14; Partially Supported SF15; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/); not merged/tagged); next: independent review → merge/tag `a-seof-seo-diagnostics-complete` only
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) **Complete**; waves A.SEOa–A.SEOf) — **A.SEOa–A.SEOf Complete**; **A.SEOf** [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seof-seo-diagnostics-complete`; Supported SF1–SF14; Partially Supported SF15; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/)); next: outside A.SEO family (no subsequent production milestone started here)
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -158,7 +158,7 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 | A.6 | WordPress visitor chrome family (see §6.1) | Product — [plan](A6_WORDPRESS_VISITOR_CHROME_IMPLEMENTATION_PLAN.md); [validation](A6_VALIDATION_LOG.md) (**Complete / merged / tagged** `a6-wordpress-visitor-chrome-complete`; Supported N1) |
 | A.7 | WooCommerce visitor-facing coverage family (see §6.2) | Product — [family plan](A7_WOOCOMMERCE_VISITOR_COVERAGE_IMPLEMENTATION_PLAN.md); **A.7a–A.7d Complete**; A.7d — [plan](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_IMPLEMENTATION_PLAN.md); [validation](A7D_WOOCOMMERCE_CUSTOMER_EMAILS_VALIDATION_LOG.md); tag `a7d-woocommerce-customer-emails-complete`; ADR-0018 implemented |
 | A.8 | Third-party plugin bridges (via A.1) — first = Fluent Forms Contact Form #5 | Product — **Complete** — [selection](A8_INTEGRATION_CANDIDATE_SELECTION.md); [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md); [validation log PASS](A8_FLUENTFORMS_CONTACT_INTEGRATION_VALIDATION_LOG.md); [admission Supported](a8-evidence/a8-fluentforms-contact-admission.md); tag `a8-fluentforms-contact-integration-complete` |
-| A.SEO | Visitor SEO adapters (hreflang/title/alternates) — family A.SEOa–A.SEOf | Product — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); [evidence](aseo-evidence/); implementation not started |
+| A.SEO | Visitor SEO adapters (hreflang/title/alternates) — family A.SEOa–A.SEOf | Product — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); [evidence](aseo-evidence/); waves A.SEOa–A.SEOf complete/tagged |
 
 ### Program B — Translation Intelligence
 
@@ -287,7 +287,7 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 ### 6.3 Third-party and SEO
 
 - **A.8** — One third-party bridge at a time via A.1 (first: Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md))
-- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); **A.SEOa–A.SEOe Complete**; **A.SEOf** [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**implementation complete — review-ready**; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/); not merged/tagged)
+- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); **A.SEOa–A.SEOf Complete**; **A.SEOf** [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seof-seo-diagnostics-complete`; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/))
 
 | ID | Wave | Type |
 |---|---|---|
@@ -296,7 +296,7 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 | A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product — [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seoc-rankmath-complete`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; [validation log](ASEOC_RANK_MATH_INTEGRATION_VALIDATION_LOG.md); [evidence](aseoc-evidence/)) |
 | A.SEOd | OpenGraph / Twitter / social metadata | Product — [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seod-opengraph-complete`; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [validation log](ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseod-evidence/)) |
 | A.SEOe | XML sitemaps, robots, indexability, discovery | Product — [plan](ASEOE_SITEMAPS_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seoe-sitemaps-complete`; Supported SE1–SE9/SE12; Deferred SE10/SE11; [validation log](ASEOE_SITEMAPS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseoe-evidence/)) |
-| A.SEOf | SEO diagnostics, validation, health, verification | Operational — [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**implementation complete — review-ready** on `feature/aseof-seo-diagnostics`; Supported SF1–SF14; Partially Supported SF15; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/); not merged/tagged) |
+| A.SEOf | SEO diagnostics, validation, health, verification | Operational — [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seof-seo-diagnostics-complete`; Supported SF1–SF14; Partially Supported SF15; [validation log](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md); [evidence](aseof-evidence/)) |
 
 **Canonical family plan:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md). Required order: A.SEOa → A.SEOb → A.SEOc → A.SEOd → A.SEOe → A.SEOf ([matrix](A_SEO_DEPENDENCY_MATRIX.md)). **A.SEOa wave plan:** [ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md).
 
@@ -513,6 +513,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health implementation plan linked (**Architecture Frozen (planning)**; Supported SF1–SF14; Partially Supported SF15; SF14 UI presentation-only over SF13; [plan](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_PLAN.md); [evidence](aseof-evidence/); implementation not started; no milestone renumbering) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health plan freeze merged to `main` (**Architecture Frozen (planning)**; Supported SF1–SF14; Partially Supported SF15; implementation authorized, not started; no tag) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health implementation complete on `feature/aseof-seo-diagnostics` (Supported SF1–SF14; Partially Supported SF15; validation PASS; review-ready; not merged/tagged; recommended tag `a-seof-seo-diagnostics-complete`) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health marked complete/merged/tagged `a-seof-seo-diagnostics-complete` (Supported SF1–SF14; Partially Supported SF15); A.SEO family Complete; Next advances outside A.SEO (no subsequent production milestone started) (no structural change). |
 
 ---
 

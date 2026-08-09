@@ -1,6 +1,6 @@
 # A.SEOf — SEO Diagnostics / Validation / Health — Implementation Plan
 
-**Status:** **Implementation complete — review-ready** on `feature/aseof-seo-diagnostics` (not merged/tagged)
+**Status:** **Complete** — merged to `main`; tagged `a-seof-seo-diagnostics-complete`; Supported SF1–SF14; Partially Supported SF15; Deferred upstream SE11/SD12
 **Milestone:** Program A — **A.SEOf** (final wave of A.SEO)
 **Plan freeze:** Evidence-driven admissions SF1–SF15; diagnostics observe A.SEOa–e contracts; no second SEO pipeline; SF13 read-only result model; SF14 thin UI over SF13/SF1; TARGET **6**; Supported = **SF1–SF14**; Partially Supported = **SF15** (advisory); SE11/SD12 remain Deferred upstream
 **ADR assessment:** **No new ADR required** for the Supported set if Implementation stays on read-only diagnostics + SB11 + Integration API v1 + BlockHealth-like bounded scans without persistence/schema/TARGET changes
@@ -446,3 +446,4 @@ Diagnostics are add-only; rolling back A.SEOf must not remove A.SEOa–e behavio
 |---|---|---|
 | 0.1 | 2026-08-09 | Planning freeze on `feature/aseof-seo-diagnostics-plan`; baseline `fbc719a78`; SF1–SF15 dispositions frozen for review; SF14 UI rule hard-frozen |
 | 0.2 | 2026-08-09 | Implementation complete — review-ready on `feature/aseof-seo-diagnostics`; validation log PASS; not merged/tagged |
+| 1.0 | 2026-08-09 | Complete — merged/tagged `a-seof-seo-diagnostics-complete`; A.SEO family closed |

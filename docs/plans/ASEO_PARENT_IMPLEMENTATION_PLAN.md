@@ -1,6 +1,6 @@
 # A.SEO — Parent SEO Architecture — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation not started
+**Status:** **Complete** — waves A.SEOa–A.SEOf complete/merged/tagged; family closed (`a-seof-seo-diagnostics-complete`)
 **Milestone family:** Program A — **A.SEO** Visitor SEO adapters
 **Plan freeze:** Canonical SEO architecture for waves **A.SEOa–A.SEOf**; overlay-not-duplication; reuse Store / Workspace / Review / TM / Glossary / Jobs / Integration API v1 / LanguageContext / Diagnostics / PluginIdentity; no parallel SEO subsystem; no HTML scraping; TARGET **6**
 **ADR assessment:** **No new ADR required at plan freeze** if waves stay within ADR-0001 / ADR-0002 / ADR-0007 / ADR-0008 / ADR-0013 / ADR-0016 / ADR-0017 / ADR-0018 + Integration API v1. A wave that needs a new identity family, Store redesign, schema redesign, second translation pipeline, or reopening ADR-0002 (translated rewrite bases) must open a focused ADR **before** coding — not silently.
