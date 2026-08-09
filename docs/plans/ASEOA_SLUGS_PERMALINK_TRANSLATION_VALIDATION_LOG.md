@@ -77,3 +77,28 @@ Runtime re-check recorded in [aseoa-evidence/implementation-inventory-lock.md](a
 
 - File: `tests/integration/AseoaSa10PreviewUrlsTest.php`
 - Result: **8** tests / characterizing SA10 (authorized preview, default unprefixed, unknown language error, preview not public, capability routable, published unaffected, REST auth, context restore)
+
+---
+
+## ASEOA.4 — SA7 hardening
+
+**Status:** PASS (no-op)
+
+SA7 characterizing suite green against existing `Router` — no production changes required. ADR-0002 prefix-strip preserved; no rewrite rules; no reverse slug lookup.
+
+---
+
+## ASEOA.5 — SA10 hardening
+
+**Status:** PASS (no-op)
+
+SA10 characterizing suite green against existing `PreviewService` / LanguageResolver — no production changes required. ADR-0008 preview gating preserved.
+
+---
+
+## ASEOA.6 — Deferred guardrails
+
+**Status:** PASS
+
+- File: `tests/integration/AseoaDeferredSlugGuardTest.php`
+- Result: **8** tests — TARGET 6; no `SOURCE_TERM`; no reverse lookup API; no slug/history tables; Extractor omits `post_name`; Router adds no rewrite hooks; no SlugResolver/history classes; FORMAT_SLUG unused for end-to-end
