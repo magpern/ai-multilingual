@@ -1,6 +1,6 @@
 # A.SEOb — Canonical URLs, hreflang & Language Relationships — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — planning branch only; implementation not started  
+**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation authorized for SB1–SB11; not started  
 **Milestone:** Program A — **A.SEOb** (second wave of A.SEO)  
 **Plan freeze:** Evidence-driven admissions SB1–SB11; language graph frozen for A.SEOc–A.SEOf consumers; ADR-0002/0008 preserved; TARGET **6**; Supported = **SB1–SB11**  
 **ADR assessment:** **No new ADR required** for the Supported set. Do not reopen ADR-0002 / ADR-0008. Deferred topics (persistent relationship tables, translated leaf URLs) remain ADR-gated under A.SEOa / future ADRs.  
@@ -441,5 +441,6 @@ Supported set {SB1–SB11} is implementable inside existing contracts with a lig
 | Canonical path | `docs/plans/ASEOB_CANONICAL_HREFLANG_IMPLEMENTATION_PLAN.md` |
 | Evidence | `docs/plans/aseob-evidence/` |
 | Planning branch | `feature/aseob-canonical-hreflang-plan` |
-| Implementation | Not started |
+| Planning merge | Merged to `main` |
+| Implementation | Authorized; not started |
 | Baseline | `a1e91f4429428cac166db5e72c892734b4587b5c` |
