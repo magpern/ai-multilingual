@@ -40,7 +40,9 @@ final class IntegrationFrontendBridge {
 	 * Register the frontend bridge.
 	 */
 	public function register(): void {
-		add_action( 'wp', array( $this, 'on_wp' ), 20 );
+		// Before Rank Math Frontend::integrations() on `wp` (priority 10) so
+		// title/description/token filters are present before Paper caches values.
+		add_action( 'wp', array( $this, 'on_wp' ), 5 );
 	}
 
 	/**
@@ -100,6 +102,9 @@ final class IntegrationFrontendBridge {
 			if ( 'product_cat' === $taxonomy || 'product_tag' === $taxonomy ) {
 				return $this->shop_page_source_id();
 			}
+			if ( 'category' === $taxonomy || 'post_tag' === $taxonomy ) {
+				return $this->posts_page_source_id();
+			}
 		}
 
 		if ( $this->is_woocommerce_product_search() ) {
@@ -118,6 +123,14 @@ final class IntegrationFrontendBridge {
 			return $shop_id > 0 ? $shop_id : 0;
 		}
 		return 0;
+	}
+
+	/**
+	 * Posts page ID for category/post_tag Rank Math SEO hosting (A.SEOc SC5/SC6).
+	 */
+	private function posts_page_source_id(): int {
+		$posts_page = (int) get_option( 'page_for_posts' );
+		return $posts_page > 0 ? $posts_page : 0;
 	}
 
 	/**

@@ -67,6 +67,7 @@ use AIMultilingual\Glossary\GlossaryNormalizer;
 use AIMultilingual\Glossary\GlossaryRepository;
 use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Integration\FluentForms\FluentFormsIntegration;
+use AIMultilingual\Integration\RankMath\RankMathIntegration;
 		use AIMultilingual\Integration\WooCommerce\WooCommerceIntegration;
 		use AIMultilingual\Integration\WooCommerce\OrderTransactionalLanguage;
 		use AIMultilingual\Integration\WooCommerce\CustomerEmailBridge;
@@ -228,10 +229,14 @@ final class Plugin {
 		$integration_registry    = new IntegrationRegistry( $integration_diagnostics );
 		$plugin_identity         = new PluginIdentity( $integration_diagnostics );
 		$woo_integration         = WooCommerceIntegration::create_default( $plugin_identity );
+		$relationships           = new LanguageRelationshipService( $languages, $context );
 		$integration_registry->register(
 			FluentFormsIntegration::create_default( $plugin_identity )
 		);
 		$integration_registry->register( $woo_integration );
+		$integration_registry->register(
+			RankMathIntegration::create_default( $plugin_identity, $store, $context, $relationships )
+		);
 		/**
 		 * Register typed Integration API v1 integrations.
 		 *
@@ -294,7 +299,6 @@ final class Plugin {
 		$router = new Router( $languages, $resolver, $context );
 		$router->register();
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
-		$relationships = new LanguageRelationshipService( $languages, $context );
 		( new DocumentSeoHead( $relationships ) )->register();
 		( new Switcher( $settings, $languages, $context, $relationships ) )->register();
 
