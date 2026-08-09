@@ -1,6 +1,6 @@
 # A.SEOa Evidence — Validation Strategy
 
-**Status:** Architecture validation philosophy for Supported + Deferred gates  
+**Status:** Architecture validation philosophy for Supported + Deferred gates
 **Admissions:** [admission-matrix.md](admission-matrix.md)
 
 ---
@@ -27,14 +27,14 @@
 
 ## 3. Validation order (when implementing Supported work)
 
-1. Preconditions (TARGET 6, ADRs, parent freeze)  
-2. Router prefix generation EN/SV  
-3. Preview routing capability gate  
-4. Regression suite (unit / integration / PluginGuard / PHPCS)  
-5. Confirm Deferred candidates untouched  
+1. Preconditions (TARGET 6, ADRs, parent freeze)
+2. Router prefix generation EN/SV
+3. Preview routing capability gate
+4. Regression suite (unit / integration / PluginGuard / PHPCS)
+5. Confirm Deferred candidates untouched
 
 ## 4. Browser / live (Supported)
 
-- `/sv/<source-slug>/` continues to resolve for known fixtures  
-- Preview language URL pattern remains capability-gated  
+- `/sv/<source-slug>/` continues to resolve for known fixtures
+- Preview language URL pattern remains capability-gated
 - No expectation of `/sv/<translated-slug>/` until SA1 ADR + future wave work

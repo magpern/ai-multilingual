@@ -1,6 +1,6 @@
 # A.SEOa Evidence — URL Migration Analysis
 
-**Status:** Investigation complete (planning)  
+**Status:** Investigation complete (planning)
 **Rule:** Document current WP/Woo (+ AIML) lifecycle behavior. Do **not** invent URL history mechanisms.
 
 For each case: owner · persistence · redirect · rollback · diagnostics · failure modes.

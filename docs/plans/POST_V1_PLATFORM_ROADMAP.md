@@ -291,7 +291,7 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 
 | ID | Wave | Type |
 |---|---|---|
-| A.SEOa | Slugs and permalink translation | Product — [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred pending ADR gates; [evidence](aseoa-evidence/); implementation not started) |
+| A.SEOa | Slugs and permalink translation | Product — [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred pending ADR gates; [evidence](aseoa-evidence/); implementation authorized for SA7/SA10 only, not started) |
 | A.SEOb | Canonical URLs, hreflang, language relationships | Product |
 | A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product |
 | A.SEOd | OpenGraph / Twitter / social metadata | Product |
@@ -492,6 +492,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-08 | A.6 WordPress Visitor Chrome implementation complete on `feature/a6-wordpress-visitor-chrome` (Supported N1; validation PASS; not merged/tagged) (no structural change). |
 | v1.0 (editorial) | 2026-08-08 | A.6 WordPress Visitor Chrome marked complete/merged/tagged `a6-wordpress-visitor-chrome-complete` (Supported N1; Deferred D1–D20 unchanged); Next advances to A.SEO planning/implementation decision (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOa Slugs & Permalink Translation implementation plan linked (**Architecture Frozen (planning)**; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred pending ADR gates; [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md); [evidence](aseoa-evidence/); implementation not started; no milestone renumbering) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOa Slugs & Permalink Translation plan freeze merged to `main` (**Architecture Frozen (planning)**; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred; implementation authorized for SA7/SA10 only, not started; no tag; no impl branch; no A.SEOb) (no structural change). |
 
 ---
 

@@ -1,6 +1,6 @@
 # A.SEOa Evidence — Collision Analysis
 
-**Status:** Investigation complete (planning)  
+**Status:** Investigation complete (planning)
 **Rule:** Document **current** WordPress / WooCommerce behavior. Do **not** invent a competing uniqueness engine.
 
 ---
@@ -34,8 +34,8 @@ Store read APIs are keyed by `(source_type, source_id, language_id, segment_key)
 
 Therefore deterministic **inbound** resolution and cross-object uniqueness for translated slugs **cannot** be Supported without one of:
 
-1. Schema/index / TARGET bump (forbidden without ADR), or  
-2. Persistent redirect/uniqueness registry (forbidden without ADR), or  
+1. Schema/index / TARGET bump (forbidden without ADR), or
+2. Persistent redirect/uniqueness registry (forbidden without ADR), or
 3. Mutating `post_name` per language (forbidden — ADR-0001 overlay model; breaks single canonical object).
 
 Full-table scans of `translated_text` are **not** accepted as a production uniqueness/routing architecture (races, performance, no uniqueness guarantee).

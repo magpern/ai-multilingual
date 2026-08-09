@@ -1,7 +1,7 @@
 # A.SEOa Evidence — Redirect Analysis
 
-**Status:** Investigation complete (planning)  
-**Code:** [`src/Routing/Router.php`](../../../src/Routing/Router.php)  
+**Status:** Investigation complete (planning)
+**Code:** [`src/Routing/Router.php`](../../../src/Routing/Router.php)
 **Stop condition:** No persistent URL-history DB / redirect registry without ADR
 
 ---

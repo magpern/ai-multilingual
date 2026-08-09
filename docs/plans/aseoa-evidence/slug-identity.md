@@ -1,6 +1,6 @@
 # A.SEOa Evidence — Slug Identity
 
-**Status:** Investigation complete (planning)  
+**Status:** Investigation complete (planning)
 **Code:** [`src/Translation/Store.php`](../../../src/Translation/Store.php), [`src/Translation/Extractor.php`](../../../src/Translation/Extractor.php)
 
 ---

@@ -1,16 +1,16 @@
 # A.SEOa — Slugs & Permalink Translation — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — freeze merged admissions; implementation not started  
-**Milestone:** Program A — **A.SEOa** (first wave of A.SEO)  
-**Plan freeze:** Evidence-driven admissions SA1–SA10; ADR-0002 prefix-strip preserved; translated rewrite bases Deferred; no URL-history DB / redirect registry / second router; TARGET **6**; Supported = **SA7**, **SA10** only  
-**ADR assessment:** **No new ADR required** for the Supported set (SA7/SA10). Focused ADRs are **required before** any future Support of SA1–SA6/SA8/SA9 (see §8). Do not silently reopen ADR-0002.  
-**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.3 / A.SEO family  
-**Parent architecture:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (authoritative; not redesigned)  
-**Dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)  
-**Evidence:** [aseoa-evidence/](aseoa-evidence/)  
-**Planning branch:** `feature/aseoa-slugs-permalinks-plan`  
-**Implementation branch:** create only after this plan freezes on `main` — `feature/aseoa-slugs-permalinks`  
-**Baseline (plan authoring):** `main` @ `d8375f37abb6e5ce337a866ebd07dd5f960677e3`  
+**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation authorized for SA7/SA10 only; not started
+**Milestone:** Program A — **A.SEOa** (first wave of A.SEO)
+**Plan freeze:** Evidence-driven admissions SA1–SA10; ADR-0002 prefix-strip preserved; translated rewrite bases Deferred; no URL-history DB / redirect registry / second router; TARGET **6**; Supported = **SA7**, **SA10** only
+**ADR assessment:** **No new ADR required** for the Supported set (SA7/SA10). Focused ADRs are **required before** any future Support of SA1–SA6/SA8/SA9 (see §8). Do not silently reopen ADR-0002.
+**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.3 / A.SEO family
+**Parent architecture:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (authoritative; not redesigned)
+**Dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)
+**Evidence:** [aseoa-evidence/](aseoa-evidence/)
+**Planning branch:** `feature/aseoa-slugs-permalinks-plan` (merged)
+**Implementation branch:** create only after this plan freezes on `main` — `feature/aseoa-slugs-permalinks`
+**Baseline (plan authoring):** `main` @ `d8375f37abb6e5ce337a866ebd07dd5f960677e3`
 **Depends on:** A.SEO parent freeze on `main`; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; TARGET **6**
 
 **Operational success (this freeze):** Language-aware permalink generation and preview URL routing remain correct under ADR-0002/0008 without inventing translated leaf-slug resolution, rewrite-base translation, or a URL-history subsystem. Deferred candidates stay Deferred until focused ADRs land.
@@ -395,7 +395,7 @@ Commit after each package on the implementation branch. Planning branch is docs-
 
 **Architecture Frozen (planning).**
 
-Supported set {SA7, SA10} is implementable inside existing contracts.  
+Supported set {SA7, SA10} is implementable inside existing contracts.
 End-to-end translated leaf slugs and historical redirects are **honestly Deferred** with explicit ADR gates — not silently Supported.
 
 ---

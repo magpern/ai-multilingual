@@ -1,6 +1,6 @@
 # A.SEOa Evidence — Rewrite Analysis
 
-**Status:** Investigation complete (planning)  
+**Status:** Investigation complete (planning)
 **ADR:** [0002-prefix-strip-routing.md](../../adr/0002-prefix-strip-routing.md)
 
 ---

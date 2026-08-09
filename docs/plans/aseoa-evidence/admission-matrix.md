@@ -1,7 +1,7 @@
 # A.SEOa Evidence — Admission Matrix
 
-**Status:** Evidence-based dispositions frozen for planning  
-**Started as:** Candidate (all)  
+**Status:** Evidence-based dispositions frozen for planning
+**Started as:** Candidate (all)
 **Inputs:** [ownership-inventory.md](ownership-inventory.md), [routing-inventory.md](routing-inventory.md), [rewrite-analysis.md](rewrite-analysis.md), [redirect-analysis.md](redirect-analysis.md), [collision-analysis.md](collision-analysis.md), [url-migration-analysis.md](url-migration-analysis.md), [slug-identity.md](slug-identity.md)
 
 Dispositions: **Supported** | **Deferred** | **Unsupported**
@@ -44,7 +44,7 @@ Dispositions: **Supported** | **Deferred** | **Unsupported**
 
 ## Architecture freeze eligibility
 
-**Supported set {SA7, SA10}** is implementable inside existing contracts (largely already shipped).  
-**Deferred set** is frozen as Deferred — not silently Supported.  
+**Supported set {SA7, SA10}** is implementable inside existing contracts (largely already shipped).
+**Deferred set** is frozen as Deferred — not silently Supported.
 
 → Parent A.SEOa wave may mark **Architecture Frozen (planning)** for this admission outcome.

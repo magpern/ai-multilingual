@@ -1,8 +1,8 @@
 # A.SEOa Evidence — Ownership Inventory
 
-**Status:** Investigation complete (planning)  
-**Baseline:** `main` @ `d8375f37abb6e5ce337a866ebd07dd5f960677e3`  
-**Parent:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](../ASEO_PARENT_IMPLEMENTATION_PLAN.md)  
+**Status:** Investigation complete (planning)
+**Baseline:** `main` @ `d8375f37abb6e5ce337a866ebd07dd5f960677e3`
+**Parent:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](../ASEO_PARENT_IMPLEMENTATION_PLAN.md)
 **Code:** [`src/Routing/Router.php`](../../../src/Routing/Router.php), [`src/Translation/Store.php`](../../../src/Translation/Store.php), [`src/Translation/Extractor.php`](../../../src/Translation/Extractor.php)
 
 ---

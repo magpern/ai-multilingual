@@ -1,7 +1,7 @@
 # A.SEOa Evidence — Routing Inventory
 
-**Status:** Investigation complete (planning)  
-**Code:** [`src/Routing/Router.php`](../../../src/Routing/Router.php), [`src/Language/LanguageResolver.php`](../../../src/Language/LanguageResolver.php), [`src/Workspace/PreviewService.php`](../../../src/Workspace/PreviewService.php)  
+**Status:** Investigation complete (planning)
+**Code:** [`src/Routing/Router.php`](../../../src/Routing/Router.php), [`src/Language/LanguageResolver.php`](../../../src/Language/LanguageResolver.php), [`src/Workspace/PreviewService.php`](../../../src/Workspace/PreviewService.php)
 **ADR:** [0002-prefix-strip-routing.md](../../adr/0002-prefix-strip-routing.md), [0008-language-state-model.md](../../adr/0008-language-state-model.md)
 
 ---
