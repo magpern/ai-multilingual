@@ -11,6 +11,7 @@ namespace AIMultilingual\Tests\Integration;
 
 use AIMultilingual\Frontend\Switcher;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Seo\LanguageRelationshipService;
 use AIMultilingual\Settings;
 
 /**
@@ -26,7 +27,9 @@ final class SwitcherTest extends AimlTestCase {
 	 * @param array<string, mixed> $settings Settings overrides.
 	 */
 	private function switcher( array $settings = array() ): Switcher {
-		return new Switcher( new Settings( $settings ), $this->languages, $this->context );
+		$relationships = new LanguageRelationshipService( $this->languages, $this->context );
+
+		return new Switcher( new Settings( $settings ), $this->languages, $this->context, $relationships );
 	}
 
 	public function test_links_point_at_the_current_page_in_each_language(): void {

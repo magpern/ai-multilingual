@@ -59,6 +59,8 @@ use AIMultilingual\Elementor\ElementorIdentity;
 use AIMultilingual\Elementor\ElementorOverlayApplier;
 use AIMultilingual\Elementor\ElementorOverlayResolver;
 use AIMultilingual\Frontend\Switcher;
+use AIMultilingual\Seo\DocumentSeoHead;
+use AIMultilingual\Seo\LanguageRelationshipService;
 use AIMultilingual\Glossary\GlossaryCapabilities;
 use AIMultilingual\Glossary\GlossaryMatcher;
 use AIMultilingual\Glossary\GlossaryNormalizer;
@@ -292,7 +294,9 @@ final class Plugin {
 		$router = new Router( $languages, $resolver, $context );
 		$router->register();
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
-		( new Switcher( $settings, $languages, $context ) )->register();
+		$relationships = new LanguageRelationshipService( $languages, $context );
+		( new DocumentSeoHead( $relationships ) )->register();
+		( new Switcher( $settings, $languages, $context, $relationships ) )->register();
 
 		$elementor_resolver = new ElementorOverlayResolver( $store, $elementor_diagnostics );
 		$elementor_applier  = new ElementorOverlayApplier( $elementor_registry, $elementor_diagnostics );

@@ -1,6 +1,6 @@
 # A.SEOb — Canonical URLs, hreflang & Language Relationships — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation authorized for SB1–SB11; not started  
+**Status:** **Implementation Complete — Ready for Independent Review** — on `feature/aseob-canonical-hreflang`; Supported SB1–SB11; **not** merged / **not** tagged  
 **Milestone:** Program A — **A.SEOb** (second wave of A.SEO)  
 **Plan freeze:** Evidence-driven admissions SB1–SB11; language graph frozen for A.SEOc–A.SEOf consumers; ADR-0002/0008 preserved; TARGET **6**; Supported = **SB1–SB11**  
 **ADR assessment:** **No new ADR required** for the Supported set. Do not reopen ADR-0002 / ADR-0008. Deferred topics (persistent relationship tables, translated leaf URLs) remain ADR-gated under A.SEOa / future ADRs.  
@@ -428,9 +428,9 @@ Future ADRs remain required before Supporting: persistent relationship/history t
 
 ## 19. Architecture verdict
 
-**Architecture Frozen (planning).**
+**Implementation Complete — Ready for Independent Review.**
 
-Supported set {SB1–SB11} is implementable inside existing contracts with a lightweight SB11 language-relationship service. Downstream SEO waves must consume SB11 unchanged. Blind `redirect_canonical` suppress is explicitly replaced by language-preserving canonical policy in implementation.
+Supported set {SB1–SB11} is implemented inside existing contracts with `LanguageRelationshipService` (SB11), `DocumentSeoHead`, and language-preserving `redirect_canonical`. Downstream SEO waves must consume SB11 unchanged.
 
 ---
 
@@ -442,5 +442,7 @@ Supported set {SB1–SB11} is implementable inside existing contracts with a lig
 | Evidence | `docs/plans/aseob-evidence/` |
 | Planning branch | `feature/aseob-canonical-hreflang-plan` |
 | Planning merge | Merged to `main` |
-| Implementation | Authorized; not started |
+| Implementation branch | `feature/aseob-canonical-hreflang` |
+| Validation log | `docs/plans/ASEOB_CANONICAL_HREFLANG_VALIDATION_LOG.md` |
+| Merge / tag | Not yet — independent review required; recommended tag `a-seob-canonical-hreflang-complete` |
 | Baseline | `a1e91f4429428cac166db5e72c892734b4587b5c` |
