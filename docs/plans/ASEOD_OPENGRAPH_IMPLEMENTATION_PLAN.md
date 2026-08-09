@@ -1,6 +1,7 @@
 # A.SEOd — OpenGraph / Twitter Metadata — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation authorized, not started  
+**Status:** **Implementation complete on `feature/aseod-opengraph`** — review-ready; not merged/tagged  
+**Validation log:** [ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md](ASEOD_OPENGRAPH_IMPLEMENTATION_VALIDATION_LOG.md)  
 **Milestone:** Program A — **A.SEOd** (fourth wave of A.SEO)  
 **Plan freeze:** Evidence-driven admissions SD1–SD12; Rank Math remains foreign owner of OG/Twitter emission; AIML overlays via official Rank Math hooks only; SB11 + A.SEOc consumed unchanged; TARGET **6**; Supported = **SD1, SD2, SD3, SD5, SD6, SD7, SD8, SD11**; Partially Supported = **explicit Facebook/Twitter text overrides**; Deferred = **SD4, SD9, SD10, SD12**  
 **ADR assessment:** **No new ADR required** for the Supported / Partially Supported set if Implementation uses Integration API v1 + PluginIdentity `p:rankmath:…` + existing Store overlays + SB11. Do not reopen ADR-0001 / 0002 / 0008 / 0017. Do not change A.SEOa URL contracts, A.SEOb SB11, or A.SEOc title/meta ownership.  

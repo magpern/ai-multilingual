@@ -6,7 +6,8 @@
 **Evidence:** [aseod-evidence/](aseod-evidence/)  
 **Planning freeze on main:** merge `49d1ab1ef`  
 **Planning closure:** `3738c5d5f`  
-**Implementation baseline HEAD:** `3738c5d5f`
+**Implementation baseline HEAD:** `3738c5d5f`  
+**Review-ready feature HEAD:** see git tip of `feature/aseod-opengraph`
 
 **Supported:** SD1, SD2, SD3, SD5, SD6, SD7, SD8, SD11  
 **Partially Supported:** explicit Facebook/Twitter text overrides  
@@ -22,72 +23,92 @@
 | Item | Result |
 |---|---|
 | Plan Architecture Frozen on main | **Pass** (`49d1ab1ef` / closure `3738c5d5f`) |
-| A.SEOa / A.SEOb / A.SEOc Complete | **Pass** (tags present) |
+| A.SEOa / A.SEOb / A.SEOc Complete | **Pass** |
 | TARGET | **6** |
 | SB11 | Present / unchanged |
-| ADR-0001/0002/0007/0008/0013/0016/0017/0018 | Accepted |
-| Rank Math | **1.0.275** active; OpenGraph Facebook + Twitter emitters present |
-| AIML OG/Twitter hooks before A.SEOd | **None** |
-| Live EN page OG | `og:locale=en_US`; language-correct `og:url`; English title (Store coverage dependent) |
-| Live SV page OG | `og:locale=sv_SE`; `/sv/` URL; title still EN when Store SEO translation absent |
-| `og:locale:alternate` | Absent (Rank Math does not emit) |
-| Twitter | Mirrors OG when `twitter_use_facebook` default |
-| Env note | `/sv/` home 301-loop — use non-home SV URLs for acceptance |
-
-### Baseline gates (pre-implementation)
-
-| Gate | Result |
-|---|---|
-| Unit | Recorded at ASEOD.7 |
-| Integration | Recorded at ASEOD.7 |
-| PluginGuard | Recorded at ASEOD.7 |
-| PHPCS | Recorded at ASEOD.7 |
-| `git diff --check` | **PASS** (docs-only baseline commit) |
+| Rank Math | **1.0.275** |
+| Pre-impl AIML OG/Twitter hooks | **None** |
 
 ---
 
 ## ASEOD.1 — Ownership / admission lock
 
-**Status:** Pending
+**Status:** PASS — extended `RankMathIntegration`; fields `facebook_title|facebook_description|twitter_title|twitter_description`; official `rank_math/opengraph/*` seams
 
 ---
 
-## ASEOD.2 — OpenGraph text
+## ASEOD.2 — OpenGraph text (SD1/SD2)
 
-**Status:** Pending
+**Status:** PASS — `HOOK_OG_TITLE` / `HOOK_OG_DESCRIPTION`; reuse A.SEOc SEO identity when Facebook meta empty; Partial explicit Facebook fields extracted
 
----
-
-## ASEOD.3 — URL / locale / alternates
-
-**Status:** Pending
+Live: SV product `bpc-157` → `og:title=BPC-157 forskningspeptid | Biopentra`
 
 ---
 
-## ASEOD.4 — Social images
+## ASEOD.3 — URL / locale / alternates (SD3/SD5/SD6)
 
-**Status:** Deferred (SD4) — no implementation
+**Status:** PASS — `HOOK_OG_URL` / `HOOK_OG_LOCALE` reinforce; `og:locale:alternate` via Facebook action + SB11  
+**Fix:** public social hooks register on default language (`register_public_social_hooks`) so EN emits `sv_SE` alternate
 
----
-
-## ASEOD.5 — Twitter
-
-**Status:** Pending
+Live EN: `og:locale=en_US` + `og:locale:alternate=sv_SE`  
+Live SV: `og:locale=sv_SE` + `og:locale:alternate=en_US`
 
 ---
 
-## ASEOD.6 — Preview / lifecycle
+## ASEOD.4 — Social images (SD4)
 
-**Status:** Pending
+**Status:** Deferred — no implementation (as frozen)
+
+---
+
+## ASEOD.5 — Twitter (SD7/SD8; SD9/SD10 Deferred)
+
+**Status:** PASS — Twitter title/description overlays reuse Facebook/SEO path when `twitter_use_facebook` default; card/image Deferred
+
+---
+
+## ASEOD.6 — Preview / lifecycle (SD11)
+
+**Status:** PASS — SB11 `for_public_request()` excludes preview; inactive Rank Math skips hooks; missing Store → native; never fatal
 
 ---
 
 ## ASEOD.7 — Full acceptance
 
-**Status:** Pending
+**Status:** PASS
+
+| Gate | Result |
+|---|---|
+| Unit | **594** tests / **1610** assertions (2 skipped) |
+| Integration | **574** tests / **12375** assertions (2 skipped) including AseodOpenGraphTest |
+| PluginGuard | **17** / **8972** |
+| PHPCS (touched) | **PASS** (prefix warnings on Rank Math hook names only) |
+| `git diff --check` | **PASS** |
+| Live page EN/SV locale+alternate | **PASS** |
+| Live product SV translated OG title | **PASS** (`bpc-157`) |
+| Hreflang regression | **PASS** |
+| Duplicate `og:title` / `twitter:title` | **1** each (Rank Math only; AIML-added duplicates = **0**) |
+| FP / leakage | **0** / **0** |
+| TARGET / Store schema | **6** / unchanged |
+| SB11 / A.SEOc title hooks | Unchanged |
+| Performance | Observed only — no budgets invented |
+
+Env note: `/sv/` home 301-loop remains (pre-existing); acceptance used non-home SV URLs.
 
 ---
 
 ## ASEOD.8 — Closure
 
-**Status:** Pending
+**Status:** PASS — plan + roadmaps updated for review-ready implementation; not merged/tagged
+
+**Final dispositions (unchanged from freeze):**
+
+| Disposition | IDs |
+|---|---|
+| Supported | SD1, SD2, SD3, SD5, SD6, SD7, SD8, SD11 |
+| Partially Supported | Explicit Facebook/Twitter text overrides |
+| Deferred | SD4, SD9, SD10, SD12 |
+
+**Recommended tag after independent review/merge:** `a-seod-opengraph-complete`
+
+**Next:** Independent review → merge `--no-ff` → tag → then A.SEOe planning decision only.
