@@ -1,6 +1,6 @@
 # A.SEOf — SEO Diagnostics / Validation / Health — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — plan freeze merged to `main`; implementation authorized, not started
+**Status:** **Implementation complete — review-ready** on `feature/aseof-seo-diagnostics` (not merged/tagged)
 **Milestone:** Program A — **A.SEOf** (final wave of A.SEO)
 **Plan freeze:** Evidence-driven admissions SF1–SF15; diagnostics observe A.SEOa–e contracts; no second SEO pipeline; SF13 read-only result model; SF14 thin UI over SF13/SF1; TARGET **6**; Supported = **SF1–SF14**; Partially Supported = **SF15** (advisory); SE11/SD12 remain Deferred upstream
 **ADR assessment:** **No new ADR required** for the Supported set if Implementation stays on read-only diagnostics + SB11 + Integration API v1 + BlockHealth-like bounded scans without persistence/schema/TARGET changes
@@ -9,7 +9,8 @@
 **Dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)
 **Evidence:** [aseof-evidence/](aseof-evidence/)
 **Planning branch:** `feature/aseof-seo-diagnostics-plan`
-**Implementation branch:** create only after this plan freezes on `main` — `feature/aseof-seo-diagnostics`
+**Implementation branch:** `feature/aseof-seo-diagnostics`
+**Validation log:** [ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md](ASEOF_SEO_DIAGNOSTICS_IMPLEMENTATION_VALIDATION_LOG.md)
 **Baseline (plan authoring):** `main` @ `fbc719a78184098e9292aa78f2c90670bda57474`
 **Depends on:** A.SEOa–A.SEOe **Complete** (`a-seoe-sitemaps-complete`); ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; TARGET **6**; SB11
 
@@ -444,3 +445,4 @@ Diagnostics are add-only; rolling back A.SEOf must not remove A.SEOa–e behavio
 | Version | Date | Notes |
 |---|---|---|
 | 0.1 | 2026-08-09 | Planning freeze on `feature/aseof-seo-diagnostics-plan`; baseline `fbc719a78`; SF1–SF15 dispositions frozen for review; SF14 UI rule hard-frozen |
+| 0.2 | 2026-08-09 | Implementation complete — review-ready on `feature/aseof-seo-diagnostics`; validation log PASS; not merged/tagged |
