@@ -1,6 +1,6 @@
 # A.SEOe — XML Sitemaps / Robots / Indexability — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — implementation not started
+**Status:** **Architecture Frozen (planning)** — plan freeze merged to `main`; implementation authorized, not started
 **Milestone:** Program A — **A.SEOe** (fifth wave of A.SEO)
 **Plan freeze:** Evidence-driven admissions SE1–SE12; Rank Math remains foreign sitemap/robots owner when active; AIML overlays via official Rank Math sitemap filters only; SB11 + A.SEOa–d consumed unchanged; TARGET **6**; Supported = **SE1–SE9, SE12**; Deferred = **SE10, SE11**
 **ADR assessment:** **No new ADR required** for the Supported set if Implementation uses Integration API v1 + Rank Math official sitemap filters + SB11 + existing Router/LanguageContext. Do not reopen ADR-0001 / 0002 / 0008 / 0017. Do not change A.SEOa–d contracts.
