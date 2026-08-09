@@ -303,29 +303,58 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 			20
 		);
 
-		add_filter(
-			self::HOOK_OG_URL,
-			function ( $url ) {
-				return $this->reinforce_og_url( $url );
-			},
-			20
-		);
+		// SD3/SD5/SD6 also register via register_public_social_hooks() so they
+		// run on the default language (IntegrationFrontendBridge skips overlays there).
+		$this->register_public_social_hooks();
+	}
 
-		add_filter(
-			self::HOOK_OG_LOCALE,
-			function ( $locale ) {
-				return $this->reinforce_og_locale( $locale );
-			},
-			20
-		);
+	/**
+	 * Register document-level social hooks that must run for every public language.
+	 *
+	 * SD3/SD5/SD6: og:url reinforce, og:locale reinforce, og:locale:alternate.
+	 * Safe on the default language (no Store text overlays).
+	 */
+	public function register_public_social_hooks(): void {
+		if ( ! $this->get_compatibility()->allows_overlay() ) {
+			return;
+		}
 
-		add_action(
-			self::HOOK_OG_FACEBOOK,
-			function ( $opengraph = null ) {
-				$this->emit_locale_alternates( $opengraph );
-			},
-			2
-		);
+		if ( has_filter( self::HOOK_OG_URL, array( $this, 'filter_og_url' ) ) ) {
+			return;
+		}
+
+		add_filter( self::HOOK_OG_URL, array( $this, 'filter_og_url' ), 20 );
+		add_filter( self::HOOK_OG_LOCALE, array( $this, 'filter_og_locale' ), 20 );
+		add_action( self::HOOK_OG_FACEBOOK, array( $this, 'action_emit_locale_alternates' ), 2 );
+	}
+
+	/**
+	 * Filter callback for rank_math/opengraph/url.
+	 *
+	 * @param mixed $url Rank Math URL.
+	 * @return mixed
+	 */
+	public function filter_og_url( $url ) {
+		return $this->reinforce_og_url( $url );
+	}
+
+	/**
+	 * Filter callback for rank_math/opengraph/facebook/og_locale.
+	 *
+	 * @param mixed $locale Rank Math locale.
+	 * @return mixed
+	 */
+	public function filter_og_locale( $locale ) {
+		return $this->reinforce_og_locale( $locale );
+	}
+
+	/**
+	 * Action callback for rank_math/opengraph/facebook locale alternates.
+	 *
+	 * @param mixed $opengraph Rank Math OpenGraph object.
+	 */
+	public function action_emit_locale_alternates( $opengraph = null ): void {
+		$this->emit_locale_alternates( $opengraph );
 	}
 
 	/**

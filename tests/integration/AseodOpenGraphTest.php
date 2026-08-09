@@ -123,7 +123,33 @@ final class AseodOpenGraphTest extends AimlTestCase {
 		);
 		$this->assertContains( 'sv_SE', $locales );
 		$this->assertNotContains( 'de_DE', $locales );
-		$this->assertNotContains( 'en_US', $locales ); // current default skipped
+		$this->assertNotContains( 'en_US', $locales ); // Current default language is skipped.
+	}
+
+	public function test_public_social_hooks_register_on_default_language(): void {
+		$this->add_language( 'sv', 'sv_SE', Languages::STATUS_PUBLISHED );
+		$post = $this->create_page( 'Default Lang Social', 'Body' );
+		$this->route( '/' . $post->post_name . '/' );
+		$this->assertTrue( $this->context->is_default() );
+
+		$integration = $this->make_compatible_integration();
+		$integration->register_public_social_hooks();
+
+		$this->assertNotFalse( has_filter( RankMathIntegration::HOOK_OG_URL ) );
+		$this->assertNotFalse( has_filter( RankMathIntegration::HOOK_OG_LOCALE ) );
+		$this->assertNotFalse( has_action( RankMathIntegration::HOOK_OG_FACEBOOK ) );
+
+		$og = new class() {
+			/** @var list<array{0:string,1:string}> */
+			public array $tags = array();
+			public function tag( string $property, string $content ): bool {
+				$this->tags[] = array( $property, $content );
+				return true;
+			}
+		};
+		do_action( RankMathIntegration::HOOK_OG_FACEBOOK, $og );
+		$locales = array_map( static fn( array $row ): string => $row[1], $og->tags );
+		$this->assertContains( 'sv_SE', $locales );
 	}
 
 	public function test_inactive_rank_math_registers_no_og_hooks(): void {
