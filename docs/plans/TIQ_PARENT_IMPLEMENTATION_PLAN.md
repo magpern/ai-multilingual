@@ -129,10 +129,10 @@ These govern **TQ.0–TI.7** unless a later ADR overturns them:
 
 Subjects under evaluation are distinguished as:
 
-1. `v1.1.0` behavior baseline  
-2. `current-main` harness (and optionally `main@SHA` as translator subject when equivalence is proven)  
-3. future `TI.*` candidate  
-4. comparison results between them  
+1. `v1.1.0` behavior baseline
+2. `current-main` harness (and optionally `main@SHA` as translator subject when equivalence is proven)
+3. future `TI.*` candidate
+4. comparison results between them
 
 Required versioning axes:
 
@@ -160,18 +160,18 @@ Compare subjects only when `C` and scoring methodology version match (or documen
 
 Raw dimension results must remain visible. Aggregate score optional for convenience only.
 
-1. Semantic completeness / meaning preservation  
-2. Terminology correctness  
-3. Glossary compliance  
-4. Hallucination / unsupported additions  
-5. Omission  
-6. HTML / markup preservation  
-7. Placeholder / token preservation  
-8. Numbers / units preservation  
-9. URLs / identifiers / SKU-like protected values  
-10. Language correctness  
-11. Field-appropriate style  
-12. Field-appropriate length / conciseness where relevant  
+1. Semantic completeness / meaning preservation
+2. Terminology correctness
+3. Glossary compliance
+4. Hallucination / unsupported additions
+5. Omission
+6. HTML / markup preservation
+7. Placeholder / token preservation
+8. Numbers / units preservation
+9. URLs / identifiers / SKU-like protected values
+10. Language correctness
+11. Field-appropriate style
+12. Field-appropriate length / conciseness where relevant
 
 Detailed TQ.0 scoring algorithms belong in the TQ.0 plan — not here.
 
@@ -269,41 +269,41 @@ TQ.0 gates claims of improvement for TI.2+. TI.1 may proceed for structural safe
 
 ### TQ.0 exit
 
-- Frozen corpus + versioning rules  
-- Reproducible harness on `main`  
-- Documented dimensions (no opaque sole score)  
-- Documented v1.1.0 baseline results (with equivalence evidence if generated via main)  
-- Rerun / comparison protocol for `v1.1.0` vs `main@SHA` vs `candidate@SHA`  
-- Deterministic harness tests green in normal CI  
-- Live OpenAI path documented as manual / explicit  
+- Frozen corpus + versioning rules
+- Reproducible harness on `main`
+- Documented dimensions (no opaque sole score)
+- Documented v1.1.0 baseline results (with equivalence evidence if generated via main)
+- Rerun / comparison protocol for `v1.1.0` vs `main@SHA` vs `candidate@SHA`
+- Deterministic harness tests green in normal CI
+- Live OpenAI path documented as manual / explicit
 
 ### TI.1 exit
 
-- Machine translation cannot persist structurally invalid admitted content  
-- Jobs and synchronous translation use the same safety path  
-- TQ.0 deterministic regression green  
-- No semantic-quality improvement claim required (and none claimed without TQ.0 compare)  
+- Machine translation cannot persist structurally invalid admitted content
+- Jobs and synchronous translation use the same safety path
+- TQ.0 deterministic regression green
+- No semantic-quality improvement claim required (and none claimed without TQ.0 compare)
 
 ### TI.2+
 
-- Any claimed quality improvement **must** include TQ.0 comparison results (same corpus / methodology version)  
+- Any claimed quality improvement **must** include TQ.0 comparison results (same corpus / methodology version)
 
 ### TI.3
 
-- Report **TM hit / reuse** metrics separately from AI generation quality  
+- Report **TM hit / reuse** metrics separately from AI generation quality
 
 ### TI.4
 
-- Deterministic blocking vs warning policy explicit and tested  
-- Deterministic failures cannot be overridden by an LLM judge  
+- Deterministic blocking vs warning policy explicit and tested
+- Deterministic failures cannot be overridden by an LLM judge
 
 ### TI.5
 
-- No LLM self-confidence percentage as publication authority  
+- No LLM self-confidence percentage as publication authority
 
 ### TI.7
 
-- Cannot start until risk evidence, QA behavior, TM / glossary behavior, and Jobs path are demonstrated sufficiently reliable in prior milestones (TI.1–TI.6 as applicable)  
+- Cannot start until risk evidence, QA behavior, TM / glossary behavior, and Jobs path are demonstrated sufficiently reliable in prior milestones (TI.1–TI.6 as applicable)
 
 ---
 
@@ -311,18 +311,18 @@ TQ.0 gates claims of improvement for TI.2+. TI.1 may proceed for structural safe
 
 Retain Deferred status (do not promote into TQ.0 or TI.1):
 
-- Additional AI providers (historical B.1) until measurement shows product need  
-- Semantic / vector TM until exact / fuzzy TM reuse exploited and measured  
-- Parallel translators (Woo / SEO / Jobs-specific)  
-- Second Store; second TM; second glossary  
-- Coverage-Deferred platform surfaces (translated leaf slugs; social images; SE10/SE11; nested identity research leftovers; full Elementor; render-cache-on; Deferred chrome/email/body work) unless a later product decision reopens them **outside** TIQ  
-- TARGET / schema changes  
-- Normal-CI live OpenAI dependency  
-- Billing platform  
-- GSC / Search Console API automation  
-- Automatic publication before TI.7 prerequisites  
-- Program C Workspace polish as a substitute for quality architecture  
-- Program E ecosystem expansion  
+- Additional AI providers (historical B.1) until measurement shows product need
+- Semantic / vector TM until exact / fuzzy TM reuse exploited and measured
+- Parallel translators (Woo / SEO / Jobs-specific)
+- Second Store; second TM; second glossary
+- Coverage-Deferred platform surfaces (translated leaf slugs; social images; SE10/SE11; nested identity research leftovers; full Elementor; render-cache-on; Deferred chrome/email/body work) unless a later product decision reopens them **outside** TIQ
+- TARGET / schema changes
+- Normal-CI live OpenAI dependency
+- Billing platform
+- GSC / Search Console API automation
+- Automatic publication before TI.7 prerequisites
+- Program C Workspace polish as a substitute for quality architecture
+- Program E ecosystem expansion
 
 ---
 
@@ -369,7 +369,7 @@ Do not create or modify ADRs in the TIQ parent freeze task.
 | Implementation priority / next program | [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md) |
 | Classic M0–M7 / A.SEO status (historical) | [ROADMAP.md](../ROADMAP.md) |
 
-**Next program after v1.1.0 / A.SEO complete:** Translation Intelligence & Quality.  
+**Next program after v1.1.0 / A.SEO complete:** Translation Intelligence & Quality.
 **Next milestone after this program freeze lands on `main`:** TQ.0 definitive planning (Architecture Frozen planning for TQ.0 — separate task).
 
 Historical Program B tables are **not** renumbered or rewritten wholesale by this freeze.
@@ -378,11 +378,11 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 
 ## 16. Explicit non-goals of this freeze
 
-- TQ.0 detailed corpus design  
-- TQ.0 harness implementation  
-- TQ.0 implementation planning branch  
-- TI.1–TI.7 design packages beyond ladder / gates  
-- Production code, tests, schema, TARGET, providers, prompts, TM, glossary, Jobs changes  
+- TQ.0 detailed corpus design
+- TQ.0 harness implementation
+- TQ.0 implementation planning branch
+- TI.1–TI.7 design packages beyond ladder / gates
+- Production code, tests, schema, TARGET, providers, prompts, TM, glossary, Jobs changes
 
 ---
 
