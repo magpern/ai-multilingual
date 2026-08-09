@@ -18,9 +18,9 @@
 
 Acceptance must prove after implementation:
 
-- Single sitemap owner / single index  
-- Valid XML + namespaces  
-- Published-language locs and/or xhtml alternates per admitted SE2/SE3  
-- Preview/noindex excluded  
-- FP=0, leakage=0, duplicate locs/alternates=0  
-- `/sv/` home loop recorded as env debt if it blocks crawling that URL — use non-home SV URLs  
+- Single sitemap owner / single index
+- Valid XML + namespaces
+- Published-language locs and/or xhtml alternates per admitted SE2/SE3
+- Preview/noindex excluded
+- FP=0, leakage=0, duplicate locs/alternates=0
+- `/sv/` home loop recorded as env debt if it blocks crawling that URL — use non-home SV URLs

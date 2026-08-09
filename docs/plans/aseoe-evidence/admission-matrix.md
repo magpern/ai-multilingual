@@ -1,7 +1,7 @@
 # A.SEOe Evidence — Admission Matrix
 
-**Status:** Planning freeze — evidence-driven dispositions  
-**Baseline:** `main` @ `4f1f231ec`  
+**Status:** Planning freeze — evidence-driven dispositions
+**Baseline:** `main` @ `4f1f231ec`
 **Rule:** Every SE1–SE12 item started as **Candidate**. Disposition only after evidence.
 
 ---
@@ -43,7 +43,7 @@
 
 ## Supported set (frozen for implementation authorization)
 
-**Supported:** SE1, SE2, SE3, SE4, SE5, SE6, SE7, SE8, SE9, SE12  
-**Deferred:** SE10, SE11  
+**Supported:** SE1, SE2, SE3, SE4, SE5, SE6, SE7, SE8, SE9, SE12
+**Deferred:** SE10, SE11
 
 Implementation may claim Supported only within the frozen boundaries in the wave plan (Rank Math active path primary; WP core path only if Rank Math sitemap inactive and official `wp_sitemaps` seams suffice — else defer).

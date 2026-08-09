@@ -1,6 +1,6 @@
 # A.SEOe Evidence — Rank Math Analysis
 
-**Version:** 1.0.275  
+**Version:** 1.0.275
 **Modules:** `sitemap` active; `woocommerce` active; `news-sitemap` / `video-sitemap` inactive (PRO stubs)
 
 ---

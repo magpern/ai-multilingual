@@ -2,8 +2,8 @@
 
 ## Automated
 
-- Unit: Rank Math filter overlays; SB11 path→URL mapping; preview exclusion; noindex gate; inactive Rank Math skip  
-- Integration: singular owner; no second provider registration; XML fragment helpers; Woo product/cat; Deferred SE10/SE11 guards  
+- Unit: Rank Math filter overlays; SB11 path→URL mapping; preview exclusion; noindex gate; inactive Rank Math skip
+- Integration: singular owner; no second provider registration; XML fragment helpers; Woo product/cat; Deferred SE10/SE11 guards
 - PluginGuard + PHPCS + `git diff --check`
 
 ## Live (observational)

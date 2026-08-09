@@ -4,10 +4,10 @@
 
 ## Live stack (`/robots.txt`)
 
-1. Cloudflare Managed Content (edge)  
-2. WordPress dynamic `robots_txt`  
-3. WooCommerce upload/add-to-cart Disallows  
-4. Rank Math `Sitemap: https://dev.biopentra.eu/sitemap_index.xml`  
+1. Cloudflare Managed Content (edge)
+2. WordPress dynamic `robots_txt`
+3. WooCommerce upload/add-to-cart Disallows
+4. Rank Math `Sitemap: https://dev.biopentra.eu/sitemap_index.xml`
 5. Rank Math custom `robots_txt_content` = **empty** → “let WordPress handle”
 
 No physical `robots.txt` file on disk.
@@ -29,14 +29,14 @@ No physical `robots.txt` file on disk.
 
 ## Hard principle
 
-AIML must **never** make a source **more** indexable because a translated URL exists.  
+AIML must **never** make a source **more** indexable because a translated URL exists.
 Noindex / unpublished / preview must not become publicly discoverable through AIML sitemap overlays.
 
 ---
 
 ## AIML role (recommended)
 
-- Do **not** replace `robots.txt` body  
-- Preserve Rank Math `Sitemap:` directive ownership  
-- Enforce preview/unpublished/noindex exclusion in sitemap overlays  
-- Do not invent an AIML robots policy engine  
+- Do **not** replace `robots.txt` body
+- Preserve Rank Math `Sitemap:` directive ownership
+- Enforce preview/unpublished/noindex exclusion in sitemap overlays
+- Do not invent an AIML robots policy engine

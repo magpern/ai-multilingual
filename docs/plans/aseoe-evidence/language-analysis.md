@@ -10,10 +10,10 @@
 
 ## Rules
 
-- No URL guessing / path heuristics  
-- No independent language enumeration  
-- Sitemap alternates must not disagree with document hreflang for the same object  
-- `/sv/` home 301-loop is **pre-existing** Router/front-page debt (A.SEOd established); record if it affects crawl validation; do not fix inside A.SEOe  
+- No URL guessing / path heuristics
+- No independent language enumeration
+- Sitemap alternates must not disagree with document hreflang for the same object
+- `/sv/` home 301-loop is **pre-existing** Router/front-page debt (A.SEOd established); record if it affects crawl validation; do not fix inside A.SEOe
 
 ## Live
 

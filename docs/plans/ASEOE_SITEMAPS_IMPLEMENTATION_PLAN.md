@@ -1,16 +1,16 @@
 # A.SEOe — XML Sitemaps / Robots / Indexability — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — implementation not started  
-**Milestone:** Program A — **A.SEOe** (fifth wave of A.SEO)  
-**Plan freeze:** Evidence-driven admissions SE1–SE12; Rank Math remains foreign sitemap/robots owner when active; AIML overlays via official Rank Math sitemap filters only; SB11 + A.SEOa–d consumed unchanged; TARGET **6**; Supported = **SE1–SE9, SE12**; Deferred = **SE10, SE11**  
-**ADR assessment:** **No new ADR required** for the Supported set if Implementation uses Integration API v1 + Rank Math official sitemap filters + SB11 + existing Router/LanguageContext. Do not reopen ADR-0001 / 0002 / 0008 / 0017. Do not change A.SEOa–d contracts.  
-**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.3 / A.SEO family  
-**Parent architecture:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (authoritative; not redesigned)  
-**Dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)  
-**Evidence:** [aseoe-evidence/](aseoe-evidence/)  
-**Planning branch:** `feature/aseoe-sitemaps-plan`  
-**Implementation branch:** create only after this plan freezes on `main` — `feature/aseoe-sitemaps`  
-**Baseline (plan authoring):** `main` @ `4f1f231eca1086db88855d490c536739da69a916`  
+**Status:** **Architecture Frozen (planning)** — implementation not started
+**Milestone:** Program A — **A.SEOe** (fifth wave of A.SEO)
+**Plan freeze:** Evidence-driven admissions SE1–SE12; Rank Math remains foreign sitemap/robots owner when active; AIML overlays via official Rank Math sitemap filters only; SB11 + A.SEOa–d consumed unchanged; TARGET **6**; Supported = **SE1–SE9, SE12**; Deferred = **SE10, SE11**
+**ADR assessment:** **No new ADR required** for the Supported set if Implementation uses Integration API v1 + Rank Math official sitemap filters + SB11 + existing Router/LanguageContext. Do not reopen ADR-0001 / 0002 / 0008 / 0017. Do not change A.SEOa–d contracts.
+**Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — §6.3 / A.SEO family
+**Parent architecture:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (authoritative; not redesigned)
+**Dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)
+**Evidence:** [aseoe-evidence/](aseoe-evidence/)
+**Planning branch:** `feature/aseoe-sitemaps-plan`
+**Implementation branch:** create only after this plan freezes on `main` — `feature/aseoe-sitemaps`
+**Baseline (plan authoring):** `main` @ `4f1f231eca1086db88855d490c536739da69a916`
 **Depends on:** A.SEOa–A.SEOd **Complete** (`a-seod-opengraph-complete`); A.1 / ADR-0017; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; TARGET **6**; SB11
 
 **Operational success (Supported):** When Rank Math sitemap is active, the single Rank Math sitemap index and type sitemaps expose language-correct discovery for published/routable languages via official Rank Math filters and SB11 — including language-aware URLs and/or xhtml:link alternates as admitted — without a second sitemap provider, without XML scraping/post-processing, with preview/noindex/unpublished excluded, and with robots.txt ownership preserved.
@@ -25,17 +25,17 @@ Freeze how AIML cooperates with Rank Math (and WordPress when Rank Math sitemap 
 
 A.SEOe does **not**:
 
-- redesign slugs, canonical, hreflang, or SB11  
-- take ownership of titles, meta descriptions, OpenGraph, or Twitter  
-- implement SEO diagnostics UI (A.SEOf)  
-- invent a reusable sitemap/discovery contract when none exists (SE11)  
-- assume SE candidates are Supported before evidence  
+- redesign slugs, canonical, hreflang, or SB11
+- take ownership of titles, meta descriptions, OpenGraph, or Twitter
+- implement SEO diagnostics UI (A.SEOf)
+- invent a reusable sitemap/discovery contract when none exists (SE11)
+- assume SE candidates are Supported before evidence
 
 A.SEOe **does**:
 
-- inventory sitemap/robots ownership across WP / Woo / Rank Math / AIML  
-- freeze Supported / Deferred / Unsupported for SE1–SE12  
-- define work packages ASEOE.0–ASEOE.8 for the admitted set  
+- inventory sitemap/robots ownership across WP / Woo / Rank Math / AIML
+- freeze Supported / Deferred / Unsupported for SE1–SE12
+- define work packages ASEOE.0–ASEOE.8 for the admitted set
 
 ---
 
@@ -80,11 +80,11 @@ If any precondition regresses before coding: **STOP**.
 
 A.SEOe owns only:
 
-- sitemap integration  
-- sitemap language alternates  
-- sitemap inclusion/exclusion  
-- robots policy honesty (not a new policy engine)  
-- search-engine discovery cooperation  
+- sitemap integration
+- sitemap language alternates
+- sitemap inclusion/exclusion
+- robots policy honesty (not a new policy engine)
+- search-engine discovery cooperation
 
 It must **not** modify: slugs, canonical, hreflang, titles, descriptions, OpenGraph, Twitter, diagnostics.
 
@@ -98,18 +98,18 @@ It must never become an independent sitemap provider unless evidence proves no s
 
 **Priority:**
 
-1. Official Rank Math sitemap APIs (when Rank Math owns emission — **this site**)  
-2. Official WordPress sitemap APIs (when WordPress owns emission)  
-3. Candidate-local deferral  
+1. Official Rank Math sitemap APIs (when Rank Math owns emission — **this site**)
+2. Official WordPress sitemap APIs (when WordPress owns emission)
+3. Candidate-local deferral
 
 **Unsupported:**
 
-- parallel sitemap generator  
-- duplicate sitemap index  
-- XML scraping  
-- sitemap post-processing / buffered rewrite  
-- shadow sitemap registry  
-- second discovery/routing system  
+- parallel sitemap generator
+- duplicate sitemap index
+- XML scraping
+- sitemap post-processing / buffered rewrite
+- shadow sitemap registry
+- second discovery/routing system
 
 ---
 
@@ -117,29 +117,29 @@ It must never become an independent sitemap provider unless evidence proves no s
 
 ### Rank Math owns (when sitemap module active)
 
-- Sitemap index and type sitemap XML emission  
-- Provider registration and pagination  
-- Image namespace population (`include_images`)  
-- `Sitemap:` line in `robots.txt`  
-- Core `wp_sitemaps` disable + redirect  
+- Sitemap index and type sitemap XML emission
+- Provider registration and pagination
+- Image namespace population (`include_images`)
+- `Sitemap:` line in `robots.txt`
+- Core `wp_sitemaps` disable + redirect
 
 ### WordPress / WooCommerce own
 
-- Dynamic `robots.txt` body (when Rank Math custom content empty)  
-- Woo Disallow rules; shop/product data underlying RM providers  
+- Dynamic `robots.txt` body (when Rank Math custom content empty)
+- Woo Disallow rules; shop/product data underlying RM providers
 
 ### AIML owns
 
-- Language-aware overlay of admitted sitemap entry/URL/urlset filters using SB11  
-- Preview / published / noindex honesty gates for discovery overlays  
-- Bounded validation strategy (SE12) — not A.SEOf diagnostics UI  
+- Language-aware overlay of admitted sitemap entry/URL/urlset filters using SB11
+- Preview / published / noindex honesty gates for discovery overlays
+- Bounded validation strategy (SE12) — not A.SEOf diagnostics UI
 
 ### Must not
 
-- Register a competing provider that replaces Rank Math index ownership  
-- Scrape or rewrite Rank Math XML outside official filters  
-- Mutate Media Library for SE10  
-- Make noindex/preview content more discoverable  
+- Register a competing provider that replaces Rank Math index ownership
+- Scrape or rewrite Rank Math XML outside official filters
+- Mutate Media Library for SE10
+- Make noindex/preview content more discoverable
 
 ---
 
@@ -185,11 +185,11 @@ Do not regex XML, buffer-and-rewrite, inject malformed namespaces, or duplicate 
 
 ## 10. Deterministic language discovery policy (SE2/SE3/SE4/SE5)
 
-1. Resolve unprefixed object path/URL from Rank Math entry  
-2. Build SB11 relationships via `for_path(..., false)` (public only)  
-3. Emit xhtml:link alternates (and/or language-prefixed locs per ASEOE.3 freeze detail) for published languages  
-4. Skip preview; skip duplicates; skip cross-language guessing  
-5. Keep document hreflang (A.SEOb) as relationship authority — sitemap must not contradict SB11  
+1. Resolve unprefixed object path/URL from Rank Math entry
+2. Build SB11 relationships via `for_path(..., false)` (public only)
+3. Emit xhtml:link alternates (and/or language-prefixed locs per ASEOE.3 freeze detail) for published languages
+4. Skip preview; skip duplicates; skip cross-language guessing
+5. Keep document hreflang (A.SEOb) as relationship authority — sitemap must not contradict SB11
 
 Exact emission shape (xhtml-only vs locs+xhtml) is finalized in ASEOE.3 against live XML validity and duplicate rules — both must use official filters only.
 
@@ -343,64 +343,64 @@ See [aseoe-evidence/admission-matrix.md](aseoe-evidence/admission-matrix.md).
 
 ## 16. Architectural acceptance criteria
 
-1. TARGET remains **6**.  
-2. Store schema unchanged.  
-3. Integration API v1 unchanged.  
-4. No new identity family.  
-5. Rank Math remains sole sitemap XML owner when module active.  
-6. AIML-added sitemap providers that replace RM index = **0**.  
-7. Duplicate sitemap indexes = **0**.  
-8. No XML scrape / buffered post-processing rewrite.  
-9. No shadow sitemap registry.  
-10. Official Rank Math sitemap hooks only (RM-active path).  
-11. SB11 consumed unchanged.  
-12. A.SEOa URL identity unchanged.  
-13. A.SEOb canonical/hreflang unchanged.  
-14. A.SEOc title/meta unchanged.  
-15. A.SEOd social overlays unchanged.  
-16. SE1 Supported — singular RM generation preserved.  
-17. SE2 Supported — language-aware discovery URLs via official filters.  
-18. SE3 Supported — alternates via official urlset/url seams + SB11.  
-19. SE4 Supported — published/routable only.  
-20. SE5 Supported — preview excluded.  
-21. SE6 Supported — robots stack preserved; no AIML robots engine.  
-22. SE7 Supported — noindex honesty; never more indexable via translation.  
-23. SE8 Supported — overlays without replacing ownership.  
-24. SE9 Supported — product/product_cat without second Woo provider.  
-25. SE10 remains Deferred.  
-26. SE11 remains Deferred — no invented discovery contract.  
-27. SE12 Supported — bounded validation without A.SEOf UI.  
-28. `xmlns:xhtml` only when emitting xhtml:link.  
-29. Image NS left to Rank Math; no multilingual media annexation.  
-30. Video/news PRO modules not claimed.  
-31. Sitemap locs/alternates do not contradict SB11 document relationships.  
-32. Duplicate `<loc>` entries introduced by AIML = **0**.  
-33. Duplicate xhtml alternates = **0**.  
-34. Malformed XML = **0**.  
-35. Duplicate namespace declarations = **0**.  
-36. `Sitemap:` robots directive remains single RM index URL.  
-37. `/wp-sitemap.xml` continues to defer to RM (owner behavior).  
-38. FP = **0**.  
-39. Language leakage = **0**.  
-40. Incorrect alternate locales/URLs = **0**.  
-41. EN↔SV reciprocal discovery where both published.  
-42. Page + product live acceptance.  
-43. product_cat covered when present in index.  
-44. Unit suite green.  
-45. Integration suite green.  
-46. PluginGuard pass.  
-47. PHPCS pass.  
-48. `git diff --check` clean.  
-49. A.SEOf not started.  
-50. Performance observed only — no invented cache subsystem.  
-51. `/sv/` home 301-loop not “fixed” inside A.SEOe; recorded if it affects crawl.  
-52. Rank Math inactive → never fatal.  
-53. Required hook missing → skip surface.  
-54. Integration disabled → native RM/WP.  
-55. Validation log records baseline + final dispositions.  
-56. Roadmap pointers factual — no milestone renumbering.  
-57. Implementation boundary (discovery only) preserved.  
-58. Hard ownership rule preserved.  
+1. TARGET remains **6**.
+2. Store schema unchanged.
+3. Integration API v1 unchanged.
+4. No new identity family.
+5. Rank Math remains sole sitemap XML owner when module active.
+6. AIML-added sitemap providers that replace RM index = **0**.
+7. Duplicate sitemap indexes = **0**.
+8. No XML scrape / buffered post-processing rewrite.
+9. No shadow sitemap registry.
+10. Official Rank Math sitemap hooks only (RM-active path).
+11. SB11 consumed unchanged.
+12. A.SEOa URL identity unchanged.
+13. A.SEOb canonical/hreflang unchanged.
+14. A.SEOc title/meta unchanged.
+15. A.SEOd social overlays unchanged.
+16. SE1 Supported — singular RM generation preserved.
+17. SE2 Supported — language-aware discovery URLs via official filters.
+18. SE3 Supported — alternates via official urlset/url seams + SB11.
+19. SE4 Supported — published/routable only.
+20. SE5 Supported — preview excluded.
+21. SE6 Supported — robots stack preserved; no AIML robots engine.
+22. SE7 Supported — noindex honesty; never more indexable via translation.
+23. SE8 Supported — overlays without replacing ownership.
+24. SE9 Supported — product/product_cat without second Woo provider.
+25. SE10 remains Deferred.
+26. SE11 remains Deferred — no invented discovery contract.
+27. SE12 Supported — bounded validation without A.SEOf UI.
+28. `xmlns:xhtml` only when emitting xhtml:link.
+29. Image NS left to Rank Math; no multilingual media annexation.
+30. Video/news PRO modules not claimed.
+31. Sitemap locs/alternates do not contradict SB11 document relationships.
+32. Duplicate `<loc>` entries introduced by AIML = **0**.
+33. Duplicate xhtml alternates = **0**.
+34. Malformed XML = **0**.
+35. Duplicate namespace declarations = **0**.
+36. `Sitemap:` robots directive remains single RM index URL.
+37. `/wp-sitemap.xml` continues to defer to RM (owner behavior).
+38. FP = **0**.
+39. Language leakage = **0**.
+40. Incorrect alternate locales/URLs = **0**.
+41. EN↔SV reciprocal discovery where both published.
+42. Page + product live acceptance.
+43. product_cat covered when present in index.
+44. Unit suite green.
+45. Integration suite green.
+46. PluginGuard pass.
+47. PHPCS pass.
+48. `git diff --check` clean.
+49. A.SEOf not started.
+50. Performance observed only — no invented cache subsystem.
+51. `/sv/` home 301-loop not “fixed” inside A.SEOe; recorded if it affects crawl.
+52. Rank Math inactive → never fatal.
+53. Required hook missing → skip surface.
+54. Integration disabled → native RM/WP.
+55. Validation log records baseline + final dispositions.
+56. Roadmap pointers factual — no milestone renumbering.
+57. Implementation boundary (discovery only) preserved.
+58. Hard ownership rule preserved.
 
 ---
 
@@ -424,11 +424,11 @@ Do not reopen ADR-0001, 0002, 0008, 0017.
 
 ## 19. Out of scope (reminder)
 
-- A.SEOf diagnostics  
-- SE10/SE11 implementation  
-- Translated leaf slugs / rewrite bases  
-- Fixing pre-existing `/sv/` front-page redirect loop  
-- PRODUCT_PRIORITIES edits unless factual status strictly requires  
+- A.SEOf diagnostics
+- SE10/SE11 implementation
+- Translated leaf slugs / rewrite bases
+- Fixing pre-existing `/sv/` front-page redirect loop
+- PRODUCT_PRIORITIES edits unless factual status strictly requires
 
 ---
 

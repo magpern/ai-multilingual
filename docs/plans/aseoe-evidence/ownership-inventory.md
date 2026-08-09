@@ -1,7 +1,7 @@
 # A.SEOe Evidence — Ownership Inventory
 
-**Status:** Planning freeze evidence  
-**Baseline:** `main` @ `4f1f231ec` (A.SEOd complete)  
+**Status:** Planning freeze evidence
+**Baseline:** `main` @ `4f1f231ec` (A.SEOd complete)
 **Rank Math:** 1.0.275; sitemap module **active**
 
 ---
