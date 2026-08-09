@@ -51,7 +51,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa Complete**; **A.SEOb Complete**; **A.SEOc Complete** (tag `a-seoc-rankmath-complete`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9); next wave **A.SEOd** planning/implementation decision (not started)
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — **A.SEOa Complete**; **A.SEOb Complete**; **A.SEOc Complete** (tag `a-seoc-rankmath-complete`); **A.SEOd** [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [evidence](aseod-evidence/); implementation not started); next: A.SEOd implementation after plan merge
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -287,14 +287,14 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 ### 6.3 Third-party and SEO
 
 - **A.8** — One third-party bridge at a time via A.1 (first: Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md))
-- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); **A.SEOa Complete**; **A.SEOb Complete** (tag `a-seob-canonical-hreflang-complete`; Supported SB1–SB11); **A.SEOc Complete** (tag `a-seoc-rankmath-complete`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9); later waves not started
+- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); **A.SEOa Complete**; **A.SEOb Complete**; **A.SEOc Complete**; **A.SEOd** [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; [evidence](aseod-evidence/); implementation not started); later waves not started
 
 | ID | Wave | Type |
 |---|---|---|
 | A.SEOa | Slugs and permalink translation | Product — [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seoa-slugs-permalinks-complete`; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred; [validation log](ASEOA_SLUGS_PERMALINK_TRANSLATION_VALIDATION_LOG.md); [evidence](aseoa-evidence/)) |
 | A.SEOb | Canonical URLs, hreflang, language relationships | Product — [plan](ASEOB_CANONICAL_HREFLANG_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seob-canonical-hreflang-complete`; Supported SB1–SB11; [validation log](ASEOB_CANONICAL_HREFLANG_VALIDATION_LOG.md); [evidence](aseob-evidence/)) |
 | A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product — [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Complete**; tag `a-seoc-rankmath-complete`; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; [validation log](ASEOC_RANK_MATH_INTEGRATION_VALIDATION_LOG.md); [evidence](aseoc-evidence/)) |
-| A.SEOd | OpenGraph / Twitter / social metadata | Product |
+| A.SEOd | OpenGraph / Twitter / social metadata | Product — [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [evidence](aseod-evidence/); implementation not started) |
 | A.SEOe | XML sitemaps, robots, indexability, discovery | Product |
 | A.SEOf | SEO diagnostics, validation, health, verification | Operational |
 
@@ -502,6 +502,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-09 | A.SEOc Rank Math integration implementation plan linked (**Architecture Frozen (planning)**; Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; SB11 consumed unchanged; [plan](ASEOC_RANK_MATH_INTEGRATION_IMPLEMENTATION_PLAN.md); [evidence](aseoc-evidence/); implementation not started; no milestone renumbering; no A.SEOd) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOc Rank Math integration implementation complete on `feature/aseoc-rankmath` (Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9; validation PASS; not merged/tagged; no A.SEOd) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOc Rank Math integration marked complete/merged/tagged `a-seoc-rankmath-complete` (Supported SC1–SC6/SC10–SC14; Partially Supported SC7–SC9); Next advances to A.SEOd planning/implementation decision only (A.SEOd not started) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOd OpenGraph / Twitter implementation plan linked (**Architecture Frozen (planning)**; Supported SD1–SD3/SD5–SD8/SD11; Partially Supported explicit Facebook/Twitter text; Deferred SD4/SD9/SD10/SD12; [plan](ASEOD_OPENGRAPH_IMPLEMENTATION_PLAN.md); [evidence](aseod-evidence/); implementation not started; no milestone renumbering; no A.SEOe) (no structural change). |
 
 ---
 
