@@ -58,3 +58,22 @@
 **Status:** PASS
 
 Runtime re-check recorded in [aseoa-evidence/implementation-inventory-lock.md](aseoa-evidence/implementation-inventory-lock.md). No material drift vs planning evidence. Supported = SA7/SA10; Deferred unchanged.
+
+---
+
+## ASEOA.2 — SA7 contract tests
+
+**Status:** PASS
+
+- File: `tests/integration/AseoaSa7PermalinkGenerationTest.php`
+- Result: **9** tests / characterizing SA7 (EN unprefixed, SV prefix + source leaf, query/fragment, no double-prefix, REST/admin/login exclusions, post/product source leaf, canonical suppress, no rewrite rules)
+- No translated leaf-slug expectations
+
+---
+
+## ASEOA.3 — SA10 contract tests
+
+**Status:** PASS
+
+- File: `tests/integration/AseoaSa10PreviewUrlsTest.php`
+- Result: **8** tests / characterizing SA10 (authorized preview, default unprefixed, unknown language error, preview not public, capability routable, published unaffected, REST auth, context restore)
