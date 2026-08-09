@@ -1,9 +1,13 @@
 # CI & Release Baseline
 
 **Recovered:** 2026-08-09  
-**Branch:** `fix/ci-release-baseline-recovery`  
+**Status:** **CLOSED** — independently reviewed, merged to `main`, fresh main CI green  
+**Branch:** `fix/ci-release-baseline-recovery` (PR #2)  
 **Baseline main HEAD at recovery start:** `4ed56a9b60edfe1eb8ae4ad75e1629fc03a722d2` (A.SEOf closure)  
-**Schema:** Migrator `TARGET = 6` (unchanged)
+**Merge commit:** `f900a2f1b9522288e04594d8fd3b631b00f44696`  
+**Fresh main CI:** run `31335352770` (phpcs / unit / integration / build all green)  
+**Schema:** Migrator `TARGET = 6` (unchanged)  
+**Version:** remains `1.0.0` — no release tag or GitHub Release created
 
 This document freezes the authoritative green CI/release baseline after the
 A.SEO program. It does not introduce product work.
@@ -169,3 +173,11 @@ This recovery does **not** change translation architecture, Store schema,
 `TARGET`, identity model, Router semantics, SEO behavior, Woo visitor behavior,
 Rank Math behavior, or public API contracts. Changes are test harness, coding
 standards, packaging, and documentation only.
+
+## Closure (2026-08-09)
+
+- Recovery merged to `main` via `--no-ff` (`merge: restore green CI and release baseline`).
+- Fresh post-merge GitHub Actions on `main` fully green (`31335352770`).
+- Release ZIP audit enforced in CI and Release workflows; artifact re-audited from the main run.
+- No `v*` tag created; no GitHub Release published; plugin version remains `1.0.0`.
+- Next step is a separate **release/version decision** from this green baseline — not another product milestone.
