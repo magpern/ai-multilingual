@@ -31,6 +31,7 @@ use AIMultilingual\Jobs\JobsViewModelSerializer;
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
+use AIMultilingual\Admin\SeoDiagnosticsAdminPage;
 use AIMultilingual\Admin\SettingsPage;
 use AIMultilingual\Admin\TranslatorWorkspace;
 use AIMultilingual\Block\AdapterRegistry;
@@ -59,6 +60,7 @@ use AIMultilingual\Elementor\ElementorIdentity;
 use AIMultilingual\Elementor\ElementorOverlayApplier;
 use AIMultilingual\Elementor\ElementorOverlayResolver;
 use AIMultilingual\Frontend\Switcher;
+use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsService;
 use AIMultilingual\Seo\DocumentSeoHead;
 use AIMultilingual\Seo\LanguageRelationshipService;
 use AIMultilingual\Glossary\GlossaryCapabilities;
@@ -476,9 +478,16 @@ final class Plugin {
 
 		$this->register_stale_detection( $extractor, $store );
 
+		$seo_diagnostics = new SeoDiagnosticsService(
+			$relationships,
+			$languages,
+			$rank_math_integration
+		);
+
 		if ( is_admin() ) {
 			( new SettingsPage( $settings, $languages, $vault ) )->register();
 			( new RolloutAdminPage() )->register();
+			( new SeoDiagnosticsAdminPage( $seo_diagnostics ) )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
 			( new TranslatorWorkspace( $languages ) )->register();
 			( new GlossaryAdminPage( $languages ) )->register();
@@ -516,7 +525,7 @@ final class Plugin {
 				new BlockIdentityAnalyzer( $block_registry )
 			);
 
-			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics );
+			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics );
 			RolloutCli::register();
 			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases );
 		}

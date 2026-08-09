@@ -17,6 +17,10 @@ use AIMultilingual\Block\BlockMetricsAggregator;
 use AIMultilingual\Block\BlockMetricsSnapshot;
 use AIMultilingual\Block\BlockMigrationOptions;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsCheck;
+use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsOptions;
+use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsService;
+use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsSnapshot;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use WP_CLI;
@@ -46,6 +50,7 @@ final class Cli {
 	 * @param BlockIdentityMigration $migration Block identity migration service.
 	 * @param BlockHealthService     $health    Block health diagnostics service.
 	 * @param BlockMetricsAggregator $metrics   Request-scoped metrics aggregator.
+	 * @param SeoDiagnosticsService  $seo       SEO diagnostics core (A.SEOf).
 	 */
 	public static function register(
 		Languages $languages,
@@ -54,6 +59,7 @@ final class Cli {
 		BlockIdentityMigration $migration,
 		BlockHealthService $health,
 		BlockMetricsAggregator $metrics,
+		SeoDiagnosticsService $seo,
 	): void {
 		if ( ! class_exists( WP_CLI::class ) ) {
 			return;
@@ -250,6 +256,48 @@ final class Cli {
 					. '  wp aiml block status --source-type=page --source-id=42',
 			)
 		);
+
+		WP_CLI::add_command(
+			'aiml seo status',
+			static function ( array $args, array $assoc ) use ( $seo ): void {
+				self::seo_status( $seo, $assoc );
+			},
+			array(
+				'shortdesc' => 'Reports SEO diagnostics health (read-only; A.SEOf).',
+				'synopsis'  => array(
+					array(
+						'type'        => 'assoc',
+						'name'        => 'doc-path',
+						'optional'    => true,
+						'description' => 'Unprefixed document path for SB11 contract checks (default /). Avoids WP-CLI --path.',
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'check-url',
+						'optional'    => true,
+						'description' => 'Absolute URL for bounded HTTP emission checks (not WP-CLI --url).',
+					),
+					array(
+						'type'        => 'flag',
+						'name'        => 'no-http',
+						'optional'    => true,
+						'description' => 'Skip bounded HTTP redirect/title checks.',
+					),
+					array(
+						'type'        => 'assoc',
+						'name'        => 'format',
+						'optional'    => true,
+						'options'     => array( 'table', 'json' ),
+						'description' => 'Output format. Defaults to table.',
+					),
+				),
+				'longdesc'  => "Examples:\n"
+					. "  wp aiml seo status\n"
+					. "  wp aiml seo status --doc-path=/ --check-url=https://example.com/sv/\n"
+					. "  wp aiml seo status --doc-path=/product/sample/ --format=json\n"
+					. '  wp aiml seo status --no-http --format=json',
+			)
+		);
 	}
 
 	/**
@@ -279,6 +327,72 @@ final class Cli {
 	}
 
 	// -- Commands --
+
+	/**
+	 * Runs A.SEOf SEO diagnostics (shared SF13 core).
+	 *
+	 * @param SeoDiagnosticsService $seo   SEO diagnostics service.
+	 * @param array<string, mixed>  $assoc Associative arguments.
+	 */
+	private static function seo_status( SeoDiagnosticsService $seo, array $assoc ): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			WP_CLI::error( 'SEO status requires the manage_options capability.' );
+		}
+
+		$format = (string) ( $assoc['format'] ?? 'table' );
+		if ( ! in_array( $format, array( 'table', 'json' ), true ) ) {
+			WP_CLI::error( 'Unsupported --format value. Use table or json.' );
+		}
+
+		$options  = new SeoDiagnosticsOptions(
+			url: isset( $assoc['check-url'] ) ? (string) $assoc['check-url'] : '',
+			path: isset( $assoc['doc-path'] ) ? (string) $assoc['doc-path'] : '/',
+			include_http: empty( $assoc['no-http'] ),
+		);
+		$snapshot = $seo->scan( $options );
+
+		if ( 'json' === $format ) {
+			// Use line + wp_json_encode (not print_value) to avoid WP-CLI
+			// formatter collisions observed with `seo status --format=json`.
+			WP_CLI::line( (string) wp_json_encode( $snapshot->to_array() ) );
+			return;
+		}
+
+		self::render_seo_status_table( $snapshot );
+	}
+
+	/**
+	 * Prints operator-focused SEO diagnostics table output.
+	 *
+	 * @param SeoDiagnosticsSnapshot $snapshot SF13 snapshot.
+	 */
+	private static function render_seo_status_table( SeoDiagnosticsSnapshot $snapshot ): void {
+		WP_CLI::log( 'SEO diagnostics (model ' . $snapshot->to_array()['model'] . ')' );
+		WP_CLI::log( 'generated: ' . $snapshot->generated_at );
+		WP_CLI::log( 'path: ' . $snapshot->scope_path );
+		WP_CLI::log( 'url: ' . $snapshot->scope_url );
+		WP_CLI::log( 'http_fetches: ' . (string) $snapshot->http_fetches );
+		WP_CLI::log( 'elapsed_ms: ' . (string) $snapshot->elapsed_ms );
+		if ( $snapshot->limitations ) {
+			WP_CLI::log( 'limitations: ' . implode( ', ', $snapshot->limitations ) );
+		}
+
+		$rows = array();
+		foreach ( $snapshot->checks as $check ) {
+			if ( ! $check instanceof SeoDiagnosticsCheck ) {
+				continue;
+			}
+			$rows[] = array(
+				'id'        => $check->id,
+				'status'    => $check->status,
+				'ownership' => $check->ownership,
+				'code'      => $check->code,
+				'message'   => $check->message,
+			);
+		}
+
+		WP_CLI\Utils\format_items( 'table', $rows, array( 'id', 'status', 'ownership', 'code', 'message' ) );
+	}
 
 	/**
 	 * Runs Strategy F block health diagnostics.
