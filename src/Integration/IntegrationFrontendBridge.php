@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Integration;
 
+use AIMultilingual\Integration\RankMath\RankMathIntegration;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Settings;
 use AIMultilingual\Translation\Store;
@@ -49,7 +50,19 @@ final class IntegrationFrontendBridge {
 	 * Attach overlay hooks once the main query is available.
 	 */
 	public function on_wp(): void {
-		if ( is_admin() || $this->context->is_default() ) {
+		if ( is_admin() ) {
+			return;
+		}
+
+		// A.SEOd SD3/SD5/SD6: public social document hooks must run on every
+		// published language, including the site default (locale alternates).
+		foreach ( $this->registry->all() as $integration ) {
+			if ( $integration instanceof RankMathIntegration ) {
+				$integration->register_public_social_hooks();
+			}
+		}
+
+		if ( $this->context->is_default() ) {
 			return;
 		}
 

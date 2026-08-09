@@ -23,10 +23,11 @@ use WP_Post;
 use WP_Term;
 
 /**
- * Rank Math title/description/schema cooperation without annexing Rank Math meta.
+ * Rank Math title/description/schema + OpenGraph/Twitter cooperation.
  *
- * Supported: SC1–SC6, SC10–SC14. Partially Supported: SC7–SC9.
- * Consumes SB11 unchanged. Official Rank Math filters only.
+ * A.SEOc Supported: SC1–SC6, SC10–SC14. Partially Supported: SC7–SC9.
+ * A.SEOd Supported: SD1–SD3, SD5–SD8, SD11. Partially Supported: explicit FB/Twitter text.
+ * Consumes SB11 unchanged. Official Rank Math filters/actions only.
  */
 final class RankMathIntegration implements PluginIntegrationInterface {
 
@@ -40,9 +41,27 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 
 	public const META_DESCRIPTION = 'rank_math_description';
 
+	public const META_FACEBOOK_TITLE = 'rank_math_facebook_title';
+
+	public const META_FACEBOOK_DESCRIPTION = 'rank_math_facebook_description';
+
+	public const META_TWITTER_TITLE = 'rank_math_twitter_title';
+
+	public const META_TWITTER_DESCRIPTION = 'rank_math_twitter_description';
+
+	public const META_TWITTER_USE_FACEBOOK = 'rank_math_twitter_use_facebook';
+
 	public const FIELD_TITLE = 'title';
 
 	public const FIELD_DESCRIPTION = 'description';
+
+	public const FIELD_FACEBOOK_TITLE = 'facebook_title';
+
+	public const FIELD_FACEBOOK_DESCRIPTION = 'facebook_description';
+
+	public const FIELD_TWITTER_TITLE = 'twitter_title';
+
+	public const FIELD_TWITTER_DESCRIPTION = 'twitter_description';
 
 	public const OWNER_POST = 'post';
 
@@ -55,6 +74,20 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	public const HOOK_REPLACEMENTS = 'rank_math/replacements';
 
 	public const HOOK_SCHEMA_ENTITY = 'rank_math/snippet/rich_snippet_entity';
+
+	public const HOOK_OG_FACEBOOK = 'rank_math/opengraph/facebook';
+
+	public const HOOK_OG_TITLE = 'rank_math/opengraph/facebook/og_title';
+
+	public const HOOK_OG_DESCRIPTION = 'rank_math/opengraph/facebook/og_description';
+
+	public const HOOK_OG_LOCALE = 'rank_math/opengraph/facebook/og_locale';
+
+	public const HOOK_OG_URL = 'rank_math/opengraph/url';
+
+	public const HOOK_TWITTER_TITLE = 'rank_math/opengraph/twitter/twitter_title';
+
+	public const HOOK_TWITTER_DESCRIPTION = 'rank_math/opengraph/twitter/twitter_description';
 
 	/**
 	 * Taxonomies admitted for SC5/SC6 explicit Rank Math term fields.
@@ -183,7 +216,7 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Register Rank Math frontend/schema/token cooperation hooks.
+	 * Register Rank Math frontend/schema/token/OpenGraph/Twitter cooperation hooks.
 	 *
 	 * @param callable(string): (?string) $resolve Segment key → translated text.
 	 */
@@ -224,6 +257,104 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 			},
 			20
 		);
+
+		// A.SEOd — OpenGraph / Twitter (official Rank Math seams only).
+		add_filter(
+			self::HOOK_OG_TITLE,
+			function ( $title ) use ( $resolve ) {
+				return $this->overlay_social_text(
+					$title,
+					$resolve,
+					self::FIELD_FACEBOOK_TITLE,
+					self::META_FACEBOOK_TITLE,
+					self::FIELD_TITLE
+				);
+			},
+			20
+		);
+
+		add_filter(
+			self::HOOK_OG_DESCRIPTION,
+			function ( $description ) use ( $resolve ) {
+				return $this->overlay_social_text(
+					$description,
+					$resolve,
+					self::FIELD_FACEBOOK_DESCRIPTION,
+					self::META_FACEBOOK_DESCRIPTION,
+					self::FIELD_DESCRIPTION
+				);
+			},
+			20
+		);
+
+		add_filter(
+			self::HOOK_TWITTER_TITLE,
+			function ( $title ) use ( $resolve ) {
+				return $this->overlay_twitter_text( $title, $resolve, self::FIELD_TITLE, self::FIELD_FACEBOOK_TITLE, self::META_FACEBOOK_TITLE, self::FIELD_TWITTER_TITLE, self::META_TWITTER_TITLE );
+			},
+			20
+		);
+
+		add_filter(
+			self::HOOK_TWITTER_DESCRIPTION,
+			function ( $description ) use ( $resolve ) {
+				return $this->overlay_twitter_text( $description, $resolve, self::FIELD_DESCRIPTION, self::FIELD_FACEBOOK_DESCRIPTION, self::META_FACEBOOK_DESCRIPTION, self::FIELD_TWITTER_DESCRIPTION, self::META_TWITTER_DESCRIPTION );
+			},
+			20
+		);
+
+		// SD3/SD5/SD6 also register via register_public_social_hooks() so they
+		// run on the default language (IntegrationFrontendBridge skips overlays there).
+		$this->register_public_social_hooks();
+	}
+
+	/**
+	 * Register document-level social hooks that must run for every public language.
+	 *
+	 * SD3/SD5/SD6: og:url reinforce, og:locale reinforce, og:locale:alternate.
+	 * Safe on the default language (no Store text overlays).
+	 */
+	public function register_public_social_hooks(): void {
+		if ( ! $this->get_compatibility()->allows_overlay() ) {
+			return;
+		}
+
+		if ( has_filter( self::HOOK_OG_URL, array( $this, 'filter_og_url' ) ) ) {
+			return;
+		}
+
+		add_filter( self::HOOK_OG_URL, array( $this, 'filter_og_url' ), 20 );
+		add_filter( self::HOOK_OG_LOCALE, array( $this, 'filter_og_locale' ), 20 );
+		add_action( self::HOOK_OG_FACEBOOK, array( $this, 'action_emit_locale_alternates' ), 2 );
+	}
+
+	/**
+	 * Filter callback for rank_math/opengraph/url.
+	 *
+	 * @param mixed $url Rank Math URL.
+	 * @return mixed
+	 */
+	public function filter_og_url( $url ) {
+		return $this->reinforce_og_url( $url );
+	}
+
+	/**
+	 * Filter callback for rank_math/opengraph/facebook/og_locale.
+	 *
+	 * @param mixed $locale Rank Math locale.
+	 * @return mixed
+	 */
+	public function filter_og_locale( $locale ) {
+		return $this->reinforce_og_locale( $locale );
+	}
+
+	/**
+	 * Action callback for rank_math/opengraph/facebook locale alternates.
+	 *
+	 * @param mixed $opengraph Rank Math OpenGraph object.
+	 */
+	public function action_emit_locale_alternates( $opengraph = null ): void {
+		$this->emit_locale_alternates( $opengraph );
 	}
 
 	/**
@@ -326,6 +457,31 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 			}
 		}
 
+		foreach (
+			array(
+				array( self::META_FACEBOOK_TITLE, self::FIELD_FACEBOOK_TITLE, 'Rank Math Facebook title' ),
+				array( self::META_FACEBOOK_DESCRIPTION, self::FIELD_FACEBOOK_DESCRIPTION, 'Rank Math Facebook description' ),
+				array( self::META_TWITTER_TITLE, self::FIELD_TWITTER_TITLE, 'Rank Math Twitter title' ),
+				array( self::META_TWITTER_DESCRIPTION, self::FIELD_TWITTER_DESCRIPTION, 'Rank Math Twitter description' ),
+			) as $social
+		) {
+			$raw = $this->read_post_meta( $post_id, $social[0] );
+			if ( ! self::is_literal_seo_field( $raw ) ) {
+				continue;
+			}
+			$unit = $this->make_unit(
+				self::OWNER_POST,
+				(string) $post_id,
+				$social[1],
+				$raw,
+				$social[2],
+				(string) $post->post_type
+			);
+			if ( null !== $unit ) {
+				$units[] = $unit;
+			}
+		}
+
 		return $units;
 	}
 
@@ -386,6 +542,31 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 						self::FIELD_DESCRIPTION,
 						$description,
 						'Rank Math term SEO description',
+						$taxonomy
+					);
+					if ( null !== $unit ) {
+						$units[] = $unit;
+					}
+				}
+
+				foreach (
+					array(
+						array( self::META_FACEBOOK_TITLE, self::FIELD_FACEBOOK_TITLE, 'Rank Math term Facebook title' ),
+						array( self::META_FACEBOOK_DESCRIPTION, self::FIELD_FACEBOOK_DESCRIPTION, 'Rank Math term Facebook description' ),
+						array( self::META_TWITTER_TITLE, self::FIELD_TWITTER_TITLE, 'Rank Math term Twitter title' ),
+						array( self::META_TWITTER_DESCRIPTION, self::FIELD_TWITTER_DESCRIPTION, 'Rank Math term Twitter description' ),
+					) as $social
+				) {
+					$raw = $this->read_term_meta( $term_id, $social[0] );
+					if ( ! self::is_literal_seo_field( $raw ) ) {
+						continue;
+					}
+					$unit = $this->make_unit(
+						self::OWNER_TERM,
+						(string) $term_id,
+						$social[1],
+						$raw,
+						$social[2],
 						$taxonomy
 					);
 					if ( null !== $unit ) {
@@ -479,6 +660,184 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 		}
 
 		return IntegrationSecurity::sanitize_plain( $translated );
+	}
+
+	/**
+	 * Overlay OpenGraph text: explicit Facebook field first, else A.SEOc SEO identity.
+	 *
+	 * @param mixed                       $value          Rank Math tag content.
+	 * @param callable(string): (?string) $resolve        Resolver.
+	 * @param string                      $social_field   PluginIdentity social field.
+	 * @param string                      $social_meta    Rank Math social meta key.
+	 * @param string                      $seo_field      title|description fallback.
+	 * @return mixed
+	 */
+	private function overlay_social_text( $value, callable $resolve, string $social_field, string $social_meta, string $seo_field ) {
+		if ( ! is_string( $value ) ) {
+			return $value;
+		}
+
+		$key = $this->current_social_segment_key( $social_field, $social_meta );
+		if ( null !== $key ) {
+			$translated = $resolve( $key );
+			if ( null !== $translated && '' !== $translated ) {
+				return IntegrationSecurity::sanitize_plain( $translated );
+			}
+		}
+
+		return $this->overlay_frontend_string( $value, $seo_field, $resolve );
+	}
+
+	/**
+	 * Overlay Twitter text respecting Rank Math facebook-reuse default.
+	 *
+	 * @param mixed                       $value            Tag content.
+	 * @param callable(string): (?string) $resolve          Resolver.
+	 * @param string                      $seo_field        SEO fallback field.
+	 * @param string                      $facebook_field   Facebook identity field.
+	 * @param string                      $facebook_meta    Facebook meta key.
+	 * @param string                      $twitter_field    Twitter identity field.
+	 * @param string                      $twitter_meta     Twitter meta key.
+	 * @return mixed
+	 */
+	private function overlay_twitter_text(
+		$value,
+		callable $resolve,
+		string $seo_field,
+		string $facebook_field,
+		string $facebook_meta,
+		string $twitter_field,
+		string $twitter_meta
+	) {
+		if ( ! is_string( $value ) ) {
+			return $value;
+		}
+
+		if ( $this->current_twitter_uses_facebook() ) {
+			return $this->overlay_social_text( $value, $resolve, $facebook_field, $facebook_meta, $seo_field );
+		}
+
+		return $this->overlay_social_text( $value, $resolve, $twitter_field, $twitter_meta, $seo_field );
+	}
+
+	/**
+	 * Reinforce og:url with SB11 current public absolute URL when available.
+	 *
+	 * @param mixed $url Rank Math URL.
+	 * @return mixed
+	 */
+	private function reinforce_og_url( $url ) {
+		if ( null === $this->relationships ) {
+			return $url;
+		}
+		$current = $this->relationships->current_public();
+		if ( null === $current || '' === $current->url ) {
+			return $url;
+		}
+		return $current->url;
+	}
+
+	/**
+	 * Reinforce og:locale from LanguageContext locale (Facebook underscore form).
+	 *
+	 * @param mixed $locale Rank Math locale.
+	 * @return mixed
+	 */
+	private function reinforce_og_locale( $locale ) {
+		$language = $this->context->current();
+		if ( null === $language ) {
+			return $locale;
+		}
+		$candidate = str_replace( '-', '_', (string) ( $language->locale ?? '' ) );
+		if ( '' === $candidate ) {
+			return $locale;
+		}
+		return $candidate;
+	}
+
+	/**
+	 * Emit og:locale:alternate for published SB11 languages except current (SD6/SD11).
+	 *
+	 * @param mixed $opengraph Rank Math OpenGraph network object.
+	 */
+	private function emit_locale_alternates( $opengraph ): void {
+		if ( null === $this->relationships || ! is_object( $opengraph ) || ! method_exists( $opengraph, 'tag' ) ) {
+			return;
+		}
+
+		$seen = array();
+		foreach ( $this->relationships->for_public_request() as $rel ) {
+			if ( $rel->is_current ) {
+				continue;
+			}
+			$fb_locale = str_replace( '-', '_', $rel->hreflang );
+			if ( '' === $fb_locale || isset( $seen[ $fb_locale ] ) ) {
+				continue;
+			}
+			$seen[ $fb_locale ] = true;
+			$opengraph->tag( 'og:locale:alternate', $fb_locale );
+		}
+	}
+
+	/**
+	 * Whether Twitter should reuse Facebook meta (Rank Math default true when empty).
+	 */
+	private function current_twitter_uses_facebook(): bool {
+		$obj = function_exists( 'get_queried_object' ) ? get_queried_object() : null;
+		$raw = '';
+		if ( $obj instanceof WP_Post ) {
+			$raw = $this->read_post_meta( (int) $obj->ID, self::META_TWITTER_USE_FACEBOOK );
+		} elseif ( $obj instanceof WP_Term || ( is_object( $obj ) && isset( $obj->term_id ) ) ) {
+			$raw = $this->read_term_meta( (int) $obj->term_id, self::META_TWITTER_USE_FACEBOOK );
+		}
+
+		if ( '' === $raw ) {
+			return true;
+		}
+
+		$normalized = strtolower( trim( $raw ) );
+		return ! in_array( $normalized, array( '0', 'off', 'false', 'no' ), true );
+	}
+
+	/**
+	 * Segment key for an explicit social meta field when literal meta is present.
+	 *
+	 * @param string $field    PluginIdentity field.
+	 * @param string $meta_key Rank Math meta key.
+	 */
+	private function current_social_segment_key( string $field, string $meta_key ): ?string {
+		$obj = function_exists( 'get_queried_object' ) ? get_queried_object() : null;
+
+		if ( $obj instanceof WP_Post ) {
+			$raw = $this->read_post_meta( (int) $obj->ID, $meta_key );
+			if ( ! self::is_literal_seo_field( $raw ) ) {
+				return null;
+			}
+			try {
+				return $this->build_key( self::OWNER_POST, (string) (int) $obj->ID, $field );
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return null;
+			}
+		}
+
+		if ( $obj instanceof WP_Term || ( is_object( $obj ) && isset( $obj->term_id, $obj->taxonomy ) ) ) {
+			$term_id  = (int) $obj->term_id;
+			$taxonomy = (string) $obj->taxonomy;
+			if ( $term_id <= 0 || ! in_array( $taxonomy, self::TERM_TAXONOMIES, true ) ) {
+				return null;
+			}
+			$raw = $this->read_term_meta( $term_id, $meta_key );
+			if ( ! self::is_literal_seo_field( $raw ) ) {
+				return null;
+			}
+			try {
+				return $this->build_key( self::OWNER_TERM, (string) $term_id, $field );
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return null;
+			}
+		}
+
+		return null;
 	}
 
 	/**
