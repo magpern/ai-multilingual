@@ -81,6 +81,7 @@ Do **not** claim these as shipped:
 | Elementor body translation; nested container block identity | Carry-forward platform limits |
 | A.7c Deferred CJ1/CJ2/CJ5; A.7d Deferred CE7/CE8 (+ body gettext etc.) | A.7c / A.7d validation logs |
 | A.6 Deferred widget/theme chrome (D1/D2 etc.) | A.6 validation log |
+| Host WP-CLI `wp aiml seo status` “restful” conflict | Observed on WP-CLI 2.12 / PHP 8.4; help + service scan still work |
 
 ## Upgrade / schema
 
