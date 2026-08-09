@@ -51,7 +51,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — next product priority after A.6
+- **A.SEO** ([parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); waves A.SEOa–A.SEOf) — next product priority after A.6; **A.SEOa** implementation complete on `feature/aseoa-slugs-permalinks` (Supported SA7/SA10; ready for independent review; not merged/tagged)
 - Early **B.1** additional providers
 - Early **C.1–C.3** Workspace productivity
 - Early **D.1** unified health/diagnostics
@@ -287,11 +287,11 @@ Waves may slip across minors; the family definition is stable. Third-party comme
 ### 6.3 Third-party and SEO
 
 - **A.8** — One third-party bridge at a time via A.1 (first: Fluent Forms Contact Form #5 — [plan](A8_FLUENTFORMS_CONTACT_INTEGRATION_IMPLEMENTATION_PLAN.md))
-- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); implementation not started
+- **A.SEO** — Late, low coupling to editor identity work — [parent plan](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; waves **A.SEOa–A.SEOf**); [dependency matrix](A_SEO_DEPENDENCY_MATRIX.md); **A.SEOa** implementation complete on feature branch (not merged/tagged); later waves not started
 
 | ID | Wave | Type |
 |---|---|---|
-| A.SEOa | Slugs and permalink translation | Product — [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; freeze merged to `main`; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred pending ADR gates; [evidence](aseoa-evidence/); implementation authorized for SA7/SA10 only, not started) |
+| A.SEOa | Slugs and permalink translation | Product — [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md) (**Implementation Complete — Ready for Independent Review** on `feature/aseoa-slugs-permalinks`; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred; [validation log](ASEOA_SLUGS_PERMALINK_TRANSLATION_VALIDATION_LOG.md); [evidence](aseoa-evidence/); not merged/tagged; recommended tag `a-seoa-slugs-permalinks-complete`) |
 | A.SEOb | Canonical URLs, hreflang, language relationships | Product |
 | A.SEOc | Rank Math integration (titles, meta, schema cooperation) | Product |
 | A.SEOd | OpenGraph / Twitter / social metadata | Product |
@@ -493,6 +493,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-08 | A.6 WordPress Visitor Chrome marked complete/merged/tagged `a6-wordpress-visitor-chrome-complete` (Supported N1; Deferred D1–D20 unchanged); Next advances to A.SEO planning/implementation decision (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOa Slugs & Permalink Translation implementation plan linked (**Architecture Frozen (planning)**; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred pending ADR gates; [plan](ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md); [evidence](aseoa-evidence/); implementation not started; no milestone renumbering) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOa Slugs & Permalink Translation plan freeze merged to `main` (**Architecture Frozen (planning)**; Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred; implementation authorized for SA7/SA10 only, not started; no tag; no impl branch; no A.SEOb) (no structural change). |
+| v1.0 (editorial) | 2026-08-09 | A.SEOa Slugs & Permalink Translation implementation complete on `feature/aseoa-slugs-permalinks` (Supported SA7/SA10; SA1–SA6/SA8–SA9 Deferred unchanged; ASEOA.4/ASEOA.5 production no-op; validation PASS; not merged/tagged; no A.SEOb) (no structural change). |
 
 ---
 

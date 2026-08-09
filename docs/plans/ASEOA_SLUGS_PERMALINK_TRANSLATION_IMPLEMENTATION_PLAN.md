@@ -1,6 +1,6 @@
 # A.SEOa — Slugs & Permalink Translation — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — freeze merged to `main`; implementation authorized for SA7/SA10 only; not started
+**Status:** **Implementation Complete — Ready for Independent Review** — on `feature/aseoa-slugs-permalinks`; Supported SA7/SA10; **not** merged / **not** tagged
 **Milestone:** Program A — **A.SEOa** (first wave of A.SEO)
 **Plan freeze:** Evidence-driven admissions SA1–SA10; ADR-0002 prefix-strip preserved; translated rewrite bases Deferred; no URL-history DB / redirect registry / second router; TARGET **6**; Supported = **SA7**, **SA10** only
 **ADR assessment:** **No new ADR required** for the Supported set (SA7/SA10). Focused ADRs are **required before** any future Support of SA1–SA6/SA8/SA9 (see §8). Do not silently reopen ADR-0002.
@@ -8,14 +8,16 @@
 **Parent architecture:** [ASEO_PARENT_IMPLEMENTATION_PLAN.md](ASEO_PARENT_IMPLEMENTATION_PLAN.md) (authoritative; not redesigned)
 **Dependency matrix:** [A_SEO_DEPENDENCY_MATRIX.md](A_SEO_DEPENDENCY_MATRIX.md)
 **Evidence:** [aseoa-evidence/](aseoa-evidence/)
+**Validation log:** [ASEOA_SLUGS_PERMALINK_TRANSLATION_VALIDATION_LOG.md](ASEOA_SLUGS_PERMALINK_TRANSLATION_VALIDATION_LOG.md)
 **Planning branch:** `feature/aseoa-slugs-permalinks-plan` (merged)
-**Implementation branch:** create only after this plan freezes on `main` — `feature/aseoa-slugs-permalinks`
+**Implementation branch:** `feature/aseoa-slugs-permalinks`
+**Implementation baseline:** `main` @ `b42d9ccb885822c42d3a99e7805d65ba25b93ecd`
 **Baseline (plan authoring):** `main` @ `d8375f37abb6e5ce337a866ebd07dd5f960677e3`
 **Depends on:** A.SEO parent freeze on `main`; ADR-0001 / 0002 / 0007 / 0008 / 0013 / 0016 / 0017 / 0018 **Accepted**; Integration API v1; TARGET **6**
 
-**Operational success (this freeze):** Language-aware permalink generation and preview URL routing remain correct under ADR-0002/0008 without inventing translated leaf-slug resolution, rewrite-base translation, or a URL-history subsystem. Deferred candidates stay Deferred until focused ADRs land.
+**Operational success (Supported):** Language-aware permalink generation (SA7) and preview URL routing (SA10) satisfy ADR-0002/0008 via existing Router / PreviewService / LanguageResolver — ASEOA.4/ASEOA.5 **no-op PASS** (no production `src/` delta). Deferred candidates stay Deferred until focused ADRs land.
 
-**This plan is the frozen implementation contract for A.SEOa.** Do not implement production code on the planning branch. Do not widen Supported admissions without new evidence + ADR where gated.
+**This plan remains the frozen implementation contract for A.SEOa.** Do not widen Supported admissions without new evidence + ADR where gated. Do not open A.SEOb until this wave is independently reviewed, merged, tagged, and closed.
 
 ---
 
@@ -393,10 +395,10 @@ Commit after each package on the implementation branch. Planning branch is docs-
 
 ## 15. Architecture verdict
 
-**Architecture Frozen (planning).**
+**Implementation Complete — Ready for Independent Review.**
 
-Supported set {SA7, SA10} is implementable inside existing contracts.
-End-to-end translated leaf slugs and historical redirects are **honestly Deferred** with explicit ADR gates — not silently Supported.
+Supported set {SA7, SA10} is satisfied inside existing contracts (characterization + live acceptance; production no-op for SA7/SA10 hardening).
+End-to-end translated leaf slugs and historical redirects remain **honestly Deferred** with explicit ADR gates — not silently Supported.
 
 ---
 
@@ -406,5 +408,8 @@ End-to-end translated leaf slugs and historical redirects are **honestly Deferre
 |---|---|
 | Canonical path | `docs/plans/ASEOA_SLUGS_PERMALINK_TRANSLATION_IMPLEMENTATION_PLAN.md` |
 | Evidence | `docs/plans/aseoa-evidence/` |
-| Planning branch | `feature/aseoa-slugs-permalinks-plan` |
-| Implementation | Not started |
+| Validation log | `docs/plans/ASEOA_SLUGS_PERMALINK_TRANSLATION_VALIDATION_LOG.md` |
+| Planning branch | `feature/aseoa-slugs-permalinks-plan` (merged) |
+| Implementation branch | `feature/aseoa-slugs-permalinks` |
+| Implementation baseline | `b42d9ccb885822c42d3a99e7805d65ba25b93ecd` |
+| Merge / tag | Not yet — independent review required; recommended tag `a-seoa-slugs-permalinks-complete` |
