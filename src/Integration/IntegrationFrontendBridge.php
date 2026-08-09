@@ -56,9 +56,12 @@ final class IntegrationFrontendBridge {
 
 		// A.SEOd SD3/SD5/SD6: public social document hooks must run on every
 		// published language, including the site default (locale alternates).
+		// A.SEOe sitemap hooks are registered at Plugin boot (parse_query timing);
+		// re-call here is idempotent.
 		foreach ( $this->registry->all() as $integration ) {
 			if ( $integration instanceof RankMathIntegration ) {
 				$integration->register_public_social_hooks();
+				$integration->register_sitemap_hooks();
 			}
 		}
 

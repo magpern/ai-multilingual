@@ -23,10 +23,11 @@ use WP_Post;
 use WP_Term;
 
 /**
- * Rank Math title/description/schema + OpenGraph/Twitter cooperation.
+ * Rank Math title/description/schema + OpenGraph/Twitter + sitemap cooperation.
  *
  * A.SEOc Supported: SC1–SC6, SC10–SC14. Partially Supported: SC7–SC9.
  * A.SEOd Supported: SD1–SD3, SD5–SD8, SD11. Partially Supported: explicit FB/Twitter text.
+ * A.SEOe Supported: SE1–SE9, SE12. Deferred: SE10, SE11.
  * Consumes SB11 unchanged. Official Rank Math filters/actions only.
  */
 final class RankMathIntegration implements PluginIntegrationInterface {
@@ -109,6 +110,13 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	 * @param bool|null                        $disabled      Test override.
 	 * @param bool|null                        $hooks_present Test override.
 	 */
+	/**
+	 * A.SEOe sitemap overlay helper (null until relationships available).
+	 *
+	 * @var RankMathSitemapOverlay|null
+	 */
+	private ?RankMathSitemapOverlay $sitemap_overlay = null;
+
 	public function __construct(
 		private PluginIdentity $identity,
 		private Store $store,
@@ -120,6 +128,9 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 		private ?bool $disabled = null,
 		private ?bool $hooks_present = null,
 	) {
+		if ( null !== $this->relationships ) {
+			$this->sitemap_overlay = new RankMathSitemapOverlay( $this->relationships );
+		}
 	}
 
 	/**
@@ -326,6 +337,30 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 		add_filter( self::HOOK_OG_URL, array( $this, 'filter_og_url' ), 20 );
 		add_filter( self::HOOK_OG_LOCALE, array( $this, 'filter_og_locale' ), 20 );
 		add_action( self::HOOK_OG_FACEBOOK, array( $this, 'action_emit_locale_alternates' ), 2 );
+	}
+
+	/**
+	 * Register A.SEOe Rank Math sitemap overlays (must run before parse_query).
+	 *
+	 * Idempotent. Skips when Rank Math overlay is not allowed or SB11 is absent.
+	 * Does not register sitemap providers or replace Rank Math ownership.
+	 */
+	public function register_sitemap_hooks(): void {
+		if ( null === $this->sitemap_overlay ) {
+			return;
+		}
+		if ( ! $this->get_compatibility()->allows_overlay() ) {
+			return;
+		}
+
+		$this->sitemap_overlay->register();
+	}
+
+	/**
+	 * A.SEOe sitemap overlay accessor (tests / diagnostics — not a public SEO product API).
+	 */
+	public function sitemap_overlay(): ?RankMathSitemapOverlay {
+		return $this->sitemap_overlay;
 	}
 
 	/**
