@@ -196,6 +196,43 @@ final class TMGenerationLookup {
 	}
 
 	/**
+	 * Relevance-gated examples for a candidate that failed TM8 (e.g. structural).
+	 *
+	 * Plan §10.1 class 1: exact-hash/exact-context may still assist AI when
+	 * TM8 was not taken for structural-ineligible (or similar) reasons.
+	 *
+	 * @param string               $source_text     Source text.
+	 * @param int                  $source_lang_id  Source language id.
+	 * @param int                  $target_lang_id  Target language id.
+	 * @param string               $context         derive_context result.
+	 * @param string               $text_format     Format.
+	 * @param array<string, mixed> $blocked         Rejected exact candidate payload.
+	 * @return list<array<string, mixed>>
+	 */
+	public function examples_for_blocked_candidate(
+		string $source_text,
+		int $source_lang_id,
+		int $target_lang_id,
+		string $context,
+		string $text_format,
+		array $blocked
+	): array {
+		$examples = $this->collect_examples(
+			$source_text,
+			$source_lang_id,
+			$target_lang_id,
+			$context,
+			$text_format,
+			$blocked
+		);
+		if ( array() !== $examples ) {
+			++$this->metrics['assisted_examples'];
+		}
+
+		return $examples;
+	}
+
+	/**
 	 * Mark a successful direct reuse (metrics only).
 	 */
 	public function record_direct_reuse(): void {

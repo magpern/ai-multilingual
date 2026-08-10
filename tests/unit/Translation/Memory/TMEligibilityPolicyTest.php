@@ -25,6 +25,10 @@ final class TMEligibilityPolicyTest extends TestCase {
 		$this->assertTrue( TMDomainAllowlist::is_eligible( 'post' ) );
 		$this->assertTrue( TMDomainAllowlist::is_eligible( 'page' ) );
 		$this->assertTrue( TMDomainAllowlist::is_eligible( 'product' ) );
+		$this->assertTrue( TMDomainAllowlist::is_eligible( 'product_cat' ) );
+		$this->assertTrue( TMDomainAllowlist::is_eligible( 'category' ) );
+		$this->assertTrue( TMDomainAllowlist::is_eligible( 'post_tag' ) );
+		$this->assertTrue( TMDomainAllowlist::is_eligible( 'product_tag' ) );
 	}
 
 	public function test_domain_allowlist_denies_orders_and_private(): void {

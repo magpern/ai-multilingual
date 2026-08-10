@@ -49,6 +49,8 @@
 
 Hard invariants held: invalid TM never persists; TI.1 never bypassed; no retry loop; sync/Jobs parity; transport retries separate.
 
+**Independent review fix (ordinary defects):** On structural reject, TM9 class-1 examples are collected from the blocked exact candidate before the single AI fallthrough (`examples_for_blocked_candidate`). Domain allowlist admits public taxonomy subtypes (`category`, `post_tag`, `product_cat`, `product_tag`) per plan §9.7.
+
 ## Work package status
 
 | WP | Status |
@@ -73,7 +75,8 @@ TM effectiveness counters live on `TMGenerationLookup::metrics()` (lookup_attemp
 
 ## Limitations / debt
 
-- Domain allowlist uses requesting `post_type` only (TM rows lack source domain metadata).
+- Domain allowlist uses requesting `post_type`/taxonomy subtype evidence only (TM rows lack source domain metadata).
 - Glossary modes `forced`/`never_translate` not invented; version+term-hit skip only.
 - Ambiguity beyond ADR-0009 empty-context gate is rare due to UNIQUE `tm_identity`.
 - C1.2 is policy metadata corpus; semantic Class B live review not claimed for broad quality uplift from hit rate alone.
+- Structurally invalid TM text may still appear as a TM9 example (plan §10.1 class 1); TI.1 still blocks persist of invalid AI/TM output.

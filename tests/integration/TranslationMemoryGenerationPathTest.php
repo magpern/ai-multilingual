@@ -252,6 +252,9 @@ final class TranslationMemoryGenerationPathTest extends AimlTestCase {
 			TranslationService::STRUCTURAL_FAIL_DISPOSITION,
 			$outcome->diagnostics['disposition'] ?? ''
 		);
+		// Plan §10.1 class 1: structural-ineligible exact hit may still supply TM9 examples.
+		$this->assertNotEmpty( $outcome->examples );
+		$this->assertGreaterThan( 0, (int) ( $outcome->diagnostics['example_count'] ?? 0 ) );
 	}
 
 	public function test_jobs_parity_exact_tm_reuse(): void {

@@ -272,6 +272,14 @@ final class TranslationService {
 
 				// Structural-fail disposition: AI fallthrough once (evidence-gated).
 				$this->tm_lookup->record_structural_reject();
+				$examples              = $this->tm_lookup->examples_for_blocked_candidate(
+					$source_text,
+					(int) $source->language_id,
+					$language_id,
+					$context,
+					$format,
+					$tm_outcome->candidate
+				);
 				$this->last_tm_outcome = new TMGenerationOutcome(
 					TMGenerationOutcome::REJECTED_STRUCTURAL,
 					array_merge(
@@ -280,6 +288,7 @@ final class TranslationService {
 							'disposition'    => self::STRUCTURAL_FAIL_DISPOSITION,
 							'validator_code' => (string) ( $validation->code ?? '' ),
 							'tm_id'          => (int) ( $tm_outcome->candidate['tm_id'] ?? 0 ),
+							'example_count'  => count( $examples ),
 						)
 					),
 					null,

@@ -18,14 +18,18 @@ namespace AIMultilingual\Translation\Memory;
 final class TMDomainAllowlist {
 
 	/**
-	 * Public post types eligible for automatic TM8/TM9.
+	 * Public post types and public taxonomy subtypes eligible for automatic TM8/TM9.
 	 *
 	 * @var list<string>
 	 */
-	private const ALLOWED_POST_TYPES = array(
+	private const ALLOWED_SUBTYPES = array(
 		'post',
 		'page',
 		'product',
+		'category',
+		'post_tag',
+		'product_cat',
+		'product_tag',
 	);
 
 	/**
@@ -67,6 +71,6 @@ final class TMDomainAllowlist {
 			return false;
 		}
 
-		return in_array( $subtype, self::ALLOWED_POST_TYPES, true );
+		return in_array( $subtype, self::ALLOWED_SUBTYPES, true );
 	}
 }
