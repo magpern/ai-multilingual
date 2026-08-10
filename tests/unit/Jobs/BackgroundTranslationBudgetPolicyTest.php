@@ -11,14 +11,13 @@ namespace AIMultilingual\Tests\Unit\Jobs;
 
 use AIMultilingual\Jobs\BackgroundTranslationBudgetPolicy;
 use PHPUnit\Framework\TestCase;
-use WP_Error;
 
 /**
  * Budget preflight and runtime gate unit coverage (J4).
  */
 final class BackgroundTranslationBudgetPolicyTest extends TestCase {
 
-	public function test_preflight_rejects_item_count_over_request_budget(): void {
+	public function test_preflight_does_not_infer_provider_usage_from_item_count(): void {
 		$policy = new BackgroundTranslationBudgetPolicy();
 
 		$result = $policy->preflight(
@@ -28,8 +27,7 @@ final class BackgroundTranslationBudgetPolicyTest extends TestCase {
 			3
 		);
 
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'workload_limit_exceeded', $result->get_error_code() );
+		$this->assertTrue( $result );
 	}
 
 	public function test_can_claim_next_false_when_request_hard_limit_hit(): void {

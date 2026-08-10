@@ -123,12 +123,13 @@ final class BackgroundTranslationItemProcessor {
 
 		$glossary_version = $this->glossary->current_version();
 		$result           = $this->translation->translate_segment( $post, $language_id, $segment_key );
+		$usage            = $this->last_attempt_usage();
 
 		if ( $result instanceof WP_Error ) {
-			return $this->map_translate_error( $result );
+			return $this->map_translate_error( $result, $usage );
 		}
 
-		return ItemResult::completed( $glossary_version );
+		return ItemResult::completed( $glossary_version, $usage );
 	}
 
 	/**
@@ -187,9 +188,10 @@ final class BackgroundTranslationItemProcessor {
 	/**
 	 * Map TranslationService WP_Error to a bounded ItemResult.
 	 *
-	 * @param WP_Error $error Provider or validation error.
+	 * @param WP_Error             $error Provider or validation error.
+	 * @param AttemptUsageEvidence $usage Attempt usage evidence.
 	 */
-	private function map_translate_error( WP_Error $error ): ItemResult {
+	private function map_translate_error( WP_Error $error, AttemptUsageEvidence $usage ): ItemResult {
 		$code    = (string) $error->get_error_code();
 		$message = (string) $error->get_error_message();
 		$data    = $error->get_error_data();
@@ -205,6 +207,27 @@ final class BackgroundTranslationItemProcessor {
 			? ItemStatuses::RETRY_WAIT
 			: ItemStatuses::FAILED;
 
-		return ItemResult::from_error( $status, $code, $class, $message, $retry );
+		return ItemResult::from_error( $status, $code, $class, $message, $retry, $usage );
+	}
+
+	/**
+	 * Map the Workspace usage shape into the Jobs orchestration DTO.
+	 */
+	private function last_attempt_usage(): AttemptUsageEvidence {
+		$usage      = $this->translation->last_attempt_usage();
+		$tm_outcome = $this->translation->last_tm_outcome();
+		$tm_code    = null !== $tm_outcome ? $tm_outcome->code : '';
+
+		if ( null === $usage ) {
+			return AttemptUsageEvidence::known_zero( $tm_code );
+		}
+
+		return new AttemptUsageEvidence(
+			max( 0, (int) ( $usage['provider_requests'] ?? 0 ) ),
+			max( 0, (int) ( $usage['input_tokens'] ?? 0 ) ),
+			max( 0, (int) ( $usage['output_tokens'] ?? 0 ) ),
+			(bool) ( $usage['usage_known'] ?? false ),
+			(string) ( $usage['tm_outcome_code'] ?? $tm_code )
+		);
 	}
 }

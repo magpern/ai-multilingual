@@ -25,6 +25,7 @@ use AIMultilingual\Jobs\BackgroundTranslationJobService;
 use AIMultilingual\Jobs\BackgroundTranslationRetryPolicy;
 use AIMultilingual\Jobs\BackgroundTranslationScheduler;
 use AIMultilingual\Jobs\BackgroundTranslationWorker;
+use AIMultilingual\Jobs\AttemptUsageEvidence;
 use AIMultilingual\Jobs\ItemStatuses;
 use AIMultilingual\Jobs\JobLeaseService;
 use AIMultilingual\Jobs\JobProgressReconciler;
@@ -50,6 +51,35 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 	private BackgroundTranslationItemRepository $items;
 
 	private BackgroundTranslationJobRepository $jobs;
+
+	public function test_known_zero_usage_does_not_charge_job_budget(): void {
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		$job      = $this->job_service->create_job(
+			array(
+				'job_type'            => JobTypes::TRANSLATE_SELECTED,
+				'source_type'         => Store::SOURCE_POST,
+				'source_id'           => (int) $post->ID,
+				'language_id'         => (int) $language->language_id,
+				'segment_keys'        => array( $this->default_segment_key() ),
+				'budget_max_requests' => 1,
+				'provider_id'         => 'echo',
+				'prompt_profile'      => 'default',
+				'prompt_version'      => '1',
+				'created_by'          => 1,
+			)
+		);
+		$this->assertNotInstanceOf( WP_Error::class, $job );
+
+		$updated = ( new BackgroundTranslationBudgetPolicy( $this->jobs ) )->record_usage(
+			(int) $job->job_id,
+			AttemptUsageEvidence::known_zero( 'tm_direct_reuse' )
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $updated );
+		$this->assertSame( 0, (int) $updated->budget_used_requests );
+		$this->assertSame( 0, (int) $updated->budget_used_tokens );
+	}
 
 	public function test_create_job_rejects_when_action_scheduler_unavailable(): void {
 		$unavailable = new UnavailableJobsSchedulerStub();
@@ -159,11 +189,11 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 
 		$fresh_job = $this->jobs->find( (int) $job->job_id );
 		$this->assertNotNull( $fresh_job );
-		$this->assertSame( 1, (int) $fresh_job->budget_used_requests );
+		$this->assertSame( 2, (int) $fresh_job->budget_used_requests );
 
 		$items = $this->items->list_by_job( (int) $job->job_id );
-		$this->assertSame( 1, $this->count_items_by_status( $items, ItemStatuses::COMPLETED ) );
-		$this->assertSame( 1, $this->count_items_by_status( $items, ItemStatuses::QUEUED ) );
+		$this->assertSame( 2, $this->count_items_by_status( $items, ItemStatuses::COMPLETED ) );
+		$this->assertSame( 0, $this->count_items_by_status( $items, ItemStatuses::QUEUED ) );
 	}
 
 	public function test_duplicate_callback_while_lease_held(): void {

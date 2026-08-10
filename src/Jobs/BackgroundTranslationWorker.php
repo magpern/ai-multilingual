@@ -107,6 +107,13 @@ final class BackgroundTranslationWorker {
 	private ?BackgroundTranslationDiagnostics $diagnostics;
 
 	/**
+	 * Site-wide running-job admission gate.
+	 *
+	 * @var BackgroundTranslationConcurrencyPolicy
+	 */
+	private BackgroundTranslationConcurrencyPolicy $concurrency;
+
+	/**
 	 * Builds the worker.
 	 *
 	 * @param BackgroundTranslationItemProcessor             $processor           Item processor.
@@ -121,6 +128,7 @@ final class BackgroundTranslationWorker {
 	 * @param BackgroundTranslationJobProviderValidator|null $provider_validator  Provider validator.
 	 * @param BackgroundTranslationJobAuditLogger|null       $audit               Audit logger.
 	 * @param BackgroundTranslationDiagnostics|null          $diagnostics         Diagnostics.
+	 * @param BackgroundTranslationConcurrencyPolicy|null    $concurrency         Concurrency gate.
 	 */
 	public function __construct(
 		BackgroundTranslationItemProcessor $processor,
@@ -134,7 +142,8 @@ final class BackgroundTranslationWorker {
 		?BackgroundTranslationScheduler $scheduler = null,
 		?BackgroundTranslationJobProviderValidator $provider_validator = null,
 		?BackgroundTranslationJobAuditLogger $audit = null,
-		?BackgroundTranslationDiagnostics $diagnostics = null
+		?BackgroundTranslationDiagnostics $diagnostics = null,
+		?BackgroundTranslationConcurrencyPolicy $concurrency = null
 	) {
 		$this->processor          = $processor;
 		$this->job_repo           = $job_repo ?? new BackgroundTranslationJobRepository();
@@ -147,6 +156,7 @@ final class BackgroundTranslationWorker {
 		$this->provider_validator = $provider_validator;
 		$this->audit              = $audit;
 		$this->diagnostics        = $diagnostics;
+		$this->concurrency        = $concurrency ?? new BackgroundTranslationConcurrencyPolicy( $this->job_repo );
 		$this->jobs               = $jobs ?? new BackgroundTranslationJobService(
 			$this->job_repo,
 			$this->items,
@@ -180,6 +190,15 @@ final class BackgroundTranslationWorker {
 		}
 
 		$prior_status = (string) $job->status;
+		$admission    = $this->concurrency->admit_running(
+			JobStatuses::RUNNING === $prior_status ? $job_id : null
+		);
+		if ( is_wp_error( $admission ) ) {
+			if ( null !== $this->diagnostics ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::CONCURRENCY_REJECTS );
+			}
+			return $admission;
+		}
 
 		if ( '' === $owner_token ) {
 			$owner_token = $this->generate_owner_token();
@@ -258,18 +277,8 @@ final class BackgroundTranslationWorker {
 				break;
 			}
 
-			if ( ! $this->budget->can_claim_next( $fresh_job ) ) {
-				$paused = $this->jobs->pause_for_orchestration_error(
-					$job_id,
-					'budget_exceeded',
-					'Job budget hard limit reached before next item.',
-					'permanent'
-				);
-
-				return is_wp_error( $paused ) ? $paused : $paused;
-			}
-
-			$item = $this->items->claim_next( $job_id );
+			$budget_soft_stop = ! $this->budget->can_claim_next( $fresh_job );
+			$item             = $this->items->claim_next( $job_id );
 			if ( null === $item ) {
 				break;
 			}
@@ -281,6 +290,27 @@ final class BackgroundTranslationWorker {
 			$this->leases->heartbeat( $job_id, $owner_token );
 
 			++$processed;
+
+			$after_usage = $this->job_repo->find( $job_id );
+			if (
+				$result->usage_known
+				&& $result->provider_requests > 0
+				&& null !== $after_usage
+				&& (
+					$budget_soft_stop
+					|| (
+						! $this->budget->can_claim_next( $after_usage )
+						&& $this->has_claimable_items( $job_id )
+					)
+				)
+			) {
+				return $this->jobs->pause_for_orchestration_error(
+					$job_id,
+					'budget_exceeded',
+					'Job provider budget hard limit reached before the next provider attempt.',
+					'permanent'
+				);
+			}
 		}
 
 		$fresh = $this->job_repo->find( $job_id );
@@ -360,10 +390,9 @@ final class BackgroundTranslationWorker {
 	 * @param ItemResult $result  Processor outcome.
 	 */
 	private function record_item_result( int $job_id, int $item_id, ItemResult $result ): void {
-		$item         = $this->items->find( $item_id );
-		$attempts     = null !== $item ? (int) ( $item->attempt_count ?? 0 ) : 0;
-		$status       = $result->status;
-		$record_usage = ItemStatuses::COMPLETED === $status;
+		$item     = $this->items->find( $item_id );
+		$attempts = null !== $item ? (int) ( $item->attempt_count ?? 0 ) : 0;
+		$status   = $result->status;
 
 		if ( ItemStatuses::RETRY_WAIT === $status ) {
 			if ( ! $this->retry_policy->should_retry( $attempts ) ) {
@@ -371,11 +400,16 @@ final class BackgroundTranslationWorker {
 			}
 		}
 
-		if ( $record_usage ) {
+		if ( $result->usage_known ) {
 			$usage = $this->budget->record_usage(
 				$job_id,
-				$result->usage_requests,
-				$result->usage_tokens
+				new AttemptUsageEvidence(
+					$result->provider_requests,
+					$result->input_tokens,
+					$result->output_tokens,
+					true,
+					$result->tm_outcome_code
+				)
 			);
 			if ( is_wp_error( $usage ) ) {
 				$this->jobs->pause_for_orchestration_error(
@@ -389,6 +423,9 @@ final class BackgroundTranslationWorker {
 
 		if ( ItemStatuses::RETRY_WAIT === $status && $result->is_retryable() ) {
 			$delay = $this->retry_policy->delay_seconds( $attempts, $result->retry_after_seconds );
+			if ( $result->retry_after_seconds > 0 && null !== $this->diagnostics ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::RETRY_AFTER_HONORS );
+			}
 			if ( null !== $this->scheduler ) {
 				$this->scheduler->enqueue_job_delayed( $job_id, $delay );
 			}
@@ -429,6 +466,26 @@ final class BackgroundTranslationWorker {
 		$item = $this->items->find( $item_id );
 		if ( null === $job || null === $item ) {
 			return;
+		}
+
+		if ( null !== $this->diagnostics ) {
+			if ( 'tm_direct_reuse' === $result->tm_outcome_code ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::TM_DIRECT_REUSE );
+			}
+			if ( $result->provider_requests > 0 ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::PROVIDER_CALLS, $result->provider_requests );
+				if ( (int) ( $item->attempt_count ?? 0 ) > 1 ) {
+					$this->diagnostics->increment(
+						BackgroundTranslationDiagnostics::CRASH_RECOVERY_PROVIDER_REPEAT_RISK
+					);
+				}
+			}
+			if ( $result->input_tokens > 0 ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::PROVIDER_INPUT_TOKENS, $result->input_tokens );
+			}
+			if ( $result->output_tokens > 0 ) {
+				$this->diagnostics->increment( BackgroundTranslationDiagnostics::PROVIDER_OUTPUT_TOKENS, $result->output_tokens );
+			}
 		}
 
 		if ( ItemStatuses::STALE_SOURCE === $status ) {

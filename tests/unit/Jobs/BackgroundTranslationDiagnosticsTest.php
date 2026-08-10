@@ -33,6 +33,13 @@ final class BackgroundTranslationDiagnosticsTest extends TestCase {
 				'cleanup_items_deleted',
 				'cleanup_orphans_deleted',
 				'stuck_leases_recovered',
+				'tm_direct_reuse',
+				'provider_calls',
+				'provider_input_tokens',
+				'provider_output_tokens',
+				'retry_after_honors',
+				'concurrency_rejects',
+				'crash_recovery_provider_repeat_risk',
 			),
 			$keys
 		);
@@ -46,14 +53,21 @@ final class BackgroundTranslationDiagnosticsTest extends TestCase {
 
 		$this->assertSame(
 			array(
-				'provider_errors'         => 0,
-				'stale_source_conflicts'  => 0,
-				'budget_stops'            => 0,
-				'item_retries'            => 0,
-				'cleanup_jobs_deleted'    => 0,
-				'cleanup_items_deleted'   => 0,
-				'cleanup_orphans_deleted' => 0,
-				'stuck_leases_recovered'  => 0,
+				'provider_errors'                     => 0,
+				'stale_source_conflicts'              => 0,
+				'budget_stops'                        => 0,
+				'item_retries'                        => 0,
+				'cleanup_jobs_deleted'                => 0,
+				'cleanup_items_deleted'               => 0,
+				'cleanup_orphans_deleted'             => 0,
+				'stuck_leases_recovered'              => 0,
+				'tm_direct_reuse'                     => 0,
+				'provider_calls'                      => 0,
+				'provider_input_tokens'               => 0,
+				'provider_output_tokens'              => 0,
+				'retry_after_honors'                  => 0,
+				'concurrency_rejects'                 => 0,
+				'crash_recovery_provider_repeat_risk' => 0,
 			),
 			$diagnostics->counters()
 		);

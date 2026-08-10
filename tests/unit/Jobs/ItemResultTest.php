@@ -11,6 +11,7 @@ namespace AIMultilingual\Tests\Unit\Jobs;
 
 use AIMultilingual\Jobs\ItemResult;
 use AIMultilingual\Jobs\ItemStatuses;
+use AIMultilingual\Jobs\AttemptUsageEvidence;
 use AIMultilingual\Translation\AI\ProviderResult;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
@@ -21,13 +22,16 @@ use WP_Error;
 final class ItemResultTest extends TestCase {
 
 	public function test_completed_factory_sets_status_and_glossary(): void {
-		$result = ItemResult::completed( 7, 1, 12 );
+		$result = ItemResult::completed( 7, AttemptUsageEvidence::provider_success( 1, 5, 7 ) );
 
 		$this->assertSame( ItemStatuses::COMPLETED, $result->status );
 		$this->assertSame( ItemStatuses::COMPLETED, $result->result_code );
 		$this->assertSame( 7, $result->glossary_version_actual );
 		$this->assertSame( 1, $result->usage_requests );
 		$this->assertSame( 12, $result->usage_tokens );
+		$this->assertSame( 5, $result->input_tokens );
+		$this->assertSame( 7, $result->output_tokens );
+		$this->assertTrue( $result->usage_known );
 	}
 
 	public function test_stale_source_carries_skip_reason(): void {

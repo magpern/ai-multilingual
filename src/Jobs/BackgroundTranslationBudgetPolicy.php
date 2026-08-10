@@ -40,23 +40,12 @@ final class BackgroundTranslationBudgetPolicy {
 	 * @return true|WP_Error
 	 */
 	public function preflight( array $args, int $item_count ) {
+		unset( $args );
 		$item_count = max( 0, $item_count );
+		unset( $item_count );
 
-		$max_requests = (int) ( $args['budget_max_requests'] ?? 0 );
-		if ( $max_requests > 0 && $item_count > $max_requests ) {
-			return new WP_Error(
-				'workload_limit_exceeded',
-				'Job item count exceeds budget_max_requests.'
-			);
-		}
-
-		$max_tokens = (int) ( $args['budget_max_tokens'] ?? 0 );
-		if ( $max_tokens > 0 && $item_count > $max_tokens ) {
-			return new WP_Error(
-				'workload_limit_exceeded',
-				'Estimated item workload exceeds budget_max_tokens.'
-			);
-		}
+		// Item count is not provider usage: TM/skip paths are known-zero, and
+		// token cost cannot be truthfully estimated from segment count.
 
 		return true;
 	}
@@ -125,23 +114,24 @@ final class BackgroundTranslationBudgetPolicy {
 	/**
 	 * Record provider usage atomically on the job row.
 	 *
-	 * Unknown or zero request usage counts as one request unit (plan §13).
+	 * Unknown usage is deliberately not charged: fabricating request/token
+	 * units would make TM and provider budgets operationally misleading.
 	 *
-	 * @param int $job_id   Job id.
-	 * @param int $requests Request units (0 → 1).
-	 * @param int $tokens   Token units.
+	 * @param int                  $job_id Job id.
+	 * @param AttemptUsageEvidence $usage  Attempt usage evidence.
 	 * @return object|WP_Error
 	 */
-	public function record_usage( int $job_id, int $requests, int $tokens ) {
-		if ( $requests <= 0 ) {
-			$requests = 1;
+	public function record_usage( int $job_id, AttemptUsageEvidence $usage ) {
+		if ( ! $usage->usage_known || 0 === $usage->provider_requests ) {
+			$job = $this->jobs->find( $job_id );
+			return null !== $job ? $job : new WP_Error( 'job_not_found', 'Job not found.' );
 		}
 
-		if ( $tokens < 0 ) {
-			$tokens = 0;
-		}
-
-		$result = $this->jobs->increment_budget_usage( $job_id, $requests, $tokens );
+		$result = $this->jobs->increment_budget_usage(
+			$job_id,
+			$usage->provider_requests,
+			$usage->token_units()
+		);
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
