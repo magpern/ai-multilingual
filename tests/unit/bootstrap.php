@@ -43,6 +43,13 @@ if ( ! class_exists( 'WP_Error', false ) ) {
 		public function get_error_data() {
 			return $this->data;
 		}
+
+		/**
+		 * @param mixed $data Error data.
+		 */
+		public function add_data( $data ): void {
+			$this->data = $data;
+		}
 	}
 }
 
