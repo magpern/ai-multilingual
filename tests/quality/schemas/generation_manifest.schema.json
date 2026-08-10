@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://biopentra.local/aiml/tq0/generation_manifest.schema.json",
+  "type": "object",
+  "required": [
+    "corpus_version",
+    "methodology_version",
+    "scorer_version",
+    "source_locale",
+    "target_locale",
+    "generation_label",
+    "prompt_profile",
+    "prompt_version",
+    "tm_observed",
+    "accounting"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "corpus_version": { "type": "string" },
+    "methodology_version": { "type": "string" },
+    "glossary_fixture_version": { "type": "string" },
+    "scorer_version": { "type": "string" },
+    "source_locale": { "type": "string" },
+    "target_locale": { "type": "string" },
+    "generation_label": { "type": "string" },
+    "provider_id": { "type": "string" },
+    "model": { "type": "string" },
+    "prompt_profile": { "type": "string" },
+    "prompt_version": { "type": "string" },
+    "tm_observed": { "type": "boolean" },
+    "created_at": { "type": "string" },
+    "accounting": {
+      "type": "object",
+      "required": ["cases", "segments", "batches", "http_requests"],
+      "properties": {
+        "cases": { "type": "integer", "minimum": 0 },
+        "segments": { "type": "integer", "minimum": 0 },
+        "batches": { "type": "integer", "minimum": 0 },
+        "http_requests": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "expected_fingerprints": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://biopentra.local/aiml/tq0/scores.schema.json",
+  "type": "object",
+  "required": ["scorer_version", "corpus_version", "case_results", "summary"],
+  "additionalProperties": true,
+  "properties": {
+    "scorer_version": { "type": "string" },
+    "corpus_version": { "type": "string" },
+    "case_results": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["findings", "critical_count", "error_count", "warning_count", "pass"],
+        "properties": {
+          "findings": { "type": "array" },
+          "critical_count": { "type": "integer", "minimum": 0 },
+          "error_count": { "type": "integer", "minimum": 0 },
+          "warning_count": { "type": "integer", "minimum": 0 },
+          "pass": { "type": "boolean" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_cases", "pass_count", "critical_failures"],
+      "properties": {
+        "total_cases": { "type": "integer", "minimum": 0 },
+        "pass_count": { "type": "integer", "minimum": 0 },
+        "critical_failures": { "type": "integer", "minimum": 0 },
+        "scored_at": { "type": "string" }
+      }
+    }
+  }
+}

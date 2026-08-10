@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://biopentra.local/aiml/tq0/comparison.schema.json",
+  "type": "object",
+  "required": [
+    "corpus_version",
+    "methodology_version",
+    "scorer_version",
+    "improved",
+    "regressed",
+    "unchanged",
+    "new_critical_regressions",
+    "gate"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "corpus_version": { "type": "string" },
+    "methodology_version": { "type": "string" },
+    "scorer_version": { "type": "string" },
+    "baseline_label": { "type": "string" },
+    "candidate_label": { "type": "string" },
+    "improved": { "type": "array", "items": { "type": "string" } },
+    "regressed": { "type": "array", "items": { "type": "string" } },
+    "unchanged": { "type": "array", "items": { "type": "string" } },
+    "new_critical_regressions": { "type": "array", "items": { "type": "string" } },
+    "category_rollups": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "improved": { "type": "integer" },
+          "regressed": { "type": "integer" },
+          "unchanged": { "type": "integer" }
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "required": ["zero_new_critical_regressions", "compatible_versions"],
+      "properties": {
+        "zero_new_critical_regressions": { "type": "boolean" },
+        "compatible_versions": { "type": "boolean" }
+      }
+    }
+  }
+}
