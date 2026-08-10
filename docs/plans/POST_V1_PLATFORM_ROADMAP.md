@@ -55,7 +55,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; authoritative for **TQ.0–TI.7**). First child: **TQ.0 Translation Quality Baseline** (planning not started)
+- **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; authoritative for **TQ.0–TI.7**). First child: **TQ.0** — [plan](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started)
 - Remaining Program A options (not TIQ): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision
 - Later (not default next): historical **B.1** additional providers (Deferred under TIQ until measurement shows need); **C.1–C.3** Workspace productivity; **D.1** unified health/diagnostics
 
