@@ -109,6 +109,7 @@ require_once $aiml_tests_dir . '/includes/bootstrap.php';
 // autoloads files matching the *Test.php suffix.
 require_once __DIR__ . '/AimlTestCase.php';
 require_once __DIR__ . '/JobsEchoAIProvider.php';
+require_once __DIR__ . '/ScriptedAIProvider.php';
 require_once __DIR__ . '/AvailableSchedulerStub.php';
 require_once __DIR__ . '/UnavailableJobsSchedulerStub.php';
 require_once __DIR__ . '/WorkspaceTestHelpers.php';
