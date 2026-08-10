@@ -12,7 +12,7 @@
 **Assessment consumption:** TI.5 `TranslationAssessment` **R1.0** read-only
 **Planning branch:** `docs/ti7-controlled-auto-publication-policy-plan`
 **Independent review (planning):** **PASS** (2026-08-10)
-**Freeze merge:** _(recorded on merge to main)_
+**Freeze merge:** `fdf313500764014ebcedd25c99b393c1679ebd3e`
 **Implementation branch:** **do not create until after freeze merge**; then `feature/ti7-controlled-auto-publication-policy`
 **Next after freeze:** Create `feature/ti7-controlled-auto-publication-policy` and implement TI7.0–TI7.8
 
