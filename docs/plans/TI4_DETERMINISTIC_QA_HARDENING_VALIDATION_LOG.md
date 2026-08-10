@@ -1,16 +1,16 @@
 # TI.4 — Deterministic QA Hardening — Implementation Validation Log
 
-**Status:** **TI.4 implementation complete — review-ready**
-**Implementation branch:** `feature/ti4-deterministic-qa-hardening`
+**Status:** **Complete** on `main`
+**Implementation branch:** `feature/ti4-deterministic-qa-hardening` @ `cf4458a690fbbaa24392f515442538315ad8e467`
 **Implementation baseline (branch start):** `831b646a34089f8f167014597934fcb0a6712010`
-**Frozen plan blob:** `96c1832fb58d9425922ad110f6d4b08506e050c9`
-**TIQ parent blob:** `6b24212ac3a1810e5b20493f425140bb25db9405`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Merge commit:** `e88def1ab2b1778595119e16684b37742cb4d839`
 **Official TQ.0 pack:** `tests/quality/baselines/baseline-v1.1.0/` (immutable)
 **H1.0 / C1.0 / C1.1 / C1.2:** immutable
 **Additive methodology:** H1.1 · C1.3 (16 cases)
 **TARGET:** 6
-**TI.5–TI.7:** not started
-**Merge:** not merged — awaiting independent review
+**TI.5–TI.7:** planning/implementation not started
+**Next:** TI.5 planning only
 **Historical leakage gate:** Outcome **C** — `scores.H1.1.json` records `leakage_not_applicable` per case (not PASS)
 
 ## Architecture lock
@@ -64,7 +64,7 @@
 | TI4.5 | **PASS** |
 | TI4.6 | **PASS** |
 | TI4.7 | **PASS** |
-| TI4.8 | **PASS** (review-ready; not merged) |
+| TI4.8 | **PASS** (merged + closed on `main`) |
 
 ## Baseline gates (TI4.0)
 
@@ -91,7 +91,7 @@
 
 ## Acceptance criteria (78)
 
-All 78 frozen ACs covered by implementation + tests + this log. Summary: **78 PASS** (feature-branch). Independent review may re-score.
+All 78 frozen ACs covered by implementation + tests + this log. Independent review: **PASS** (78/78). Merged to `main` @ `e88def1ab2b1778595119e16684b37742cb4d839`.
 
 ## False-positive notes
 

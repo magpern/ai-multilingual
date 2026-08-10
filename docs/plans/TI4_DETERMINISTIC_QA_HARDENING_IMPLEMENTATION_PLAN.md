@@ -1,18 +1,21 @@
 # TI.4 — Deterministic QA Hardening — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — implementation not started
+**Status:** **Complete** on `main`
 **Milestone:** TI.4 — Deterministic QA Hardening (TIQ program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete** on `main` @ `72a41c6b08751f4415f46a87ac9b40ba78b65e79`
 **Official pack:** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0 (immutable)
-**Additive methodology (planned):** H1.1 · C1.3
+**Additive methodology:** H1.1 · C1.3
 **Schema:** Migrator `TARGET` = **6** (unchanged)
-**ADR:** **No ADR required** for the default shared-detector + policy-adapter scope. **Conditional ADR-0010 amendment** only if TI4.3 proves a durable change to [`AIProviderInterface`](../../src/Translation/AI/AIProviderInterface.php) is required for bounded scaffolding-marker export (see §4.4 / §30). Integration API v1, Store identity, TARGET, and publication semantics are **STOP** if they appear required.
+**ADR:** **No ADR required** — markers via optional `ScaffoldingMarkerSource`; [`AIProviderInterface`](../../src/Translation/AI/AIProviderInterface.php) unchanged.
 **Planning branch:** `docs/ti4-deterministic-qa-hardening-plan` (merged)
 **Independent review (planning):** **PASS** (2026-08-10)
 **Freeze merge:** `b1023570e2c11eca34d88d16141e85f509929483`
-**Implementation branch:** **not created** — create `feature/ti4-deterministic-qa-hardening` from frozen `main` only after this closure
+**Implementation branch:** `feature/ti4-deterministic-qa-hardening` @ `cf4458a690fbbaa24392f515442538315ad8e467`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Merge commit:** `e88def1ab2b1778595119e16684b37742cb4d839`
+**Validation log:** [TI4_DETERMINISTIC_QA_HARDENING_VALIDATION_LOG.md](TI4_DETERMINISTIC_QA_HARDENING_VALIDATION_LOG.md)
 **Related (unchanged ownership):** [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0014](../adr/0014-glossary-platform-lexicon.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); TI.1 persist safety; TI.7 publication policy
 
 **Operational success:** One shared deterministic **detection** core emits policy-neutral raw findings; layer-specific policy maps those findings to TI.1 persist safety, Workspace review UX, and TQ.0 H1.1 measurement—without LLM confidence, auto-publish, H1.0 mutation, fabricating historical marker evidence, or a second translator.
