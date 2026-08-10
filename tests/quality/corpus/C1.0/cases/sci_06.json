@@ -1,0 +1,11 @@
+{
+  "id": "sci_06",
+  "category": "scientific_terminology",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "body",
+  "source_text": "Always follow institutional biosafety guidelines when handling research compounds.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

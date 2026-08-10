@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://biopentra.local/aiml/tq0/case.schema.json",
+  "type": "object",
+  "required": ["id", "category", "case_class", "text_format", "field_semantics", "source_text", "expected_invariants", "difficulty"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "category": { "type": "string", "minLength": 1 },
+    "case_class": { "type": "string", "enum": ["free", "terminology", "structural", "protected"] },
+    "text_format": { "type": "string", "enum": ["plain", "html"] },
+    "field_semantics": { "type": "string" },
+    "source_text": { "type": "string", "minLength": 1 },
+    "expected_invariants": { "type": "object" },
+    "difficulty": { "type": "string" },
+    "notes": { "type": "string" },
+    "reference_sv": { "type": "string" }
+  }
+}

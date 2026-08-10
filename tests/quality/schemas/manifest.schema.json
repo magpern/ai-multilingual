@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://biopentra.local/aiml/tq0/manifest.schema.json",
+  "type": "object",
+  "required": ["corpus_version", "source_locale", "target_locale", "case_count", "case_ids"],
+  "properties": {
+    "corpus_version": { "type": "string" },
+    "methodology_version": { "type": "string" },
+    "source_locale": { "type": "string" },
+    "target_locale": { "type": "string" },
+    "language_pair": { "type": "string" },
+    "case_count": { "type": "integer", "minimum": 1 },
+    "case_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "immutability": { "type": "string" },
+    "statistical_claim": { "type": "string" },
+    "categories": { "type": "array", "items": { "type": "string" } }
+  }
+}

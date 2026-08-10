@@ -1,0 +1,15 @@
+{
+  "id": "ph_01",
+  "category": "placeholder_token",
+  "case_class": "structural",
+  "text_format": "plain",
+  "field_semantics": "email_template",
+  "source_text": "Your order {order_number} has been received.",
+  "expected_invariants": {
+    "placeholders": [
+      "{order_number}"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

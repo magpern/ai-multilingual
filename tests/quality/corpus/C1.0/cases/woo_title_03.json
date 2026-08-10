@@ -1,0 +1,18 @@
+{
+  "id": "woo_title_03",
+  "category": "woo_product_title",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "source_text": "NAD+ Nicotinamide Adenine Dinucleotide 500mg",
+  "expected_invariants": {
+    "numbers": [
+      "500"
+    ],
+    "glossary_term_ids": [
+      "nad"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "id": "html_02",
+  "category": "html_rich",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "body",
+  "source_text": "<p>Use <strong>only</strong> as directed by your laboratory protocol.</p>",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

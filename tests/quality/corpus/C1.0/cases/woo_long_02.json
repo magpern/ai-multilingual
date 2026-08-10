@@ -1,0 +1,16 @@
+{
+  "id": "woo_long_02",
+  "category": "woo_long_description",
+  "case_class": "free",
+  "text_format": "html",
+  "field_semantics": "product_long_description",
+  "source_text": "<p>Our green tea is harvested in early spring and gently steamed to preserve aroma.</p>\n<p>Ideal for daily brewing at 75–80°C for two to three minutes.</p>",
+  "expected_invariants": {
+    "numbers": [
+      "75",
+      "80"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

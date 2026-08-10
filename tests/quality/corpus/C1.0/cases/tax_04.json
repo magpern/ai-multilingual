@@ -1,0 +1,15 @@
+{
+  "id": "tax_04",
+  "category": "taxonomy",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "term_description",
+  "source_text": "Peptides and related compounds intended for laboratory research.",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "peptide"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

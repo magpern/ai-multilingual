@@ -1,0 +1,15 @@
+{
+  "id": "seo_t_01",
+  "category": "seo_title",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "seo_title",
+  "source_text": "Buy BPC-157 Research Peptide | Lab Grade",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "bpc157"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

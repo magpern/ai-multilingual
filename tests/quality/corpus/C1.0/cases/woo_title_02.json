@@ -1,0 +1,11 @@
+{
+  "id": "woo_title_02",
+  "category": "woo_product_title",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "source_text": "Premium Organic Green Tea Bags — 100 Count",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "id": "tax_03",
+  "category": "taxonomy",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "term_description",
+  "source_text": "Tools and consumables for everyday bench workflows.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

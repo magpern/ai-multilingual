@@ -1,0 +1,15 @@
+{
+  "id": "ph_03",
+  "category": "placeholder_token",
+  "case_class": "structural",
+  "text_format": "plain",
+  "field_semantics": "mustache",
+  "source_text": "Welcome {{customer_name}} to the laboratory portal.",
+  "expected_invariants": {
+    "placeholders": [
+      "{{customer_name}}"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "prot_01",
+  "category": "protected",
+  "case_class": "protected",
+  "text_format": "plain",
+  "field_semantics": "sku",
+  "source_text": "SKU: PEP-BPC157-10MG",
+  "expected_invariants": {
+    "skus": [
+      "PEP-BPC157-10MG"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

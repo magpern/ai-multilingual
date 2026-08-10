@@ -1,0 +1,11 @@
+{
+  "id": "seo_d_03",
+  "category": "seo_description",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "seo_description",
+  "source_text": "Insulated shipping materials designed to protect temperature-sensitive packages.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

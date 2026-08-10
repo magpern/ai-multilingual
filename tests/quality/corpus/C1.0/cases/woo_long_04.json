@@ -1,0 +1,11 @@
+{
+  "id": "woo_long_04",
+  "category": "woo_long_description",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "product_long_description",
+  "source_text": "<p>Contents:</p>\n<ol><li>Insulated pouch</li><li>Two gel packs</li><li>Temperature indicator card</li></ol>",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

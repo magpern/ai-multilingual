@@ -1,0 +1,11 @@
+{
+  "id": "woo_title_04",
+  "category": "woo_product_title",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "source_text": "Stainless Steel Laboratory Spatula Set",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

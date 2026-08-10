@@ -1,0 +1,18 @@
+{
+  "id": "seo_t_04",
+  "category": "seo_title",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "seo_title",
+  "source_text": "NAD+ 500mg Research Compound",
+  "expected_invariants": {
+    "numbers": [
+      "500"
+    ],
+    "glossary_term_ids": [
+      "nad"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

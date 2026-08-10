@@ -1,0 +1,11 @@
+{
+  "id": "seo_d_02",
+  "category": "seo_description",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "seo_description",
+  "source_text": "Premium green tea bags with a clean finish and balanced aroma for daily brewing.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

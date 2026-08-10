@@ -1,0 +1,15 @@
+{
+  "id": "tax_01",
+  "category": "taxonomy",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "term_name",
+  "source_text": "Research Peptides",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "peptide"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

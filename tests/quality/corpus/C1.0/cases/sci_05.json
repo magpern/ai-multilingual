@@ -1,0 +1,15 @@
+{
+  "id": "sci_05",
+  "category": "scientific_terminology",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "body",
+  "source_text": "HPLC purity is reported as ≥98% for this research lot.",
+  "expected_invariants": {
+    "numbers": [
+      "98"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

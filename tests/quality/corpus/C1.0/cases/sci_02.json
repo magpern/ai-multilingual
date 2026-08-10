@@ -1,0 +1,15 @@
+{
+  "id": "sci_02",
+  "category": "scientific_terminology",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "body",
+  "source_text": "The half-life of NAD+ analogs varies across experimental conditions.",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "nad"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

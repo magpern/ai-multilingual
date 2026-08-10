@@ -1,0 +1,15 @@
+{
+  "id": "woo_short_04",
+  "category": "woo_short_description",
+  "case_class": "terminology",
+  "text_format": "html",
+  "field_semantics": "product_short_description",
+  "source_text": "<p><strong>NAD+</strong> supports cellular energy pathways in research models.</p>",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "nad"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

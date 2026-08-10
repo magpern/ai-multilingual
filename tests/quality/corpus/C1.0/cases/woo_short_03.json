@@ -1,0 +1,11 @@
+{
+  "id": "woo_short_03",
+  "category": "woo_short_description",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "product_short_description",
+  "source_text": "Experience laboratory-grade purity with every carefully sealed vial.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "id": "seo_d_04",
+  "category": "seo_description",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "seo_description",
+  "source_text": "Reliable fulfillment for laboratories that need consistent quality and clear documentation.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}
