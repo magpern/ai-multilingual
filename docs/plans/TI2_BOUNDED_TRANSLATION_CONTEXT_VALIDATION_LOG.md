@@ -1,14 +1,18 @@
 # TI.2 — Bounded Translation Context — Implementation Validation Log
 
-**Status:** **Implementation complete — awaiting independent review** (unmerged)
-**Implementation branch:** `feature/ti2-bounded-translation-context`
-**Authoritative planning baseline (main):** `7bf8cff20f48970fa0a775b7b5ddc7158162289d`
+**Status:** **TI.2 Complete** on `main`
+**Implementation branch:** `feature/ti2-bounded-translation-context` @ `6f35a005b0299f0a7a69044e591d6a3475b79edd`
+**Merge commit:** `80dfdcf18a93f168370aa1bb6a03d7c6dd8376fa`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Branch CI:** `31377011814` (also prior green `31376983350`)
+**Main CI (merge):** `31377700777`
+**Implementation baseline (branch start):** `7bf8cff20f48970fa0a775b7b5ddc7158162289d`
 **Frozen plan blob:** `fa10636fff6e4a691180bc1b9b3f0977207fd095`
 **Official TQ.0 pack:** `tests/quality/baselines/baseline-v1.1.0/` (immutable)
-**TI.2 candidate pack:** `tests/quality/baselines/_staging-ti2/`
+**TI.2 candidate pack:** `tests/quality/baselines/_staging-ti2/` (gitignored staging evidence)
 **H1.0 / C1.0:** immutable
 **TARGET:** 6
-**TI.3:** not started
+**TI.3–TI.7:** not started (TI.3 dependency-unblocked for planning only)
 
 ## Architecture lock
 
@@ -46,7 +50,7 @@
 
 | Package | Status |
 |---|---|
-| TI2.0–TI2.8 | **PASS** (implementation branch) |
+| TI2.0–TI2.8 | **PASS** |
 
 ## Quality evidence
 
@@ -54,16 +58,19 @@
 |---|---|
 | verify-baseline baseline-v1.1.0 | PASS |
 | compare baseline ↔ _staging-ti2 | **PASS** — 0 new Class A critical |
-| gut_01 scaffold | **GONE** |
+| gut_01 scaffold | **GONE** (`Hur vi paketerar forskningsmaterial`) |
+| Class B gut_01 | Independent re-evaluation: scaffold-leak flags cleared; no broad uplift claim; full B1.0 dual re-score **not required** for TI.2 packaging claim |
 | C1.1 additive corpus | Present (4 paired-context cases) |
+| Main CI merge | PASS `31377700777` |
 
-## Limitations
+## Limitations / deferred
 
 - Context changes do **not** mark existing Store rows stale (`source_hash` unchanged).
 - C1.0 cases lack rich object_title/category metadata; C1.1 probes context fields.
-- Class B human re-consensus for gut_01 not re-run in this branch (deterministic + packaging evidence recorded).
 - Site tone (TC7) and surrounding text (TC10) remain Deferred.
+- Term-description → term-name sibling pair remains thin Partial coverage.
+- Woo attribute labels may surface attribute slugs via `get_name()` (names only; not values/SKUs).
 
 ## Next step
 
-Independent implementation review agent → merge only after PASS. Do not start TI.3.
+Author the definitive **TI.3** planning freeze (separate task). Do not start TI.3 implementation here.

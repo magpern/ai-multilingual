@@ -1,6 +1,6 @@
 # TI.2 — Bounded Translation Context — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — **implementation not started**
+**Status:** **Complete** on `main`
 **Milestone:** TI.2 — Bounded Translation Context (TIQ program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
@@ -11,7 +11,10 @@
 **Planning branch:** `docs/ti2-bounded-translation-context-plan` (merged)
 **Independent review (planning):** **PASS** (2026-08-10)
 **Freeze merge:** `bc79366a8d8ec10a8370a4521904dd9c7ba9fb69`
-**Implementation branch:** `feature/ti2-bounded-translation-context` — **not created until after this freeze lands on main**
+**Implementation branch:** `feature/ti2-bounded-translation-context` @ `6f35a005b0299f0a7a69044e591d6a3475b79edd`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Merge commit:** `80dfdcf18a93f168370aa1bb6a03d7c6dd8376fa`
+**Validation log:** [TI2_BOUNDED_TRANSLATION_CONTEXT_VALIDATION_LOG.md](TI2_BOUNDED_TRANSLATION_CONTEXT_VALIDATION_LOG.md)
 
 **Operational success:** The shared translation pipeline receives allowlisted, typed, size-capped field/object context and safer glossary/instruction packaging—without page dumps, a second translator, TM-in-generation, or Store/hash redesign.
 
@@ -464,5 +467,5 @@ Revert feature commits; omit context field; no DB migration.
 | Item | Value |
 |---|---|
 | Canonical path | `docs/plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md` |
-| Revision | 1.0 — 2026-08-10 — Architecture Frozen (planning); implementation not started |
-| Implementation | **Not started** |
+| Revision | 1.1 — 2026-08-10 — Complete on `main` |
+| Implementation | **Complete** — merge `80dfdcf18a93f168370aa1bb6a03d7c6dd8376fa` |
