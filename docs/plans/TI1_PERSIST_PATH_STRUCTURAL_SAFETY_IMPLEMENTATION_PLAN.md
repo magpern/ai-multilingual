@@ -638,15 +638,15 @@ This planning freeze creates **docs only**.
 ## 25. Repository lifecycle
 
 1. Definitive planning (approved) — done
-2. **Materialize on docs branch** — this document
-3. Independent review
-4. Merge / Architecture Frozen on `main`
-5. Create `feature/ti1-persist-path-structural-safety`
+2. Materialize on docs branch — done
+3. Independent review — **PASS**
+4. Merge / Architecture Frozen on `main` — done
+5. Create `feature/ti1-persist-path-structural-safety` — **not started**
 6. Implement TI1.0–TI1.8
 7. Independent review / merge
 8. Validation + docs closure
 
-**This task stops after step 2 (push for review).** Implementation must wait for step 4.
+**Planning freeze is closed.** Implementation begins at step 5 from this frozen plan.
 
 ---
 
