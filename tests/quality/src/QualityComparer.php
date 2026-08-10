@@ -160,8 +160,8 @@ final class QualityComparer {
 					$cand_vals[] = (float) $dims[ $dim ];
 				}
 			}
-			$base_mean = array() === $base_vals ? null : array_sum( $base_vals ) / count( $base_vals );
-			$cand_mean = array() === $cand_vals ? null : array_sum( $cand_vals ) / count( $cand_vals );
+			$base_mean   = array() === $base_vals ? null : array_sum( $base_vals ) / count( $base_vals );
+			$cand_mean   = array() === $cand_vals ? null : array_sum( $cand_vals ) / count( $cand_vals );
 			$out[ $dim ] = array(
 				'baseline_mean'  => null === $base_mean ? null : round( $base_mean, 3 ),
 				'candidate_mean' => null === $cand_mean ? null : round( $cand_mean, 3 ),
