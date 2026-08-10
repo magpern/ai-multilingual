@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete**; **TI.1 Complete**; **TI.2 Complete**; **TI.3 Complete**; **TI.4 Architecture Frozen (planning)** — [TI4 plan](plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); **TI.4 implementation not started**. Exact next step: independently review and merge the TI.4 planning freeze; only then create `feature/ti4-deterministic-qa-hardening`. **TI.5–TI.7** implementation not started.
+**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete**; **TI.1 Complete**; **TI.2 Complete**; **TI.3 Complete**; **TI.4 Architecture Frozen on `main`** — [TI4 plan](plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); **TI.4 implementation not started**. Exact next step: create `feature/ti4-deterministic-qa-hardening` and implement TI4.0–TI4.8. **TI.5–TI.7** implementation not started.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program / milestone | Focus |
 |---|---|---|
-| 1 | **TIQ** / **TI.4** implementation next (after planning merge) | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0**/**TI.1**/**TI.2**/**TI.3 Complete**; [TI4 plan](plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); TI.4 implementation not started; TI.5–TI.7 not started |
+| 1 | **TIQ** / **TI.4** implementation next | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0**/**TI.1**/**TI.2**/**TI.3 Complete**; [TI4 plan](plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md) Architecture Frozen on `main`; TI.4 implementation not started; TI.5–TI.7 not started |
 
 **Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. CI/release baseline is green. `Migrator::TARGET` remains **6**.
 

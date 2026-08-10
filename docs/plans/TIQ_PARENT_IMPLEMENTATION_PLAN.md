@@ -12,9 +12,9 @@
 **TI.1:** **Complete** on `main` — [TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md](TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md); canonical persist-path structural gate active on sync + Jobs; TS7 narrowed (numbers non-blocking on persist)
 **TI.2:** **Complete** on `main` — [TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md](TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md); [validation log](TI2_BOUNDED_TRANSLATION_CONTEXT_VALIDATION_LOG.md); merge `80dfdcf18a93f168370aa1bb6a03d7c6dd8376fa`
 **TI.3:** **Complete** on `main` — [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md); [validation log](TI3_TRANSLATION_MEMORY_INTELLIGENCE_VALIDATION_LOG.md); merge `95839113ba47bed80f781db238ce038c8d9b973d`
-**TI.4:** **Architecture Frozen (planning)** — **implementation not started** — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md)
+**TI.4:** **Architecture Frozen** on `main` — **implementation not started** — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); freeze merge `b1023570e2c11eca34d88d16141e85f509929483`
 **TI.5–TI.7:** planning/implementation **not started**
-**Next:** Independently review and merge the TI.4 planning freeze to `main`. **Only then** create `feature/ti4-deterministic-qa-hardening`. **Do not** start TI.5–TI.7.
+**Next:** Create `feature/ti4-deterministic-qa-hardening` from frozen `main` and implement TI4.0–TI4.8. **Do not** start TI.5–TI.7.
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
@@ -403,8 +403,8 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 | TI.1 / TI.2 | **Complete** on `main` |
 | TI.3 planning | **Complete** — Architecture Frozen then implemented — [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md) |
 | TI.3 implementation | **Complete** — merge `95839113ba47bed80f781db238ce038c8d9b973d`; exact approved TM reuse + relevance-gated assisted context; TARGET 6 |
-| TI.4 planning | **Architecture Frozen (planning)** — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); implementation not started |
-| TI.4 implementation | Create `feature/ti4-deterministic-qa-hardening` only after this plan is Architecture Frozen on `main` |
+| TI.4 planning | **Complete** — Architecture Frozen on `main` — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); freeze merge `b1023570e…` |
+| TI.4 implementation | Create `feature/ti4-deterministic-qa-hardening` from frozen `main`; implement TI4.0–TI4.8 |
 | TI.n planning | Prior dependency gates satisfied; TI.n plan authored |
 | TI.n implementation | TI.n plan Architecture Frozen on `main` |
 

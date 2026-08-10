@@ -1,16 +1,18 @@
 # TI.4 — Deterministic QA Hardening — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — implementation not started
+**Status:** **Architecture Frozen** on `main` — implementation not started
 **Milestone:** TI.4 — Deterministic QA Hardening (TIQ program)
-**Kind:** Milestone implementation plan (authoritative when frozen on `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete** on `main` @ `72a41c6b08751f4415f46a87ac9b40ba78b65e79`
 **Official pack:** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0 (immutable)
 **Additive methodology (planned):** H1.1 · C1.3
 **Schema:** Migrator `TARGET` = **6** (unchanged)
 **ADR:** **No ADR required** for the default shared-detector + policy-adapter scope. **Conditional ADR-0010 amendment** only if TI4.3 proves a durable change to [`AIProviderInterface`](../../src/Translation/AI/AIProviderInterface.php) is required for bounded scaffolding-marker export (see §4.4 / §30). Integration API v1, Store identity, TARGET, and publication semantics are **STOP** if they appear required.
-**Planning branch:** `docs/ti4-deterministic-qa-hardening-plan`
-**Implementation branch:** **not created** until this plan is independently reviewed and Architecture Frozen on `main`
+**Planning branch:** `docs/ti4-deterministic-qa-hardening-plan` (merged)
+**Independent review (planning):** **PASS** (2026-08-10)
+**Freeze merge:** `b1023570e2c11eca34d88d16141e85f509929483`
+**Implementation branch:** **not created** — create `feature/ti4-deterministic-qa-hardening` from frozen `main` only after this closure
 **Related (unchanged ownership):** [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0014](../adr/0014-glossary-platform-lexicon.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); TI.1 persist safety; TI.7 publication policy
 
 **Operational success:** One shared deterministic **detection** core emits policy-neutral raw findings; layer-specific policy maps those findings to TI.1 persist safety, Workspace review UX, and TQ.0 H1.1 measurement—without LLM confidence, auto-publish, H1.0 mutation, fabricating historical marker evidence, or a second translator.
@@ -724,16 +726,16 @@ Disable Workspace/H1.1 adapter wiring; leave TI.1 persist behavior; no schema mi
 
 ## 35. Roadmap pointers
 
-### At this planning freeze (materialization)
+### At this planning freeze (closed on `main`)
 
 - TQ.0 **Complete**
 - TI.1 **Complete**
 - TI.2 **Complete**
 - TI.3 **Complete**
-- TI.4 **Architecture Frozen (planning)** — implementation **not started**
+- TI.4 **Architecture Frozen** on `main` — implementation **not started**
 - TI.5–TI.7 **not started**
 
-**Exact next step after independent review PASS and merge:** create `feature/ti4-deterministic-qa-hardening` and execute TI4.0–TI4.8. Do not create that feature branch on this planning branch.
+**Exact next step:** create `feature/ti4-deterministic-qa-hardening` from frozen `main` and execute TI4.0–TI4.8. Do not create that feature branch until this plan is Architecture Frozen on `main` (now satisfied).
 
 ### After implementation closure (later milestone)
 
@@ -771,4 +773,4 @@ Evidence is sufficient; Option B, raw-vs-policy split, QD dispositions, and hist
 | Baseline SHA | `72a41c6b08751f4415f46a87ac9b40ba78b65e79` |
 | Acceptance criteria count | **78** |
 | Historical leakage gate | Outcome **C** for `baseline-v1.1.0` scaffolding markers |
-| Revision | 1.0 — 2026-08-10 — Architecture Frozen (planning); raw-finding neutrality + historical marker gate frozen; implementation not started |
+| Revision | 1.1 — 2026-08-10 — Architecture Frozen on `main` (freeze merge `b1023570e…`); independent planning review PASS; implementation not started |
