@@ -15,12 +15,13 @@ use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderCapabilities;
 use AIMultilingual\Translation\AI\ProviderResult;
 use AIMultilingual\Translation\AI\TranslationBatch;
+use AIMultilingual\Translation\QA\ScaffoldingMarkerSource;
 use WP_Error;
 
 /**
  * Maps domain batches to OpenAI HTTP calls. Vendor shapes stay inside this class.
  */
-final class OpenAIProvider implements AIProviderInterface {
+final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSource {
 
 	public const ID = 'openai';
 
@@ -230,6 +231,65 @@ final class OpenAIProvider implements AIProviderInterface {
 			$output_tokens,
 			$this->model
 		);
+	}
+
+	/**
+	 * Bounded framing prefixes actually included for this batch (TI.4).
+	 *
+	 * Returns short marker strings — not the full prompt body.
+	 *
+	 * @param TranslationBatch $batch Provider batch.
+	 * @return list<string>
+	 */
+	public function scaffolding_markers_for_batch( TranslationBatch $batch ): array {
+		$markers = array(
+			'Source locale: ',
+			'Target locale: ',
+			'---',
+			'Translate only the following source text. Return only the translation of this source text:',
+		);
+
+		$context = $batch->context;
+		if ( null !== $context ) {
+			$markers[] = 'Field role: ';
+			if ( '' !== $context->content_purpose() ) {
+				$markers[] = 'Content purpose: ';
+			}
+			if ( '' !== $context->object_type ) {
+				$markers[] = 'Object type: ';
+			}
+			if ( '' !== $context->object_title ) {
+				$markers[] = 'Object title: ';
+			}
+			foreach ( $context->items as $item ) {
+				if ( ContextItem::TYPE_TM_EXAMPLE === $item->type ) {
+					$markers[] = 'Prior approved translation example (instruction only — do not copy blindly; subordinate to current source and glossary): ';
+					continue;
+				}
+				$markers[] = 'Context [';
+			}
+		}
+
+		if ( '' !== trim( $batch->glossary_fragment ) ) {
+			$markers[] = 'Glossary instructions (terminology guidance only — do not copy into the translation output):';
+		}
+
+		$has_existing = false;
+		foreach ( $batch->segments as $segment ) {
+			if ( '' !== $segment->existing_target ) {
+				$has_existing = true;
+				break;
+			}
+		}
+		if ( $has_existing ) {
+			$markers[] = 'Existing target text:';
+		}
+
+		if ( array() !== $batch->constraints ) {
+			$markers[] = 'Constraints: ';
+		}
+
+		return array_values( array_unique( $markers ) );
 	}
 
 	/**

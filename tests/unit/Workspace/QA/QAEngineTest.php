@@ -25,7 +25,7 @@ final class QAEngineTest extends TestCase {
 		$result = $engine->evaluate( 'Hello {name}', 'Hej', Store::FORMAT_PLAIN );
 
 		$this->assertTrue( $result->has_errors() );
-		$this->assertSame( 'placeholder_mismatch', $result->issues[0]->code );
+		$this->assertSame( 'qd5_placeholder_loss', $result->issues[0]->code );
 		$this->assertTrue( $engine->should_block_save( $result ) );
 	}
 
