@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://biopentra.local/aiml/tq0/human_review.schema.json",
+  "type": "object",
+  "required": ["review_version", "corpus_version", "reviews"],
+  "additionalProperties": true,
+  "properties": {
+    "review_version": { "type": "string" },
+    "corpus_version": { "type": "string" },
+    "methodology_version": { "type": "string" },
+    "reviews": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/review_sheet"
+      }
+    },
+    "dual_review": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["primary", "secondary"],
+        "properties": {
+          "primary": { "$ref": "#/$defs/review_sheet" },
+          "secondary": { "$ref": "#/$defs/review_sheet" },
+          "consensus": { "$ref": "#/$defs/review_sheet" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "review_sheet": {
+      "type": "object",
+      "required": ["case_id", "reviewer", "dimensions", "critical_flags"],
+      "properties": {
+        "case_id": { "type": "string" },
+        "reviewer": { "type": "string" },
+        "reviewed_at": { "type": "string" },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 1, "maximum": 5 }
+        },
+        "critical_flags": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

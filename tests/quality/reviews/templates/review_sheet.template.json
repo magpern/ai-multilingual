@@ -1,0 +1,26 @@
+{
+  "case_id": "CASE_ID",
+  "reviewer": "reviewer_id",
+  "reviewed_at": "2026-01-01T00:00:00Z",
+  "dimensions": {
+    "semantic_fidelity": 3,
+    "omission": 3,
+    "hallucination": 3,
+    "terminology_accuracy": 3,
+    "terminology_consistency": 3,
+    "fluency_grammar": 3,
+    "naturalness": 3,
+    "tone_register": 3,
+    "technical_meaning": 3,
+    "formatting_structural": 3,
+    "publish_readiness": 3
+  },
+  "critical_flags": {
+    "wrong_language": false,
+    "meaning_inversion": false,
+    "invented_claims": false,
+    "corrupted_protected_tokens": false,
+    "unusable_for_publish": false
+  },
+  "notes": ""
+}
