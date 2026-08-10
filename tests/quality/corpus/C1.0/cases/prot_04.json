@@ -1,0 +1,15 @@
+{
+  "id": "prot_04",
+  "category": "protected",
+  "case_class": "protected",
+  "text_format": "plain",
+  "field_semantics": "sku",
+  "source_text": "LOT-2026-0810-A",
+  "expected_invariants": {
+    "skus": [
+      "LOT-2026-0810-A"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "id": "seo_t_02",
+  "category": "seo_title",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "seo_title",
+  "source_text": "Organic Green Tea Bags – Fresh Harvest",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

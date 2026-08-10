@@ -1,0 +1,15 @@
+{
+  "id": "ph_02",
+  "category": "placeholder_token",
+  "case_class": "structural",
+  "text_format": "plain",
+  "field_semantics": "printf_string",
+  "source_text": "Hello %s, your package is ready.",
+  "expected_invariants": {
+    "placeholders": [
+      "%s"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

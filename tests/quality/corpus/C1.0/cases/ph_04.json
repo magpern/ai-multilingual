@@ -1,0 +1,15 @@
+{
+  "id": "ph_04",
+  "category": "placeholder_token",
+  "case_class": "structural",
+  "text_format": "plain",
+  "field_semantics": "shortcode_like",
+  "source_text": "Download the certificate [lot_certificate] after delivery.",
+  "expected_invariants": {
+    "placeholders": [
+      "[lot_certificate]"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

@@ -1,0 +1,18 @@
+{
+  "id": "sci_01",
+  "category": "scientific_terminology",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "body",
+  "source_text": "Administer 250 mcg subcutaneously once daily in murine models.",
+  "expected_invariants": {
+    "numbers": [
+      "250"
+    ],
+    "glossary_term_ids": [
+      "mcg"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

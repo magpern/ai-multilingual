@@ -1,0 +1,11 @@
+{
+  "id": "woo_title_06",
+  "category": "woo_product_title",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "source_text": "Cold Chain Shipping Kit for Temperature-Sensitive Goods",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

@@ -1,0 +1,15 @@
+{
+  "id": "woo_short_01",
+  "category": "woo_short_description",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_short_description",
+  "source_text": "BPC-157 is a synthetic peptide studied for tissue recovery research applications.",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "bpc157"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

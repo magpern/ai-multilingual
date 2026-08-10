@@ -1,0 +1,15 @@
+{
+  "id": "seo_d_01",
+  "category": "seo_description",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "seo_description",
+  "source_text": "Shop research-grade BPC-157 with sealed vials and documented lot numbers.",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "bpc157"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

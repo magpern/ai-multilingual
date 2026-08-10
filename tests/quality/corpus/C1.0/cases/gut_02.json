@@ -1,0 +1,11 @@
+{
+  "id": "gut_02",
+  "category": "gutenberg_plain",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "paragraph",
+  "source_text": "Every order is verified against the packing list before it leaves our facility.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

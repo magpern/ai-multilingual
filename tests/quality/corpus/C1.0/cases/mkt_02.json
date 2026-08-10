@@ -1,0 +1,11 @@
+{
+  "id": "mkt_02",
+  "category": "marketing",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "marketing",
+  "source_text": "Built for teams who refuse to compromise on quality.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

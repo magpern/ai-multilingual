@@ -1,0 +1,15 @@
+{
+  "id": "sci_04",
+  "category": "scientific_terminology",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "body",
+  "source_text": "<p>Recommended buffer: <code>PBS pH 7.4</code>.</p>",
+  "expected_invariants": {
+    "numbers": [
+      "7.4"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "id": "woo_short_06",
+  "category": "woo_short_description",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "product_short_description",
+  "source_text": "<p>Ships with <em>cold packs</em> and a reusable insulated pouch.</p>",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

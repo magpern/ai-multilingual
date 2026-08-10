@@ -1,0 +1,11 @@
+{
+  "id": "tax_02",
+  "category": "taxonomy",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "term_name",
+  "source_text": "Laboratory Supplies",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

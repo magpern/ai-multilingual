@@ -1,0 +1,15 @@
+{
+  "id": "html_04",
+  "category": "html_rich",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "body",
+  "source_text": "<p>See the <a href=\"https://example.com/docs/storage\">storage guide</a> for details.</p>",
+  "expected_invariants": {
+    "urls": [
+      "https://example.com/docs/storage"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

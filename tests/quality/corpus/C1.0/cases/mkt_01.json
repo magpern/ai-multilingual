@@ -1,0 +1,11 @@
+{
+  "id": "mkt_01",
+  "category": "marketing",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "marketing",
+  "source_text": "Discover clarity, consistency, and confidence in every shipment.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

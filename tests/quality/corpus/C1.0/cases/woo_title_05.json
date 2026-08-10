@@ -1,0 +1,18 @@
+{
+  "id": "woo_title_05",
+  "category": "woo_product_title",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "source_text": "Retatrutide Research Peptide 10mg Vial",
+  "expected_invariants": {
+    "numbers": [
+      "10"
+    ],
+    "glossary_term_ids": [
+      "retatrutide"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

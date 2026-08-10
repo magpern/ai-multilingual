@@ -1,0 +1,11 @@
+{
+  "id": "mkt_04",
+  "category": "marketing",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "marketing",
+  "source_text": "Limited seasonal release — order while inventory remains available.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

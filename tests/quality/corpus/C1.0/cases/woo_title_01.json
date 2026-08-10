@@ -1,0 +1,15 @@
+{
+  "id": "woo_title_01",
+  "category": "woo_product_title",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "source_text": "BPC-157 Peptide Research Compound",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "bpc157"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

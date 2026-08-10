@@ -1,0 +1,15 @@
+{
+  "id": "mkt_03",
+  "category": "marketing",
+  "case_class": "free",
+  "text_format": "html",
+  "field_semantics": "marketing",
+  "source_text": "<p>Join <strong>2,000+</strong> laboratories that trust our fulfillment standards.</p>",
+  "expected_invariants": {
+    "numbers": [
+      "2,000"
+    ]
+  },
+  "difficulty": "normal",
+  "notes": ""
+}

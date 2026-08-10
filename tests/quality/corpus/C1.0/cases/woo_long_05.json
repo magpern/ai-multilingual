@@ -1,0 +1,15 @@
+{
+  "id": "woo_long_05",
+  "category": "woo_long_description",
+  "case_class": "terminology",
+  "text_format": "html",
+  "field_semantics": "product_long_description",
+  "source_text": "<p><strong>Retatrutide</strong> research material is supplied as a lyophilized peptide.</p>\n<p>Reconstitute according to your laboratory protocol.</p>",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "retatrutide"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

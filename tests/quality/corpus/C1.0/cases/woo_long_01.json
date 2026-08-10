@@ -1,0 +1,15 @@
+{
+  "id": "woo_long_01",
+  "category": "woo_long_description",
+  "case_class": "terminology",
+  "text_format": "html",
+  "field_semantics": "product_long_description",
+  "source_text": "<p>BPC-157 is provided for laboratory research only.</p>\n<p>Each vial is labeled with lot number and net content.</p>\n<ul><li>Lyophilized powder</li><li>Research use only</li><li>Store refrigerated</li></ul>",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "bpc157"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "id": "woo_short_02",
+  "category": "woo_short_description",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "product_short_description",
+  "source_text": "A smooth, aromatic green tea blend sourced from high-altitude gardens.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

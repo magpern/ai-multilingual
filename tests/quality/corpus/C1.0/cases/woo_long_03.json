@@ -1,0 +1,11 @@
+{
+  "id": "woo_long_03",
+  "category": "woo_long_description",
+  "case_class": "free",
+  "text_format": "html",
+  "field_semantics": "product_long_description",
+  "source_text": "<h2>Why researchers choose this kit</h2>\n<p>Reliable cold-chain materials reduce temperature excursions during transit.</p>",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

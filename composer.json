@@ -21,14 +21,19 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "AIMultilingual\\Tests\\": "tests/"
+            "AIMultilingual\\Tests\\": "tests/",
+            "AIMultilingual\\Quality\\": "tests/quality/src/"
         }
     },
     "scripts": {
         "phpcs": "phpcs",
         "phpcbf": "phpcbf",
         "test:unit": "phpunit -c phpunit.xml.dist",
-        "test:integration": "phpunit -c phpunit-integration.xml.dist"
+        "test:integration": "phpunit -c phpunit-integration.xml.dist",
+        "quality:validate": "php tests/quality/bin/quality-validate.php",
+        "quality:score": "php tests/quality/bin/quality-score.php",
+        "quality:compare": "php tests/quality/bin/quality-compare.php",
+        "quality:verify-baseline": "php tests/quality/bin/quality-verify-baseline.php"
     },
     "config": {
         "platform": {

@@ -1,0 +1,11 @@
+{
+  "id": "html_03",
+  "category": "html_rich",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "body",
+  "source_text": "<h3>Storage</h3><p>Keep sealed until use. Avoid repeated freeze–thaw cycles.</p>",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

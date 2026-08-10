@@ -1,0 +1,15 @@
+{
+  "id": "prot_03",
+  "category": "protected",
+  "case_class": "protected",
+  "text_format": "plain",
+  "field_semantics": "numbers_units",
+  "source_text": "Net content: 10 mg",
+  "expected_invariants": {
+    "numbers": [
+      "10"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

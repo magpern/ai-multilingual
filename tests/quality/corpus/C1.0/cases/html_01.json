@@ -1,0 +1,11 @@
+{
+  "id": "html_01",
+  "category": "html_rich",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "body",
+  "source_text": "<p>Key benefits:</p><ul><li>Sealed vials</li><li>Lot tracking</li><li>Cold-chain options</li></ul>",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "id": "ui_04",
+  "category": "navigation_ui",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "ui_label",
+  "source_text": "Related products",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

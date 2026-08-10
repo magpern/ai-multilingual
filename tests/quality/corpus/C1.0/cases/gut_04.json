@@ -1,0 +1,11 @@
+{
+  "id": "gut_04",
+  "category": "gutenberg_plain",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "heading",
+  "source_text": "Quality control commitments",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}

@@ -14,3 +14,4 @@ spike/s5/corpus/browser-validation/auth-cookies.json
 # F9 browser investigation artifacts (local diagnostics; not milestone evidence).
 /docs/plans/f9-artifacts/
 /docs/plans/f9-failure-evidence/
+tests/quality/baselines/_staging*/

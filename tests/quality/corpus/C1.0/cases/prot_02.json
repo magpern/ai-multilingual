@@ -1,0 +1,15 @@
+{
+  "id": "prot_02",
+  "category": "protected",
+  "case_class": "protected",
+  "text_format": "plain",
+  "field_semantics": "url",
+  "source_text": "https://shop.example.com/product/bpc-157/",
+  "expected_invariants": {
+    "urls": [
+      "https://shop.example.com/product/bpc-157/"
+    ]
+  },
+  "difficulty": "hard",
+  "notes": ""
+}

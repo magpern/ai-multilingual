@@ -1,0 +1,11 @@
+{
+  "id": "woo_short_05",
+  "category": "woo_short_description",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "product_short_description",
+  "source_text": "Includes three spatulas in common laboratory sizes for daily bench work.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": ""
+}
