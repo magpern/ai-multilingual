@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual;
 
 use AIMultilingual\Jobs\BackgroundTranslationBatchCoordinator;
+use AIMultilingual\Jobs\BackgroundTranslationConcurrencyPolicy;
 use AIMultilingual\Jobs\BackgroundTranslationDiagnostics;
 use AIMultilingual\Jobs\BackgroundTranslationItemProcessor;
 use AIMultilingual\Jobs\BackgroundTranslationItemRepository;
@@ -105,6 +106,7 @@ use AIMultilingual\Translation\AI\NullAIProvider;
 use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderFactory;
 use AIMultilingual\Translation\AI\ProviderRegistry;
+use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\BlockExtractor;
 use AIMultilingual\Translation\Memory\TMEligibilityPolicy;
 use AIMultilingual\Translation\Memory\TMGenerationLookup;
@@ -404,6 +406,7 @@ final class Plugin {
 			$job_diagnostics
 		);
 		$job_budget      = new BackgroundTranslationBudgetPolicy( $job_repo );
+		$job_concurrency = new BackgroundTranslationConcurrencyPolicy( $job_repo );
 		$job_retry       = new BackgroundTranslationRetryPolicy();
 		$job_provider    = new BackgroundTranslationJobProviderValidator( $provider_registry );
 		$job_service     = new BackgroundTranslationJobService(
@@ -438,7 +441,8 @@ final class Plugin {
 			$job_scheduler,
 			$job_provider,
 			$job_audit,
-			$job_diagnostics
+			$job_diagnostics,
+			$job_concurrency
 		);
 		$job_batches     = new BackgroundTranslationBatchCoordinator( $job_service, $job_repo, $job_scheduler );
 		$job_scheduler->register_hooks( $job_worker, $job_leases );
@@ -457,7 +461,10 @@ final class Plugin {
 			$job_worker,
 			$languages,
 			new JobsViewModelSerializer(),
-			$job_diagnostics
+			$job_diagnostics,
+			$job_concurrency,
+			new AssessmentAssembler(),
+			$assembler
 		) )->register();
 
 		( new WorkspaceController(
@@ -537,7 +544,7 @@ final class Plugin {
 
 			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics );
 			RolloutCli::register();
-			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases );
+			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases, $job_concurrency );
 		}
 	}
 
