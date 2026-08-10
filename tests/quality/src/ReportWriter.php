@@ -46,6 +46,25 @@ final class ReportWriter {
 		);
 		$lines[] = '';
 
+		$dim_deltas = (array) ( $comparison['dimension_deltas'] ?? array() );
+		if ( array() !== $dim_deltas ) {
+			$lines[] = '## Dimension deltas (human means)';
+			$lines[] = '';
+			$lines[] = '| Dimension | Baseline | Candidate | Delta |';
+			$lines[] = '|---|---:|---:|---:|';
+			foreach ( $dim_deltas as $dim => $row ) {
+				$row     = (array) $row;
+				$lines[] = sprintf(
+					'| %s | %s | %s | %s |',
+					$dim,
+					null === ( $row['baseline_mean'] ?? null ) ? '—' : (string) $row['baseline_mean'],
+					null === ( $row['candidate_mean'] ?? null ) ? '—' : (string) $row['candidate_mean'],
+					null === ( $row['delta'] ?? null ) ? '—' : (string) $row['delta']
+				);
+			}
+			$lines[] = '';
+		}
+
 		$regressed = (array) ( $comparison['regressed'] ?? array() );
 		$new_crit  = (array) ( $comparison['new_critical_regressions'] ?? array() );
 

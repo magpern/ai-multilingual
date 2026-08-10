@@ -63,6 +63,7 @@ final class QualityComparer {
 		}
 
 		$category_rollups = $this->category_rollups( $base_cases, $cand_cases, $candidate );
+		$dimension_deltas = $this->dimension_deltas( $baseline, $candidate );
 
 		return array(
 			'corpus_version'           => (string) ( $base_manifest['corpus_version'] ?? '' ),
@@ -75,6 +76,7 @@ final class QualityComparer {
 			'unchanged'                => $unchanged,
 			'new_critical_regressions' => $new_critical,
 			'category_rollups'         => $category_rollups,
+			'dimension_deltas'         => $dimension_deltas,
 			'gate'                     => array(
 				'zero_new_critical_regressions' => array() === $new_critical,
 				'compatible_versions'           => true,
@@ -114,6 +116,60 @@ final class QualityComparer {
 				sprintf( 'Incompatible scorer_version: baseline=%s candidate=%s', $base_scorer, $cand_scorer )
 			);
 		}
+	}
+
+	/**
+	 * Computes mean human dimension deltas when B1.0 reviews exist on both packs.
+	 *
+	 * @param EvidencePack $baseline  Baseline pack.
+	 * @param EvidencePack $candidate Candidate pack.
+	 * @return array<string,array{baseline_mean: float|null, candidate_mean: float|null, delta: float|null}>
+	 */
+	private function dimension_deltas( EvidencePack $baseline, EvidencePack $candidate ): array {
+		$base_human = $baseline->load_human( 'B1.0' );
+		$cand_human = $candidate->load_human( 'B1.0' );
+		if ( null === $base_human || null === $cand_human ) {
+			return array();
+		}
+
+		$base_reviews = (array) ( $base_human['reviews'] ?? array() );
+		$cand_reviews = (array) ( $cand_human['reviews'] ?? array() );
+		$dim_keys     = array();
+		foreach ( array_merge( $base_reviews, $cand_reviews ) as $review ) {
+			$review = (array) $review;
+			foreach ( array_keys( (array) ( $review['dimensions'] ?? array() ) ) as $key ) {
+				$dim_keys[ (string) $key ] = true;
+			}
+		}
+
+		$out = array();
+		foreach ( array_keys( $dim_keys ) as $dim ) {
+			$base_vals = array();
+			$cand_vals = array();
+			foreach ( $base_reviews as $review ) {
+				$review = (array) $review;
+				$dims   = (array) ( $review['dimensions'] ?? array() );
+				if ( isset( $dims[ $dim ] ) ) {
+					$base_vals[] = (float) $dims[ $dim ];
+				}
+			}
+			foreach ( $cand_reviews as $review ) {
+				$review = (array) $review;
+				$dims   = (array) ( $review['dimensions'] ?? array() );
+				if ( isset( $dims[ $dim ] ) ) {
+					$cand_vals[] = (float) $dims[ $dim ];
+				}
+			}
+			$base_mean = array() === $base_vals ? null : array_sum( $base_vals ) / count( $base_vals );
+			$cand_mean = array() === $cand_vals ? null : array_sum( $cand_vals ) / count( $cand_vals );
+			$out[ $dim ] = array(
+				'baseline_mean'  => null === $base_mean ? null : round( $base_mean, 3 ),
+				'candidate_mean' => null === $cand_mean ? null : round( $cand_mean, 3 ),
+				'delta'          => ( null === $base_mean || null === $cand_mean ) ? null : round( $cand_mean - $base_mean, 3 ),
+			);
+		}
+
+		return $out;
 	}
 
 	/**
