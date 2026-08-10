@@ -1,16 +1,16 @@
 # TI.4 — Deterministic QA Hardening — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — implementation not started  
-**Milestone:** TI.4 — Deterministic QA Hardening (TIQ program)  
-**Kind:** Milestone implementation plan (authoritative when frozen on `main`)  
-**Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)  
-**Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete** on `main` @ `72a41c6b08751f4415f46a87ac9b40ba78b65e79`  
-**Official pack:** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0 (immutable)  
-**Additive methodology (planned):** H1.1 · C1.3  
-**Schema:** Migrator `TARGET` = **6** (unchanged)  
-**ADR:** **No ADR required** for the default shared-detector + policy-adapter scope. **Conditional ADR-0010 amendment** only if TI4.3 proves a durable change to [`AIProviderInterface`](../../src/Translation/AI/AIProviderInterface.php) is required for bounded scaffolding-marker export (see §4.4 / §30). Integration API v1, Store identity, TARGET, and publication semantics are **STOP** if they appear required.  
-**Planning branch:** `docs/ti4-deterministic-qa-hardening-plan`  
-**Implementation branch:** **not created** until this plan is independently reviewed and Architecture Frozen on `main`  
+**Status:** **Architecture Frozen (planning)** — implementation not started
+**Milestone:** TI.4 — Deterministic QA Hardening (TIQ program)
+**Kind:** Milestone implementation plan (authoritative when frozen on `main`)
+**Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
+**Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete** on `main` @ `72a41c6b08751f4415f46a87ac9b40ba78b65e79`
+**Official pack:** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0 (immutable)
+**Additive methodology (planned):** H1.1 · C1.3
+**Schema:** Migrator `TARGET` = **6** (unchanged)
+**ADR:** **No ADR required** for the default shared-detector + policy-adapter scope. **Conditional ADR-0010 amendment** only if TI4.3 proves a durable change to [`AIProviderInterface`](../../src/Translation/AI/AIProviderInterface.php) is required for bounded scaffolding-marker export (see §4.4 / §30). Integration API v1, Store identity, TARGET, and publication semantics are **STOP** if they appear required.
+**Planning branch:** `docs/ti4-deterministic-qa-hardening-plan`
+**Implementation branch:** **not created** until this plan is independently reviewed and Architecture Frozen on `main`
 **Related (unchanged ownership):** [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0014](../adr/0014-glossary-platform-lexicon.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); TI.1 persist safety; TI.7 publication policy
 
 **Operational success:** One shared deterministic **detection** core emits policy-neutral raw findings; layer-specific policy maps those findings to TI.1 persist safety, Workspace review UX, and TQ.0 H1.1 measurement—without LLM confidence, auto-publish, H1.0 mutation, fabricating historical marker evidence, or a second translator.
@@ -209,7 +209,7 @@ Policies may differ **explicitly** (documented asymmetries only), e.g.:
 - Placeholder addition: H1.1 critical vs persist OBSERVE (no new persist BLOCK without proof)
 - Leakage on historical packs: H1.1 `not_applicable` vs live TI.4-era applicable scoring
 
-Forbidden: silent PASS/FAIL contradiction without a documented reason.  
+Forbidden: silent PASS/FAIL contradiction without a documented reason.
 Forbidden: treating `not_applicable` as PASS.
 
 ---
