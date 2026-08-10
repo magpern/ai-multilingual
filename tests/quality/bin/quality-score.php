@@ -12,19 +12,35 @@ require dirname( __DIR__, 3 ) . '/vendor/autoload.php';
 
 use AIMultilingual\Quality\EvidencePack;
 use AIMultilingual\Quality\QualityScorer;
+use AIMultilingual\Quality\QualityScorerH11;
 use AIMultilingual\Quality\ReportWriter;
 
 if ( ! isset( $argv[1] ) ) {
-	fwrite( STDERR, "Usage: quality-score.php <pack-directory> [--write-report]\n" );
+	fwrite( STDERR, "Usage: quality-score.php <pack-directory> [--scorer=H1.0|H1.1] [--write-report]\n" );
 	exit( 2 );
 }
 
 $pack_dir     = $argv[1];
 $write_report = in_array( '--write-report', $argv, true );
+$scorer_arg   = 'H1.0';
 
-$pack   = new EvidencePack( $pack_dir );
-$scorer = new QualityScorer();
-$scores = $scorer->score_pack( $pack );
+foreach ( $argv as $arg ) {
+	if ( is_string( $arg ) && str_starts_with( $arg, '--scorer=' ) ) {
+		$scorer_arg = substr( $arg, strlen( '--scorer=' ) );
+	}
+}
+
+if ( ! in_array( $scorer_arg, array( 'H1.0', 'H1.1' ), true ) ) {
+	fwrite( STDERR, "ERROR: --scorer must be H1.0 or H1.1\n" );
+	exit( 2 );
+}
+
+$pack = new EvidencePack( $pack_dir );
+if ( 'H1.1' === $scorer_arg ) {
+	$scores = ( new QualityScorerH11() )->score_pack( $pack );
+} else {
+	$scores = ( new QualityScorer() )->score_pack( $pack );
+}
 
 $manifest       = $pack->load_manifest();
 $scorer_version = $scores['scorer_version'];
@@ -45,9 +61,11 @@ if ( $write_report ) {
 
 $summary = (array) ( $scores['summary'] ?? array() );
 echo sprintf(
-	"PASS\tquality score\tpass=%d/%d critical_failures=%d\n",
+	"PASS\tquality score\tscorer=%s pass=%d/%d critical_failures=%d not_applicable=%d\n",
+	(string) $scorer_version,
 	(int) ( $summary['pass_count'] ?? 0 ),
 	(int) ( $summary['total_cases'] ?? 0 ),
-	(int) ( $summary['critical_failures'] ?? 0 )
+	(int) ( $summary['critical_failures'] ?? 0 ),
+	(int) ( $summary['not_applicable_count'] ?? 0 )
 );
 exit( 0 );

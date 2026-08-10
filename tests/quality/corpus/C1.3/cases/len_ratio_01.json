@@ -1,0 +1,11 @@
+{
+  "id": "len_ratio_01",
+  "category": "length_ratio",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "Short product blurb for length checks.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "Very long expansion triggers length_ratio warning."
+}

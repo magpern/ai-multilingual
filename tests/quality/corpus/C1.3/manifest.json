@@ -1,0 +1,42 @@
+{
+  "corpus_version": "C1.3",
+  "methodology_version": "M1.0",
+  "source_locale": "en_US",
+  "target_locale": "sv_SE",
+  "language_pair": "en_US->sv_SE",
+  "case_count": 16,
+  "immutability": "Additive detector cases for TI.4 H1.1; does not modify C1.0, C1.1, or C1.2.",
+  "statistical_claim": "Engineering detector / applicability probes — not a replacement for C1.0 baseline quality claims.",
+  "case_ids": [
+    "leak_scaffold_01",
+    "leak_clean_01",
+    "num_sv_legit_01",
+    "num_corrupt_01",
+    "ph_loss_01",
+    "html_loss_01",
+    "forbid_01",
+    "url_loss_01",
+    "src_eq_tgt_brand_01",
+    "src_eq_tgt_long_01",
+    "gloss_miss_01",
+    "gloss_hit_01",
+    "dup_para_01",
+    "empty_01",
+    "unicode_01",
+    "len_ratio_01"
+  ],
+  "categories": [
+    "scaffolding_leakage",
+    "number_preservation",
+    "placeholder_token",
+    "html_rich",
+    "forbidden_markup",
+    "url_preservation",
+    "source_equals_target",
+    "glossary_compliance",
+    "duplicate_paragraph",
+    "empty_target",
+    "unicode_damage",
+    "length_ratio"
+  ]
+}

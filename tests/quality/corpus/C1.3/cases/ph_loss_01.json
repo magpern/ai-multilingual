@@ -1,0 +1,13 @@
+{
+  "id": "ph_loss_01",
+  "category": "placeholder_token",
+  "case_class": "structural",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "Hello {name}",
+  "expected_invariants": {
+    "placeholders": ["{name}"]
+  },
+  "difficulty": "normal",
+  "notes": "Placeholder loss critical."
+}

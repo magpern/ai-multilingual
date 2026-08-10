@@ -1,0 +1,11 @@
+{
+  "id": "html_loss_01",
+  "category": "html_rich",
+  "case_class": "structural",
+  "text_format": "html",
+  "field_semantics": "generic",
+  "source_text": "<p>Hello</p>",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "HTML tag loss when target is plain."
+}
