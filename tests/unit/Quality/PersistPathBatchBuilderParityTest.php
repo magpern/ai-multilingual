@@ -22,7 +22,7 @@ use ReflectionClass;
 final class PersistPathBatchBuilderParityTest extends TestCase {
 
 	public function test_batch_matches_translate_segment_contract(): void {
-		$case   = ( new CorpusLoader() )->load( 'C1.0' )['cases']['html_01'];
+		$case    = ( new CorpusLoader() )->load( 'C1.0' )['cases']['html_01'];
 		$builder = new PersistPathBatchBuilder();
 		$batch   = $builder->build_for_case( $case, 'en_US', 'sv_SE', "peptide => peptid\n" );
 
@@ -41,11 +41,11 @@ final class PersistPathBatchBuilderParityTest extends TestCase {
 	}
 
 	public function test_field_semantics_not_in_batch(): void {
-		$case = array(
-			'id'               => 'test_01',
-			'source_text'      => 'Hello',
-			'text_format'      => 'plain',
-			'field_semantics'  => 'seo_title',
+		$case  = array(
+			'id'              => 'test_01',
+			'source_text'     => 'Hello',
+			'text_format'     => 'plain',
+			'field_semantics' => 'seo_title',
 		);
 		$batch = ( new PersistPathBatchBuilder() )->build_for_case( $case, 'en_US', 'sv_SE', '' );
 

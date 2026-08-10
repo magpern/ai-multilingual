@@ -28,8 +28,16 @@ final class FixtureGlossaryFragmentBuilderTest extends TestCase {
 	public function test_longest_match_first(): void {
 		$glossary = array(
 			'terms' => array(
-				array( 'id' => 'a', 'source' => 'peptide', 'target' => 'peptid' ),
-				array( 'id' => 'b', 'source' => 'peptide complex', 'target' => 'peptidkomplex' ),
+				array(
+					'id'     => 'a',
+					'source' => 'peptide',
+					'target' => 'peptid',
+				),
+				array(
+					'id'     => 'b',
+					'source' => 'peptide complex',
+					'target' => 'peptidkomplex',
+				),
 			),
 		);
 		$fragment = ( new FixtureGlossaryFragmentBuilder() )->build( 'peptide complex formula', $glossary );

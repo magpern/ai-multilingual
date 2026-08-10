@@ -24,12 +24,12 @@ final class DeterministicScorerTest extends TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->scorer  = new DeterministicScorer();
+		$this->scorer   = new DeterministicScorer();
 		$this->glossary = ( new CorpusLoader() )->load( 'C1.0' )['glossary'];
 	}
 
 	public function test_empty_translation_is_critical(): void {
-		$case = array(
+		$case   = array(
 			'source_text' => 'Hello world',
 			'text_format' => 'plain',
 			'case_class'  => 'free',
@@ -41,7 +41,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_placeholder_loss_is_critical(): void {
-		$case = array(
+		$case   = array(
 			'source_text'         => 'Order {order_number} ready',
 			'text_format'         => 'plain',
 			'case_class'          => 'structural',
@@ -53,7 +53,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_html_tag_loss_is_critical(): void {
-		$case = array(
+		$case   = array(
 			'source_text' => '<p>Hello</p>',
 			'text_format' => 'html',
 			'case_class'  => 'structural',
@@ -64,7 +64,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_number_corruption_is_error(): void {
-		$case = array(
+		$case   = array(
 			'source_text'         => 'Dose 250 mcg',
 			'text_format'         => 'plain',
 			'case_class'          => 'structural',
@@ -77,7 +77,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_sku_corruption_is_critical(): void {
-		$case = array(
+		$case   = array(
 			'source_text'         => 'SKU: PEP-BPC157-10MG',
 			'text_format'         => 'plain',
 			'case_class'          => 'protected',
@@ -90,7 +90,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_glossary_compliance_error(): void {
-		$case = array(
+		$case   = array(
 			'source_text'         => 'This peptide is lyophilized.',
 			'text_format'         => 'plain',
 			'case_class'          => 'terminology',
@@ -103,7 +103,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_unicode_damage_is_error(): void {
-		$case = array(
+		$case   = array(
 			'source_text' => 'Café',
 			'text_format' => 'plain',
 			'case_class'  => 'free',
@@ -113,7 +113,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_length_ratio_warning(): void {
-		$case = array(
+		$case   = array(
 			'source_text' => 'This is a reasonably long product description for testing.',
 			'text_format' => 'plain',
 			'case_class'  => 'free',
@@ -124,7 +124,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_clean_translation_passes(): void {
-		$case = array(
+		$case   = array(
 			'source_text'         => 'Your order {order_number} has been received.',
 			'text_format'         => 'plain',
 			'case_class'          => 'structural',
@@ -136,7 +136,7 @@ final class DeterministicScorerTest extends TestCase {
 	}
 
 	public function test_multiple_findings(): void {
-		$case = array(
+		$case   = array(
 			'source_text'         => 'SKU: PEP-BPC157-10MG order {order_number}',
 			'text_format'         => 'plain',
 			'case_class'          => 'protected',

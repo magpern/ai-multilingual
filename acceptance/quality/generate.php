@@ -75,6 +75,21 @@ $out_dir     = $default_out;
 if ( isset( $args ) && is_array( $args ) && isset( $args[0] ) && is_string( $args[0] ) && '' !== $args[0] ) {
 	$out_dir = $args[0];
 }
+if ( ! is_dir( $out_dir ) && ! @mkdir( $out_dir, 0777, true ) && ! is_dir( $out_dir ) ) {
+	$out_dir = rtrim( sys_get_temp_dir(), '/' ) . '/aiml-tq0-staging-v1.1.0';
+	if ( ! is_dir( $out_dir ) && ! mkdir( $out_dir, 0777, true ) && ! is_dir( $out_dir ) ) {
+		echo "STOP\tcannot create output directory\n";
+		exit( 2 );
+	}
+	echo "WARN\tfallback_output\t" . $out_dir . "\n";
+}
+if ( ! is_writable( $out_dir ) ) {
+	$out_dir = rtrim( sys_get_temp_dir(), '/' ) . '/aiml-tq0-staging-v1.1.0';
+	if ( ! is_dir( $out_dir ) ) {
+		mkdir( $out_dir, 0777, true );
+	}
+	echo "WARN\tfallback_output\t" . $out_dir . "\n";
+}
 
 $subject_sha = '';
 $git_head    = @shell_exec( 'git -C ' . escapeshellarg( $plugin_root ) . ' rev-parse HEAD 2>/dev/null' );

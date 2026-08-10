@@ -33,8 +33,8 @@ final class QualityComparerTest extends TestCase {
 	}
 
 	public function test_detects_new_critical_regression(): void {
-		$manifest = $this->base_manifest();
-		$baseline_scores = $this->scores(
+		$manifest         = $this->base_manifest();
+		$baseline_scores  = $this->scores(
 			array(
 				'case_a' => $this->case_result( true, 0 ),
 				'case_b' => $this->case_result( true, 0 ),
@@ -48,10 +48,21 @@ final class QualityComparerTest extends TestCase {
 		);
 
 		$this->write_pack( $this->tmp . '/baseline', $manifest, $baseline_scores );
-		$this->write_pack( $this->tmp . '/candidate', $manifest, $candidate_scores, array(
-			array( 'case_id' => 'case_a', 'category' => 'html_rich' ),
-			array( 'case_id' => 'case_b', 'category' => 'protected' ),
-		) );
+		$this->write_pack(
+			$this->tmp . '/candidate',
+			$manifest,
+			$candidate_scores,
+			array(
+				array(
+					'case_id'  => 'case_a',
+					'category' => 'html_rich',
+				),
+				array(
+					'case_id'  => 'case_b',
+					'category' => 'protected',
+				),
+			)
+		);
 
 		$comparer   = new QualityComparer();
 		$comparison = $comparer->compare(
@@ -65,8 +76,8 @@ final class QualityComparerTest extends TestCase {
 	}
 
 	public function test_incompatible_corpus_throws(): void {
-		$manifest_a = $this->base_manifest();
-		$manifest_b = $this->base_manifest();
+		$manifest_a                   = $this->base_manifest();
+		$manifest_b                   = $this->base_manifest();
 		$manifest_b['corpus_version'] = 'C2.0';
 
 		$scores = $this->scores( array( 'case_a' => $this->case_result( true, 0 ) ) );
@@ -125,7 +136,7 @@ final class QualityComparerTest extends TestCase {
 	/**
 	 * @param array<string,mixed>       $manifest Manifest.
 	 * @param array<string,mixed>       $scores   Scores.
-	 * @param list<array<string,mixed>>  $generations Optional generations.
+	 * @param list<array<string,mixed>> $generations Optional generations.
 	 */
 	private function write_pack( string $dir, array $manifest, array $scores, array $generations = array() ): void {
 		mkdir( $dir, 0755, true );
