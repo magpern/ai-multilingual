@@ -1,6 +1,6 @@
 <?php
 /**
- * Extracts structural constraints from segment source text (F11 WP4).
+ * Extracts structural constraints from segment source text (F11 WP4 / TI.1).
  *
  * @package AIMultilingual
  */
@@ -12,11 +12,18 @@ namespace AIMultilingual\Translation\AI;
 use AIMultilingual\Translation\Store;
 
 /**
- * Analyzes source text for placeholders, HTML tags, and numbers.
+ * Analyzes source text for placeholders, HTML tags, numbers, and absolute URLs.
  *
  * Feeds ResponseValidator (provider pipeline) — not QAEngine.
  */
 final class SegmentConstraintAnalyzer {
+
+	/**
+	 * Dangerous HTML tags that must not be invented in machine output (TI.1 TS5).
+	 *
+	 * @var list<string>
+	 */
+	public const DANGEROUS_TAGS = array( 'script', 'iframe', 'object', 'embed' );
 
 	/**
 	 * Analyzes source text for structural tokens that must be preserved.
@@ -27,6 +34,7 @@ final class SegmentConstraintAnalyzer {
 	 *     placeholders: list<string>,
 	 *     html_tags: list<string>,
 	 *     numbers: list<string>,
+	 *     urls: list<string>,
 	 *     constraints: list<string>
 	 * }
 	 */
@@ -36,6 +44,7 @@ final class SegmentConstraintAnalyzer {
 			? $this->extract_html_tags( $source_text )
 			: array();
 		$numbers      = $this->extract_numbers( $source_text );
+		$urls         = $this->extract_absolute_urls( $source_text );
 
 		$constraints = array( 'non_empty' );
 		if ( array() !== $placeholders ) {
@@ -47,11 +56,15 @@ final class SegmentConstraintAnalyzer {
 		if ( array() !== $numbers ) {
 			$constraints[] = 'numbers';
 		}
+		if ( array() !== $urls ) {
+			$constraints[] = 'urls';
+		}
 
 		return array(
 			'placeholders' => $placeholders,
 			'html_tags'    => $html_tags,
 			'numbers'      => $numbers,
+			'urls'         => $urls,
 			'constraints'  => $constraints,
 		);
 	}
@@ -110,5 +123,26 @@ final class SegmentConstraintAnalyzer {
 		}
 
 		return array_values( array_unique( $m[0] ) );
+	}
+
+	/**
+	 * Extracts absolute http(s) URLs for inventory preservation (TI.1 TS6).
+	 *
+	 * @param string $text Source text.
+	 * @return list<string>
+	 */
+	public function extract_absolute_urls( string $text ): array {
+		if ( ! preg_match_all( '#https?://[^\s<>"\']+#i', $text, $m ) ) {
+			return array();
+		}
+
+		$urls = array_map(
+			static function ( string $url ): string {
+				return rtrim( $url, '.,);]' );
+			},
+			$m[0]
+		);
+
+		return array_values( array_unique( $urls ) );
 	}
 }
