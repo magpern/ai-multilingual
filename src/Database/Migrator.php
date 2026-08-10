@@ -35,7 +35,7 @@ final class Migrator {
 	/**
 	 * Schema version this build expects.
 	 */
-	public const TARGET = 6;
+	public const TARGET = 7;
 
 	/**
 	 * Applies any migration steps newer than the recorded version.
@@ -88,6 +88,7 @@ final class Migrator {
 			4 => array( $this, 'step_4_glossary' ),
 			5 => array( $this, 'step_5_review_workflow' ),
 			6 => array( $this, 'step_6_background_jobs' ),
+			7 => array( $this, 'step_7_publication_axis' ),
 		);
 	}
 
@@ -195,5 +196,67 @@ final class Migrator {
 
 		$wpdb->query( Schema::create_jobs() );      // phpcs:ignore WordPress.DB.PreparedSQL
 		$wpdb->query( Schema::create_job_items() ); // phpcs:ignore WordPress.DB.PreparedSQL
+	}
+
+	/**
+	 * Step 7 — Segment publication axis on the Store (ADR-0020 / TI.7).
+	 *
+	 * Additive columns default to `unpublished` for new writes. Existing rows
+	 * that were publicly overlayable under the most permissive pre-TI.7 path
+	 * (non-empty translated_text; status not ignored/missing) are backfilled
+	 * to `published` so upgrades do not hide currently-visible translations.
+	 */
+	private function step_7_publication_axis(): void {
+		global $wpdb;
+
+		$table = Schema::translations();
+		$escaped_table = str_replace( '`', '``', $table );
+
+		// Ensure DYNAMIC row format before additive ALTERs (InnoDB row-size headroom).
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema table identifier only.
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			"ALTER TABLE `{$escaped_table}` ROW_FORMAT=DYNAMIC"
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		$columns = array(
+			'publish_status' => "VARCHAR(24) NOT NULL DEFAULT 'unpublished'",
+			'published_at'   => 'DATETIME NULL',
+			'published_by'   => 'BIGINT UNSIGNED NULL',
+		);
+
+		foreach ( $columns as $name => $definition ) {
+			if ( Schema::column_exists( $table, $name ) ) {
+				continue;
+			}
+
+			$escaped_name = str_replace( '`', '``', $name );
+
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- additive DDL; identifiers from Schema only.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				"ALTER TABLE `{$escaped_table}` ADD COLUMN `{$escaped_name}` {$definition}"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		if ( ! Schema::index_exists( $table, 'lang_publish_status' ) ) {
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- additive DDL; identifiers from Schema only.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				"ALTER TABLE `{$escaped_table}` ADD KEY lang_publish_status (language_id, publish_status, published_at)"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- backfill uses Schema table name only.
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			"UPDATE `{$escaped_table}`
+			SET publish_status = 'published',
+				published_at = COALESCE(published_at, updated_at, UTC_TIMESTAMP())
+			WHERE publish_status = 'unpublished'
+			  AND translated_text IS NOT NULL
+			  AND TRIM(translated_text) <> ''
+			  AND status NOT IN ('ignored', 'missing')"
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }
