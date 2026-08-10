@@ -88,7 +88,9 @@ No new publication tables. No second Store. Integration API v1 unchanged.
 
 Deterministic backfill on step 7:
 
-> Set `publish_status=published` (and set `published_at` to a deterministic migration timestamp or existing `updated_at` if present) for every existing row that would be **frontend-overlay-eligible under pre-TI.7 rules**: content `status ∈ RENDERABLE_STATUSES`, non-empty translated text.
+> Set `publish_status=published` (and set `published_at` to a deterministic migration timestamp or existing `updated_at` if present) for every existing row that is **publicly overlayable under the most permissive pre-TI.7 path**: non-empty `translated_text` and content `status` **not** in `{ignored, missing}`.
+
+Rationale: pre-TI.7 `Store::translated_value()` and `IntegrationFrontendBridge` overlay any non-empty non-ignored/non-missing row (they do **not** require `RENDERABLE_STATUSES`). Block/Elementor paths are stricter (`RENDERABLE_STATUSES` + other rules). Backfill must follow the **most permissive** current public path so classic/integration overlays do not regress on upgrade.
 
 Purpose: **existing currently-public overlays must not disappear merely by upgrading.**
 
@@ -124,11 +126,14 @@ This switch is **not** a second permanent definition of “published.” It sele
 
 **Authoritative gating seams** (all must consume the same publication check when the gate is enabled; no partial rollout):
 
-1. `Store::translated_value()` — classic field overlays
+1. `Store::translated_value()` — classic field overlays and Rank Math token fallbacks that call it
 2. `Renderer` title / content / excerpt filters (via Store or shared helper)
 3. `BlockTranslationLookup` / block frontend path (`BlockRenderGate` remains request/feature gate; lookup applies segment eligibility)
 4. `ElementorOverlayResolver` (+ applier path)
-5. Any WooCommerce / taxonomy / metadata overlay that reads Store translation text for public display (must share the same Store-level or shared eligibility helper — **no path-local policy**)
+5. **`IntegrationFrontendBridge` resolve closure** — today calls `Store::get()` and returns any non-empty text **without** `RENDERABLE_STATUSES`; feeds WooCommerce + Rank Math + other Integration API `register_output_hooks` overlays. **Must** share the same eligibility helper or unpublished translations will leak while other paths respect the gate.
+6. Any other public Store text overlay registered later must use the same helper — **no path-local policy**
+
+**Pre-TI.7 asymmetry (implementation must not preserve as dual authorities):** classic/`translated_value`/IntegrationFrontendBridge are more permissive than Block/Elementor `RENDERABLE_STATUSES`. TI.7 central helper should apply gate + shared prerequisites consistently; aligning classic paths onto `RENDERABLE_STATUSES` as a content prerequisite is allowed if it does not strip backfilled-published rows unexpectedly — prefer documenting any prerequisite tightening in TI.7 release notes.
 
 Implementation must centralize eligibility so unpublished cannot leak through one path while another respects the gate.
 

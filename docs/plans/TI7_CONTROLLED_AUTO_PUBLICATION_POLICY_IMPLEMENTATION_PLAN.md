@@ -118,7 +118,9 @@ Columns: `publish_status`, `published_at`, `published_by`.
 
 ### Backfill
 
-Existing rows with `status ∈ RENDERABLE_STATUSES` and non-empty translated text → `publish_status=published`.
+Existing rows with **non-empty** `translated_text` and `status ∉ {ignored, missing}` → `publish_status=published`.
+
+This matches the **most permissive** pre-TI.7 public path (`Store::translated_value()` / `IntegrationFrontendBridge`), which does **not** require `RENDERABLE_STATUSES`. Block/Elementor remain stricter on provenance; backfill must not regress classic/integration overlays.
 
 New persists → `unpublished` until PublicationService publishes.
 
@@ -140,15 +142,16 @@ The switch does **not** create two permanent equal authorities — it selects wh
 
 | Seam | Path | Notes |
 |---|---|---|
-| Classic Store read | `Store::translated_value()` | Title/excerpt/content classic overlays |
+| Classic Store read | `Store::translated_value()` | Today: any non-empty non-ignored/missing; Rank Math also calls this |
 | Classic Renderer | `Renderer` `the_title` / `the_content` / `get_the_excerpt` | Must not bypass Store eligibility |
-| Blocks | `BlockTranslationLookup` (+ `BlockRenderGate` request gates) | Lookup applies segment eligibility |
-| Elementor | `ElementorOverlayResolver` | Same publication check |
-| Woo / taxonomy / meta overlays | Any public Store text overlay | Must share helper; no path-local policy |
+| Blocks | `BlockTranslationLookup` (+ `BlockRenderGate` request gates) | Uses `RENDERABLE_STATUSES` + non-stale |
+| Elementor | `ElementorOverlayResolver` | Uses `RENDERABLE_STATUSES` |
+| **Integration bridge** | **`IntegrationFrontendBridge` resolve** | Today: `Store::get()` + non-empty only — **feeds Woo/Rank Math/Integration API overlays**; mandatory gate consumer |
+| Woo / taxonomy / SEO overlays | Via bridge `$resolve` or `translated_value` | Must not introduce a third read path |
 
-**Partial rollout is a STOP condition** (unpublished leak).
+**Partial rollout is a STOP condition** (unpublished leak via IntegrationFrontendBridge is the highest risk).
 
-Centralize: e.g. `Store::is_publicly_overlay_eligible( $row )` honoring gate setting + RENDERABLE + publish_status + path rules.
+Centralize: e.g. `Store::is_publicly_overlay_eligible( $row )` honoring gate setting + publish_status + shared content prerequisites.
 
 ---
 
@@ -502,7 +505,7 @@ Bounded reason codes; no prompt/API keys in audit; capability checks on mutate e
 13. Durable `publish_status` ∈ {unpublished, published} exists after TI.7 implementation.
 14. Publication is not overloaded onto `review_status`.
 15. TARGET moves 6→7 only under ADR-0020; additive columns only.
-16. Migration backfill marks pre-TI.7 overlay-eligible rows `published`.
+16. Migration backfill marks pre-TI.7 publicly overlayable rows `published` (non-empty text; status not ignored/missing).
 17. New translation persists default to `unpublished`.
 18. `segment_publication_gate_enabled` defaults false.
 19. `auto_publication_mode` defaults `manual`.
@@ -623,7 +626,7 @@ Network-free; no live OpenAI.
 
 ## 36. STOP conditions
 
-STOP/defer if TI.7 requires: LLM/score authority; second QA/assessment; overload approved=published; TARGET without ADR; automation enabled by default; force-publish hard blockers; Jobs-owned policy; conflating publication failure with translation failure; second SEO pipeline; partial overlay gate; translator/prompt/TM/`source_hash` redesign; live-AI normal CI; widening Deferred matrices without parent amendment.
+STOP/defer if TI.7 requires: LLM/score authority; second QA/assessment; overload approved=published; TARGET without ADR; automation enabled by default; force-publish hard blockers; Jobs-owned policy; conflating publication failure with translation failure; second SEO pipeline; partial overlay gate (**including leaving `IntegrationFrontendBridge` ungated**); translator/prompt/TM/`source_hash` redesign; live-AI normal CI; widening Deferred matrices without parent amendment.
 
 ---
 
