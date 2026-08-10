@@ -1,7 +1,9 @@
 # TI.1 — Persist-path Structural Safety — Implementation Validation Log
 
 **Status:** **TI.1 implementation complete — review-ready** (feature branch; not merged)
-**Implementation branch:** `feature/ti1-persist-path-structural-safety`
+**Implementation branch:** `feature/ti1-persist-path-structural-safety` @ `e8b2ac9219f60849e43c6164f3a00257e7d794de`
+**Draft PR:** https://github.com/magpern/ai-multilingual/pull/5
+**Branch CI:** `31371192181` (phpcs/unit/integration/quality/build — all green)
 **Implementation baseline (branch start):** `125a0ee7801dccbb93b396b477894f0bc18d3cba`
 **Frozen plan blob:** `fe143cd0e7562e58f7b283ec6a5ca92879965f19` (`docs/plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md`)
 **TIQ parent blob:** `2949c3bfdf65c792b6357162e3a62ccb90e8c62d` (`docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`)
