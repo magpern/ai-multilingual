@@ -1,0 +1,13 @@
+{
+  "id": "ctx_seo_desc_01",
+  "category": "seo_description",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "seo_description",
+  "object_type": "product",
+  "object_title": "Premium Organic Green Tea Bags — 100 Count",
+  "source_text": "Shop organic green tea bags with high-altitude aroma. Free shipping on qualifying orders.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "TI.2 C1.1: SEO description with object title context."
+}

@@ -1,0 +1,22 @@
+{
+  "corpus_version": "C1.1",
+  "methodology_version": "M1.0",
+  "source_locale": "en_US",
+  "target_locale": "sv_SE",
+  "language_pair": "en_US->sv_SE",
+  "case_count": 4,
+  "immutability": "Additive paired-context cases for TI.2; does not modify C1.0.",
+  "statistical_claim": "Engineering paired-context probes — not a replacement for C1.0 baseline.",
+  "case_ids": [
+    "ctx_woo_short_01",
+    "ctx_seo_title_01",
+    "ctx_seo_desc_01",
+    "ctx_gut_heading_01"
+  ],
+  "categories": [
+    "woo_short_description",
+    "seo_title",
+    "seo_description",
+    "gutenberg_plain"
+  ]
+}

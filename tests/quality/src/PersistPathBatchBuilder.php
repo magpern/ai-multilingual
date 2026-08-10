@@ -12,21 +12,34 @@ namespace AIMultilingual\Quality;
 use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderSegment;
 use AIMultilingual\Translation\AI\TranslationBatch;
+use AIMultilingual\Translation\AI\TranslationContextBuilder;
 use AIMultilingual\Translation\Store;
 
 /**
  * Builds TranslationBatch payloads matching TranslationService::translate_segment.
  *
- * The field_semantics corpus field is metadata only and is never passed to the batch.
+ * Uses the real TI.2 TranslationContextBuilder path (not a quality-only approximation).
  */
 final class PersistPathBatchBuilder {
+
+	/**
+	 * @var TranslationContextBuilder
+	 */
+	private TranslationContextBuilder $context_builder;
+
+	/**
+	 * @param TranslationContextBuilder|null $context_builder Shared context builder.
+	 */
+	public function __construct( ?TranslationContextBuilder $context_builder = null ) {
+		$this->context_builder = $context_builder ?? new TranslationContextBuilder();
+	}
 
 	/**
 	 * Builds a single-segment translate batch for one corpus case.
 	 *
 	 * Mirrors TranslationService::translate_segment persist path:
 	 * PromptProfileRegistry::TRANSLATE + VERSION, OPERATION_TRANSLATE, empty constraints,
-	 * one ProviderSegment, glossary fragment supplied by caller.
+	 * one ProviderSegment, glossary fragment supplied by caller, optional TranslationContext.
 	 *
 	 * @param array<string,mixed> $case              Corpus case row.
 	 * @param string              $source_locale     Source locale (e.g. en_US).
@@ -45,7 +58,8 @@ final class PersistPathBatchBuilder {
 			throw new \InvalidArgumentException( 'Corpus case id is required.' );
 		}
 
-		// field_semantics is corpus metadata only — intentionally excluded from batch.
+		$context = $this->context_builder->build_for_corpus_case( $case );
+
 		return new TranslationBatch(
 			$source_locale,
 			$target_locale,
@@ -60,7 +74,8 @@ final class PersistPathBatchBuilder {
 				),
 			),
 			TranslationBatch::OPERATION_TRANSLATE,
-			array()
+			array(),
+			$context
 		);
 	}
 }

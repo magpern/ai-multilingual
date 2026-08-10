@@ -1,0 +1,15 @@
+{
+  "id": "ctx_gut_heading_01",
+  "category": "gutenberg_plain",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "heading",
+  "object_type": "page",
+  "object_title": "Packaging and logistics",
+  "source_text": "How we package research materials",
+  "expected_invariants": {
+    "glossary_term_ids": ["research"]
+  },
+  "difficulty": "normal",
+  "notes": "TI.2 C1.1: gut_01 twin with packaging isolation under bounded context."
+}
