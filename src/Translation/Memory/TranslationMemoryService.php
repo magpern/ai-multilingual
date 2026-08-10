@@ -338,20 +338,22 @@ final class TranslationMemoryService {
 		?float $similarity = null
 	): array {
 		return array(
-			'tm_id'          => (int) $row->tm_id,
-			'source_lang_id' => (int) $row->source_lang_id,
-			'target_lang_id' => (int) $row->target_lang_id,
-			'source_hash'    => (string) $row->source_hash,
-			'source_text'    => (string) $row->source_text,
-			'target_text'    => (string) $row->target_text,
-			'text_format'    => (string) $row->text_format,
-			'context'        => (string) $row->context,
-			'origin'         => (string) $row->origin,
-			'quality'        => (string) $row->quality,
-			'use_count'      => (int) $row->use_count,
-			'confidence'     => $confidence,
-			'match_type'     => $match_type,
-			'similarity'     => $similarity,
+			'tm_id'            => (int) $row->tm_id,
+			'source_lang_id'   => (int) $row->source_lang_id,
+			'target_lang_id'   => (int) $row->target_lang_id,
+			'source_hash'      => (string) $row->source_hash,
+			'source_text'      => (string) $row->source_text,
+			'target_text'      => (string) $row->target_text,
+			'text_format'      => (string) $row->text_format,
+			'context'          => (string) $row->context,
+			'origin'           => (string) $row->origin,
+			'quality'          => (string) $row->quality,
+			'norm_version'     => (int) ( $row->norm_version ?? 0 ),
+			'glossary_version' => (int) ( $row->glossary_version ?? 0 ),
+			'use_count'        => (int) $row->use_count,
+			'confidence'       => $confidence,
+			'match_type'       => $match_type,
+			'similarity'       => $similarity,
 		);
 	}
 }
