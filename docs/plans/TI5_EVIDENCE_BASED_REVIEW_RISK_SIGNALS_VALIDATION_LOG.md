@@ -103,6 +103,7 @@
 | H1.1 score replay | PASS 60/60; critical_failures=0; not_applicable=60 |
 | Build / ZIP audit | PASS (`bin/audit-zip.sh`) |
 | TARGET | 6 |
+| GitHub CI run | `31424531681` SUCCESS (phpcs/unit/integration/quality/build) |
 
 ## Assessment evaluation suite
 
