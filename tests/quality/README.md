@@ -1,8 +1,8 @@
 # TQ.0 Translation Quality Baseline Harness
 
-**Status:** TQ.0 implementation complete — review-ready on `feature/tq0-translation-quality-baseline`
-**Authoritative plan:** [`docs/plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md`](../../docs/plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md)
-**TIQ parent:** [`docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](../../docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md)
+**Status:** TQ.0 Complete on `main` — official [`baselines/baseline-v1.1.0/`](baselines/baseline-v1.1.0/) frozen  
+**Authoritative plan:** [`docs/plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md`](../../docs/plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md)  
+**TIQ parent:** [`docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](../../docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md)  
 **Official baseline:** [`baselines/baseline-v1.1.0/`](baselines/baseline-v1.1.0/)
 
 ## Purpose

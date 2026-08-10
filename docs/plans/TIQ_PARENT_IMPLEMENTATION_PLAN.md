@@ -8,9 +8,10 @@
 **Implementation priority:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md)
 **Planning branch:** `docs/tiq-program-roadmap-freeze` (merged)
 **Freeze merge:** `main` @ `452a46c1b3f68dae2c01ddbd8d762aef21152617` (`merge: freeze Translation Intelligence & Quality program roadmap`)
-**Next milestone:** **TQ.0** Translation Quality Baseline — definitive plan [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation **not started**)
+**TQ.0:** **Complete** on `main` — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official pack `tests/quality/baselines/baseline-v1.1.0/`
+**Next planning decision:** choose whether **TI.1** Persist-path Structural Safety or **TI.2** Bounded Translation Context should be planned first (both depend on completed TQ.0; TI.3 depends on both). **Do not start either until its definitive plan is Architecture Frozen.**
 **TI.1–TI.7:** planning/implementation **not started**
-**Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main` (TQ.0 implementation branch when started: `feature/tq0-translation-quality-baseline` — **not created**)
+**Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
 **Depends on:** AI Multilingual **v1.1.0** released; A.SEOa–A.SEOf complete; CI/release baseline green; Migrator `TARGET` **6**; Integration API v1 unchanged
@@ -394,8 +395,8 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 | Activity | Gate |
 |---|---|
 | TQ.0 definitive planning | **Complete** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) Architecture Frozen on `main` |
-| TQ.0 implementation | TQ.0 plan Architecture Frozen on `main`; implementation **not started** |
-| TI.n planning | Prior dependency gates satisfied; TI.n plan authored |
+| TQ.0 implementation | **Complete** — merged `a602c4465…`; official `baseline-v1.1.0` on `main` |
+| TI.n planning | Choose TI.1 or TI.2 first; prior dependency gates satisfied; TI.n plan authored |
 | TI.n implementation | TI.n plan Architecture Frozen on `main` |
 
 ---

@@ -5,6 +5,12 @@ All notable changes to AI Multilingual are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- TQ.0 Translation Quality Baseline (measurement-only): C1.0 corpus, H1.0 deterministic scorer, B1.0 human reviews, official `baseline-v1.1.0` evidence pack, quality CLI/CI (network-free). No production translator redesign. Known retained baseline defect: `gut_01` glossary-instruction leakage.
+
 ## [1.1.0] — 2026-08-09
 
 ### Added

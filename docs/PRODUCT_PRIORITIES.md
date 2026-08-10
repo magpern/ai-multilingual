@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. Next milestone: **TQ.0** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation **not started**). Exact next step: create `feature/tq0-translation-quality-baseline` and implement TQ0.0–TQ0.8 per the frozen plan.
+**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official `baseline-v1.1.0` frozen. Exact next step: choose whether **TI.1** Persist-path Structural Safety or **TI.2** Bounded Translation Context should be planned first (both depend on TQ.0; TI.3 depends on both). Do not start either milestone until its definitive plan is Architecture Frozen.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program / milestone | Focus |
 |---|---|---|
-| 1 | **TIQ** / **TQ.0** | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); [TQ.0 plan](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) **Architecture Frozen** on `main`; implementation not started |
+| 1 | **TIQ** / next of **TI.1** or **TI.2** | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0 Complete** ([plan](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md)); choose TI.1 vs TI.2 planning first |
 
 **Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. CI/release baseline is green. `Migrator::TARGET` remains **6**.
 
