@@ -11,6 +11,8 @@ namespace AIMultilingual\Workspace;
 
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
+use AIMultilingual\Translation\AI\FieldSemanticMapper;
+use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Store;
@@ -131,6 +133,20 @@ final class WorkspaceService {
 	private ReviewDiagnosticsCounters $review_diagnostics;
 
 	/**
+	 * TI.5 assessment core (read-only, recomputed).
+	 *
+	 * @var AssessmentAssembler
+	 */
+	private AssessmentAssembler $assessment;
+
+	/**
+	 * FieldSemantic mapper for narrow assessment exceptions.
+	 *
+	 * @var FieldSemanticMapper
+	 */
+	private FieldSemanticMapper $field_semantic_mapper;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param SegmentAssembler               $assembler           Segment assembly.
@@ -145,6 +161,8 @@ final class WorkspaceService {
 	 * @param TranslationMemoryService       $tm                  Translation memory write-back.
 	 * @param ReviewWorkflowService          $review              Review Workflow transition policy.
 	 * @param ReviewDiagnosticsCounters|null $review_diagnostics Bounded review diagnostic counters.
+	 * @param AssessmentAssembler|null       $assessment          Optional TI.5 assessment core.
+	 * @param FieldSemanticMapper|null       $field_semantic_mapper Optional FieldSemantic mapper.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -158,22 +176,26 @@ final class WorkspaceService {
 		QAEngine $qa,
 		TranslationMemoryService $tm,
 		ReviewWorkflowService $review,
-		?ReviewDiagnosticsCounters $review_diagnostics = null
+		?ReviewDiagnosticsCounters $review_diagnostics = null,
+		?AssessmentAssembler $assessment = null,
+		?FieldSemanticMapper $field_semantic_mapper = null
 	) {
-		$this->assembler          = $assembler;
-		$this->status_calculator  = $status_calculator;
-		$this->translation        = $translation;
-		$this->preview            = $preview;
-		$this->languages          = $languages;
-		$this->store              = $store;
-		$this->extractor          = $extractor;
-		$this->suggestions        = $suggestions;
-		$this->qa                 = $qa;
-		$this->tm                 = $tm;
-		$this->review             = $review;
-		$this->review_diagnostics = $review_diagnostics ?? new ReviewDiagnosticsCounters();
-		$this->batch              = new BatchOperationCoordinator( $this, $translation );
-		$this->review_batch       = new ReviewBatchCoordinator( $this );
+		$this->assembler             = $assembler;
+		$this->status_calculator     = $status_calculator;
+		$this->translation           = $translation;
+		$this->preview               = $preview;
+		$this->languages             = $languages;
+		$this->store                 = $store;
+		$this->extractor             = $extractor;
+		$this->suggestions           = $suggestions;
+		$this->qa                    = $qa;
+		$this->tm                    = $tm;
+		$this->review                = $review;
+		$this->review_diagnostics    = $review_diagnostics ?? new ReviewDiagnosticsCounters();
+		$this->assessment            = $assessment ?? new AssessmentAssembler();
+		$this->field_semantic_mapper = $field_semantic_mapper ?? new FieldSemanticMapper();
+		$this->batch                 = new BatchOperationCoordinator( $this, $translation );
+		$this->review_batch          = new ReviewBatchCoordinator( $this );
 	}
 
 	/**
@@ -1087,10 +1109,10 @@ final class WorkspaceService {
 		$by_key = $this->suggestions->suggestions_for_batch( $segments, $context );
 
 		foreach ( $segments as $index => $segment ) {
-			$key                        = (string) ( $segment['segment_key'] ?? '' );
-			$meta                       = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
-			$meta['suggestions']        = $by_key[ $key ] ?? array();
-			$meta['qa']                 = $this->qa->evaluate(
+			$key                 = (string) ( $segment['segment_key'] ?? '' );
+			$meta                = is_array( $segment['meta'] ?? null ) ? $segment['meta'] : array();
+			$meta['suggestions'] = $by_key[ $key ] ?? array();
+			$meta['qa']          = $this->qa->evaluate(
 				(string) ( $segment['source_text'] ?? '' ),
 				(string) ( $segment['translated_text'] ?? '' ),
 				(string) ( $segment['text_format'] ?? Store::FORMAT_PLAIN ),
@@ -1098,6 +1120,14 @@ final class WorkspaceService {
 					'source_language_id' => $default ? (int) $default->language_id : 0,
 					'target_language_id' => $language_id,
 				)
+			)->to_array();
+			// TI.5: same assessment core; Workspace save-path has no request markers.
+			$post_type                  = (string) ( $segment['source_subtype'] ?? '' );
+			$meta['assessment']         = $this->assessment->assess_segment(
+				$segment,
+				$this->field_semantic_mapper->map( $segment, $post_type ),
+				array(),
+				false
 			)->to_array();
 			$segments[ $index ]['meta'] = $meta;
 		}

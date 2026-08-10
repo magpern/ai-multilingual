@@ -21,6 +21,8 @@ use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsCheck;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsOptions;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsService;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsSnapshot;
+use AIMultilingual\Translation\AI\FieldSemanticMapper;
+use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use WP_CLI;
@@ -122,6 +124,17 @@ final class Cli {
 			},
 			array(
 				'shortdesc' => 'Prints one translated field.',
+				'synopsis'  => self::translation_synopsis(),
+			)
+		);
+
+		WP_CLI::add_command(
+			'aiml assessment get',
+			static function ( array $args, array $assoc ) use ( $languages, $store ): void {
+				self::assessment_get( $languages, $store, $args, $assoc );
+			},
+			array(
+				'shortdesc' => 'Prints TI.5 evidence-based risk assessment JSON for one field.',
 				'synopsis'  => self::translation_synopsis(),
 			)
 		);
@@ -822,6 +835,46 @@ final class Cli {
 		}
 
 		WP_CLI::print_value( (string) ( $segment->translated_text ?? '' ) );
+	}
+
+	/**
+	 * Prints TI.5 assessment JSON for one stored translation field.
+	 *
+	 * @param Languages            $languages Language configuration.
+	 * @param Store                $store     Segment store.
+	 * @param array<int, string>   $args      Positional arguments.
+	 * @param array<string, mixed> $assoc     Associative arguments.
+	 */
+	private static function assessment_get( Languages $languages, Store $store, array $args, array $assoc ): void {
+		list( $post, $language, $field_key ) = self::resolve_target( $languages, $args, $assoc );
+
+		$segment = $store->get( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id, $field_key );
+
+		$dto = array(
+			'source_text'     => is_object( $segment ) ? (string) ( $segment->source_text ?? '' ) : '',
+			'translated_text' => is_object( $segment ) ? (string) ( $segment->translated_text ?? '' ) : '',
+			'text_format'     => is_object( $segment ) ? (string) ( $segment->text_format ?? Store::FORMAT_PLAIN ) : Store::FORMAT_PLAIN,
+			'status'          => is_object( $segment ) ? (string) ( $segment->status ?? Store::STATUS_MISSING ) : Store::STATUS_MISSING,
+			'review_status'   => is_object( $segment ) ? (string) ( $segment->review_status ?? Store::REVIEW_NOT_SUBMITTED ) : Store::REVIEW_NOT_SUBMITTED,
+			'provider'        => is_object( $segment ) ? (string) ( $segment->provider ?? '' ) : '',
+			'model'           => is_object( $segment ) ? (string) ( $segment->model ?? '' ) : '',
+			'prompt_profile'  => is_object( $segment ) ? (string) ( $segment->prompt_profile ?? '' ) : '',
+			'prompt_version'  => is_object( $segment ) ? (string) ( $segment->prompt_version ?? '' ) : '',
+			'field_key'       => $field_key,
+			'segment_key'     => $field_key,
+			'source_subtype'  => (string) $post->post_type,
+		);
+
+		$mapper     = new FieldSemanticMapper();
+		$assembler  = new AssessmentAssembler();
+		$assessment = $assembler->assess_segment(
+			$dto,
+			$mapper->map( $dto, (string) $post->post_type ),
+			array(),
+			false
+		);
+
+		WP_CLI::print_value( wp_json_encode( $assessment->to_array(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**

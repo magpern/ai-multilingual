@@ -1,0 +1,165 @@
+[
+  {
+    "id": "hard_structural_blocker",
+    "source": "Hello %s",
+    "target": "Hello",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "not_submitted",
+    "markers_applicable": false,
+    "expect_category": "blocked"
+  },
+  {
+    "id": "deterministic_error_numbers",
+    "source": "Order 42 items",
+    "target": "Order items",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "expect_category": "needs_review"
+  },
+  {
+    "id": "warning_only_length",
+    "source": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "target": "x",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "expect_category": "review_recommended",
+    "expect_not_category": "blocked"
+  },
+  {
+    "id": "clean_approved_machine",
+    "source": "Hello world today",
+    "target": "Hej världen idag",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": true,
+    "markers": ["SYSTEM_INSTRUCTION_MARKER_XYZ"],
+    "expect_category": "structurally_clean",
+    "expect_completeness": "complete"
+  },
+  {
+    "id": "evidence_unavailable_leakage",
+    "source": "Hello world today",
+    "target": "Hej världen idag",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "expect_completeness": "unavailable",
+    "expect_leakage_state": "not_applicable"
+  },
+  {
+    "id": "leakage_applicable_critical",
+    "source": "Hello world",
+    "target": "SYSTEM_INSTRUCTION_MARKER_XYZ Hello",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "not_submitted",
+    "markers_applicable": true,
+    "markers": ["SYSTEM_INSTRUCTION_MARKER_XYZ"],
+    "expect_category": "blocked"
+  },
+  {
+    "id": "leakage_na",
+    "source": "Hello world today",
+    "target": "Hej världen idag",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "expect_leakage_state": "not_applicable",
+    "forbid_leakage_clean": true
+  },
+  {
+    "id": "approved_plus_warning",
+    "source": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "target": "x",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "expect_category": "review_recommended"
+  },
+  {
+    "id": "approved_plus_hard",
+    "source": "Safe text here",
+    "target": "<script>alert(1)</script>",
+    "format": "html",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "expect_category": "blocked",
+    "expect_conflict": "approved_with_hard_findings"
+  },
+  {
+    "id": "unreviewed_clean_machine",
+    "source": "Hello world today",
+    "target": "Hej världen idag",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "not_submitted",
+    "markers_applicable": false,
+    "expect_category": "review_recommended"
+  },
+  {
+    "id": "direct_tm_reuse",
+    "source": "Hello world today",
+    "target": "Hej världen idag",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "tm_outcome_code": "tm_direct_reuse",
+    "expect_provenance": "tm_direct_reuse",
+    "forbid_publish_decision": true
+  },
+  {
+    "id": "glossary_preferred_term",
+    "source": "Use collagen peptides daily",
+    "target": "Använd stuff daily",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "glossary_terms": [
+      {"source": "collagen", "target": "kollagen"}
+    ],
+    "expect_category": "needs_review"
+  },
+  {
+    "id": "provenance_unknown",
+    "source": "Hello world today",
+    "target": "Hej världen idag",
+    "format": "plain",
+    "status": "failed",
+    "review_status": "approved",
+    "markers_applicable": false,
+    "expect_provenance": "unknown"
+  },
+  {
+    "id": "missing_translation",
+    "source": "Hello world today",
+    "target": "",
+    "format": "plain",
+    "status": "missing",
+    "review_status": "not_submitted",
+    "markers_applicable": false,
+    "expect_category": "blocked",
+    "expect_provenance": "missing"
+  },
+  {
+    "id": "rejected_clean",
+    "source": "Hello world today",
+    "target": "Hej världen idag",
+    "format": "plain",
+    "status": "machine_translated",
+    "review_status": "rejected",
+    "markers_applicable": false,
+    "expect_category": "review_recommended"
+  }
+]
