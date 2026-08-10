@@ -1,0 +1,53 @@
+{
+  "pack_label": "baseline-v1.1.0",
+  "corpus_version": "C1.0",
+  "methodology_version": "M1.0",
+  "glossary_fixture_version": "G1.0",
+  "scorer_version": "H1.0",
+  "source_locale": "en_US",
+  "target_locale": "sv_SE",
+  "subject_kind": "baseline",
+  "subject_ref": "v1.1.0",
+  "subject_sha": "d9c2336182fa2e0ae0582ead78cc0a346670c92a",
+  "behavior_reference_sha": "d9c2336182fa2e0ae0582ead78cc0a346670c92a",
+  "equivalence_evidence": {
+    "method": "git_diff_translation_paths_plus_composer_audit",
+    "commands": [
+      "git diff --name-only v1.1.0..HEAD -- src/ bin/ assets/ ai-multilingual.php",
+      "git diff --name-only v1.1.0..HEAD -- composer.json"
+    ],
+    "src_bin_assets_plugin_main": "empty",
+    "composer_json": "autoload-dev Quality harness + quality:* scripts only",
+    "verdict": "behavior-equivalent translator subject to v1.1.0; harness-only composer.json delta"
+  },
+  "generation_mode": "live",
+  "generation_label": "gen-v1.1.0-20260810T072229Z",
+  "provider_id": "openai",
+  "model": "gpt-5-mini",
+  "prompt_profile": "translate",
+  "prompt_version": "1",
+  "tm_observed": false,
+  "timestamp": "2026-08-10T07:22:29+00:00",
+  "token_usage": {
+    "input_tokens": 4265,
+    "output_tokens": 26154
+  },
+  "cases_evaluated": 60,
+  "segments": 60,
+  "batches": 60,
+  "http_requests": 60,
+  "accounting": {
+    "cases": 60,
+    "segments": 60,
+    "batches": 60,
+    "http_requests": 60
+  },
+  "field_semantics_in_prompt": false,
+  "store_writes": false,
+  "response_validator_gate": false,
+  "official": true,
+  "human_review_version": "B1.0",
+  "frozen_at": "2026-08-10T07:40:00Z",
+  "harness_branch": "feature/tq0-translation-quality-baseline",
+  "harness_implementation_baseline": "974f1d15ba7d4d5c952509bd0947cfc695ab5c8f"
+}

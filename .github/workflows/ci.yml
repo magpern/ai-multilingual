@@ -94,3 +94,6 @@ jobs:
       - run: composer install --prefer-dist --no-progress
       - run: composer quality:validate
       - run: composer test:unit -- --filter Quality
+      # Network-free official baseline replay (after TQ0.7 pack exists).
+      - name: Verify official baseline-v1.1.0 evidence
+        run: php tests/quality/bin/quality-verify-baseline.php

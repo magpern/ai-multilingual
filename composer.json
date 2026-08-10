@@ -32,7 +32,8 @@
         "test:integration": "phpunit -c phpunit-integration.xml.dist",
         "quality:validate": "php tests/quality/bin/quality-validate.php",
         "quality:score": "php tests/quality/bin/quality-score.php",
-        "quality:compare": "php tests/quality/bin/quality-compare.php"
+        "quality:compare": "php tests/quality/bin/quality-compare.php",
+        "quality:verify-baseline": "php tests/quality/bin/quality-verify-baseline.php"
     },
     "config": {
         "platform": {

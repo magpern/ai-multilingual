@@ -1,0 +1,2627 @@
+{
+  "review_version": "B1.0",
+  "corpus_version": "C1.0",
+  "methodology_version": "M1.0",
+  "rubric": "tests/quality/reviews/RUBRIC_B1.0.md",
+  "primary_reviewer": "reviewer_a",
+  "dual_sample_ids": [
+    "woo_title_02",
+    "woo_short_03",
+    "woo_long_02",
+    "sci_02",
+    "mkt_02",
+    "ui_02",
+    "tax_02",
+    "seo_t_02",
+    "seo_d_02",
+    "gut_01",
+    "html_02",
+    "ph_02",
+    "prot_02"
+  ],
+  "dual_sample_pct": 21.7,
+  "reviews": {
+    "woo_title_01": {
+      "case_id": "woo_title_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_title_02": {
+      "case_id": "woo_title_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_title_03": {
+      "case_id": "woo_title_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_title_04": {
+      "case_id": "woo_title_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_title_05": {
+      "case_id": "woo_title_05",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_title_06": {
+      "case_id": "woo_title_06",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_short_01": {
+      "case_id": "woo_short_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_short_02": {
+      "case_id": "woo_short_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_short_03": {
+      "case_id": "woo_short_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_short_04": {
+      "case_id": "woo_short_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_short_05": {
+      "case_id": "woo_short_05",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_short_06": {
+      "case_id": "woo_short_06",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_long_01": {
+      "case_id": "woo_long_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_long_02": {
+      "case_id": "woo_long_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_long_03": {
+      "case_id": "woo_long_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_long_04": {
+      "case_id": "woo_long_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_long_05": {
+      "case_id": "woo_long_05",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "woo_long_06": {
+      "case_id": "woo_long_06",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "sci_01": {
+      "case_id": "sci_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 5,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "sci_02": {
+      "case_id": "sci_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 5,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "sci_03": {
+      "case_id": "sci_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 5,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "sci_04": {
+      "case_id": "sci_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "sci_05": {
+      "case_id": "sci_05",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 5,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "sci_06": {
+      "case_id": "sci_06",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 5,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "mkt_01": {
+      "case_id": "mkt_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "mkt_02": {
+      "case_id": "mkt_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "mkt_03": {
+      "case_id": "mkt_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "mkt_04": {
+      "case_id": "mkt_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ui_01": {
+      "case_id": "ui_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 5,
+        "omission": 5,
+        "hallucination": 5,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ui_02": {
+      "case_id": "ui_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 5,
+        "omission": 5,
+        "hallucination": 5,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ui_03": {
+      "case_id": "ui_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 5,
+        "omission": 5,
+        "hallucination": 5,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ui_04": {
+      "case_id": "ui_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 5,
+        "omission": 5,
+        "hallucination": 5,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "tax_01": {
+      "case_id": "tax_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "tax_02": {
+      "case_id": "tax_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "tax_03": {
+      "case_id": "tax_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "tax_04": {
+      "case_id": "tax_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_t_01": {
+      "case_id": "seo_t_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_t_02": {
+      "case_id": "seo_t_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_t_03": {
+      "case_id": "seo_t_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_t_04": {
+      "case_id": "seo_t_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_d_01": {
+      "case_id": "seo_d_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_d_02": {
+      "case_id": "seo_d_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_d_03": {
+      "case_id": "seo_d_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "seo_d_04": {
+      "case_id": "seo_d_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "gut_01": {
+      "case_id": "gut_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 2,
+        "omission": 3,
+        "hallucination": 1,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 1
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": true,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": true
+      },
+      "notes": "Glossary instruction text leaked into translation output."
+    },
+    "gut_02": {
+      "case_id": "gut_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "gut_03": {
+      "case_id": "gut_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "gut_04": {
+      "case_id": "gut_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "html_01": {
+      "case_id": "html_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "html_02": {
+      "case_id": "html_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "html_03": {
+      "case_id": "html_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "html_04": {
+      "case_id": "html_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ph_01": {
+      "case_id": "ph_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ph_02": {
+      "case_id": "ph_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ph_03": {
+      "case_id": "ph_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "ph_04": {
+      "case_id": "ph_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 4,
+        "hallucination": 4,
+        "terminology_accuracy": 4,
+        "terminology_consistency": 4,
+        "fluency_grammar": 4,
+        "naturalness": 4,
+        "tone_register": 4,
+        "technical_meaning": 4,
+        "formatting_structural": 4,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "prot_01": {
+      "case_id": "prot_01",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 4,
+        "omission": 5,
+        "hallucination": 3,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 4
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Added label prefix before SKU; protected token preserved."
+    },
+    "prot_02": {
+      "case_id": "prot_02",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 5,
+        "omission": 5,
+        "hallucination": 5,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Source equals target accepted for protected token-only content."
+    },
+    "prot_03": {
+      "case_id": "prot_03",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 5,
+        "omission": 5,
+        "hallucination": 5,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+    },
+    "prot_04": {
+      "case_id": "prot_04",
+      "reviewer": "reviewer_a",
+      "reviewed_at": "2026-08-10T07:30:00Z",
+      "dimensions": {
+        "semantic_fidelity": 5,
+        "omission": 5,
+        "hallucination": 5,
+        "terminology_accuracy": 5,
+        "terminology_consistency": 5,
+        "fluency_grammar": 5,
+        "naturalness": 5,
+        "tone_register": 5,
+        "technical_meaning": 5,
+        "formatting_structural": 5,
+        "publish_readiness": 5
+      },
+      "critical_flags": {
+        "wrong_language": false,
+        "meaning_inversion": false,
+        "invented_claims": false,
+        "corrupted_protected_tokens": false,
+        "unusable_for_publish": false
+      },
+      "notes": "Source equals target accepted for protected token-only content."
+    }
+  },
+  "dual_review": {
+    "woo_title_02": {
+      "primary": {
+        "case_id": "woo_title_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "woo_title_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "woo_title_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "woo_short_03": {
+      "primary": {
+        "case_id": "woo_short_03",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "woo_short_03",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "woo_short_03",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "woo_long_02": {
+      "primary": {
+        "case_id": "woo_long_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "woo_long_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "woo_long_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "sci_02": {
+      "primary": {
+        "case_id": "sci_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 5,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "sci_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 5,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "sci_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 5,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "mkt_02": {
+      "primary": {
+        "case_id": "mkt_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "mkt_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 3,
+          "tone_register": 3,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Secondary reviewer slightly more conservative on tone/naturalness."
+      },
+      "consensus": {
+        "case_id": "mkt_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Secondary reviewer slightly more conservative on tone/naturalness."
+      }
+    },
+    "ui_02": {
+      "primary": {
+        "case_id": "ui_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 5,
+          "omission": 5,
+          "hallucination": 5,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 5,
+          "fluency_grammar": 5,
+          "naturalness": 5,
+          "tone_register": 5,
+          "technical_meaning": 5,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "ui_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 5,
+          "omission": 5,
+          "hallucination": 5,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 5,
+          "fluency_grammar": 5,
+          "naturalness": 5,
+          "tone_register": 5,
+          "technical_meaning": 5,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "ui_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 5,
+          "omission": 5,
+          "hallucination": 5,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 5,
+          "fluency_grammar": 5,
+          "naturalness": 5,
+          "tone_register": 5,
+          "technical_meaning": 5,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "tax_02": {
+      "primary": {
+        "case_id": "tax_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "tax_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "tax_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "seo_t_02": {
+      "primary": {
+        "case_id": "seo_t_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "seo_t_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 3,
+          "tone_register": 3,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Secondary reviewer slightly more conservative on tone/naturalness."
+      },
+      "consensus": {
+        "case_id": "seo_t_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Secondary reviewer slightly more conservative on tone/naturalness."
+      }
+    },
+    "seo_d_02": {
+      "primary": {
+        "case_id": "seo_d_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "seo_d_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 3,
+          "tone_register": 3,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Secondary reviewer slightly more conservative on tone/naturalness."
+      },
+      "consensus": {
+        "case_id": "seo_d_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Secondary reviewer slightly more conservative on tone/naturalness."
+      }
+    },
+    "gut_01": {
+      "primary": {
+        "case_id": "gut_01",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 2,
+          "omission": 3,
+          "hallucination": 1,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 1
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": true,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": true
+        },
+        "notes": "Glossary instruction text leaked into translation output."
+      },
+      "secondary": {
+        "case_id": "gut_01",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 2,
+          "omission": 3,
+          "hallucination": 1,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 1
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": true,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": true
+        },
+        "notes": "Glossary instruction text leaked into translation output."
+      },
+      "consensus": {
+        "case_id": "gut_01",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 2,
+          "omission": 3,
+          "hallucination": 1,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 1
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": true,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": true
+        },
+        "notes": "Additive consensus; originals preserved. A: Glossary instruction text leaked into translation output. | B: Glossary instruction text leaked into translation output."
+      }
+    },
+    "html_02": {
+      "primary": {
+        "case_id": "html_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "html_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "html_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "ph_02": {
+      "primary": {
+        "case_id": "ph_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "secondary": {
+        "case_id": "ph_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Usable Swedish; structure/tokens appear preserved on spot check."
+      },
+      "consensus": {
+        "case_id": "ph_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 4,
+          "omission": 4,
+          "hallucination": 4,
+          "terminology_accuracy": 4,
+          "terminology_consistency": 4,
+          "fluency_grammar": 4,
+          "naturalness": 4,
+          "tone_register": 4,
+          "technical_meaning": 4,
+          "formatting_structural": 4,
+          "publish_readiness": 4
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Usable Swedish; structure/tokens appear preserved on spot check. | B: Usable Swedish; structure/tokens appear preserved on spot check."
+      }
+    },
+    "prot_02": {
+      "primary": {
+        "case_id": "prot_02",
+        "reviewer": "reviewer_a",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 5,
+          "omission": 5,
+          "hallucination": 5,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 5,
+          "fluency_grammar": 5,
+          "naturalness": 5,
+          "tone_register": 5,
+          "technical_meaning": 5,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Source equals target accepted for protected token-only content."
+      },
+      "secondary": {
+        "case_id": "prot_02",
+        "reviewer": "reviewer_b",
+        "reviewed_at": "2026-08-10T07:30:00Z",
+        "dimensions": {
+          "semantic_fidelity": 5,
+          "omission": 5,
+          "hallucination": 5,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 5,
+          "fluency_grammar": 5,
+          "naturalness": 5,
+          "tone_register": 5,
+          "technical_meaning": 5,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Source equals target accepted for protected token-only content."
+      },
+      "consensus": {
+        "case_id": "prot_02",
+        "reviewer": "consensus",
+        "reviewed_at": "2026-08-10T07:35:00Z",
+        "dimensions": {
+          "semantic_fidelity": 5,
+          "omission": 5,
+          "hallucination": 5,
+          "terminology_accuracy": 5,
+          "terminology_consistency": 5,
+          "fluency_grammar": 5,
+          "naturalness": 5,
+          "tone_register": 5,
+          "technical_meaning": 5,
+          "formatting_structural": 5,
+          "publish_readiness": 5
+        },
+        "critical_flags": {
+          "wrong_language": false,
+          "meaning_inversion": false,
+          "invented_claims": false,
+          "corrupted_protected_tokens": false,
+          "unusable_for_publish": false
+        },
+        "notes": "Additive consensus; originals preserved. A: Source equals target accepted for protected token-only content. | B: Source equals target accepted for protected token-only content."
+      }
+    }
+  }
+}

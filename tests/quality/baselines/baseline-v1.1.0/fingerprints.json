@@ -1,0 +1,10 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "manifest.json": "0b68121975fc23a50f5c0ab34fafb914c2274dd4fd4c62081aae2f47750255bd",
+    "generations.jsonl": "b10b4d1120907d0c66c97e0f89491ceebe96689f1e4a59cd821e18d18cd2cc17",
+    "scores.H1.0.json": "ecb1cb169845e19320dd8f981edbfece226d7296930ac490365826265b70af76",
+    "human.B1.0.json": "2cce218a46280ddc0c1eaa784ff01db26ea11c93ad007e7a777c9b5c7de25126",
+    "REPORT.md": "fc91adbeb67de365ea68a44c1ed717bc8ecaa0075ada1350e5d55cb743fcdfee"
+  }
+}

@@ -1,0 +1,441 @@
+{
+    "scorer_version": "H1.0",
+    "corpus_version": "C1.0",
+    "case_results": {
+        "woo_title_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_title_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_title_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_title_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_title_05": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_title_06": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_short_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_short_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_short_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_short_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_short_05": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_short_06": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_long_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_long_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_long_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_long_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_long_05": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "woo_long_06": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "sci_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "sci_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "sci_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "sci_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "sci_05": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "sci_06": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "mkt_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "mkt_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "mkt_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "mkt_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ui_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ui_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ui_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ui_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "tax_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "tax_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "tax_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "tax_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_t_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_t_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_t_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_t_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_d_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_d_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_d_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "seo_d_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "gut_01": {
+            "findings": [
+                {
+                    "code": "length_ratio",
+                    "severity": "warning",
+                    "message": "Gross length ratio anomaly.",
+                    "data": {
+                        "ratio": 3.1515151515151514
+                    }
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 1,
+            "pass": true
+        },
+        "gut_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "gut_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "gut_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "html_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "html_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "html_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "html_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ph_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ph_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ph_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "ph_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "prot_01": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "prot_02": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "prot_03": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        },
+        "prot_04": {
+            "findings": [],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "pass": true
+        }
+    },
+    "summary": {
+        "total_cases": 60,
+        "pass_count": 60,
+        "critical_failures": 0,
+        "scored_at": "2026-08-10T07:22:29+00:00"
+    }
+}
