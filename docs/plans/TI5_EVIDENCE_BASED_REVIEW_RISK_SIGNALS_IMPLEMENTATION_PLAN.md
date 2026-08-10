@@ -1,6 +1,6 @@
 # TI.5 — Evidence-based Review / Risk Signals — Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** on planning branch — **implementation not started**
+**Status:** **Architecture Frozen** on  — **implementation not started**
 **Milestone:** TI.5 — Evidence-based review / risk signals (TIQ program)
 **Kind:** Milestone implementation plan (authoritative when Architecture Frozen on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
@@ -10,7 +10,7 @@
 **ADR:** **ADR-0019** — [Evidence-based risk assessment contract](../adr/0019-evidence-based-risk-assessment.md) (Accepted at planning freeze)
 **Planning branch:** `docs/ti5-evidence-based-review-risk-signals-plan`
 **Independent review (planning):** **PASS** (2026-08-10)
-**Freeze merge:** pending
+**Freeze merge:** 
 **Implementation branch:** **not created** — create `feature/ti5-evidence-based-review-risk-signals` from frozen `main` only after this plan is Architecture Frozen on `main`
 **Validation log:** [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md)
 **Related (unchanged ownership):** [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0014](../adr/0014-glossary-platform-lexicon.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); TI.1 persist safety; TI.4 shared QA; TI.6 Jobs polish; TI.7 publication policy
