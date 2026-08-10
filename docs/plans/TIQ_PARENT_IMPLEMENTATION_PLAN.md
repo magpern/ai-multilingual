@@ -9,8 +9,9 @@
 **Planning branch:** `docs/tiq-program-roadmap-freeze` (merged)
 **Freeze merge:** `main` @ `452a46c1b3f68dae2c01ddbd8d762aef21152617` (`merge: freeze Translation Intelligence & Quality program roadmap`)
 **TQ.0:** **Complete** on `main` — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official pack `tests/quality/baselines/baseline-v1.1.0/`
-**Next planning decision:** choose whether **TI.1** Persist-path Structural Safety or **TI.2** Bounded Translation Context should be planned first (both depend on completed TQ.0; TI.3 depends on both). **Do not start either until its definitive plan is Architecture Frozen.**
-**TI.1–TI.7:** planning/implementation **not started**
+**TI.1:** **Architecture Frozen (planning) — implementation not started** — [TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md](TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md) (authoritative after independent review and merge to `main`)
+**TI.2–TI.7:** planning/implementation **not started**
+**Next after TI.1 plan freeze on `main`:** create `feature/ti1-persist-path-structural-safety` and begin TI1.0. **Do not** start TI.2 planning/implementation until TI.1 is complete (or a separate product decision reorders); TI.3 still depends on TI.1 + TI.2.
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
