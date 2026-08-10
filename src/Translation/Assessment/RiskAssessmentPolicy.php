@@ -99,7 +99,7 @@ final class RiskAssessmentPolicy {
 		}
 
 		$provenance   = $this->classify_provenance( $input );
-		$completeness = $this->completeness( $leakage_applicable, $na_codes, $findings );
+		$completeness = $this->completeness( $leakage_applicable, $na_codes, $findings, $input );
 		$conflicts    = array();
 
 		$category = $this->category(
@@ -251,12 +251,23 @@ final class RiskAssessmentPolicy {
 	 * @param bool                   $leakage_applicable Markers applicable.
 	 * @param array<int, string>     $na_codes           N/A codes.
 	 * @param array<int, RawFinding> $findings           Findings.
+	 * @param AssessmentInput        $input              Assessment input.
 	 */
-	private function completeness( bool $leakage_applicable, array $na_codes, array $findings ): string {
+	private function completeness(
+		bool $leakage_applicable,
+		array $na_codes,
+		array $findings,
+		AssessmentInput $input
+	): string {
 		unset( $na_codes, $findings );
 
 		if ( ! $leakage_applicable ) {
 			return EvidenceCompleteness::UNAVAILABLE;
+		}
+
+		if ( array() === $input->scaffolding_markers ) {
+			// Claimed applicable without marker inventory → partial, never "no leakage".
+			return EvidenceCompleteness::PARTIAL;
 		}
 
 		return EvidenceCompleteness::COMPLETE;
