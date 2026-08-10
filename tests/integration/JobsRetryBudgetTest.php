@@ -158,7 +158,10 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 		$this->assertNotInstanceOf( WP_Error::class, $first_run );
 		$this->assertSame( JobStatuses::COMPLETED, $first_run->status );
 
-		$key_b = 'content:block:99999999-9999-4999-8999-999999999999';
+		$key_b = \AIMultilingual\Block\SegmentKey::build(
+			'99999999-9999-4999-8999-999999999999',
+			\AIMultilingual\Block\Contract::FIELD_CONTENT
+		);
 		$this->seed_second_segment( $post, $key_b );
 		$this->items->insert(
 			array(
@@ -343,9 +346,7 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 	 * @param string   $key  Segment key.
 	 */
 	private function seed_second_segment( \WP_Post $post, string $key ): void {
-		global $wpdb;
-
-		$content = '<!-- wp:paragraph {"aimlUuid":"99999999-9999-4999-8999-999999999999"} -->'
+		$content = '<!-- wp:paragraph {"aimlBlockId":"99999999-9999-4999-8999-999999999999"} -->'
 			. '<p>Second segment body</p>'
 			. '<!-- /wp:paragraph -->';
 
@@ -356,6 +357,6 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 			)
 		);
 
-		unset( $wpdb );
+		unset( $key );
 	}
 }
