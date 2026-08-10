@@ -1,6 +1,6 @@
 # TI.2 Acceptance Notes
 
-**Branch:** `feature/ti2-bounded-translation-context`  
+**Branch:** `feature/ti2-bounded-translation-context`
 **Method:** Unit/integration (network-free) + optional live OpenAI TQ.0 candidate (not CI)
 
 ## Fake / scripted
