@@ -1,0 +1,20 @@
+{
+  "id": "tm_glossary_block_01",
+  "category": "tm_glossary",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_short_description",
+  "object_type": "product",
+  "object_title": "BPC-157",
+  "source_text": "BPC-157 peptide vial for research.",
+  "expected_invariants": {
+    "glossary_term_ids": [
+      "bpc157",
+      "peptide"
+    ]
+  },
+  "tm_scenario": "glossary_version_behind_with_hits",
+  "expected_tm_policy": "tm_glossary_blocked",
+  "difficulty": "normal",
+  "notes": "TI.3: glossary-version-aware TM8 skip when source hits lexicon."
+}

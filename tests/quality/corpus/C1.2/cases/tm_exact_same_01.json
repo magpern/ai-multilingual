@@ -1,0 +1,15 @@
+{
+  "id": "tm_exact_same_01",
+  "category": "tm_exact_reuse",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "object_type": "product",
+  "object_title": "BPC-157",
+  "source_text": "BPC-157 research peptide for laboratory tissue recovery studies.",
+  "tm_scenario": "identical_source_same_semantic",
+  "expected_tm_policy": "tm_direct_reuse",
+  "difficulty": "normal",
+  "notes": "TI.3: exact hash + same field context eligible for TM8.",
+  "expected_invariants": {}
+}

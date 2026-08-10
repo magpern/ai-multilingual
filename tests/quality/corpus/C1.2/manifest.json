@@ -1,0 +1,36 @@
+{
+  "corpus_version": "C1.2",
+  "methodology_version": "M1.0",
+  "source_locale": "en_US",
+  "target_locale": "sv_SE",
+  "language_pair": "en_US->sv_SE",
+  "case_count": 12,
+  "immutability": "Additive TM decision cases for TI.3; does not modify C1.0 or C1.1.",
+  "statistical_claim": "Engineering TM policy probes — not a replacement for C1.0 baseline quality claims.",
+  "case_ids": [
+    "tm_exact_same_01",
+    "tm_exact_diff_sem_01",
+    "tm_cross_product_01",
+    "tm_taxonomy_01",
+    "tm_approved_vs_machine_01",
+    "tm_ambiguous_01",
+    "tm_context_mismatch_01",
+    "tm_glossary_block_01",
+    "tm_placeholder_01",
+    "tm_html_01",
+    "tm_url_01",
+    "tm_no_match_01"
+  ],
+  "categories": [
+    "tm_exact_reuse",
+    "tm_semantic_conflict",
+    "tm_cross_object",
+    "tm_taxonomy",
+    "tm_authority",
+    "tm_ambiguity",
+    "tm_context",
+    "tm_glossary",
+    "tm_structure",
+    "tm_assisted"
+  ]
+}

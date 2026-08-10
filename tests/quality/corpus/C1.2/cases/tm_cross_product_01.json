@@ -1,0 +1,15 @@
+{
+  "id": "tm_cross_product_01",
+  "category": "tm_cross_object",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_short_description",
+  "object_type": "product",
+  "object_title": "Retatrutide",
+  "source_text": "Store refrigerated. For research use only.",
+  "tm_scenario": "cross_product_reuse",
+  "expected_tm_policy": "tm_direct_reuse",
+  "difficulty": "normal",
+  "notes": "TI.3: cross-object reuse via aiml_tm, not Store scan.",
+  "expected_invariants": {}
+}

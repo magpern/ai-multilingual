@@ -1,0 +1,15 @@
+{
+  "id": "tm_no_match_01",
+  "category": "tm_assisted",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_title",
+  "object_type": "product",
+  "object_title": "Novel Compound X",
+  "source_text": "Unique never-seen compound description for Novel Compound X laboratory kit.",
+  "tm_scenario": "no_match_and_irrelevant_same_lang_rejected",
+  "expected_tm_policy": "tm_no_match",
+  "difficulty": "normal",
+  "notes": "TI.3: no-match; same-lang approved unrelated rows must not become TM9 examples.",
+  "expected_invariants": {}
+}

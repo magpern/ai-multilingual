@@ -1,0 +1,15 @@
+{
+  "id": "tm_url_01",
+  "category": "tm_structure",
+  "case_class": "structure",
+  "text_format": "html",
+  "field_semantics": "body",
+  "object_type": "page",
+  "object_title": "Docs",
+  "source_text": "<p>Read the guide at <a href=\"https://example.com/guide\">https://example.com/guide</a>.</p>",
+  "tm_scenario": "url_bearing_exact_reuse",
+  "expected_tm_policy": "tm_direct_reuse_requires_urls",
+  "difficulty": "normal",
+  "notes": "TI.3: URL-bearing TM8 must not drop absolute URLs.",
+  "expected_invariants": {}
+}

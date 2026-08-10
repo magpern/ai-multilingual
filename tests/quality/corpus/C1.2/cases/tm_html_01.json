@@ -1,0 +1,15 @@
+{
+  "id": "tm_html_01",
+  "category": "tm_structure",
+  "case_class": "structure",
+  "text_format": "html",
+  "field_semantics": "body",
+  "object_type": "page",
+  "object_title": "About",
+  "source_text": "<p>Welcome to <strong>Biopentra</strong> research supplies.</p>",
+  "tm_scenario": "html_exact_reuse",
+  "expected_tm_policy": "tm_direct_reuse_requires_html",
+  "difficulty": "normal",
+  "notes": "TI.3: HTML TM8 must preserve required structure via TI.1.",
+  "expected_invariants": {}
+}
