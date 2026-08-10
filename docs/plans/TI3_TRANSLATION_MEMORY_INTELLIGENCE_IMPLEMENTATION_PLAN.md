@@ -292,17 +292,19 @@ An `aiml_tm` row may become a TM9 example only if it passes a **deterministic re
 
 ### In scope (Supported for TM reuse safety)
 
-- Determine whether a TM direct-reuse candidate conflicts with current applicable glossary requirements
+- Determine whether a TM direct-reuse candidate conflicts with **currently applicable** glossary requirements that exist in the repository
 - Make incompatible TM candidates **ineligible** for TM8
-- Glossary-version-aware TM8 skip when source contains terms affected since the TM row’s stamped version (ADR-0009 selective check)
-- Minimum post-TM8 check that a reused target does not violate current `forced` / `never_translate` for terms present in the **current source** (prevents TM from laundering glossary rules)
+- Glossary-version-aware TM8 skip when source contains terms affected since the TM row’s stamped version (ADR-0009 selective check), using the existing `glossary_version` stamp + current lexicon version option
+- Where ADR-0009’s post-reuse `forced` / `never_translate` intent can be applied using **existing** glossary data contracts, apply a minimum post-TM8 safety check so TM cannot launder those rules for terms present in the **current source**
 - Preserve TI.2 packaging (do-not-copy / source boundary)
+
+**Repository note (binding):** today’s `aiml_glossary` schema is term→target (no mode/`forced`/`never_translate` columns). TI.3 must **not** invent glossary mode schema, TARGET bumps, or a second glossary product to satisfy ADR-0009’s aspirational wording. Enforce only what current contracts support; remaining ADR-0009 glossary-mode gaps stay Partial / out of TI.3 unless a later non-TI.3 glossary milestone productizes them.
 
 ### Out of scope unless absolutely required for TM correctness
 
 - General non-TM AI glossary enforcement redesign
 - Glossary matching/priority product redesign
-- Second glossary system
+- Inventing glossary mode columns / second glossary system
 - gut_01 phrase-specific logic
 - Automatic glossary↔TM coupling ([ADR-0014](../adr/0014-glossary-platform-lexicon.md) forbidden)
 
@@ -523,8 +525,8 @@ Provenance may include `aiml_tm.tm_id` in diagnostics payloads **without** writi
 45. Carrier is `ContextItem` type `tm_example`; no parallel TranslationBatch examples pipeline.
 46. Providers render TM examples as instruction/example context, not as source content.
 47. Absent context/examples remain safe.
-48. Glossary-version-aware TM8 skip when source hits affected terms.
-49. Minimum post-TM8 forced/never_translate compatibility for current source terms.
+48. Glossary-version-aware TM8 skip when source hits affected terms (using existing `glossary_version` stamps).
+49. Post-TM8 glossary safety limited to **existing** lexicon contracts; do **not** invent `forced`/`never_translate` mode schema in TI.3.
 50. No general non-TM AI glossary enforcement redesign in TI.3 unless evidence proves TM cannot be correct without a shared helper.
 51. No automatic glossary↔TM coupling (ADR-0014).
 52. No gut_01 phrase-regex in TI.3.
