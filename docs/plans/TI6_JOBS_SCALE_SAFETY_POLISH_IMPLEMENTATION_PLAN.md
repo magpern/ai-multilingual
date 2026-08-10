@@ -13,7 +13,9 @@
 **Freeze merge:** `c6b4564032bbd3d6e402c1564906077b27eb1fcc`
 **Implementation branch:** `feature/ti6-jobs-scale-safety-polish`
 **Validation log:** [TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md)
-**Next:** Independent review → merge to main → close TI.6 → TI.7 **planning only**. Do **not** start TI.7 implementation here.
+**Implementation merge:** 
+**Reviewed feature HEAD:** 
+**Next:** TI.7 **planning only**. Do **not** start TI.7 implementation until its plan is independently reviewed and frozen on .
 
 **Related (unchanged ownership):** [ADR-0011](../adr/0011-resumable-job-pipeline.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), [ADR-0019](../adr/0019-evidence-based-risk-assessment.md), [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0009](../adr/0009-translation-memory-table.md); [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md); TI.1–TI.5 plans; TI.7 publication later.
 
