@@ -53,17 +53,17 @@ final class ReportWriter {
 			$lines[] = '| Dimension | Baseline | Candidate | Delta |';
 			$lines[] = '|---|---:|---:|---:|';
 			foreach ( $dim_deltas as $dim => $row ) {
-				$row      = (array) $row;
-				$base_v   = array_key_exists( 'baseline_mean', $row ) && null !== $row['baseline_mean']
+				$row     = (array) $row;
+				$base_v  = array_key_exists( 'baseline_mean', $row ) && null !== $row['baseline_mean']
 					? (string) $row['baseline_mean']
 					: '—';
-				$cand_v   = array_key_exists( 'candidate_mean', $row ) && null !== $row['candidate_mean']
+				$cand_v  = array_key_exists( 'candidate_mean', $row ) && null !== $row['candidate_mean']
 					? (string) $row['candidate_mean']
 					: '—';
-				$delta_v  = array_key_exists( 'delta', $row ) && null !== $row['delta']
+				$delta_v = array_key_exists( 'delta', $row ) && null !== $row['delta']
 					? (string) $row['delta']
 					: '—';
-				$lines[]  = sprintf( '| %s | %s | %s | %s |', $dim, $base_v, $cand_v, $delta_v );
+				$lines[] = sprintf( '| %s | %s | %s | %s |', $dim, $base_v, $cand_v, $delta_v );
 			}
 			$lines[] = '';
 		}
