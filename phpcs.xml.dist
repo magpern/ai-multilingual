@@ -139,6 +139,45 @@
 		<exclude-pattern>*src/Jobs/BackgroundTranslationItemRepository.php</exclude-pattern>
 		<exclude-pattern>*/tests/*</exclude-pattern>
 	</rule>
+	<!-- TQ.0 quality harness runs network-free CLI without WP_Filesystem loaded. -->
+	<rule ref="WordPress.Security.EscapeOutput.ExceptionNotEscaped">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_mkdir">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_fopen">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_fclose">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionCommentThrowTag.Missing">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames.caseFound">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+
+	<rule ref="Squiz.Commenting.FunctionComment.IncorrectTypeHint">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.ParamNameNoMatch">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed">
+		<exclude-pattern>*/tests/quality/src/*</exclude-pattern>
+	</rule>
+
 	<!-- Unit bootstrap stubs WordPress globals for pure-domain tests. -->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<exclude-pattern>*/tests/unit/bootstrap.php</exclude-pattern>

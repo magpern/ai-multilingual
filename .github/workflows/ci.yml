@@ -82,3 +82,15 @@ jobs:
         with:
           name: ai-multilingual
           path: dist/ai-multilingual-*.zip
+
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - run: composer install --prefer-dist --no-progress
+      - run: composer quality:validate
+      - run: composer test:unit -- --filter Quality
