@@ -1,0 +1,13 @@
+{
+  "id": "url_loss_01",
+  "category": "url_preservation",
+  "case_class": "protected",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "Visit https://shop.example.com/x for details",
+  "expected_invariants": {
+    "urls": ["https://shop.example.com/x"]
+  },
+  "difficulty": "normal",
+  "notes": "Protected URL missing from target."
+}

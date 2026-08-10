@@ -1,0 +1,11 @@
+{
+  "id": "src_eq_tgt_long_01",
+  "category": "source_equals_target",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "This product description should be translated into Swedish carefully.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "Long identical source/target triggers source_equals warning."
+}

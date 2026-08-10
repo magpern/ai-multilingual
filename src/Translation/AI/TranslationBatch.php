@@ -28,9 +28,10 @@ final class TranslationBatch {
 	 * @param string                      $prompt_version    Prompt profile version.
 	 * @param string                      $glossary_fragment Serialized glossary fragment.
 	 * @param array<int, ProviderSegment> $segments          Segments to translate.
-	 * @param string                      $operation         translate|suggest.
-	 * @param array<int, string>          $constraints       Structural constraint ids.
-	 * @param TranslationContext|null     $context           Optional bounded context (TI.2).
+	 * @param string                      $operation            translate|suggest.
+	 * @param array<int, string>          $constraints          Structural constraint ids.
+	 * @param TranslationContext|null     $context              Optional bounded context (TI.2).
+	 * @param array<int, string>          $scaffolding_markers  Optional request-scoped markers (TI.4).
 	 */
 	public function __construct(
 		public readonly string $source_locale,
@@ -42,6 +43,7 @@ final class TranslationBatch {
 		public readonly string $operation = self::OPERATION_TRANSLATE,
 		public readonly array $constraints = array(),
 		public readonly ?TranslationContext $context = null,
+		public readonly array $scaffolding_markers = array(),
 	) {
 	}
 }

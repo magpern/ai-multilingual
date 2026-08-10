@@ -1,0 +1,13 @@
+{
+  "id": "gloss_miss_01",
+  "category": "glossary_compliance",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "Our research peptide is lyophilized.",
+  "expected_invariants": {
+    "glossary_term_ids": ["research", "peptide"]
+  },
+  "difficulty": "normal",
+  "notes": "Preferred glossary targets missing."
+}

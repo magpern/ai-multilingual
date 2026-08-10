@@ -93,7 +93,41 @@ jobs:
           coverage: none
       - run: composer install --prefer-dist --no-progress
       - run: composer quality:validate
+      - run: php tests/quality/bin/quality-validate.php C1.3
       - run: composer test:unit -- --filter Quality
       # Network-free official baseline replay (after TQ0.7 pack exists).
       - name: Verify official baseline-v1.1.0 evidence
         run: php tests/quality/bin/quality-verify-baseline.php
+      - name: Verify additive H1.1 baseline scores
+        run: |
+          test -f tests/quality/baselines/baseline-v1.1.0/scores.H1.1.json
+          php -r '
+          require "vendor/autoload.php";
+          use AIMultilingual\Quality\EvidencePack;
+          use AIMultilingual\Quality\QualityScorerH11;
+          $pack = new EvidencePack("tests/quality/baselines/baseline-v1.1.0");
+          $frozen = $pack->load_scores("H1.1");
+          $replay = (new QualityScorerH11())->score_pack($pack);
+          $fs = $frozen["summary"] ?? [];
+          $rs = $replay["summary"] ?? [];
+          foreach (["total_cases","pass_count","critical_failures","not_applicable_count"] as $k) {
+            if ((int)($fs[$k] ?? -1) !== (int)($rs[$k] ?? -2)) {
+              fwrite(STDERR, "FAIL H1.1 summary mismatch on $k\n");
+              exit(1);
+            }
+          }
+          foreach ($frozen["case_results"] ?? [] as $id => $fr) {
+            $rr = $replay["case_results"][$id] ?? null;
+            if (null === $rr
+              || (bool)$fr["pass"] !== (bool)$rr["pass"]
+              || (int)$fr["critical_count"] !== (int)$rr["critical_count"]
+              || (int)($fr["not_applicable_count"] ?? -1) !== (int)($rr["not_applicable_count"] ?? -2)
+            ) {
+              fwrite(STDERR, "FAIL H1.1 case mismatch: $id\n");
+              exit(1);
+            }
+          }
+          echo "PASS\tH1.1 baseline verify\tpass=" . (int)$rs["pass_count"] . "/" . (int)$rs["total_cases"]
+            . " critical=" . (int)$rs["critical_failures"]
+            . " not_applicable=" . (int)$rs["not_applicable_count"] . "\n";
+          '

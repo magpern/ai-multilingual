@@ -22,6 +22,7 @@ use AIMultilingual\Translation\AI\TranslationContextBuilder;
 use AIMultilingual\Translation\Memory\TMGenerationLookup;
 use AIMultilingual\Translation\Memory\TMGenerationOutcome;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
+use AIMultilingual\Translation\QA\ScaffoldingMarkerSource;
 use AIMultilingual\Translation\Store;
 use WP_Error;
 use WP_Post;
@@ -342,6 +343,7 @@ final class TranslationService {
 			array(),
 			$built_context
 		);
+		$batch = $this->with_scaffolding_markers( $batch );
 
 		$result = $this->provider->translate_batch( $batch );
 		if ( $result instanceof WP_Error ) {
@@ -420,6 +422,7 @@ final class TranslationService {
 				(string) $target->locale
 			)
 		);
+		$batch = $this->with_scaffolding_markers( $batch );
 
 		$result = $this->provider->translate_batch( $batch );
 		if ( $result instanceof WP_Error ) {
@@ -599,6 +602,37 @@ final class TranslationService {
 			$source_lang,
 			$target_lang,
 			(string) ( $current['text_format'] ?? Store::FORMAT_PLAIN )
+		);
+	}
+
+	/**
+	 * Attaches request-scoped scaffolding markers when the provider exposes them (TI.4).
+	 *
+	 * Builds markers from a marker-free batch, then recreates the batch with markers.
+	 *
+	 * @param TranslationBatch $batch Batch without scaffolding markers.
+	 */
+	private function with_scaffolding_markers( TranslationBatch $batch ): TranslationBatch {
+		if ( ! $this->provider instanceof ScaffoldingMarkerSource ) {
+			return $batch;
+		}
+
+		$markers = $this->provider->scaffolding_markers_for_batch( $batch );
+		if ( array() === $markers ) {
+			return $batch;
+		}
+
+		return new TranslationBatch(
+			$batch->source_locale,
+			$batch->target_locale,
+			$batch->prompt_profile,
+			$batch->prompt_version,
+			$batch->glossary_fragment,
+			$batch->segments,
+			$batch->operation,
+			$batch->constraints,
+			$batch->context,
+			$markers
 		);
 	}
 }

@@ -1,0 +1,11 @@
+{
+  "id": "src_eq_tgt_brand_01",
+  "category": "source_equals_target",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "Nike",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "Short brand control below SOURCE_EQUALS_MIN_LEN (12) — no qd2 finding."
+}

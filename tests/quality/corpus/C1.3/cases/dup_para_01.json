@@ -1,0 +1,11 @@
+{
+  "id": "dup_para_01",
+  "category": "duplicate_paragraph",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "First paragraph about packaging.\n\nSecond paragraph about shipping.",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "Target has consecutive duplicate paragraphs."
+}

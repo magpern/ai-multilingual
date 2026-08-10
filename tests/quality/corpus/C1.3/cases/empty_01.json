@@ -1,0 +1,11 @@
+{
+  "id": "empty_01",
+  "category": "empty_target",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "generic",
+  "source_text": "Non-empty source text",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "Empty target critical."
+}

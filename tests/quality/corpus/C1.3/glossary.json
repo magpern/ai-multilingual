@@ -1,0 +1,19 @@
+{
+  "glossary_fixture_version": "G1.3",
+  "source_language": "en_US",
+  "target_language": "sv_SE",
+  "terms": [
+    {
+      "id": "research",
+      "source": "research",
+      "target": "forskning",
+      "notes": "preferred SV"
+    },
+    {
+      "id": "peptide",
+      "source": "peptide",
+      "target": "peptid",
+      "notes": "preferred SV"
+    }
+  ]
+}

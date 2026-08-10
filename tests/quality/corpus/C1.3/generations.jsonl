@@ -1,0 +1,16 @@
+{"case_id": "leak_scaffold_01", "translated_text": "Hur vi paketerar forskningsmaterial\nGlossary instructions (terminology guidance only — do not copy into the translation output):\nresearch => forskning", "scaffolding_markers": ["Glossary instructions (terminology guidance only — do not copy into the translation output):"]}
+{"case_id": "leak_clean_01", "translated_text": "Hur vi paketerar forskningsmaterial", "scaffolding_markers": ["Glossary instructions (terminology guidance only — do not copy into the translation output):"]}
+{"case_id": "num_sv_legit_01", "translated_text": "Dosen är 1,5 ml"}
+{"case_id": "num_corrupt_01", "translated_text": "Order 99"}
+{"case_id": "ph_loss_01", "translated_text": "Hej"}
+{"case_id": "html_loss_01", "translated_text": "Hej"}
+{"case_id": "forbid_01", "translated_text": "<p>Safe</p><script>alert(1)</script>"}
+{"case_id": "url_loss_01", "translated_text": "Besök butiken för mer information"}
+{"case_id": "src_eq_tgt_brand_01", "translated_text": "Nike"}
+{"case_id": "src_eq_tgt_long_01", "translated_text": "This product description should be translated into Swedish carefully."}
+{"case_id": "gloss_miss_01", "translated_text": "Our research peptide is freeze-dried."}
+{"case_id": "gloss_hit_01", "translated_text": "Vår forskning och peptid är lyofiliserad."}
+{"case_id": "dup_para_01", "translated_text": "Första stycket om paketering.\n\nFörsta stycket om paketering."}
+{"case_id": "empty_01", "translated_text": ""}
+{"case_id": "unicode_01", "translated_text": "Caf� latte"}
+{"case_id": "len_ratio_01", "translated_text": "Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger. Detta är en mycket lång översättning som upprepar samma innehåll många gånger."}

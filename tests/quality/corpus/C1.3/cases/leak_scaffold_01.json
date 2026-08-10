@@ -1,0 +1,11 @@
+{
+  "id": "leak_scaffold_01",
+  "category": "scaffolding_leakage",
+  "case_class": "free",
+  "text_format": "plain",
+  "field_semantics": "heading",
+  "source_text": "How we package research materials",
+  "expected_invariants": {},
+  "difficulty": "normal",
+  "notes": "Positive: request scaffolding marker leaked into target."
+}

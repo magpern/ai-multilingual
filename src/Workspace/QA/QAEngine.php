@@ -9,15 +9,9 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Workspace\QA;
 
-use AIMultilingual\Workspace\QA\Checks\EmptyTranslationCheck;
-use AIMultilingual\Workspace\QA\Checks\HTMLCheck;
-use AIMultilingual\Workspace\QA\Checks\LengthRatioCheck;
-use AIMultilingual\Workspace\QA\Checks\NumberCheck;
-use AIMultilingual\Workspace\QA\Checks\PlaceholderCheck;
 use AIMultilingual\Workspace\QA\Checks\PunctuationCheck;
-use AIMultilingual\Workspace\QA\Checks\UnsupportedMarkupCheck;
+use AIMultilingual\Workspace\QA\Checks\SharedDetectorCheck;
 use AIMultilingual\Workspace\QA\Checks\VariableCheck;
-use AIMultilingual\Workspace\QA\Checks\WhitespaceCheck;
 
 /**
  * Runs registered checks; never inspects origin/status/provider.
@@ -56,15 +50,9 @@ final class QAEngine {
 	 */
 	public static function default_checks(): array {
 		return array(
-			new PlaceholderCheck(),
-			new HTMLCheck(),
-			new EmptyTranslationCheck(),
+			new SharedDetectorCheck(),
 			new VariableCheck(),
-			new WhitespaceCheck(),
-			new NumberCheck(),
 			new PunctuationCheck(),
-			new UnsupportedMarkupCheck(),
-			new LengthRatioCheck(),
 		);
 	}
 

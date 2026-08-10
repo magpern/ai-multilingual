@@ -1,0 +1,1002 @@
+{
+    "scorer_version": "H1.1",
+    "corpus_version": "C1.0",
+    "case_results": {
+        "woo_title_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_title_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_title_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_title_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_title_05": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_title_06": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_short_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_short_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_short_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_short_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_short_05": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_short_06": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_long_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_long_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_long_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_long_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_long_05": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "woo_long_06": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "sci_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "sci_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "sci_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "sci_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "sci_05": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "sci_06": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "mkt_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "mkt_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "mkt_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "mkt_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ui_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ui_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ui_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ui_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "tax_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "tax_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "tax_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "tax_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_t_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_t_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_t_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_t_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_d_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_d_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_d_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "seo_d_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "gut_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                },
+                {
+                    "code": "qd13_length_ratio",
+                    "severity": "warning",
+                    "message": "Gross length ratio anomaly between source and target.",
+                    "data": {
+                        "ratio": 3.1515151515151514,
+                        "source_len": 33,
+                        "target_len": 104
+                    },
+                    "applicability": "applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 1,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "gut_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "gut_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "gut_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "html_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "html_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "html_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "html_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ph_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ph_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ph_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "ph_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "prot_01": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "prot_02": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                },
+                {
+                    "code": "qd2_source_equals_target",
+                    "severity": "warning",
+                    "message": "Target text equals source text unexpectedly.",
+                    "data": {
+                        "length": 41
+                    },
+                    "applicability": "applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 1,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "prot_03": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 0,
+            "not_applicable_count": 1,
+            "pass": true
+        },
+        "prot_04": {
+            "findings": [
+                {
+                    "code": "leakage_not_applicable",
+                    "severity": "info",
+                    "message": "Scaffolding leakage checks are not applicable (marker evidence unavailable).",
+                    "data": [],
+                    "applicability": "not_applicable"
+                },
+                {
+                    "code": "qd2_source_equals_target",
+                    "severity": "warning",
+                    "message": "Target text equals source text unexpectedly.",
+                    "data": {
+                        "length": 15
+                    },
+                    "applicability": "applicable"
+                }
+            ],
+            "critical_count": 0,
+            "error_count": 0,
+            "warning_count": 1,
+            "not_applicable_count": 1,
+            "pass": true
+        }
+    },
+    "summary": {
+        "total_cases": 60,
+        "pass_count": 60,
+        "critical_failures": 0,
+        "not_applicable_count": 60,
+        "scored_at": "2026-08-10T18:11:32+00:00"
+    }
+}
