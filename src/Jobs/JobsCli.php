@@ -338,11 +338,11 @@ final class JobsCli {
 			WP_CLI::error( 'Job not found.' );
 		}
 		self::assert_post_scope( $job );
+		$this->admit_job( $job );
 		$result = $this->jobs->resume( $job_id );
 		if ( is_wp_error( $result ) ) {
 			WP_CLI::error( $result->get_error_message() );
 		}
-		$this->admit_job( $result );
 		$wake = $this->scheduler->enqueue_job( $job_id );
 		if ( is_wp_error( $wake ) ) {
 			WP_CLI::error( $wake->get_error_message() );
@@ -413,11 +413,12 @@ final class JobsCli {
 
 		self::assert_post_scope( $job );
 
+		$this->admit_job( $job );
+
 		$result = $this->jobs->retry_failed_items( $job_id );
 		if ( is_wp_error( $result ) ) {
 			WP_CLI::error( $result->get_error_message() );
 		}
-		$this->admit_job( $result );
 
 		$wake = $this->scheduler->enqueue_job( $job_id );
 		if ( is_wp_error( $wake ) ) {

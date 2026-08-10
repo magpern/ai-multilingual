@@ -515,13 +515,18 @@ final class JobsController {
 	 */
 	public function resume_job( WP_REST_Request $request ) {
 		$job_id = (int) $request['id'];
+		$job    = $this->jobs->find_job( $job_id );
+		if ( null === $job ) {
+			return new WP_Error( 'job_not_found', 'Job not found.', array( 'status' => 404 ) );
+		}
+		// Admit before mutation so a saturated gate leaves the job paused.
+		$admit = $this->admit_job( $job );
+		if ( is_wp_error( $admit ) ) {
+			return $this->map_domain_error( $admit );
+		}
 		$result = $this->jobs->resume( $job_id );
 		if ( is_wp_error( $result ) ) {
 			return $this->map_domain_error( $result );
-		}
-		$admit = $this->admit_job( $result );
-		if ( is_wp_error( $admit ) ) {
-			return $this->map_domain_error( $admit );
 		}
 		$wake = $this->scheduler->enqueue_job( $job_id );
 		if ( is_wp_error( $wake ) ) {
@@ -563,14 +568,19 @@ final class JobsController {
 	 */
 	public function retry_failed_job( WP_REST_Request $request ) {
 		$job_id = (int) $request['id'];
+		$job    = $this->jobs->find_job( $job_id );
+		if ( null === $job ) {
+			return new WP_Error( 'job_not_found', 'Job not found.', array( 'status' => 404 ) );
+		}
+		// Admit before mutation so a saturated gate leaves terminal state intact.
+		$admit = $this->admit_job( $job );
+		if ( is_wp_error( $admit ) ) {
+			return $this->map_domain_error( $admit );
+		}
 
 		$result = $this->jobs->retry_failed_items( $job_id );
 		if ( is_wp_error( $result ) ) {
 			return $this->map_domain_error( $result );
-		}
-		$admit = $this->admit_job( $result );
-		if ( is_wp_error( $admit ) ) {
-			return $this->map_domain_error( $admit );
 		}
 
 		$wake = $this->scheduler->enqueue_job( $job_id );
