@@ -191,12 +191,13 @@ final class TranslationService {
 	/**
 	 * Translates one segment synchronously when a provider is configured.
 	 *
-	 * @param WP_Post $post        Canonical post.
-	 * @param int     $language_id Target language id.
-	 * @param string  $segment_key Segment key.
+	 * @param WP_Post $post           Canonical post.
+	 * @param int     $language_id    Target language id.
+	 * @param string  $segment_key    Segment key.
+	 * @param bool    $allow_provider When false, TM/skip-only — do not call the provider.
 	 * @return array<string, mixed>|WP_Error Updated segment DTO or error.
 	 */
-	public function translate_segment( WP_Post $post, int $language_id, string $segment_key ) {
+	public function translate_segment( WP_Post $post, int $language_id, string $segment_key, bool $allow_provider = true ) {
 		$this->last_tm_outcome    = null;
 		$this->last_attempt_usage = null;
 
@@ -323,6 +324,26 @@ final class TranslationService {
 			}
 		}
 
+		if ( ! $allow_provider ) {
+			$this->last_attempt_usage = array(
+				'provider_requests' => 0,
+				'input_tokens'      => 0,
+				'output_tokens'     => 0,
+				'usage_known'       => true,
+				'tm_outcome_code'   => null !== $this->last_tm_outcome ? $this->last_tm_outcome->code : '',
+			);
+
+			return new WP_Error(
+				'aiml_provider_budget_exhausted',
+				__( 'Provider budget exhausted; provider call forbidden for this attempt.', 'ai-multilingual' ),
+				array(
+					'status'                => 409,
+					'provider_request_made' => false,
+					'provider_requests'     => 0,
+				)
+			);
+		}
+
 		$built_context = $this->context_builder->build_for_post(
 			$post,
 			$current,
@@ -373,8 +394,13 @@ final class TranslationService {
 		if ( $result instanceof WP_Error ) {
 			$error_data = $result->get_error_data();
 			if ( is_array( $error_data ) && ! empty( $error_data['provider_request_made'] ) ) {
+				// Prefer explicit provider_requests when present; default to 1 only when
+				// the key is absent. Never coerce an explicit 0 up to 1.
+				$requests                 = array_key_exists( 'provider_requests', $error_data )
+					? max( 0, (int) $error_data['provider_requests'] )
+					: 1;
 				$this->last_attempt_usage = array(
-					'provider_requests' => max( 1, (int) ( $error_data['provider_requests'] ?? 1 ) ),
+					'provider_requests' => $requests,
 					'input_tokens'      => max( 0, (int) ( $error_data['input_tokens'] ?? 0 ) ),
 					'output_tokens'     => max( 0, (int) ( $error_data['output_tokens'] ?? 0 ) ),
 					'usage_known'       => true,

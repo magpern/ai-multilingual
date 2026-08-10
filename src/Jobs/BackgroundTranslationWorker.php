@@ -283,7 +283,33 @@ final class BackgroundTranslationWorker {
 				break;
 			}
 
-			$result = $this->processor->process( $fresh_job, $item, $post );
+			// When provider budget is already exhausted, still claim so TM/skip
+			// paths can proceed — but forbid a new provider invocation.
+			$result = $this->processor->process( $fresh_job, $item, $post, ! $budget_soft_stop );
+
+			if (
+				$budget_soft_stop
+				&& 'aiml_provider_budget_exhausted' === $result->error_code
+			) {
+				$this->items->update(
+					(int) $item->item_id,
+					array(
+						'status'      => ItemStatuses::QUEUED,
+						'started_at'  => null,
+						'finished_at' => null,
+					)
+				);
+				$this->reconciler->reconcile( $job_id );
+				$this->leases->heartbeat( $job_id, $owner_token );
+
+				return $this->jobs->pause_for_orchestration_error(
+					$job_id,
+					'budget_exceeded',
+					'Job provider budget hard limit reached before the next provider attempt.',
+					'permanent'
+				);
+			}
+
 			$this->record_item_result( $job_id, (int) $item->item_id, $result );
 
 			$this->reconciler->reconcile( $job_id );
@@ -291,18 +317,19 @@ final class BackgroundTranslationWorker {
 
 			++$processed;
 
+			// Honor Retry-After / backoff: do not reclaim retry_wait items in this wake.
+			if ( ItemStatuses::RETRY_WAIT === $result->status && $result->is_retryable() ) {
+				$after_retry = $this->job_repo->find( $job_id );
+				return null !== $after_retry ? $after_retry : $fresh_job;
+			}
+
 			$after_usage = $this->job_repo->find( $job_id );
 			if (
 				$result->usage_known
 				&& $result->provider_requests > 0
 				&& null !== $after_usage
-				&& (
-					$budget_soft_stop
-					|| (
-						! $this->budget->can_claim_next( $after_usage )
-						&& $this->has_claimable_items( $job_id )
-					)
-				)
+				&& ! $this->budget->can_claim_next( $after_usage )
+				&& $this->has_claimable_items( $job_id )
 			) {
 				return $this->jobs->pause_for_orchestration_error(
 					$job_id,

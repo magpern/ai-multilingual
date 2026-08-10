@@ -192,11 +192,12 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 
 		$fresh_job = $this->jobs->find( (int) $job->job_id );
 		$this->assertNotNull( $fresh_job );
-		$this->assertSame( 2, (int) $fresh_job->budget_used_requests );
+		// Hard stop forbids provider when already at limit — no overshoot charge.
+		$this->assertSame( 1, (int) $fresh_job->budget_used_requests );
 
 		$items = $this->items->list_by_job( (int) $job->job_id );
-		$this->assertSame( 2, $this->count_items_by_status( $items, ItemStatuses::COMPLETED ) );
-		$this->assertSame( 0, $this->count_items_by_status( $items, ItemStatuses::QUEUED ) );
+		$this->assertSame( 1, $this->count_items_by_status( $items, ItemStatuses::COMPLETED ) );
+		$this->assertSame( 1, $this->count_items_by_status( $items, ItemStatuses::QUEUED ) );
 	}
 
 	public function test_duplicate_callback_while_lease_held(): void {

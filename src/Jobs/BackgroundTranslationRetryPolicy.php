@@ -124,6 +124,7 @@ final class BackgroundTranslationRetryPolicy {
 			'aiml_invalid_segment',
 			'cancelled',
 			'budget_exceeded',
+			'aiml_provider_budget_exhausted',
 			'provider_unavailable',
 			// TI.1 content-structural validation (deterministic — do not retry).
 			'empty_target',

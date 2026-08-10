@@ -83,12 +83,13 @@ final class BackgroundTranslationItemProcessor {
 	/**
 	 * Process one job item through the existing translation pipeline.
 	 *
-	 * @param object  $job         Job row.
-	 * @param object  $item        Item row.
-	 * @param WP_Post $post        Canonical post.
+	 * @param object  $job            Job row.
+	 * @param object  $item           Item row.
+	 * @param WP_Post $post           Canonical post.
+	 * @param bool    $allow_provider When false, TM/skip/conflict only — no provider call.
 	 * @return ItemResult
 	 */
-	public function process( object $job, object $item, WP_Post $post ): ItemResult {
+	public function process( object $job, object $item, WP_Post $post, bool $allow_provider = true ): ItemResult {
 		$language_id = (int) $job->language_id;
 		$segment_key = (string) $item->segment_key;
 		$job_type    = (string) $job->job_type;
@@ -122,7 +123,7 @@ final class BackgroundTranslationItemProcessor {
 		}
 
 		$glossary_version = $this->glossary->current_version();
-		$result           = $this->translation->translate_segment( $post, $language_id, $segment_key );
+		$result           = $this->translation->translate_segment( $post, $language_id, $segment_key, $allow_provider );
 		$usage            = $this->last_attempt_usage();
 
 		if ( $result instanceof WP_Error ) {
