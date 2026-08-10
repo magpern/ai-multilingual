@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete**; **TI.1 Complete**; **TI.2 Complete**; **TI.3 Complete**; **TI.4 Complete** — [TI4 plan](plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); [validation log](plans/TI4_DETERMINISTIC_QA_HARDENING_VALIDATION_LOG.md). Exact next step: **TI.5 planning only** (do not implement TI.5–TI.7 until TI.5 plan is Architecture Frozen on `main`).
+**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete**; **TI.1 Complete**; **TI.2 Complete**; **TI.3 Complete**; **TI.4 Complete**; **TI.5 Architecture Frozen (planning)** — [TI5 plan](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); [ADR-0019](adr/0019-evidence-based-risk-assessment.md); [validation log](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md). Exact next step after freeze on `main`: create `feature/ti5-evidence-based-review-risk-signals` and implement TI5.0–TI5.8. **TI.5 implementation not started**. **TI.6–TI.7** not started.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program / milestone | Focus |
 |---|---|---|
-| 1 | **TIQ** / **TI.5** planning next | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0**/**TI.1**/**TI.2**/**TI.3**/**TI.4 Complete**; TI.5–TI.7 planning/implementation not started |
+| 1 | **TIQ** / **TI.5** implementation next (after planning freeze on `main`) | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0**–**TI.4 Complete**; [TI5 plan](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); TI.5 implementation not started; TI.6–TI.7 not started |
 
 **Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. CI/release baseline is green. `Migrator::TARGET` remains **6**.
 
@@ -165,6 +165,7 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 | **TI.2 milestone plan** | [`plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md`](plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md) |
 | **TI.3 milestone plan** | [`plans/TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md`](plans/TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md) |
 | **TI.4 milestone plan** | [`plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md`](plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md) |
+| **TI.5 milestone plan** | [`plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md`](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md) |
 | **Implementation priority / product direction** | **This file** |
 | Classic M0–M7 / Strategy F status (historical) | [`ROADMAP.md`](ROADMAP.md) |
 | Historical v1 platform-track archive | [`plans/POST_V1_PRODUCT_ROADMAP.md`](plans/POST_V1_PRODUCT_ROADMAP.md) |
