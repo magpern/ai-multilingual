@@ -694,7 +694,7 @@ Numbered criteria for TQ.0 closure. Do not pad.
 
 ### Versioning and immutability
 
-65 65. Scorer re-scoring is non-destructive (new version files).
+65. Scorer re-scoring is non-destructive (new version files).
 66. Official generation fixtures are immutable once labeled.
 67. CI detects unauthorized mutation of frozen official evidence.
 68. Explicit version evolution (C/H/M/generation labels) remains possible.
