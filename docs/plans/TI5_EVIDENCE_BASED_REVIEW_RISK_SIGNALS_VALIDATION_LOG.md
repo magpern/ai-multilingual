@@ -1,6 +1,6 @@
 # TI.5 — Evidence-based Review / Risk Signals — Planning / Validation Log
 
-**Status:** **Architecture Frozen** on  — implementation not started
+**Status:** **Architecture Frozen** on `main` — implementation not started
 **Planning branch:** `docs/ti5-evidence-based-review-risk-signals-plan`
 **Planning baseline:** `main` @ `4a0fceab913c4af8c7dc07fd3be997fe89a66494`
 **Authoritative plan:** [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md)
@@ -8,8 +8,8 @@
 **TARGET:** 6
 **TI.6–TI.7:** planning/implementation not started
 **Independent planning review:** **PASS** (2026-08-10)
-**Freeze merge:** 
-**Next:** create  and implement TI5.0–TI5.8 (separate task)
+**Freeze merge:** `f193bc3681731ef320a75141158c855df71e5998`
+**Next:** create `feature/ti5-evidence-based-review-risk-signals` and implement TI5.0–TI5.8 (separate task)
 
 ## Architecture lock (planning)
 
