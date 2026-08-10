@@ -22,11 +22,13 @@ use WP_Post;
 final class PublicationService {
 
 	/**
-	 * @param Store                   $store      Translation store.
-	 * @param AssessmentAssembler     $assembler  TI.5 assessment assembler.
-	 * @param PublicationPolicy       $policy     Pure eligibility policy.
-	 * @param PublicationAuditLogger  $audit      Bounded audit logger.
-	 * @param Settings|null           $settings   Plugin settings.
+	 * Builds the publication service.
+	 *
+	 * @param Store                  $store      Translation store.
+	 * @param AssessmentAssembler    $assembler  TI.5 assessment assembler.
+	 * @param PublicationPolicy      $policy     Pure eligibility policy.
+	 * @param PublicationAuditLogger $audit      Bounded audit logger.
+	 * @param Settings|null          $settings   Plugin settings.
 	 */
 	public function __construct(
 		private Store $store,
@@ -41,11 +43,13 @@ final class PublicationService {
 	/**
 	 * Explains eligibility without mutation.
 	 *
-	 * @param string $source_type Source type.
-	 * @param int    $source_id   Source id.
-	 * @param int    $language_id Language id.
-	 * @param string $segment_key Segment key.
-	 * @param bool   $for_automatic Treat as automatic path.
+	 * @param string             $source_type         Source type.
+	 * @param int                $source_id           Source id.
+	 * @param int                $language_id         Language id.
+	 * @param string             $segment_key         Segment key.
+	 * @param bool               $for_automatic       Treat as automatic path.
+	 * @param array<int, string> $scaffolding_markers Optional request markers for TI.5.
+	 * @param bool|null          $markers_applicable  Whether leakage evidence applies.
 	 * @return PublicationDecision|WP_Error
 	 */
 	public function explain(
@@ -53,43 +57,49 @@ final class PublicationService {
 		int $source_id,
 		int $language_id,
 		string $segment_key,
-		bool $for_automatic = false
+		bool $for_automatic = false,
+		array $scaffolding_markers = array(),
+		?bool $markers_applicable = null
 	) {
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
 			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
 		}
 
-		return $this->evaluate_row( $row, $for_automatic );
+		return $this->evaluate_row( $row, $for_automatic, $scaffolding_markers, $markers_applicable );
 	}
 
 	/**
 	 * Attempts automatic publication after successful translation persistence.
 	 *
-	 * @param string $source_type Source type.
-	 * @param int    $source_id   Source id.
-	 * @param int    $language_id Language id.
-	 * @param string $segment_key Segment key.
+	 * @param string             $source_type         Source type.
+	 * @param int                $source_id           Source id.
+	 * @param int                $language_id         Language id.
+	 * @param string             $segment_key         Segment key.
+	 * @param array<int, string> $scaffolding_markers Optional generation-path markers.
+	 * @param bool|null          $markers_applicable  Whether leakage evidence applies.
 	 * @return array<string, mixed> Bounded publication result.
 	 */
 	public function maybe_auto_publish(
 		string $source_type,
 		int $source_id,
 		int $language_id,
-		string $segment_key
+		string $segment_key,
+		array $scaffolding_markers = array(),
+		?bool $markers_applicable = null
 	): array {
 		$mode = $this->current_mode();
 		if ( PublicationMode::MANUAL === $mode ) {
 			$this->audit->log(
 				PublicationAuditEvents::SKIPPED,
 				array(
-					'source_type'  => $source_type,
-					'source_id'    => $source_id,
-					'segment_key'  => $segment_key,
-					'language_id'  => $language_id,
-					'mode'         => $mode,
-					'reason_codes' => array( PublicationReasonCodes::AUTOMATION_DISABLED ),
-					'actor_kind'   => 'system',
+					'source_type'    => $source_type,
+					'source_id'      => $source_id,
+					'segment_key'    => $segment_key,
+					'language_id'    => $language_id,
+					'mode'           => $mode,
+					'reason_codes'   => array( PublicationReasonCodes::AUTOMATION_DISABLED ),
+					'actor_kind'     => 'system',
 					'source_surface' => 'auto',
 				)
 			);
@@ -108,7 +118,10 @@ final class PublicationService {
 			$segment_key,
 			true,
 			0,
-			'auto'
+			'auto',
+			null,
+			$scaffolding_markers,
+			$markers_applicable
 		);
 
 		if ( $result instanceof WP_Error ) {
@@ -127,10 +140,10 @@ final class PublicationService {
 			);
 
 			return array(
-				'status'       => 'failed',
-				'error_code'   => $result->get_error_code(),
-				'error_message'=> $result->get_error_message(),
-				'mode'         => $mode,
+				'status'        => 'failed',
+				'error_code'    => $result->get_error_code(),
+				'error_message' => $result->get_error_message(),
+				'mode'          => $mode,
 			);
 		}
 
@@ -140,14 +153,16 @@ final class PublicationService {
 	/**
 	 * Publishes a translation when eligible.
 	 *
-	 * @param string      $source_type     Source type.
-	 * @param int         $source_id       Source id.
-	 * @param int         $language_id     Language id.
-	 * @param string      $segment_key     Segment key.
-	 * @param bool        $for_automatic   Automatic path.
-	 * @param int         $user_id         Acting user (0 = system).
-	 * @param string      $surface         Audit surface.
-	 * @param string|null $expected_status Optional optimistic publish_status.
+	 * @param string             $source_type         Source type.
+	 * @param int                $source_id           Source id.
+	 * @param int                $language_id         Language id.
+	 * @param string             $segment_key         Segment key.
+	 * @param bool               $for_automatic       Automatic path.
+	 * @param int                $user_id             Acting user (0 = system).
+	 * @param string             $surface             Audit surface.
+	 * @param string|null        $expected_status     Optional optimistic publish_status.
+	 * @param array<int, string> $scaffolding_markers Optional generation-path markers.
+	 * @param bool|null          $markers_applicable  Whether leakage evidence applies.
 	 * @return array<string, mixed>|WP_Error
 	 */
 	public function publish(
@@ -158,7 +173,9 @@ final class PublicationService {
 		bool $for_automatic = false,
 		int $user_id = 0,
 		string $surface = 'manual',
-		?string $expected_status = null
+		?string $expected_status = null,
+		array $scaffolding_markers = array(),
+		?bool $markers_applicable = null
 	) {
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
@@ -174,25 +191,25 @@ final class PublicationService {
 			);
 		}
 
-		$decision = $this->evaluate_row( $row, $for_automatic );
+		$decision = $this->evaluate_row( $row, $for_automatic, $scaffolding_markers, $markers_applicable );
 		if ( ! $decision->eligible ) {
 			$this->audit->log(
 				PublicationAuditEvents::SKIPPED,
 				array(
-					'source_type'         => $source_type,
-					'source_id'           => $source_id,
-					'segment_key'         => $segment_key,
-					'language_id'         => $language_id,
-					'old_publish_status'  => $current,
-					'new_publish_status'  => $current,
-					'policy_version'      => $decision->policy_version,
-					'assessment_version'  => $decision->assessment_version,
-					'overall_category'    => $decision->overall_category,
-					'reason_codes'        => $decision->reason_codes,
-					'mode'                => $decision->mode,
-					'actor_kind'          => $for_automatic ? 'system' : 'user',
-					'user_id'             => $user_id,
-					'source_surface'      => $surface,
+					'source_type'        => $source_type,
+					'source_id'          => $source_id,
+					'segment_key'        => $segment_key,
+					'language_id'        => $language_id,
+					'old_publish_status' => $current,
+					'new_publish_status' => $current,
+					'policy_version'     => $decision->policy_version,
+					'assessment_version' => $decision->assessment_version,
+					'overall_category'   => $decision->overall_category,
+					'reason_codes'       => $decision->reason_codes,
+					'mode'               => $decision->mode,
+					'actor_kind'         => $for_automatic ? 'system' : 'user',
+					'user_id'            => $user_id,
+					'source_surface'     => $surface,
 				)
 			);
 
@@ -327,10 +344,23 @@ final class PublicationService {
 	}
 
 	/**
-	 * @param object $row           Store row.
-	 * @param bool   $for_automatic Automatic path.
+	 * Evaluates publication eligibility for a Store row.
+	 *
+	 * @param object             $row                  Store row.
+	 * @param bool               $for_automatic        Automatic path.
+	 * @param array<int, string> $scaffolding_markers  Optional generation-path markers.
+	 * @param bool|null          $markers_applicable   Whether leakage evidence applies.
 	 */
-	private function evaluate_row( object $row, bool $for_automatic ): PublicationDecision {
+	private function evaluate_row(
+		object $row,
+		bool $for_automatic,
+		array $scaffolding_markers = array(),
+		?bool $markers_applicable = null
+	): PublicationDecision {
+		$applicable = null !== $markers_applicable
+			? $markers_applicable
+			: ( array() !== $scaffolding_markers );
+
 		$assessment = $this->assembler->assess_segment(
 			array(
 				'source_text'     => (string) ( $row->source_text ?? '' ),
@@ -344,7 +374,9 @@ final class PublicationService {
 				'prompt_version'  => (string) ( $row->prompt_version ?? '' ),
 				'tm_id'           => isset( $row->tm_id ) ? (int) $row->tm_id : null,
 			),
-			FieldSemantic::GENERIC
+			FieldSemantic::GENERIC,
+			array_values( array_map( 'strval', $scaffolding_markers ) ),
+			$applicable
 		);
 
 		return $this->policy->evaluate(

@@ -405,16 +405,16 @@ final class WorkspaceController {
 				'callback'            => array( $this, 'explain_publication' ),
 				'permission_callback' => array( $this, 'can_edit_post' ),
 				'args'                => array(
-					'post_id'     => array(
+					'post_id'       => array(
 						'type'              => 'integer',
 						'required'          => true,
 						'sanitize_callback' => 'absint',
 					),
-					'segment_key' => array(
+					'segment_key'   => array(
 						'type'     => 'string',
 						'required' => true,
 					),
-					'language'    => array(
+					'language'      => array(
 						'type'     => 'string',
 						'required' => true,
 					),

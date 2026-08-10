@@ -718,10 +718,10 @@ final class SettingsPage {
 	 * @param array<string, mixed> $saved Persisted settings.
 	 */
 	private function render_publication_diagnostics( array $saved ): void {
-		$sanitized = Settings::sanitize( $saved );
-		$gate_saved = ! empty( $saved['segment_publication_gate_enabled'] );
+		$sanitized      = Settings::sanitize( $saved );
+		$gate_saved     = ! empty( $saved['segment_publication_gate_enabled'] );
 		$gate_effective = ! empty( $sanitized['segment_publication_gate_enabled'] );
-		$mode_saved = (string) ( $saved['auto_publication_mode'] ?? PublicationMode::MANUAL );
+		$mode_saved     = (string) ( $saved['auto_publication_mode'] ?? PublicationMode::MANUAL );
 		$mode_effective = (string) ( $sanitized['auto_publication_mode'] ?? PublicationMode::MANUAL );
 		if ( ! PublicationMode::is_valid( $mode_effective ) ) {
 			$mode_effective = PublicationMode::MANUAL;

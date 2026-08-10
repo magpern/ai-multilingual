@@ -147,7 +147,14 @@ final class Migrator {
 	private function step_5_review_workflow(): void {
 		global $wpdb;
 
-		$table = Schema::translations();
+		$table         = Schema::translations();
+		$escaped_table = str_replace( '`', '``', $table );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema table identifier only.
+		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			"ALTER TABLE `{$escaped_table}` ROW_FORMAT=DYNAMIC"
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$columns = array(
 			'review_status'              => "VARCHAR(24) NOT NULL DEFAULT 'not_submitted'",
@@ -209,7 +216,7 @@ final class Migrator {
 	private function step_7_publication_axis(): void {
 		global $wpdb;
 
-		$table = Schema::translations();
+		$table         = Schema::translations();
 		$escaped_table = str_replace( '`', '``', $table );
 
 		// Ensure DYNAMIC row format before additive ALTERs (InnoDB row-size headroom).

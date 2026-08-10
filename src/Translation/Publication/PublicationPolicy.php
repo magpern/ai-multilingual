@@ -46,7 +46,7 @@ final class PublicationPolicy {
 			$mode = PublicationMode::MANUAL;
 		}
 
-		$reasons = array();
+		$reasons  = array();
 		$eligible = true;
 
 		if ( Store::PUBLISH_PUBLISHED === $publish_status ) {

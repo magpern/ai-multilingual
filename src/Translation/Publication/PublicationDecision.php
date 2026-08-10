@@ -17,9 +17,11 @@ final class PublicationDecision {
 	public const VERSION = 'P1.0';
 
 	/**
+	 * Builds a versioned publication decision.
+	 *
 	 * @param string               $policy_version           Policy contract version.
 	 * @param bool                 $eligible                 Whether publication may proceed.
-	 * @param list<string>         $reason_codes             Stable reason codes.
+	 * @param array<int, string>   $reason_codes             Stable reason codes.
 	 * @param string               $mode                     Active publication mode.
 	 * @param string               $assessment_version       TI.5 assessment version.
 	 * @param string               $overall_category         TI.5 category.
@@ -29,7 +31,7 @@ final class PublicationDecision {
 	 * @param string               $provenance_class         Provenance class.
 	 * @param bool                 $source_public            Source visibility result.
 	 * @param bool                 $is_stale                 Staleness result.
-	 * @param array<string, mixed> $dimensions               Bounded guard results.
+	 * @param array<string, mixed> $dimensions        Bounded guard results.
 	 */
 	public function __construct(
 		public readonly string $policy_version,

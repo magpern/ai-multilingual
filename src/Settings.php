@@ -185,8 +185,8 @@ final class Settings {
 		}
 
 		if ( array_key_exists( 'auto_publication_mode', $raw ) ) {
-			$mode = strtolower( trim( (string) $raw['auto_publication_mode'] ) );
-			$allowed_modes = array( 'manual', 'approved_only', 'controlled_auto' );
+			$mode                           = strtolower( trim( (string) $raw['auto_publication_mode'] ) );
+			$allowed_modes                  = array( 'manual', 'approved_only', 'controlled_auto' );
 			$clean['auto_publication_mode'] = in_array( $mode, $allowed_modes, true ) ? $mode : 'manual';
 		}
 

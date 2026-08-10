@@ -47,14 +47,14 @@ final class Cli {
 	/**
 	 * Registers the commands.
 	 *
-	 * @param Languages              $languages Language configuration.
-	 * @param Store                  $store     Segment store.
-	 * @param Extractor              $extractor Source extractor.
-	 * @param BlockIdentityMigration $migration Block identity migration service.
-	 * @param BlockHealthService     $health    Block health diagnostics service.
-	 * @param BlockMetricsAggregator      $metrics     Request-scoped metrics aggregator.
-	 * @param SeoDiagnosticsService       $seo         SEO diagnostics core (A.SEOf).
-	 * @param PublicationService|null     $publication Optional TI.7 publication service.
+	 * @param Languages               $languages Language configuration.
+	 * @param Store                   $store     Segment store.
+	 * @param Extractor               $extractor Source extractor.
+	 * @param BlockIdentityMigration  $migration Block identity migration service.
+	 * @param BlockHealthService      $health    Block health diagnostics service.
+	 * @param BlockMetricsAggregator  $metrics     Request-scoped metrics aggregator.
+	 * @param SeoDiagnosticsService   $seo         SEO diagnostics core (A.SEOf).
+	 * @param PublicationService|null $publication Optional TI.7 publication service.
 	 */
 	public static function register(
 		Languages $languages,

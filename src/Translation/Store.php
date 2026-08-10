@@ -400,8 +400,8 @@ final class Store {
 	 * Path-specific prerequisites (e.g. block RENDERABLE_STATUSES / non-stale)
 	 * remain the caller's responsibility on top of this check.
 	 *
-	 * @param object     $row        Hydrated translation row.
-	 * @param bool|null  $gate_enabled Optional override for tests; null reads Settings.
+	 * @param object    $row        Hydrated translation row.
+	 * @param bool|null $gate_enabled Optional override for tests; null reads Settings.
 	 */
 	public static function is_publicly_overlay_eligible( object $row, ?bool $gate_enabled = null ): bool {
 		$status = (string) ( $row->status ?? '' );
@@ -978,17 +978,15 @@ final class Store {
 
 		if ( $text_changed ) {
 			$data = array_merge( $data, self::review_clear_fields(), self::publish_clear_fields() );
-		} else {
+		} elseif ( null !== $existing ) {
 			// Preserve existing publication axis on no-op content saves.
-			if ( null !== $existing ) {
-				$data['publish_status'] = (string) ( $existing->publish_status ?? self::PUBLISH_UNPUBLISHED );
-				$data['published_at']   = $existing->published_at ?? null;
-				$data['published_by']   = null !== ( $existing->published_by ?? null ) && '' !== (string) $existing->published_by
-					? (int) $existing->published_by
-					: null;
-			} else {
-				$data = array_merge( $data, self::publish_clear_fields() );
-			}
+			$data['publish_status'] = (string) ( $existing->publish_status ?? self::PUBLISH_UNPUBLISHED );
+			$data['published_at']   = $existing->published_at ?? null;
+			$data['published_by']   = null !== ( $existing->published_by ?? null ) && '' !== (string) $existing->published_by
+				? (int) $existing->published_by
+				: null;
+		} else {
+			$data = array_merge( $data, self::publish_clear_fields() );
 		}
 
 		$this->upsert( $data, $now );

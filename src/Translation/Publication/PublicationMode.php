@@ -10,7 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Translation\Publication;
 
 /**
- * auto_publication_mode vocabulary.
+ * Closed auto-publication mode vocabulary.
  */
 final class PublicationMode {
 

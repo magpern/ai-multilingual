@@ -15,6 +15,8 @@ namespace AIMultilingual\Translation\Publication;
 final class PublicationAuditLogger {
 
 	/**
+	 * Logs a publication audit event.
+	 *
 	 * @param string               $event   Event name.
 	 * @param array<string, mixed> $payload Audit payload.
 	 */
@@ -38,6 +40,8 @@ final class PublicationAuditLogger {
 	}
 
 	/**
+	 * Strips disallowed keys from an audit payload.
+	 *
 	 * @param array<string, mixed> $payload Raw payload.
 	 * @return array<string, mixed>
 	 */

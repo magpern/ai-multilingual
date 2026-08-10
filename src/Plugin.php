@@ -348,13 +348,13 @@ final class Plugin {
 		$provider_registry->register(
 			ProviderFactory::openai_from_settings( $this->settings, $vault, $profiles )
 		);
-		$glossary_service   = new GlossaryService(
+		$glossary_service     = new GlossaryService(
 			new GlossaryRepository(),
 			new GlossaryNormalizer(),
 			new GlossaryMatcher( new GlossaryNormalizer() )
 		);
-		$tm_service         = new TranslationMemoryService( new TMRepository() );
-		$tm_lookup          = new TMGenerationLookup(
+		$tm_service           = new TranslationMemoryService( new TMRepository() );
+		$tm_lookup            = new TMGenerationLookup(
 			$tm_service,
 			new TMEligibilityPolicy( $glossary_service ),
 			$glossary_service
@@ -369,7 +369,7 @@ final class Plugin {
 			$publication_audit,
 			$this->settings
 		);
-		$translation        = new TranslationService(
+		$translation          = new TranslationService(
 			$store,
 			$assembler,
 			$languages,
@@ -382,15 +382,15 @@ final class Plugin {
 			$tm_service,
 			$publication
 		);
-		$preview            = new PreviewService( $languages, $context, $router );
-		$suggestion_service = new TranslationSuggestionService(
+		$preview              = new PreviewService( $languages, $context, $router );
+		$suggestion_service   = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),
 				new GlossarySuggestionProvider( $glossary_service ),
 				new AISuggestionProvider( $translation ),
 			)
 		);
-		$qa_engine          = new QAEngine(
+		$qa_engine            = new QAEngine(
 			null,
 			! empty( $this->settings->get()['qa_block_on_error'] )
 		);
@@ -446,8 +446,7 @@ final class Plugin {
 			$translation,
 			$glossary_service,
 			$assembler,
-			$job_retry,
-			$publication
+			$job_retry
 		);
 		$job_worker      = new BackgroundTranslationWorker(
 			$job_processor,

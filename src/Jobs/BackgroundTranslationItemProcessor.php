@@ -11,7 +11,6 @@ namespace AIMultilingual\Jobs;
 
 use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Translation\AI\ProviderResult;
-use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\SegmentAssembler;
 use AIMultilingual\Workspace\TranslationService;
@@ -59,13 +58,6 @@ final class BackgroundTranslationItemProcessor {
 	private BackgroundTranslationRetryPolicy $retry_policy;
 
 	/**
-	 * Optional TI.7 publication service (best-effort after translate success).
-	 *
-	 * @var PublicationService|null
-	 */
-	private ?PublicationService $publication;
-
-	/**
 	 * Builds the processor.
 	 *
 	 * @param Store                                 $store        Segment store.
@@ -73,22 +65,19 @@ final class BackgroundTranslationItemProcessor {
 	 * @param GlossaryService                       $glossary     Glossary service.
 	 * @param SegmentAssembler                      $assembler    Segment assembler.
 	 * @param BackgroundTranslationRetryPolicy|null $retry_policy Retry policy.
-	 * @param PublicationService|null               $publication  Optional publication service.
 	 */
 	public function __construct(
 		Store $store,
 		TranslationService $translation,
 		GlossaryService $glossary,
 		SegmentAssembler $assembler,
-		?BackgroundTranslationRetryPolicy $retry_policy = null,
-		?PublicationService $publication = null
+		?BackgroundTranslationRetryPolicy $retry_policy = null
 	) {
 		$this->store        = $store;
 		$this->translation  = $translation;
 		$this->glossary     = $glossary;
 		$this->assembler    = $assembler;
 		$this->retry_policy = $retry_policy ?? new BackgroundTranslationRetryPolicy();
-		$this->publication  = $publication;
 	}
 
 	/**
@@ -141,20 +130,8 @@ final class BackgroundTranslationItemProcessor {
 			return $this->map_translate_error( $result, $usage );
 		}
 
-		// TI.7: publication is best-effort; never fail the item for publication issues.
-		// ItemResult has no metadata bag — call and discard (audit logger records outcomes).
-		if ( null !== $this->publication ) {
-			try {
-				$this->publication->maybe_auto_publish(
-					Store::SOURCE_POST,
-					(int) $post->ID,
-					$language_id,
-					$segment_key
-				);
-			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- translation success is authoritative.
-				unset( $e );
-			}
-		}
+		// TI.7: PublicationService is invoked inside TranslationService after persist
+		// success (same path as sync). Jobs must not duplicate or own policy.
 
 		return ItemResult::completed( $glossary_version, $usage );
 	}
