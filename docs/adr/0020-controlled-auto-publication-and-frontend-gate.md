@@ -2,14 +2,14 @@
 
 ## Status
 
-**Proposed** (2026-08-10) — Architecture amendment for TI.7 Controlled auto-publication policy.
+**Accepted** (2026-08-10) — Controlled auto-publication and frontend publication gate for TI.7.
 
-**Decision maker:** Product Owner  
-**Approval date:** _(pending independent architecture review)_  
-**Decision:** _(pending)_  
-**Scope:** Third Store publication axis; Migrator TARGET 6→7 additive schema; frontend segment publication gate; safe-default automation OFF; PublicationPolicy / PublicationService authority boundary; TI.5 read-only consumption; Jobs publication-failure separation; migration backfill preserving currently-public overlays. Does **not** authorize TI.7 production coding until [TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md](../plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md) is Architecture Frozen on `main` after this ADR is **Accepted**.
+**Decision maker:** Product Owner
+**Approval date:** 2026-08-10
+**Decision:** ADR-0020 **Accepted** (planning freeze)
+**Scope:** Third Store publication axis; Migrator TARGET 6→7 additive schema; frontend segment publication gate; safe-default automation OFF; PublicationPolicy / PublicationService authority boundary; TI.5 read-only consumption; Jobs publication-failure separation; migration backfill preserving currently-public overlays. Does **not** authorize TI.7 production coding until [TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md](../plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md) is Architecture Frozen on `main` (same freeze wave as this acceptance).
 
-**Residual risks accepted (when Accepted):**
+**Residual risks accepted:**
 
 - Upgrade introduces a new Store axis and planned TARGET 7; runtime TARGET remains 6 until TI.7 implementation migrates
 - `segment_publication_gate_enabled` defaults **false** so upgrades do not change visitor-facing overlays until operators opt into the gate
@@ -17,8 +17,9 @@
 - Segment-level unpublished does **not** remove language-level SEO relationships (hreflang/sitemap remain ADR-0008 / A.SEO language-published)
 - Stale published translations are not auto-unpublished; they remain marked stale under existing freshness rules
 - Publication failure after successful translation persistence is a separate result (Jobs item stays translation-successful)
+- Pre-TI.7 classic/`IntegrationFrontendBridge` overlay paths are more permissive than Block/Elementor `RENDERABLE_STATUSES`; backfill follows the most permissive path; implementation must gate **all** seams including the bridge
 
-**Implementation gate:** **Closed** for production coding until this ADR is **Accepted** and the TI.7 plan is Architecture Frozen on `main`. This ADR does **not** bump runtime `Migrator::TARGET` by itself.
+**Implementation gate:** **Open for TI.7 implementation** only after [TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md](../plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md) is **Architecture Frozen** on `main`. This ADR does **not** bump runtime `Migrator::TARGET` by itself.
 
 **Evidence / plan base:**
 
@@ -286,7 +287,9 @@ FieldSemantic/content-type/language-pair policy matrices; bulk/scheduled publica
 
 ## Provisional approval log
 
-**Pending** — awaiting independent architecture review for gate A (Accepted).
+**Not applicable** — ADR-0020 is fully **Accepted** at TI.7 planning freeze (gate A). Gate B provisional approval is not used.
+
+**Independent architecture review:** **PASS** (2026-08-10) — third axis required; TARGET 7 justified; gate seams include `IntegrationFrontendBridge`; backfill follows most permissive pre-TI.7 public path; automation defaults safe; `approved ≠ published` preserved.
 
 ---
 

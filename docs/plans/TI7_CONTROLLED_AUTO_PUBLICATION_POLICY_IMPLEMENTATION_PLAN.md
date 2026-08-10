@@ -1,19 +1,19 @@
 # TI.7 — Controlled Auto-Publication Policy — Implementation Plan
 
-**Status:** **Architecture-review candidate** — amendment pending ADR-0020 Accepted + independent planning review PASS. **Not** Architecture Frozen until then. Implementation **not started**.
+**Status:** **Architecture Frozen** (planning) on `main` — implementation **not started**
 **Milestone:** TI.7 — Controlled auto-publication policy (TIQ program)
-**Kind:** Milestone implementation plan (candidate for Architecture Freeze on `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1–TI.6 **Complete**
 **Official pack (immutable):** `tests/quality/baselines/baseline-v1.1.0/` — TI.7 must not change generation quality claims
-**Schema (planned):** Migrator `TARGET` **6 → 7** (additive publication columns) — **only after ADR-0020 Accepted**; runtime TARGET remains **6** until TI.7 implementation
-**ADR:** [ADR-0020 — Controlled auto-publication and frontend publication gate](../adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Proposed** until review PASS)
+**Schema (planned):** Migrator `TARGET` **6 → 7** (additive publication columns) — authorized by Accepted ADR-0020; runtime TARGET remains **6** until TI.7 implementation
+**ADR:** [ADR-0020 — Controlled auto-publication and frontend publication gate](../adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Accepted** 2026-08-10)
 **Policy version:** `P1.0` (publication decisions; independent of assessment `R1.0` / harness `H1.x`)
 **Assessment consumption:** TI.5 `TranslationAssessment` **R1.0** read-only
 **Planning branch:** `docs/ti7-controlled-auto-publication-policy-plan`
-**Independent review (planning):** _(pending)_
-**Freeze merge:** _(pending)_
-**Implementation branch:** **do not create** until this plan is Architecture Frozen on `main`
+**Independent review (planning):** **PASS** (2026-08-10)
+**Freeze merge:** _(recorded on merge to main)_
+**Implementation branch:** **do not create until after freeze merge**; then `feature/ti7-controlled-auto-publication-policy`
 **Next after freeze:** Create `feature/ti7-controlled-auto-publication-policy` and implement TI7.0–TI7.8
 
 **Related:** [ADR-0008](../adr/0008-language-state-model.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), [ADR-0019](../adr/0019-evidence-based-risk-assessment.md), [ADR-0011](../adr/0011-resumable-job-pipeline.md); TI.4–TI.6 plans; A.SEO ownership unchanged.
@@ -21,6 +21,8 @@
 **Operational success:** Operators can opt into a durable segment publication gate and, under explicit closed policy modes, automatically publish translations using TI.5 observable evidence — without LLM confidence, opaque scores, second QA/assessment, Jobs-owned policy, or silent upgrade auto-publish.
 
 **Hard boundary:** TI.7 owns **publication policy and publication state transitions**. It does not redesign translation generation, review workflow vocabulary, TI.5 assessment, TM, glossary, Router, LanguageContext, or A.SEO emitters.
+
+**TI.7 PLANNING FREEZE REVIEW: PASS**
 
 ---
 
@@ -646,12 +648,13 @@ This planning freeze does **not** mark TIQ Complete.
 
 ## 38. Freeze recommendation
 
-Planning freeze proceeds only when:
+**Architecture Frozen (planning)** after:
 
 1. ADR-0020 **Accepted**
 2. Independent planning review **PASS**
-3. Plan status updated to **Architecture Frozen (planning) — implementation not started**
-4. Merged to `main` via `--no-ff`
+3. Merged to `main` via `--no-ff`
+
+Implementation remains **not started**.
 
 ---
 
