@@ -12,7 +12,6 @@ namespace AIMultilingual\Workspace;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Translation\AI\AIProviderInterface;
-use AIMultilingual\Translation\AI\NullAIProvider;
 use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderResult;
 use AIMultilingual\Translation\AI\ProviderSegment;
@@ -285,20 +284,59 @@ final class TranslationService {
 		ProviderResult $result
 	) {
 		$segment_key = (string) ( $current['segment_key'] ?? '' );
-		$translated  = '';
+		$source_text = (string) ( $current['source_text'] ?? '' );
+		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+
+		$matches    = 0;
+		$translated = null;
 
 		foreach ( $result->segments as $segment ) {
-			if ( (string) ( $segment['segment_key'] ?? '' ) === $segment_key ) {
-				$translated = (string) ( $segment['translated_text'] ?? '' );
-				break;
+			if ( (string) ( $segment['segment_key'] ?? '' ) !== $segment_key ) {
+				continue;
 			}
+			++$matches;
+			if ( ! array_key_exists( 'translated_text', $segment ) || ! is_string( $segment['translated_text'] ) ) {
+				return new WP_Error(
+					'aiml_ai_invalid_response',
+					__( 'Provider response could not be mapped to the requested segment.', 'ai-multilingual' ),
+					array( 'status' => 422 )
+				);
+			}
+			$translated = $segment['translated_text'];
 		}
 
-		if ( '' === $translated ) {
+		if ( 0 === $matches || null === $translated ) {
 			return new WP_Error(
-				NullAIProvider::ERROR_CODE,
-				__( 'Automatic translation is not configured.', 'ai-multilingual' ),
-				array( 'status' => 503 )
+				'aiml_ai_invalid_response',
+				__( 'Provider response is missing the requested segment.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		if ( $matches > 1 ) {
+			return new WP_Error(
+				'aiml_ai_invalid_response',
+				__( 'Provider response contains duplicate segment keys.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$validation = $this->validator->validate(
+			$source_text,
+			$translated,
+			$format,
+			$this->validator->persist_constraints( $source_text, $format )
+		);
+		if ( ! $validation->valid ) {
+			return new WP_Error(
+				(string) ( $validation->code ?? ResponseValidator::CODE_EMPTY_TARGET ),
+				'' !== $validation->message
+					? $validation->message
+					: __( 'Provider response failed structural validation.', 'ai-multilingual' ),
+				array(
+					'status' => 422,
+					'data'   => $validation->data,
+				)
 			);
 		}
 
@@ -312,8 +350,8 @@ final class TranslationService {
 				'segment_key'     => $segment_key,
 				'segment_kind'    => (string) ( $current['segment_kind'] ?? Store::KIND_BLOCK ),
 				'segment_order'   => (int) ( $current['segment_order'] ?? 0 ),
-				'text_format'     => (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN ),
-				'source_text'     => (string) ( $current['source_text'] ?? '' ),
+				'text_format'     => $format,
+				'source_text'     => $source_text,
 				'translated_text' => $translated,
 				'status'          => Store::STATUS_MACHINE_TRANSLATED,
 			)
