@@ -10,8 +10,9 @@
 **Freeze merge:** `main` @ `452a46c1b3f68dae2c01ddbd8d762aef21152617` (`merge: freeze Translation Intelligence & Quality program roadmap`)
 **TQ.0:** **Complete** on `main` — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official pack `tests/quality/baselines/baseline-v1.1.0/`
 **TI.1:** **Complete** on `main` — [TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md](TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md); canonical persist-path structural gate active on sync + Jobs; TS7 narrowed (numbers non-blocking on persist)
-**TI.2–TI.7:** planning/implementation **not started**
-**Next:** definitive **TI.2** Bounded Translation Context planning freeze. **Do not** start TI.3 until TI.1 and TI.2 are both complete.
+**TI.2:** **Architecture Frozen (planning) — implementation not started** — [TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md](TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md) (authoritative after independent review and merge to `main`)
+**TI.3–TI.7:** planning/implementation **not started**
+**Next after TI.2 plan freeze on `main`:** create `feature/ti2-bounded-translation-context` and begin TI2.0. **Do not** start TI.3 until TI.2 is Complete.
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
