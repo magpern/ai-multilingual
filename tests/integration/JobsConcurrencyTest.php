@@ -11,11 +11,13 @@ namespace AIMultilingual\Tests\Integration;
 
 use AIMultilingual\Jobs\BackgroundTranslationConcurrencyPolicy;
 use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
+use AIMultilingual\Jobs\JobBounds;
 use AIMultilingual\Jobs\JobStatuses;
 use WP_Error;
 
 /**
- * Verifies the database-backed running cap at its boundary.
+ * Verifies the database-backed running cap at its boundary, including the
+ * production claim_lease path used by workers.
  */
 final class JobsConcurrencyTest extends AimlTestCase {
 
@@ -54,6 +56,40 @@ final class JobsConcurrencyTest extends AimlTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( JobStatuses::QUEUED, $this->jobs->find( (int) $candidate->job_id )->status );
+		$this->assertSame( 20, $this->jobs->count_by_status( JobStatuses::RUNNING ) );
+	}
+
+	public function test_claim_lease_admits_one_slot_and_rejects_second(): void {
+		for ( $i = 0; $i < 19; ++$i ) {
+			$this->insert_job( JobStatuses::RUNNING, 'lease-running-' . $i );
+		}
+		$first  = $this->insert_job( JobStatuses::QUEUED, 'lease-a' );
+		$second = $this->insert_job( JobStatuses::QUEUED, 'lease-b' );
+		$now    = current_time( 'mysql', true );
+
+		$claimed = $this->jobs->claim_lease( (int) $first->job_id, 'owner-a', 60, $now );
+		$denied  = $this->jobs->claim_lease( (int) $second->job_id, 'owner-b', 60, $now );
+
+		$this->assertNotInstanceOf( WP_Error::class, $claimed );
+		$this->assertNotNull( $claimed );
+		$this->assertSame( JobStatuses::RUNNING, (string) $claimed->status );
+		$this->assertInstanceOf( WP_Error::class, $denied );
+		$this->assertSame( 'concurrency_limit_exceeded', $denied->get_error_code() );
+		$this->assertSame( JobStatuses::QUEUED, $this->jobs->find( (int) $second->job_id )->status );
+		$this->assertSame( JobBounds::MAX_CONCURRENT_RUNNING, $this->jobs->count_by_status( JobStatuses::RUNNING ) );
+	}
+
+	public function test_retry_wait_does_not_count_toward_running_cap(): void {
+		for ( $i = 0; $i < 19; ++$i ) {
+			$this->insert_job( JobStatuses::RUNNING, 'rw-running-' . $i );
+		}
+		$this->insert_job( JobStatuses::RETRY_WAIT, 'rw-wait' );
+		$candidate = $this->insert_job( JobStatuses::QUEUED, 'rw-candidate' );
+		$policy    = new BackgroundTranslationConcurrencyPolicy( $this->jobs );
+
+		$result = $policy->admit_and_mark_running( (int) $candidate->job_id, JobStatuses::QUEUED );
+
+		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 20, $this->jobs->count_by_status( JobStatuses::RUNNING ) );
 	}
 

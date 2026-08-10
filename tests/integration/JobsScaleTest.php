@@ -98,9 +98,11 @@ final class JobsScaleTest extends AimlTestCase {
 	}
 
 	public function test_two_jobs_cover_one_thousand_items(): void {
-		$jobs  = new BackgroundTranslationJobRepository();
-		$items = new BackgroundTranslationItemRepository();
-		$total = 0;
+		$jobs        = new BackgroundTranslationJobRepository();
+		$items       = new BackgroundTranslationItemRepository();
+		$total       = 0;
+		$job_ids     = array();
+		$claimed_ids = array();
 
 		for ( $j = 0; $j < 2; ++$j ) {
 			$job = $jobs->insert(
@@ -116,6 +118,7 @@ final class JobsScaleTest extends AimlTestCase {
 				)
 			);
 			$this->assertNotInstanceOf( WP_Error::class, $job );
+			$job_ids[] = (int) $job->job_id;
 
 			for ( $i = 0; $i < 500; ++$i ) {
 				$inserted = $items->insert(
@@ -131,5 +134,16 @@ final class JobsScaleTest extends AimlTestCase {
 		}
 
 		$this->assertSame( 1000, $total );
+
+		foreach ( $job_ids as $job_id ) {
+			for ( $i = 0; $i < 500; ++$i ) {
+				$claimed = $items->claim_next( $job_id );
+				$this->assertNotNull( $claimed );
+				$claimed_ids[] = (int) $claimed->item_id;
+			}
+			$this->assertNull( $items->claim_next( $job_id ) );
+		}
+
+		$this->assertCount( 1000, array_unique( $claimed_ids ) );
 	}
 }

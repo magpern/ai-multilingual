@@ -211,13 +211,197 @@ final class JobsFailureInjectionTest extends AimlTestCase {
 	}
 
 	public function test_retry_after_schedules_delayed_wake(): void {
-		$policy = new BackgroundTranslationRetryPolicy();
-		$delay  = $policy->delay_seconds( 1, 120 );
-		$this->assertGreaterThanOrEqual( 120, $delay );
-		$this->assertLessThanOrEqual( BackgroundTranslationRetryPolicy::MAX_DELAY_SECONDS, $delay );
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		$key      = $this->default_segment_key();
 
-		$code = $policy->classify( 'aiml_ai_http_error', 429 );
-		$this->assertSame( BackgroundTranslationRetryPolicy::DISPOSITION_RETRYABLE, $code );
+		$scripted = new ScriptedAIProvider(
+			array(
+				new WP_Error(
+					'aiml_rate_limited',
+					'Rate limited',
+					array(
+						'status'                => 429,
+						'retry_after'           => 120,
+						'provider_request_made' => true,
+						'provider_requests'     => 1,
+					)
+				),
+			)
+		);
+
+		$settings         = new Settings();
+		$adapter_registry = new AdapterRegistry();
+		$block_registry   = new BlockRegistry( $adapter_registry );
+		$extractor        = new Extractor(
+			$settings,
+			new BlockExtractor( $adapter_registry, $block_registry, new BlockExtractionLogger() )
+		);
+		$assembler        = new SegmentAssembler( $extractor, $this->job_store, $block_registry );
+		$glossary         = new GlossaryService(
+			new GlossaryRepository(),
+			new GlossaryNormalizer(),
+			new GlossaryMatcher( new GlossaryNormalizer() )
+		);
+		$translation      = new TranslationService(
+			$this->job_store,
+			$assembler,
+			$this->languages,
+			$scripted,
+			null,
+			null,
+			$glossary
+		);
+		$processor        = new BackgroundTranslationItemProcessor(
+			$this->job_store,
+			$translation,
+			$glossary,
+			$assembler
+		);
+		$worker           = new BackgroundTranslationWorker(
+			$processor,
+			$this->job_service,
+			$this->jobs,
+			$this->items,
+			$this->leases,
+			new JobProgressReconciler( $this->jobs, $this->items ),
+			null,
+			null,
+			$this->scheduler,
+			null,
+			null,
+			$this->diagnostics
+		);
+
+		$job = $this->job_service->create_job(
+			array(
+				'job_type'       => JobTypes::TRANSLATE_SELECTED,
+				'source_type'    => Store::SOURCE_POST,
+				'source_id'      => (int) $post->ID,
+				'language_id'    => (int) $language->language_id,
+				'segment_keys'   => array( $key ),
+				'provider_id'    => 'scripted',
+				'prompt_profile' => 'default',
+				'prompt_version' => '1',
+				'created_by'     => 1,
+			)
+		);
+		$this->assertNotInstanceOf( WP_Error::class, $job );
+
+		$result = $worker->run( (int) $job->job_id, 'retry-after-worker' );
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+
+		$item = $this->items->list_by_job( (int) $job->job_id )[0];
+		$this->assertSame(
+			ItemStatuses::RETRY_WAIT,
+			(string) $item->status,
+			sprintf(
+				'code=%s class=%s msg=%s attempts=%s',
+				(string) ( $item->last_error_code ?? '' ),
+				(string) ( $item->last_error_class ?? '' ),
+				(string) ( $item->last_error_message ?? '' ),
+				(string) ( $item->attempt_count ?? '' )
+			)
+		);
+
+		$this->assertNotEmpty( $this->scheduler->delayed );
+		$this->assertSame( (int) $job->job_id, $this->scheduler->delayed[0][0] );
+		$this->assertGreaterThanOrEqual( 120, $this->scheduler->delayed[0][1] );
+		$this->assertLessThanOrEqual( BackgroundTranslationRetryPolicy::MAX_DELAY_SECONDS, $this->scheduler->delayed[0][1] );
+
+		$fresh = $this->jobs->find( (int) $job->job_id );
+		$this->assertSame( 1, (int) $fresh->budget_used_requests );
+	}
+
+	public function test_failed_provider_attempt_retains_known_usage(): void {
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		$key      = $this->default_segment_key();
+
+		$scripted = new ScriptedAIProvider(
+			array(
+				new WP_Error(
+					'aiml_ai_http_error',
+					'Upstream 503',
+					array(
+						'status'                => 503,
+						'provider_request_made' => true,
+						'provider_requests'     => 1,
+						'input_tokens'          => 11,
+						'output_tokens'         => 0,
+					)
+				),
+			)
+		);
+
+		$settings         = new Settings();
+		$adapter_registry = new AdapterRegistry();
+		$block_registry   = new BlockRegistry( $adapter_registry );
+		$extractor        = new Extractor(
+			$settings,
+			new BlockExtractor( $adapter_registry, $block_registry, new BlockExtractionLogger() )
+		);
+		$assembler        = new SegmentAssembler( $extractor, $this->job_store, $block_registry );
+		$glossary         = new GlossaryService(
+			new GlossaryRepository(),
+			new GlossaryNormalizer(),
+			new GlossaryMatcher( new GlossaryNormalizer() )
+		);
+		$translation      = new TranslationService(
+			$this->job_store,
+			$assembler,
+			$this->languages,
+			$scripted,
+			null,
+			null,
+			$glossary
+		);
+		$processor        = new BackgroundTranslationItemProcessor(
+			$this->job_store,
+			$translation,
+			$glossary,
+			$assembler
+		);
+		$worker           = new BackgroundTranslationWorker(
+			$processor,
+			$this->job_service,
+			$this->jobs,
+			$this->items,
+			$this->leases,
+			new JobProgressReconciler( $this->jobs, $this->items ),
+			null,
+			null,
+			$this->scheduler,
+			null,
+			null,
+			$this->diagnostics
+		);
+
+		$job = $this->job_service->create_job(
+			array(
+				'job_type'            => JobTypes::TRANSLATE_SELECTED,
+				'source_type'         => Store::SOURCE_POST,
+				'source_id'           => (int) $post->ID,
+				'language_id'         => (int) $language->language_id,
+				'segment_keys'        => array( $key ),
+				'budget_max_requests' => 5,
+				'provider_id'         => 'scripted',
+				'prompt_profile'      => 'default',
+				'prompt_version'      => '1',
+				'created_by'          => 1,
+			)
+		);
+		$this->assertNotInstanceOf( WP_Error::class, $job );
+
+		$result = $worker->run( (int) $job->job_id, 'failed-usage-worker' );
+		$this->assertNotInstanceOf( WP_Error::class, $result );
+
+		$fresh = $this->jobs->find( (int) $job->job_id );
+		$this->assertSame( 1, (int) $fresh->budget_used_requests );
+		$this->assertSame( 11, (int) $fresh->budget_used_tokens );
+
+		$item = $this->items->list_by_job( (int) $job->job_id )[0];
+		$this->assertSame( ItemStatuses::RETRY_WAIT, (string) $item->status );
 	}
 
 	public function test_resume_enqueues_scheduler_wake(): void {
