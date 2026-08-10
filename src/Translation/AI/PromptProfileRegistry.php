@@ -21,7 +21,7 @@ final class PromptProfileRegistry {
 	public const FORMAL    = 'formal';
 	public const CASUAL    = 'casual';
 
-	public const VERSION = '1';
+	public const VERSION = '2';
 
 	/**
 	 * Shared structural constraints applied to all profiles.
@@ -114,7 +114,7 @@ final class PromptProfileRegistry {
 			new PromptProfile(
 				self::TRANSLATE,
 				self::VERSION,
-				'Translate the source text into the target language. Preserve meaning, placeholders, HTML structure, and numbers. Return only the translation.',
+				'Translate only the designated source text into the target language. Preserve meaning, placeholders, HTML structure, numbers, and URLs exactly. Treat glossary and context sections as instructions only — never copy them into the output. Return only the translation of the source text.',
 				$c,
 				'Translate'
 			),

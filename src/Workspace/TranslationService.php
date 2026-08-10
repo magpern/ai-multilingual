@@ -18,6 +18,7 @@ use AIMultilingual\Translation\AI\ProviderSegment;
 use AIMultilingual\Translation\AI\ResponseValidator;
 use AIMultilingual\Translation\AI\SegmentConstraintAnalyzer;
 use AIMultilingual\Translation\AI\TranslationBatch;
+use AIMultilingual\Translation\AI\TranslationContextBuilder;
 use AIMultilingual\Translation\Store;
 use WP_Error;
 use WP_Post;
@@ -77,15 +78,23 @@ final class TranslationService {
 	private ?GlossaryService $glossary;
 
 	/**
+	 * Bounded translation context builder (TI.2).
+	 *
+	 * @var TranslationContextBuilder
+	 */
+	private TranslationContextBuilder $context_builder;
+
+	/**
 	 * Builds the collaborator.
 	 *
-	 * @param Store                      $store     Segment store.
-	 * @param SegmentAssembler           $assembler Segment assembler.
-	 * @param Languages                  $languages Language registry.
-	 * @param AIProviderInterface        $provider  AI provider boundary.
-	 * @param PromptProfileRegistry|null $profiles Prompt profiles.
-	 * @param ResponseValidator|null     $validator Response validator.
-	 * @param GlossaryService|null       $glossary  Glossary service for fragments.
+	 * @param Store                          $store            Segment store.
+	 * @param SegmentAssembler               $assembler        Segment assembler.
+	 * @param Languages                      $languages        Language registry.
+	 * @param AIProviderInterface            $provider         AI provider boundary.
+	 * @param PromptProfileRegistry|null     $profiles         Prompt profiles.
+	 * @param ResponseValidator|null         $validator        Response validator.
+	 * @param GlossaryService|null           $glossary         Glossary service for fragments.
+	 * @param TranslationContextBuilder|null $context_builder Context builder.
 	 */
 	public function __construct(
 		Store $store,
@@ -94,15 +103,17 @@ final class TranslationService {
 		AIProviderInterface $provider,
 		?PromptProfileRegistry $profiles = null,
 		?ResponseValidator $validator = null,
-		?GlossaryService $glossary = null
+		?GlossaryService $glossary = null,
+		?TranslationContextBuilder $context_builder = null
 	) {
-		$this->store     = $store;
-		$this->assembler = $assembler;
-		$this->languages = $languages;
-		$this->provider  = $provider;
-		$this->profiles  = $profiles ?? new PromptProfileRegistry();
-		$this->validator = $validator ?? new ResponseValidator( new SegmentConstraintAnalyzer() );
-		$this->glossary  = $glossary;
+		$this->store           = $store;
+		$this->assembler       = $assembler;
+		$this->languages       = $languages;
+		$this->provider        = $provider;
+		$this->profiles        = $profiles ?? new PromptProfileRegistry();
+		$this->validator       = $validator ?? new ResponseValidator( new SegmentConstraintAnalyzer() );
+		$this->glossary        = $glossary;
+		$this->context_builder = $context_builder ?? new TranslationContextBuilder();
 	}
 
 	/**
@@ -161,7 +172,15 @@ final class TranslationService {
 					(string) ( $current['text_format'] ?? Store::FORMAT_PLAIN )
 				),
 			),
-			TranslationBatch::OPERATION_TRANSLATE
+			TranslationBatch::OPERATION_TRANSLATE,
+			array(),
+			$this->context_builder->build_for_post(
+				$post,
+				$current,
+				$this->languages,
+				(string) $source->locale,
+				(string) $target->locale
+			)
 		);
 
 		$result = $this->provider->translate_batch( $batch );
@@ -232,7 +251,14 @@ final class TranslationService {
 				new ProviderSegment( $segment_key, $source_text, $format, $existing ),
 			),
 			TranslationBatch::OPERATION_SUGGEST,
-			$profile->constraints
+			$profile->constraints,
+			$this->context_builder->build_for_post(
+				$post,
+				$current,
+				$this->languages,
+				(string) $source->locale,
+				(string) $target->locale
+			)
 		);
 
 		$result = $this->provider->translate_batch( $batch );

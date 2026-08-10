@@ -242,9 +242,31 @@ final class OpenAIProvider implements AIProviderInterface {
 		$parts = array(
 			'Source locale: ' . $batch->source_locale,
 			'Target locale: ' . $batch->target_locale,
-			'Source text:',
-			$source_text,
 		);
+
+		$context = $batch->context;
+		if ( null !== $context ) {
+			$parts[] = 'Field role: ' . $context->field_semantic;
+			$purpose = $context->content_purpose();
+			if ( '' !== $purpose ) {
+				$parts[] = 'Content purpose: ' . $purpose;
+			}
+			if ( '' !== $context->object_type ) {
+				$parts[] = 'Object type: ' . $context->object_type;
+			}
+			if ( '' !== $context->object_title ) {
+				$parts[] = 'Object title: ' . $context->object_title;
+			}
+			foreach ( $context->items as $item ) {
+				$label   = ( null !== $item->label && '' !== $item->label ) ? ( $item->label . '=' ) : '';
+				$parts[] = 'Context [' . $item->type . ']: ' . $label . $item->value;
+			}
+		}
+
+		if ( '' !== trim( $batch->glossary_fragment ) ) {
+			$parts[] = 'Glossary instructions (terminology guidance only — do not copy into the translation output):';
+			$parts[] = $batch->glossary_fragment;
+		}
 
 		if ( '' !== $existing_target ) {
 			$parts[] = 'Existing target text:';
@@ -255,10 +277,9 @@ final class OpenAIProvider implements AIProviderInterface {
 			$parts[] = 'Constraints: ' . implode( ', ', $batch->constraints );
 		}
 
-		if ( '' !== trim( $batch->glossary_fragment ) ) {
-			$parts[] = 'Glossary terminology (use consistently):';
-			$parts[] = $batch->glossary_fragment;
-		}
+		$parts[] = '---';
+		$parts[] = 'Translate only the following source text. Return only the translation of this source text:';
+		$parts[] = $source_text;
 
 		return implode( "\n", $parts );
 	}
