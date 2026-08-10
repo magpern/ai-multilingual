@@ -50,8 +50,8 @@ final class TMExampleContextTest extends TestCase {
 			);
 		}
 
-		$merged = $builder->with_tm_examples( $base, $examples );
-		$tm     = 0;
+		$merged      = $builder->with_tm_examples( $base, $examples );
+		$tm          = 0;
 		$has_purpose = false;
 		foreach ( $merged->items as $item ) {
 			if ( ContextItem::TYPE_TM_EXAMPLE === $item->type ) {

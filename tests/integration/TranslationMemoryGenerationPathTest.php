@@ -98,9 +98,9 @@ final class TranslationMemoryGenerationPathTest extends AimlTestCase {
 	}
 
 	public function test_exact_human_approved_tm_skips_provider(): void {
-		$language = $this->add_language();
-		$post     = $this->create_block_page();
-		$key      = $this->default_segment_key();
+		$language  = $this->add_language();
+		$post      = $this->create_block_page();
+		$key       = $this->default_segment_key();
 		$assembled = $this->assembler->assemble_one( $post, (int) $language->language_id, $key );
 		$source    = (string) ( $assembled['source_text'] ?? '' );
 		$format    = (string) ( $assembled['text_format'] ?? Store::FORMAT_PLAIN );
@@ -130,7 +130,7 @@ final class TranslationMemoryGenerationPathTest extends AimlTestCase {
 			new TMEligibilityPolicy( $this->glossary ),
 			$this->glossary
 		);
-		$probe = $lookup->evaluate(
+		$probe  = $lookup->evaluate(
 			$source,
 			(int) $this->languages->default()->language_id,
 			(int) $language->language_id,
@@ -164,7 +164,7 @@ final class TranslationMemoryGenerationPathTest extends AimlTestCase {
 			new TMEligibilityPolicy( $this->glossary ),
 			$this->glossary
 		);
-		$out = $lookup->evaluate(
+		$out    = $lookup->evaluate(
 			'Some source text that is long enough here.',
 			1,
 			2,
@@ -177,9 +177,9 @@ final class TranslationMemoryGenerationPathTest extends AimlTestCase {
 	}
 
 	public function test_structural_fail_fallthrough_calls_provider_once(): void {
-		$language = $this->add_language();
-		$uuid     = '550e8400-e29b-41d4-a716-446655440000';
-		$post     = $this->create_page(
+		$language  = $this->add_language();
+		$uuid      = '550e8400-e29b-41d4-a716-446655440000';
+		$post      = $this->create_page(
 			'TM structural page',
 			sprintf(
 				'<!-- wp:paragraph {"%1$s":"%2$s"} --><p>Hello {name} from the catalogue.</p><!-- /wp:paragraph -->',
@@ -255,9 +255,9 @@ final class TranslationMemoryGenerationPathTest extends AimlTestCase {
 	}
 
 	public function test_jobs_parity_exact_tm_reuse(): void {
-		$language = $this->add_language();
-		$post     = $this->create_block_page();
-		$key      = $this->default_segment_key();
+		$language  = $this->add_language();
+		$post      = $this->create_block_page();
+		$key       = $this->default_segment_key();
 		$assembled = $this->assembler->assemble_one( $post, (int) $language->language_id, $key );
 		$source    = (string) ( $assembled['source_text'] ?? '' );
 		$format    = (string) ( $assembled['text_format'] ?? Store::FORMAT_PLAIN );
