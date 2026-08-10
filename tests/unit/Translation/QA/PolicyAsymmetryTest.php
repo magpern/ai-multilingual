@@ -83,4 +83,34 @@ final class PolicyAsymmetryTest extends TestCase {
 		$this->assertSame( 1, $h11['error_count'] );
 		$this->assertTrue( $h11['pass'] );
 	}
+
+	public function test_html_zero_target_tags_maps_to_workspace_warning(): void {
+		$finding = new RawFinding(
+			DeterministicDetectorSuite::CHECK_HTML_TAG_LOSS,
+			'1',
+			RawFinding::DIMENSION_STRUCTURAL,
+			'Required HTML tags are missing from the target.',
+			array(
+				'missing_tags'     => array( 'p' ),
+				'target_tag_count' => 0,
+			)
+		);
+
+		$workspace = ( new WorkspaceQAPolicy() )->apply( array( $finding ) );
+		$this->assertCount( 1, $workspace );
+		$this->assertSame( QAIssue::SEVERITY_WARNING, $workspace[0]->severity );
+
+		$incomplete = new RawFinding(
+			DeterministicDetectorSuite::CHECK_HTML_TAG_LOSS,
+			'1',
+			RawFinding::DIMENSION_STRUCTURAL,
+			'Required HTML tags are missing from the target.',
+			array(
+				'missing_tags'     => array( 'strong' ),
+				'target_tag_count' => 1,
+			)
+		);
+		$ws2        = ( new WorkspaceQAPolicy() )->apply( array( $incomplete ) );
+		$this->assertSame( QAIssue::SEVERITY_ERROR, $ws2[0]->severity );
+	}
 }
