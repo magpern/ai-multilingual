@@ -13,9 +13,9 @@
 **TI.2:** **Complete** on `main` — [TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md](TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md); [validation log](TI2_BOUNDED_TRANSLATION_CONTEXT_VALIDATION_LOG.md); merge `80dfdcf18a93f168370aa1bb6a03d7c6dd8376fa`
 **TI.3:** **Complete** on `main` — [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md); [validation log](TI3_TRANSLATION_MEMORY_INTELLIGENCE_VALIDATION_LOG.md); merge `95839113ba47bed80f781db238ce038c8d9b973d`
 **TI.4:** **Complete** on `main` — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); [validation log](TI4_DETERMINISTIC_QA_HARDENING_VALIDATION_LOG.md); merge `e88def1ab2b1778595119e16684b37742cb4d839`
-**TI.5:** **Architecture Frozen (planning)** — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [validation log](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md) — **implementation not started**
+**TI.5:** **Complete** on `main` — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [validation log](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md); merge `279ea0f22752141465d6cd3f42823f21d52e2f6b`; assessment `R1.0` (no aggregate score / LLM confidence / persisted assessment / publication decision)
 **TI.6–TI.7:** planning/implementation **not started**
-**Next:** After this plan is frozen on `main`, create `feature/ti5-evidence-based-review-risk-signals` and implement TI5.0–TI5.8. **Do not** start TI.6–TI.7.
+**Next:** TI.6 **planning only**. Do **not** implement TI.6 until its plan is Architecture Frozen on `main`.
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
@@ -406,8 +406,9 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 | TI.3 implementation | **Complete** — merge `95839113ba47bed80f781db238ce038c8d9b973d`; exact approved TM reuse + relevance-gated assisted context; TARGET 6 |
 | TI.4 planning | **Complete** — Architecture Frozen on `main` — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); freeze merge `b1023570e…` |
 | TI.4 implementation | **Complete** — merge `e88def1ab2b1778595119e16684b37742cb4d839`; shared detectors → RawFinding → policy adapters; H1.1 + C1.3; TARGET 6 |
-| TI.5 planning | **Architecture Frozen (planning)** — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); ADR-0019; implementation not started |
-| TI.5 implementation | Create `feature/ti5-evidence-based-review-risk-signals` from frozen `main`; implement TI5.0–TI5.8 |
+| TI.5 planning | **Complete** — Architecture Frozen then implemented — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); ADR-0019 |
+| TI.5 implementation | **Complete** — merge `279ea0f22752141465d6cd3f42823f21d52e2f6b`; assessment `R1.0`; TARGET 6; Jobs Deferred to TI.6 |
+| TI.6 planning | Prior dependency gates satisfied; TI.6 plan not started |
 | TI.n planning | Prior dependency gates satisfied; TI.n plan authored |
 | TI.n implementation | TI.n plan Architecture Frozen on `main` |
 

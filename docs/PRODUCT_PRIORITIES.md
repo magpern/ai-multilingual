@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete**; **TI.1 Complete**; **TI.2 Complete**; **TI.3 Complete**; **TI.4 Complete**; **TI.5 Architecture Frozen (planning)** — [TI5 plan](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); [ADR-0019](adr/0019-evidence-based-risk-assessment.md); [validation log](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md). Exact next step after freeze on `main`: create `feature/ti5-evidence-based-review-risk-signals` and implement TI5.0–TI5.8. **TI.5 implementation not started**. **TI.6–TI.7** not started.
+**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0–TI.5 Complete**; [TI5 plan](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); [ADR-0019](adr/0019-evidence-based-risk-assessment.md); [validation log](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md); merge `279ea0f22752141465d6cd3f42823f21d52e2f6b`. Exact next step: **TI.6 planning only**. **TI.6–TI.7** implementation not started.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program / milestone | Focus |
 |---|---|---|
-| 1 | **TIQ** / **TI.5** implementation next (after planning freeze on `main`) | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0**–**TI.4 Complete**; [TI5 plan](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md) Architecture Frozen (planning); TI.5 implementation not started; TI.6–TI.7 not started |
+| 1 | **TIQ** / **TI.6** planning next | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0**–**TI.5 Complete**; TI.6 planning only; TI.6–TI.7 implementation not started |
 
 **Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. CI/release baseline is green. `Migrator::TARGET` remains **6**.
 

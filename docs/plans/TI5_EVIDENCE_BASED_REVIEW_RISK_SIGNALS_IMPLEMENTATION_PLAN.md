@@ -1,18 +1,22 @@
 # TI.5 — Evidence-based Review / Risk Signals — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — **implementation not started**
+**Status:** **Complete** on `main`
 **Milestone:** TI.5 — Evidence-based review / risk signals (TIQ program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
-**Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete**; TI.4 **Complete** on `main` @ `4a0fceab913c4af8c7dc07fd3be997fe89a66494`
+**Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete**; TI.4 **Complete**
 **Official pack (immutable):** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0; additive H1.1 · C1.3 unchanged by TI.5
 **Schema:** Migrator `TARGET` = **6** (unchanged)
-**ADR:** **ADR-0019** — [Evidence-based risk assessment contract](../adr/0019-evidence-based-risk-assessment.md) (Accepted at planning freeze)
+**ADR:** **ADR-0019** — [Evidence-based risk assessment contract](../adr/0019-evidence-based-risk-assessment.md) (Accepted)
+**Assessment version:** `R1.0`
 **Planning branch:** `docs/ti5-evidence-based-review-risk-signals-plan`
 **Independent review (planning):** **PASS** (2026-08-10)
 **Freeze merge:** `f193bc3681731ef320a75141158c855df71e5998`
-**Implementation branch:** **not created** — create `feature/ti5-evidence-based-review-risk-signals` from frozen `main` only after this plan is Architecture Frozen on `main`
+**Implementation branch:** `feature/ti5-evidence-based-review-risk-signals` @ `d48a5496f6e16658aa822f59b3b4a7bcb4064382`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Merge commit:** `279ea0f22752141465d6cd3f42823f21d52e2f6b`
 **Validation log:** [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md)
+**Next:** TI.6 **planning only** — do not implement TI.6 until its plan is Architecture Frozen on `main`
 **Related (unchanged ownership):** [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0014](../adr/0014-glossary-platform-lexicon.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); TI.1 persist safety; TI.4 shared QA; TI.6 Jobs polish; TI.7 publication policy
 
 **Operational success:** One computed assessment core aggregates observable TI.1–TI.4 / review / provenance evidence into a versioned, explainable risk/readiness signal that Workspace (and later TI.7) can consume—without LLM confidence, opaque sole scores, persisted canonical quality state, publication mutation, or a second detector/translator.
@@ -645,24 +649,22 @@ STOP/defer rather than redesign if TI.5 appears to require:
 
 ## 22. Roadmap updates
 
-### This planning freeze
+### Planning freeze (historical)
 
-- TIQ parent + PRODUCT_PRIORITIES: TI.5 **Architecture Frozen (planning)**; implementation **not started**; next = create feature branch after freeze on `main`
+- TIQ parent + PRODUCT_PRIORITIES: TI.5 **Architecture Frozen (planning)**; then implemented on feature branch.
 
-### Later implementation closure (not this task)
+### Implementation closure
 
-- TI.5 **Complete**; next = **TI.6 planning only**
+- TI.5 **Complete** on `main` @ `279ea0f22752141465d6cd3f42823f21d52e2f6b`
+- Next = **TI.6 planning only**
+- TI.6–TI.7 implementation **not started**
 
 ---
 
-## 23. Freeze recommendation
+## 23. Closure
 
-**TI.5 FREEZE RECOMMENDATION: STATE A — FREEZE**
+**TI.5 IMPLEMENTATION: COMPLETE**
 
-Architecture is sufficiently evidenced and bounded for Architecture Freeze on `main`.
+Evidence-based risk/readiness assessment (`R1.0`) is merged and closed on `main`.
 
-**Exact next action after freeze lands on `main`:**
-
-Create `feature/ti5-evidence-based-review-risk-signals` from the frozen main baseline and implement TI5.0–TI5.8 strictly according to this plan.
-
-Do **not** create that branch during planning freeze.
+**Exact next action:** Begin definitive TI.6 planning from this closed TI.5 main baseline. Do not implement TI.6 until its plan has been independently reviewed and frozen on `main`.

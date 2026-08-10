@@ -1,17 +1,19 @@
 # TI.5 — Evidence-based Review / Risk Signals — Implementation Validation Log
 
-**Status:** Implementation **review-ready** on feature branch (not merged; TI.5 not closed on `main`)
-**Implementation branch:** `feature/ti5-evidence-based-review-risk-signals`
+**Status:** **Complete** on `main`
+**Implementation branch:** `feature/ti5-evidence-based-review-risk-signals` @ `d48a5496f6e16658aa822f59b3b4a7bcb4064382`
 **Implementation baseline (branch start):** `f0e4c7fb70a280621f92b0f30c7733179e89cddc`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Merge commit:** `279ea0f22752141465d6cd3f42823f21d52e2f6b`
+**Fresh main CI (merge):** `31425430150` SUCCESS (phpcs/unit/integration/quality/build)
 **Frozen plan blob:** `442674bf23bf727b824cbc63fa3d0c1e779f3a2d`
 **ADR-0019 blob:** `cec05cb2640f04a8d8e7fba0a17320130a292d94` (**Accepted**)
-**TIQ parent blob:** `cbb10ddc1297b68a34e34aee9f1bef7148e8f39a`
 **TARGET:** 6
 **Assessment version:** `R1.0`
 **Official TQ.0 pack:** `tests/quality/baselines/baseline-v1.1.0/` (immutable)
 **H1.0 / H1.1 / C1.0–C1.3:** immutable
 **TI.6–TI.7:** not started
-**Next:** Independent review of the feature branch; only then merge/close TI.5 and begin TI.6 planning
+**Next:** TI.6 **planning only**
 
 ## Admissions lock
 
@@ -39,7 +41,7 @@
 | TI5.5 Provenance parity | **PASS** (RA8/9/10 Partial as frozen) |
 | TI5.6 Evaluation suite | **PASS** |
 | TI5.7 Gates / regression | **PASS** |
-| TI5.8 Docs closure (feature) | **PASS** (feature-branch review-ready only) |
+| TI5.8 Docs closure | **PASS** (closed on `main`) |
 
 ## Architecture
 
@@ -88,22 +90,23 @@
 | RA21 | Supported | Methodology ref independent of H1.x |
 | RA22 | Supported | Read-only contract for future TI.7; no TI.7 code |
 
-## Baseline / implementation gates
+## Independent review gates
 
 | Gate | Result |
 |---|---|
 | `git diff --check` | PASS |
-| PHPCS | PASS (548 files) |
-| Unit | 715+ tests (Assessment suite 37 tests / 134 assertions included) |
+| PHPCS | PASS (549 files) |
+| Unit | 732 tests, 2079 assertions (2 skipped) |
 | Integration | 616 tests, 13957 assertions (2 skipped) |
 | PluginGuard | 17 tests, 10230 assertions |
 | quality validate | PASS cases=60 |
 | quality validate C1.3 | PASS cases=16 |
 | baseline-v1.1.0 verify | PASS critical=0 dual=13 |
 | H1.1 score replay | PASS 60/60; critical_failures=0; not_applicable=60 |
-| Build / ZIP audit | PASS (`bin/audit-zip.sh`) |
+| Build / ZIP audit | PASS |
+| Feature CI | `31424699157` SUCCESS |
+| Fresh main CI | `31425430150` SUCCESS |
 | TARGET | 6 |
-| GitHub CI run | `31424531681` SUCCESS (phpcs/unit/integration/quality/build) |
 
 ## Assessment evaluation suite
 
@@ -113,8 +116,6 @@
 | `AssessmentFixtureSuiteTest` | Fixture-driven + false-authority |
 | `RiskAssessmentPolicyTest` | Precedence matrix + false-authority |
 | `AssessmentAssemblerTest` | One QA pass / segment DTO |
-
-Minimum cases covered: hard blocker, DET error, warning-only, clean applicable, evidence unavailable, leakage critical, leakage N/A, approved+warning, approved+hard, unreviewed machine, TM direct reuse, glossary, provenance unknown, missing translation, rejected.
 
 ## False-authority results
 
@@ -131,9 +132,7 @@ Minimum cases covered: hard blocker, DET error, warning-only, clean applicable, 
 
 ## Acceptance criteria (65)
 
-All 65 frozen ACs evaluated against implementation + tests + this log: **65/65 PASS**.
-
-Independently re-scorable from repository evidence on the feature branch.
+Independent re-score: **65/65 PASS**.
 
 ## Limitations / debt
 
@@ -143,9 +142,6 @@ Independently re-scorable from repository evidence on the feature branch.
 - RA19 Jobs surfacing remains Deferred (TI.6).
 - No frontend badge redesign beyond additive `meta.assessment` payload.
 
-## Merge readiness
+## Closure
 
-- Feature branch is **review-ready**.
-- Do **not** merge/close TI.5 on `main` from this implementation agent.
-- Do **not** start TI.6 / TI.7.
-- Exact next step: independent review of `feature/ti5-evidence-based-review-risk-signals`.
+TI.5 is **Complete** on `main`. Evidence-based risk/readiness assessment is available as a read-only recomputed contract (`R1.0`). No aggregate score, no LLM confidence, no persisted assessment, no publication decision. Jobs integration Deferred to TI.6. TI.7 may later consume the read-only assessment contract. TARGET remains 6. TI.6/TI.7 implementation not started.
