@@ -1,16 +1,18 @@
 # TI.3 — Translation Memory Intelligence — Implementation Plan
 
-**Status:** **Architecture Frozen (planning) — implementation not started**
+**Status:** **Architecture Frozen** on `main` — **implementation not started**
 **Milestone:** TI.3 — Translation Memory Intelligence (TIQ program)
-**Kind:** Milestone implementation plan (authoritative after independent review/merge to `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete** on `main` @ `80e72ce65d29ea103ef2f714e8764518bcf799ca`
 **Official pack:** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0 (immutable)
 **Schema:** Migrator `TARGET` = **6** (unchanged)
 **ADR:** Focused **ADR-0010 amendment** — optional relevance-gated `tm_example` `ContextItem` within existing `TranslationContext`; examples are not Store identity / `source_hash`
 **Related ADRs (unchanged):** [0009](../adr/0009-translation-memory-table.md), [0014](../adr/0014-glossary-platform-lexicon.md), [0015](../adr/0015-review-workflow-and-tm-approval-policy.md)
-**Planning branch:** `docs/ti3-translation-memory-intelligence-plan`
-**Implementation branch:** **not created** — create `feature/ti3-translation-memory-intelligence` only after this plan is Architecture Frozen on `main`
+**Planning branch:** `docs/ti3-translation-memory-intelligence-plan` (merged)
+**Independent review (planning):** **PASS** (2026-08-10)
+**Freeze merge:** `5d870db44749c36b2c4d45b1182d31e08c07de3d`
+**Implementation branch:** `feature/ti3-translation-memory-intelligence` — **not created**; create only after this freeze on `main`
 
 **Operational success:** On the shared translation brain, exact eligible human-approved TM hits can short-circuit the provider; otherwise relevance-gated prior translations may assist AI within TI.2 budgets—both measured separately from AI quality aggregates—without a second Store/TM, vector retrieval, Store identity redesign, or bypass of TI.1.
 
@@ -631,4 +633,4 @@ After this planning freeze lands on `main`:
 | Parent | `docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md` |
 | Baseline SHA | `80e72ce65d29ea103ef2f714e8764518bcf799ca` |
 | Acceptance criteria count | **80** |
-| Revision | 1.0 — 2026-08-10 — Architecture Frozen (planning); implementation not started |
+| Revision | 1.0 — 2026-08-10 — Architecture Frozen on `main` (planning freeze merge `5d870db44…`); independent review PASS; implementation not started |
