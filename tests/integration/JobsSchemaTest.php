@@ -121,6 +121,9 @@ final class JobsSchemaTest extends AimlTestCase {
 		$this->assertSame( Migrator::TARGET, $migrator->current_version() );
 		$this->assertSame( $jobs_before, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Schema::jobs() ) ); // phpcs:ignore WordPress.DB
 		$this->assertSame( $items_before, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Schema::job_items() ) ); // phpcs:ignore WordPress.DB
+
+		update_option( Migrator::OPTION, Migrator::TARGET, true );
+		$this->commit_transaction();
 	}
 
 	public function test_all_tables_includes_job_items_before_jobs(): void {

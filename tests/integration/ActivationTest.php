@@ -99,6 +99,11 @@ final class ActivationTest extends AimlTestCase {
 		$migrator->maybe_migrate();
 
 		$this->assertSame( Migrator::TARGET, $migrator->current_version() );
+
+		// DDL during migrate commits the test transaction; pin TARGET so the
+		// final version bump is not lost when PHPUnit rolls back.
+		update_option( Migrator::OPTION, Migrator::TARGET, true );
+		$this->commit_transaction();
 	}
 
 	public function test_drift_check_is_a_no_op_when_current(): void {

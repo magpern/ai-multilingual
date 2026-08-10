@@ -262,7 +262,7 @@ final class PublicationPolicyTest extends TestCase {
 			false,
 			true
 		);
-		$array = $decision->to_array();
+		$array    = $decision->to_array();
 
 		$this->assertSame( 'P1.0', $decision->policy_version );
 		$this->assertArrayNotHasKey( 'score', $array );

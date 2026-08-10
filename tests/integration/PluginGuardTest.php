@@ -289,4 +289,40 @@ final class PluginGuardTest extends AimlTestCase {
 			'Core attaches block hooks at 8 and do_blocks at 9; the overlay must run before both.'
 		);
 	}
+
+	public function test_ti7_publication_surfaces_have_no_force_bypass(): void {
+		$this->assert_absent(
+			array(
+				"'force' => true",
+				'skip_checks',
+				'bypass_policy',
+				'admin_super_override',
+			),
+			'TI.7 forbids force-publish of hard blockers (AP20).',
+			array()
+		);
+
+		$policy = (string) file_get_contents( $this->root() . '/src/Translation/Publication/PublicationPolicy.php' );
+		$this->assertStringNotContainsString( 'confidence', $policy );
+		$this->assertStringNotContainsString( 'quality_score', $policy );
+
+		$service = (string) file_get_contents( $this->root() . '/src/Translation/Publication/PublicationService.php' );
+		$this->assertStringContainsString( 'AssessmentAssembler', $service );
+	}
+
+	public function test_ti7_gate_seams_use_central_eligibility(): void {
+		foreach ( array(
+			'src/Translation/Store.php',
+			'src/Translation/BlockTranslationLookup.php',
+			'src/Elementor/ElementorOverlayResolver.php',
+			'src/Integration/IntegrationFrontendBridge.php',
+		) as $path ) {
+			$code = (string) file_get_contents( $this->root() . '/' . $path );
+			$this->assertStringContainsString(
+				'is_publicly_overlay_eligible',
+				$code,
+				$path . ' must use the central TI.7 overlay eligibility helper.'
+			);
+		}
+	}
 }

@@ -239,7 +239,7 @@ final class PublicationSchemaTest extends AimlTestCase {
 
 		$escaped = str_replace( '`', '``', $table );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- DDL against Schema::translations() only.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- DDL against Schema::translations() only.
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			"ALTER TABLE `{$escaped}` ROW_FORMAT=DYNAMIC"
 		);
@@ -259,6 +259,6 @@ final class PublicationSchemaTest extends AimlTestCase {
 				"ALTER TABLE `{$escaped}` DROP COLUMN `" . str_replace( '`', '``', $column ) . '`'
 			);
 		}
-		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }

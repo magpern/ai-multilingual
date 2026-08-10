@@ -19,9 +19,9 @@ final class PublicationOverlayEligibilityTest extends TestCase {
 
 	public function test_gate_off_allows_non_empty_non_ignored(): void {
 		$row = (object) array(
-			'status'         => Store::STATUS_MACHINE_TRANSLATED,
-			'translated_text'=> 'Hej',
-			'publish_status' => Store::PUBLISH_UNPUBLISHED,
+			'status'          => Store::STATUS_MACHINE_TRANSLATED,
+			'translated_text' => 'Hej',
+			'publish_status'  => Store::PUBLISH_UNPUBLISHED,
 		);
 
 		$this->assertTrue( Store::is_publicly_overlay_eligible( $row, false ) );
@@ -29,9 +29,9 @@ final class PublicationOverlayEligibilityTest extends TestCase {
 
 	public function test_gate_on_requires_published(): void {
 		$row = (object) array(
-			'status'         => Store::STATUS_MACHINE_TRANSLATED,
-			'translated_text'=> 'Hej',
-			'publish_status' => Store::PUBLISH_UNPUBLISHED,
+			'status'          => Store::STATUS_MACHINE_TRANSLATED,
+			'translated_text' => 'Hej',
+			'publish_status'  => Store::PUBLISH_UNPUBLISHED,
 		);
 
 		$this->assertFalse( Store::is_publicly_overlay_eligible( $row, true ) );
@@ -43,9 +43,9 @@ final class PublicationOverlayEligibilityTest extends TestCase {
 	public function test_ignored_and_missing_never_overlay(): void {
 		foreach ( array( Store::STATUS_IGNORED, Store::STATUS_MISSING ) as $status ) {
 			$row = (object) array(
-				'status'         => $status,
-				'translated_text'=> 'x',
-				'publish_status' => Store::PUBLISH_PUBLISHED,
+				'status'          => $status,
+				'translated_text' => 'x',
+				'publish_status'  => Store::PUBLISH_PUBLISHED,
 			);
 			$this->assertFalse( Store::is_publicly_overlay_eligible( $row, true ) );
 			$this->assertFalse( Store::is_publicly_overlay_eligible( $row, false ) );
@@ -54,9 +54,9 @@ final class PublicationOverlayEligibilityTest extends TestCase {
 
 	public function test_empty_text_never_overlay(): void {
 		$row = (object) array(
-			'status'         => Store::STATUS_MACHINE_TRANSLATED,
-			'translated_text'=> '',
-			'publish_status' => Store::PUBLISH_PUBLISHED,
+			'status'          => Store::STATUS_MACHINE_TRANSLATED,
+			'translated_text' => '',
+			'publish_status'  => Store::PUBLISH_PUBLISHED,
 		);
 		$this->assertFalse( Store::is_publicly_overlay_eligible( $row, true ) );
 	}
