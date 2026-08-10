@@ -1,0 +1,55 @@
+{
+  "glossary_fixture_version": "G1.0",
+  "source_language": "en_US",
+  "target_language": "sv_SE",
+  "terms": [
+    {
+      "id": "bpc157",
+      "source": "BPC-157",
+      "target": "BPC-157",
+      "notes": "do-not-translate brand/compound token"
+    },
+    {
+      "id": "nad",
+      "source": "NAD+",
+      "target": "NAD+",
+      "notes": "keep chemical abbreviation"
+    },
+    {
+      "id": "retatrutide",
+      "source": "Retatrutide",
+      "target": "Retatrutide",
+      "notes": "INN-like research name"
+    },
+    {
+      "id": "peptide",
+      "source": "peptide",
+      "target": "peptid",
+      "notes": "preferred SV"
+    },
+    {
+      "id": "peptides",
+      "source": "peptides",
+      "target": "peptider",
+      "notes": "preferred SV plural"
+    },
+    {
+      "id": "mcg",
+      "source": "mcg",
+      "target": "mcg",
+      "notes": "unit abbreviation"
+    },
+    {
+      "id": "lyophilized",
+      "source": "lyophilized",
+      "target": "lyofiliserad",
+      "notes": "preferred SV"
+    },
+    {
+      "id": "research",
+      "source": "research",
+      "target": "forskning",
+      "notes": "preferred SV in scientific context"
+    }
+  ]
+}

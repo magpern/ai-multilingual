@@ -1,0 +1,15 @@
+{
+  "id": "tm_approved_vs_machine_01",
+  "category": "tm_authority",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "body",
+  "object_type": "page",
+  "object_title": "Shipping",
+  "source_text": "Free shipping on qualifying research supply orders over one hundred euros.",
+  "tm_scenario": "approved_vs_raw_machine",
+  "expected_tm_policy": "human_approved_only",
+  "difficulty": "normal",
+  "notes": "TI.3: raw machine rows are never TM8 authority.",
+  "expected_invariants": {}
+}

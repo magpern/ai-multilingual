@@ -186,6 +186,48 @@ final class TranslationContextBuilder {
 	}
 
 	/**
+	 * Merges relevance-gated TM examples into an existing context (TI.3).
+	 *
+	 * TM examples compete for the shared 1200 pool and drop before
+	 * field_semantic essentials (higher drop priority than attributes).
+	 *
+	 * @param TranslationContext         $context  Existing context.
+	 * @param list<array<string, mixed>> $examples Example payloads.
+	 */
+	public function with_tm_examples( TranslationContext $context, array $examples ): TranslationContext {
+		$items = $context->items;
+		$count = 0;
+		foreach ( $examples as $example ) {
+			if ( $count >= TranslationContext::MAX_TM_EXAMPLES ) {
+				break;
+			}
+			$source = $this->cap(
+				(string) ( $example['source_text'] ?? '' ),
+				TranslationContext::MAX_TM_EXAMPLE_VALUE
+			);
+			$target = $this->cap(
+				(string) ( $example['target_text'] ?? '' ),
+				TranslationContext::MAX_TM_EXAMPLE_VALUE
+			);
+			if ( '' === $source || '' === $target ) {
+				continue;
+			}
+			$value   = $source . ' => ' . $target;
+			$value   = $this->cap( $value, TranslationContext::MAX_TM_EXAMPLE_VALUE );
+			$items[] = new ContextItem( ContextItem::TYPE_TM_EXAMPLE, $value, 'approved_example' );
+			++$count;
+		}
+
+		return $this->finalize(
+			$context->field_semantic,
+			$context->object_type,
+			$context->object_title,
+			$items,
+			(bool) ( $context->provenance['truncated'] ?? false )
+		);
+	}
+
+	/**
 	 * Applies budgets and drop priority, returning a finalized context.
 	 *
 	 * @param string $semantic     Field semantic.
@@ -253,6 +295,7 @@ final class TranslationContextBuilder {
 			ContextItem::TYPE_OBJECT_TITLE    => 2,
 			ContextItem::TYPE_CATEGORY        => 3,
 			ContextItem::TYPE_ATTRIBUTE_NAME  => 4,
+			ContextItem::TYPE_TM_EXAMPLE      => 5,
 		);
 		usort(
 			$items,

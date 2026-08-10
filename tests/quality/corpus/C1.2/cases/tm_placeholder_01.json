@@ -1,0 +1,15 @@
+{
+  "id": "tm_placeholder_01",
+  "category": "tm_structure",
+  "case_class": "structure",
+  "text_format": "plain",
+  "field_semantics": "body",
+  "object_type": "page",
+  "object_title": "Account",
+  "source_text": "Hello {name}, your research order {order_id} is ready.",
+  "tm_scenario": "placeholder_exact_reuse",
+  "expected_tm_policy": "tm_direct_reuse_requires_placeholders",
+  "difficulty": "normal",
+  "notes": "TI.3: TM8 still must pass TI.1 placeholder constraints.",
+  "expected_invariants": {}
+}

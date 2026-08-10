@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Translation\AI\Providers;
 
 use AIMultilingual\Translation\AI\AIProviderInterface;
+use AIMultilingual\Translation\AI\ContextItem;
 use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderCapabilities;
 use AIMultilingual\Translation\AI\ProviderResult;
@@ -258,6 +259,11 @@ final class OpenAIProvider implements AIProviderInterface {
 				$parts[] = 'Object title: ' . $context->object_title;
 			}
 			foreach ( $context->items as $item ) {
+				if ( ContextItem::TYPE_TM_EXAMPLE === $item->type ) {
+					$label   = ( null !== $item->label && '' !== $item->label ) ? ( $item->label . ': ' ) : '';
+					$parts[] = 'Prior approved translation example (instruction only — do not copy blindly; subordinate to current source and glossary): ' . $label . $item->value;
+					continue;
+				}
 				$label   = ( null !== $item->label && '' !== $item->label ) ? ( $item->label . '=' ) : '';
 				$parts[] = 'Context [' . $item->type . ']: ' . $label . $item->value;
 			}

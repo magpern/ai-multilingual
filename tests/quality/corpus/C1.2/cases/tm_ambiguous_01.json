@@ -1,0 +1,15 @@
+{
+  "id": "tm_ambiguous_01",
+  "category": "tm_ambiguity",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "ui_label",
+  "object_type": "page",
+  "object_title": "Cart",
+  "source_text": "Order",
+  "tm_scenario": "ambiguous_short_string",
+  "expected_tm_policy": "tm_no_match",
+  "difficulty": "hard",
+  "notes": "TI.3: short string fails empty-context ambiguity gate.",
+  "expected_invariants": {}
+}

@@ -20,6 +20,7 @@ final class ContextItem {
 	public const TYPE_ATTRIBUTE_NAME  = 'attribute_name';
 	public const TYPE_CONTENT_PURPOSE = 'content_purpose';
 	public const TYPE_LANGUAGE_NAME   = 'language_name';
+	public const TYPE_TM_EXAMPLE      = 'tm_example';
 
 	/**
 	 * Allowed context item type ids.
@@ -34,6 +35,7 @@ final class ContextItem {
 			self::TYPE_ATTRIBUTE_NAME,
 			self::TYPE_CONTENT_PURPOSE,
 			self::TYPE_LANGUAGE_NAME,
+			self::TYPE_TM_EXAMPLE,
 		);
 	}
 

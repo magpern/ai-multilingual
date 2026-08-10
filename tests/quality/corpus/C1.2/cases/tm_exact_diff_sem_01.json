@@ -1,0 +1,15 @@
+{
+  "id": "tm_exact_diff_sem_01",
+  "category": "tm_semantic_conflict",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "seo_title",
+  "object_type": "product",
+  "object_title": "BPC-157",
+  "source_text": "BPC-157 research peptide for laboratory tissue recovery studies.",
+  "tm_scenario": "identical_source_different_semantic",
+  "expected_tm_policy": "tm_no_match_or_examples_only",
+  "difficulty": "normal",
+  "notes": "TI.3: same source text under SEO field \u2014 context mismatch for free cross-semantic TM8.",
+  "expected_invariants": {}
+}

@@ -22,6 +22,7 @@ use AIMultilingual\Jobs\BackgroundTranslationItemProcessor;
 use AIMultilingual\Jobs\ItemStatuses;
 use AIMultilingual\Jobs\JobTypes;
 use AIMultilingual\Settings;
+use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderResult;
 use AIMultilingual\Translation\AI\TranslationBatch;
 use AIMultilingual\Translation\AI\TranslationContext;
@@ -117,7 +118,7 @@ final class BoundedTranslationContextParityTest extends AimlTestCase {
 		$this->assertIsArray( $sync );
 		$this->assertCount( 1, $captured );
 		$this->assertInstanceOf( TranslationContext::class, $captured[0]->context );
-		$this->assertSame( '2', $captured[0]->prompt_version );
+		$this->assertSame( PromptProfileRegistry::VERSION, $captured[0]->prompt_version );
 		$sync_semantic = $captured[0]->context->field_semantic;
 		$sync_schema   = $captured[0]->context->schema_version;
 
@@ -169,7 +170,7 @@ final class BoundedTranslationContextParityTest extends AimlTestCase {
 		$this->assertSame( ItemStatuses::COMPLETED, $result->status );
 		$this->assertCount( 1, $captured );
 		$this->assertInstanceOf( TranslationContext::class, $captured[0]->context );
-		$this->assertSame( '2', $captured[0]->prompt_version );
+		$this->assertSame( PromptProfileRegistry::VERSION, $captured[0]->prompt_version );
 		$this->assertSame( $sync_schema, $captured[0]->context->schema_version );
 		$this->assertSame( $sync_semantic, $captured[0]->context->field_semantic );
 	}

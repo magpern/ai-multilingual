@@ -19,14 +19,28 @@ use AIMultilingual\Translation\AI\ResponseValidator;
 use AIMultilingual\Translation\AI\SegmentConstraintAnalyzer;
 use AIMultilingual\Translation\AI\TranslationBatch;
 use AIMultilingual\Translation\AI\TranslationContextBuilder;
+use AIMultilingual\Translation\Memory\TMGenerationLookup;
+use AIMultilingual\Translation\Memory\TMGenerationOutcome;
+use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Store;
 use WP_Error;
 use WP_Post;
 
 /**
  * Single entry point for workspace auto-translate.
+ *
+ * TI.3: optional TM eligibility / exact reuse / relevance-gated examples
+ * live here before translate_batch. Sync and Jobs share this path.
  */
 final class TranslationService {
+
+	/**
+	 * Structural-fail disposition after an otherwise eligible TM hit fails TI.1.
+	 *
+	 * Evidence-gated selection (TI3.3): AI fallthrough once.
+	 * Invalid TM text never persists; TI.1 never bypassed; no retry loop.
+	 */
+	public const STRUCTURAL_FAIL_DISPOSITION = 'ai_fallthrough_once';
 
 	/**
 	 * Injected dependency.
@@ -85,6 +99,27 @@ final class TranslationService {
 	private TranslationContextBuilder $context_builder;
 
 	/**
+	 * Optional generation-path TM lookup (TI.3).
+	 *
+	 * @var TMGenerationLookup|null
+	 */
+	private ?TMGenerationLookup $tm_lookup;
+
+	/**
+	 * Optional TM memory service for usage recording.
+	 *
+	 * @var TranslationMemoryService|null
+	 */
+	private ?TranslationMemoryService $tm_memory;
+
+	/**
+	 * Last TM outcome for diagnostics/tests (no full text bodies).
+	 *
+	 * @var TMGenerationOutcome|null
+	 */
+	private ?TMGenerationOutcome $last_tm_outcome = null;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param Store                          $store            Segment store.
@@ -95,6 +130,8 @@ final class TranslationService {
 	 * @param ResponseValidator|null         $validator        Response validator.
 	 * @param GlossaryService|null           $glossary         Glossary service for fragments.
 	 * @param TranslationContextBuilder|null $context_builder Context builder.
+	 * @param TMGenerationLookup|null        $tm_lookup        Generation-path TM lookup.
+	 * @param TranslationMemoryService|null  $tm_memory        TM memory for usage.
 	 */
 	public function __construct(
 		Store $store,
@@ -104,7 +141,9 @@ final class TranslationService {
 		?PromptProfileRegistry $profiles = null,
 		?ResponseValidator $validator = null,
 		?GlossaryService $glossary = null,
-		?TranslationContextBuilder $context_builder = null
+		?TranslationContextBuilder $context_builder = null,
+		?TMGenerationLookup $tm_lookup = null,
+		?TranslationMemoryService $tm_memory = null
 	) {
 		$this->store           = $store;
 		$this->assembler       = $assembler;
@@ -114,6 +153,8 @@ final class TranslationService {
 		$this->validator       = $validator ?? new ResponseValidator( new SegmentConstraintAnalyzer() );
 		$this->glossary        = $glossary;
 		$this->context_builder = $context_builder ?? new TranslationContextBuilder();
+		$this->tm_lookup       = $tm_lookup;
+		$this->tm_memory       = $tm_memory;
 	}
 
 	/**
@@ -121,6 +162,13 @@ final class TranslationService {
 	 */
 	public function provider(): AIProviderInterface {
 		return $this->provider;
+	}
+
+	/**
+	 * Last TM generation outcome (tests / diagnostics).
+	 */
+	public function last_tm_outcome(): ?TMGenerationOutcome {
+		return $this->last_tm_outcome;
 	}
 
 	/**
@@ -132,6 +180,8 @@ final class TranslationService {
 	 * @return array<string, mixed>|WP_Error Updated segment DTO or error.
 	 */
 	public function translate_segment( WP_Post $post, int $language_id, string $segment_key ) {
+		$this->last_tm_outcome = null;
+
 		$current = $this->assembler->assemble_one( $post, $language_id, $segment_key );
 		if ( null === $current ) {
 			return new WP_Error(
@@ -159,6 +209,122 @@ final class TranslationService {
 			);
 		}
 
+		$source_text = (string) ( $current['source_text'] ?? '' );
+		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+		$context     = TranslationMemoryService::derive_context(
+			(string) ( $current['block_name'] ?? '' ),
+			(string) ( $current['field_key'] ?? '' )
+		);
+
+		$tm_outcome = null;
+		$examples   = array();
+		if ( null !== $this->tm_lookup ) {
+			$tm_outcome            = $this->tm_lookup->evaluate(
+				$source_text,
+				(int) $source->language_id,
+				$language_id,
+				$context,
+				$format,
+				(string) $post->post_type
+			);
+			$this->last_tm_outcome = $tm_outcome;
+			$examples              = $tm_outcome->examples;
+
+			if ( $tm_outcome->has_direct_candidate() && null !== $tm_outcome->candidate ) {
+				$tm_target  = (string) ( $tm_outcome->candidate['target_text'] ?? '' );
+				$validation = $this->validator->validate(
+					$source_text,
+					$tm_target,
+					$format,
+					$this->validator->persist_constraints( $source_text, $format )
+				);
+
+				if ( $validation->valid ) {
+					$persisted = $this->persist_validated_text(
+						$post,
+						$language_id,
+						$current,
+						$tm_target
+					);
+					if ( ! ( $persisted instanceof WP_Error ) ) {
+						$this->tm_lookup->record_direct_reuse();
+						$tm_id = (int) ( $tm_outcome->candidate['tm_id'] ?? 0 );
+						if ( null !== $this->tm_memory && $tm_id > 0 ) {
+							$this->tm_memory->record_usage( $tm_id );
+						}
+						$this->last_tm_outcome = new TMGenerationOutcome(
+							TMGenerationOutcome::DIRECT_REUSE,
+							array_merge(
+								$tm_outcome->diagnostics,
+								array(
+									'tm_id'      => $tm_id,
+									'match_type' => (string) ( $tm_outcome->candidate['match_type'] ?? '' ),
+								)
+							),
+							$tm_outcome->candidate
+						);
+
+						return $persisted;
+					}
+
+					return $persisted;
+				}
+
+				// Structural-fail disposition: AI fallthrough once (evidence-gated).
+				$this->tm_lookup->record_structural_reject();
+				$examples              = $this->tm_lookup->examples_for_blocked_candidate(
+					$source_text,
+					(int) $source->language_id,
+					$language_id,
+					$context,
+					$format,
+					$tm_outcome->candidate
+				);
+				$this->last_tm_outcome = new TMGenerationOutcome(
+					TMGenerationOutcome::REJECTED_STRUCTURAL,
+					array_merge(
+						$tm_outcome->diagnostics,
+						array(
+							'disposition'    => self::STRUCTURAL_FAIL_DISPOSITION,
+							'validator_code' => (string) ( $validation->code ?? '' ),
+							'tm_id'          => (int) ( $tm_outcome->candidate['tm_id'] ?? 0 ),
+							'example_count'  => count( $examples ),
+						)
+					),
+					null,
+					$examples
+				);
+				// Fall through to AI exactly once — do not re-enter TM8.
+			}
+		}
+
+		$built_context = $this->context_builder->build_for_post(
+			$post,
+			$current,
+			$this->languages,
+			(string) $source->locale,
+			(string) $target->locale
+		);
+		if ( array() !== $examples ) {
+			$built_context = $this->context_builder->with_tm_examples( $built_context, $examples );
+			if (
+				null !== $this->last_tm_outcome
+				&& TMGenerationOutcome::REJECTED_STRUCTURAL !== $this->last_tm_outcome->code
+				&& TMGenerationOutcome::CONTEXT_SUPPLIED !== $this->last_tm_outcome->code
+				&& array() !== $examples
+			) {
+				$this->last_tm_outcome = new TMGenerationOutcome(
+					TMGenerationOutcome::CONTEXT_SUPPLIED,
+					array_merge(
+						$this->last_tm_outcome->diagnostics,
+						array( 'example_count' => count( $examples ) )
+					),
+					null,
+					$examples
+				);
+			}
+		}
+
 		$batch = new TranslationBatch(
 			(string) $source->locale,
 			(string) $target->locale,
@@ -168,19 +334,13 @@ final class TranslationService {
 			array(
 				new ProviderSegment(
 					$segment_key,
-					(string) ( $current['source_text'] ?? '' ),
-					(string) ( $current['text_format'] ?? Store::FORMAT_PLAIN )
+					$source_text,
+					$format
 				),
 			),
 			TranslationBatch::OPERATION_TRANSLATE,
 			array(),
-			$this->context_builder->build_for_post(
-				$post,
-				$current,
-				$this->languages,
-				(string) $source->locale,
-				(string) $target->locale
-			)
+			$built_context
 		);
 
 		$result = $this->provider->translate_batch( $batch );
@@ -366,6 +526,29 @@ final class TranslationService {
 			);
 		}
 
+		return $this->persist_validated_text( $post, $language_id, $current, $translated );
+	}
+
+	/**
+	 * Persists already-validated target text via Store (shared AI + TM8 path).
+	 *
+	 * Does not write translations.tm_id (TM21 NARROWED — dormant).
+	 *
+	 * @param WP_Post              $post        Canonical post.
+	 * @param int                  $language_id Target language id.
+	 * @param array<string, mixed> $current     Segment DTO.
+	 * @param string               $translated  Validated target text.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	private function persist_validated_text(
+		WP_Post $post,
+		int $language_id,
+		array $current,
+		string $translated
+	) {
+		$segment_key = (string) ( $current['segment_key'] ?? '' );
+		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+
 		$save = $this->store->save_translation(
 			array(
 				'source_type'     => Store::SOURCE_POST,
@@ -377,7 +560,7 @@ final class TranslationService {
 				'segment_kind'    => (string) ( $current['segment_kind'] ?? Store::KIND_BLOCK ),
 				'segment_order'   => (int) ( $current['segment_order'] ?? 0 ),
 				'text_format'     => $format,
-				'source_text'     => $source_text,
+				'source_text'     => (string) ( $current['source_text'] ?? '' ),
 				'translated_text' => $translated,
 				'status'          => Store::STATUS_MACHINE_TRANSLATED,
 			)

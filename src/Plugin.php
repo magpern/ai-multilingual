@@ -106,6 +106,8 @@ use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\ProviderFactory;
 use AIMultilingual\Translation\AI\ProviderRegistry;
 use AIMultilingual\Translation\BlockExtractor;
+use AIMultilingual\Translation\Memory\TMEligibilityPolicy;
+use AIMultilingual\Translation\Memory\TMGenerationLookup;
 use AIMultilingual\Translation\Memory\TMRepository;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\BlockFrontendRenderer;
@@ -345,6 +347,12 @@ final class Plugin {
 			new GlossaryNormalizer(),
 			new GlossaryMatcher( new GlossaryNormalizer() )
 		);
+		$tm_service         = new TranslationMemoryService( new TMRepository() );
+		$tm_lookup          = new TMGenerationLookup(
+			$tm_service,
+			new TMEligibilityPolicy( $glossary_service ),
+			$glossary_service
+		);
 		$translation        = new TranslationService(
 			$store,
 			$assembler,
@@ -352,10 +360,12 @@ final class Plugin {
 			$provider_registry->active(),
 			$profiles,
 			null,
-			$glossary_service
+			$glossary_service,
+			null,
+			$tm_lookup,
+			$tm_service
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
-		$tm_service         = new TranslationMemoryService( new TMRepository() );
 		$suggestion_service = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),

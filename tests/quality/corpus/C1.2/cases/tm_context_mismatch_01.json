@@ -1,0 +1,15 @@
+{
+  "id": "tm_context_mismatch_01",
+  "category": "tm_context",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "product_long_description",
+  "object_type": "product",
+  "object_title": "NAD+",
+  "source_text": "NAD+ supports cellular energy research protocols in controlled laboratory settings.",
+  "tm_scenario": "context_mismatch",
+  "expected_tm_policy": "no_tm8_cross_field",
+  "difficulty": "normal",
+  "notes": "TI.3: field context mismatch must not first-row-win.",
+  "expected_invariants": {}
+}

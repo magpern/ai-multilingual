@@ -1,0 +1,15 @@
+{
+  "id": "tm_taxonomy_01",
+  "category": "tm_taxonomy",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "term_name",
+  "object_type": "product_cat",
+  "object_title": "Research Peptides",
+  "source_text": "Research Peptides",
+  "tm_scenario": "public_taxonomy_reuse",
+  "expected_tm_policy": "tm_direct_reuse_or_ambiguous_gate",
+  "difficulty": "normal",
+  "notes": "TI.3: public taxonomy label domain.",
+  "expected_invariants": {}
+}

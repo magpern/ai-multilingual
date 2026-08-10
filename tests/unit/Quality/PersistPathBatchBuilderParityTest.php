@@ -32,7 +32,7 @@ final class PersistPathBatchBuilderParityTest extends TestCase {
 		$this->assertSame( 'sv_SE', $batch->target_locale );
 		$this->assertSame( PromptProfileRegistry::TRANSLATE, $batch->prompt_profile );
 		$this->assertSame( PromptProfileRegistry::VERSION, $batch->prompt_version );
-		$this->assertSame( '2', $batch->prompt_version );
+		$this->assertSame( '3', $batch->prompt_version );
 		$this->assertSame( TranslationBatch::OPERATION_TRANSLATE, $batch->operation );
 		$this->assertSame( array(), $batch->constraints );
 		$this->assertSame( "peptide => peptid\n", $batch->glossary_fragment );
