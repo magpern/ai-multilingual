@@ -4,7 +4,7 @@
 
 **Implementation priority (canonical):** [PRODUCT_PRIORITIES.md](PRODUCT_PRIORITIES.md) — product-direction guidance for which program to pursue next.
 
-**Post-v1.1 next program:** Translation Intelligence & Quality — [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; authoritative for **TQ.0–TI.7**). Next milestone: **TQ.0** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started).
+**Post-v1.1 next program:** Translation Intelligence & Quality — [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; authoritative for **TQ.0–TI.7**). Next milestone: **TQ.0** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation not started).
 
 **Release status:** AI Multilingual **v1.1.0** released (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) **Complete**.
 

@@ -1,11 +1,13 @@
 # TQ.0 — Translation Quality Baseline — Implementation Plan
 
-**Status:** Architecture Frozen (planning) — implementation not started
+**Status:** **Architecture Frozen** on `main` — implementation not started
 **Milestone:** TQ.0 — Translation Quality Baseline (TIQ program)
-**Kind:** Milestone implementation plan (authoritative after merge to `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent (authoritative program architecture):** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
-**Planning branch:** `docs/tq0-translation-quality-baseline-plan`
-**Implementation branch (after this plan is Architecture Frozen on `main`):** `feature/tq0-translation-quality-baseline` — **not created in this freeze**
+**Planning branch:** `docs/tq0-translation-quality-baseline-plan` (merged)
+**Freeze merge:** `main` @ `5b7a3649de39f8273fe1dd9a549c2b8d986c4b2a` (`merge: freeze TQ.0 Translation Quality Baseline implementation plan`)
+**Independent review:** **PASS** (2026-08-10)
+**Implementation branch:** `feature/tq0-translation-quality-baseline` — **not created**; create only after this plan is Architecture Frozen on `main` (now true) when implementation starts
 **Repository baseline (plan authoring):** `main` @ `5ad61f2dda8b490a280b5caeb493b87adce37ca1`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
 **Schema:** Migrator `TARGET` = **6** (unchanged)
@@ -819,5 +821,5 @@ This planning freeze creates **docs only**.
 |---|---|
 | Canonical path | `docs/plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md` |
 | Parent | `docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md` |
-| Revision | 1.0 — 2026-08-10 — Architecture Frozen (planning) on `docs/tq0-translation-quality-baseline-plan` |
+| Revision | 1.0 — 2026-08-10 — Architecture Frozen on `main` (merge `5b7a3649d…`); implementation not started |
 | Implementation | **Not started** |
