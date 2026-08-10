@@ -1,18 +1,21 @@
 # TI.1 — Persist-path Structural Safety — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — **implementation not started**
+**Status:** **Complete** on `main`
 **Milestone:** TI.1 — Persist-path Structural Safety (TIQ program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **TQ.0:** **Complete** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official pack `tests/quality/baselines/baseline-v1.1.0/`
 **Planning branch:** `docs/ti1-persist-path-structural-safety-plan` (merged)
-**Independent review:** **PASS** (2026-08-10)
-**Freeze merge:** recorded on `main` after independent review (see git history for `merge: freeze TI.1 Persist-path Structural Safety implementation plan`)
+**Independent review (planning):** **PASS** (2026-08-10)
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Implementation branch:** `feature/ti1-persist-path-structural-safety` @ `f8bf67a7fbd8f6eabc1ba06cb08145cd02220f5b`
+**Merge commit:** `43a3362b5f12df9cf4e10786a2b95b6beb92cad7`
+**Branch CI:** `31371318912` · **Main CI:** `31371768989`
 **Repository baseline (plan authoring):** `main` @ `aa7812b7f0a10cb21441593c1ec0af4867116571`
 **Behavior reference:** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
 **Schema:** Migrator `TARGET` = **6** (unchanged)
 **ADR assessment:** **No new ADR.** Narrow extension of existing F11 `ResponseValidator` / error contracts into the shared persist path.
-**Implementation branch:** `feature/ti1-persist-path-structural-safety` — **not created yet**; create from frozen `main` for TI1.0–TI1.8 only
+**TS7 disposition:** **Narrowed (Outcome B)** — persist omits number constraints after SV localization false-positive evidence; suggest path unchanged.
 
 **Operational success:** A machine-generated translation cannot be persisted through the normal `TranslationService` / Jobs path when it violates high-confidence deterministic structural invariants the platform already knows how to detect.
 
@@ -666,5 +669,5 @@ Do not start TI.2–TI.7 in this freeze.
 |---|---|
 | Canonical path | `docs/plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md` |
 | Parent | `docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md` |
-| Revision | 1.1 — 2026-08-10 — Architecture Frozen on `main` after independent review PASS; implementation not started |
-| Implementation | **Not started** |
+| Revision | 1.2 — 2026-08-10 — Complete on `main` after independent implementation review PASS |
+| Implementation | **Complete** |

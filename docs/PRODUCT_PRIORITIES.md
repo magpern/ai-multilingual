@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official `baseline-v1.1.0` frozen. **TI.1** Persist-path Structural Safety — [plan](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md) **Architecture Frozen on `main`; implementation not started**. Exact next step: open `feature/ti1-persist-path-structural-safety` and begin TI1.0–TI1.8. **TI.2** not started; TI.3 depends on TI.1 + TI.2.
+**Current next program:** Translation Intelligence & Quality (TIQ) — parent **Architecture Frozen** on `main`. **TQ.0 Complete** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official `baseline-v1.1.0` frozen. **TI.1 Complete** — [plan](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md); persist-path structural gate live; TS7 narrowed. Exact next step: definitive **TI.2** Bounded Translation Context planning freeze. **TI.2** not started; TI.3 depends on TI.1 + TI.2.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program / milestone | Focus |
 |---|---|---|
-| 1 | **TIQ** / **TI.1** implementation next | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0 Complete**; **TI.1** Architecture Frozen on `main` — [TI1 plan](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md); implementation not started; TI.2 not started |
+| 1 | **TIQ** / **TI.2** planning next | [parent](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md); **TQ.0 Complete**; **TI.1 Complete** — [TI1 plan](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md); next = TI.2 Bounded Translation Context planning |
 
 **Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. CI/release baseline is green. `Migrator::TARGET` remains **6**.
 
