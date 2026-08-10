@@ -112,4 +112,5 @@ require_once __DIR__ . '/JobsEchoAIProvider.php';
 require_once __DIR__ . '/ScriptedAIProvider.php';
 require_once __DIR__ . '/AvailableSchedulerStub.php';
 require_once __DIR__ . '/UnavailableJobsSchedulerStub.php';
+require_once __DIR__ . '/RecordingJobsSchedulerStub.php';
 require_once __DIR__ . '/WorkspaceTestHelpers.php';
