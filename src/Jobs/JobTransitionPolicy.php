@@ -24,6 +24,13 @@ final class JobTransitionPolicy {
 	 */
 	public static function can_transition( string $from, string $to ): bool {
 		if ( JobStatuses::is_terminal( $from ) ) {
+			if (
+				JobStatuses::QUEUED === $to
+				&& in_array( $from, array( JobStatuses::FAILED, JobStatuses::COMPLETED_WITH_ERRORS ), true )
+			) {
+				// Explicit operator retry-failed exception; auto-finalize remains terminal.
+				return true;
+			}
 			return false;
 		}
 
@@ -40,10 +47,6 @@ final class JobTransitionPolicy {
 		}
 
 		if ( JobStatuses::PAUSED === $from && JobStatuses::QUEUED === $to ) {
-			return true;
-		}
-
-		if ( JobStatuses::FAILED === $from && JobStatuses::QUEUED === $to ) {
 			return true;
 		}
 
