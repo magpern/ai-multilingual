@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** Explicit **release/version** planning from the closed TIQ main baseline. **TQ.0–TI.7 Complete**. **TIQ Complete.** Merge `25fee160f323dd33b7f73d432f446caca6a72075`. Runtime `Migrator::TARGET` **7**. Do **not** begin another product milestone before the release/version decision. No tag/release as part of TIQ closure.
+**Current next decision:** Complete **v1.2.0** release (independent review → merge → tag → GitHub Release). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**. Preparation branch: `release/v1.2.0-preparation`. Do **not** begin another product milestone until after the release is closed. Next product milestone remains **undecided**.
 
 ---
 
@@ -42,9 +42,9 @@ Remaining priority order (highest first):
 
 | Order | Decision | Focus |
 |---|---|---|
-| 1 | **Release / version** | Explicit decision from closed TIQ main (`TARGET` **7**). Do not start another product milestone first. |
+| 1 | **v1.2.0 release** | Independent review of `release/v1.2.0-preparation`, then merge, tag, and GitHub Release. Next product milestone undecided until after release. |
 
-**Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. **TIQ (TQ.0–TI.7)** is **Complete**. CI/release baseline is green. `Migrator::TARGET` is **7**.
+**Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. **TIQ (TQ.0–TI.7)** is **Complete**. CI/release baseline is green. `Migrator::TARGET` is **7**. Preparation targets **v1.2.0**.
 
 Visitor-facing Program A waves below remain listed for historical priority context and are **not** reopened by TIQ. Coverage-Deferred surfaces stay Deferred unless a separate product decision reopens them.
 
