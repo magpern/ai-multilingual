@@ -32,6 +32,18 @@ final class JobTransitionPolicyTest extends TestCase {
 		$this->assertSame( 'illegal_transition', $result->get_error_code() );
 	}
 
+	public function test_operator_retry_reopens_eligible_terminal_jobs(): void {
+		$this->assertTrue(
+			JobTransitionPolicy::can_transition( JobStatuses::FAILED, JobStatuses::QUEUED )
+		);
+		$this->assertTrue(
+			JobTransitionPolicy::can_transition( JobStatuses::COMPLETED_WITH_ERRORS, JobStatuses::QUEUED )
+		);
+		$this->assertFalse(
+			JobTransitionPolicy::can_transition( JobStatuses::COMPLETED, JobStatuses::QUEUED )
+		);
+	}
+
 	public function test_resume_cancelled_is_not_resumable(): void {
 		$job    = (object) array( 'status' => JobStatuses::CANCELLED );
 		$result = JobTransitionPolicy::validate_resume( $job );

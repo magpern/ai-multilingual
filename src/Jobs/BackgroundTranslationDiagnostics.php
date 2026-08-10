@@ -19,14 +19,21 @@ final class BackgroundTranslationDiagnostics {
 
 	public const OPTION = 'aiml_translation_job_diagnostics_counters';
 
-	public const PROVIDER_ERRORS         = 'provider_errors';
-	public const STALE_SOURCE_CONFLICTS  = 'stale_source_conflicts';
-	public const BUDGET_STOPS            = 'budget_stops';
-	public const ITEM_RETRIES            = 'item_retries';
-	public const CLEANUP_JOBS_DELETED    = 'cleanup_jobs_deleted';
-	public const CLEANUP_ITEMS_DELETED   = 'cleanup_items_deleted';
-	public const CLEANUP_ORPHANS_DELETED = 'cleanup_orphans_deleted';
-	public const STUCK_LEASES_RECOVERED  = 'stuck_leases_recovered';
+	public const PROVIDER_ERRORS                     = 'provider_errors';
+	public const STALE_SOURCE_CONFLICTS              = 'stale_source_conflicts';
+	public const BUDGET_STOPS                        = 'budget_stops';
+	public const ITEM_RETRIES                        = 'item_retries';
+	public const CLEANUP_JOBS_DELETED                = 'cleanup_jobs_deleted';
+	public const CLEANUP_ITEMS_DELETED               = 'cleanup_items_deleted';
+	public const CLEANUP_ORPHANS_DELETED             = 'cleanup_orphans_deleted';
+	public const STUCK_LEASES_RECOVERED              = 'stuck_leases_recovered';
+	public const TM_DIRECT_REUSE                     = 'tm_direct_reuse';
+	public const PROVIDER_CALLS                      = 'provider_calls';
+	public const PROVIDER_INPUT_TOKENS               = 'provider_input_tokens';
+	public const PROVIDER_OUTPUT_TOKENS              = 'provider_output_tokens';
+	public const RETRY_AFTER_HONORS                  = 'retry_after_honors';
+	public const CONCURRENCY_REJECTS                 = 'concurrency_rejects';
+	public const CRASH_RECOVERY_PROVIDER_REPEAT_RISK = 'crash_recovery_provider_repeat_risk';
 
 	/**
 	 * Maximum queue age reported in seconds (30 days).
@@ -86,6 +93,13 @@ final class BackgroundTranslationDiagnostics {
 			self::CLEANUP_ITEMS_DELETED,
 			self::CLEANUP_ORPHANS_DELETED,
 			self::STUCK_LEASES_RECOVERED,
+			self::TM_DIRECT_REUSE,
+			self::PROVIDER_CALLS,
+			self::PROVIDER_INPUT_TOKENS,
+			self::PROVIDER_OUTPUT_TOKENS,
+			self::RETRY_AFTER_HONORS,
+			self::CONCURRENCY_REJECTS,
+			self::CRASH_RECOVERY_PROVIDER_REPEAT_RISK,
 		);
 	}
 

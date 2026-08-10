@@ -25,6 +25,7 @@ use AIMultilingual\Jobs\BackgroundTranslationJobService;
 use AIMultilingual\Jobs\BackgroundTranslationRetryPolicy;
 use AIMultilingual\Jobs\BackgroundTranslationScheduler;
 use AIMultilingual\Jobs\BackgroundTranslationWorker;
+use AIMultilingual\Jobs\AttemptUsageEvidence;
 use AIMultilingual\Jobs\ItemStatuses;
 use AIMultilingual\Jobs\JobLeaseService;
 use AIMultilingual\Jobs\JobProgressReconciler;
@@ -50,6 +51,35 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 	private BackgroundTranslationItemRepository $items;
 
 	private BackgroundTranslationJobRepository $jobs;
+
+	public function test_known_zero_usage_does_not_charge_job_budget(): void {
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		$job      = $this->job_service->create_job(
+			array(
+				'job_type'            => JobTypes::TRANSLATE_SELECTED,
+				'source_type'         => Store::SOURCE_POST,
+				'source_id'           => (int) $post->ID,
+				'language_id'         => (int) $language->language_id,
+				'segment_keys'        => array( $this->default_segment_key() ),
+				'budget_max_requests' => 1,
+				'provider_id'         => 'echo',
+				'prompt_profile'      => 'default',
+				'prompt_version'      => '1',
+				'created_by'          => 1,
+			)
+		);
+		$this->assertNotInstanceOf( WP_Error::class, $job );
+
+		$updated = ( new BackgroundTranslationBudgetPolicy( $this->jobs ) )->record_usage(
+			(int) $job->job_id,
+			AttemptUsageEvidence::known_zero( 'tm_direct_reuse' )
+		);
+
+		$this->assertNotInstanceOf( WP_Error::class, $updated );
+		$this->assertSame( 0, (int) $updated->budget_used_requests );
+		$this->assertSame( 0, (int) $updated->budget_used_tokens );
+	}
 
 	public function test_create_job_rejects_when_action_scheduler_unavailable(): void {
 		$unavailable = new UnavailableJobsSchedulerStub();
@@ -128,7 +158,10 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 		$this->assertNotInstanceOf( WP_Error::class, $first_run );
 		$this->assertSame( JobStatuses::COMPLETED, $first_run->status );
 
-		$key_b = 'content:block:99999999-9999-4999-8999-999999999999';
+		$key_b = \AIMultilingual\Block\SegmentKey::build(
+			'99999999-9999-4999-8999-999999999999',
+			\AIMultilingual\Block\Contract::FIELD_CONTENT
+		);
 		$this->seed_second_segment( $post, $key_b );
 		$this->items->insert(
 			array(
@@ -159,6 +192,7 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 
 		$fresh_job = $this->jobs->find( (int) $job->job_id );
 		$this->assertNotNull( $fresh_job );
+		// Hard stop forbids provider when already at limit — no overshoot charge.
 		$this->assertSame( 1, (int) $fresh_job->budget_used_requests );
 
 		$items = $this->items->list_by_job( (int) $job->job_id );
@@ -313,9 +347,7 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 	 * @param string   $key  Segment key.
 	 */
 	private function seed_second_segment( \WP_Post $post, string $key ): void {
-		global $wpdb;
-
-		$content = '<!-- wp:paragraph {"aimlUuid":"99999999-9999-4999-8999-999999999999"} -->'
+		$content = '<!-- wp:paragraph {"aimlBlockId":"99999999-9999-4999-8999-999999999999"} -->'
 			. '<p>Second segment body</p>'
 			. '<!-- /wp:paragraph -->';
 
@@ -326,6 +358,6 @@ final class JobsRetryBudgetTest extends AimlTestCase {
 			)
 		);
 
-		unset( $wpdb );
+		unset( $key );
 	}
 }

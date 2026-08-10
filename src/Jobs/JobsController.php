@@ -10,7 +10,9 @@ declare( strict_types=1 );
 namespace AIMultilingual\Jobs;
 
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\SegmentAssembler;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -74,15 +76,39 @@ final class JobsController {
 	private BackgroundTranslationDiagnostics $diagnostics;
 
 	/**
+	 * Canonical site concurrency gate.
+	 *
+	 * @var BackgroundTranslationConcurrencyPolicy
+	 */
+	private BackgroundTranslationConcurrencyPolicy $concurrency;
+
+	/**
+	 * Read-only TI.5 assessment core.
+	 *
+	 * @var AssessmentAssembler|null
+	 */
+	private ?AssessmentAssembler $assessment;
+
+	/**
+	 * Current segment assembler for item detail.
+	 *
+	 * @var SegmentAssembler|null
+	 */
+	private ?SegmentAssembler $assembler;
+
+	/**
 	 * Builds the controller.
 	 *
-	 * @param BackgroundTranslationJobService       $jobs         Job service.
-	 * @param BackgroundTranslationBatchCoordinator $batches      Batch coordinator.
-	 * @param BackgroundTranslationScheduler        $scheduler    Scheduler.
-	 * @param BackgroundTranslationWorker           $worker       Worker.
-	 * @param Languages                             $languages    Languages.
-	 * @param JobsViewModelSerializer|null          $serializer   Serializer.
-	 * @param BackgroundTranslationDiagnostics|null $diagnostics  Diagnostics.
+	 * @param BackgroundTranslationJobService             $jobs         Job service.
+	 * @param BackgroundTranslationBatchCoordinator       $batches      Batch coordinator.
+	 * @param BackgroundTranslationScheduler              $scheduler    Scheduler.
+	 * @param BackgroundTranslationWorker                 $worker       Worker.
+	 * @param Languages                                   $languages    Languages.
+	 * @param JobsViewModelSerializer|null                $serializer   Serializer.
+	 * @param BackgroundTranslationDiagnostics|null       $diagnostics  Diagnostics.
+	 * @param BackgroundTranslationConcurrencyPolicy|null $concurrency Concurrency gate.
+	 * @param AssessmentAssembler|null                    $assessment Assessment assembler.
+	 * @param SegmentAssembler|null                       $assembler Segment assembler.
 	 */
 	public function __construct(
 		BackgroundTranslationJobService $jobs,
@@ -91,7 +117,10 @@ final class JobsController {
 		BackgroundTranslationWorker $worker,
 		Languages $languages,
 		?JobsViewModelSerializer $serializer = null,
-		?BackgroundTranslationDiagnostics $diagnostics = null
+		?BackgroundTranslationDiagnostics $diagnostics = null,
+		?BackgroundTranslationConcurrencyPolicy $concurrency = null,
+		?AssessmentAssembler $assessment = null,
+		?SegmentAssembler $assembler = null
 	) {
 		$this->jobs        = $jobs;
 		$this->batches     = $batches;
@@ -100,6 +129,9 @@ final class JobsController {
 		$this->languages   = $languages;
 		$this->serializer  = $serializer ?? new JobsViewModelSerializer();
 		$this->diagnostics = $diagnostics ?? new BackgroundTranslationDiagnostics();
+		$this->concurrency = $concurrency ?? new BackgroundTranslationConcurrencyPolicy();
+		$this->assessment  = $assessment;
+		$this->assembler   = $assembler;
 	}
 
 	/**
@@ -169,6 +201,16 @@ final class JobsController {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_job' ),
+				'permission_callback' => array( $this, 'can_view_job' ),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE,
+			'/jobs/(?P<id>\d+)/items/(?P<item_id>\d+)/assessment',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_item_assessment' ),
 				'permission_callback' => array( $this, 'can_view_job' ),
 			)
 		);
@@ -361,6 +403,43 @@ final class JobsController {
 	}
 
 	/**
+	 * Compute TI.5 assessment for one job item without lifecycle mutation.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_item_assessment( WP_REST_Request $request ) {
+		if ( null === $this->assessment || null === $this->assembler ) {
+			return new WP_Error( 'assessment_unavailable', 'Assessment service is unavailable.', array( 'status' => 503 ) );
+		}
+
+		$job_id = (int) $request['id'];
+		$item   = $this->jobs->find_job_item( (int) $request['item_id'] );
+		$job    = $this->jobs->find_job( $job_id );
+		if ( null === $job || null === $item || (int) $item->job_id !== $job_id ) {
+			return new WP_Error( 'job_item_not_found', 'Job item not found.', array( 'status' => 404 ) );
+		}
+
+		$post = get_post( (int) $job->source_id );
+		if ( ! $post instanceof \WP_Post ) {
+			return new WP_Error( 'source_not_found', 'Job source post not found.', array( 'status' => 404 ) );
+		}
+
+		$segment = $this->assembler->assemble_one( $post, (int) $job->language_id, (string) $item->segment_key );
+		if ( null === $segment ) {
+			return new WP_Error( 'aiml_invalid_segment', 'Job segment is no longer available.', array( 'status' => 404 ) );
+		}
+
+		return $this->respond(
+			array(
+				'job_id'     => $job_id,
+				'item_id'    => (int) $item->item_id,
+				'assessment' => $this->assessment->assess_segment( $segment )->to_array(),
+			)
+		);
+	}
+
+	/**
 	 * Returns derived batch progress.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -435,7 +514,26 @@ final class JobsController {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function resume_job( WP_REST_Request $request ) {
-		return $this->mutate_job( (int) $request['id'], array( $this->jobs, 'resume' ) );
+		$job_id = (int) $request['id'];
+		$job    = $this->jobs->find_job( $job_id );
+		if ( null === $job ) {
+			return new WP_Error( 'job_not_found', 'Job not found.', array( 'status' => 404 ) );
+		}
+		// Admit before mutation so a saturated gate leaves the job paused.
+		$admit = $this->admit_job( $job );
+		if ( is_wp_error( $admit ) ) {
+			return $this->map_domain_error( $admit );
+		}
+		$result = $this->jobs->resume( $job_id );
+		if ( is_wp_error( $result ) ) {
+			return $this->map_domain_error( $result );
+		}
+		$wake = $this->scheduler->enqueue_job( $job_id );
+		if ( is_wp_error( $wake ) ) {
+			return $this->map_domain_error( $wake );
+		}
+
+		return $this->respond( $this->serializer->job_from_row( $result )->to_array() );
 	}
 
 	/**
@@ -470,6 +568,15 @@ final class JobsController {
 	 */
 	public function retry_failed_job( WP_REST_Request $request ) {
 		$job_id = (int) $request['id'];
+		$job    = $this->jobs->find_job( $job_id );
+		if ( null === $job ) {
+			return new WP_Error( 'job_not_found', 'Job not found.', array( 'status' => 404 ) );
+		}
+		// Admit before mutation so a saturated gate leaves terminal state intact.
+		$admit = $this->admit_job( $job );
+		if ( is_wp_error( $admit ) ) {
+			return $this->map_domain_error( $admit );
+		}
 
 		$result = $this->jobs->retry_failed_items( $job_id );
 		if ( is_wp_error( $result ) ) {
@@ -495,6 +602,10 @@ final class JobsController {
 		$job    = $this->jobs->find_job( $job_id );
 		if ( null === $job ) {
 			return new WP_Error( 'job_not_found', 'Job not found.', array( 'status' => 404 ) );
+		}
+		$admit = $this->admit_job( $job );
+		if ( is_wp_error( $admit ) ) {
+			return $this->map_domain_error( $admit );
 		}
 
 		$sync = filter_var( $request->get_param( 'sync' ), FILTER_VALIDATE_BOOLEAN );
@@ -795,7 +906,7 @@ final class JobsController {
 		$code   = $error->get_error_code();
 		$status = 422;
 
-		if ( in_array( $code, array( 'idempotency_conflict', 'lock_key_conflict', 'illegal_transition', 'job_not_resumable' ), true ) ) {
+		if ( in_array( $code, array( 'idempotency_conflict', 'lock_key_conflict', 'illegal_transition', 'job_not_resumable', 'concurrency_limit_exceeded' ), true ) ) {
 			$status = 409;
 		} elseif ( in_array( $code, array( 'aiml_forbidden', 'rest_forbidden' ), true ) ) {
 			$status = 403;
@@ -813,6 +924,22 @@ final class JobsController {
 		$error->add_data( $data );
 
 		return $error;
+	}
+
+	/**
+	 * Apply the canonical concurrency gate and count rejects.
+	 *
+	 * @param object $job Job row.
+	 * @return true|WP_Error
+	 */
+	private function admit_job( object $job ) {
+		$result = $this->concurrency->admit_running(
+			JobStatuses::RUNNING === (string) $job->status ? (int) $job->job_id : null
+		);
+		if ( is_wp_error( $result ) ) {
+			$this->diagnostics->increment( BackgroundTranslationDiagnostics::CONCURRENCY_REJECTS );
+		}
+		return $result;
 	}
 
 	/**

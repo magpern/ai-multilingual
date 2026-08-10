@@ -355,6 +355,15 @@ final class BackgroundTranslationJobService {
 	}
 
 	/**
+	 * Load one job item row.
+	 *
+	 * @param int $item_id Item id.
+	 */
+	public function find_job_item( int $item_id ): ?object {
+		return $this->items->find( $item_id );
+	}
+
+	/**
 	 * Set requested_action to pause (observed at safe item boundary).
 	 *
 	 * @param int $job_id Job id.
@@ -553,11 +562,33 @@ final class BackgroundTranslationJobService {
 			return new WP_Error( 'job_not_found', 'Job not found.' );
 		}
 
-		if ( JobStatuses::is_terminal( (string) $job->status ) ) {
-			return new WP_Error( 'illegal_transition', 'Cannot retry items on a terminal job.' );
+		$status = (string) $job->status;
+		if (
+			JobStatuses::is_terminal( $status )
+			&& ! in_array( $status, array( JobStatuses::FAILED, JobStatuses::COMPLETED_WITH_ERRORS ), true )
+		) {
+			return new WP_Error( 'illegal_transition', 'This terminal job is not eligible for retry-failed.' );
 		}
 
 		$failed = $this->items->list_by_job( $job_id, ItemStatuses::FAILED );
+		if ( array() === $failed ) {
+			return $job;
+		}
+
+		if ( in_array( $status, array( JobStatuses::FAILED, JobStatuses::COMPLETED_WITH_ERRORS ), true ) ) {
+			$transitioned = $this->transition_job(
+				$job_id,
+				JobStatuses::QUEUED,
+				array(
+					'finished_at'     => null,
+					'active_lock_key' => (string) $job->lock_key,
+				)
+			);
+			if ( is_wp_error( $transitioned ) ) {
+				return $transitioned;
+			}
+		}
+
 		foreach ( $failed as $item ) {
 			$check = ItemTransitionPolicy::validate_transition( ItemStatuses::FAILED, ItemStatuses::QUEUED );
 			if ( is_wp_error( $check ) ) {
@@ -569,16 +600,6 @@ final class BackgroundTranslationJobService {
 				array(
 					'status'      => ItemStatuses::QUEUED,
 					'result_code' => '',
-				)
-			);
-		}
-
-		if ( JobStatuses::FAILED === (string) $job->status ) {
-			$this->transition_job(
-				$job_id,
-				JobStatuses::QUEUED,
-				array(
-					'finished_at' => null,
 				)
 			);
 		}

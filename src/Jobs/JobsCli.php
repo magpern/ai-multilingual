@@ -60,14 +60,22 @@ final class JobsCli {
 	private JobsViewModelSerializer $serializer;
 
 	/**
+	 * Canonical site concurrency gate.
+	 *
+	 * @var BackgroundTranslationConcurrencyPolicy
+	 */
+	private BackgroundTranslationConcurrencyPolicy $concurrency;
+
+	/**
 	 * Builds the CLI command group.
 	 *
-	 * @param BackgroundTranslationJobService       $jobs       Job service.
-	 * @param BackgroundTranslationBatchCoordinator $batches    Batch coordinator.
-	 * @param BackgroundTranslationScheduler        $scheduler  Scheduler.
-	 * @param BackgroundTranslationWorker           $worker     Worker.
-	 * @param JobLeaseService                       $leases     Lease service.
-	 * @param JobsViewModelSerializer|null          $serializer Serializer.
+	 * @param BackgroundTranslationJobService             $jobs       Job service.
+	 * @param BackgroundTranslationBatchCoordinator       $batches    Batch coordinator.
+	 * @param BackgroundTranslationScheduler              $scheduler  Scheduler.
+	 * @param BackgroundTranslationWorker                 $worker     Worker.
+	 * @param JobLeaseService                             $leases     Lease service.
+	 * @param JobsViewModelSerializer|null                $serializer Serializer.
+	 * @param BackgroundTranslationConcurrencyPolicy|null $concurrency Concurrency gate.
 	 */
 	public function __construct(
 		BackgroundTranslationJobService $jobs,
@@ -75,37 +83,41 @@ final class JobsCli {
 		BackgroundTranslationScheduler $scheduler,
 		BackgroundTranslationWorker $worker,
 		JobLeaseService $leases,
-		?JobsViewModelSerializer $serializer = null
+		?JobsViewModelSerializer $serializer = null,
+		?BackgroundTranslationConcurrencyPolicy $concurrency = null
 	) {
-		$this->jobs       = $jobs;
-		$this->batches    = $batches;
-		$this->scheduler  = $scheduler;
-		$this->worker     = $worker;
-		$this->leases     = $leases;
-		$this->serializer = $serializer ?? new JobsViewModelSerializer();
+		$this->jobs        = $jobs;
+		$this->batches     = $batches;
+		$this->scheduler   = $scheduler;
+		$this->worker      = $worker;
+		$this->leases      = $leases;
+		$this->serializer  = $serializer ?? new JobsViewModelSerializer();
+		$this->concurrency = $concurrency ?? new BackgroundTranslationConcurrencyPolicy();
 	}
 
 	/**
 	 * Registers job commands when WP-CLI is available.
 	 *
-	 * @param BackgroundTranslationJobService       $jobs      Job service.
-	 * @param BackgroundTranslationBatchCoordinator $batches   Batch coordinator.
-	 * @param BackgroundTranslationScheduler        $scheduler Scheduler.
-	 * @param BackgroundTranslationWorker           $worker    Worker.
-	 * @param JobLeaseService                       $leases    Lease service.
+	 * @param BackgroundTranslationJobService             $jobs      Job service.
+	 * @param BackgroundTranslationBatchCoordinator       $batches   Batch coordinator.
+	 * @param BackgroundTranslationScheduler              $scheduler Scheduler.
+	 * @param BackgroundTranslationWorker                 $worker    Worker.
+	 * @param JobLeaseService                             $leases    Lease service.
+	 * @param BackgroundTranslationConcurrencyPolicy|null $concurrency Concurrency gate.
 	 */
 	public static function register(
 		BackgroundTranslationJobService $jobs,
 		BackgroundTranslationBatchCoordinator $batches,
 		BackgroundTranslationScheduler $scheduler,
 		BackgroundTranslationWorker $worker,
-		JobLeaseService $leases
+		JobLeaseService $leases,
+		?BackgroundTranslationConcurrencyPolicy $concurrency = null
 	): void {
 		if ( ! class_exists( WP_CLI::class ) ) {
 			return;
 		}
 
-		$cli = new self( $jobs, $batches, $scheduler, $worker, $leases );
+		$cli = new self( $jobs, $batches, $scheduler, $worker, $leases, null, $concurrency );
 
 		WP_CLI::add_command(
 			'aiml jobs',
@@ -243,6 +255,7 @@ final class JobsCli {
 		}
 
 		self::assert_post_scope( $job );
+		$this->admit_job( $job );
 
 		if ( ! empty( $assoc['sync'] ) ) {
 			$result = $this->worker->run( $job_id );
@@ -316,7 +329,25 @@ final class JobsCli {
 	public function resume( array $args, array $assoc ): void {
 		unset( $assoc );
 		self::require_cap( JobsCapabilities::CANCEL_JOBS );
-		$this->mutate_job( $args, array( $this->jobs, 'resume' ), 'Job resumed.' );
+		$job_id = isset( $args[0] ) ? (int) $args[0] : 0;
+		if ( $job_id <= 0 ) {
+			WP_CLI::error( 'Missing job id.' );
+		}
+		$job = $this->jobs->find_job( $job_id );
+		if ( null === $job ) {
+			WP_CLI::error( 'Job not found.' );
+		}
+		self::assert_post_scope( $job );
+		$this->admit_job( $job );
+		$result = $this->jobs->resume( $job_id );
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result->get_error_message() );
+		}
+		$wake = $this->scheduler->enqueue_job( $job_id );
+		if ( is_wp_error( $wake ) ) {
+			WP_CLI::error( $wake->get_error_message() );
+		}
+		WP_CLI::success( 'Job resumed and worker wake enqueued.' );
 	}
 
 	/**
@@ -381,6 +412,8 @@ final class JobsCli {
 		}
 
 		self::assert_post_scope( $job );
+
+		$this->admit_job( $job );
 
 		$result = $this->jobs->retry_failed_items( $job_id );
 		if ( is_wp_error( $result ) ) {
@@ -471,6 +504,20 @@ final class JobsCli {
 		$user_id = (int) get_current_user_id();
 		if ( ! user_can( $user_id, 'edit_post', (int) $job->source_id ) ) {
 			WP_CLI::error( 'Current user lacks edit_post on job source.' );
+		}
+	}
+
+	/**
+	 * Apply the canonical concurrency gate.
+	 *
+	 * @param object $job Job row.
+	 */
+	private function admit_job( object $job ): void {
+		$result = $this->concurrency->admit_running(
+			JobStatuses::RUNNING === (string) $job->status ? (int) $job->job_id : null
+		);
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result->get_error_message() );
 		}
 	}
 }

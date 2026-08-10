@@ -1,19 +1,19 @@
 # TI.6 — Jobs scale / safety polish — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` (planning) — implementation **not started**
+**Status:** Implementation complete — **review-ready** on `feature/ti6-jobs-scale-safety-polish` (not merged)
 **Milestone:** TI.6 — Jobs scale / safety polish (TIQ program)
-**Kind:** Milestone implementation plan (authoritative on `main`)
+**Kind:** Milestone implementation plan (authoritative on `main` for planning; implementation on feature branch)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete**; TI.4 **Complete**; TI.5 **Complete**
 **Official pack (immutable):** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0; additive packs unchanged by TI.6
 **Schema:** Migrator `TARGET` = **6** (unchanged)
 **ADR:** **No new ADR** — ADR-0011 remains Jobs SoT; ADR-0015 TM write-back unchanged; ADR-0019 assessment read-only unchanged
 **Planning branch:** `docs/ti6-jobs-scale-safety-polish-plan`
-**Independent review (planning):** **PASS** (2026-08-10) — three refinements verified; Outcome B honest; docs-only hygiene fixes applied post-review
+**Independent review (planning):** **PASS** (2026-08-10)
 **Freeze merge:** `c6b4564032bbd3d6e402c1564906077b27eb1fcc`
-**Implementation branch:** **Do not create in this freeze** — next task: `feature/ti6-jobs-scale-safety-polish` from frozen `main`
-**Validation log:** to be created during implementation
-**Next:** Create `feature/ti6-jobs-scale-safety-polish` and implement TI6.0–TI6.8. TI.7 planning/implementation **not started**.
+**Implementation branch:** `feature/ti6-jobs-scale-safety-polish`
+**Validation log:** [TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md)
+**Next:** Independent review → merge to main → close TI.6 → TI.7 **planning only**. Do **not** start TI.7 implementation here.
 
 **Related (unchanged ownership):** [ADR-0011](../adr/0011-resumable-job-pipeline.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), [ADR-0019](../adr/0019-evidence-based-risk-assessment.md), [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0009](../adr/0009-translation-memory-table.md); [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md); TI.1–TI.5 plans; TI.7 publication later.
 

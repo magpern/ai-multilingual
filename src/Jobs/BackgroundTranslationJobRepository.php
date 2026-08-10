@@ -333,6 +333,65 @@ final class BackgroundTranslationJobRepository {
 	}
 
 	/**
+	 * Atomically transition queued/retry_wait work to running under a site cap.
+	 *
+	 * @param int    $job_id     Job id.
+	 * @param string $from_status Expected current status.
+	 * @param int    $max_running Maximum running jobs.
+	 * @return object|WP_Error|null
+	 */
+	public function try_transition_to_running_under_cap( int $job_id, string $from_status, int $max_running ) {
+		return $this->with_running_cap_lock(
+			function () use ( $job_id, $from_status, $max_running ) {
+				global $wpdb;
+
+				$now   = current_time( 'mysql', true );
+				$table = Schema::jobs();
+				$sql   = 'UPDATE ' . $table . ' SET status = %s,'
+					. ' started_at = IF(started_at IS NULL, %s, started_at), updated_at = %s'
+					. ' WHERE job_id = %d AND status = %s'
+					. ' AND (SELECT cnt FROM (SELECT COUNT(*) AS cnt FROM ' . $table . ' WHERE status = %s) AS running_count) < %d';
+
+				// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- table name is from Schema and values are prepared.
+				$updated = $wpdb->query(
+					$wpdb->prepare(
+						$sql,
+						JobStatuses::RUNNING,
+						$now,
+						$now,
+						$job_id,
+						$from_status,
+						JobStatuses::RUNNING,
+						max( 1, $max_running )
+					)
+				);
+				// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+				if ( false === $updated ) {
+					return new WP_Error( 'job_update_failed', 'Failed to admit job into running.' );
+				}
+				if ( 0 === $updated ) {
+					$current = $this->find( $job_id );
+					if (
+						null !== $current
+						&& (string) $current->status === $from_status
+						&& $this->count_by_status( JobStatuses::RUNNING ) >= $max_running
+					) {
+						return new WP_Error(
+							BackgroundTranslationConcurrencyPolicy::ERROR_CODE,
+							'Maximum concurrent running jobs reached.',
+							array( 'status' => 409 )
+						);
+					}
+					return null;
+				}
+
+				return $this->find( $job_id );
+			}
+		);
+	}
+
+	/**
 	 * Query jobs with optional filters and pagination.
 	 *
 	 * @param array<string, mixed> $args Query arguments (status, batch_id, language_id, page, per_page).
@@ -441,7 +500,7 @@ final class BackgroundTranslationJobRepository {
 	}
 
 	/**
-	 * Atomically claim a job lease and transition to running when queued.
+	 * Atomically claim a job lease and transition queued/retry_wait work to running.
 	 *
 	 * @param int    $job_id       Job id.
 	 * @param string $owner_token  Worker lease owner token.
@@ -450,6 +509,23 @@ final class BackgroundTranslationJobRepository {
 	 * @return object|WP_Error|null Updated row, null when not claimable, or error.
 	 */
 	public function claim_lease( int $job_id, string $owner_token, int $ttl_seconds, string $now ) {
+		return $this->with_running_cap_lock(
+			function () use ( $job_id, $owner_token, $ttl_seconds, $now ) {
+				return $this->claim_lease_unlocked( $job_id, $owner_token, $ttl_seconds, $now );
+			}
+		);
+	}
+
+	/**
+	 * Lease claim body executed under the running-cap advisory lock.
+	 *
+	 * @param int    $job_id       Job id.
+	 * @param string $owner_token  Worker lease owner token.
+	 * @param int    $ttl_seconds  Lease TTL.
+	 * @param string $now          UTC datetime.
+	 * @return object|WP_Error|null
+	 */
+	private function claim_lease_unlocked( int $job_id, string $owner_token, int $ttl_seconds, string $now ) {
 		global $wpdb;
 
 		$expires = gmdate( 'Y-m-d H:i:s', strtotime( $now . ' UTC' ) + $ttl_seconds );
@@ -457,12 +533,15 @@ final class BackgroundTranslationJobRepository {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from Schema helper.
 		$sql = 'UPDATE ' . Schema::jobs() . ' SET '
 			. 'lease_owner = %s, lease_expires_at = %s, lease_heartbeat_at = %s, updated_at = %s, '
-			. 'status = IF(status = %s, %s, status), '
+			. 'status = IF(status IN (%s, %s), %s, status), '
 			. 'started_at = IF(started_at IS NULL, %s, started_at) '
 			. 'WHERE job_id = %d '
 			. 'AND status IN (%s, %s, %s) '
 			. 'AND requested_action = %s '
-			. 'AND (lease_owner = %s OR lease_owner = %s OR lease_expires_at IS NULL OR lease_expires_at <= %s)';
+			. 'AND (lease_owner = %s OR lease_owner = %s OR lease_expires_at IS NULL OR lease_expires_at <= %s) '
+			. 'AND (status = %s OR '
+			. '(SELECT cnt FROM (SELECT COUNT(*) AS cnt FROM ' . Schema::jobs()
+			. ' WHERE status = %s) AS running_count) < %d)';
 
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
 		$prepared = $wpdb->prepare(
@@ -472,6 +551,7 @@ final class BackgroundTranslationJobRepository {
 			$now,
 			$now,
 			JobStatuses::QUEUED,
+			JobStatuses::RETRY_WAIT,
 			JobStatuses::RUNNING,
 			$now,
 			$job_id,
@@ -481,7 +561,10 @@ final class BackgroundTranslationJobRepository {
 			RequestedActions::NONE,
 			'',
 			$owner_token,
-			$now
+			$now,
+			JobStatuses::RUNNING,
+			JobStatuses::RUNNING,
+			JobBounds::MAX_CONCURRENT_RUNNING
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
@@ -493,6 +576,18 @@ final class BackgroundTranslationJobRepository {
 		}
 
 		if ( 0 === $updated ) {
+			$current = $this->find( $job_id );
+			if (
+				null !== $current
+				&& in_array( (string) $current->status, array( JobStatuses::QUEUED, JobStatuses::RETRY_WAIT ), true )
+				&& $this->count_by_status( JobStatuses::RUNNING ) >= JobBounds::MAX_CONCURRENT_RUNNING
+			) {
+				return new WP_Error(
+					BackgroundTranslationConcurrencyPolicy::ERROR_CODE,
+					'Maximum concurrent running jobs reached.',
+					array( 'status' => 409 )
+				);
+			}
 			return null;
 		}
 
@@ -1053,5 +1148,33 @@ final class BackgroundTranslationJobRepository {
 	 */
 	private function is_duplicate_error( string $error ): bool {
 		return false !== stripos( $error, 'Duplicate' ) || false !== stripos( $error, '1062' );
+	}
+
+	/**
+	 * Serialize site running-cap admissions via a MySQL named lock (no schema).
+	 *
+	 * @param callable $callback Work that counts/transitions running jobs.
+	 * @return mixed
+	 */
+	private function with_running_cap_lock( callable $callback ) {
+		global $wpdb;
+
+		$lock_name = 'aiml_jobs_running_cap';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- lock name is a fixed literal.
+		$got = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, %d)', $lock_name, 5 ) );
+		if ( 1 !== $got ) {
+			return new WP_Error(
+				BackgroundTranslationConcurrencyPolicy::ERROR_CODE,
+				'Maximum concurrent running jobs reached.',
+				array( 'status' => 409 )
+			);
+		}
+
+		try {
+			return $callback();
+		} finally {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- lock name is a fixed literal.
+			$wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock_name ) );
+		}
 	}
 }

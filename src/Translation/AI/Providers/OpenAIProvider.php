@@ -129,6 +129,11 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 
 		$response = $this->request( 'GET', self::API_BASE . '/models', array() );
 		if ( $response instanceof WP_Error ) {
+			$error_data                          = $response->get_error_data();
+			$error_data                          = is_array( $error_data ) ? $error_data : array();
+			$error_data['provider_request_made'] = true;
+			$error_data['provider_requests']     = 1;
+			$response->add_data( $error_data );
 			return $response;
 		}
 
@@ -437,7 +442,11 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 			return new WP_Error(
 				'aiml_ai_http_error',
 				__( 'Provider HTTP request failed.', 'ai-multilingual' ),
-				array( 'status' => 502 )
+				array(
+					'status'                => 502,
+					'provider_request_made' => true,
+					'provider_requests'     => 1,
+				)
 			);
 		}
 
@@ -446,16 +455,23 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		$data = json_decode( $raw, true );
 
 		if ( $code < 200 || $code >= 300 ) {
-			$message = is_array( $data ) && isset( $data['error']['message'] )
+			$message     = is_array( $data ) && isset( $data['error']['message'] )
 				? (string) $data['error']['message']
 				: __( 'Provider request failed.', 'ai-multilingual' );
+			$error_data  = array(
+				'status'                => $code > 0 ? $code : 502,
+				'provider_request_made' => true,
+				'provider_requests'     => 1,
+			);
+			$retry_after = $this->retry_after_seconds( $response );
+			if ( $retry_after > 0 ) {
+				$error_data['retry_after'] = $retry_after;
+			}
 
 			return new WP_Error(
-				'aiml_ai_http_error',
+				429 === $code ? 'aiml_rate_limited' : 'aiml_ai_http_error',
 				$message,
-				array(
-					'status' => $code > 0 ? $code : 502,
-				)
+				$error_data
 			);
 		}
 
@@ -463,10 +479,71 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 			return new WP_Error(
 				'aiml_ai_invalid_response',
 				__( 'Provider returned non-JSON content.', 'ai-multilingual' ),
-				array( 'status' => 502 )
+				array(
+					'status'                => 502,
+					'provider_request_made' => true,
+					'provider_requests'     => 1,
+				)
 			);
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Parse provider backoff headers into bounded whole seconds.
+	 *
+	 * @param array<string, mixed> $response WordPress HTTP response.
+	 */
+	private function retry_after_seconds( array $response ): int {
+		$retry_after = $this->response_header( $response, 'retry-after' );
+		if ( '' !== $retry_after ) {
+			if ( ctype_digit( $retry_after ) ) {
+				return max( 0, (int) $retry_after );
+			}
+
+			$at = strtotime( $retry_after );
+			if ( false !== $at ) {
+				return max( 0, $at - time() );
+			}
+		}
+
+		$milliseconds = $this->response_header( $response, 'retry-after-ms' );
+		if ( is_numeric( $milliseconds ) ) {
+			return max( 0, (int) ceil( (float) $milliseconds / 1000 ) );
+		}
+
+		$reset = strtolower( $this->response_header( $response, 'x-ratelimit-reset-requests' ) );
+		if ( preg_match( '/^([0-9]+(?:\.[0-9]+)?)(ms|s)$/', $reset, $matches ) ) {
+			$seconds = 'ms' === $matches[2] ? (float) $matches[1] / 1000 : (float) $matches[1];
+			return max( 0, (int) ceil( $seconds ) );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Read one response header from array or WP_HTTP_Headers shapes.
+	 *
+	 * @param array<string, mixed> $response WordPress HTTP response.
+	 * @param string               $name     Lowercase header name.
+	 */
+	private function response_header( array $response, string $name ): string {
+		$headers = $response['headers'] ?? array();
+		if ( is_object( $headers ) && method_exists( $headers, 'offsetGet' ) ) {
+			$value = $headers->offsetGet( $name );
+			return is_scalar( $value ) ? trim( (string) $value ) : '';
+		}
+		if ( ! is_array( $headers ) ) {
+			return '';
+		}
+
+		foreach ( $headers as $key => $value ) {
+			if ( strtolower( (string) $key ) === $name && is_scalar( $value ) ) {
+				return trim( (string) $value );
+			}
+		}
+
+		return '';
 	}
 }

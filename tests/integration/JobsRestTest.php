@@ -51,6 +51,7 @@ final class JobsRestTest extends AimlTestCase {
 		$this->assertArrayHasKey( '/aiml/v1/jobs/(?P<id>\\d+)/cancel', $routes );
 		$this->assertArrayHasKey( '/aiml/v1/jobs/(?P<id>\\d+)/retry-failed', $routes );
 		$this->assertArrayHasKey( '/aiml/v1/jobs/(?P<id>\\d+)/run', $routes );
+		$this->assertArrayHasKey( '/aiml/v1/jobs/(?P<id>\\d+)/items/(?P<item_id>\\d+)/assessment', $routes );
 		$this->assertArrayHasKey( '/aiml/v1/jobs/batch/(?P<batch_id>[a-zA-Z0-9\\-]+)', $routes );
 		$this->assertArrayHasKey( '/aiml/v1/jobs/health', $routes );
 		$this->assertArrayHasKey( '/aiml/v1/jobs/diagnostics', $routes );
@@ -302,6 +303,37 @@ final class JobsRestTest extends AimlTestCase {
 		$this->assertArrayHasKey( 'segment_key', $item );
 		$this->assertArrayNotHasKey( 'translated_text', $item );
 		$this->assertArrayNotHasKey( 'source_text', $item );
+	}
+
+	public function test_item_assessment_is_on_demand_and_does_not_mutate_status(): void {
+		$language = $this->add_language();
+		$post     = $this->create_block_page();
+		$job      = $this->seed_job( (int) $post->ID, (int) $language->language_id );
+		$items    = ( new \AIMultilingual\Jobs\BackgroundTranslationItemRepository() )->list_by_job( (int) $job->job_id );
+		$this->assertNotEmpty( $items );
+		$item_id = (int) $items[0]->item_id;
+		$status  = (string) $items[0]->status;
+		$job_st  = (string) $job->status;
+
+		wp_set_current_user( $this->create_translator() );
+
+		$response = rest_do_request(
+			new WP_REST_Request(
+				'GET',
+				'/aiml/v1/jobs/' . (int) $job->job_id . '/items/' . $item_id . '/assessment'
+			)
+		);
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
+		$data = $response->get_data();
+		$this->assertSame( (int) $job->job_id, (int) $data['job_id'] );
+		$this->assertSame( $item_id, (int) $data['item_id'] );
+		$this->assertIsArray( $data['assessment'] ?? null );
+		$this->assertArrayHasKey( 'overall_category', $data['assessment'] );
+
+		$fresh_job  = $this->job_repo->find( (int) $job->job_id );
+		$fresh_item = ( new \AIMultilingual\Jobs\BackgroundTranslationItemRepository() )->find( $item_id );
+		$this->assertSame( $job_st, (string) $fresh_job->status );
+		$this->assertSame( $status, (string) $fresh_item->status );
 	}
 
 	/**

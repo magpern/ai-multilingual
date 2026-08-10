@@ -14,9 +14,9 @@
 **TI.3:** **Complete** on `main` — [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md); [validation log](TI3_TRANSLATION_MEMORY_INTELLIGENCE_VALIDATION_LOG.md); merge `95839113ba47bed80f781db238ce038c8d9b973d`
 **TI.4:** **Complete** on `main` — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); [validation log](TI4_DETERMINISTIC_QA_HARDENING_VALIDATION_LOG.md); merge `e88def1ab2b1778595119e16684b37742cb4d839`
 **TI.5:** **Complete** on `main` — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [validation log](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md); merge `279ea0f22752141465d6cd3f42823f21d52e2f6b`; assessment `R1.0` (no aggregate score / LLM confidence / persisted assessment / publication decision)
-**TI.6:** planning **Architecture Frozen** on `main` — [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); freeze merge `c6b4564032bbd3d6e402c1564906077b27eb1fcc`; implementation **not started**
+**TI.6:** planning **Architecture Frozen** on `main`; implementation **review-ready** on `feature/ti6-jobs-scale-safety-polish` — [plan](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [validation](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md). Not yet merged / Complete on `main`.
 **TI.7:** planning/implementation **not started**
-**Next:** Implement TI.6 on `feature/ti6-jobs-scale-safety-polish` from this frozen plan. Do **not** start TI.7 until TI.6 is Complete and TI.7’s plan is Architecture Frozen.
+**Next:** Independent review of TI.6 feature branch → merge → close TI.6 → TI.7 planning only.
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
@@ -410,7 +410,7 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 | TI.5 planning | **Complete** — Architecture Frozen then implemented — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); ADR-0019 |
 | TI.5 implementation | **Complete** — merge `279ea0f22752141465d6cd3f42823f21d52e2f6b`; assessment `R1.0`; TARGET 6; Jobs Deferred to TI.6 |
 | TI.6 planning | **Complete** — [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md) Architecture Frozen on `main`; freeze merge `c6b456403…` |
-| TI.6 implementation | **Not started** — create `feature/ti6-jobs-scale-safety-polish` from frozen `main` |
+| TI.6 implementation | **Review-ready** on `feature/ti6-jobs-scale-safety-polish` — not merged; [validation](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md) |
 | TI.n planning | Prior dependency gates satisfied; TI.n plan authored |
 | TI.n implementation | TI.n plan Architecture Frozen on `main` |
 
