@@ -191,8 +191,8 @@ final class TranslationContextBuilder {
 	 * TM examples compete for the shared 1200 pool and drop before
 	 * field_semantic essentials (higher drop priority than attributes).
 	 *
-	 * @param TranslationContext           $context  Existing context.
-	 * @param list<array<string, mixed>>   $examples Example payloads.
+	 * @param TranslationContext         $context  Existing context.
+	 * @param list<array<string, mixed>> $examples Example payloads.
 	 */
 	public function with_tm_examples( TranslationContext $context, array $examples ): TranslationContext {
 		$items = $context->items;
