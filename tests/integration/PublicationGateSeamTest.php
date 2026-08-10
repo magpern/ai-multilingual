@@ -150,4 +150,38 @@ final class PublicationGateSeamTest extends AimlTestCase {
 			$this->store->translated_value( Store::SOURCE_POST, 9203, $lang_id, 'gate-off-title' )
 		);
 	}
+
+	public function test_customer_email_bridge_respects_publication_gate(): void {
+		$language = $this->languages->default();
+		$this->assertNotNull( $language );
+		$lang_id = (int) $language->language_id;
+
+		$this->store->save_translation(
+			array(
+				'source_type'     => Store::SOURCE_POST,
+				'source_id'       => 9204,
+				'language_id'     => $lang_id,
+				'field_key'       => 'post_title',
+				'segment_key'     => 'woo:email:customer_completed_order:subject',
+				'source_text'     => 'Order complete',
+				'translated_text' => 'Order klar',
+				'status'          => Store::STATUS_MACHINE_TRANSLATED,
+			)
+		);
+
+		$row = $this->store->get(
+			Store::SOURCE_POST,
+			9204,
+			$lang_id,
+			'woo:email:customer_completed_order:subject'
+		);
+		$this->assertNotNull( $row );
+		$this->assertFalse( Store::is_publicly_overlay_eligible( $row, true ) );
+		$this->assertTrue( Store::is_publicly_overlay_eligible( $row, false ) );
+
+		$code = (string) file_get_contents(
+			dirname( __DIR__, 2 ) . '/src/Integration/WooCommerce/CustomerEmailBridge.php'
+		);
+		$this->assertStringContainsString( 'is_publicly_overlay_eligible', $code );
+	}
 }

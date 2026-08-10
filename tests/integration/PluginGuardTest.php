@@ -316,6 +316,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Translation/BlockTranslationLookup.php',
 			'src/Elementor/ElementorOverlayResolver.php',
 			'src/Integration/IntegrationFrontendBridge.php',
+			'src/Integration/WooCommerce/CustomerEmailBridge.php',
 		) as $path ) {
 			$code = (string) file_get_contents( $this->root() . '/' . $path );
 			$this->assertStringContainsString(

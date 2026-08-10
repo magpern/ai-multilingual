@@ -182,54 +182,42 @@ final class PublicationService {
 			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
 		}
 
+		$decision = $this->evaluate_publish_attempt(
+			$row,
+			$for_automatic,
+			$expected_status,
+			$scaffolding_markers,
+			$markers_applicable,
+			$user_id,
+			$surface
+		);
+		if ( $decision instanceof WP_Error || is_array( $decision ) ) {
+			return $decision;
+		}
+
+		// ADR-0020: re-read and re-evaluate immediately before mutation so a
+		// concurrent edit / visibility / review change cannot apply a stale decision.
+		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
+		if ( null === $row ) {
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+		}
+
+		$decision = $this->evaluate_publish_attempt(
+			$row,
+			$for_automatic,
+			$expected_status,
+			$scaffolding_markers,
+			$markers_applicable,
+			$user_id,
+			$surface
+		);
+		if ( $decision instanceof WP_Error || is_array( $decision ) ) {
+			return $decision;
+		}
+
 		$current = (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED );
-		if ( null !== $expected_status && $expected_status !== $current ) {
-			return new WP_Error(
-				'aiml_publish_conflict',
-				__( 'Publish status changed; refresh and retry.', 'ai-multilingual' ),
-				array( 'reason_codes' => array( PublicationReasonCodes::EXPECTED_STATUS_MISMATCH ) )
-			);
-		}
-
-		$decision = $this->evaluate_row( $row, $for_automatic, $scaffolding_markers, $markers_applicable );
-		if ( ! $decision->eligible ) {
-			$this->audit->log(
-				PublicationAuditEvents::SKIPPED,
-				array(
-					'source_type'        => $source_type,
-					'source_id'          => $source_id,
-					'segment_key'        => $segment_key,
-					'language_id'        => $language_id,
-					'old_publish_status' => $current,
-					'new_publish_status' => $current,
-					'policy_version'     => $decision->policy_version,
-					'assessment_version' => $decision->assessment_version,
-					'overall_category'   => $decision->overall_category,
-					'reason_codes'       => $decision->reason_codes,
-					'mode'               => $decision->mode,
-					'actor_kind'         => $for_automatic ? 'system' : 'user',
-					'user_id'            => $user_id,
-					'source_surface'     => $surface,
-				)
-			);
-
-			return array(
-				'status'       => 'skipped',
-				'decision'     => $decision->to_array(),
-				'reason_codes' => $decision->reason_codes,
-			);
-		}
-
-		if ( Store::PUBLISH_PUBLISHED === $current ) {
-			return array(
-				'status'       => 'noop',
-				'decision'     => $decision->to_array(),
-				'reason_codes' => array( PublicationReasonCodes::PUBLICATION_ALREADY_ACTIVE ),
-			);
-		}
-
-		$now = function_exists( 'current_time' ) ? current_time( 'mysql', true ) : gmdate( 'Y-m-d H:i:s' );
-		$by  = $for_automatic ? 0 : ( $user_id > 0 ? $user_id : (int) get_current_user_id() );
+		$now     = function_exists( 'current_time' ) ? current_time( 'mysql', true ) : gmdate( 'Y-m-d H:i:s' );
+		$by      = $for_automatic ? 0 : ( $user_id > 0 ? $user_id : (int) get_current_user_id() );
 
 		$updated = $this->store->update_publish_metadata(
 			$source_type,
@@ -274,6 +262,77 @@ final class PublicationService {
 			'decision'       => $decision->to_array(),
 			'reason_codes'   => array( PublicationReasonCodes::PUBLISHED ),
 		);
+	}
+
+	/**
+	 * Evaluates one publish attempt; returns Decision when mutation may proceed,
+	 * or a bounded result/WP_Error when it must not.
+	 *
+	 * @param object             $row                  Store row.
+	 * @param bool               $for_automatic        Automatic path.
+	 * @param string|null        $expected_status      Optional optimistic publish_status.
+	 * @param array<int, string> $scaffolding_markers  Optional markers.
+	 * @param bool|null          $markers_applicable   Marker applicability.
+	 * @param int                $user_id              Acting user.
+	 * @param string             $surface              Audit surface.
+	 * @return PublicationDecision|array<string, mixed>|WP_Error
+	 */
+	private function evaluate_publish_attempt(
+		object $row,
+		bool $for_automatic,
+		?string $expected_status,
+		array $scaffolding_markers,
+		?bool $markers_applicable,
+		int $user_id = 0,
+		string $surface = 'manual'
+	) {
+		$current = (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED );
+		if ( null !== $expected_status && $expected_status !== $current ) {
+			return new WP_Error(
+				'aiml_publish_conflict',
+				__( 'Publish status changed; refresh and retry.', 'ai-multilingual' ),
+				array( 'reason_codes' => array( PublicationReasonCodes::EXPECTED_STATUS_MISMATCH ) )
+			);
+		}
+
+		$decision = $this->evaluate_row( $row, $for_automatic, $scaffolding_markers, $markers_applicable );
+		if ( ! $decision->eligible ) {
+			$this->audit->log(
+				PublicationAuditEvents::SKIPPED,
+				array(
+					'source_type'        => (string) ( $row->source_type ?? Store::SOURCE_POST ),
+					'source_id'          => (int) ( $row->source_id ?? 0 ),
+					'segment_key'        => (string) ( $row->segment_key ?? '' ),
+					'language_id'        => (int) ( $row->language_id ?? 0 ),
+					'old_publish_status' => $current,
+					'new_publish_status' => $current,
+					'policy_version'     => $decision->policy_version,
+					'assessment_version' => $decision->assessment_version,
+					'overall_category'   => $decision->overall_category,
+					'reason_codes'       => $decision->reason_codes,
+					'mode'               => $decision->mode,
+					'actor_kind'         => $for_automatic ? 'system' : 'user',
+					'user_id'            => $user_id,
+					'source_surface'     => $surface,
+				)
+			);
+
+			return array(
+				'status'       => 'skipped',
+				'decision'     => $decision->to_array(),
+				'reason_codes' => $decision->reason_codes,
+			);
+		}
+
+		if ( Store::PUBLISH_PUBLISHED === $current ) {
+			return array(
+				'status'       => 'noop',
+				'decision'     => $decision->to_array(),
+				'reason_codes' => array( PublicationReasonCodes::PUBLICATION_ALREADY_ACTIVE ),
+			);
+		}
+
+		return $decision;
 	}
 
 	/**

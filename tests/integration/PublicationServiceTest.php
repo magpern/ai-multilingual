@@ -393,4 +393,35 @@ final class PublicationServiceTest extends AimlTestCase {
 		$this->assertSame( 'skipped', $result['status'] );
 		$this->assertContains( PublicationReasonCodes::TRANSLATION_STALE, $result['reason_codes'] );
 	}
+
+	public function test_publish_rechecks_when_source_becomes_private(): void {
+		$post     = $this->create_page();
+		$language = $this->add_language();
+		$key      = 'pub-race-private';
+		$this->seed_segment( $post, $language, $key );
+
+		wp_update_post(
+			array(
+				'ID'          => $post->ID,
+				'post_status' => 'private',
+			)
+		);
+
+		$result = $this->publication->publish(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			(int) $language->language_id,
+			$key,
+			false,
+			1,
+			'manual'
+		);
+		$this->assertIsArray( $result );
+		$this->assertSame( 'skipped', $result['status'] );
+		$this->assertContains( PublicationReasonCodes::SOURCE_NOT_PUBLIC, $result['reason_codes'] );
+
+		$row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id, $key );
+		$this->assertNotNull( $row );
+		$this->assertSame( Store::PUBLISH_UNPUBLISHED, (string) $row->publish_status );
+	}
 }
