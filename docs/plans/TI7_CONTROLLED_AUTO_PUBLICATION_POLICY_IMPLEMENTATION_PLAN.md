@@ -1,21 +1,24 @@
 # TI.7 — Controlled Auto-Publication Policy — Implementation Plan
 
-**Status:** **Implementation complete — ready for independent review** on `feature/ti7-controlled-auto-publication-policy`
+**Status:** **Complete** on `main`
 **Milestone:** TI.7 — Controlled auto-publication policy (TIQ program)
 **Kind:** Milestone implementation plan (authoritative Architecture Frozen on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1–TI.6 **Complete**
 **Official pack (immutable):** `tests/quality/baselines/baseline-v1.1.0/` — TI.7 must not change generation quality claims
-**Schema:** Migrator `TARGET` **7** (additive publication columns; ADR-0020)
-**ADR:** [ADR-0020 — Controlled auto-publication and frontend publication gate](../adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Accepted** 2026-08-10)
+**Schema:** Migrator `TARGET` **7** (additive publication columns; ADR-0020) — **implemented**
+**ADR:** [ADR-0020 — Controlled auto-publication and frontend publication gate](../adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Accepted** 2026-08-10; **implemented**)
 **Policy version:** `P1.0`
 **Assessment consumption:** TI.5 `TranslationAssessment` **R1.0** read-only
 **Planning branch:** `docs/ti7-controlled-auto-publication-policy-plan`
 **Independent review (planning):** **PASS** (2026-08-10)
 **Freeze merge:** `fdf313500764014ebcedd25c99b393c1679ebd3e`
 **Implementation branch:** `feature/ti7-controlled-auto-publication-policy`
+**Reviewed feature HEAD:** `dfb7f3a0cebbb60143a929940def06da93a68c25`
+**Merge commit:** `25fee160f323dd33b7f73d432f446caca6a72075`
+**Independent review (implementation):** **PASS**
 **Validation log:** [TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_VALIDATION_LOG.md](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_VALIDATION_LOG.md)
-**Next:** Independent implementation review → merge to main → TIQ closure. Do **not** self-merge.
+**Next:** Explicit release/version decision from closed TIQ main. Do **not** tag/release in TIQ closure.
 
 **Related:** [ADR-0008](../adr/0008-language-state-model.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), [ADR-0019](../adr/0019-evidence-based-risk-assessment.md), [ADR-0011](../adr/0011-resumable-job-pipeline.md); TI.4–TI.6 plans; A.SEO ownership unchanged.
 

@@ -1,6 +1,6 @@
 # Translation Intelligence & Quality (TIQ) — Parent Program Architecture Plan
 
-**Status:** **Architecture Frozen** on `main`
+**Status:** **Complete** on `main`
 **Program:** Translation Intelligence & Quality (TIQ)
 **Plan freeze:** Canonical program architecture for milestones **TQ.0** and **TI.1–TI.7**; measurement first; one shared translation brain; quality gates; Deferred boundaries
 **ADR assessment:** **No ADR blocker** for this program freeze. TQ.0 methodology may be plan-locked unless a later investigation proves a cross-cutting ADR is necessary. ADR-0010 likely requires extension/review around TI.2/TI.3. Controlled auto-publication requires an ADR before TI.7. Store / identity / TARGET / Integration API conflicts are **STOP** conditions — not casually redesigned contracts.
@@ -15,13 +15,15 @@
 **TI.4:** **Complete** on `main` — [TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md](TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md); [validation log](TI4_DETERMINISTIC_QA_HARDENING_VALIDATION_LOG.md); merge `e88def1ab2b1778595119e16684b37742cb4d839`
 **TI.5:** **Complete** on `main` — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [validation log](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_VALIDATION_LOG.md); merge `279ea0f22752141465d6cd3f42823f21d52e2f6b`; assessment `R1.0` (no aggregate score / LLM confidence / persisted assessment / publication decision)
 **TI.6:** **Complete** on `main` — [plan](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [validation](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md); merge `7286156ed977200907f9416d6af9022517291e76`
-**TI.7:** **Architecture Frozen** (planning) — [plan](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md) **Accepted**. Implementation **not started**. Runtime `TARGET` remains **6** until TI.7 implementation.
-**Next:** Create `feature/ti7-controlled-auto-publication-policy` from frozen `main` and implement TI7.0–TI7.8 per the frozen plan and ADR-0020. Do **not** mark TIQ Complete until TI.7 implementation is independently reviewed, merged, validated, and closed.
+**TI.7:** **Complete** on `main` — [plan](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md) **Accepted** / implemented; [validation](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_VALIDATION_LOG.md); merge `25fee160f323dd33b7f73d432f446caca6a72075`; runtime `TARGET` **7**; policy `P1.0`
+**Program verdict:** Translation Intelligence & Quality (**TIQ**) is **COMPLETE**
+**Frozen program architecture:** measurement → structural safety → bounded context → TM intelligence → deterministic QA → explainable risk assessment → operational Jobs hardening → controlled publication
+**Next:** Explicit release/version decision from the closed TIQ main baseline. Do **not** begin another product milestone before that decision. Do **not** tag/release as part of TIQ closure.
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
-**Depends on:** AI Multilingual **v1.1.0** released; A.SEOa–A.SEOf complete; CI/release baseline green; Migrator `TARGET` **6**; Integration API v1 unchanged
-**Related:** [adr/0010-provider-agnostic-interface.md](../adr/0010-provider-agnostic-interface.md); [adr/0009-translation-memory-table.md](../adr/0009-translation-memory-table.md); [adr/0014-glossary-platform-lexicon.md](../adr/0014-glossary-platform-lexicon.md); [adr/0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md); [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md); [docs/releases/v1.1.0.md](../releases/v1.1.0.md)
+**Depends on:** AI Multilingual **v1.1.0** released; A.SEOa–A.SEOf complete; CI/release baseline green; Migrator `TARGET` **6** at program start (now **7** after TI.7); Integration API v1 unchanged
+**Related:** [adr/0010-provider-agnostic-interface.md](../adr/0010-provider-agnostic-interface.md); [adr/0009-translation-memory-table.md](../adr/0009-translation-memory-table.md); [adr/0014-glossary-platform-lexicon.md](../adr/0014-glossary-platform-lexicon.md); [adr/0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md); [adr/0019-evidence-based-risk-assessment.md](../adr/0019-evidence-based-risk-assessment.md); [adr/0020-controlled-auto-publication-and-frontend-gate.md](../adr/0020-controlled-auto-publication-and-frontend-gate.md); [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md); [docs/releases/v1.1.0.md](../releases/v1.1.0.md)
 
 **Operational success:** The platform can improve translation quality in a **measurable** way along a single shared intelligence path, toward publication-quality WooCommerce-scale translations with minimal human intervention — without inventing a second translator, Store, TM, or glossary.
 
@@ -410,9 +412,11 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 | TI.5 planning | **Complete** — Architecture Frozen then implemented — [TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md](TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md); ADR-0019 |
 | TI.5 implementation | **Complete** — merge `279ea0f22752141465d6cd3f42823f21d52e2f6b`; assessment `R1.0`; TARGET 6; Jobs Deferred to TI.6 |
 | TI.6 planning | **Complete** — [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md) Architecture Frozen on `main`; freeze merge `c6b456403…` |
-| TI.6 implementation | **Review-ready** on `feature/ti6-jobs-scale-safety-polish` — not merged; [validation](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md) |
-| TI.n planning | Prior dependency gates satisfied; TI.n plan authored |
-| TI.n implementation | TI.n plan Architecture Frozen on `main` |
+| TI.6 implementation | **Complete** on `main` — [validation](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md) |
+| TI.7 planning | **Complete** — [TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md); ADR-0020 Accepted |
+| TI.7 implementation | **Complete** — merge `25fee160f323dd33b7f73d432f446caca6a72075`; TARGET **7**; [validation](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_VALIDATION_LOG.md) |
+| TIQ program | **COMPLETE** — measurement → structural safety → bounded context → TM → QA → risk assessment → Jobs → controlled publication |
+| Next | Explicit **release/version** decision from closed TIQ main. Do not start another product milestone first. |
 
 ---
 

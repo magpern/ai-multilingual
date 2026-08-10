@@ -1,13 +1,13 @@
 # Product Priorities — AI Multilingual
 
 **Status:** Canonical product-direction document
-**Date:** 2026-08-09
+**Date:** 2026-08-10
 **Scope:** Implementation priority and product strategy only
 **Does not change:** Architecture, ADRs, schemas, APIs, or historical roadmap milestone IDs
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ). **TQ.0–TI.6 Complete**. **TI.7** Architecture Frozen (planning) — [plan](plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md); [ADR-0020](adr/0020-controlled-auto-publication-and-frontend-gate.md) Accepted. Exact next step: **implement TI.7** on `feature/ti7-controlled-auto-publication-policy`. **TIQ not Complete.**
+**Current next decision:** Explicit **release/version** planning from the closed TIQ main baseline. **TQ.0–TI.7 Complete**. **TIQ Complete.** Merge `25fee160f323dd33b7f73d432f446caca6a72075`. Runtime `Migrator::TARGET` **7**. Do **not** begin another product milestone before the release/version decision. No tag/release as part of TIQ closure.
 
 ---
 
@@ -38,13 +38,13 @@ Remaining priority order (highest first):
 
 ## 2. Current implementation priority
 
-### Active next program (post-v1.1.0)
+### Active next decision (post-TIQ)
 
-| Order | Program / milestone | Focus |
+| Order | Decision | Focus |
 |---|---|---|
-| 1 | **TIQ** / **TI.7** implementation | [TI.7 plan](plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md) Architecture Frozen; [ADR-0020](adr/0020-controlled-auto-publication-and-frontend-gate.md) Accepted; implementation not started |
+| 1 | **Release / version** | Explicit decision from closed TIQ main (`TARGET` **7**). Do not start another product milestone first. |
 
-**Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. CI/release baseline is green. `Migrator::TARGET` remains **6**.
+**Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. **TIQ (TQ.0–TI.7)** is **Complete**. CI/release baseline is green. `Migrator::TARGET` is **7**.
 
 Visitor-facing Program A waves below remain listed for historical priority context and are **not** reopened by TIQ. Coverage-Deferred surfaces stay Deferred unless a separate product decision reopens them.
 
@@ -118,15 +118,17 @@ Only implement integrations that Biopentra actually requires. All other integrat
 
 Visitor-facing Program A completion for the Biopentra webshop baseline (A.7 / A.6 / A.SEO Supported sets) is done as of **v1.1.0**. Post-v1.1 sequencing for intelligence and quality:
 
-### Translation Intelligence & Quality (TIQ) — active
+### Translation Intelligence & Quality (TIQ) — Complete
 
 Authoritative parent: [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md).
 
-Ladder: **TQ.0 → TI.1 → TI.2 → TI.3 → TI.4 → TI.5 → TI.6 → TI.7**.
+Ladder: **TQ.0 → TI.1 → TI.2 → TI.3 → TI.4 → TI.5 → TI.6 → TI.7** — all **Complete** on `main`.
 
-This supersedes the earlier product-direction preference that Program C and Program D automatically precede Program B after visitor work. Historical Program B milestone IDs (B.1–B.8) remain in the long-term roadmap catalog; **post-v1.1 work follows TIQ**, not early B.1 (additional providers).
+Frozen architecture: measurement → structural safety → bounded context → TM intelligence → deterministic QA → explainable risk assessment → operational Jobs hardening → controlled publication.
 
-### Later (after TIQ gates / separate product decisions)
+This superseded the earlier product-direction preference that Program C and Program D automatically precede Program B after visitor work. Historical Program B milestone IDs (B.1–B.8) remain in the long-term roadmap catalog; **post-v1.1 work followed TIQ**, not early B.1 (additional providers).
+
+### Later (after release/version decision / separate product decisions)
 
 ### Program C — Translator experience
 
@@ -167,8 +169,8 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 | **TI.4 milestone plan** | [`plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md`](plans/TI4_DETERMINISTIC_QA_HARDENING_IMPLEMENTATION_PLAN.md) |
 | **TI.5 milestone plan** | [`plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md`](plans/TI5_EVIDENCE_BASED_REVIEW_RISK_SIGNALS_IMPLEMENTATION_PLAN.md) |
 | **TI.6 milestone plan** | [`plans/TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md`](plans/TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md) |
-| **TI.7 milestone plan** | [`plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md`](plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md) (Architecture Frozen — planning) |
-| **ADR-0020 (TI.7 publication)** | [`adr/0020-controlled-auto-publication-and-frontend-gate.md`](adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Accepted**) |
+| **TI.7 milestone plan** | [`plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md`](plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md) (**Complete** on `main`) |
+| **ADR-0020 (TI.7 publication)** | [`adr/0020-controlled-auto-publication-and-frontend-gate.md`](adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Accepted**; implemented) |
 | **Implementation priority / product direction** | **This file** |
 | Classic M0–M7 / Strategy F status (historical) | [`ROADMAP.md`](ROADMAP.md) |
 | Historical v1 platform-track archive | [`plans/POST_V1_PRODUCT_ROADMAP.md`](plans/POST_V1_PRODUCT_ROADMAP.md) |
