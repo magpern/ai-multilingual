@@ -9,7 +9,7 @@
 **Schema:** Migrator `TARGET` = **6** (unchanged)
 **ADR:** **No new ADR** — ADR-0011 remains Jobs SoT; ADR-0015 TM write-back unchanged; ADR-0019 assessment read-only unchanged
 **Planning branch:** `docs/ti6-jobs-scale-safety-polish-plan`
-**Independent review (planning):** pending Phase B
+**Independent review (planning):** **PASS** (2026-08-10) — three refinements verified; Outcome B honest; docs-only hygiene fixes applied post-review
 **Freeze merge:** pending Phase C
 **Implementation branch:** **Do not create in this freeze** — later `feature/ti6-jobs-scale-safety-polish` from frozen `main` only
 **Validation log:** to be created during implementation
@@ -136,6 +136,15 @@ flowchart TD
 
 **Repair only:** operator `retry-failed` must work for terminal `failed` and `completed_with_errors` (BACKGROUND §14; today rejected by `is_terminal` early return while `FAILED→QUEUED` is dead code). Reset eligible `failed` items → `queued` (preserve `last_error_*`), transition job → `queued`, clear finished markers as needed, **enqueue wake**.
 
+**Transition-policy exceptions (explicit):** [`JobTransitionPolicy`](../../src/Jobs/JobTransitionPolicy.php) today treats all terminals as non-transitionable before any `FAILED→QUEUED` branch, and does **not** list `completed_with_errors→queued`. TI.6 must admit **operator-only** exceptions:
+
+| From | To | When |
+|---|---|---|
+| `failed` | `queued` | `retry-failed` only |
+| `completed_with_errors` | `queued` | `retry-failed` only |
+
+This is an intentional exception to BACKGROUND “terminal immutable” for **operator requeue**, not a silent general reopen of terminals. Auto-finalize and cancel remain terminal.
+
 ---
 
 ## 6. Failure taxonomy
@@ -144,7 +153,7 @@ flowchart TD
 |---|---|---|
 | Transport / network | `http_request_failed`, `network` | Yes |
 | Provider 5xx | HTTP 5xx / `provider_5xx` | Yes |
-| Rate limit | HTTP 429 / `rate_limit` / `aiml_rate_limited` | Yes (+ Retry-After) |
+| Rate limit | HTTP 429 / `rate_limit` / `aiml_rate_limited`; today OpenAI often emits `aiml_ai_http_error` + HTTP `status` only — classify via status backup and align codes in TI6.2 | Yes (+ Retry-After) |
 | Lease contention | `lease_contention`, `job_lease_claim_failed` | Yes |
 | TI.1 structural | `empty_target`, placeholder/HTML/URL/forbidden, `aiml_ai_invalid_response` | Terminal |
 | Validation / config | `invalid_language`, `unsupported_provider`, `validation` | Terminal |
@@ -231,7 +240,7 @@ Without new schema/TARGET:
 
 | Code | HTTP (REST) | Behavior |
 |---|---|---|
-| `concurrency_limit_exceeded` | 409 or 503 (pick one in implementation; document; prefer **409** conflict with clear retry guidance) | Reject; job stays prior status |
+| `concurrency_limit_exceeded` | **409** (conflict; operator may retry later) | Reject; job stays prior status |
 
 No second queue. No distributed lock product.
 
@@ -281,9 +290,15 @@ Additive, no schema: surface last-attempt usage + `last_tm_outcome()` (already e
 
 [`BackgroundTranslationBudgetPolicy`](../../src/Jobs/BackgroundTranslationBudgetPolicy.php) **consumes usage evidence** on each attempt that has `usage_known` (including failed attempts with known requests) — **not** only on item `completed`.
 
+**Current defect (must fix in TI6.1):** Worker records usage only when item status is `completed`, and `record_usage` coerces `requests <= 0` → **1**. Combined with `ItemResult::completed()` defaulting to 0/0, **every completion including TM `DIRECT_REUSE` is charged as one provider request**. TI6.1 must:
+
+1. stop inferring requests from completion;
+2. pass known-zero TM evidence through without 0→1 coercion when `usage_known === true` and `provider_requests === 0`;
+3. retain fail-safe coercion **only** when usage is unknown (`usage_known === false`) and policy requires a conservative charge — document that path; prefer not charging when skip/TM known-zero.
+
 | Rule | Behavior |
 |---|---|
-| TM zero usage | Does not increment request/token budgets |
+| TM zero usage (`usage_known`, requests=0) | Does **not** increment request/token budgets |
 | Known provider requests | Atomic increment |
 | Hard limit | Stop before next claim (`budget_exceeded` pause) |
 | Never discard persisted success solely for estimate overrun | Preserve BACKGROUND §13 |
