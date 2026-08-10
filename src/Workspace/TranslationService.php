@@ -22,6 +22,7 @@ use AIMultilingual\Translation\AI\TranslationContextBuilder;
 use AIMultilingual\Translation\Memory\TMGenerationLookup;
 use AIMultilingual\Translation\Memory\TMGenerationOutcome;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
+use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\QA\ScaffoldingMarkerSource;
 use AIMultilingual\Translation\Store;
 use WP_Error;
@@ -114,6 +115,13 @@ final class TranslationService {
 	private ?TranslationMemoryService $tm_memory;
 
 	/**
+	 * Optional TI.7 publication service (auto-publish after persist).
+	 *
+	 * @var PublicationService|null
+	 */
+	private ?PublicationService $publication;
+
+	/**
 	 * Last TM outcome for diagnostics/tests (no full text bodies).
 	 *
 	 * @var TMGenerationOutcome|null
@@ -140,6 +148,7 @@ final class TranslationService {
 	 * @param TranslationContextBuilder|null $context_builder Context builder.
 	 * @param TMGenerationLookup|null        $tm_lookup        Generation-path TM lookup.
 	 * @param TranslationMemoryService|null  $tm_memory        TM memory for usage.
+	 * @param PublicationService|null        $publication      Optional TI.7 publication service.
 	 */
 	public function __construct(
 		Store $store,
@@ -151,7 +160,8 @@ final class TranslationService {
 		?GlossaryService $glossary = null,
 		?TranslationContextBuilder $context_builder = null,
 		?TMGenerationLookup $tm_lookup = null,
-		?TranslationMemoryService $tm_memory = null
+		?TranslationMemoryService $tm_memory = null,
+		?PublicationService $publication = null
 	) {
 		$this->store           = $store;
 		$this->assembler       = $assembler;
@@ -163,6 +173,7 @@ final class TranslationService {
 		$this->context_builder = $context_builder ?? new TranslationContextBuilder();
 		$this->tm_lookup       = $tm_lookup;
 		$this->tm_memory       = $tm_memory;
+		$this->publication     = $publication;
 	}
 
 	/**
@@ -648,6 +659,28 @@ final class TranslationService {
 				__( 'Translated segment could not be reloaded.', 'ai-multilingual' ),
 				array( 'status' => 500 )
 			);
+		}
+
+		// TI.7: auto-publication is best-effort — never convert into translation failure.
+		if ( null !== $this->publication ) {
+			try {
+				$publication_result = $this->publication->maybe_auto_publish(
+					Store::SOURCE_POST,
+					(int) $post->ID,
+					$language_id,
+					$segment_key
+				);
+				if ( is_array( $publication_result ) ) {
+					$refreshed['publication_result'] = $publication_result;
+					$after                           = $this->assembler->assemble_one( $post, $language_id, $segment_key );
+					if ( null !== $after ) {
+						$after['publication_result'] = $publication_result;
+						$refreshed                   = $after;
+					}
+				}
+			} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- translation success is authoritative.
+				unset( $e );
+			}
 		}
 
 		return $refreshed;

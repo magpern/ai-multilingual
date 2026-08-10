@@ -15,6 +15,7 @@ use AIMultilingual\Translation\AI\FieldSemanticMapper;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
+use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\QA\QAIssue;
@@ -147,6 +148,13 @@ final class WorkspaceService {
 	private FieldSemanticMapper $field_semantic_mapper;
 
 	/**
+	 * Optional TI.7 publication service.
+	 *
+	 * @var PublicationService|null
+	 */
+	private ?PublicationService $publication;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param SegmentAssembler               $assembler           Segment assembly.
@@ -163,6 +171,7 @@ final class WorkspaceService {
 	 * @param ReviewDiagnosticsCounters|null $review_diagnostics Bounded review diagnostic counters.
 	 * @param AssessmentAssembler|null       $assessment          Optional TI.5 assessment core.
 	 * @param FieldSemanticMapper|null       $field_semantic_mapper Optional FieldSemantic mapper.
+	 * @param PublicationService|null        $publication         Optional TI.7 publication service.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -178,7 +187,8 @@ final class WorkspaceService {
 		ReviewWorkflowService $review,
 		?ReviewDiagnosticsCounters $review_diagnostics = null,
 		?AssessmentAssembler $assessment = null,
-		?FieldSemanticMapper $field_semantic_mapper = null
+		?FieldSemanticMapper $field_semantic_mapper = null,
+		?PublicationService $publication = null
 	) {
 		$this->assembler             = $assembler;
 		$this->status_calculator     = $status_calculator;
@@ -194,6 +204,7 @@ final class WorkspaceService {
 		$this->review_diagnostics    = $review_diagnostics ?? new ReviewDiagnosticsCounters();
 		$this->assessment            = $assessment ?? new AssessmentAssembler();
 		$this->field_semantic_mapper = $field_semantic_mapper ?? new FieldSemanticMapper();
+		$this->publication           = $publication;
 		$this->batch                 = new BatchOperationCoordinator( $this, $translation );
 		$this->review_batch          = new ReviewBatchCoordinator( $this );
 	}
@@ -693,6 +704,137 @@ final class WorkspaceService {
 	}
 
 	/**
+	 * Publishes one segment when PublicationPolicy allows it (manual path).
+	 *
+	 * @param WP_Post     $post                   Canonical post.
+	 * @param int         $language_id            Target language id.
+	 * @param string      $segment_key            Segment key.
+	 * @param int         $user_id                Acting user id.
+	 * @param string|null $expected_publish_status Optional optimistic publish_status.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function publish_segment(
+		WP_Post $post,
+		int $language_id,
+		string $segment_key,
+		int $user_id,
+		?string $expected_publish_status = null
+	) {
+		$this->assert_supported_post( $post );
+
+		if ( null === $this->publication ) {
+			return new WP_Error(
+				'aiml_publication_unavailable',
+				__( 'Publication service is not available.', 'ai-multilingual' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		$result = $this->publication->publish(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			$language_id,
+			$segment_key,
+			false,
+			$user_id,
+			'workspace',
+			$expected_publish_status
+		);
+
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		$segment                       = $this->segment_view_after_review( $post, $language_id, $segment_key );
+		$segment['publication_result'] = $result;
+
+		return $segment;
+	}
+
+	/**
+	 * Unpublishes one segment (manual path).
+	 *
+	 * @param WP_Post $post        Canonical post.
+	 * @param int     $language_id Target language id.
+	 * @param string  $segment_key Segment key.
+	 * @param int     $user_id     Acting user id.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function unpublish_segment(
+		WP_Post $post,
+		int $language_id,
+		string $segment_key,
+		int $user_id
+	) {
+		$this->assert_supported_post( $post );
+
+		if ( null === $this->publication ) {
+			return new WP_Error(
+				'aiml_publication_unavailable',
+				__( 'Publication service is not available.', 'ai-multilingual' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		$result = $this->publication->unpublish(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			$language_id,
+			$segment_key,
+			$user_id
+		);
+
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		$segment                       = $this->segment_view_after_review( $post, $language_id, $segment_key );
+		$segment['publication_result'] = $result;
+
+		return $segment;
+	}
+
+	/**
+	 * Explains publication eligibility without mutation.
+	 *
+	 * @param WP_Post $post          Canonical post.
+	 * @param int     $language_id   Target language id.
+	 * @param string  $segment_key   Segment key.
+	 * @param bool    $for_automatic Treat as automatic path.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function explain_publication(
+		WP_Post $post,
+		int $language_id,
+		string $segment_key,
+		bool $for_automatic = false
+	) {
+		$this->assert_supported_post( $post );
+
+		if ( null === $this->publication ) {
+			return new WP_Error(
+				'aiml_publication_unavailable',
+				__( 'Publication service is not available.', 'ai-multilingual' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		$decision = $this->publication->explain(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			$language_id,
+			$segment_key,
+			$for_automatic
+		);
+
+		if ( $decision instanceof WP_Error ) {
+			return $decision;
+		}
+
+		return $decision->to_array();
+	}
+
+	/**
 	 * Applies one review action to multiple segments (bounded, partial success).
 	 *
 	 * @param WP_Post                          $post          Canonical post.
@@ -1129,6 +1271,7 @@ final class WorkspaceService {
 				array(),
 				false
 			)->to_array();
+			$meta['publish_status']     = (string) ( $segment['publish_status'] ?? Store::PUBLISH_UNPUBLISHED );
 			$segments[ $index ]['meta'] = $meta;
 		}
 

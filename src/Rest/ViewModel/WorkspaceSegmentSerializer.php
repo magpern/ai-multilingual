@@ -26,6 +26,8 @@ final class WorkspaceSegmentSerializer {
 		$reviewed_at         = $dto['reviewed_at'] ?? null;
 		$rejected_by         = $dto['rejected_by'] ?? null;
 		$rejected_at         = $dto['rejected_at'] ?? null;
+		$published_by        = $dto['published_by'] ?? null;
+		$published_at        = $dto['published_at'] ?? null;
 
 		return new WorkspaceSegmentViewModel(
 			(string) ( $dto['segment_key'] ?? '' ),
@@ -49,7 +51,10 @@ final class WorkspaceSegmentSerializer {
 			null === $reviewed_at ? null : (string) $reviewed_at,
 			(string) ( $dto['rejection_reason'] ?? '' ),
 			null === $rejected_by ? null : (int) $rejected_by,
-			null === $rejected_at ? null : (string) $rejected_at
+			null === $rejected_at ? null : (string) $rejected_at,
+			(string) ( $dto['publish_status'] ?? 'unpublished' ),
+			null === $published_at ? null : (string) $published_at,
+			null === $published_by ? null : (int) $published_by
 		);
 	}
 

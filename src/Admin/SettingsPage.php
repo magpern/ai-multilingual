@@ -13,6 +13,7 @@ use AIMultilingual\Block\FeatureFlags;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Settings;
 use AIMultilingual\Translation\AI\CredentialVault;
+use AIMultilingual\Translation\Publication\PublicationMode;
 use WP_Error;
 
 /**
@@ -611,6 +612,7 @@ final class SettingsPage {
 		echo '</tbody></table>';
 
 		$this->render_strategy_f_diagnostics( $current, $effective, $valid );
+		$this->render_publication_diagnostics( $current );
 
 		$this->render_strategy_f_confirmation_script();
 	}
@@ -707,6 +709,47 @@ final class SettingsPage {
 			esc_html__( 'Frontend rendering active:', 'ai-multilingual' ),
 			esc_html( $this->flag_state_label( ! empty( $effective[ FeatureFlags::FRONTEND_RENDER ] ) ) )
 		);
+		echo '</div>';
+	}
+
+	/**
+	 * Renders TI.7 publication gate/mode Saved vs Effective diagnostics.
+	 *
+	 * @param array<string, mixed> $saved Persisted settings.
+	 */
+	private function render_publication_diagnostics( array $saved ): void {
+		$sanitized = Settings::sanitize( $saved );
+		$gate_saved = ! empty( $saved['segment_publication_gate_enabled'] );
+		$gate_effective = ! empty( $sanitized['segment_publication_gate_enabled'] );
+		$mode_saved = (string) ( $saved['auto_publication_mode'] ?? PublicationMode::MANUAL );
+		$mode_effective = (string) ( $sanitized['auto_publication_mode'] ?? PublicationMode::MANUAL );
+		if ( ! PublicationMode::is_valid( $mode_effective ) ) {
+			$mode_effective = PublicationMode::MANUAL;
+		}
+
+		echo '<div class="aiml-publication-diagnostics" style="margin:1.5em 0;padding:1em;border:1px solid #ccd0d4;background:#fff;">';
+		echo '<h3 style="margin-top:0;">' . esc_html__( 'Publication diagnostics (settings state only)', 'ai-multilingual' ) . '</h3>';
+		echo '<table class="widefat striped"><thead><tr>';
+		echo '<th>' . esc_html__( 'Setting', 'ai-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Saved', 'ai-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Effective', 'ai-multilingual' ) . '</th>';
+		echo '</tr></thead><tbody>';
+
+		printf(
+			'<tr><td><code>%1$s</code></td><td>%2$s</td><td>%3$s</td></tr>',
+			esc_html( 'segment_publication_gate_enabled' ),
+			esc_html( $this->flag_state_label( $gate_saved ) ),
+			esc_html( $this->flag_state_label( $gate_effective ) )
+		);
+		printf(
+			'<tr><td><code>%1$s</code></td><td>%2$s</td><td>%3$s</td></tr>',
+			esc_html( 'auto_publication_mode' ),
+			esc_html( $mode_saved ),
+			esc_html( $mode_effective )
+		);
+
+		echo '</tbody></table>';
+		echo '<p class="description">' . esc_html__( 'Gate defaults off; mode defaults to manual. Setting mode to manual disables future automation without mass-unpublish.', 'ai-multilingual' ) . '</p>';
 		echo '</div>';
 	}
 

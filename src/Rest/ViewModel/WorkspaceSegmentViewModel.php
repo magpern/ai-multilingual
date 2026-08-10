@@ -39,6 +39,9 @@ final class WorkspaceSegmentViewModel {
 	 * @param string               $rejection_reason            Active rejection reason.
 	 * @param int|null             $rejected_by                 Rejecting reviewer id.
 	 * @param string|null          $rejected_at                 Rejection timestamp.
+	 * @param string               $publish_status              TI.7 publication status.
+	 * @param string|null          $published_at                Publication timestamp.
+	 * @param int|null             $published_by                Publishing actor id (0 = system).
 	 */
 	public function __construct(
 		public readonly string $segment_key,
@@ -62,7 +65,10 @@ final class WorkspaceSegmentViewModel {
 		public readonly ?string $reviewed_at = null,
 		public readonly string $rejection_reason = '',
 		public readonly ?int $rejected_by = null,
-		public readonly ?string $rejected_at = null
+		public readonly ?string $rejected_at = null,
+		public readonly string $publish_status = 'unpublished',
+		public readonly ?string $published_at = null,
+		public readonly ?int $published_by = null
 	) {
 	}
 
@@ -95,6 +101,9 @@ final class WorkspaceSegmentViewModel {
 			'rejection_reason'           => $this->rejection_reason,
 			'rejected_by'                => $this->rejected_by,
 			'rejected_at'                => $this->rejected_at,
+			'publish_status'             => $this->publish_status,
+			'published_at'               => $this->published_at,
+			'published_by'               => $this->published_by,
 		);
 	}
 }

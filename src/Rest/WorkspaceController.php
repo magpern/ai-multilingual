@@ -349,6 +349,89 @@ final class WorkspaceController {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)/publish',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'publish_segment' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => array(
+					'post_id'     => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'segment_key' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'language'    => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)/unpublish',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'unpublish_segment' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => array(
+					'post_id'     => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'segment_key' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'language'    => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)/publication-explain',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'explain_publication' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => array(
+					'post_id'     => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'segment_key' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'language'    => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'for_automatic' => array(
+						'type'              => 'boolean',
+						'required'          => false,
+						'default'           => false,
+						'sanitize_callback' => static function ( $value ): bool {
+							return (bool) $value;
+						},
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)',
 			array(
 				'methods'             => 'POST',
@@ -905,6 +988,117 @@ final class WorkspaceController {
 		}
 
 		return $this->respond( $this->segment_serializer->from_dto( $dto )->to_array() );
+	}
+
+	/**
+	 * Publishes one segment when eligible (TI.7 manual path).
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function publish_segment( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+
+		$params = $this->body_params( $request );
+		$key    = rawurldecode( (string) $request->get_param( 'segment_key' ) );
+
+		$result = $this->workspace->publish_segment(
+			$post,
+			(int) $language->language_id,
+			$key,
+			get_current_user_id(),
+			$this->nullable_string( $params['expected_publish_status'] ?? null )
+		);
+
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		$payload = $this->segment_serializer->from_dto( $result )->to_array();
+		if ( isset( $result['publication_result'] ) && is_array( $result['publication_result'] ) ) {
+			$payload['publication_result'] = $result['publication_result'];
+		}
+
+		return $this->respond( $payload );
+	}
+
+	/**
+	 * Unpublishes one segment (TI.7 manual path).
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function unpublish_segment( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+
+		$key = rawurldecode( (string) $request->get_param( 'segment_key' ) );
+
+		$result = $this->workspace->unpublish_segment(
+			$post,
+			(int) $language->language_id,
+			$key,
+			get_current_user_id()
+		);
+
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		$payload = $this->segment_serializer->from_dto( $result )->to_array();
+		if ( isset( $result['publication_result'] ) && is_array( $result['publication_result'] ) ) {
+			$payload['publication_result'] = $result['publication_result'];
+		}
+
+		return $this->respond( $payload );
+	}
+
+	/**
+	 * Explains publication eligibility without mutation.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function explain_publication( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+
+		$key = rawurldecode( (string) $request->get_param( 'segment_key' ) );
+
+		$result = $this->workspace->explain_publication(
+			$post,
+			(int) $language->language_id,
+			$key,
+			(bool) $request->get_param( 'for_automatic' )
+		);
+
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		return $this->respond( $result );
 	}
 
 	/**

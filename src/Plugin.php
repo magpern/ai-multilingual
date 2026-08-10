@@ -108,6 +108,10 @@ use AIMultilingual\Translation\AI\ProviderFactory;
 use AIMultilingual\Translation\AI\ProviderRegistry;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\BlockExtractor;
+use AIMultilingual\Translation\Publication\PublicationAuditLogger;
+use AIMultilingual\Translation\Publication\PublicationEditInvalidationAuditBridge;
+use AIMultilingual\Translation\Publication\PublicationPolicy;
+use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Memory\TMEligibilityPolicy;
 use AIMultilingual\Translation\Memory\TMGenerationLookup;
 use AIMultilingual\Translation\Memory\TMRepository;
@@ -355,6 +359,16 @@ final class Plugin {
 			new TMEligibilityPolicy( $glossary_service ),
 			$glossary_service
 		);
+		$assessment_assembler = new AssessmentAssembler();
+		$publication_policy   = new PublicationPolicy();
+		$publication_audit    = new PublicationAuditLogger();
+		$publication          = new PublicationService(
+			$store,
+			$assessment_assembler,
+			$publication_policy,
+			$publication_audit,
+			$this->settings
+		);
 		$translation        = new TranslationService(
 			$store,
 			$assembler,
@@ -365,7 +379,8 @@ final class Plugin {
 			$glossary_service,
 			null,
 			$tm_lookup,
-			$tm_service
+			$tm_service,
+			$publication
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$suggestion_service = new TranslationSuggestionService(
@@ -392,7 +407,11 @@ final class Plugin {
 			$suggestion_service,
 			$qa_engine,
 			$tm_service,
-			$review
+			$review,
+			null,
+			$assessment_assembler,
+			null,
+			$publication
 		);
 
 		$job_repo        = new BackgroundTranslationJobRepository();
@@ -427,7 +446,8 @@ final class Plugin {
 			$translation,
 			$glossary_service,
 			$assembler,
-			$job_retry
+			$job_retry,
+			$publication
 		);
 		$job_worker      = new BackgroundTranslationWorker(
 			$job_processor,
@@ -463,7 +483,7 @@ final class Plugin {
 			new JobsViewModelSerializer(),
 			$job_diagnostics,
 			$job_concurrency,
-			new AssessmentAssembler(),
+			$assessment_assembler,
 			$assembler
 		) )->register();
 
@@ -492,6 +512,7 @@ final class Plugin {
 		) )->register();
 
 		( new ReviewEditInvalidationAuditBridge() )->register();
+		( new PublicationEditInvalidationAuditBridge( $publication_audit ) )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 
@@ -542,7 +563,7 @@ final class Plugin {
 				new BlockIdentityAnalyzer( $block_registry )
 			);
 
-			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics );
+			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics, $publication );
 			RolloutCli::register();
 			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases, $job_concurrency );
 		}
