@@ -1,8 +1,8 @@
 # TI.6 — Jobs scale / safety polish — Implementation Plan
 
-**Status:** Architecture Frozen (planning) — implementation not started
+**Status:** **Architecture Frozen** on `main` (planning) — implementation **not started**
 **Milestone:** TI.6 — Jobs scale / safety polish (TIQ program)
-**Kind:** Milestone implementation plan (authoritative after planning freeze on `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete**; TI.4 **Complete**; TI.5 **Complete**
 **Official pack (immutable):** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0; additive packs unchanged by TI.6
@@ -10,10 +10,10 @@
 **ADR:** **No new ADR** — ADR-0011 remains Jobs SoT; ADR-0015 TM write-back unchanged; ADR-0019 assessment read-only unchanged
 **Planning branch:** `docs/ti6-jobs-scale-safety-polish-plan`
 **Independent review (planning):** **PASS** (2026-08-10) — three refinements verified; Outcome B honest; docs-only hygiene fixes applied post-review
-**Freeze merge:** pending Phase C
-**Implementation branch:** **Do not create in this freeze** — later `feature/ti6-jobs-scale-safety-polish` from frozen `main` only
+**Freeze merge:** `c6b4564032bbd3d6e402c1564906077b27eb1fcc`
+**Implementation branch:** **Do not create in this freeze** — next task: `feature/ti6-jobs-scale-safety-polish` from frozen `main`
 **Validation log:** to be created during implementation
-**Next after freeze:** TI.6 **production implementation** on feature branch (separate task). TI.7 planning/implementation **not started**.
+**Next:** Create `feature/ti6-jobs-scale-safety-polish` and implement TI6.0–TI6.8. TI.7 planning/implementation **not started**.
 
 **Related (unchanged ownership):** [ADR-0011](../adr/0011-resumable-job-pipeline.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), [ADR-0019](../adr/0019-evidence-based-risk-assessment.md), [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0009](../adr/0009-translation-memory-table.md); [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md); TI.1–TI.5 plans; TI.7 publication later.
 
@@ -751,4 +751,4 @@ Create `feature/ti6-jobs-scale-safety-polish` from the frozen `main` baseline an
 | Kind | Milestone implementation plan (planning freeze) |
 | Parent | [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md) |
 | Tag for planning freeze | **Not required** |
-| Revision | 1.0 — Architecture Frozen (planning) |
+| Revision | 1.0 — 2026-08-10 — Architecture Frozen on `main` (merge `c6b456403…`) |
