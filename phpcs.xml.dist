@@ -12,6 +12,7 @@
 	<!-- TQ.0 CLI bins are network-free harness scripts (not WP runtime). -->
 	<exclude-pattern>*/tests/quality/bin/*</exclude-pattern>
 	<exclude-pattern>*/acceptance/quality/*</exclude-pattern>
+	<exclude-pattern>*/acceptance/ti2/*</exclude-pattern>
 
 	<arg value="sp"/>
 	<arg name="extensions" value="php"/>

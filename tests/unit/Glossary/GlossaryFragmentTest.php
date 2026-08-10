@@ -87,19 +87,21 @@ final class GlossaryFragmentTest extends TestCase {
 		);
 
 		$with = (string) $method->invoke( $provider, $batch, 'Welcome to Biopentra', '' );
-		$this->assertStringContainsString( 'Glossary terminology (use consistently):', $with );
+		$this->assertStringContainsString( 'do not copy into the translation output', $with );
+		$this->assertStringNotContainsString( 'Glossary terminology (use consistently):', $with );
 		$this->assertStringContainsString( 'Biopentra => Biopentra', $with );
+		$this->assertStringEndsWith( 'Welcome to Biopentra', $with );
 
 		$empty   = new TranslationBatch(
 			'en',
 			'sv',
 			'translate',
-			'1',
+			'2',
 			'',
 			array( new ProviderSegment( 'k1', 'Hello', 'plain' ) )
 		);
 		$without = (string) $method->invoke( $provider, $empty, 'Hello', '' );
-		$this->assertStringNotContainsString( 'Glossary terminology', $without );
+		$this->assertStringNotContainsString( 'Glossary', $without );
 	}
 
 	/**

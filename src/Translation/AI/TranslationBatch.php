@@ -30,6 +30,7 @@ final class TranslationBatch {
 	 * @param array<int, ProviderSegment> $segments          Segments to translate.
 	 * @param string                      $operation         translate|suggest.
 	 * @param array<int, string>          $constraints       Structural constraint ids.
+	 * @param TranslationContext|null     $context           Optional bounded context (TI.2).
 	 */
 	public function __construct(
 		public readonly string $source_locale,
@@ -40,6 +41,7 @@ final class TranslationBatch {
 		public readonly array $segments,
 		public readonly string $operation = self::OPERATION_TRANSLATE,
 		public readonly array $constraints = array(),
+		public readonly ?TranslationContext $context = null,
 	) {
 	}
 }

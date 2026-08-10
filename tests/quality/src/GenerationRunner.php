@@ -94,18 +94,24 @@ final class GenerationRunner {
 			}
 
 			$translated    = $this->extract_translation( $result, $case_id );
+			$context       = $batch->context;
 			$generations[] = array(
-				'case_id'           => $case_id,
-				'category'          => (string) ( $case['category'] ?? '' ),
-				'case_class'        => (string) ( $case['case_class'] ?? '' ),
-				'text_format'       => (string) ( $case['text_format'] ?? 'plain' ),
-				'field_semantics'   => (string) ( $case['field_semantics'] ?? '' ),
-				'source_text'       => (string) ( $case['source_text'] ?? '' ),
-				'translated_text'   => $translated,
-				'glossary_fragment' => $fragment,
-				'model'             => (string) ( $result->model ?? '' ),
-				'input_tokens'      => (int) ( $result->input_tokens ?? 0 ),
-				'output_tokens'     => (int) ( $result->output_tokens ?? 0 ),
+				'case_id'                => $case_id,
+				'category'               => (string) ( $case['category'] ?? '' ),
+				'case_class'             => (string) ( $case['case_class'] ?? '' ),
+				'text_format'            => (string) ( $case['text_format'] ?? 'plain' ),
+				'field_semantics'        => (string) ( $case['field_semantics'] ?? '' ),
+				'source_text'            => (string) ( $case['source_text'] ?? '' ),
+				'translated_text'        => $translated,
+				'glossary_fragment'      => $fragment,
+				'prompt_version'         => $batch->prompt_version,
+				'context_schema_version' => null !== $context ? $context->schema_version : '',
+				'context_field_semantic' => null !== $context ? $context->field_semantic : '',
+				'context_truncated'      => null !== $context ? (bool) ( $context->provenance['truncated'] ?? false ) : false,
+				'context_char_count'     => null !== $context ? (int) ( $context->provenance['char_count'] ?? 0 ) : 0,
+				'model'                  => (string) ( $result->model ?? '' ),
+				'input_tokens'           => (int) ( $result->input_tokens ?? 0 ),
+				'output_tokens'          => (int) ( $result->output_tokens ?? 0 ),
 			);
 		}
 

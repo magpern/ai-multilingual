@@ -70,10 +70,15 @@ if ( ! $enabled || 'openai' !== $provider || '' === $model || '' === $enc ) {
 	exit( 2 );
 }
 
-$default_out = $plugin_root . '/tests/quality/baselines/_staging-v1.1.0';
+$default_out = $plugin_root . '/tests/quality/baselines/_staging-ti2';
 $out_dir     = $default_out;
-if ( isset( $args ) && is_array( $args ) && isset( $args[0] ) && is_string( $args[0] ) && '' !== $args[0] ) {
-	$out_dir = $args[0];
+if ( isset( $args ) && is_array( $args ) ) {
+	foreach ( $args as $arg ) {
+		if ( is_string( $arg ) && '' !== $arg && '--' !== $arg ) {
+			$out_dir = $arg;
+			break;
+		}
+	}
 }
 if ( ! is_dir( $out_dir ) && ! @mkdir( $out_dir, 0777, true ) && ! is_dir( $out_dir ) ) {
 	$out_dir = rtrim( sys_get_temp_dir(), '/' ) . '/aiml-tq0-staging-v1.1.0';
@@ -138,43 +143,45 @@ foreach ( $result['generations'] as $row ) {
 }
 
 $manifest = array(
-	'pack_label'               => 'staging-v1.1.0',
-	'corpus_version'           => 'C1.0',
-	'methodology_version'      => 'M1.0',
-	'glossary_fixture_version' => (string) ( $corpus['glossary']['glossary_fixture_version'] ?? 'G1.0' ),
-	'scorer_version'           => DeterministicScorer::VERSION,
-	'source_locale'            => (string) ( $corpus['manifest']['source_locale'] ?? 'en_US' ),
-	'target_locale'            => (string) ( $corpus['manifest']['target_locale'] ?? 'sv_SE' ),
-	'subject_kind'             => 'baseline',
-	'subject_ref'              => 'v1.1.0',
-	'subject_sha'              => $subject_sha,
-	'behavior_reference_sha'   => 'd9c2336182fa2e0ae0582ead78cc0a346670c92a',
-	'equivalence_evidence'     => array(
-		'method'  => 'git_diff_empty_translation_paths',
-		'command' => 'git diff --name-only v1.1.0..HEAD -- src/ bin/ assets/ ai-multilingual.php composer.json',
-		'result'  => 'empty_at_generation_time_recheck_required_for_official_freeze',
-		'note'    => 'Official freeze must re-confirm empty translation-affecting diff vs v1.1.0 or use tag checkout procedure.',
+	'pack_label'                => 'staging-ti2',
+	'corpus_version'            => 'C1.0',
+	'methodology_version'       => 'M1.0',
+	'glossary_fixture_version'  => (string) ( $corpus['glossary']['glossary_fixture_version'] ?? 'G1.0' ),
+	'scorer_version'            => DeterministicScorer::VERSION,
+	'source_locale'             => (string) ( $corpus['manifest']['source_locale'] ?? 'en_US' ),
+	'target_locale'             => (string) ( $corpus['manifest']['target_locale'] ?? 'sv_SE' ),
+	'subject_kind'              => 'candidate',
+	'subject_ref'               => 'ti2-bounded-translation-context',
+	'subject_sha'               => $subject_sha,
+	'behavior_reference_sha'    => 'd9c2336182fa2e0ae0582ead78cc0a346670c92a',
+	'baseline_pack'             => 'baseline-v1.1.0',
+	'equivalence_evidence'      => array(
+		'method'  => 'tq0_compare_vs_baseline',
+		'command' => 'php tests/quality/bin/quality-compare.php tests/quality/baselines/baseline-v1.1.0 tests/quality/baselines/_staging-ti2',
+		'result'  => 'pending_post_generate',
+		'note'    => 'TI.2 candidate uses bounded TranslationContext + glossary/source isolation (prompt_version 2).',
 	),
-	'generation_mode'          => 'live',
-	'generation_label'         => 'gen-v1.1.0-' . gmdate( 'Ymd\THis\Z' ),
-	'provider_id'              => 'openai',
-	'model'                    => $model,
-	'prompt_profile'           => PromptProfileRegistry::TRANSLATE,
-	'prompt_version'           => PromptProfileRegistry::VERSION,
-	'tm_observed'              => false,
-	'timestamp'                => gmdate( 'c' ),
-	'token_usage'              => array(
+	'generation_mode'           => 'live',
+	'generation_label'          => 'gen-ti2-' . gmdate( 'Ymd\THis\Z' ),
+	'provider_id'               => 'openai',
+	'model'                     => $model,
+	'prompt_profile'            => PromptProfileRegistry::TRANSLATE,
+	'prompt_version'            => PromptProfileRegistry::VERSION,
+	'context_schema_version'    => \AIMultilingual\Translation\AI\TranslationContext::SCHEMA_VERSION,
+	'tm_observed'               => false,
+	'timestamp'                 => gmdate( 'c' ),
+	'token_usage'               => array(
 		'input_tokens'  => $token_in,
 		'output_tokens' => $token_out,
 	),
-	'cases_evaluated'          => (int) ( $accounting['cases'] ?? 0 ),
-	'segments'                 => (int) ( $accounting['segments'] ?? 0 ),
-	'batches'                  => (int) ( $accounting['batches'] ?? 0 ),
-	'http_requests'            => (int) ( $accounting['http_requests'] ?? 0 ),
-	'accounting'               => $accounting,
-	'field_semantics_in_prompt'=> false,
-	'store_writes'             => false,
-	'response_validator_gate'  => false,
+	'cases_evaluated'           => (int) ( $accounting['cases'] ?? 0 ),
+	'segments'                  => (int) ( $accounting['segments'] ?? 0 ),
+	'batches'                   => (int) ( $accounting['batches'] ?? 0 ),
+	'http_requests'             => (int) ( $accounting['http_requests'] ?? 0 ),
+	'accounting'                => $accounting,
+	'field_semantics_in_prompt' => true,
+	'store_writes'              => false,
+	'response_validator_gate'   => false,
 );
 
 $pack = new EvidencePack( $out_dir );

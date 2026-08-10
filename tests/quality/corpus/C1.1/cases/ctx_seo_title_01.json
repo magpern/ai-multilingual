@@ -1,0 +1,15 @@
+{
+  "id": "ctx_seo_title_01",
+  "category": "seo_title",
+  "case_class": "terminology",
+  "text_format": "plain",
+  "field_semantics": "seo_title",
+  "object_type": "product",
+  "object_title": "BPC-157 Peptide Research Compound",
+  "source_text": "Buy BPC-157 Research Peptide | Lab Grade",
+  "expected_invariants": {
+    "glossary_term_ids": ["bpc157", "peptide"]
+  },
+  "difficulty": "normal",
+  "notes": "TI.2 C1.1: SEO title with object title sibling + search_snippet purpose."
+}

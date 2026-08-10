@@ -11,8 +11,10 @@ namespace AIMultilingual\Tests\Quality;
 
 use AIMultilingual\Quality\CorpusLoader;
 use AIMultilingual\Quality\PersistPathBatchBuilder;
+use AIMultilingual\Translation\AI\FieldSemantic;
 use AIMultilingual\Translation\AI\PromptProfileRegistry;
 use AIMultilingual\Translation\AI\TranslationBatch;
+use AIMultilingual\Translation\AI\TranslationContext;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -30,6 +32,7 @@ final class PersistPathBatchBuilderParityTest extends TestCase {
 		$this->assertSame( 'sv_SE', $batch->target_locale );
 		$this->assertSame( PromptProfileRegistry::TRANSLATE, $batch->prompt_profile );
 		$this->assertSame( PromptProfileRegistry::VERSION, $batch->prompt_version );
+		$this->assertSame( '2', $batch->prompt_version );
 		$this->assertSame( TranslationBatch::OPERATION_TRANSLATE, $batch->operation );
 		$this->assertSame( array(), $batch->constraints );
 		$this->assertSame( "peptide => peptid\n", $batch->glossary_fragment );
@@ -38,9 +41,11 @@ final class PersistPathBatchBuilderParityTest extends TestCase {
 		$this->assertSame( $case['source_text'], $batch->segments[0]->source_text );
 		$this->assertSame( 'html', $batch->segments[0]->text_format );
 		$this->assertSame( '', $batch->segments[0]->existing_target );
+		$this->assertInstanceOf( TranslationContext::class, $batch->context );
+		$this->assertSame( TranslationContext::SCHEMA_VERSION, $batch->context->schema_version );
 	}
 
-	public function test_field_semantics_not_in_batch(): void {
+	public function test_field_semantics_mapped_via_context_not_raw_batch_property(): void {
 		$case  = array(
 			'id'              => 'test_01',
 			'source_text'     => 'Hello',
@@ -52,9 +57,22 @@ final class PersistPathBatchBuilderParityTest extends TestCase {
 		$props = ( new ReflectionClass( $batch ) )->getProperties();
 		$names = array_map( static fn( $p ) => $p->getName(), $props );
 		$this->assertNotContains( 'field_semantics', $names );
+		$this->assertContains( 'context', $names );
 
-		$segment_props = ( new ReflectionClass( $batch->segments[0] ) )->getProperties();
-		$segment_names = array_map( static fn( $p ) => $p->getName(), $segment_props );
-		$this->assertNotContains( 'field_semantics', $segment_names );
+		$this->assertNotNull( $batch->context );
+		$this->assertSame( FieldSemantic::SEO_TITLE, $batch->context->field_semantic );
+		$this->assertSame( 'search_snippet', $batch->context->content_purpose() );
+	}
+
+	public function test_unknown_semantic_degrades_to_generic(): void {
+		$case  = array(
+			'id'              => 'test_02',
+			'source_text'     => 'Hello',
+			'text_format'     => 'plain',
+			'field_semantics' => 'paragraph',
+		);
+		$batch = ( new PersistPathBatchBuilder() )->build_for_case( $case, 'en_US', 'sv_SE', '' );
+		$this->assertNotNull( $batch->context );
+		$this->assertSame( FieldSemantic::GENERIC, $batch->context->field_semantic );
 	}
 }
