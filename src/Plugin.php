@@ -108,6 +108,10 @@ use AIMultilingual\Translation\AI\ProviderFactory;
 use AIMultilingual\Translation\AI\ProviderRegistry;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\BlockExtractor;
+use AIMultilingual\Translation\Publication\PublicationAuditLogger;
+use AIMultilingual\Translation\Publication\PublicationEditInvalidationAuditBridge;
+use AIMultilingual\Translation\Publication\PublicationPolicy;
+use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Memory\TMEligibilityPolicy;
 use AIMultilingual\Translation\Memory\TMGenerationLookup;
 use AIMultilingual\Translation\Memory\TMRepository;
@@ -344,18 +348,28 @@ final class Plugin {
 		$provider_registry->register(
 			ProviderFactory::openai_from_settings( $this->settings, $vault, $profiles )
 		);
-		$glossary_service   = new GlossaryService(
+		$glossary_service     = new GlossaryService(
 			new GlossaryRepository(),
 			new GlossaryNormalizer(),
 			new GlossaryMatcher( new GlossaryNormalizer() )
 		);
-		$tm_service         = new TranslationMemoryService( new TMRepository() );
-		$tm_lookup          = new TMGenerationLookup(
+		$tm_service           = new TranslationMemoryService( new TMRepository() );
+		$tm_lookup            = new TMGenerationLookup(
 			$tm_service,
 			new TMEligibilityPolicy( $glossary_service ),
 			$glossary_service
 		);
-		$translation        = new TranslationService(
+		$assessment_assembler = new AssessmentAssembler();
+		$publication_policy   = new PublicationPolicy();
+		$publication_audit    = new PublicationAuditLogger();
+		$publication          = new PublicationService(
+			$store,
+			$assessment_assembler,
+			$publication_policy,
+			$publication_audit,
+			$this->settings
+		);
+		$translation          = new TranslationService(
 			$store,
 			$assembler,
 			$languages,
@@ -365,17 +379,18 @@ final class Plugin {
 			$glossary_service,
 			null,
 			$tm_lookup,
-			$tm_service
+			$tm_service,
+			$publication
 		);
-		$preview            = new PreviewService( $languages, $context, $router );
-		$suggestion_service = new TranslationSuggestionService(
+		$preview              = new PreviewService( $languages, $context, $router );
+		$suggestion_service   = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),
 				new GlossarySuggestionProvider( $glossary_service ),
 				new AISuggestionProvider( $translation ),
 			)
 		);
-		$qa_engine          = new QAEngine(
+		$qa_engine            = new QAEngine(
 			null,
 			! empty( $this->settings->get()['qa_block_on_error'] )
 		);
@@ -392,7 +407,11 @@ final class Plugin {
 			$suggestion_service,
 			$qa_engine,
 			$tm_service,
-			$review
+			$review,
+			null,
+			$assessment_assembler,
+			null,
+			$publication
 		);
 
 		$job_repo        = new BackgroundTranslationJobRepository();
@@ -463,7 +482,7 @@ final class Plugin {
 			new JobsViewModelSerializer(),
 			$job_diagnostics,
 			$job_concurrency,
-			new AssessmentAssembler(),
+			$assessment_assembler,
 			$assembler
 		) )->register();
 
@@ -492,6 +511,7 @@ final class Plugin {
 		) )->register();
 
 		( new ReviewEditInvalidationAuditBridge() )->register();
+		( new PublicationEditInvalidationAuditBridge( $publication_audit ) )->register();
 
 		$this->register_stale_detection( $extractor, $store );
 
@@ -542,7 +562,7 @@ final class Plugin {
 				new BlockIdentityAnalyzer( $block_registry )
 			);
 
-			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics );
+			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics, $publication );
 			RolloutCli::register();
 			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases, $job_concurrency );
 		}

@@ -25,7 +25,7 @@ final class TranslationMemorySchemaTest extends AimlTestCase {
 
 		$this->assertSame( $table, $found );
 		$this->assertSame( Migrator::TARGET, (int) get_option( Migrator::OPTION ) );
-		$this->assertSame( 6, Migrator::TARGET );
+		$this->assertSame( 7, Migrator::TARGET );
 	}
 
 	public function test_tm_table_has_origin_and_identity_index(): void {
@@ -76,6 +76,9 @@ final class TranslationMemorySchemaTest extends AimlTestCase {
 			Schema::tm(),
 			$wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', Schema::tm() ) )
 		);
+
+		update_option( Migrator::OPTION, Migrator::TARGET, true );
+		$this->commit_transaction();
 	}
 
 	public function test_all_tables_includes_tm_in_drop_safe_order(): void {

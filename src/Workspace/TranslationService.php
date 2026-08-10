@@ -22,6 +22,7 @@ use AIMultilingual\Translation\AI\TranslationContextBuilder;
 use AIMultilingual\Translation\Memory\TMGenerationLookup;
 use AIMultilingual\Translation\Memory\TMGenerationOutcome;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
+use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\QA\ScaffoldingMarkerSource;
 use AIMultilingual\Translation\Store;
 use WP_Error;
@@ -114,6 +115,13 @@ final class TranslationService {
 	private ?TranslationMemoryService $tm_memory;
 
 	/**
+	 * Optional TI.7 publication service (auto-publish after persist).
+	 *
+	 * @var PublicationService|null
+	 */
+	private ?PublicationService $publication;
+
+	/**
 	 * Last TM outcome for diagnostics/tests (no full text bodies).
 	 *
 	 * @var TMGenerationOutcome|null
@@ -128,6 +136,13 @@ final class TranslationService {
 	private ?array $last_attempt_usage = null;
 
 	/**
+	 * Last request-scoped scaffolding markers from the active translate attempt (TI.4/TI.7).
+	 *
+	 * @var list<string>
+	 */
+	private array $last_scaffolding_markers = array();
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param Store                          $store            Segment store.
@@ -140,6 +155,7 @@ final class TranslationService {
 	 * @param TranslationContextBuilder|null $context_builder Context builder.
 	 * @param TMGenerationLookup|null        $tm_lookup        Generation-path TM lookup.
 	 * @param TranslationMemoryService|null  $tm_memory        TM memory for usage.
+	 * @param PublicationService|null        $publication      Optional TI.7 publication service.
 	 */
 	public function __construct(
 		Store $store,
@@ -151,7 +167,8 @@ final class TranslationService {
 		?GlossaryService $glossary = null,
 		?TranslationContextBuilder $context_builder = null,
 		?TMGenerationLookup $tm_lookup = null,
-		?TranslationMemoryService $tm_memory = null
+		?TranslationMemoryService $tm_memory = null,
+		?PublicationService $publication = null
 	) {
 		$this->store           = $store;
 		$this->assembler       = $assembler;
@@ -163,6 +180,7 @@ final class TranslationService {
 		$this->context_builder = $context_builder ?? new TranslationContextBuilder();
 		$this->tm_lookup       = $tm_lookup;
 		$this->tm_memory       = $tm_memory;
+		$this->publication     = $publication;
 	}
 
 	/**
@@ -177,6 +195,15 @@ final class TranslationService {
 	 */
 	public function last_tm_outcome(): ?TMGenerationOutcome {
 		return $this->last_tm_outcome;
+	}
+
+	/**
+	 * Last request-scoped scaffolding markers from translate_segment (TI.7 publication).
+	 *
+	 * @return list<string>
+	 */
+	public function last_scaffolding_markers(): array {
+		return $this->last_scaffolding_markers;
 	}
 
 	/**
@@ -198,8 +225,9 @@ final class TranslationService {
 	 * @return array<string, mixed>|WP_Error Updated segment DTO or error.
 	 */
 	public function translate_segment( WP_Post $post, int $language_id, string $segment_key, bool $allow_provider = true ) {
-		$this->last_tm_outcome    = null;
-		$this->last_attempt_usage = null;
+		$this->last_tm_outcome          = null;
+		$this->last_attempt_usage       = null;
+		$this->last_scaffolding_markers = array();
 
 		$current = $this->assembler->assemble_one( $post, $language_id, $segment_key );
 		if ( null === $current ) {
@@ -650,6 +678,27 @@ final class TranslationService {
 			);
 		}
 
+		// TI.7: auto-publication is best-effort — never convert into translation failure.
+		if ( null !== $this->publication ) {
+			$markers            = $this->last_scaffolding_markers;
+			$publication_result = $this->publication->maybe_auto_publish(
+				Store::SOURCE_POST,
+				(int) $post->ID,
+				$language_id,
+				$segment_key,
+				$markers,
+				array() !== $markers
+			);
+			if ( is_array( $publication_result ) ) {
+				$refreshed['publication_result'] = $publication_result;
+				$after                           = $this->assembler->assemble_one( $post, $language_id, $segment_key );
+				if ( null !== $after ) {
+					$after['publication_result'] = $publication_result;
+					$refreshed                   = $after;
+				}
+			}
+		}
+
 		return $refreshed;
 	}
 
@@ -682,13 +731,17 @@ final class TranslationService {
 	 */
 	private function with_scaffolding_markers( TranslationBatch $batch ): TranslationBatch {
 		if ( ! $this->provider instanceof ScaffoldingMarkerSource ) {
+			$this->last_scaffolding_markers = array();
 			return $batch;
 		}
 
 		$markers = $this->provider->scaffolding_markers_for_batch( $batch );
 		if ( array() === $markers ) {
+			$this->last_scaffolding_markers = array();
 			return $batch;
 		}
+
+		$this->last_scaffolding_markers = array_values( array_map( 'strval', $markers ) );
 
 		return new TranslationBatch(
 			$batch->source_locale,
@@ -700,7 +753,7 @@ final class TranslationService {
 			$batch->operation,
 			$batch->constraints,
 			$batch->context,
-			$markers
+			$this->last_scaffolding_markers
 		);
 	}
 }

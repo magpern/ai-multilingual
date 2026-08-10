@@ -130,6 +130,9 @@ final class BackgroundTranslationItemProcessor {
 			return $this->map_translate_error( $result, $usage );
 		}
 
+		// TI.7: PublicationService is invoked inside TranslationService after persist
+		// success (same path as sync). Jobs must not duplicate or own policy.
+
 		return ItemResult::completed( $glossary_version, $usage );
 	}
 

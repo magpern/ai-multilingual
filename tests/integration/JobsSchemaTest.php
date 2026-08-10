@@ -29,7 +29,7 @@ final class JobsSchemaTest extends AimlTestCase {
 			$wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', Schema::job_items() ) )
 		);
 		$this->assertSame( Migrator::TARGET, (int) get_option( Migrator::OPTION ) );
-		$this->assertSame( 6, Migrator::TARGET );
+		$this->assertSame( 7, Migrator::TARGET );
 	}
 
 	public function test_jobs_table_columns_and_indexes(): void {
@@ -121,6 +121,9 @@ final class JobsSchemaTest extends AimlTestCase {
 		$this->assertSame( Migrator::TARGET, $migrator->current_version() );
 		$this->assertSame( $jobs_before, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Schema::jobs() ) ); // phpcs:ignore WordPress.DB
 		$this->assertSame( $items_before, (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . Schema::job_items() ) ); // phpcs:ignore WordPress.DB
+
+		update_option( Migrator::OPTION, Migrator::TARGET, true );
+		$this->commit_transaction();
 	}
 
 	public function test_all_tables_includes_job_items_before_jobs(): void {

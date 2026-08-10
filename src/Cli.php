@@ -24,6 +24,7 @@ use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsSnapshot;
 use AIMultilingual\Translation\AI\FieldSemanticMapper;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Extractor;
+use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
 use WP_CLI;
 use WP_Error;
@@ -46,13 +47,14 @@ final class Cli {
 	/**
 	 * Registers the commands.
 	 *
-	 * @param Languages              $languages Language configuration.
-	 * @param Store                  $store     Segment store.
-	 * @param Extractor              $extractor Source extractor.
-	 * @param BlockIdentityMigration $migration Block identity migration service.
-	 * @param BlockHealthService     $health    Block health diagnostics service.
-	 * @param BlockMetricsAggregator $metrics   Request-scoped metrics aggregator.
-	 * @param SeoDiagnosticsService  $seo       SEO diagnostics core (A.SEOf).
+	 * @param Languages               $languages Language configuration.
+	 * @param Store                   $store     Segment store.
+	 * @param Extractor               $extractor Source extractor.
+	 * @param BlockIdentityMigration  $migration Block identity migration service.
+	 * @param BlockHealthService      $health    Block health diagnostics service.
+	 * @param BlockMetricsAggregator  $metrics     Request-scoped metrics aggregator.
+	 * @param SeoDiagnosticsService   $seo         SEO diagnostics core (A.SEOf).
+	 * @param PublicationService|null $publication Optional TI.7 publication service.
 	 */
 	public static function register(
 		Languages $languages,
@@ -62,6 +64,7 @@ final class Cli {
 		BlockHealthService $health,
 		BlockMetricsAggregator $metrics,
 		SeoDiagnosticsService $seo,
+		?PublicationService $publication = null,
 	): void {
 		if ( ! class_exists( WP_CLI::class ) ) {
 			return;
@@ -138,6 +141,62 @@ final class Cli {
 				'synopsis'  => self::translation_synopsis(),
 			)
 		);
+
+		if ( null !== $publication ) {
+			WP_CLI::add_command(
+				'aiml publication explain',
+				static function ( array $args, array $assoc ) use ( $languages, $publication ): void {
+					self::publication_explain( $languages, $publication, $args, $assoc );
+				},
+				array(
+					'shortdesc' => 'Explains TI.7 publication eligibility for one field (non-mutating).',
+					'synopsis'  => array_merge(
+						self::translation_synopsis(),
+						array(
+							array(
+								'type'        => 'flag',
+								'name'        => 'automatic',
+								'optional'    => true,
+								'description' => 'Evaluate the automatic publication path.',
+							),
+						)
+					),
+				)
+			);
+
+			WP_CLI::add_command(
+				'aiml publication publish',
+				static function ( array $args, array $assoc ) use ( $languages, $publication ): void {
+					self::publication_publish( $languages, $publication, $args, $assoc );
+				},
+				array(
+					'shortdesc' => 'Publishes one translation segment when eligible (TI.7).',
+					'synopsis'  => self::translation_synopsis(),
+				)
+			);
+
+			WP_CLI::add_command(
+				'aiml publication unpublish',
+				static function ( array $args, array $assoc ) use ( $languages, $publication ): void {
+					self::publication_unpublish( $languages, $publication, $args, $assoc );
+				},
+				array(
+					'shortdesc' => 'Unpublishes one translation segment (TI.7).',
+					'synopsis'  => self::translation_synopsis(),
+				)
+			);
+
+			WP_CLI::add_command(
+				'aiml publication status',
+				static function ( array $args, array $assoc ) use ( $languages, $store, $publication ): void {
+					self::publication_status( $languages, $store, $publication, $args, $assoc );
+				},
+				array(
+					'shortdesc' => 'Prints publish_status metadata for one field.',
+					'synopsis'  => self::translation_synopsis(),
+				)
+			);
+		}
 
 		WP_CLI::add_command(
 			'aiml translation set',
@@ -875,6 +934,137 @@ final class Cli {
 		);
 
 		WP_CLI::print_value( wp_json_encode( $assessment->to_array(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Explains TI.7 publication eligibility for one field.
+	 *
+	 * @param Languages            $languages   Language configuration.
+	 * @param PublicationService   $publication Publication service.
+	 * @param array<int, string>   $args        Positional arguments.
+	 * @param array<string, mixed> $assoc       Associative arguments.
+	 */
+	private static function publication_explain(
+		Languages $languages,
+		PublicationService $publication,
+		array $args,
+		array $assoc
+	): void {
+		list( $post, $language, $field_key ) = self::resolve_target( $languages, $args, $assoc );
+
+		$decision = $publication->explain(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			(int) $language->language_id,
+			$field_key,
+			! empty( $assoc['automatic'] )
+		);
+
+		if ( $decision instanceof WP_Error ) {
+			WP_CLI::error( $decision->get_error_message() );
+		}
+
+		WP_CLI::print_value( wp_json_encode( $decision->to_array(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Publishes one translation segment when eligible.
+	 *
+	 * @param Languages            $languages   Language configuration.
+	 * @param PublicationService   $publication Publication service.
+	 * @param array<int, string>   $args        Positional arguments.
+	 * @param array<string, mixed> $assoc       Associative arguments.
+	 */
+	private static function publication_publish(
+		Languages $languages,
+		PublicationService $publication,
+		array $args,
+		array $assoc
+	): void {
+		list( $post, $language, $field_key ) = self::resolve_target( $languages, $args, $assoc );
+
+		$result = $publication->publish(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			(int) $language->language_id,
+			$field_key,
+			false,
+			(int) get_current_user_id(),
+			'cli'
+		);
+
+		if ( $result instanceof WP_Error ) {
+			WP_CLI::error( $result->get_error_message() );
+		}
+
+		WP_CLI::print_value( wp_json_encode( $result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Unpublishes one translation segment.
+	 *
+	 * @param Languages            $languages   Language configuration.
+	 * @param PublicationService   $publication Publication service.
+	 * @param array<int, string>   $args        Positional arguments.
+	 * @param array<string, mixed> $assoc       Associative arguments.
+	 */
+	private static function publication_unpublish(
+		Languages $languages,
+		PublicationService $publication,
+		array $args,
+		array $assoc
+	): void {
+		list( $post, $language, $field_key ) = self::resolve_target( $languages, $args, $assoc );
+
+		$result = $publication->unpublish(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			(int) $language->language_id,
+			$field_key,
+			(int) get_current_user_id()
+		);
+
+		if ( $result instanceof WP_Error ) {
+			WP_CLI::error( $result->get_error_message() );
+		}
+
+		WP_CLI::print_value( wp_json_encode( $result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Prints publish_status metadata for one field.
+	 *
+	 * @param Languages            $languages   Language configuration.
+	 * @param Store                $store       Segment store.
+	 * @param PublicationService   $publication Publication service.
+	 * @param array<int, string>   $args        Positional arguments.
+	 * @param array<string, mixed> $assoc       Associative arguments.
+	 */
+	private static function publication_status(
+		Languages $languages,
+		Store $store,
+		PublicationService $publication,
+		array $args,
+		array $assoc
+	): void {
+		list( $post, $language, $field_key ) = self::resolve_target( $languages, $args, $assoc );
+
+		$segment = $store->get( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id, $field_key );
+		if ( null === $segment ) {
+			WP_CLI::error( 'No translation stored for that field.' );
+		}
+
+		WP_CLI::print_value(
+			wp_json_encode(
+				array(
+					'publish_status' => (string) ( $segment->publish_status ?? Store::PUBLISH_UNPUBLISHED ),
+					'published_at'   => $segment->published_at ?? null,
+					'published_by'   => isset( $segment->published_by ) ? (int) $segment->published_by : null,
+					'mode'           => $publication->current_mode(),
+				),
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+			)
+		);
 	}
 
 	/**

@@ -150,10 +150,12 @@ final class CustomerEmailBridge {
 		}
 
 		$row = $this->store->get( 'post', $source_id, $language_id, $segment_key );
-		if ( null === $row ) {
+		if ( null === $row || ! Store::is_publicly_overlay_eligible( $row ) ) {
 			return null;
 		}
-		return (string) ( $row->translated_text ?? '' );
+		$text = (string) ( $row->translated_text ?? '' );
+
+		return '' === $text ? null : $text;
 	}
 
 	/**

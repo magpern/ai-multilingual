@@ -22,7 +22,7 @@ use ReflectionClass;
 final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 
 	public function test_target_remains_six(): void {
-		$this->assertSame( 6, Migrator::TARGET );
+		$this->assertSame( 7, Migrator::TARGET );
 	}
 
 	public function test_store_has_no_source_term_constant(): void {
@@ -48,7 +48,7 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 			$this->assertDoesNotMatchRegularExpression(
 				'/slug|redirect_history|url_history/i',
 				(string) $table,
-				'No URL-history / slug registry table under TARGET 6'
+				'No URL-history / slug registry table under TARGET 7'
 			);
 		}
 	}

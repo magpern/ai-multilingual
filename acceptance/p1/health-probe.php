@@ -39,7 +39,7 @@ wp_set_current_user( 1 );
 $migrator = new Migrator();
 $pass(
 	'schema_target_matches_current',
-	Migrator::TARGET === $migrator->current_version() && 6 === Migrator::TARGET,
+	Migrator::TARGET === $migrator->current_version() && 7 === Migrator::TARGET,
 	'current=' . $migrator->current_version() . ' target=' . Migrator::TARGET
 );
 

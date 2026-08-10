@@ -20,7 +20,7 @@ use ReflectionClass;
 final class AseobDeferredGuardTest extends AimlTestCase {
 
 	public function test_target_remains_six(): void {
-		$this->assertSame( 6, Migrator::TARGET );
+		$this->assertSame( 7, Migrator::TARGET );
 	}
 
 	public function test_no_url_history_or_relationship_tables(): void {

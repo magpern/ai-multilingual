@@ -25,7 +25,7 @@ final class GlossarySchemaTest extends AimlTestCase {
 
 		$this->assertSame( $table, $found );
 		$this->assertSame( Migrator::TARGET, (int) get_option( Migrator::OPTION ) );
-		$this->assertSame( 6, Migrator::TARGET );
+		$this->assertSame( 7, Migrator::TARGET );
 		$this->assertSame( 0, (int) get_option( Schema::GLOSSARY_VERSION_OPTION, -1 ) );
 	}
 
@@ -89,6 +89,9 @@ final class GlossarySchemaTest extends AimlTestCase {
 			$wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', Schema::glossary() ) )
 		);
 		$this->assertSame( 0, (int) get_option( Schema::GLOSSARY_VERSION_OPTION, -1 ) );
+
+		update_option( Migrator::OPTION, Migrator::TARGET, true );
+		$this->commit_transaction();
 	}
 
 	public function test_all_tables_includes_glossary_before_languages(): void {

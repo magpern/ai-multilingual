@@ -138,6 +138,9 @@ final class SegmentAssembler {
 		$rejection_reason           = '';
 		$rejected_by                = null;
 		$rejected_at                = null;
+		$publish_status             = Store::PUBLISH_UNPUBLISHED;
+		$published_at               = null;
+		$published_by               = null;
 
 		if ( null !== $row ) {
 			$status = (string) ( $row->status ?? Store::STATUS_MISSING );
@@ -153,6 +156,9 @@ final class SegmentAssembler {
 			$rejection_reason           = (string) ( $row->rejection_reason ?? '' );
 			$rejected_by                = $row->rejected_by ?? null;
 			$rejected_at                = $row->rejected_at ?? null;
+			$publish_status             = (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED );
+			$published_at               = $row->published_at ?? null;
+			$published_by               = $row->published_by ?? null;
 		}
 
 		$can_edit = '' === $block_name || $this->block_registry->is_supported( $block_name );
@@ -207,6 +213,9 @@ final class SegmentAssembler {
 			'rejection_reason'           => $rejection_reason,
 			'rejected_by'                => $rejected_by,
 			'rejected_at'                => $rejected_at,
+			'publish_status'             => $publish_status,
+			'published_at'               => $published_at,
+			'published_by'               => $published_by,
 		);
 	}
 }

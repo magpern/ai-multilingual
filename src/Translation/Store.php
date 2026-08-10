@@ -67,6 +67,12 @@ final class Store {
 	public const REVIEW_REJECTED      = 'rejected';
 
 	/**
+	 * Publication axis (ADR-0020 / TI.7). Independent of provenance and review.
+	 */
+	public const PUBLISH_UNPUBLISHED = 'unpublished';
+	public const PUBLISH_PUBLISHED   = 'published';
+
+	/**
 	 * Segment kinds.
 	 */
 	public const KIND_FIELD = 'field';
@@ -139,6 +145,18 @@ final class Store {
 	}
 
 	/**
+	 * Every known publish-status value (ADR-0020).
+	 *
+	 * @return string[]
+	 */
+	public static function publish_statuses(): array {
+		return array(
+			self::PUBLISH_UNPUBLISHED,
+			self::PUBLISH_PUBLISHED,
+		);
+	}
+
+	/**
 	 * Column map that clears active review decisions (invalidate-on-edit).
 	 *
 	 * @return array<string, mixed>
@@ -158,12 +176,34 @@ final class Store {
 	}
 
 	/**
+	 * Column map that clears publication (invalidate-on-edit / unpublish).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function publish_clear_fields(): array {
+		return array(
+			'publish_status' => self::PUBLISH_UNPUBLISHED,
+			'published_at'   => null,
+			'published_by'   => null,
+		);
+	}
+
+	/**
 	 * Allowlisted review-metadata column names.
 	 *
 	 * @return string[]
 	 */
 	public static function review_metadata_columns(): array {
 		return array_keys( self::review_clear_fields() );
+	}
+
+	/**
+	 * Allowlisted publication-metadata column names.
+	 *
+	 * @return string[]
+	 */
+	public static function publish_metadata_columns(): array {
+		return array_keys( self::publish_clear_fields() );
 	}
 
 	/**
@@ -340,13 +380,65 @@ final class Store {
 			return null;
 		}
 
-		if ( self::STATUS_IGNORED === $segment->status || self::STATUS_MISSING === $segment->status ) {
+		if ( ! self::is_publicly_overlay_eligible( $segment ) ) {
 			return null;
 		}
 
 		$value = (string) ( $segment->translated_text ?? '' );
 
 		return '' === $value ? null : $value;
+	}
+
+	/**
+	 * Whether a Store row may overlay public visitor content.
+	 *
+	 * Central frontend publication eligibility (ADR-0020). When the segment
+	 * publication gate is enabled, `publish_status=published` is required.
+	 * When the gate is off, pre-TI.7 semantics apply (non-empty text; status
+	 * not ignored/missing).
+	 *
+	 * Path-specific prerequisites (e.g. block RENDERABLE_STATUSES / non-stale)
+	 * remain the caller's responsibility on top of this check.
+	 *
+	 * @param object    $row        Hydrated translation row.
+	 * @param bool|null $gate_enabled Optional override for tests; null reads Settings.
+	 */
+	public static function is_publicly_overlay_eligible( object $row, ?bool $gate_enabled = null ): bool {
+		$status = (string) ( $row->status ?? '' );
+		if ( self::STATUS_IGNORED === $status || self::STATUS_MISSING === $status ) {
+			return false;
+		}
+
+		$text = (string) ( $row->translated_text ?? '' );
+		if ( '' === $text ) {
+			return false;
+		}
+
+		$enabled = $gate_enabled;
+		if ( null === $enabled ) {
+			$enabled = self::segment_publication_gate_enabled();
+		}
+
+		if ( ! $enabled ) {
+			return true;
+		}
+
+		$publish = (string) ( $row->publish_status ?? self::PUBLISH_UNPUBLISHED );
+
+		return self::PUBLISH_PUBLISHED === $publish;
+	}
+
+	/**
+	 * Effective segment publication gate setting.
+	 */
+	public static function segment_publication_gate_enabled(): bool {
+		if ( ! class_exists( \AIMultilingual\Settings::class ) || ! function_exists( 'get_option' ) ) {
+			return false;
+		}
+
+		$all = ( new \AIMultilingual\Settings() )->get();
+
+		return (bool) ( $all['segment_publication_gate_enabled'] ?? false );
 	}
 
 	/**
@@ -885,7 +977,16 @@ final class Store {
 		$text_changed = null === $existing || $prior_hash !== $translation_hash;
 
 		if ( $text_changed ) {
-			$data = array_merge( $data, self::review_clear_fields() );
+			$data = array_merge( $data, self::review_clear_fields(), self::publish_clear_fields() );
+		} elseif ( null !== $existing ) {
+			// Preserve existing publication axis on no-op content saves.
+			$data['publish_status'] = (string) ( $existing->publish_status ?? self::PUBLISH_UNPUBLISHED );
+			$data['published_at']   = $existing->published_at ?? null;
+			$data['published_by']   = null !== ( $existing->published_by ?? null ) && '' !== (string) $existing->published_by
+				? (int) $existing->published_by
+				: null;
+		} else {
+			$data = array_merge( $data, self::publish_clear_fields() );
 		}
 
 		$this->upsert( $data, $now );
@@ -910,6 +1011,26 @@ final class Store {
 				$language_id,
 				$segment_key,
 				(string) ( $existing->review_status ?? self::REVIEW_NOT_SUBMITTED )
+			);
+
+			/**
+			 * Fires when a material translation edit clears prior publication.
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param string $source_type Source type.
+			 * @param int    $source_id   Source object ID.
+			 * @param int    $language_id Language ID.
+			 * @param string $segment_key Segment key.
+			 * @param string $old_publish Previous publish_status.
+			 */
+			\do_action(
+				'aiml_publication_invalidated_by_edit',
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				(string) ( $existing->publish_status ?? self::PUBLISH_UNPUBLISHED )
 			);
 		}
 
@@ -995,6 +1116,79 @@ final class Store {
 
 		if ( false === $result ) {
 			return new WP_Error( 'aiml_review_update_failed', __( 'Could not update review metadata.', 'ai-multilingual' ) );
+		}
+
+		$this->invalidate( $source_type, $source_id, $language_id );
+
+		return true;
+	}
+
+	/**
+	 * Updates allowlisted publication-metadata columns without changing translation content.
+	 *
+	 * @param string               $source_type Source type.
+	 * @param int                  $source_id   Source object id.
+	 * @param int                  $language_id Language id.
+	 * @param string               $segment_key Segment key.
+	 * @param array<string, mixed> $fields      Publication columns only.
+	 * @return true|WP_Error
+	 */
+	public function update_publish_metadata(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		array $fields
+	) {
+		$allowed = self::publish_metadata_columns();
+		$data    = array();
+
+		foreach ( $fields as $column => $value ) {
+			if ( ! in_array( (string) $column, $allowed, true ) ) {
+				continue;
+			}
+
+			$data[ (string) $column ] = $value;
+		}
+
+		if ( array() === $data ) {
+			return new WP_Error( 'aiml_invalid_publish_fields', __( 'No publication metadata fields provided.', 'ai-multilingual' ) );
+		}
+
+		if ( isset( $data['publish_status'] ) && ! in_array( (string) $data['publish_status'], self::publish_statuses(), true ) ) {
+			return new WP_Error( 'aiml_invalid_publish_status', __( 'Unknown publish status.', 'ai-multilingual' ) );
+		}
+
+		$existing = $this->get( $source_type, $source_id, $language_id, $segment_key );
+		if ( null === $existing ) {
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+		}
+
+		$data['updated_at'] = current_time( 'mysql', true );
+
+		$formats = array();
+		foreach ( $data as $value ) {
+			if ( null === $value ) {
+				$formats[] = null;
+			} elseif ( is_int( $value ) ) {
+				$formats[] = '%d';
+			} else {
+				$formats[] = '%s';
+			}
+		}
+
+		global $wpdb;
+
+		$result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::translations(),
+			$data,
+			array( 'translation_id' => (int) $existing->translation_id ),
+			$formats,
+			array( '%d' )
+		);
+
+		if ( false === $result ) {
+			return new WP_Error( 'aiml_publish_update_failed', __( 'Could not update publication metadata.', 'ai-multilingual' ) );
 		}
 
 		$this->invalidate( $source_type, $source_id, $language_id );
@@ -1203,6 +1397,12 @@ final class Store {
 			$row->review_status = self::REVIEW_NOT_SUBMITTED;
 		}
 
+		if ( isset( $row->publish_status ) ) {
+			$row->publish_status = (string) $row->publish_status;
+		} else {
+			$row->publish_status = self::PUBLISH_UNPUBLISHED;
+		}
+
 		$row->submitted_translation_hash = (string) ( $row->submitted_translation_hash ?? '' );
 		$row->rejection_reason           = (string) ( $row->rejection_reason ?? '' );
 		$row->review_submitted_by        = null !== ( $row->review_submitted_by ?? null ) && '' !== (string) $row->review_submitted_by
@@ -1213,6 +1413,9 @@ final class Store {
 			: null;
 		$row->rejected_by                = null !== ( $row->rejected_by ?? null ) && '' !== (string) $row->rejected_by
 			? (int) $row->rejected_by
+			: null;
+		$row->published_by               = null !== ( $row->published_by ?? null ) && '' !== (string) $row->published_by
+			? (int) $row->published_by
 			: null;
 
 		return $row;

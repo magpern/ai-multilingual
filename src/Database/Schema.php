@@ -195,6 +195,9 @@ final class Schema {
 			rejection_reason VARCHAR(512)      NOT NULL DEFAULT '',
 			rejected_by      BIGINT UNSIGNED   NULL,
 			rejected_at      DATETIME          NULL,
+			publish_status   VARCHAR(24)       NOT NULL DEFAULT 'unpublished',
+			published_at     DATETIME          NULL,
+			published_by     BIGINT UNSIGNED   NULL,
 			error_code       VARCHAR(32)       NOT NULL DEFAULT '',
 			error_message    VARCHAR(500)      NOT NULL DEFAULT '',
 			created_at       DATETIME          NOT NULL,
@@ -205,7 +208,8 @@ final class Schema {
 			KEY lang_status (language_id, status, is_stale),
 			KEY lang_subtype (language_id, source_type, source_subtype, status),
 			KEY stale_sweep (language_id, is_stale, updated_at),
-			KEY lang_review_queue (language_id, review_status, review_submitted_at)
+			KEY lang_review_queue (language_id, review_status, review_submitted_at),
+			KEY lang_publish_status (language_id, publish_status, published_at)
 		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
 	}
 

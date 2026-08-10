@@ -22,7 +22,7 @@ use ReflectionClass;
 final class AseofDeferredGuardTest extends AimlTestCase {
 
 	public function test_target_remains_six(): void {
-		$this->assertSame( 6, Migrator::TARGET );
+		$this->assertSame( 7, Migrator::TARGET );
 	}
 
 	public function test_admissions_do_not_widen_deferred_upstream(): void {

@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Tests\Integration;
 
 use AIMultilingual\Cache\Cache;
+use AIMultilingual\Database\Migrator;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
@@ -63,6 +64,15 @@ abstract class AimlTestCase extends WP_UnitTestCase {
 		$_SERVER['REQUEST_URI'] = '/';
 
 		parent::tearDown();
+
+		// Migration steps issue DDL, which implicitly commits the PHPUnit
+		// transaction. A later update_option(TARGET) can then sit in a fresh
+		// transaction and be rolled back, leaving aiml_db_version one step
+		// behind (e.g. 6 after TARGET 7). Pin after rollback so the suite
+		// does not observe a stuck intermediate version.
+		if ( (int) get_option( Migrator::OPTION, 0 ) !== Migrator::TARGET ) {
+			update_option( Migrator::OPTION, Migrator::TARGET, true );
+		}
 	}
 
 	/**

@@ -103,6 +103,11 @@ final class BlockTranslationLookup {
 				continue;
 			}
 
+			if ( ! Store::is_publicly_overlay_eligible( $row ) ) {
+				++$rejected;
+				continue;
+			}
+
 			if ( array_key_exists( $segment_key, $translations ) ) {
 				return new BlockTranslationLookupResult(
 					false,
