@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next program:** Translation Intelligence & Quality (TIQ). **TQ.0–TI.5 Complete**. **TI.6** planning Architecture Frozen; implementation **review-ready** on `feature/ti6-jobs-scale-safety-polish` — [plan](plans/TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [validation](plans/TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md). Exact next step: **independent review → merge TI.6**. **TI.7** not started.
+**Current next program:** Translation Intelligence & Quality (TIQ). **TQ.0–TI.6 Complete**. Exact next step: **begin definitive TI.7 planning only**. **TI.7** implementation not started.
 
 ---
 

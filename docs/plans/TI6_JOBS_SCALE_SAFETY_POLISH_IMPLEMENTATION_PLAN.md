@@ -1,8 +1,8 @@
 # TI.6 — Jobs scale / safety polish — Implementation Plan
 
-**Status:** Implementation complete — **review-ready** on `feature/ti6-jobs-scale-safety-polish` (not merged)
+**Status:** **Complete** on `main`
 **Milestone:** TI.6 — Jobs scale / safety polish (TIQ program)
-**Kind:** Milestone implementation plan (authoritative on `main` for planning; implementation on feature branch)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete**; TI.3 **Complete**; TI.4 **Complete**; TI.5 **Complete**
 **Official pack (immutable):** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0; additive packs unchanged by TI.6
@@ -13,9 +13,9 @@
 **Freeze merge:** `c6b4564032bbd3d6e402c1564906077b27eb1fcc`
 **Implementation branch:** `feature/ti6-jobs-scale-safety-polish`
 **Validation log:** [TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md)
-**Implementation merge:** 
-**Reviewed feature HEAD:** 
-**Next:** TI.7 **planning only**. Do **not** start TI.7 implementation until its plan is independently reviewed and frozen on .
+**Implementation merge:** `7286156ed977200907f9416d6af9022517291e76`
+**Reviewed feature HEAD:** `6e30ade9677695ffbc815bdeba0b99af63dfa20a`
+**Next:** TI.7 **planning only**. Do **not** start TI.7 implementation until its plan is independently reviewed and frozen on `main`.
 
 **Related (unchanged ownership):** [ADR-0011](../adr/0011-resumable-job-pipeline.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), [ADR-0019](../adr/0019-evidence-based-risk-assessment.md), [ADR-0010](../adr/0010-provider-agnostic-interface.md), [ADR-0009](../adr/0009-translation-memory-table.md); [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md); TI.1–TI.5 plans; TI.7 publication later.
 
