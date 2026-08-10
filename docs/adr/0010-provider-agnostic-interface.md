@@ -10,7 +10,7 @@
 | **TI.2 amendment date** | 2026-08-10 |
 | **TI.2 amendment status** | **Accepted** for TI.2 Bounded Translation Context |
 | **TI.3 amendment date** | 2026-08-10 |
-| **TI.3 amendment status** | **Accepted** for TI.3 Translation Memory Intelligence — Architecture Frozen on `main`; implementation not started |
+| **TI.3 amendment status** | **Accepted** and **implemented** for TI.3 Translation Memory Intelligence — Complete on `main` |
 | **Related plans** | [TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md](../plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md); [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](../plans/TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md) |
 | **Supersedes** | None — original decision retained; amended Decision adds optional context and optional TM examples |
 

@@ -1,16 +1,16 @@
 # TI.3 — Translation Memory Intelligence — Implementation Validation Log
 
-**Status:** **TI.3 implementation complete — review-ready**
-**Implementation branch:** `feature/ti3-translation-memory-intelligence`
+**Status:** **Complete** on `main`
+**Implementation branch:** `feature/ti3-translation-memory-intelligence` @ `eb8d4bc691b3d7969eb73c0abef4eecb07f915e2`
 **Implementation baseline (branch start):** `8910e6b63051d6adc5031bbd0c22b9c451f36d46`
-**Frozen plan blob:** `2c3c45c1ade906ab0de18c8c22915ae346c86246`
-**TIQ parent blob:** `e7f489675b86cab08e691a50e9c8d94a634fe3aa`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Merge commit:** `95839113ba47bed80f781db238ce038c8d9b973d`
 **Official TQ.0 pack:** `tests/quality/baselines/baseline-v1.1.0/` (immutable)
 **Additive corpus:** `tests/quality/corpus/C1.2/` (12 TM decision cases)
 **H1.0 / C1.0 / C1.1:** immutable
 **TARGET:** 6
-**TI.4–TI.7:** not started
-**Merge:** not merged — awaiting independent review
+**TI.4–TI.7:** implementation not started
+**Next:** TI.4 planning only (do not implement until TI.4 plan is frozen on `main`)
 
 ## Architecture lock
 
@@ -63,7 +63,7 @@ Hard invariants held: invalid TM never persists; TI.1 never bypassed; no retry l
 | TI3.5 | **PASS** |
 | TI3.6 | **PASS** |
 | TI3.7 | **PASS** (C1.2 additive; baseline immutable) |
-| TI3.8 | **PASS** (review-ready; not merged) |
+| TI3.8 | **PASS** (merged Complete on `main`) |
 
 ## Acceptance criteria (80)
 

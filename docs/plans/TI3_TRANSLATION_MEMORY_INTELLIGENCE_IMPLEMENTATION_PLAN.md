@@ -1,8 +1,8 @@
 # TI.3 — Translation Memory Intelligence — Implementation Plan
 
-**Status:** **TI.3 implementation complete — review-ready** (feature branch; not merged)
+**Status:** **Complete** on `main`
 **Milestone:** TI.3 — Translation Memory Intelligence (TIQ program)
-**Kind:** Milestone implementation plan (authoritative on `main` for architecture; implementation on feature branch)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete**; TI.2 **Complete** on `main` @ `80e72ce65d29ea103ef2f714e8764518bcf799ca`
 **Official pack:** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0 (immutable)
@@ -12,7 +12,9 @@
 **Planning branch:** `docs/ti3-translation-memory-intelligence-plan` (merged)
 **Independent review (planning):** **PASS** (2026-08-10)
 **Freeze merge:** `5d870db44749c36b2c4d45b1182d31e08c07de3d`
-**Implementation branch:** `feature/ti3-translation-memory-intelligence`
+**Implementation branch:** `feature/ti3-translation-memory-intelligence` @ `eb8d4bc691b3d7969eb73c0abef4eecb07f915e2`
+**Independent review (implementation):** **PASS** (2026-08-10)
+**Merge commit:** `95839113ba47bed80f781db238ce038c8d9b973d`
 **Validation log:** [TI3_TRANSLATION_MEMORY_INTELLIGENCE_VALIDATION_LOG.md](TI3_TRANSLATION_MEMORY_INTELLIGENCE_VALIDATION_LOG.md)
 **Structural-fail disposition:** `ai_fallthrough_once` (evidenced)
 **TM21 `translations.tm_id`:** **NARROWED** (dormant; diagnostics only)
@@ -602,16 +604,15 @@ STOP or defer if TI.3 requires any of:
 
 ## 19. Roadmap pointers (minimal)
 
-After this planning freeze lands on `main`:
+Closure state on `main`:
 
 - TQ.0 **Complete**
 - TI.1 **Complete**
 - TI.2 **Complete**
-- TI.3 **Architecture Frozen (planning)**
-- TI.3 **implementation not started**
-- TI.4–TI.7 **not started**
+- TI.3 **Complete** — exact approved TM reuse + relevance-gated TM-assisted context on the shared path; TI.1 mandatory before persist; `ai_fallthrough_once` for structurally rejected TM candidates; TM21 Narrowed; fuzzy auto reuse Deferred; vector TM Deferred; `source_hash`/staleness unchanged; TARGET **6**
+- TI.4–TI.7 **implementation not started**
 
-**Exact next step after independent review PASS and merge:** create `feature/ti3-translation-memory-intelligence` and execute TI3.0–TI3.8. Do not create that feature branch on this planning branch.
+**Exact next step:** Begin the definitive TI.4 Deterministic QA Hardening planning process. Do not implement TI.4 until its plan has been independently reviewed and frozen on `main`.
 
 ---
 
@@ -636,4 +637,4 @@ After this planning freeze lands on `main`:
 | Parent | `docs/plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md` |
 | Baseline SHA | `80e72ce65d29ea103ef2f714e8764518bcf799ca` |
 | Acceptance criteria count | **80** |
-| Revision | 1.0 — 2026-08-10 — Architecture Frozen on `main` (planning freeze merge `5d870db44…`); independent review PASS; implementation not started |
+| Revision | 1.1 — 2026-08-10 — Complete on `main` (implementation merge `95839113b…`); independent review PASS; TI.4 next = planning only |
