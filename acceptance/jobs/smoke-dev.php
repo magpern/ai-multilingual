@@ -36,7 +36,7 @@ $pass    = static function ( $name, $ok, $detail = '' ) use ( &$results ) {
 global $wpdb;
 
 $migrator = new Migrator();
-$pass( 'schema_target_6', 6 === Migrator::TARGET && 6 === $migrator->current_version(), 'version=' . $migrator->current_version() );
+$pass( 'schema_target_7', 7 === Migrator::TARGET && Migrator::TARGET === $migrator->current_version(), 'version=' . $migrator->current_version() );
 
 $jobs_table  = Schema::jobs();
 $items_table = Schema::job_items();

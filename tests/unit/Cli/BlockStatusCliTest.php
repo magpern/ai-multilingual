@@ -99,7 +99,7 @@ final class BlockStatusCliTest extends TestCase {
 		$this->assertStringContainsString( 'new BlockMetricsAggregator', $source );
 		$this->assertStringContainsString( 'new BlockHealthService', $source );
 		$this->assertStringContainsString( '$metrics->register()', $source );
-		$this->assertStringContainsString( 'Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics )', $source );
+		$this->assertStringContainsString( 'Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics, $publication )', $source );
 		$this->assertDoesNotMatchRegularExpression(
 			'/BlockHealthService.*->scan\s*\(/s',
 			$source

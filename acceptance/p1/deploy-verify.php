@@ -42,11 +42,11 @@ wp_set_current_user( 1 );
 $version_ok = defined( 'AIML_VERSION' ) && '' !== AIML_VERSION;
 $pass( 'plugin_version_defined', $version_ok, $version_ok ? AIML_VERSION : 'missing' );
 
-// --- Schema target 6 ---
+// --- Schema target ---
 $migrator = new Migrator();
 $pass(
-	'schema_target_6',
-	6 === Migrator::TARGET && 6 === $migrator->current_version(),
+	'schema_target_7',
+	7 === Migrator::TARGET && Migrator::TARGET === $migrator->current_version(),
 	'current=' . $migrator->current_version() . ' target=' . Migrator::TARGET
 );
 

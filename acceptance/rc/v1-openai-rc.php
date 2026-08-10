@@ -94,7 +94,7 @@ $pass( 'prereq_ai_enabled', $enabled );
 $pass( 'prereq_provider_openai', 'openai' === $provider, $provider );
 $pass( 'prereq_model_set', '' !== $model, $model );
 $pass( 'prereq_key_encrypted_nonempty', '' !== $enc, 'len=' . strlen( $enc ) );
-$pass( 'prereq_schema_6', 6 === Migrator::TARGET && 6 === ( new Migrator() )->current_version() );
+$pass( 'prereq_schema_7', 7 === Migrator::TARGET && Migrator::TARGET === ( new Migrator() )->current_version() );
 
 if ( ! $enabled || 'openai' !== $provider || '' === $model || '' === $enc ) {
 	echo "STOP\tprerequisites incomplete\n";

@@ -26,10 +26,10 @@ $pass    = static function ( string $name, bool $ok, string $detail = '' ) use (
 };
 
 $migrator = new Migrator();
-$pass( 'target_is_6', 6 === Migrator::TARGET, 'target=' . Migrator::TARGET );
+$pass( 'target_is_7', Migrator::TARGET === 7, 'target=' . Migrator::TARGET );
 
 $before = $migrator->current_version();
-$pass( 'current_is_6_before', 6 === $before, 'current=' . $before );
+$pass( 'current_is_target_before', Migrator::TARGET === $before, 'current=' . $before );
 
 global $wpdb;
 foreach ( Schema::all_tables() as $table ) {
@@ -52,7 +52,7 @@ $pass(
 
 // Idempotent migrate on current version (fresh-path equivalent when already at TARGET).
 $migrator->maybe_migrate();
-$pass( 'maybe_migrate_noop_at_target', 6 === $migrator->current_version(), 'current=' . $migrator->current_version() );
+$pass( 'maybe_migrate_noop_at_target', Migrator::TARGET === $migrator->current_version(), 'current=' . $migrator->current_version() );
 
 $simulate = ( '1' === (string) getenv( 'AIML_P1_SIMULATE_UPGRADE' ) );
 if ( $simulate ) {
@@ -60,7 +60,7 @@ if ( $simulate ) {
 	$pass( 'simulate_set_behind', 5 === (int) get_option( Migrator::OPTION, 0 ), 'set=5' );
 	( new Migrator() )->maybe_migrate();
 	$after = ( new Migrator() )->current_version();
-	$pass( 'simulate_upgrade_to_6', 6 === $after, 'current=' . $after );
+	$pass( 'simulate_upgrade_to_target', Migrator::TARGET === $after, 'current=' . $after );
 } else {
 	$pass( 'simulate_upgrade_skipped', true, 'set AIML_P1_SIMULATE_UPGRADE=1 to exercise drift path' );
 }
