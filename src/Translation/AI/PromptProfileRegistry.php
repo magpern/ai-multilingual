@@ -21,7 +21,7 @@ final class PromptProfileRegistry {
 	public const FORMAL    = 'formal';
 	public const CASUAL    = 'casual';
 
-	public const VERSION = '2';
+	public const VERSION = '3';
 
 	/**
 	 * Shared structural constraints applied to all profiles.

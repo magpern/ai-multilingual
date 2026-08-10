@@ -14,11 +14,13 @@ namespace AIMultilingual\Translation\AI;
  */
 final class TranslationContext {
 
-	public const SCHEMA_VERSION = '1';
+	public const SCHEMA_VERSION = '2';
 
 	public const MAX_TOTAL_CHARS     = 1200;
 	public const MAX_OBJECT_TITLE    = 200;
 	public const MAX_ITEM_VALUE      = 200;
+	public const MAX_TM_EXAMPLE_VALUE = 400;
+	public const MAX_TM_EXAMPLES     = 3;
 	public const MAX_ITEMS           = 8;
 	public const MAX_CATEGORIES      = 3;
 	public const MAX_ATTRIBUTE_NAMES = 5;
