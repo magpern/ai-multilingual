@@ -125,7 +125,10 @@ final class DeterministicDetectorSuite implements Detector {
 					self::CHECK_HTML_TAG_LOSS,
 					RawFinding::DIMENSION_STRUCTURAL,
 					'Required HTML tags are missing from the target.',
-					array( 'missing_tags' => $missing )
+					array(
+						'missing_tags'     => $missing,
+						'target_tag_count' => count( $target_tags ),
+					)
 				);
 			}
 		}

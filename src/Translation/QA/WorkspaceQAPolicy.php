@@ -22,7 +22,8 @@ final class WorkspaceQAPolicy {
 	 * @var array<string, string>
 	 */
 	private const SEVERITY_MAP = array(
-		DeterministicDetectorSuite::CHECK_EMPTY_TARGET     => QAIssue::SEVERITY_ERROR,
+		// Empty stays WARNING — Workspace clear-on-save soft path (documented TI.4 asymmetry).
+		DeterministicDetectorSuite::CHECK_EMPTY_TARGET     => QAIssue::SEVERITY_WARNING,
 		DeterministicDetectorSuite::CHECK_PLACEHOLDER_LOSS => QAIssue::SEVERITY_ERROR,
 		DeterministicDetectorSuite::CHECK_HTML_TAG_LOSS    => QAIssue::SEVERITY_ERROR,
 		DeterministicDetectorSuite::CHECK_FORBIDDEN_MARKUP => QAIssue::SEVERITY_ERROR,
@@ -52,9 +53,12 @@ final class WorkspaceQAPolicy {
 			if ( ! $finding instanceof RawFinding ) {
 				continue;
 			}
-			$severity = self::SEVERITY_MAP[ $finding->check_id ] ?? QAIssue::SEVERITY_WARNING;
+			$severity = $this->severity_for( $finding );
+			$code     = DeterministicDetectorSuite::CHECK_EMPTY_TARGET === $finding->check_id
+				? 'empty_translation'
+				: $finding->check_id;
 			$issues[] = new QAIssue(
-				$finding->check_id,
+				$code,
 				$severity,
 				$finding->message,
 				array(
@@ -67,5 +71,22 @@ final class WorkspaceQAPolicy {
 		}
 
 		return $issues;
+	}
+
+	/**
+	 * Resolves Workspace severity for one finding (documented asymmetries).
+	 *
+	 * @param RawFinding $finding Raw finding.
+	 */
+	private function severity_for( RawFinding $finding ): string {
+		if ( DeterministicDetectorSuite::CHECK_HTML_TAG_LOSS === $finding->check_id ) {
+			// Plain-text Workspace targets for HTML sources warn (pre-TI.4 HTMLCheck parity).
+			$target_tags = (int) ( $finding->evidence['target_tag_count'] ?? -1 );
+			if ( 0 === $target_tags ) {
+				return QAIssue::SEVERITY_WARNING;
+			}
+		}
+
+		return self::SEVERITY_MAP[ $finding->check_id ] ?? QAIssue::SEVERITY_WARNING;
 	}
 }

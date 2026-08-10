@@ -41,7 +41,9 @@ final class PolicyAsymmetryTest extends TestCase {
 
 		$workspace = ( new WorkspaceQAPolicy() )->apply( $findings );
 		$this->assertCount( 1, $workspace );
-		$this->assertSame( QAIssue::SEVERITY_ERROR, $workspace[0]->severity );
+		// Documented asymmetry: Workspace clear-on-save keeps empty as WARNING.
+		$this->assertSame( QAIssue::SEVERITY_WARNING, $workspace[0]->severity );
+		$this->assertSame( 'empty_translation', $workspace[0]->code );
 
 		$h11 = ( new MeasurementH11Policy() )->score( $findings, $input );
 		$this->assertSame( 1, $h11['critical_count'] );
