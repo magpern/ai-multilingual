@@ -1,20 +1,21 @@
 # TI.7 — Controlled Auto-Publication Policy — Implementation Plan
 
-**Status:** **Architecture Frozen** (planning) on `main` — implementation **not started**
+**Status:** **Implementation complete — ready for independent review** on `feature/ti7-controlled-auto-publication-policy`
 **Milestone:** TI.7 — Controlled auto-publication policy (TIQ program)
-**Kind:** Milestone implementation plan (authoritative on `main`)
+**Kind:** Milestone implementation plan (authoritative Architecture Frozen on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1–TI.6 **Complete**
 **Official pack (immutable):** `tests/quality/baselines/baseline-v1.1.0/` — TI.7 must not change generation quality claims
-**Schema (planned):** Migrator `TARGET` **6 → 7** (additive publication columns) — authorized by Accepted ADR-0020; runtime TARGET remains **6** until TI.7 implementation
+**Schema:** Migrator `TARGET` **7** (additive publication columns; ADR-0020)
 **ADR:** [ADR-0020 — Controlled auto-publication and frontend publication gate](../adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Accepted** 2026-08-10)
-**Policy version:** `P1.0` (publication decisions; independent of assessment `R1.0` / harness `H1.x`)
+**Policy version:** `P1.0`
 **Assessment consumption:** TI.5 `TranslationAssessment` **R1.0** read-only
 **Planning branch:** `docs/ti7-controlled-auto-publication-policy-plan`
 **Independent review (planning):** **PASS** (2026-08-10)
 **Freeze merge:** `fdf313500764014ebcedd25c99b393c1679ebd3e`
-**Implementation branch:** **do not create until after freeze merge**; then `feature/ti7-controlled-auto-publication-policy`
-**Next after freeze:** Create `feature/ti7-controlled-auto-publication-policy` and implement TI7.0–TI7.8
+**Implementation branch:** `feature/ti7-controlled-auto-publication-policy`
+**Validation log:** [TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_VALIDATION_LOG.md](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_VALIDATION_LOG.md)
+**Next:** Independent implementation review → merge to main → TIQ closure. Do **not** self-merge.
 
 **Related:** [ADR-0008](../adr/0008-language-state-model.md), [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md), [ADR-0019](../adr/0019-evidence-based-risk-assessment.md), [ADR-0011](../adr/0011-resumable-job-pipeline.md); TI.4–TI.6 plans; A.SEO ownership unchanged.
 

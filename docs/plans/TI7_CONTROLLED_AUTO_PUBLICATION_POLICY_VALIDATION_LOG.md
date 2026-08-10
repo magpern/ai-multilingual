@@ -1,81 +1,68 @@
 # TI.7 — Controlled Auto-Publication Policy — Implementation Validation Log
 
-**Status:** Implementation in progress on `feature/ti7-controlled-auto-publication-policy`
+**Status:** Implementation complete — ready for independent review
 **Plan:** [TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md)
 **ADR:** [0020-controlled-auto-publication-and-frontend-gate.md](../adr/0020-controlled-auto-publication-and-frontend-gate.md) (**Accepted**)
 **Main baseline:** `ffe0addf7d3c4ea69c0ef6550fb8d3bcb7c8a75e`
-**Frozen plan SHA (blob at baseline):** `docs/plans/TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md` @ main baseline
-**ADR-0020 SHA (blob at baseline):** `docs/adr/0020-controlled-auto-publication-and-frontend-gate.md` @ main baseline
 **Freeze merge:** `fdf313500764014ebcedd25c99b393c1679ebd3e`
 **Implementation branch:** `feature/ti7-controlled-auto-publication-policy`
-**TARGET before implementation:** **6**
-**TARGET after implementation (planned):** **7**
+**TARGET before:** **6**
+**TARGET after:** **7**
 **Policy version:** P1.0
-**Assessment consumption:** TI.5 R1.0 read-only
+**Assessment consumption:** TI.5 R1.0 read-only (generation-path scaffolding markers forwarded for auto evidence completeness)
+**TIQ Complete:** **No** — pending independent review / merge / closure
 
 ---
 
-## Frozen contracts locked at baseline
-
-### AP1–AP30 dispositions
-
-| ID | Disposition |
-|---|---|
-| AP1–AP5, AP8–AP11, AP16–AP19, AP21–AP25 | Supported |
-| AP12, AP26 | Partially Supported |
-| AP13–AP15, AP27–AP28 | Deferred |
-| AP6–AP7, AP20, AP29–AP30 | Unsupported |
-
-### Safe defaults
-
-- `segment_publication_gate_enabled` = false
-- `auto_publication_mode` = manual
-
-### Migration / backfill
-
-- Non-empty `translated_text` + status ∉ {ignored, missing} → `publish_status=published`
-- New rows default `unpublished`
-
-### Gate rollout
-
-- Gate OFF: legacy overlay semantics
-- Gate ON: `publish_status` is sole segment publication authority
-
-### Authority exclusions
-
-- No LLM confidence / judge
-- No aggregate quality score
-- No second QA / assessment
-- No publication authority outside TI.7 PublicationPolicy/Service
-
----
-
-## Baseline gates (main @ ffe0addf7)
-
-| Gate | Result |
-|---|---|
-| Main CI (planning freeze close) | **PASS** — run `31434136393` |
-| Main CI (freeze merge) | **PASS** — run `31434133468` |
-| TARGET | **6** |
-
-Feature-branch gate totals recorded at closure.
-
----
-
-## Work package tracker
+## Work package results
 
 | WP | Status |
 |---|---|
-| TI7.0 | In progress |
-| TI7.1 | Pending |
-| TI7.2 | Pending |
-| TI7.3 | Pending |
-| TI7.4 | Pending |
-| TI7.5 | Pending |
-| TI7.6 | Pending |
-| TI7.7 | Pending |
-| TI7.8 | Pending |
+| TI7.0 Baseline | **PASS** |
+| TI7.1 Schema TARGET 7 + backfill | **PASS** |
+| TI7.2 Policy/Service + frontend gate | **PASS** |
+| TI7.3 Settings safe defaults | **PASS** |
+| TI7.4 Sync + Jobs integration (via TranslationService) | **PASS** |
+| TI7.5 Workspace/CLI/REST/diagnostics | **PASS** |
+| TI7.6 False-authority + gate suites | **PASS** |
+| TI7.7 SEO/Woo acceptance | **PASS** |
+| TI7.8 Feature-branch closure prep | **PASS** |
 
 ## AC tracker
 
-82 ACs — evaluated at feature-branch closure.
+**82/82** evaluated against frozen plan — **PASS** on feature branch (pending independent review confirmation).
+
+## Local gates (feature branch)
+
+| Gate | Result |
+|---|---|
+| `git diff --check` | **PASS** |
+| Unit | **PASS** — 763 tests, 2156 assertions |
+| Integration (fresh DB) | **PASS** — 656 tests, 19182 assertions |
+| Publication filter | **PASS** — 24 tests |
+| PluginGuard (incl. TI.7 seam/force-bypass) | **PASS** (in full integration) |
+| PHPCS (full) | **PASS** |
+| quality:validate | **PASS** — cases=60 |
+| baseline-v1.1.0 verify | **PASS** — cases=60 critical=0 dual=13 |
+| build + ZIP audit | **PASS** — `ai-multilingual-1.1.0.zip` |
+| TARGET | **7** |
+
+## Architecture audit (feature branch)
+
+- Third publication axis implemented; `review_status` not overloaded
+- TARGET 7 authorized by ADR-0020
+- Migration backfill preserves overlayable rows (`published`)
+- New rows default `unpublished`
+- Gate default off; steady-state gate uses `publish_status`
+- Seams gated: `translated_value`, BlockTranslationLookup, ElementorOverlayResolver, IntegrationFrontendBridge
+- One PublicationPolicy + one PublicationService; P1.0
+- TI.5 R1.0 read-only; no score / LLM / second assessment
+- Automation default `manual`; modes `manual` \| `approved_only` \| `controlled_auto`
+- Sync + Jobs share PublicationService via TranslationService; publication failure ≠ translation failure
+- Edit invalidates publication; source change does not auto-unpublish
+- Manual unpublish only; no force-publish hard blockers
+- Auto paths require evidence `complete` (markers forwarded from generation path when available)
+
+## Exact next step
+
+Independently review `feature/ti7-controlled-auto-publication-policy`. If it passes, merge to main, run fresh full CI, close TI.7 and the TIQ program, then make an explicit release/version decision.
