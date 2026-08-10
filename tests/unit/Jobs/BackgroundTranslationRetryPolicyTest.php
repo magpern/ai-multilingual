@@ -53,6 +53,13 @@ final class BackgroundTranslationRetryPolicyTest extends TestCase {
 				'malformed_item',
 				'aiml_invalid_segment',
 				'cancelled',
+				'empty_target',
+				'placeholder_mismatch',
+				'html_structure_mismatch',
+				'number_mismatch',
+				'forbidden_markup',
+				'url_mismatch',
+				'aiml_ai_invalid_response',
 			) as $code
 		) {
 			$this->assertSame(

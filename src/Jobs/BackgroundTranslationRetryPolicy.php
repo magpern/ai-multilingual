@@ -125,6 +125,15 @@ final class BackgroundTranslationRetryPolicy {
 			'cancelled',
 			'budget_exceeded',
 			'provider_unavailable',
+			// TI.1 content-structural validation (deterministic — do not retry).
+			'empty_target',
+			'placeholder_mismatch',
+			'html_structure_mismatch',
+			'number_mismatch',
+			'forbidden_markup',
+			'url_mismatch',
+			// TI.1 TS2 response-contract (also terminal by default; listed explicitly).
+			'aiml_ai_invalid_response',
 		);
 	}
 }
