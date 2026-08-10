@@ -4,9 +4,9 @@
 
 **Accepted** (2026-08-10) — Durable read-only TI.5 assessment contract frozen for later TI.7 consumption.
 
-**Decision maker:** Product Owner  
-**Approval date:** 2026-08-10  
-**Decision:** ADR-0019 **Accepted** (planning freeze)  
+**Decision maker:** Product Owner
+**Approval date:** 2026-08-10
+**Decision:** ADR-0019 **Accepted** (planning freeze)
 **Scope:** Versioned, recomputed, evidence-based translation assessment contract produced by TI.5. Does **not** define publication policy, Integration API v2, persisted quality state, opaque sole scores, LLM confidence, review-state redesign, Jobs lifecycle mutation, schema/TARGET changes, or Store identity changes.
 
 **Residual risks accepted:**

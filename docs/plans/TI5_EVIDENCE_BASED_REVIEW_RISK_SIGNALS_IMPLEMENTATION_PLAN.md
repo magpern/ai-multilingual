@@ -319,7 +319,7 @@ Preserve: `qa_block_on_error` still ignores warnings; warnings never Workspace-b
 
 TI.5 does **not** change translator quality. Distinguish:
 
-1. **Assessment correctness** — additive fixtures (e.g. `tests/assessment/` or corpus `C1.4`)  
+1. **Assessment correctness** — additive fixtures (e.g. `tests/assessment/` or corpus `C1.4`)
 2. **Translation quality** — unchanged; TQ.0 / H1.0 / H1.1 regressions remain green
 
 **Do not mutate** C1.0–C1.3, baseline generations, H1.0, or H1.1.
