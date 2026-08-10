@@ -1,15 +1,17 @@
 # TI.2 — Bounded Translation Context — Implementation Plan
 
-**Status:** **Architecture Frozen (planning) — implementation not started**
+**Status:** **Architecture Frozen** on `main` — **implementation not started**
 **Milestone:** TI.2 — Bounded Translation Context (TIQ program)
-**Kind:** Milestone implementation plan (authoritative after merge to `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** TQ.0 **Complete**; TI.1 **Complete** on `main` @ `5bb7cd2679d122369f7f1148885c635ec9b87458`
 **Official pack:** `tests/quality/baselines/baseline-v1.1.0/` · C1.0 · H1.0
 **Schema:** Migrator `TARGET` = **6** (unchanged)
 **ADR:** Focused **ADR-0010 amendment** — optional typed `TranslationContext` on `TranslationBatch`; context is not Store identity / `source_hash`
-**Planning branch:** `docs/ti2-bounded-translation-context-plan`
-**Implementation branch:** `feature/ti2-bounded-translation-context` — **create only after this plan is Architecture Frozen on `main`**
+**Planning branch:** `docs/ti2-bounded-translation-context-plan` (merged)
+**Independent review (planning):** **PASS** (2026-08-10)
+**Freeze merge:** `bc79366a8d8ec10a8370a4521904dd9c7ba9fb69`
+**Implementation branch:** `feature/ti2-bounded-translation-context` — **not created until after this freeze lands on main**
 
 **Operational success:** The shared translation pipeline receives allowlisted, typed, size-capped field/object context and safer glossary/instruction packaging—without page dumps, a second translator, TM-in-generation, or Store/hash redesign.
 
