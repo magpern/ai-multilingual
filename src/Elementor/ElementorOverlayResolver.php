@@ -73,6 +73,11 @@ final class ElementorOverlayResolver {
 				continue;
 			}
 
+			if ( ! Store::is_publicly_overlay_eligible( $row ) ) {
+				$this->diagnostics?->inc( 'source_fallback' );
+				continue;
+			}
+
 			$out[ $unit->segment_key ] = $text;
 		}
 

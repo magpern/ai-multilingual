@@ -83,15 +83,11 @@ final class IntegrationFrontendBridge {
 
 		$resolve = function ( string $segment_key ) use ( $source_id, $language_id ): ?string {
 			$row = $this->store->get( 'post', $source_id, $language_id, $segment_key );
-			if ( null === $row ) {
+			if ( null === $row || ! Store::is_publicly_overlay_eligible( $row ) ) {
 				$this->diagnostics->increment( IntegrationDiagnostics::COUNTER_SOURCE_FALLBACK );
 				return null;
 			}
 			$text = (string) ( $row->translated_text ?? '' );
-			if ( '' === $text ) {
-				$this->diagnostics->increment( IntegrationDiagnostics::COUNTER_SOURCE_FALLBACK );
-				return null;
-			}
 			$this->diagnostics->increment( IntegrationDiagnostics::COUNTER_OVERLAY_APPLIED );
 			return $text;
 		};

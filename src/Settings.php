@@ -134,6 +134,18 @@ final class Settings {
 			'ai_model'                             => '',
 			'ai_api_key_encrypted'                 => '',
 			'qa_block_on_error'                    => true,
+
+			/*
+			 * TI.7 / ADR-0020: segment publication gate (rollout). Default off so
+			 * upgrades preserve pre-TI.7 overlay behavior until operators opt in.
+			 */
+			'segment_publication_gate_enabled'     => false,
+
+			/*
+			 * TI.7 / ADR-0020: automatic publication mode. Default manual —
+			 * installing TI.7 must never begin auto-publication.
+			 */
+			'auto_publication_mode'                => 'manual',
 		);
 	}
 
@@ -154,7 +166,7 @@ final class Settings {
 
 		$clean = $defaults;
 
-		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled', 'block_extraction_enabled', 'block_frontend_rendering_enabled', 'elementor_extraction_enabled', 'elementor_frontend_rendering_enabled', 'ai_enabled', 'qa_block_on_error' ) as $key ) {
+		foreach ( array( 'remove_data_on_uninstall', 'switcher_show_native_name', 'switcher_hide_current', 'block_attr_registration_enabled', 'block_uuid_injection_enabled', 'block_extraction_enabled', 'block_frontend_rendering_enabled', 'elementor_extraction_enabled', 'elementor_frontend_rendering_enabled', 'ai_enabled', 'qa_block_on_error', 'segment_publication_gate_enabled' ) as $key ) {
 			if ( array_key_exists( $key, $raw ) ) {
 				$clean[ $key ] = self::to_bool( $raw[ $key ] );
 			}
@@ -170,6 +182,12 @@ final class Settings {
 			$provider             = preg_replace( '/[^a-z0-9_\-]/', '', $provider ) ?? '';
 			$allowed              = array( '', 'openai' );
 			$clean['ai_provider'] = in_array( $provider, $allowed, true ) ? $provider : '';
+		}
+
+		if ( array_key_exists( 'auto_publication_mode', $raw ) ) {
+			$mode = strtolower( trim( (string) $raw['auto_publication_mode'] ) );
+			$allowed_modes = array( 'manual', 'approved_only', 'controlled_auto' );
+			$clean['auto_publication_mode'] = in_array( $mode, $allowed_modes, true ) ? $mode : 'manual';
 		}
 
 		if ( array_key_exists( 'ai_model', $raw ) ) {
