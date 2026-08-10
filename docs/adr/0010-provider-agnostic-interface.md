@@ -8,9 +8,11 @@
 |---|---|
 | **Original acceptance** | Milestone 0 |
 | **TI.2 amendment date** | 2026-08-10 |
-| **TI.2 amendment status** | **Accepted** for TI.2 Bounded Translation Context (planning freeze) |
-| **Related plan** | [TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md](../plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md) |
-| **Supersedes** | None — original decision retained; amended Decision adds optional context |
+| **TI.2 amendment status** | **Accepted** for TI.2 Bounded Translation Context |
+| **TI.3 amendment date** | 2026-08-10 |
+| **TI.3 amendment status** | **Accepted** for TI.3 Translation Memory Intelligence (planning freeze) — implementation not started |
+| **Related plans** | [TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md](../plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md); [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](../plans/TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md) |
+| **Supersedes** | None — original decision retained; amended Decision adds optional context and optional TM examples |
 
 ## Context (original)
 
@@ -68,6 +70,36 @@ TI.2 extends the domain batch contract without making it vendor-shaped:
    allowlisted public/content sources. Arbitrary postmeta, customer/order data,
    credentials, and full-page dumps are out of contract.
 
+## Amended Decision — TI.3 Translation Memory Intelligence (2026-08-10)
+
+TI.3 extends the same optional `TranslationContext` / `ContextItem` contract
+without a second examples pipeline or vendor-shaped batch fields:
+
+1. **Optional TM examples.** Allowlisted `ContextItem` may include type
+   `tm_example` carrying bounded prior translation pairs for instruction-only
+   use. Examples are optional; when absent, providers behave as under TI.2.
+
+2. **Relevance-gated.** A TM row may become a `tm_example` only under the
+   deterministic relevance classes frozen in the TI.3 plan. Same language-pair
+   + human-approved alone is insufficient. Vector/fuzzy retrieval is out of
+   contract for this amendment.
+
+3. **Bounded.** TM examples share the existing TI.2 optional context budget
+   (and the TI.3 per-example caps). Source text must not be truncated to
+   preserve examples. Drop priority prefers dropping TM examples before
+   `field_semantic`.
+
+4. **Provider-agnostic.** Providers render `tm_example` items as instruction /
+   example context, not as source content, and must ignore unknown item types
+   safely.
+
+5. **Not Store identity.** TM examples are not part of segment identity,
+   PluginIdentity, Integration API, or `Store::source_hash` / `is_stale`.
+
+6. **Not a parallel batch field.** Do not add a separate examples list on
+   `TranslationBatch`; examples travel as `ContextItem`s inside optional
+   `TranslationContext`.
+
 ## Consequences
 
 - The initial product exposes one provider without the architecture assuming
@@ -77,3 +109,7 @@ TI.2 extends the domain batch contract without making it vendor-shaped:
 - **TI.2:** Adding bounded field/object context does not require a second
   translator, Store redesign, or TARGET bump. Future providers inherit the same
   optional context field.
+- **TI.3:** Relevance-gated TM examples reuse the TI.2 context carrier. Direct
+  TM reuse short-circuits the provider on the shared `TranslationService` path
+  and is outside this ADR’s batch contract (it never reaches `translate_batch`).
+  No TARGET bump; no second examples pipeline.

@@ -11,9 +11,9 @@
 **TQ.0:** **Complete** on `main` — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md); official pack `tests/quality/baselines/baseline-v1.1.0/`
 **TI.1:** **Complete** on `main` — [TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md](TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md); canonical persist-path structural gate active on sync + Jobs; TS7 narrowed (numbers non-blocking on persist)
 **TI.2:** **Complete** on `main` — [TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md](TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md); [validation log](TI2_BOUNDED_TRANSLATION_CONTEXT_VALIDATION_LOG.md); merge `80dfdcf18a93f168370aa1bb6a03d7c6dd8376fa`
-**TI.3:** dependency-unblocked for **planning** only — **not started**
+**TI.3:** **Architecture Frozen (planning)** — [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md); **implementation not started**
 **TI.4–TI.7:** planning/implementation **not started**
-**Next:** author the definitive TI.3 planning freeze (separate task). **Do not** start TI.3 implementation until that plan is Architecture Frozen on `main`.
+**Next:** independently review the TI.3 planning freeze; if PASS, merge to `main` and close planning. **Only after** the TI.3 plan is Architecture Frozen on `main` may `feature/ti3-translation-memory-intelligence` be created. **Do not** start TI.4–TI.7.
 **Implementation branches:** create **per milestone** only after that milestone’s definitive plan is Architecture Frozen on `main`
 **Baseline (plan authoring):** `main` @ `394e154079598b04d441a741568538af1d609939`
 **Behavior reference (released translator):** tag `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
@@ -359,7 +359,7 @@ Conflict with these contracts: **STOP** and open architectural review / ADR as r
 |---|---|
 | TIQ program freeze | **No ADR blocker** — program invariants and ladder locked here |
 | TQ.0 methodology | Initially **plan-locked** in the TQ.0 definitive plan; open a light ADR only if methodology becomes a cross-cutting product contract beyond TIQ |
-| Extending `TranslationBatch` / context / TM examples | Likely **extend / review ADR-0010** around TI.2 / TI.3 |
+| Extending `TranslationBatch` / context / TM examples | **ADR-0010 amended** for TI.2 context and TI.3 `tm_example` (planning); implementation of TM examples awaits TI.3 feature work |
 | Controlled auto-publication / frontend gate change | **ADR required before TI.7** |
 | Store / identity / TARGET / Integration API | Expect **no change**; conflict = STOP |
 
@@ -399,7 +399,10 @@ Historical Program B tables are **not** renumbered or rewritten wholesale by thi
 |---|---|
 | TQ.0 definitive planning | **Complete** — [TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md](TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) Architecture Frozen on `main` |
 | TQ.0 implementation | **Complete** — merged `a602c4465…`; official `baseline-v1.1.0` on `main` |
-| TI.n planning | Choose TI.1 or TI.2 first; prior dependency gates satisfied; TI.n plan authored |
+| TI.1 / TI.2 | **Complete** on `main` |
+| TI.3 planning | **Architecture Frozen (planning)** on this branch — [TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md](TI3_TRANSLATION_MEMORY_INTELLIGENCE_IMPLEMENTATION_PLAN.md); becomes authoritative after merge to `main` |
+| TI.3 implementation | Only after TI.3 plan Architecture Frozen on `main`; then `feature/ti3-translation-memory-intelligence` |
+| TI.n planning | Prior dependency gates satisfied; TI.n plan authored |
 | TI.n implementation | TI.n plan Architecture Frozen on `main` |
 
 ---
