@@ -28,9 +28,9 @@ final class TMGenerationOutcome {
 	/**
 	 * Constructs an outcome.
 	 *
-	 * @param string               $code       Outcome code.
-	 * @param array<string, mixed> $diagnostics Bounded diagnostics (ids/codes only).
-	 * @param array<string, mixed>|null $candidate Eligible exact candidate payload or null.
+	 * @param string                     $code       Outcome code.
+	 * @param array<string, mixed>       $diagnostics Bounded diagnostics (ids/codes only).
+	 * @param array<string, mixed>|null  $candidate Eligible exact candidate payload or null.
 	 * @param list<array<string, mixed>> $examples Relevance-gated example payloads.
 	 */
 	public function __construct(

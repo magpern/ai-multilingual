@@ -219,7 +219,7 @@ final class TranslationService {
 		$tm_outcome = null;
 		$examples   = array();
 		if ( null !== $this->tm_lookup ) {
-			$tm_outcome = $this->tm_lookup->evaluate(
+			$tm_outcome            = $this->tm_lookup->evaluate(
 				$source_text,
 				(int) $source->language_id,
 				$language_id,
@@ -231,7 +231,7 @@ final class TranslationService {
 			$examples              = $tm_outcome->examples;
 
 			if ( $tm_outcome->has_direct_candidate() && null !== $tm_outcome->candidate ) {
-				$tm_target = (string) ( $tm_outcome->candidate['target_text'] ?? '' );
+				$tm_target  = (string) ( $tm_outcome->candidate['target_text'] ?? '' );
 				$validation = $this->validator->validate(
 					$source_text,
 					$tm_target,
@@ -277,9 +277,9 @@ final class TranslationService {
 					array_merge(
 						$tm_outcome->diagnostics,
 						array(
-							'disposition'     => self::STRUCTURAL_FAIL_DISPOSITION,
-							'validator_code'  => (string) ( $validation->code ?? '' ),
-							'tm_id'           => (int) ( $tm_outcome->candidate['tm_id'] ?? 0 ),
+							'disposition'    => self::STRUCTURAL_FAIL_DISPOSITION,
+							'validator_code' => (string) ( $validation->code ?? '' ),
+							'tm_id'          => (int) ( $tm_outcome->candidate['tm_id'] ?? 0 ),
 						)
 					),
 					null,

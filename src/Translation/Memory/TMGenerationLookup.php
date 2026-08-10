@@ -19,7 +19,7 @@ use AIMultilingual\Translation\Store;
  */
 final class TMGenerationLookup {
 
-	public const MAX_EXAMPLES     = 3;
+	public const MAX_EXAMPLES      = 3;
 	public const MAX_EXAMPLE_CHARS = 400;
 
 	/**
@@ -41,6 +41,8 @@ final class TMGenerationLookup {
 	);
 
 	/**
+	 * Wire memory, eligibility policy, and optional glossary.
+	 *
 	 * @param TranslationMemoryService $memory   Existing TM service.
 	 * @param TMEligibilityPolicy      $policy   Eligibility policy.
 	 * @param GlossaryService|null     $glossary Optional glossary.
@@ -267,10 +269,10 @@ final class TMGenerationLookup {
 			if ( TMRepository::QUALITY_HUMAN_APPROVED !== (string) ( $row['quality'] ?? '' ) ) {
 				continue;
 			}
-			if ( (int) ( $row['norm_version'] ?? 0 ) !== Store::NORM_VERSION ) {
+			if ( Store::NORM_VERSION !== (int) ( $row['norm_version'] ?? 0 ) ) {
 				continue;
 			}
-			if ( $hash !== (string) ( $row['source_hash'] ?? '' ) ) {
+			if ( (string) ( $row['source_hash'] ?? '' ) !== $hash ) {
 				continue;
 			}
 
@@ -279,7 +281,7 @@ final class TMGenerationLookup {
 			if ( $row_context !== $context && '' !== $row_context ) {
 				continue;
 			}
-			if ( '' === $row_context && $context !== '' && ! TranslationMemoryService::passes_ambiguity_gate( $source_text ) ) {
+			if ( '' === $row_context && '' !== $context && ! TranslationMemoryService::passes_ambiguity_gate( $source_text ) ) {
 				continue;
 			}
 
@@ -306,23 +308,25 @@ final class TMGenerationLookup {
 	}
 
 	/**
+	 * Normalize a TM DB row into an example payload.
+	 *
 	 * @param object $row        DB row.
 	 * @param string $match_type Match type label.
 	 * @return array<string, mixed>
 	 */
 	private function row_to_example_payload( object $row, string $match_type ): array {
 		return array(
-			'tm_id'         => (int) ( $row->tm_id ?? 0 ),
-			'source_hash'   => (string) ( $row->source_hash ?? '' ),
-			'source_text'   => (string) ( $row->source_text ?? '' ),
-			'target_text'   => (string) ( $row->target_text ?? '' ),
-			'context'       => (string) ( $row->context ?? '' ),
-			'quality'       => (string) ( $row->quality ?? '' ),
-			'norm_version'  => (int) ( $row->norm_version ?? 0 ),
-			'text_format'   => (string) ( $row->text_format ?? Store::FORMAT_PLAIN ),
+			'tm_id'            => (int) ( $row->tm_id ?? 0 ),
+			'source_hash'      => (string) ( $row->source_hash ?? '' ),
+			'source_text'      => (string) ( $row->source_text ?? '' ),
+			'target_text'      => (string) ( $row->target_text ?? '' ),
+			'context'          => (string) ( $row->context ?? '' ),
+			'quality'          => (string) ( $row->quality ?? '' ),
+			'norm_version'     => (int) ( $row->norm_version ?? 0 ),
+			'text_format'      => (string) ( $row->text_format ?? Store::FORMAT_PLAIN ),
 			'glossary_version' => (int) ( $row->glossary_version ?? 0 ),
-			'match_type'    => $match_type,
-			'use_count'     => (int) ( $row->use_count ?? 0 ),
+			'match_type'       => $match_type,
+			'use_count'        => (int) ( $row->use_count ?? 0 ),
 		);
 	}
 

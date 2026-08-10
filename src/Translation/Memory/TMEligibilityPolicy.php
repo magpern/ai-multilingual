@@ -37,6 +37,8 @@ final class TMEligibilityPolicy {
 	private ?GlossaryService $glossary;
 
 	/**
+	 * Optional glossary dependency.
+	 *
 	 * @param GlossaryService|null $glossary Glossary service (optional).
 	 */
 	public function __construct( ?GlossaryService $glossary = null ) {
@@ -46,7 +48,7 @@ final class TMEligibilityPolicy {
 	/**
 	 * Whether a raw lookup payload may become a TM8 candidate.
 	 *
-	 * @param array<string, mixed> $match        Lookup payload from TranslationMemoryService.
+	 * @param array<string, mixed> $candidate    Lookup payload from TranslationMemoryService.
 	 * @param string               $source_text  Current source text.
 	 * @param string               $text_format  Current format.
 	 * @param int                  $source_lang  Source language id.
@@ -54,39 +56,39 @@ final class TMEligibilityPolicy {
 	 * @return array{ok:bool,code:string,diagnostics:array<string,mixed>}
 	 */
 	public function evaluate_candidate(
-		array $match,
+		array $candidate,
 		string $source_text,
 		string $text_format,
 		int $source_lang,
 		int $target_lang
 	): array {
-		$quality = (string) ( $match['quality'] ?? '' );
+		$quality = (string) ( $candidate['quality'] ?? '' );
 		if ( TMRepository::QUALITY_HUMAN_APPROVED !== $quality ) {
 			return $this->reject( TMGenerationOutcome::INELIGIBLE, array( 'reason' => 'quality' ) );
 		}
 
-		$format = (string) ( $match['text_format'] ?? $text_format );
+		$format = (string) ( $candidate['text_format'] ?? $text_format );
 		if ( ! in_array( $format, self::ALLOWED_FORMATS, true ) ) {
 			return $this->reject( TMGenerationOutcome::INELIGIBLE, array( 'reason' => 'format' ) );
 		}
 
-		$norm = (int) ( $match['norm_version'] ?? 0 );
-		if ( $norm !== Store::NORM_VERSION ) {
+		$norm = (int) ( $candidate['norm_version'] ?? 0 );
+		if ( Store::NORM_VERSION !== $norm ) {
 			return $this->reject( TMGenerationOutcome::INELIGIBLE, array( 'reason' => 'norm_version' ) );
 		}
 
-		$hash = (string) ( $match['source_hash'] ?? '' );
-		if ( '' === $hash || $hash !== Store::source_hash( $source_text, $text_format ) ) {
+		$hash = (string) ( $candidate['source_hash'] ?? '' );
+		if ( '' === $hash || Store::source_hash( $source_text, $text_format ) !== $hash ) {
 			return $this->reject( TMGenerationOutcome::INELIGIBLE, array( 'reason' => 'source_hash' ) );
 		}
 
-		$target = (string) ( $match['target_text'] ?? '' );
+		$target = (string) ( $candidate['target_text'] ?? '' );
 		if ( '' === trim( $target ) ) {
 			return $this->reject( TMGenerationOutcome::INELIGIBLE, array( 'reason' => 'empty_target' ) );
 		}
 
 		$glossary_gate = $this->glossary_compatibility(
-			$match,
+			$candidate,
 			$source_text,
 			$text_format,
 			$source_lang,
@@ -100,8 +102,8 @@ final class TMEligibilityPolicy {
 			'ok'          => true,
 			'code'        => TMGenerationOutcome::EXACT_MATCH,
 			'diagnostics' => array(
-				'tm_id'      => (int) ( $match['tm_id'] ?? 0 ),
-				'match_type' => (string) ( $match['match_type'] ?? 'exact' ),
+				'tm_id'      => (int) ( $candidate['tm_id'] ?? 0 ),
+				'match_type' => (string) ( $candidate['match_type'] ?? 'exact' ),
 			),
 		);
 	}
@@ -109,7 +111,7 @@ final class TMEligibilityPolicy {
 	/**
 	 * Glossary-version-aware skip using existing lexicon contracts only.
 	 *
-	 * @param array<string, mixed> $match       Candidate.
+	 * @param array<string, mixed> $candidate   Candidate payload.
 	 * @param string               $source_text Source.
 	 * @param string               $text_format Format.
 	 * @param int                  $source_lang Source lang.
@@ -117,7 +119,7 @@ final class TMEligibilityPolicy {
 	 * @return array{ok:bool,code:string,diagnostics:array<string,mixed>}
 	 */
 	private function glossary_compatibility(
-		array $match,
+		array $candidate,
 		string $source_text,
 		string $text_format,
 		int $source_lang,
@@ -132,7 +134,7 @@ final class TMEligibilityPolicy {
 		}
 
 		$current = $this->glossary->current_version();
-		$stamped = (int) ( $match['glossary_version'] ?? 0 );
+		$stamped = (int) ( $candidate['glossary_version'] ?? 0 );
 		if ( $stamped >= $current ) {
 			return array(
 				'ok'          => true,
@@ -147,10 +149,10 @@ final class TMEligibilityPolicy {
 			return $this->reject(
 				TMGenerationOutcome::GLOSSARY_BLOCKED,
 				array(
-					'reason'                 => 'glossary_version_behind_with_hits',
-					'glossary_version'       => $stamped,
-					'glossary_version_current'=> $current,
-					'hit_count'              => count( $hits ),
+					'reason'                   => 'glossary_version_behind_with_hits',
+					'glossary_version'         => $stamped,
+					'glossary_version_current' => $current,
+					'hit_count'                => count( $hits ),
 				)
 			);
 		}
@@ -166,6 +168,8 @@ final class TMEligibilityPolicy {
 	}
 
 	/**
+	 * Build a rejected eligibility result.
+	 *
 	 * @param string               $code        Outcome code.
 	 * @param array<string, mixed> $diagnostics Diagnostics.
 	 * @return array{ok:bool,code:string,diagnostics:array<string,mixed>}
