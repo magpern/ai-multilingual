@@ -13,7 +13,7 @@
 **Implementation branch:** `feature/otl1-operations-list-attention` (merged)
 **Independent review (implementation):** **PASS**
 **Validation:** [OTL1_OPERATIONS_LIST_ATTENTION_VALIDATION_LOG.md](OTL1_OPERATIONS_LIST_ATTENTION_VALIDATION_LOG.md)
-**Next:** OTL.2 Unified Detail + Edit/Review — [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `6e5fb47427676edc156d58335055a488a7f1a899`; **implementation next**). Do **not** start TSC under OTL.
+**Next:** OTL.2 Unified Detail + Edit/Review — [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md) (**Complete** on `main`; merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`). OTL.3 next = planning only. Do **not** start TSC under OTL.
 **Related:** [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md)
 
 **Operational success:** Operators can open Workspace → Operations, select a language, see operational attention counts and a paginated cross-object list, understand why a row needs operational attention from cheap Store axes, inspect authoritative TI.4/TI.5/TI.7 facts read-only, and navigate into Translate or Review — without inventing a second policy engine.

@@ -1,6 +1,6 @@
 # OTL.2 — Unified Detail + Edit/Review — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` (independent planning review **PASS**)
+**Status:** **Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`; independent implementation review PASS)
 **Milestone:** OTL.2 — Unified Detail + Edit/Review (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -13,8 +13,10 @@
 **Reviewed planning HEAD:** `c787a36c85d6cdd517de15be75a172f7a4071d29`
 **Freeze recommendation:** **STATE A — FREEZE**
 **Independent review (planning):** **PASS**
-**Implementation branch:** **not created**
-**Next:** Combined OTL.2 **implementation** + independent implementation review + merge + milestone closure from this frozen main baseline. Do **not** start OTL.3–OTL.6 or TSC under OTL.
+**Implementation branch:** `feature/otl2-unified-detail-edit-review` (merged)
+**Independent review (implementation):** **PASS**
+**Validation:** [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_VALIDATION_LOG.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_VALIDATION_LOG.md)
+**Next:** OTL.3 Publication + Stale Workflow — **planning only**. Do **not** start OTL.3–OTL.6 implementation or TSC under OTL.
 **Related:** [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md); [OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md](OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md)
 
 **Planning freeze contracts recorded:** dirty-evidence honesty; dirty review gate; `expected_translation_hash` → 409 `aiml_translation_hash_mismatch` (no schema); cross-object inspection vs post-backed mutation; term/taxonomy mutation **Deferred** (coverage debt); raw target round-trip integrity.
@@ -876,11 +878,11 @@ Planning freeze: **no** version bump, **no** tag, **no** release. Plugin remains
 
 ## 45. Exact next step after Architecture Frozen on main
 
-Run the **combined OTL.2 implementation + independent implementation review + merge + milestone closure** task from the frozen main baseline.
+**OTL.2 Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`).
 
-Do **not** create the implementation feature branch during this planning freeze.
+Begin the definitive **OTL.3 Publication + Stale Workflow planning** process from this closed baseline. Do **not** implement OTL.3 until its plan has been externally reviewed, materialized, independently reviewed, and frozen on main.
 
-Do **not** start OTL.3–OTL.6 or TSC under OTL.
+Do **not** start OTL.4–OTL.6 or TSC under OTL.
 
 ---
 

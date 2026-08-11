@@ -57,7 +57,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **Operator Translation Lifecycle (OTL)** — [parent plan](OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`; OTL.0–OTL.6). **OTL.0 Complete**; **OTL.1 Complete** on `main` (merge `466eb6a470b2ea48b949bc05e0717afbc6600fc3`). **OTL.2** [plan](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md) — **Architecture Frozen** on `main` (freeze merge `6e5fb47427676edc156d58335055a488a7f1a899`); **implementation next**. `Migrator::TARGET` **7**; tag `v1.2.0` released.
+- **Operator Translation Lifecycle (OTL)** — [parent plan](OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`; OTL.0–OTL.6). **OTL.0 Complete**; **OTL.1 Complete**; **OTL.2 Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`). **OTL.3** next = planning only. `Migrator::TARGET` **7**; tag `v1.2.0` released.
 - **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). Shipped in **v1.2.0**.
 - Remaining Program A options (not OTL): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision; later generic **Translation Surface Coverage (TSC)** remains separate from OTL
 - Later (not default next): historical **B.1** additional providers (Deferred under TIQ until measurement shows need); historical **C.1–C.3** catalog items superseded for operator-lifecycle scope by OTL; **D.1** unified health/diagnostics
