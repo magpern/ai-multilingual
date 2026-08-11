@@ -158,11 +158,37 @@ final class AllowedActionsResolverTest extends TestCase {
 	}
 
 	/**
+	 * Non-post rows must not admit mutation actions (OTL.2 honesty).
+	 */
+	public function test_non_post_denies_mutation_actions(): void {
+		$resolver = new AllowedActionsResolver();
+		$row      = $this->row(
+			array(
+				'source_type'     => 'term',
+				'translated_text' => 'Term',
+				'review_status'   => Store::REVIEW_PENDING,
+			)
+		);
+		$caps     = array(
+			'can_translate'   => true,
+			'can_review'      => true,
+			'can_edit_source' => true,
+		);
+		$by_id    = $this->index( $resolver->resolve_for_list( $row, $caps ) );
+		$this->assertFalse( $by_id['edit']['allowed'] );
+		$this->assertSame( ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE, $by_id['edit']['reason_code'] );
+		$this->assertFalse( $by_id['submit_for_review']['allowed'] );
+		$this->assertFalse( $by_id['approve']['allowed'] );
+		$this->assertFalse( $by_id['reject']['allowed'] );
+	}
+
+	/**
 	 * @param array<string, mixed> $overrides Overrides.
 	 */
 	private function row( array $overrides = array() ): object {
 		$defaults = array(
 			'translation_id'  => 1,
+			'source_type'     => Store::SOURCE_POST,
 			'status'          => Store::STATUS_MANUALLY_EDITED,
 			'review_status'   => Store::REVIEW_NOT_SUBMITTED,
 			'publish_status'  => Store::PUBLISH_UNPUBLISHED,

@@ -128,7 +128,7 @@ final class WorkspaceRestTest extends AimlTestCase {
 		$load->set_param( 'language', 'sv' );
 		$segment = $this->first_block_segment( rest_do_request( $load )->get_data()['segments'] );
 
-		$save = $this->workspace_save_request(
+		$save          = $this->workspace_save_request(
 			(int) $post->ID,
 			$segment,
 			array(
@@ -137,14 +137,16 @@ final class WorkspaceRestTest extends AimlTestCase {
 				'status'          => Store::STATUS_MANUALLY_EDITED,
 			)
 		);
-		$this->assertSame( 200, rest_do_request( $save )->get_status() );
+		$save_response = rest_do_request( $save );
+		$this->assertSame( 200, $save_response->get_status() );
+		$saved = $save_response->get_data();
 
 		$clear = $this->workspace_save_request(
 			(int) $post->ID,
-			$segment,
+			$saved,
 			array(
 				'translated_text' => '   ',
-				'source_hash'     => $segment['source_hash'],
+				'source_hash'     => $saved['source_hash'],
 			)
 		);
 

@@ -68,5 +68,19 @@ final class WorkspaceServiceTest extends TestCase {
 		$this->assertArrayHasKey( 'segment_key', $row );
 		$this->assertArrayNotHasKey( 'translation_id', $row );
 		$this->assertSame( 'Hej', $row['translated_text'] );
+		$this->assertArrayHasKey( 'translation_hash', $row );
+	}
+
+	public function test_translation_conflict_exception_is_distinct(): void {
+		$segments  = array(
+			array(
+				'segment_key'      => 'b:550e8400-e29b-41d4-a716-446655440000:content',
+				'translation_hash' => 'newhash',
+			),
+		);
+		$exception = new \AIMultilingual\Workspace\WorkspaceTranslationConflictException( $segments );
+		$this->assertSame( 409, $exception->getCode() );
+		$this->assertSame( 'Translation hash mismatch.', $exception->getMessage() );
+		$this->assertSame( $segments, $exception->segments() );
 	}
 }

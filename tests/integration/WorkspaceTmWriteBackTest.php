@@ -80,8 +80,9 @@ final class WorkspaceTmWriteBackTest extends AimlTestCase {
 		$request->set_body(
 			wp_json_encode(
 				array(
-					'translated_text' => 'Unika produktgarantivillkor för nordiska marknader',
-					'source_hash'     => (string) $segment['source_hash'],
+					'translated_text'           => 'Unika produktgarantivillkor för nordiska marknader',
+					'source_hash'               => (string) $segment['source_hash'],
+					'expected_translation_hash' => (string) ( $segment['translation_hash'] ?? '' ),
 				)
 			)
 		);

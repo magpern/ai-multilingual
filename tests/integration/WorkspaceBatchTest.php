@@ -54,16 +54,18 @@ final class WorkspaceBatchTest extends AimlTestCase {
 			(int) $post->ID,
 			array(
 				array(
-					'segment_key'     => $block_segments[0]['segment_key'],
-					'translated_text' => 'First saved',
-					'source_hash'     => $block_segments[0]['source_hash'],
-					'status'          => Store::STATUS_MANUALLY_EDITED,
+					'segment_key'               => $block_segments[0]['segment_key'],
+					'translated_text'           => 'First saved',
+					'source_hash'               => $block_segments[0]['source_hash'],
+					'status'                    => Store::STATUS_MANUALLY_EDITED,
+					'expected_translation_hash' => (string) ( $block_segments[0]['translation_hash'] ?? '' ),
 				),
 				array(
-					'segment_key'     => $block_segments[1]['segment_key'],
-					'translated_text' => 'Stale attempt',
-					'source_hash'     => 'deadbeef',
-					'status'          => Store::STATUS_MANUALLY_EDITED,
+					'segment_key'               => $block_segments[1]['segment_key'],
+					'translated_text'           => 'Stale attempt',
+					'source_hash'               => 'deadbeef',
+					'status'                    => Store::STATUS_MANUALLY_EDITED,
+					'expected_translation_hash' => (string) ( $block_segments[1]['translation_hash'] ?? '' ),
 				),
 			)
 		);
