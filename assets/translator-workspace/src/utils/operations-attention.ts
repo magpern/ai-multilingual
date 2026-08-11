@@ -32,16 +32,26 @@ export function isAttentionPreset( value: string ): value is AttentionPreset {
 	return 'all' === value || isAttentionReason( value );
 }
 
-/** Never treat TI.5 needs_review as an OTL attention preset. */
-export function sanitizeAttentionPreset( value: string | null | undefined ): AttentionPreset {
+/** Parse attention from URL; reserved TI.5 `needs_review` is invalid (not remapped silently). */
+export function parseAttentionFromUrl(
+	value: string | null | undefined
+): { attention: AttentionPreset; invalidReserved: boolean } {
 	const key = ( value ?? '' ).trim();
 	if ( '' === key || 'all' === key ) {
-		return 'all';
+		return { attention: 'all', invalidReserved: false };
 	}
-	if ( 'needs_review' === key || ! isAttentionPreset( key ) ) {
-		return 'all';
+	if ( 'needs_review' === key ) {
+		return { attention: 'all', invalidReserved: true };
 	}
-	return key;
+	if ( ! isAttentionPreset( key ) ) {
+		return { attention: 'all', invalidReserved: false };
+	}
+	return { attention: key, invalidReserved: false };
+}
+
+/** @deprecated Prefer parseAttentionFromUrl for URL hydration. */
+export function sanitizeAttentionPreset( value: string | null | undefined ): AttentionPreset {
+	return parseAttentionFromUrl( value ).attention;
 }
 
 export function attentionReasonLabel( reason: string ): string {

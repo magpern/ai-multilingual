@@ -72,4 +72,23 @@ final class OperatorTranslationViewModelTest extends TestCase {
 		$this->assertFalse( $out['publication']['eligible'] );
 		$this->assertNull( $out['jobs'] );
 	}
+
+	public function test_detail_serializer_includes_attention_reasons(): void {
+		$out = ( new OperatorTranslationDetailSerializer() )->to_array(
+			array(
+				'translation_id'    => 12,
+				'is_stale'          => true,
+				'review_status'     => 'pending',
+				'publish_status'    => 'unpublished',
+				'attention_reasons' => array( 'stale', 'review_pending', 'unpublished', 'needs_review' ),
+				'qa'                => array(),
+				'assessment'        => array(),
+				'publication'       => array(),
+			)
+		);
+		$this->assertSame(
+			array( 'stale', 'review_pending', 'unpublished' ),
+			$out['attention_reasons']
+		);
+	}
 }

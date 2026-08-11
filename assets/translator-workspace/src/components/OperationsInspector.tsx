@@ -181,20 +181,24 @@ export default function OperationsInspector( {
 								{ __( 'Open in Review', 'ai-multilingual' ) }
 							</Button>
 						) }
-						{ detail.links?.source && (
+						{ detail.links?.edit_link && (
 							<Button
 								variant="link"
-								href={ detail.links.source }
+								href={ detail.links.edit_link }
 								target="_blank"
 								rel="noopener noreferrer"
 							>
 								{ __( 'Open source', 'ai-multilingual' ) }
 							</Button>
 						) }
-						{ detail.links?.frontend && (
+						{ ( detail.links?.frontend_url ||
+							detail.links?.source_frontend_url ) && (
 							<Button
 								variant="link"
-								href={ detail.links.frontend }
+								href={
+									detail.links.frontend_url ||
+									detail.links.source_frontend_url
+								}
 								target="_blank"
 								rel="noopener noreferrer"
 							>

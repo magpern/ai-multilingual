@@ -217,6 +217,7 @@ final class OperatorTranslationAssembler {
 			'review_status'       => (string) ( $row->review_status ?? Store::REVIEW_NOT_SUBMITTED ),
 			'publish_status'      => (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED ),
 			'is_stale'            => (bool) ( $row->is_stale ?? false ),
+			'attention_reasons'   => OperationalAttention::reasons_for_row( $row ),
 			'source_text'         => (string) ( $row->source_text ?? '' ),
 			'translated_text'     => (string) ( $row->translated_text ?? '' ),
 			'text_format'         => (string) ( $row->text_format ?? Store::FORMAT_PLAIN ),

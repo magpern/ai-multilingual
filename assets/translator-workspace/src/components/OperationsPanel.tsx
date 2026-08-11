@@ -62,6 +62,9 @@ export default function OperationsPanel( {
 	const [ attention, setAttention ] = useState< AttentionPreset >(
 		initial.attention
 	);
+	const [ reservedAttentionNotice, setReservedAttentionNotice ] = useState(
+		initial.invalidReservedAttention
+	);
 	const [ status, setStatus ] = useState( initial.status );
 	const [ reviewStatus, setReviewStatus ] = useState( initial.reviewStatus );
 	const [ publishStatus, setPublishStatus ] = useState(
@@ -231,6 +234,19 @@ export default function OperationsPanel( {
 					'ai-multilingual'
 				) }
 			</p>
+
+			{ reservedAttentionNotice && (
+				<Notice
+					status="warning"
+					isDismissible={ true }
+					onRemove={ () => setReservedAttentionNotice( false ) }
+				>
+					{ __(
+						'The attention value “needs_review” is reserved for TI.5 assessment and is not an Operations filter. Showing All instead.',
+						'ai-multilingual'
+					) }
+				</Notice>
+			) }
 
 			<div
 				className="aiml-operations-filters"
@@ -480,9 +496,9 @@ export default function OperationsPanel( {
 										</Button>
 									) }
 									{ actionAllowed( item, 'open_source' ) &&
-										item.links?.source && (
+										item.links?.edit_link && (
 											<a
-												href={ item.links.source }
+												href={ item.links.edit_link }
 												target="_blank"
 												rel="noopener noreferrer"
 											>
@@ -490,9 +506,13 @@ export default function OperationsPanel( {
 											</a>
 										) }
 									{ actionAllowed( item, 'open_frontend' ) &&
-										item.links?.frontend && (
+										( item.links?.frontend_url ||
+											item.links?.source_frontend_url ) && (
 											<a
-												href={ item.links.frontend }
+												href={
+													item.links.frontend_url ||
+													item.links.source_frontend_url
+												}
 												target="_blank"
 												rel="noopener noreferrer"
 											>

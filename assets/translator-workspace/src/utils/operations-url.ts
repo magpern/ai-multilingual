@@ -3,7 +3,7 @@
  */
 
 import {
-	sanitizeAttentionPreset,
+	parseAttentionFromUrl,
 	type AttentionPreset,
 } from './operations-attention';
 
@@ -11,6 +11,7 @@ export interface OperationsUrlState {
 	view: 'operations' | null;
 	language: string;
 	attention: AttentionPreset;
+	invalidReservedAttention: boolean;
 	pageNum: number;
 	status: string;
 	reviewStatus: string;
@@ -25,10 +26,12 @@ export function readOperationsUrlState(
 ): OperationsUrlState {
 	const params = new URLSearchParams( search );
 	const pageRaw = Number( params.get( 'page_num' ) ?? '1' );
+	const parsed = parseAttentionFromUrl( params.get( 'attention' ) );
 	return {
 		view: 'operations' === params.get( 'view' ) ? 'operations' : null,
 		language: ( params.get( 'language' ) ?? '' ).trim(),
-		attention: sanitizeAttentionPreset( params.get( 'attention' ) ),
+		attention: parsed.attention,
+		invalidReservedAttention: parsed.invalidReserved,
 		pageNum: Number.isFinite( pageRaw ) && pageRaw > 0 ? Math.floor( pageRaw ) : 1,
 		status: ( params.get( 'status' ) ?? '' ).trim(),
 		reviewStatus: ( params.get( 'review_status' ) ?? '' ).trim(),

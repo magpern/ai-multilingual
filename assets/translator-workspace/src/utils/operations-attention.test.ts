@@ -1,6 +1,7 @@
 import {
 	ATTENTION_REASON_IDS,
 	isAttentionPreset,
+	parseAttentionFromUrl,
 	sanitizeAttentionPreset,
 } from './operations-attention';
 import { readOperationsUrlState } from './operations-url';
@@ -9,6 +10,9 @@ describe( 'operations-attention', () => {
 	it( 'never treats needs_review as a valid attention preset', () => {
 		expect( isAttentionPreset( 'needs_review' ) ).toBe( false );
 		expect( sanitizeAttentionPreset( 'needs_review' ) ).toBe( 'all' );
+		expect( parseAttentionFromUrl( 'needs_review' ).invalidReserved ).toBe(
+			true
+		);
 		expect( ATTENTION_REASON_IDS ).not.toContain( 'needs_review' );
 	} );
 
@@ -37,10 +41,11 @@ describe( 'operations-url', () => {
 		expect( state.pageNum ).toBe( 3 );
 	} );
 
-	it( 'falls back invalid attention including needs_review', () => {
+	it( 'flags reserved needs_review from URL without applying it', () => {
 		const state = readOperationsUrlState(
 			'?view=operations&attention=needs_review'
 		);
 		expect( state.attention ).toBe( 'all' );
+		expect( state.invalidReservedAttention ).toBe( true );
 	} );
 } );

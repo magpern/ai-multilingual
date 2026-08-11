@@ -53,4 +53,18 @@ test.describe('OTL.1 Operations smoke', () => {
     ).toBeVisible({ timeout: 30_000 });
     await expect(page.getByText(/read-only/i)).toBeVisible();
   });
+
+  test('Open in Translate and Open in Review navigation controls exist', async ({
+    page,
+  }) => {
+    await expect(page.locator('.aiml-operations-table')).toBeVisible({
+      timeout: 60_000,
+    });
+    const translate = page.getByRole('button', { name: 'Open in Translate' }).first();
+    const review = page.getByRole('button', { name: 'Open in Review' }).first();
+    // Buttons appear when capabilities allow; at least one navigation control should exist for operators.
+    const translateCount = await translate.count();
+    const reviewCount = await review.count();
+    expect(translateCount + reviewCount).toBeGreaterThan(0);
+  });
 });
