@@ -57,4 +57,4 @@
 
 ## Exact next step
 
-Begin the definitive **OTL.3 Publication + Stale Workflow planning** process from the closed OTL.2 main baseline. Do not implement OTL.3 until its plan has been externally reviewed, materialized, independently reviewed, and frozen on main.
+Begin / continue **OTL.3** from the frozen plan [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; implementation next). Do not start OTL.4–OTL.6 or TSC under OTL.

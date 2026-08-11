@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Post-v1.2.0 Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **OTL.3** Publication + Stale Workflow — **planning only** from closed OTL.2 baseline. Do not implement OTL.3 until its plan is frozen on `main`. Do not start OTL.4–OTL.6 or TSC under OTL. **OTL.0–OTL.2 Complete**. OTL parent Architecture Frozen ([`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md); freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`). **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**.
+**Current next decision:** **OTL.3** Publication + Stale Workflow — plan [`plans/OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md`](plans/OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on this freeze; implementation next). Do not start OTL.4–OTL.6 or TSC under OTL. **OTL.0–OTL.2 Complete**. OTL parent Architecture Frozen ([`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md); freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`). **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). **OTL.0–OTL.2 Complete.** **OTL.3** next = planning only. |
+| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). **OTL.0–OTL.2 Complete.** **OTL.3** Architecture Frozen — [plan](plans/OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); implementation next. |
 
 **Released:** AI Multilingual **v1.2.0** (tag `v1.2.0`). **v1.1.0** remains the prior intentional release. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. `Migrator::TARGET` is **7**.
 
