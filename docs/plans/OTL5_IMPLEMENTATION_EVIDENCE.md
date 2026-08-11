@@ -69,4 +69,16 @@ Independently evaluated against code/tests: **74/74 PASS** (see feature CI + loc
 
 ## Feature CI
 
-Recorded after push (authoritative run id filled during validation).
+- Implementation push CI: `31537409345` SUCCESS (phpcs, unit, integration, quality, build)
+- Review-fix CI: `31537721500` SUCCESS (phpcs, unit, integration, quality, build)
+
+## Independent implementation review
+
+**Verdict:** `OTL.5 IMPLEMENTATION REVIEW: PASS`
+
+**Feature HEAD before review:** `14b163250dd2222a307e9f21b5b16363f40b0253`  
+**Final reviewed feature HEAD:** `9ceb56375` (after in-scope review fix)
+
+### Review defects fixed
+
+1. Aggregate summary counted TI.7 `skipped` as `ok` while A3 retained those rows — summary now treats `skipped` as needing attention (`fix(otl): count skipped bulk outcomes as needing attention`).
