@@ -1,6 +1,6 @@
 # OTL.2 — Unified Detail + Edit/Review — Implementation Plan
 
-**Status:** Architecture Frozen (planning) — pending independent review PASS and merge to `main`
+**Status:** **Architecture Frozen** (planning) — independent review **PASS**; merge to `main` authorized
 **Milestone:** OTL.2 — Unified Detail + Edit/Review (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative after freeze merge on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -9,7 +9,7 @@
 **ADR:** **No new ADR.** ADR-0015 / ADR-0019 / ADR-0020 unchanged.
 **Planning branch:** `docs/otl2-unified-detail-edit-review-planning-freeze`
 **Freeze recommendation:** **STATE A — FREEZE**
-**Independent review (planning):** pending
+**Independent review (planning):** **PASS**
 **Implementation branch:** **not created** in this planning freeze
 **Next (after freeze on main):** Combined OTL.2 implementation + independent implementation review + merge + milestone closure from the frozen main baseline. Do **not** start OTL.3–OTL.6 or TSC under OTL.
 **Related:** [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md); [OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md](OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md)
@@ -889,7 +889,7 @@ Do **not** start OTL.3–OTL.6 or TSC under OTL.
 - [x] Dirty evidence + review gate  
 - [x] Cross-object vs post-backed mutation  
 - [x] Raw round-trip integrity  
-- [ ] Independent planning review PASS  
+- [x] Independent planning review PASS  
 - [ ] Merge `--no-ff` to main  
 - [ ] Merge CI green  
 - [ ] Planning closure docs  
