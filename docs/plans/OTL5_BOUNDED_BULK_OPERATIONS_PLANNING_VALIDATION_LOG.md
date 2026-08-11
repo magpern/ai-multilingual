@@ -11,7 +11,7 @@
 | Planning baseline main HEAD | `7a2aa2145f95b3cc44ea26a9c004f9296cf09fb6` |
 | Planning branch | `docs/otl5-bounded-bulk-operations-planning-freeze` |
 | Materialization HEAD |  |
-| Final reviewed planning HEAD | `eb9c34bad9206ce3c3f88c3a3f6eb92519fb6402` |
+| Final reviewed planning HEAD | `d0d90a6594738ba427125537ce82919e23391df4` |
 | External freeze review | **PASS** (STATE A — FREEZE; A1–A6) |
 | Independent planning review | **PASS** |
 | Review fixes | None (adversarial checker false-positive on `JobBounds::MAX_SELECTED_SEGMENTS` spacing; constant is 50) |
