@@ -5,6 +5,8 @@
 **Independent review (implementation):** **PASS**
 **Feature CI:** run `31521001615` — phpcs / unit / integration / quality / build **SUCCESS**
 **Fresh main CI:** run `31521213814` — phpcs / unit / integration / quality / build **SUCCESS**
+**Closure commit:** `129b448d25c88fa998c8c6bddb12067bc2091a10`
+**Post-closure CI:** run `31521451325` — phpcs / unit / integration / quality / build **SUCCESS**
 **Plan:** [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md)
 **Evidence:** [OTL3_IMPLEMENTATION_EVIDENCE.md](OTL3_IMPLEMENTATION_EVIDENCE.md)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)

@@ -15,6 +15,8 @@
 **Final reviewed feature HEAD:** `773a998f9fc076476d0dd4f6a49e7608ac32d1f2`
 **Independent review (implementation):** **PASS**
 **Merge CI:** run `31521213814` — **SUCCESS**
+**Closure commit:** `129b448d25c88fa998c8c6bddb12067bc2091a10`
+**Post-closure CI:** run `31521451325` — **SUCCESS**
 **Validation:** [OTL3_PUBLICATION_STALE_WORKFLOW_VALIDATION_LOG.md](OTL3_PUBLICATION_STALE_WORKFLOW_VALIDATION_LOG.md)
 **Freeze recommendation:** **STATE A — FREEZE**
 **Independent review (planning):** **PASS**
