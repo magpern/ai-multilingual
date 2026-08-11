@@ -17,7 +17,7 @@
 
 **Production implementation status:** **Not started.**
 
-**Next:** Author the definitive **OTL.0 Foundations** implementation plan from this frozen parent. Do not implement OTL.0 until that milestone plan is independently reviewed and frozen on `main`. Do not start Translation Surface Coverage (TSC) under OTL.
+**Next:** **OTL.0 Foundations** — [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md) (Architecture Frozen — planning; implementation not started). Do not implement OTL.0 until this milestone plan is Architecture Frozen on `main`. Do not start Translation Surface Coverage (TSC) under OTL. Do not begin OTL.1+ before OTL.0 closes.
 ---
 
 ## 1. Executive summary
@@ -754,9 +754,9 @@ The repository plan on `main` is authoritative.
 
 This parent is Architecture Frozen on `main` (freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`).
 
-**Author the definitive OTL.0 Foundations implementation plan** from this frozen parent. Do **not** implement OTL.0 until that milestone plan has itself been independently reviewed and frozen on `main`.
+**OTL.0 Foundations** milestone plan: [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md) (Architecture Frozen — planning). Do **not** implement OTL.0 until that milestone plan is Architecture Frozen on `main`, then implement on `feature/otl0-foundations` only.
 
-Do not start TSC planning or implementation under OTL.
+Do not start TSC planning or implementation under OTL. Do not begin OTL.1+ before OTL.0 closes.
 
 ---
 
