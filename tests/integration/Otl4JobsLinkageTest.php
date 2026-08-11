@@ -78,6 +78,8 @@ final class Otl4JobsLinkageTest extends AimlTestCase {
 		$this->assertSame( (int) $job->job_id, (int) $payload['association']['job']['job_id'] );
 		$this->assertArrayNotHasKey( 'selection_rule', $payload );
 		$this->assertArrayNotHasKey( 'active_lock_key', $payload['association']['job'] );
+		$this->assertArrayNotHasKey( 'last_error_message', $payload['association']['job'] );
+		$this->assertArrayNotHasKey( 'last_error_message', $payload['association']['item'] );
 		$this->assertNotEmpty( $payload['association']['operations'] );
 	}
 

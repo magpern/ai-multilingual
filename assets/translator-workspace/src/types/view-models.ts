@@ -230,7 +230,6 @@ export interface OperationsJobsAssociationJob {
 	cancelled_items: number;
 	last_error_code: string;
 	last_error_class: string;
-	last_error_message: string;
 	budget_max_requests?: number;
 	budget_max_tokens?: number;
 	budget_used_requests?: number;
@@ -245,7 +244,6 @@ export interface OperationsJobsAssociationItem {
 	result_code: string;
 	last_error_code: string;
 	last_error_class: string;
-	last_error_message: string;
 }
 
 export interface OperationsJobsAssociation {

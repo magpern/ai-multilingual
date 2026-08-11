@@ -562,11 +562,18 @@ final class BackgroundTranslationJobService {
 			return new WP_Error( 'job_not_found', 'Job not found.' );
 		}
 
-		$status = (string) $job->status;
-		if (
-			JobStatuses::is_terminal( $status )
-			&& ! in_array( $status, array( JobStatuses::FAILED, JobStatuses::COMPLETED_WITH_ERRORS ), true )
-		) {
+		// UI + execution share TI.6 admission eligibility (caps enforced at REST).
+		$admission = new JobsOperationAdmission( $this->items );
+		$decision  = $admission->admit(
+			JobsOperationAdmission::OP_RETRY_FAILED,
+			$job,
+			array( 'can_run' => true )
+		);
+		if ( ! $decision['allowed'] ) {
+			if ( JobsOperationAdmission::REASON_NO_FAILED_ITEMS === $decision['reason_code'] ) {
+				return $job;
+			}
+
 			return new WP_Error( 'illegal_transition', 'This terminal job is not eligible for retry-failed.' );
 		}
 
@@ -575,6 +582,7 @@ final class BackgroundTranslationJobService {
 			return $job;
 		}
 
+		$status = (string) $job->status;
 		if ( in_array( $status, array( JobStatuses::FAILED, JobStatuses::COMPLETED_WITH_ERRORS ), true ) ) {
 			$transitioned = $this->transition_job(
 				$job_id,

@@ -452,6 +452,12 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'validate_resume', $admission );
 		$this->assertStringContainsString( 'mutation_scope', $admission );
 
+		$service = (string) file_get_contents( $this->root() . '/src/Jobs/BackgroundTranslationJobService.php' );
+		$this->assertStringContainsString( 'JobsOperationAdmission', $service );
+		$this->assertStringContainsString( 'OP_RETRY_FAILED', $service );
+
+		$this->assertStringNotContainsString( "'last_error_message'", $linker );
+
 		$assembler = (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperatorTranslationAssembler.php' );
 		$this->assertStringContainsString( "'jobs'              => null", $assembler );
 		$this->assertStringContainsString( 'JobsLifecycleLinker', $assembler );
