@@ -12,12 +12,14 @@ import {
 	fetchOperationDetail,
 	fetchOperationsAttentionCounts,
 	fetchOperationsList,
+	operationsBulk,
 	publishSegment,
 	rejectReview,
 	saveSegment,
 	submitReview,
 	translateBatch,
 	unpublishSegment,
+	type OperationsBulkResponse,
 } from '../api/workspace-api';
 import ReviewDecisionDialog from './ReviewDecisionDialog';
 import type {
@@ -47,7 +49,18 @@ import {
 	writeOperationsUrlState,
 } from '../utils/operations-url';
 import { reviewStatusLabel } from '../utils/review-status';
+import OperationsBulkToolbar from './OperationsBulkToolbar';
 import OperationsInspector from './OperationsInspector';
+import {
+	OPERATIONS_SELECTION_LIMIT,
+	applyBulkResultToSelection,
+	allVisibleSelected,
+	clearSelection,
+	deselectAllVisible,
+	dirtyBlocksBulk,
+	selectAllVisible,
+	toggleSelection,
+} from '../utils/operations-selection';
 
 interface OperationsPanelProps {
 	languages: LanguageOption[];
@@ -129,6 +142,14 @@ export default function OperationsPanel( {
 	const [ lastOperationResult, setLastOperationResult ] = useState<
 		string | null
 	>( null );
+	const [ selectedIds, setSelectedIds ] = useState< Set< number > >(
+		() => clearSelection()
+	);
+	const [ bulkBusy, setBulkBusy ] = useState( false );
+	const [ bulkResult, setBulkResult ] = useState< OperationsBulkResponse | null >(
+		null
+	);
+	const [ bulkStatusMessage, setBulkStatusMessage ] = useState( '' );
 
 	const dirty = useMemo(
 		() => isDetailDirty( draftText, detail?.translated_text ),
@@ -140,6 +161,119 @@ export default function OperationsPanel( {
 			'post' === detail.source_type &&
 			actionAllowed( detail, 'edit' )
 	);
+
+	const visibleIds = useMemo(
+		() => items.map( ( item ) => item.translation_id ),
+		[ items ]
+	);
+	const dirtyBlocks = dirtyBlocksBulk( dirty, inspectorId, selectedIds );
+
+	useEffect( () => {
+		setSelectedIds( clearSelection() );
+		setBulkResult( null );
+	}, [
+		languageCode,
+		attention,
+		status,
+		reviewStatus,
+		publishStatus,
+		isStale,
+		sourceType,
+		sourceId,
+	] );
+
+	const handleToggleSelectAll = () => {
+		if ( allVisibleSelected( selectedIds, visibleIds ) ) {
+			setSelectedIds( deselectAllVisible( selectedIds, visibleIds ) );
+			return;
+		}
+		setSelectedIds( selectAllVisible( selectedIds, visibleIds ) );
+	};
+
+	const runBulk = async (
+		action: 'publish' | 'unpublish' | 'enqueue_retranslate',
+		confirmLines: string[]
+	) => {
+		if ( dirtyBlocks ) {
+			return;
+		}
+		if ( selectedIds.size > OPERATIONS_SELECTION_LIMIT ) {
+			setBulkStatusMessage(
+				sprintf(
+					/* translators: %d: max selection */
+					__( 'Selection exceeds the limit of %d translations.', 'ai-multilingual' ),
+					OPERATIONS_SELECTION_LIMIT
+				)
+			);
+			return;
+		}
+		if ( ! window.confirm( confirmLines.join( '\n\n' ) ) ) {
+			return;
+		}
+
+		const byId = new Map( items.map( ( item ) => [ item.translation_id, item ] ) );
+		// Also include selected ids not on this page — send ids only; server resolves.
+		const payload = [ ...selectedIds ].map( ( translationId ) => {
+			const row = byId.get( translationId );
+			return {
+				translation_id: translationId,
+				expected_publish_status: row?.publish_status ?? null,
+			};
+		} );
+
+		setBulkBusy( true );
+		setBulkStatusMessage( __( 'Running bulk action…', 'ai-multilingual' ) );
+		try {
+			const response = await operationsBulk( action, payload );
+			setBulkResult( response );
+			setSelectedIds( applyBulkResultToSelection( selectedIds, response.items ) );
+			const ok = response.summary?.ok ?? 0;
+			const failed = response.summary?.failed ?? 0;
+			setBulkStatusMessage(
+				sprintf(
+					/* translators: 1: ok count 2: failed count 3: aggregate status */
+					__( 'Bulk %3$s: %1$d ok, %2$d needing attention.', 'ai-multilingual' ),
+					ok,
+					failed,
+					response.status
+				)
+			);
+			await load();
+			// A6: never auto-replace dirty inspector.
+			if ( ! dirty && null !== inspectorId ) {
+				await loadDetail( inspectorId );
+			}
+		} catch ( err ) {
+			const message =
+				err instanceof WorkspaceRequestError
+					? err.message
+					: __( 'Bulk action failed.', 'ai-multilingual' );
+			setBulkStatusMessage( message );
+		} finally {
+			setBulkBusy( false );
+		}
+	};
+
+	const handleBulkPublish = () => {
+		void runBulk( 'publish', [
+			__( 'Selected translations will be evaluated individually for publication.', 'ai-multilingual' ),
+			__( 'Ineligible items will be skipped with authoritative publication reasons. Continue?', 'ai-multilingual' ),
+		] );
+	};
+
+	const handleBulkUnpublish = () => {
+		void runBulk( 'unpublish', [
+			__( 'Selected translations will be unpublished individually. Review status will not change. Continue?', 'ai-multilingual' ),
+		] );
+	};
+
+	const handleBulkEnqueue = () => {
+		void runBulk( 'enqueue_retranslate', [
+			__( 'Selected translations will be accepted for asynchronous Jobs processing (enqueued), not translated immediately.', 'ai-multilingual' ),
+			__( 'Later Jobs execution may succeed, skip, conflict, or fail. Publication is not predicted. If auto-publication mode allows, a successful persist may later publish via TI.7. Continue?', 'ai-multilingual' ),
+		] );
+	};
+
 
 	const syncUrl = useCallback( () => {
 		writeOperationsUrlState( {
@@ -979,10 +1113,66 @@ export default function OperationsPanel( {
 				</p>
 			) }
 
+			<OperationsBulkToolbar
+				selectedCount={ selectedIds.size }
+				canTranslate={ canTranslate }
+				busy={ bulkBusy || loading }
+				dirtyBlocks={ dirtyBlocks }
+				onPublish={ handleBulkPublish }
+				onUnpublish={ handleBulkUnpublish }
+				onEnqueueRetranslate={ handleBulkEnqueue }
+				onClear={ () => setSelectedIds( clearSelection() ) }
+			/>
+			{ bulkStatusMessage && (
+				<p className="aiml-operations-bulk-status" role="status" aria-live="polite">
+					{ bulkStatusMessage }
+				</p>
+			) }
+			{ bulkResult && (
+				<div className="aiml-operations-bulk-results" aria-live="polite">
+					<p>
+						{ sprintf(
+							/* translators: %s: aggregate bulk status */
+							__( 'Bulk result: %s', 'ai-multilingual' ),
+							bulkResult.status
+						) }
+					</p>
+					<ul>
+						{ bulkResult.items.map( ( item ) => (
+							<li key={ item.translation_id }>
+								#{ item.translation_id }: { item.outcome }
+								{ item.message ? ` — ${ item.message }` : '' }
+							</li>
+						) ) }
+					</ul>
+					{ bulkResult.operations && bulkResult.operations.length > 0 && (
+						<>
+							<p>{ __( 'Jobs operations created:', 'ai-multilingual' ) }</p>
+							<ul>
+								{ bulkResult.operations.map( ( op ) => (
+									<li key={ op.operation_key }>
+										{ op.operation_key }: { op.outcome }
+										{ op.job_id ? ` (job ${ op.job_id })` : '' }
+									</li>
+								) ) }
+							</ul>
+						</>
+					) }
+				</div>
+			) }
+
 			<div className="aiml-operations-table-wrap">
 				<table className="widefat striped aiml-operations-table">
 					<thead>
 						<tr>
+							<th scope="col" className="aiml-operations-select-col">
+								<input
+									type="checkbox"
+									checked={ allVisibleSelected( selectedIds, visibleIds ) }
+									onChange={ handleToggleSelectAll }
+									aria-label={ __( 'Select all visible translations', 'ai-multilingual' ) }
+								/>
+							</th>
 							<th scope="col">{ __( 'Source', 'ai-multilingual' ) }</th>
 							<th scope="col">{ __( 'Source preview', 'ai-multilingual' ) }</th>
 							<th scope="col">{ __( 'Target preview', 'ai-multilingual' ) }</th>
@@ -999,7 +1189,7 @@ export default function OperationsPanel( {
 					<tbody>
 						{ ! loading && 0 === items.length && (
 							<tr>
-								<td colSpan={ 11 }>
+								<td colSpan={ 12 }>
 									{ __(
 										'No translations match these filters.',
 										'ai-multilingual'
@@ -1008,7 +1198,30 @@ export default function OperationsPanel( {
 							</tr>
 						) }
 						{ items.map( ( item ) => (
-							<tr key={ item.translation_id }>
+							<tr
+								key={ item.translation_id }
+								className={ selectedIds.has( item.translation_id ) ? 'aiml-operations-row--selected' : undefined }
+							>
+								<td className="aiml-operations-select-col">
+									<input
+										type="checkbox"
+										checked={ selectedIds.has( item.translation_id ) }
+										onChange={ ( event ) =>
+											setSelectedIds(
+												toggleSelection(
+													selectedIds,
+													item.translation_id,
+													event.currentTarget.checked
+												)
+											)
+										}
+										aria-label={ sprintf(
+											/* translators: %d: translation id */
+											__( 'Select translation %d', 'ai-multilingual' ),
+											item.translation_id
+										) }
+									/>
+								</td>
 								<td>
 									{ item.source_type } #{ item.source_id }
 								</td>

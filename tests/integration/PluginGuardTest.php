@@ -489,6 +489,61 @@ final class PluginGuardTest extends AimlTestCase {
 	}
 
 	/**
+	 * OTL.5 bounded bulk must not invent policies, retry engines, or queues.
+	 */
+	public function test_otl5_bulk_boundaries(): void {
+		$coordinator = (string) file_get_contents(
+			$this->root() . '/src/Workspace/Operator/OperationsBulkCoordinator.php'
+		);
+		$this->assertStringContainsString( 'BATCH_LIMIT = 50', $coordinator );
+		$this->assertStringContainsString( 'OUTCOME_ENQUEUED', $coordinator );
+		$this->assertStringContainsString( 'PublicationService', $coordinator );
+		$this->assertStringContainsString( 'JobTypes::TRANSLATE_SELECTED', $coordinator );
+		$this->assertStringNotContainsString( 'retry_failed', strtolower( $coordinator ) );
+		$this->assertStringNotContainsString( 'force_publish', strtolower( $coordinator ) );
+		$this->assertStringNotContainsString( 'class PublicationPolicy', $coordinator );
+
+		$controller = (string) file_get_contents( $this->root() . '/src/Rest/WorkspaceController.php' );
+		$this->assertStringContainsString( '/operations/bulk', $controller );
+		$this->assertStringContainsString( 'operations_bulk', $controller );
+		$this->assertStringNotContainsString( "'retry_failed'", $controller );
+
+		$panel = (string) file_get_contents(
+			$this->root() . '/assets/translator-workspace/src/components/OperationsPanel.tsx'
+		);
+		$this->assertStringContainsString( 'enqueued', strtolower( $panel ) );
+		$this->assertStringContainsString( 'evaluated individually for publication', strtolower( $panel ) );
+		$this->assertStringNotContainsString( 'Ready to publish', $panel );
+		$this->assertStringNotContainsString( 'Publishable', $panel );
+		// Forbid user-facing eligibility labels (A2); allow identifier names like mutationEligible.
+		$this->assertDoesNotMatchRegularExpression( "/['\"]Eligible['\"]/", $panel );
+		$this->assertDoesNotMatchRegularExpression( '/__\(\s*[\'"]Eligible[\'"]/', $panel );
+
+		$selection = (string) file_get_contents(
+			$this->root() . '/assets/translator-workspace/src/utils/operations-selection.ts'
+		);
+		$this->assertStringContainsString( 'OPERATIONS_SELECTION_LIMIT = 50', $selection );
+		$this->assertStringContainsString( 'dirtyBlocksBulk', $selection );
+		$this->assertStringContainsString( 'applyBulkResultToSelection', $selection );
+
+		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlPublicationPolicy.php' );
+		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/BulkRetryEngine.php' );
+
+		$integration = '';
+		$iterator    = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/src/Integration' ) );
+		foreach ( $iterator as $file ) {
+			if ( $file->isFile() && 'php' === $file->getExtension() ) {
+				$integration .= (string) file_get_contents( $file->getPathname() );
+			}
+		}
+		$this->assertStringNotContainsString( 'operations/bulk', $integration );
+		$this->assertStringNotContainsString( 'OperationsBulkCoordinator', $integration );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
+	}
+
+	/**
 	 * Product PHP under src/ must stay site-neutral (public/SaaS).
 	 */
 	public function test_otl_product_code_has_no_site_specific_branding(): void {

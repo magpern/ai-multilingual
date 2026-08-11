@@ -861,4 +861,67 @@ export async function fetchOperationDetail(
 	}
 }
 
+export type OperationsBulkAction =
+	| 'publish'
+	| 'unpublish'
+	| 'enqueue_retranslate';
+
+export interface OperationsBulkItemRequest {
+	translation_id: number;
+	expected_publish_status?: string | null;
+	source_hash?: string | null;
+	translation_hash?: string | null;
+}
+
+export interface OperationsBulkItemResult {
+	translation_id: number;
+	outcome: string;
+	code?: string | null;
+	message?: string | null;
+	job_id?: number;
+	reason_codes?: string[];
+}
+
+export interface OperationsBulkOperationResult {
+	operation_key: string;
+	action: string;
+	job_id?: number | null;
+	outcome: string;
+	code?: string | null;
+	affected_items?: number[];
+	message?: string | null;
+}
+
+export interface OperationsBulkResponse {
+	status: 'completed' | 'partial' | 'failed' | string;
+	items: OperationsBulkItemResult[];
+	operations?: OperationsBulkOperationResult[];
+	summary?: {
+		total: number;
+		ok: number;
+		failed: number;
+	};
+}
+
+/**
+ * OTL.5 bounded Operations bulk (publish / unpublish / enqueue_retranslate).
+ */
+export async function operationsBulk(
+	action: OperationsBulkAction,
+	items: OperationsBulkItemRequest[]
+): Promise< OperationsBulkResponse > {
+	try {
+		return await apiFetch< OperationsBulkResponse >( {
+			path: path( 'workspace/operations/bulk' ),
+			method: 'POST',
+			data: {
+				action,
+				items,
+			},
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
 export { userMessageFromError };
