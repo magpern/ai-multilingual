@@ -41,18 +41,48 @@ final class OperatorTranslationListItemViewModel {
 			'status'          => (string) ( $this->data['status'] ?? '' ),
 			'review_status'   => (string) ( $this->data['review_status'] ?? '' ),
 			'publish_status'  => (string) ( $this->data['publish_status'] ?? '' ),
-			'is_stale'        => (bool) ( $this->data['is_stale'] ?? false ),
-			'source_preview'  => (string) ( $this->data['source_preview'] ?? '' ),
-			'target_preview'  => (string) ( $this->data['target_preview'] ?? '' ),
-			'updated_at'      => (string) ( $this->data['updated_at'] ?? '' ),
-			'created_at'      => (string) ( $this->data['created_at'] ?? '' ),
-			'provider'        => (string) ( $this->data['provider'] ?? '' ),
-			'model'           => (string) ( $this->data['model'] ?? '' ),
-			'error_code'      => (string) ( $this->data['error_code'] ?? '' ),
-			'error_message'   => (string) ( $this->data['error_message'] ?? '' ),
-			'links'           => is_array( $this->data['links'] ?? null ) ? $this->data['links'] : array(),
-			'allowed_actions' => is_array( $this->data['allowed_actions'] ?? null ) ? $this->data['allowed_actions'] : array(),
-			'jobs'            => $this->data['jobs'] ?? null,
+			'is_stale'           => (bool) ( $this->data['is_stale'] ?? false ),
+			'attention_reasons'  => $this->attention_reasons(),
+			'source_preview'     => (string) ( $this->data['source_preview'] ?? '' ),
+			'target_preview'     => (string) ( $this->data['target_preview'] ?? '' ),
+			'updated_at'         => (string) ( $this->data['updated_at'] ?? '' ),
+			'created_at'         => (string) ( $this->data['created_at'] ?? '' ),
+			'provider'           => (string) ( $this->data['provider'] ?? '' ),
+			'model'              => (string) ( $this->data['model'] ?? '' ),
+			'error_code'         => (string) ( $this->data['error_code'] ?? '' ),
+			'error_message'      => (string) ( $this->data['error_message'] ?? '' ),
+			'links'              => is_array( $this->data['links'] ?? null ) ? $this->data['links'] : array(),
+			'allowed_actions'    => is_array( $this->data['allowed_actions'] ?? null ) ? $this->data['allowed_actions'] : array(),
+			'jobs'               => $this->data['jobs'] ?? null,
 		);
+	}
+
+	/**
+	 * Sanitizes attention_reasons to the frozen OTL.1 vocabulary.
+	 *
+	 * @return list<string>
+	 */
+	private function attention_reasons(): array {
+		$raw = $this->data['attention_reasons'] ?? array();
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+
+		$allowed = array(
+			'stale'              => true,
+			'review_pending'     => true,
+			'review_rejected'    => true,
+			'unpublished'        => true,
+			'translation_failed' => true,
+		);
+		$out     = array();
+		foreach ( $raw as $reason ) {
+			$id = strtolower( preg_replace( '/[^a-z0-9_]/', '', (string) $reason ) ?? '' );
+			if ( isset( $allowed[ $id ] ) && ! in_array( $id, $out, true ) ) {
+				$out[] = $id;
+			}
+		}
+
+		return $out;
 	}
 }

@@ -16,6 +16,7 @@ use AIMultilingual\Rest\ViewModel\ReviewQueueItemSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
+use AIMultilingual\Workspace\Operator\OperationalAttention;
 use AIMultilingual\Workspace\Review\ReviewBatchCoordinator;
 use AIMultilingual\Workspace\Review\ReviewCapabilities;
 use AIMultilingual\Workspace\Review\ReviewQAUnavailableException;
@@ -166,6 +167,16 @@ final class WorkspaceController {
 			array(
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'list_operations' ),
+				'permission_callback' => array( $this, 'can_access_operations' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/operations/attention-counts',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_operations_attention_counts' ),
 				'permission_callback' => array( $this, 'can_access_operations' ),
 			)
 		);
@@ -1228,7 +1239,7 @@ final class WorkspaceController {
 	}
 
 	/**
-	 * OTL.0 operations list (cheap axis filters; no QA/assessment/explain).
+	 * OTL operations list (cheap axis filters; optional attention preset; no QA/assessment/explain).
 	 *
 	 * @param WP_REST_Request $request REST request.
 	 * @return WP_REST_Response|WP_Error
@@ -1254,21 +1265,51 @@ final class WorkspaceController {
 			'per_page'    => (int) ( $request->get_param( 'per_page' ) ?? 20 ),
 		);
 
+		$attention = $request->get_param( 'attention' );
+		if ( null !== $attention && '' !== (string) $attention ) {
+			$attention_filters = OperationalAttention::preset_to_store_filters( (string) $attention );
+			if ( $attention_filters instanceof WP_Error ) {
+				return $attention_filters;
+			}
+			$args = array_merge( $args, $attention_filters );
+		}
+
+		$axis_conflict = false;
 		foreach ( array( 'status', 'review_status', 'publish_status', 'source_type' ) as $key ) {
 			$value = $request->get_param( $key );
-			if ( null !== $value && '' !== $value ) {
-				$args[ $key ] = sanitize_key( (string) $value );
+			if ( null === $value || '' === $value ) {
+				continue;
 			}
+			$sanitized = sanitize_key( (string) $value );
+			if ( isset( $args[ $key ] ) && (string) $args[ $key ] !== $sanitized ) {
+				$axis_conflict = true;
+			}
+			$args[ $key ] = $sanitized;
 		}
 
 		if ( null !== $request->get_param( 'is_stale' ) && '' !== $request->get_param( 'is_stale' ) ) {
-			$raw              = $request->get_param( 'is_stale' );
-			$args['is_stale'] = in_array( (string) $raw, array( '1', 'true', 'yes' ), true );
+			$raw   = $request->get_param( 'is_stale' );
+			$stale = in_array( (string) $raw, array( '1', 'true', 'yes' ), true );
+			if ( array_key_exists( 'is_stale', $args ) && (bool) $args['is_stale'] !== $stale ) {
+				$axis_conflict = true;
+			}
+			$args['is_stale'] = $stale;
 		}
 
 		$source_id = (int) $request->get_param( 'source_id' );
 		if ( $source_id > 0 ) {
 			$args['source_id'] = $source_id;
+		}
+
+		if ( $axis_conflict ) {
+			return $this->respond(
+				array(
+					'items'    => array(),
+					'total'    => 0,
+					'page'     => max( 1, (int) ( $args['page'] ?? 1 ) ),
+					'per_page' => max( 1, min( 50, (int) ( $args['per_page'] ?? 20 ) ) ),
+				)
+			);
 		}
 
 		$result = $this->workspace->list_operations( $args );
@@ -1280,6 +1321,35 @@ final class WorkspaceController {
 				'page'     => $result['page'],
 				'per_page' => $result['per_page'],
 			)
+		);
+	}
+
+	/**
+	 * OTL.1 operational attention counts (same auth/visibility as operations list).
+	 *
+	 * Counts are language-wide independent buckets (not narrowed by non-attention
+	 * axis filters on the list). `total` is the unfiltered list inventory.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_operations_attention_counts( WP_REST_Request $request ) {
+		$language = sanitize_key( (string) ( $request->get_param( 'language' ) ?? '' ) );
+		if ( '' === $language ) {
+			return new WP_Error(
+				'aiml_missing_language',
+				__( 'language is required.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$lang = $this->workspace->resolve_language_for_operations( $language );
+		if ( $lang instanceof WP_Error ) {
+			return $lang;
+		}
+
+		return $this->respond(
+			$this->workspace->operations_attention_counts( (int) $lang->language_id )
 		);
 	}
 
