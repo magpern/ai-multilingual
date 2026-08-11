@@ -1,6 +1,6 @@
 # OTL.1 — Operations List + Attention — Implementation Plan
 
-**Status:** Architecture Frozen (planning) — pending independent review / merge
+**Status:** Architecture Frozen (planning) — independent review **PASS**; pending merge to `main`
 **Milestone:** OTL.1 — Operations List + Attention (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative when frozen on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -9,6 +9,7 @@
 **ADR:** **No new ADR.** STOP if OTL.1 requires durable composite operator/risk state, new role architecture, Integration API change, schema/index migration, or TIQ ownership change.
 **Planning branch:** `docs/otl1-operations-list-attention-planning-freeze`
 **Baseline main:** `30674ed7c80ca969b987e0c4ccdfb9b6bfe518db`
+**Independent review (planning):** **PASS** (ordinary defects fixed on branch before freeze merge)
 **Related:** [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md)
 
 **Operational success:** Operators can open Workspace → Operations, select a language, see operational attention counts and a paginated cross-object list, understand why a row needs operational attention from cheap Store axes, inspect authoritative TI.4/TI.5/TI.7 facts read-only, and navigate into Translate or Review — without inventing a second policy engine.
@@ -47,7 +48,7 @@ It does **not** answer “every translation that may need human quality/risk att
 | `AllowedActionsResolver` | Shipped (admission only) |
 | `Store::query_operations` / `get_by_translation_id` | Shipped |
 | `GET …/workspace/operations` (+ detail) | Shipped |
-| TARGET 7 indexes for cheap axes | Sufficient for admitted filters |
+| TARGET 7 indexes for cheap axes | Assessed sufficient for admitted axis filters; count path still measured — **STOP** if insufficient |
 | Operations UI | **Not started** — this milestone |
 
 ---
@@ -117,7 +118,13 @@ Primary attention filter: **one preset at a time**. `all` = no-filter default (n
 
 **Hard naming rule:** Machine ID `needs_review` is **reserved exclusively for TI.5 AssessmentCategory**. OTL.1 must never use `needs_review` for ADR-0015 pending review.
 
+**Merchant copy:** OTL.1 supersedes any parent-plan merchant shorthand “Needs review” for ADR-0015 pending with human label **Pending review**. The inspector may still surface TI.5 category `needs_review` as assessment vocabulary (distinct axis).
+
+**Parent OT2 note:** Parent program concepts that mentioned TI.5/TI.7/Jobs as *potential* attention ideas remain parent-level concepts, not OTL.1 list/count policy. OTL.1 milestone-narrows to cheap Store axes with honesty + Deferred buckets.
+
 **`attention_reasons`:** multi-label array on list rows; presentation aliases of Store axes only. A row may include multiple reasons. Counts are **independent and may overlap**. No precedence system that creates a composite status.
+
+**`unpublished` product note:** On new languages, `unpublished` may dominate inventories (broader than “unpublished but TI.7-eligible”). Honesty copy should set that expectation.
 
 **Deferred buckets:** TI.5 risk categories; TI.7 eligibility; rich Jobs; “ready/clean” composite.
 
@@ -135,7 +142,8 @@ Response keys: `{ stale, review_pending, review_rejected, unpublished, translati
 
 - language-scoped
 - bounded vocabulary above
-- independent overlapping counts
+- independent overlapping counts (**bucket counts must not be assumed additive**)
+- **`total`** = count of language-scoped rows visible under the **same auth/visibility as the unfiltered Operations list** (`attention=all` / no attention preset). It is **not** the sum of bucket counts and **not** “rows with ≥1 attention reason”
 - **identical authorization to Operations list**
 - no full inventory load
 - no AssessmentAssembler / PublicationService::explain / AI/network
@@ -155,6 +163,8 @@ Response keys: `{ stale, review_pending, review_rejected, unpublished, translati
 | Mutations | Existing authoritative controllers/services only; not introduced by Operations table |
 
 **Audit verdict:** OTL.0 list auth is intentional (aligned with review-queue capability model), not an unfixed leak. Counts must not invent a new permissions architecture or widen visibility.
+
+**List → inspector denial UX:** When a row is list-visible but detail returns **403** (missing object-level access), Operations must not pretend the inspector opened. Freeze UX: disable or hide **View detail** when `allowed_actions` / links indicate detail is unavailable **or** show a clear non-leaky denial message after a failed detail fetch — never dump protected content. Open in Translate / Open in Review remain subject to their own existing capability gates.
 
 ---
 
@@ -179,7 +189,9 @@ Server-side only:
 - optional explicit `status`, `review_status`, `publish_status`, `is_stale`, `source_type`, `source_id`
 - **Unsupported:** FULLTEXT / cross-axis text search
 
-URL sync on admin page: `page=aiml-translator&view=operations&language=&attention=&page_num=…` (plus explicit filters when set). Saved views Deferred.
+**Composition rule:** When both `attention` and an explicit axis filter are present, filters are combined with **AND**. Contradictory pairs (e.g. `attention=stale` and `is_stale=0`) return an empty page (HTTP 200, empty items) — not a silent override of either filter. Unknown / reserved `attention` values (including accidental `needs_review`) return **400/422** with a clear error; they must not be silently ignored or remapped to TI.5 vocabulary.
+
+URL sync on admin page: `page=aiml-translator&view=operations&language=&attention=&page_num=…` (plus explicit filters when set). Admin `page_num` maps to REST `page`. Saved views Deferred.
 
 ---
 
@@ -217,6 +229,8 @@ Ship a **reusable read-only inspection component** consuming OTL.0 detail REST:
 
 Must **not** implement: edit, review mutations, publication mutations, retranslation, Jobs recovery.
 
+OTL.0 detail may still return mutation-shaped `allowed_actions` descriptors. OTL.1 inspector **may receive** them for admission/navigation cues but **must not render** review/publish/Jobs mutation controls.
+
 **OTL.2 extends this component** into the unified detail/editor — do not build a disposable second detail app.
 
 ---
@@ -251,8 +265,8 @@ Admin Workspace API only. No Integration API / v2.
 - Extend `WorkspaceViewMode` with `operations`
 - New panels mirroring Review queue patterns (`OperationsPanel`, filter bar, row, pagination, counts)
 - CSS `.aiml-operations-*` beside review-queue styles
-- Bootstrap: reuse translate OR review capability (explicit `canAccessOperations` optional)
-- Honesty copy near attention filters/counts
+- Bootstrap: Operations access is the mandatory OR of `aiml_translate` / `aiml_review_translations`; an explicit `canAccessOperations` bootstrap flag is optional naming only
+- Honesty copy near attention filters/counts (including that `unpublished` can dominate new-language inventories)
 
 ---
 
@@ -419,7 +433,7 @@ Do not widen Deferred/Unsupported without amending this freeze.
 
 ---
 
-## 26. Acceptance criteria (76)
+## 26. Acceptance criteria (82)
 
 ### Parent / boundary
 
@@ -462,69 +476,75 @@ Do not widen Deferred/Unsupported without amending this freeze.
 
 29. Attention-counts endpoint requires language.
 30. Count keys match the frozen attention vocabulary + `total`.
-31. Counts use the same capability boundary as the Operations list.
-32. Counts never include a broader language/capability universe than the list.
-33. Counts do not run AssessmentAssembler or publication explain.
-34. Count SQL/implementation shape is free within frozen semantics; plans are measured.
-35. Unacceptable count performance under TARGET 7 is a STOP, not a silent migration.
+31. `total` means language-scoped inventory under the same auth/visibility as the unfiltered list — not the sum of buckets and not “≥1 attention reason”.
+32. Counts use the same capability boundary as the Operations list.
+33. Counts never include a broader language/capability universe than the list.
+34. Counts do not run AssessmentAssembler or publication explain.
+35. Count SQL/implementation shape is free within frozen semantics; plans are measured.
+36. Unacceptable count performance under TARGET 7 is a STOP, not a silent migration.
 
 ### Authorization
 
-36. List access requires `aiml_translate` OR `aiml_review_translations`.
-37. List remains language-scoped Workspace visibility per OTL.0 (no new role system).
-38. Detail/inspector enforces object-level access for post-backed sources.
-39. Unauthorized operators do not receive protected full source/target content.
-40. No new SaaS role/permission architecture is introduced.
+37. List access requires `aiml_translate` OR `aiml_review_translations`.
+38. List remains language-scoped Workspace visibility per OTL.0 (no new role system).
+39. Detail/inspector enforces object-level access for post-backed sources.
+40. When list-visible rows lack detail object access, UI disables/hides View detail or shows a clear denial — never opens protected content.
+41. Unauthorized operators do not receive protected full source/target content.
+42. No new SaaS role/permission architecture is introduced.
 
 ### REST / filters / pagination
 
-41. Additive `attention` list query parameter maps presets to Store filters.
-42. Explicit axis filters remain supported.
-43. FULLTEXT / arbitrary text search is not admitted.
-44. Pagination default ≤20 and maximum ≤50.
-45. Ordering remains `updated_at DESC, translation_id DESC` (or documented OTL.0 equivalent).
-46. Queries do not load all translations into PHP.
-47. Responses remain under admin `aiml/v1` Workspace API only.
+43. Additive `attention` list query parameter maps presets to Store filters.
+44. Explicit axis filters remain supported.
+45. When `attention` and explicit axis filters are both present, they combine with AND; contradictions yield empty results (not silent override).
+46. Unknown or reserved `attention` values (including `needs_review`) return 400/422 — not silent ignore/remap.
+47. FULLTEXT / arbitrary text search is not admitted.
+48. Pagination default ≤20 and maximum ≤50.
+49. Ordering remains `updated_at DESC, translation_id DESC` (or documented OTL.0 equivalent).
+50. Queries do not load all translations into PHP.
+51. Responses remain under admin `aiml/v1` Workspace API only.
+52. Admin URL `page_num` maps to REST `page`.
 
 ### UI / navigation / inspector
 
-48. An Operations tab exists in the existing Workspace SPA shell.
-49. Filters and pagination are server-driven (no client filter over incomplete pages).
-50. URL/query state supports reproducible Operations views for language/attention/page.
-51. Open in Translate navigates to the existing editor tab with context.
-52. Open in Review navigates to the existing review queue with context.
-53. Open source / frontend uses generated links (no hard-coded hosts).
-54. A reusable read-only inspector consumes OTL.0 detail REST.
-55. Inspector shows axes and TI.4/TI.5/TI.7 evidence without mutation controls for review/publish/Jobs.
-56. Inspector is designed for OTL.2 extension (Decision A), not a disposable app.
-57. Operations table does not call review mutation endpoints.
-58. Publish/unpublish/retranslate mutation UX is not shipped in OTL.1.
+53. An Operations tab exists in the existing Workspace SPA shell.
+54. Filters and pagination are server-driven (no client filter over incomplete pages).
+55. URL/query state supports reproducible Operations views for language/attention/page.
+56. Open in Translate navigates to the existing editor tab with context.
+57. Open in Review navigates to the existing review queue with context.
+58. Open source / frontend uses generated links (no hard-coded hosts).
+59. A reusable read-only inspector consumes OTL.0 detail REST.
+60. Inspector shows axes and TI.4/TI.5/TI.7 evidence without mutation controls for review/publish/Jobs.
+61. Inspector may receive `allowed_actions` descriptors but must not render review/publish/Jobs mutation controls in OTL.1.
+62. Inspector is designed for OTL.2 extension (Decision A), not a disposable app.
+63. Operations table does not call review mutation endpoints.
+64. Publish/unpublish/retranslate mutation UX is not shipped in OTL.1.
 
 ### Performance / a11y / browser
 
-59. Scale evidence covers hundreds and thousands of rows (≈10k where practical).
-60. Default list assessment/explain invocations remain zero.
-61. Count path assessment/explain invocations remain zero.
-62. Accessibility requirements (labels, keyboard, no color-only status, focus, pagination a11y) are met and testable.
-63. Soft responsive laptop/desktop admin behavior is defined and not broken at narrower widths.
-64. Local Playwright smoke covers tab load, attention filter, pagination, navigation, and inspector.
-65. Playwright is not required to be CI-gating for OTL.1 given current infrastructure.
+65. Scale evidence covers hundreds and thousands of rows (≈10k where practical).
+66. Default list assessment/explain invocations remain zero.
+67. Count path assessment/explain invocations remain zero.
+68. Accessibility requirements (labels, keyboard, no color-only status, focus, pagination a11y) are met and testable.
+69. Soft responsive laptop/desktop admin behavior is defined and not broken at narrower widths.
+70. Local Playwright smoke covers tab load, attention filter, pagination, navigation, inspector, and honesty copy.
+71. Playwright is not required to be CI-gating for OTL.1 given current infrastructure.
 
 ### Schema / regression / docs
 
-66. Runtime `Migrator::TARGET` remains 7.
-67. No schema/index migration ships in OTL.1 unless architecture STOP is raised instead.
-68. No new ADR is required for ordinary OTL.1 UI/REST work.
-69. TI.4 / TI.5 / TI.7 / ADR-0015 ownership remains unchanged.
-70. Jobs lifecycle remains TI.6-owned; OTL.1 does not duplicate it.
-71. PluginGuard/neutrality coverage extends to OTL.1 product surfaces as appropriate.
-72. No prompts, API keys, or auth headers appear in OTL payloads.
-73. Version remains 1.2.0; no release tag created by OTL.1.
-74. Implementation validation records evidence for these ACs.
-75. Parent/roadmap pointers update only as needed for freeze/closure.
-76. After freeze, exact next step is combined OTL.1 implementation + independent implementation review + merge + closure — not started by the planning freeze.
+72. Runtime `Migrator::TARGET` remains 7.
+73. No schema/index migration ships in OTL.1 unless architecture STOP is raised instead.
+74. No new ADR is required for ordinary OTL.1 UI/REST work.
+75. TI.4 / TI.5 / TI.7 / ADR-0015 ownership remains unchanged.
+76. Jobs lifecycle remains TI.6-owned; OTL.1 does not duplicate it.
+77. PluginGuard/neutrality coverage extends to OTL.1 product surfaces as appropriate.
+78. No prompts, API keys, or auth headers appear in OTL payloads.
+79. Version remains 1.2.0; no release tag created by OTL.1.
+80. Implementation validation records evidence for these ACs.
+81. Parent/roadmap pointers update only as needed for freeze/closure.
+82. After freeze, exact next step is combined OTL.1 implementation + independent implementation review + merge + closure — not started by the planning freeze.
 
-**Verified AC count: 76.**
+**Verified AC count: 82.**
 
 ---
 
@@ -548,7 +568,7 @@ STOP implementation (architecture review) if OTL.1 discovers need for:
 
 ## 28. Test strategy
 
-- **Unit:** attention preset mapping; `attention_reasons`; serializers; honesty ID collision guards
+- **Unit:** attention preset mapping; `attention_reasons`; serializers; honesty ID collision guards; invalid `attention` rejection including `needs_review`
 - **Integration:** list `attention` param; counts auth parity with list; zero assess/explain; pagination; permissions
 - **PluginGuard / neutrality:** no `needs_review` as OTL attention ID in product contracts; no site branding
 - **JS unit:** filter URL state helpers; panel mapping
@@ -565,6 +585,7 @@ STOP implementation (architecture review) if OTL.1 discovers need for:
 4. Counts share list authorization; intentional OTL.0 list model documented
 5. Operational-attention honesty rule
 6. Count semantics frozen; SQL shape free within bounds
+7. Post-review ordinary fixes: `total` semantics; attention×axis AND composition; invalid `attention` 400/422; list→inspector 403 UX; parent “Needs review” copy supersession; inspector `allowed_actions` render rule; Playwright honesty AC alignment
 
 ---
 
