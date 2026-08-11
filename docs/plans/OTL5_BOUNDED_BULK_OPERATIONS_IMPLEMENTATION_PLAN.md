@@ -1,6 +1,6 @@
 # OTL.5 — Bounded Bulk Operations — Implementation Plan
 
-**Status:** **Architecture Frozen** on  (freeze merge ; production implementation **not started**)
+**Status:** **Architecture Frozen** on `main` (freeze merge `001cfb0132c2faefaf8243fffed1a16b94beb390`; production implementation **not started**)
 **Milestone:** OTL.5 — Bounded Bulk Operations (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative on `main` after freeze merge)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -11,9 +11,9 @@
 **Planning branch:** `docs/otl5-bounded-bulk-operations-planning-freeze`
 **External freeze review:** **PASS** (STATE A — FREEZE; A1–A6 locked)
 **Independent planning review:** **PASS**
-**Reviewed planning HEAD:** 
-**Freeze merge:**  @ 
-**Freeze merge CI:** run  — **SUCCESS**`5673b418875047ed5007244d94843f4462798494`
+**Reviewed planning HEAD:** `d27b5db32badf90243d2b5d8739d26e7008d9c05`
+**Freeze merge:** `main` @ `001cfb0132c2faefaf8243fffed1a16b94beb390`
+**Freeze merge CI:** run `31535262057` — **SUCCESS**
 **Validation:** [OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md)
 **Implementation branch:** **Do not create** until this plan is frozen on `main` and the combined implementation task begins.
 **Next after freeze/closure:** Run the combined **OTL.5 Bounded Bulk Operations implementation** + independent implementation review + merge + milestone closure from the frozen main baseline. Do **not** start OTL.6 or TSC under OTL.

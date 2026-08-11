@@ -1,6 +1,6 @@
 # OTL.5 Bounded Bulk Operations — Planning Freeze Validation Log
 
-**Status:** **OTL.5 Architecture Frozen** on 
+**Status:** **OTL.5 Architecture Frozen** on `main`
 **Authoritative plan:** [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 
@@ -11,12 +11,12 @@
 | Planning baseline main HEAD | `7a2aa2145f95b3cc44ea26a9c004f9296cf09fb6` |
 | Planning branch | `docs/otl5-bounded-bulk-operations-planning-freeze` |
 | Materialization HEAD | `601c712362c411445d0e7f37f1135c8ec2da092f` |
-| Final reviewed planning HEAD | `5673b418875047ed5007244d94843f4462798494` |
+| Final reviewed planning HEAD | `d27b5db32badf90243d2b5d8739d26e7008d9c05` |
 | External freeze review | **PASS** (STATE A — FREEZE; A1–A6) |
 | Independent planning review | **PASS** |
-| Review fixes | None (adversarial checker false-positive on `JobBounds::MAX_SELECTED_SEGMENTS` spacing; constant is 50) |
-| Freeze merge |  () |
-| Freeze merge CI | run  — phpcs / unit / integration / quality / build **SUCCESS** (phpcs re-run after transient SSL composer failure) |
+| Review fixes | None (adversarial checker false-positive on JobBounds::MAX_SELECTED_SEGMENTS spacing; constant is 50) |
+| Freeze merge | `001cfb0132c2faefaf8243fffed1a16b94beb390` (`merge: freeze OTL.5 Bounded Bulk Operations implementation plan`) |
+| Freeze merge CI | run `31535262057` — phpcs / unit / integration / quality / build **SUCCESS** (phpcs re-run after transient SSL composer failure) |
 | Closure commit | `25ef64637630c32041fa3ab154cc190b73de1511` |
 | Post-closure CI | _(filled after CI)_ |
 | Plugin version | **1.2.0** (unchanged) |
@@ -47,6 +47,7 @@ Run the combined OTL.5 implementation + independent implementation review + merg
 Do **not** implement OTL.5 until that combined implementation task begins.  
 Do **not** create the implementation branch in the planning freeze task.  
 Do **not** start OTL.6 or TSC.
+
 ## Planning closure
 
 **OTL.5 Architecture Frozen** on `main`.
