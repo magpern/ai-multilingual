@@ -353,7 +353,13 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$controller = (string) file_get_contents( $this->root() . '/src/Rest/WorkspaceController.php' );
 		$this->assertStringContainsString( '/operations', $controller );
+		$this->assertStringContainsString( 'attention-counts', $controller );
 		$this->assertStringNotContainsString( 'register_rest_route', (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperatorTranslationAssembler.php' ) );
+
+		$attention = (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperationalAttention.php' );
+		$this->assertStringContainsString( 'review_pending', $attention );
+		$this->assertStringContainsString( 'reserved for TI.5', $attention );
+		$this->assertStringNotContainsString( 'ID_NEEDS_REVIEW', $attention );
 
 		$integration = '';
 		$iterator    = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/src/Integration' ) );
