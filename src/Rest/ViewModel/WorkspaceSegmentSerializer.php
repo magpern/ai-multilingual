@@ -68,7 +68,12 @@ final class WorkspaceSegmentSerializer {
 	public function many_to_arrays( array $dtos ): array {
 		$out = array();
 		foreach ( $dtos as $dto ) {
-			$out[] = $this->from_dto( $dto )->to_array();
+			$row = $this->from_dto( $dto )->to_array();
+			// Preserve non-durable in-session publication outcome (OTL.3).
+			if ( isset( $dto['publication_result'] ) && is_array( $dto['publication_result'] ) ) {
+				$row['publication_result'] = $dto['publication_result'];
+			}
+			$out[] = $row;
 		}
 
 		return $out;

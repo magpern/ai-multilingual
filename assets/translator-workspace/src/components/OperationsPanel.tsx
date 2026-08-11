@@ -6,14 +6,18 @@ import {
 	WorkspaceConflictError,
 	WorkspaceQABlockedError,
 	WorkspaceReviewActionError,
+	WorkspaceRequestError,
 	WorkspaceReviewConflictError,
 	approveReview,
 	fetchOperationDetail,
 	fetchOperationsAttentionCounts,
 	fetchOperationsList,
+	publishSegment,
 	rejectReview,
 	saveSegment,
 	submitReview,
+	translateBatch,
+	unpublishSegment,
 } from '../api/workspace-api';
 import ReviewDecisionDialog from './ReviewDecisionDialog';
 import type {
@@ -120,6 +124,9 @@ export default function OperationsPanel( {
 	const [ reviewReason, setReviewReason ] = useState( '' );
 	const [ reviewBusy, setReviewBusy ] = useState( false );
 	const [ reviewDialogError, setReviewDialogError ] = useState( '' );
+	const [ lastOperationResult, setLastOperationResult ] = useState<
+		string | null
+	>( null );
 
 	const dirty = useMemo(
 		() => isDetailDirty( draftText, detail?.translated_text ),
@@ -188,6 +195,73 @@ export default function OperationsPanel( {
 		}
 	}, [] );
 
+	const formatPublicationResult = (
+		result: Record< string, unknown > | undefined
+	): string | null => {
+		if ( ! result ) {
+			return null;
+		}
+		const status = String( result.status ?? '' );
+		const reasonCodes = Array.isArray( result.reason_codes )
+			? ( result.reason_codes as string[] ).join( ', ' )
+			: '';
+		const errorMessage = String( result.error_message ?? '' );
+
+		switch ( status ) {
+			case 'published':
+				return __(
+					'Publication result: published.',
+					'ai-multilingual'
+				);
+			case 'unpublished':
+				return __(
+					'Publication result: unpublished.',
+					'ai-multilingual'
+				);
+			case 'noop':
+				return __(
+					'Publication result: no change (already in that state).',
+					'ai-multilingual'
+				);
+			case 'skipped':
+				return reasonCodes
+					? sprintf(
+							/* translators: %s: reason codes */
+							__(
+								'Publication result: skipped (%s). Translation itself succeeded.',
+								'ai-multilingual'
+							),
+							reasonCodes
+					  )
+					: __(
+							'Publication result: skipped. Translation itself succeeded.',
+							'ai-multilingual'
+					  );
+			case 'failed':
+				return errorMessage
+					? sprintf(
+							/* translators: %s: error message */
+							__(
+								'Publication result: failed (%s). Translation itself succeeded.',
+								'ai-multilingual'
+							),
+							errorMessage
+					  )
+					: __(
+							'Publication result: failed. Translation itself succeeded.',
+							'ai-multilingual'
+					  );
+			default:
+				return status
+					? sprintf(
+							/* translators: %s: publication result status */
+							__( 'Publication result: %s.', 'ai-multilingual' ),
+							status
+					  )
+					: null;
+		}
+	};
+
 	useEffect( () => {
 		if ( null === inspectorId ) {
 			setDetail( null );
@@ -196,6 +270,7 @@ export default function OperationsPanel( {
 			setSaveError( '' );
 			setConflictKind( null );
 			setStatusMessage( '' );
+			setLastOperationResult( null );
 			return;
 		}
 		loadDetail( inspectorId );
@@ -452,6 +527,256 @@ export default function OperationsPanel( {
 		setReviewReason( '' );
 		setReviewDialogError( '' );
 		setReviewDialogOpen( true );
+	};
+
+	const handlePublish = async () => {
+		if ( ! detail || 'post' !== detail.source_type || dirty ) {
+			return;
+		}
+
+		setSaving( true );
+		setLastOperationResult( null );
+		setStatusMessage( __( 'Publishing…', 'ai-multilingual' ) );
+
+		try {
+			const response = await publishSegment(
+				detail.source_id,
+				detail.language_code,
+				detail.segment_key,
+				detail.publish_status
+			);
+			const publicationNote = formatPublicationResult(
+				response.publication_result
+			);
+			if ( null !== inspectorId ) {
+				await loadDetail( inspectorId );
+			}
+			setLastOperationResult( publicationNote );
+			setStatusMessage(
+				publicationNote
+					? sprintf(
+							/* translators: %s: publication result summary */
+							__( 'Published. %s', 'ai-multilingual' ),
+							publicationNote
+					  )
+					: __( 'Published.', 'ai-multilingual' )
+			);
+		} catch ( unknownError ) {
+			const message =
+				unknownError instanceof WorkspaceRequestError
+					? unknownError.userMessage
+					: unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not publish this translation.',
+							'ai-multilingual'
+					  );
+			if ( null !== inspectorId ) {
+				await loadDetail( inspectorId );
+			}
+			setStatusMessage( message );
+		} finally {
+			setSaving( false );
+		}
+	};
+
+	const handleUnpublish = async () => {
+		if ( ! detail || 'post' !== detail.source_type || dirty ) {
+			return;
+		}
+
+		if (
+			! window.confirm(
+				__(
+					'Unpublish this translation? It will no longer satisfy a gate that requires published status.',
+					'ai-multilingual'
+				)
+			)
+		) {
+			return;
+		}
+
+		setSaving( true );
+		setLastOperationResult( null );
+		setStatusMessage( __( 'Unpublishing…', 'ai-multilingual' ) );
+
+		try {
+			const response = await unpublishSegment(
+				detail.source_id,
+				detail.language_code,
+				detail.segment_key
+			);
+			const publicationNote = formatPublicationResult(
+				response.publication_result
+			);
+			if ( null !== inspectorId ) {
+				await loadDetail( inspectorId );
+			}
+			setLastOperationResult( publicationNote );
+			setStatusMessage(
+				publicationNote
+					? sprintf(
+							/* translators: %s: publication result summary */
+							__( 'Unpublished. %s', 'ai-multilingual' ),
+							publicationNote
+					  )
+					: __( 'Unpublished.', 'ai-multilingual' )
+			);
+		} catch ( unknownError ) {
+			const message =
+				unknownError instanceof WorkspaceRequestError
+					? unknownError.userMessage
+					: unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not unpublish this translation.',
+							'ai-multilingual'
+					  );
+			if ( null !== inspectorId ) {
+				await loadDetail( inspectorId );
+			}
+			setStatusMessage( message );
+		} finally {
+			setSaving( false );
+		}
+	};
+
+	const handleRetranslate = async () => {
+		if ( ! detail || 'post' !== detail.source_type || dirty ) {
+			return;
+		}
+
+		const mode = String(
+			detail.publication_settings?.auto_publication_mode ??
+				detail.publication?.mode ??
+				'manual'
+		);
+		const mayAutoPublish =
+			'approved_only' === mode || 'controlled_auto' === mode;
+
+		const disclosure = [
+			__(
+				'Retranslate will replace the current target text with a new AI translation.',
+				'ai-multilingual'
+			),
+			__(
+				'Prior review approval will be cleared.',
+				'ai-multilingual'
+			),
+			__(
+				'Current publication state will be invalidated by the replacement.',
+				'ai-multilingual'
+			),
+		];
+		if ( mayAutoPublish ) {
+			disclosure.push(
+				__(
+					'The new translation MAY be automatically published again if TI.7 allows after persist. Do not assume it stays unpublished.',
+					'ai-multilingual'
+				)
+			);
+		}
+		disclosure.push(
+			__( 'Continue with retranslate?', 'ai-multilingual' )
+		);
+
+		if ( ! window.confirm( disclosure.join( '\n\n' ) ) ) {
+			return;
+		}
+
+		setSaving( true );
+		setLastOperationResult( null );
+		setStatusMessage( __( 'Retranslating…', 'ai-multilingual' ) );
+
+		try {
+			const result = await translateBatch(
+				detail.source_id,
+				detail.language_code,
+				[ detail.segment_key ],
+				{
+					[ detail.segment_key ]: detail.translation_hash ?? '',
+				}
+			);
+
+			const hashMismatch = ( result.errors ?? [] ).find(
+				( item ) => 'aiml_translation_hash_mismatch' === item.code
+			);
+			if ( hashMismatch ) {
+				if ( null !== inspectorId ) {
+					await loadDetail( inspectorId );
+				}
+				setStatusMessage(
+					__(
+						'The translation changed while retranslation was running. Reloaded the latest saved target; generated text was not applied.',
+						'ai-multilingual'
+					)
+				);
+				return;
+			}
+
+			if ( 'failed' === result.status ) {
+				if ( null !== inspectorId ) {
+					await loadDetail( inspectorId );
+				}
+				setStatusMessage(
+					result.errors[ 0 ]?.message ||
+						__(
+							'Retranslate failed. The previous target was left unchanged.',
+							'ai-multilingual'
+						)
+				);
+				return;
+			}
+
+			const publicationNote = formatPublicationResult(
+				result.updated[ 0 ]?.publication_result
+			);
+			if ( null !== inspectorId ) {
+				await loadDetail( inspectorId );
+			}
+			setLastOperationResult( publicationNote );
+			setStatusMessage(
+				publicationNote
+					? sprintf(
+							/* translators: %s: publication result summary */
+							__(
+								'Retranslated. %s',
+								'ai-multilingual'
+							),
+							publicationNote
+					  )
+					: __( 'Retranslated.', 'ai-multilingual' )
+			);
+		} catch ( unknownError ) {
+			if (
+				unknownError instanceof WorkspaceConflictError &&
+				'translation' === unknownError.kind
+			) {
+				if ( null !== inspectorId ) {
+					await loadDetail( inspectorId );
+				}
+				setStatusMessage(
+					__(
+						'The translation changed while retranslation was running. Reloaded the latest saved target; generated text was not applied.',
+						'ai-multilingual'
+					)
+				);
+				return;
+			}
+
+			const message =
+				unknownError instanceof WorkspaceRequestError
+					? unknownError.userMessage
+					: unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Retranslate failed. The previous target was left unchanged.',
+							'ai-multilingual'
+					  );
+			setStatusMessage( message );
+		} finally {
+			setSaving( false );
+		}
 	};
 
 	const totalPages = Math.max( 1, Math.ceil( total / PER_PAGE ) );
@@ -821,8 +1146,12 @@ export default function OperationsPanel( {
 					onSubmitReview={ () => runReviewMutation( 'submit' ) }
 					onApproveReview={ () => openReviewDialog( 'approve' ) }
 					onRejectReview={ () => openReviewDialog( 'reject' ) }
+					onPublish={ handlePublish }
+					onUnpublish={ handleUnpublish }
+					onRetranslate={ handleRetranslate }
 					statusMessage={ statusMessage }
 					mutationEligible={ mutationEligible }
+					lastOperationResult={ lastOperationResult }
 				/>
 			) }
 

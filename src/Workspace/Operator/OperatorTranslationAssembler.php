@@ -10,9 +10,11 @@ declare( strict_types=1 );
 namespace AIMultilingual\Workspace\Operator;
 
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Settings;
 use AIMultilingual\Translation\AI\FieldSemanticMapper;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Publication\PublicationDecision;
+use AIMultilingual\Translation\Publication\PublicationMode;
 use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\PreviewService;
@@ -204,43 +206,54 @@ final class OperatorTranslationAssembler {
 			}
 		}
 
+		$settings_data = Settings::sanitize( get_option( Settings::OPTION ) );
+		$gate_enabled  = ! empty( $settings_data['segment_publication_gate_enabled'] );
+		$auto_mode     = (string) ( $settings_data['auto_publication_mode'] ?? PublicationMode::MANUAL );
+		if ( ! PublicationMode::is_valid( $auto_mode ) ) {
+			$auto_mode = PublicationMode::MANUAL;
+		}
+
 		return array(
-			'translation_id'      => (int) $row->translation_id,
-			'source_type'         => (string) $row->source_type,
-			'source_id'           => (int) $row->source_id,
-			'source_subtype'      => (string) ( $row->source_subtype ?? '' ),
-			'language_id'         => (int) $row->language_id,
-			'language_code'       => $lang ? (string) $lang->code : '',
-			'segment_key'         => (string) $row->segment_key,
-			'field_key'           => (string) ( $row->field_key ?? '' ),
-			'status'              => (string) ( $row->status ?? '' ),
-			'review_status'       => (string) ( $row->review_status ?? Store::REVIEW_NOT_SUBMITTED ),
-			'publish_status'      => (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED ),
-			'is_stale'            => (bool) ( $row->is_stale ?? false ),
-			'attention_reasons'   => OperationalAttention::reasons_for_row( $row ),
-			'source_text'         => (string) ( $row->source_text ?? '' ),
-			'translated_text'     => (string) ( $row->translated_text ?? '' ),
-			'text_format'         => (string) ( $row->text_format ?? Store::FORMAT_PLAIN ),
-			'source_hash'         => (string) ( $row->source_hash ?? '' ),
-			'translation_hash'    => (string) ( $row->translation_hash ?? '' ),
-			'updated_at'          => (string) ( $row->updated_at ?? '' ),
-			'created_at'          => (string) ( $row->created_at ?? '' ),
-			'review_submitted_at' => (string) ( $row->review_submitted_at ?? '' ),
-			'reviewed_at'         => (string) ( $row->reviewed_at ?? '' ),
-			'published_at'        => (string) ( $row->published_at ?? '' ),
-			'published_by'        => isset( $row->published_by ) ? (int) $row->published_by : null,
-			'provider'            => (string) ( $row->provider ?? '' ),
-			'model'               => (string) ( $row->model ?? '' ),
-			'prompt_profile'      => (string) ( $row->prompt_profile ?? '' ),
-			'tm_id'               => isset( $row->tm_id ) ? (int) $row->tm_id : null,
-			'error_code'          => (string) ( $row->error_code ?? '' ),
-			'error_message'       => (string) ( $row->error_message ?? '' ),
-			'qa'                  => $qa,
-			'assessment'          => $assessment,
-			'publication'         => $publication_array,
-			'links'               => $links,
-			'allowed_actions'     => $this->actions->resolve_for_detail( $row, $caps, $publication, $links ),
-			'jobs'                => null,
+			'translation_id'       => (int) $row->translation_id,
+			'source_type'          => (string) $row->source_type,
+			'source_id'            => (int) $row->source_id,
+			'source_subtype'       => (string) ( $row->source_subtype ?? '' ),
+			'language_id'          => (int) $row->language_id,
+			'language_code'        => $lang ? (string) $lang->code : '',
+			'segment_key'          => (string) $row->segment_key,
+			'field_key'            => (string) ( $row->field_key ?? '' ),
+			'status'               => (string) ( $row->status ?? '' ),
+			'review_status'        => (string) ( $row->review_status ?? Store::REVIEW_NOT_SUBMITTED ),
+			'publish_status'       => (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED ),
+			'is_stale'             => (bool) ( $row->is_stale ?? false ),
+			'attention_reasons'    => OperationalAttention::reasons_for_row( $row ),
+			'source_text'          => (string) ( $row->source_text ?? '' ),
+			'translated_text'      => (string) ( $row->translated_text ?? '' ),
+			'text_format'          => (string) ( $row->text_format ?? Store::FORMAT_PLAIN ),
+			'source_hash'          => (string) ( $row->source_hash ?? '' ),
+			'translation_hash'     => (string) ( $row->translation_hash ?? '' ),
+			'updated_at'           => (string) ( $row->updated_at ?? '' ),
+			'created_at'           => (string) ( $row->created_at ?? '' ),
+			'review_submitted_at'  => (string) ( $row->review_submitted_at ?? '' ),
+			'reviewed_at'          => (string) ( $row->reviewed_at ?? '' ),
+			'published_at'         => (string) ( $row->published_at ?? '' ),
+			'published_by'         => isset( $row->published_by ) ? (int) $row->published_by : null,
+			'provider'             => (string) ( $row->provider ?? '' ),
+			'model'                => (string) ( $row->model ?? '' ),
+			'prompt_profile'       => (string) ( $row->prompt_profile ?? '' ),
+			'tm_id'                => isset( $row->tm_id ) ? (int) $row->tm_id : null,
+			'error_code'           => (string) ( $row->error_code ?? '' ),
+			'error_message'        => (string) ( $row->error_message ?? '' ),
+			'qa'                   => $qa,
+			'assessment'           => $assessment,
+			'publication'          => $publication_array,
+			'publication_settings' => array(
+				'segment_publication_gate_enabled' => $gate_enabled,
+				'auto_publication_mode'            => $auto_mode,
+			),
+			'links'                => $links,
+			'allowed_actions'      => $this->actions->resolve_for_detail( $row, $caps, $publication, $links ),
+			'jobs'                 => null,
 		);
 	}
 

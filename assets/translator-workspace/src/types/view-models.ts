@@ -199,6 +199,11 @@ export interface OperationsListResponse {
 	per_page: number;
 }
 
+export interface OperationsPublicationSettings {
+	segment_publication_gate_enabled?: boolean;
+	auto_publication_mode?: string;
+}
+
 export interface OperationsDetailResponse extends OperationsListItem {
 	source_text?: string;
 	translated_text?: string;
@@ -206,9 +211,12 @@ export interface OperationsDetailResponse extends OperationsListItem {
 	source_hash?: string;
 	translation_hash?: string;
 	tm_id?: number | string | null;
+	published_at?: string;
+	published_by?: number | null;
 	qa?: Record< string, unknown >;
 	assessment?: Record< string, unknown >;
 	publication?: Record< string, unknown >;
+	publication_settings?: OperationsPublicationSettings;
 }
 
 export interface OperationsAttentionCountsResponse {

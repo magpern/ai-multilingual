@@ -134,12 +134,18 @@ final class BatchOperationCoordinator {
 	/**
 	 * Translates multiple segments via TranslationService.
 	 *
-	 * @param WP_Post            $post         Canonical post.
-	 * @param int                $language_id  Target language id.
-	 * @param array<int, string> $segment_keys Segment keys.
+	 * @param WP_Post               $post                       Canonical post.
+	 * @param int                   $language_id                Target language id.
+	 * @param array<int, string>    $segment_keys               Segment keys.
+	 * @param array<string, string> $expected_translation_hashes Map of segment_key => translation_hash.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function translate_batch( WP_Post $post, int $language_id, array $segment_keys ) {
+	public function translate_batch(
+		WP_Post $post,
+		int $language_id,
+		array $segment_keys,
+		array $expected_translation_hashes = array()
+	) {
 		if ( count( $segment_keys ) > self::BATCH_LIMIT ) {
 			return new WP_Error(
 				'aiml_batch_too_large',
@@ -166,7 +172,14 @@ final class BatchOperationCoordinator {
 				continue;
 			}
 
-			$result = $this->translation->translate_segment( $post, $language_id, $key );
+			$hash   = $expected_translation_hashes[ $key ] ?? null;
+			$result = $this->translation->translate_segment(
+				$post,
+				$language_id,
+				$key,
+				true,
+				null !== $hash ? (string) $hash : null
+			);
 			if ( $result instanceof WP_Error ) {
 				$failed[] = array(
 					'segment_key' => $key,

@@ -394,10 +394,13 @@ final class PluginGuardTest extends AimlTestCase {
 		$inspector = (string) file_get_contents(
 			$this->root() . '/assets/translator-workspace/src/components/OperationsInspector.tsx'
 		);
-		$this->assertStringNotContainsString( 'onPublish', $inspector );
-		$this->assertStringNotContainsString( 'publishTranslation', $inspector );
-		$this->assertStringNotContainsString( 'unpublishTranslation', $inspector );
 		$this->assertStringContainsString( 'Approved does not mean published', $inspector );
+		$this->assertStringContainsString( 'onPublish', $inspector );
+		$this->assertStringContainsString( 'onUnpublish', $inspector );
+		$this->assertStringContainsString( 'onRetranslate', $inspector );
+		$this->assertStringContainsString( 'overlay', strtolower( $inspector ) );
+		$this->assertStringNotContainsString( 'guaranteed visible', strtolower( $inspector ) );
+		$this->assertStringNotContainsString( 'OTLPublicationPolicy', $inspector );
 
 		$honesty = (string) file_get_contents(
 			$this->root() . '/assets/translator-workspace/src/utils/detail-dirty.ts'
@@ -406,6 +409,21 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlSaveService.php' );
 		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlReviewPolicy.php' );
+		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlPublicationPolicy.php' );
+
+		$translation = (string) file_get_contents( $this->root() . '/src/Workspace/TranslationService.php' );
+		$this->assertStringContainsString( 'expected_translation_hash', $translation );
+		$this->assertStringContainsString( 'guard_expected_translation_hash', $translation );
+		$this->assertStringContainsString( 'aiml_translation_hash_mismatch', $translation );
+
+		$resolver = (string) file_get_contents(
+			$this->root() . '/src/Workspace/Operator/AllowedActionsResolver.php'
+		);
+		$start    = strpos( $resolver, 'function action_retranslate_stale' );
+		$this->assertNotFalse( $start );
+		$slice = substr( $resolver, (int) $start, 900 );
+		$this->assertStringNotContainsString( 'DEFERRED_MILESTONE', $slice );
+		$this->assertStringContainsString( 'null )', $slice );
 
 		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
 		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );

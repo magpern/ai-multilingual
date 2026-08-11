@@ -612,7 +612,56 @@ final class SettingsPage {
 		echo '</tbody></table>';
 
 		$this->render_strategy_f_diagnostics( $current, $effective, $valid );
+
+		echo '<h2>' . esc_html__( 'Segment publication', 'ai-multilingual' ) . '</h2>';
+		echo '<p class="description">' . esc_html__(
+			'Controls whether published status gates frontend overlay eligibility, and whether successful auto-translate may attempt auto-publication.',
+			'ai-multilingual'
+		) . '</p>';
+
+		echo '<table class="form-table" role="presentation"><tbody>';
+
+		$this->checkbox_row(
+			'segment_publication_gate_enabled',
+			__( 'Segment publication gate', 'ai-multilingual' ),
+			__( 'When enabled, only segments with publish_status published are overlay-eligible. Enabling does not delete data or mass-unpublish.', 'ai-multilingual' ),
+			! empty( $current['segment_publication_gate_enabled'] )
+		);
+
+		$mode = (string) ( $current['auto_publication_mode'] ?? PublicationMode::MANUAL );
+		if ( ! PublicationMode::is_valid( $mode ) ) {
+			$mode = PublicationMode::MANUAL;
+		}
+
+		echo '<tr><th scope="row"><label for="aiml-auto_publication_mode">' . esc_html__( 'Auto-publication mode', 'ai-multilingual' ) . '</label></th><td>';
+		printf(
+			'<select id="aiml-auto_publication_mode" name="%1$s[auto_publication_mode]" data-aiml-publication-mode-confirm="1">',
+			esc_attr( Settings::OPTION )
+		);
+		$mode_labels = array(
+			PublicationMode::MANUAL          => __( 'Manual', 'ai-multilingual' ),
+			PublicationMode::APPROVED_ONLY   => __( 'Approved only', 'ai-multilingual' ),
+			PublicationMode::CONTROLLED_AUTO => __( 'Controlled auto', 'ai-multilingual' ),
+		);
+		foreach ( $mode_labels as $value => $label ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $value ),
+				selected( $mode, $value, false ),
+				esc_html( $label )
+			);
+		}
+		echo '</select>';
+		echo '<p class="description">' . esc_html__(
+			'Affects future maybe_auto_publish after auto-translate only. Changing mode does not reconcile existing rows; manual does not mass-unpublish.',
+			'ai-multilingual'
+		) . '</p>';
+		echo '</td></tr>';
+
+		echo '</tbody></table>';
+
 		$this->render_publication_diagnostics( $current );
+		$this->render_publication_confirmation_script();
 
 		$this->render_strategy_f_confirmation_script();
 	}
@@ -751,6 +800,49 @@ final class SettingsPage {
 		echo '</tbody></table>';
 		echo '<p class="description">' . esc_html__( 'Gate defaults off; mode defaults to manual. Setting mode to manual disables future automation without mass-unpublish.', 'ai-multilingual' ) . '</p>';
 		echo '</div>';
+	}
+
+	/**
+	 * Confirmation prompts for gate enable and auto-publication mode changes.
+	 */
+	private function render_publication_confirmation_script(): void {
+		$gate_message = __(
+			'Enabling the publication gate immediately enforces overlay eligibility based on each segment\'s existing publish_status. It does not delete translations or mass-unpublish. Continue?',
+			'ai-multilingual'
+		);
+		$mode_message = __(
+			'Changing auto-publication mode only affects future maybe_auto_publish attempts after auto-translate. It does not reconcile inventory or mass-publish. Returning to manual stops future automation and does not mass-unpublish. Continue?',
+			'ai-multilingual'
+		);
+
+		printf(
+			'<script>
+			(function () {
+				var gate = document.querySelector(%1$s);
+				if (gate) {
+					gate.addEventListener("change", function () {
+						if (!gate.checked) { return; }
+						if (!window.confirm(%2$s)) { gate.checked = false; }
+					});
+				}
+				var mode = document.getElementById("aiml-auto_publication_mode");
+				if (mode) {
+					var previous = mode.value;
+					mode.addEventListener("change", function () {
+						if (mode.value === previous) { return; }
+						if (!window.confirm(%3$s)) {
+							mode.value = previous;
+							return;
+						}
+						previous = mode.value;
+					});
+				}
+			}());
+			</script>',
+			wp_json_encode( 'input[name="' . Settings::OPTION . '[segment_publication_gate_enabled]"]' ),
+			wp_json_encode( $gate_message ),
+			wp_json_encode( $mode_message )
+		);
 	}
 
 	/**

@@ -33,7 +33,11 @@ export interface BatchSaveResult {
 }
 
 export interface BatchTranslateResult {
-	updated: WorkspaceSegment[];
+	updated: Array<
+		WorkspaceSegment & {
+			publication_result?: Record< string, unknown >;
+		}
+	>;
 	errors: Array<{
 		segment_key?: string;
 		code?: string;

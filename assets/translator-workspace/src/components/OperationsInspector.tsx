@@ -18,6 +18,7 @@ import {
 	dirtyEditorHint,
 	dirtyEvidenceHonestyMessage,
 } from '../utils/detail-dirty';
+import { canShowPublicationActions } from '../utils/detail-publication-gate';
 import { canShowReviewActions } from '../utils/detail-review-gate';
 import { attentionReasonLabel } from '../utils/operations-attention';
 import { reviewStatusLabel } from '../utils/review-status';
@@ -44,8 +45,12 @@ interface OperationsInspectorProps {
 	onSubmitReview: () => void;
 	onApproveReview: () => void;
 	onRejectReview: () => void;
+	onPublish: () => void;
+	onUnpublish: () => void;
+	onRetranslate: () => void;
 	statusMessage: string;
 	mutationEligible: boolean;
+	lastOperationResult?: string | null;
 }
 
 function actionAllowed(
@@ -127,6 +132,29 @@ function publicationReasonLabel( code: string ): string {
 	}
 }
 
+function publishedByLabel( publishedBy: number | null | undefined ): string {
+	if ( null == publishedBy ) {
+		return __( 'Unknown', 'ai-multilingual' );
+	}
+	if ( 0 === publishedBy ) {
+		return __( 'System', 'ai-multilingual' );
+	}
+	return String( publishedBy );
+}
+
+function publicationModeLabel( mode: string ): string {
+	switch ( mode ) {
+		case 'manual':
+			return __( 'Manual', 'ai-multilingual' );
+		case 'approved_only':
+			return __( 'Approved only', 'ai-multilingual' );
+		case 'controlled_auto':
+			return __( 'Controlled auto', 'ai-multilingual' );
+		default:
+			return mode || __( 'Unknown', 'ai-multilingual' );
+	}
+}
+
 /**
  * Unified translation detail workspace (OTL.2) — extends OTL.1 inspector in place.
  */
@@ -151,8 +179,12 @@ export default function OperationsInspector( {
 	onSubmitReview,
 	onApproveReview,
 	onRejectReview,
+	onPublish,
+	onUnpublish,
+	onRetranslate,
 	statusMessage,
 	mutationEligible,
+	lastOperationResult = null,
 }: OperationsInspectorProps ) {
 	const segmentQa = detail ? detailQaToSegmentQa( detail.qa ) : null;
 	const reviewGate = detail
@@ -164,6 +196,13 @@ export default function OperationsInspector( {
 				canReview,
 		  } )
 		: { submit: false, approve: false, reject: false };
+	const publicationGate = detail
+		? canShowPublicationActions( {
+				dirty,
+				sourceType: detail.source_type,
+				allowedActions: detail.allowed_actions ?? [],
+		  } )
+		: { publish: false, unpublish: false, retranslate: false };
 	const assessmentCategory = detail?.assessment
 		? String( detail.assessment.overall_category ?? '' )
 		: '';
@@ -171,6 +210,15 @@ export default function OperationsInspector( {
 	const publicationReasons = Array.isArray( detail?.publication?.reason_codes )
 		? ( detail.publication.reason_codes as string[] )
 		: [];
+	const gateEnabled = Boolean(
+		detail?.publication_settings?.segment_publication_gate_enabled
+	);
+	const autoMode = String(
+		detail?.publication_settings?.auto_publication_mode ??
+			detail?.publication?.mode ??
+			''
+	);
+	const actionsDisabled = dirty || saving;
 
 	return (
 		<section
@@ -397,35 +445,182 @@ export default function OperationsInspector( {
 						</div>
 					) }
 
-					{ detail.publication && (
+					{ detail.is_stale && (
+						<div
+							className="aiml-operations-inspector-block aiml-operations-inspector-stale"
+							role="alert"
+						>
+							<Notice status="warning" isDismissible={ false }>
+								{ 'published' === detail.publish_status
+									? __(
+											'This translation is stale because the source changed. It remains published until you edit or retranslate.',
+											'ai-multilingual'
+									  )
+									: __(
+											'This translation is stale because the source changed. Edit the target or retranslate before publishing.',
+											'ai-multilingual'
+									  ) }
+							</Notice>
+							{ publicationGate.retranslate && (
+								<div className="aiml-operations-inspector-stale-actions">
+									<Button
+										variant="secondary"
+										onClick={ onRetranslate }
+										disabled={ actionsDisabled }
+									>
+										{ __( 'Retranslate', 'ai-multilingual' ) }
+									</Button>
+								</div>
+							) }
+						</div>
+					) }
+
+					{ ( detail.publication || detail.publication_settings ) && (
 						<div className="aiml-operations-inspector-block">
 							<h3>
 								{ __( 'Publication explain (TI.7)', 'ai-multilingual' ) }
 							</h3>
-							<p>
-								<strong>
-									{ __( 'Eligible', 'ai-multilingual' ) }
-								</strong>
-								{ ': ' }
-								{ detail.publication.eligible
-									? __( 'Yes', 'ai-multilingual' )
-									: __( 'No', 'ai-multilingual' ) }
-							</p>
-							{ publicationReasons.length > 0 && (
-								<ul className="aiml-operations-publication-reasons">
-									{ publicationReasons.map( ( code ) => (
-										<li key={ code }>
-											{ publicationReasonLabel( code ) }
-										</li>
-									) ) }
-								</ul>
+							{ detail.publication && (
+								<>
+									<p>
+										<strong>
+											{ __( 'Eligible', 'ai-multilingual' ) }
+										</strong>
+										{ ': ' }
+										{ detail.publication.eligible
+											? __( 'Yes', 'ai-multilingual' )
+											: __( 'No', 'ai-multilingual' ) }
+									</p>
+									{ publicationReasons.length > 0 && (
+										<ul className="aiml-operations-publication-reasons">
+											{ publicationReasons.map( ( code ) => (
+												<li key={ code }>
+													{ publicationReasonLabel( code ) }
+												</li>
+											) ) }
+										</ul>
+									) }
+								</>
 							) }
 							<p className="aiml-operations-inspector-note">
 								{ __(
-									'Approved does not mean published. Publication is a separate step and is not available from this detail view.',
+									'Approved does not mean published. Publication is a separate step.',
 									'ai-multilingual'
 								) }
 							</p>
+							<dl className="aiml-operations-inspector-axes">
+								<div>
+									<dt>
+										{ __(
+											'Current publish status',
+											'ai-multilingual'
+										) }
+									</dt>
+									<dd>{ detail.publish_status }</dd>
+								</div>
+								<div>
+									<dt>
+										{ __( 'Published at', 'ai-multilingual' ) }
+									</dt>
+									<dd>
+										{ detail.published_at
+											? detail.published_at
+											: __( '—', 'ai-multilingual' ) }
+									</dd>
+								</div>
+								<div>
+									<dt>
+										{ __( 'Published by', 'ai-multilingual' ) }
+									</dt>
+									<dd>
+										{ publishedByLabel( detail.published_by ) }
+									</dd>
+								</div>
+								{ autoMode && (
+									<div>
+										<dt>
+											{ __(
+												'Auto-publication mode',
+												'ai-multilingual'
+											) }
+										</dt>
+										<dd>{ publicationModeLabel( autoMode ) }</dd>
+									</div>
+								) }
+								<div>
+									<dt>
+										{ __(
+											'Segment publication gate',
+											'ai-multilingual'
+										) }
+									</dt>
+									<dd>
+										{ gateEnabled
+											? __( 'On', 'ai-multilingual' )
+											: __( 'Off', 'ai-multilingual' ) }
+									</dd>
+								</div>
+							</dl>
+							{ gateEnabled ? (
+								<p className="aiml-operations-inspector-note">
+									{ __(
+										'Gate ON: published is required by the canonical segment publication gate. Unpublished translations are overlay-ineligible via that gate. Published is necessary but not sufficient for complete frontend rendering (source, route, stale, and integration conditions still apply).',
+										'ai-multilingual'
+									) }
+								</p>
+							) : (
+								<p className="aiml-operations-inspector-note">
+									{ __(
+										'Gate OFF: publish_status is not enforced by the segment publication gate. Unpublished translations may still be overlay-eligible via legacy behavior. This does not guarantee every render path displays the translation.',
+										'ai-multilingual'
+									) }
+								</p>
+							) }
+							{ lastOperationResult && (
+								<p
+									className="aiml-operations-inspector-note"
+									role="status"
+								>
+									{ lastOperationResult }
+								</p>
+							) }
+						</div>
+					) }
+
+					{ ( publicationGate.publish || publicationGate.unpublish ) && (
+						<div className="aiml-operations-inspector-block aiml-operations-inspector-publication-actions">
+							<h3>
+								{ __( 'Publication actions', 'ai-multilingual' ) }
+							</h3>
+							{ dirty && (
+								<p className="aiml-operations-inspector-note">
+									{ __(
+										'Save or discard your changes before publishing or unpublishing.',
+										'ai-multilingual'
+									) }
+								</p>
+							) }
+							<div className="aiml-operations-inspector-review-actions">
+								{ publicationGate.publish && (
+									<Button
+										variant="primary"
+										onClick={ onPublish }
+										disabled={ actionsDisabled }
+									>
+										{ __( 'Publish', 'ai-multilingual' ) }
+									</Button>
+								) }
+								{ publicationGate.unpublish && (
+									<Button
+										variant="secondary"
+										isDestructive
+										onClick={ onUnpublish }
+										disabled={ actionsDisabled }
+									>
+										{ __( 'Unpublish', 'ai-multilingual' ) }
+									</Button>
+								) }
+							</div>
 						</div>
 					) }
 
@@ -553,7 +748,10 @@ export default function OperationsInspector( {
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									{ __( 'Open frontend', 'ai-multilingual' ) }
+									{ __(
+										'Open frontend (publication state + gate eligibility — not verified render proof)',
+										'ai-multilingual'
+									) }
 								</Button>
 							) }
 					</div>
