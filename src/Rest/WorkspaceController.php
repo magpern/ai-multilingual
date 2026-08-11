@@ -10,6 +10,8 @@ declare( strict_types=1 );
 namespace AIMultilingual\Rest;
 
 use AIMultilingual\Plugin;
+use AIMultilingual\Rest\ViewModel\OperatorTranslationDetailSerializer;
+use AIMultilingual\Rest\ViewModel\OperatorTranslationListItemSerializer;
 use AIMultilingual\Rest\ViewModel\ReviewQueueItemSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
@@ -71,26 +73,46 @@ final class WorkspaceController {
 	private ReviewQueueItemSerializer $review_queue_serializer;
 
 	/**
+	 * OTL operations list serializer.
+	 *
+	 * @var OperatorTranslationListItemSerializer
+	 */
+	private OperatorTranslationListItemSerializer $operations_list_serializer;
+
+	/**
+	 * OTL operations detail serializer.
+	 *
+	 * @var OperatorTranslationDetailSerializer
+	 */
+	private OperatorTranslationDetailSerializer $operations_detail_serializer;
+
+	/**
 	 * Builds the workspace REST controller.
 	 *
-	 * @param WorkspaceService                     $workspace                Application facade.
-	 * @param WorkspaceSegmentSerializer           $segment_serializer       Segment serializer.
-	 * @param WorkspacePageSummarySerializer       $page_serializer          Page serializer.
-	 * @param WorkspaceTranslationStatusSerializer $status_serializer        Status serializer.
-	 * @param ReviewQueueItemSerializer            $review_queue_serializer  Review queue serializer.
+	 * @param WorkspaceService                           $workspace                     Application facade.
+	 * @param WorkspaceSegmentSerializer                 $segment_serializer            Segment serializer.
+	 * @param WorkspacePageSummarySerializer             $page_serializer               Page serializer.
+	 * @param WorkspaceTranslationStatusSerializer       $status_serializer             Status serializer.
+	 * @param ReviewQueueItemSerializer                  $review_queue_serializer       Review queue serializer.
+	 * @param OperatorTranslationListItemSerializer|null $operations_list_serializer   OTL list serializer.
+	 * @param OperatorTranslationDetailSerializer|null   $operations_detail_serializer  OTL detail serializer.
 	 */
 	public function __construct(
 		WorkspaceService $workspace,
 		WorkspaceSegmentSerializer $segment_serializer,
 		WorkspacePageSummarySerializer $page_serializer,
 		WorkspaceTranslationStatusSerializer $status_serializer,
-		ReviewQueueItemSerializer $review_queue_serializer
+		ReviewQueueItemSerializer $review_queue_serializer,
+		?OperatorTranslationListItemSerializer $operations_list_serializer = null,
+		?OperatorTranslationDetailSerializer $operations_detail_serializer = null
 	) {
-		$this->workspace               = $workspace;
-		$this->segment_serializer      = $segment_serializer;
-		$this->page_serializer         = $page_serializer;
-		$this->status_serializer       = $status_serializer;
-		$this->review_queue_serializer = $review_queue_serializer;
+		$this->workspace                    = $workspace;
+		$this->segment_serializer           = $segment_serializer;
+		$this->page_serializer              = $page_serializer;
+		$this->status_serializer            = $status_serializer;
+		$this->review_queue_serializer      = $review_queue_serializer;
+		$this->operations_list_serializer   = $operations_list_serializer ?? new OperatorTranslationListItemSerializer();
+		$this->operations_detail_serializer = $operations_detail_serializer ?? new OperatorTranslationDetailSerializer();
 	}
 
 	/**
@@ -135,6 +157,33 @@ final class WorkspaceController {
 				'methods'             => 'GET',
 				'callback'            => array( $this, 'get_review_diagnostics' ),
 				'permission_callback' => array( $this, 'can_review_queue' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/operations',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'list_operations' ),
+				'permission_callback' => array( $this, 'can_access_operations' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/operations/(?P<translation_id>\d+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( $this, 'get_operation' ),
+				'permission_callback' => array( $this, 'can_access_operations' ),
+				'args'                => array(
+					'translation_id' => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+				),
 			)
 		);
 
@@ -1179,6 +1228,78 @@ final class WorkspaceController {
 	}
 
 	/**
+	 * OTL.0 operations list (cheap axis filters; no QA/assessment/explain).
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function list_operations( WP_REST_Request $request ) {
+		$language = sanitize_key( (string) ( $request->get_param( 'language' ) ?? '' ) );
+		if ( '' === $language ) {
+			return new WP_Error(
+				'aiml_missing_language',
+				__( 'language is required.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$lang = $this->workspace->resolve_language_for_operations( $language );
+		if ( $lang instanceof WP_Error ) {
+			return $lang;
+		}
+
+		$args = array(
+			'language_id' => (int) $lang->language_id,
+			'page'        => (int) ( $request->get_param( 'page' ) ?? 1 ),
+			'per_page'    => (int) ( $request->get_param( 'per_page' ) ?? 20 ),
+		);
+
+		foreach ( array( 'status', 'review_status', 'publish_status', 'source_type' ) as $key ) {
+			$value = $request->get_param( $key );
+			if ( null !== $value && '' !== $value ) {
+				$args[ $key ] = sanitize_key( (string) $value );
+			}
+		}
+
+		if ( null !== $request->get_param( 'is_stale' ) && '' !== $request->get_param( 'is_stale' ) ) {
+			$raw              = $request->get_param( 'is_stale' );
+			$args['is_stale'] = in_array( (string) $raw, array( '1', 'true', 'yes' ), true );
+		}
+
+		$source_id = (int) $request->get_param( 'source_id' );
+		if ( $source_id > 0 ) {
+			$args['source_id'] = $source_id;
+		}
+
+		$result = $this->workspace->list_operations( $args );
+
+		return $this->respond(
+			array(
+				'items'    => $this->operations_list_serializer->many_to_arrays( $result['items'] ),
+				'total'    => $result['total'],
+				'page'     => $result['page'],
+				'per_page' => $result['per_page'],
+			)
+		);
+	}
+
+	/**
+	 * OTL.0 operations detail by translation_id.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_operation( WP_REST_Request $request ) {
+		$translation_id = (int) $request->get_param( 'translation_id' );
+		$result         = $this->workspace->get_operation( $translation_id );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		return $this->respond( $this->operations_detail_serializer->to_array( $result ) );
+	}
+
+	/**
 	 * Returns bounded, low-cardinality Review Workflow diagnostics
 	 * (ADR-0015 §13). Never translation content — counts and timings only.
 	 *
@@ -1343,6 +1464,23 @@ final class WorkspaceController {
 		return new WP_Error(
 			'aiml_forbidden',
 			__( 'You do not have permission to view the review queue.', 'ai-multilingual' ),
+			array( 'status' => 403 )
+		);
+	}
+
+	/**
+	 * OTL.0 operations access: translate OR review capability.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function can_access_operations() {
+		if ( current_user_can( Plugin::CAPABILITY ) || current_user_can( ReviewCapabilities::REVIEW_TRANSLATIONS ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'aiml_forbidden',
+			__( 'You do not have permission to access translation operations.', 'ai-multilingual' ),
 			array( 'status' => 403 )
 		);
 	}
