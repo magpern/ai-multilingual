@@ -6,6 +6,8 @@
 **Feature CI (authoritative reviewed):** run `31537721500` — phpcs / unit / integration / quality / build **SUCCESS**
 **Feature CI (pre-merge docs):** run `31537895683` — **SUCCESS**
 **Fresh main CI:** run `31538065663` — phpcs / unit / integration / quality / build **SUCCESS**
+**Closure commit:** `2a3041200c9126dcb812cde9f3ace1870f5f060b`
+**Post-closure CI:** run `31538312008` — phpcs / unit / integration / quality / build **SUCCESS**
 **Plan:** [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md)
 **Evidence:** [OTL5_IMPLEMENTATION_EVIDENCE.md](OTL5_IMPLEMENTATION_EVIDENCE.md)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)

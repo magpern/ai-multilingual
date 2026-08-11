@@ -19,6 +19,8 @@
 **Implementation merge:** `main` @ `ed8dbd8f095cf17e2d3031777f763012f65f5663` (`merge: complete OTL.5 Bounded Bulk Operations`)
 **Feature CI:** run `31537721500` — **SUCCESS**
 **Fresh main CI:** run `31538065663` — **SUCCESS**
+**Closure commit:** `2a3041200c9126dcb812cde9f3ace1870f5f060b`
+**Post-closure CI:** run `31538312008` — **SUCCESS**
 **Validation:** [OTL5_BOUNDED_BULK_OPERATIONS_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_VALIDATION_LOG.md); planning log [OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md)
 **Implementation branch:** `feature/otl5-bounded-bulk-operations` (merged)
 **Next:** Begin definitive **OTL.6 Final Operator Lifecycle Polish** planning from this closed baseline. Do **not** implement OTL.6 or start TSC under OTL until OTL.6 is frozen on main.
