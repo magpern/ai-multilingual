@@ -8,6 +8,7 @@
 **Fresh main CI:** run `31538065663` — phpcs / unit / integration / quality / build **SUCCESS**
 **Closure commit:** `2a3041200c9126dcb812cde9f3ace1870f5f060b`
 **Post-closure CI:** run `31538312008` — phpcs / unit / integration / quality / build **SUCCESS**
+**Final main HEAD CI:** run `31538489271` — **SUCCESS** (phpcs re-run after transient Composer SSL flake)
 **Plan:** [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md)
 **Evidence:** [OTL5_IMPLEMENTATION_EVIDENCE.md](OTL5_IMPLEMENTATION_EVIDENCE.md)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
