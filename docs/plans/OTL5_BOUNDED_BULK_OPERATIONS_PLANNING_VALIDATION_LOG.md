@@ -18,7 +18,7 @@
 | Freeze merge | `001cfb0132c2faefaf8243fffed1a16b94beb390` (`merge: freeze OTL.5 Bounded Bulk Operations implementation plan`) |
 | Freeze merge CI | run `31535262057` — phpcs / unit / integration / quality / build **SUCCESS** (phpcs re-run after transient SSL composer failure) |
 | Closure commit | `25ef64637630c32041fa3ab154cc190b73de1511` |
-| Post-closure CI | _(filled after CI)_ |
+| Post-closure CI | run `31535521885` SUCCESS; docs-repair CI run `31535685555` SUCCESS |
 | Plugin version | **1.2.0** (unchanged) |
 | TARGET | **7** (unchanged) |
 | Schema / new index | None |
