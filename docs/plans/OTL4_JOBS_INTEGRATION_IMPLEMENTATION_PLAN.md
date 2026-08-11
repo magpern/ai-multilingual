@@ -1,6 +1,6 @@
 # OTL.4 — Jobs Integration — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` (freeze merge `aaacaf3d6bacb2547ff41c53b46a9000a15d7ebd`; production implementation **not** started)
+**Status:** **OTL.4 Complete** on `main` (implementation merge `6e77687f6ebbb000372f68d699fba33c71489704`; freeze merge `aaacaf3d6bacb2547ff41c53b46a9000a15d7ebd`)
 **Milestone:** OTL.4 — Jobs Integration (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -11,14 +11,16 @@
 **Planning branch:** `docs/otl4-jobs-integration-planning-freeze` (merged)
 **Freeze merge:** `main` @ `aaacaf3d6bacb2547ff41c53b46a9000a15d7ebd` (`merge: freeze OTL.4 Jobs Integration implementation plan`)
 **Freeze merge CI:** run `31524892001` — **SUCCESS**
-**Closure commit:** `533f392d0ca050a89ef8463c4b29fcae5dc49aea`
-**Post-closure CI:** run `31525114185` — **SUCCESS**
+**Implementation merge:** `main` @ `6e77687f6ebbb000372f68d699fba33c71489704` (`merge: complete OTL.4 Jobs Integration`)
+**Feature CI:** run `31529991869` — **SUCCESS**
+**Fresh main CI:** run `31530162912` — **SUCCESS**
 **Reviewed planning HEAD:** `2accd2e0d07daa63eae39e6152cd450186480ccd`
-**Freeze recommendation:** **STATE A — FREEZE**
-**Independent review (planning):** **PASS** (adversarial review on planning branch; ordinary fix: correct ADR-0011 related link)
-**Validation:** [OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md](OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md)
-**Implementation branch:** **Do not create until the combined OTL.4 implementation task begins.**
-**Next:** Run the combined OTL.4 **implementation** + independent implementation review + merge + milestone closure from this frozen plan. Do **not** start OTL.5–OTL.6 or TSC under OTL.
+**Final reviewed feature HEAD:** `c1709f245a40ff5b19d5758e68f2d39923da2a52`
+**Independent review (planning):** **PASS**
+**Independent review (implementation):** **PASS**
+**Validation:** [OTL4_JOBS_INTEGRATION_VALIDATION_LOG.md](OTL4_JOBS_INTEGRATION_VALIDATION_LOG.md); planning log [OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md](OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md)
+**Implementation branch:** `feature/otl4-jobs-integration` (merged)
+**Next:** Begin **OTL.5 Bounded Bulk Operations** planning only from this closed OTL.4 baseline. Do **not** implement OTL.5–OTL.6 or TSC under OTL until OTL.5 is frozen.
 **Related:** [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [ADR-0011](../adr/0011-resumable-job-pipeline.md); [TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md)
 
 **External-review amendments locked:** A1 semantic linkage ≠ `active_lock_key`; A2 no serialized `selection_rule`; A3 TI.6 owns operation admission (`JobsOperationAdmission`); A4 Outcome B **Partial** (not from `attempt_count`); A5 bounded-lookup-honest `association=null`.
@@ -27,8 +29,7 @@
 
 **Hard boundary:** OTL.4 does **not** ship OTL.5 bulk failed retry, OTL.6 polish, TSC, Integration API v2, schema/index change, new ADR, attempt ledger, Jobs-backed attention, list Jobs enrichment, item-scoped retry, client-side retryability authority, Biopentra-specific behavior, durable full Jobs history, or a second Jobs console inside Operations.
 
-**Exact next step after freeze:** Run the combined OTL.4 **implementation** + independent implementation review + merge + milestone closure task from the frozen main baseline. Do **not** implement until freeze is on `main`.
-
+**Exact next step after closure:** Begin the definitive OTL.5 Bounded Bulk Operations planning process from the closed OTL.4 main baseline. Do not implement OTL.5 until its plan has been externally reviewed, materialized, independently reviewed, and frozen on main.
 ---
 
 ## 1. Official objective
