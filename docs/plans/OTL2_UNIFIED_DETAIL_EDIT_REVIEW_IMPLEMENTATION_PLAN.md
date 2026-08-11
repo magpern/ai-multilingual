@@ -898,4 +898,4 @@ Do **not** start OTL.3–OTL.6 or TSC under OTL.
 - [x] Merge `--no-ff` to main (`6e5fb47427676edc156d58335055a488a7f1a899`)
 - [x] Merge CI green (`31496901459`)
 - [x] Planning closure docs
-- [ ] Post-closure CI green
+- [x] Post-closure CI green (`31497193990`)
