@@ -20,7 +20,7 @@
 **Validation:** [OTL3_PUBLICATION_STALE_WORKFLOW_VALIDATION_LOG.md](OTL3_PUBLICATION_STALE_WORKFLOW_VALIDATION_LOG.md)
 **Freeze recommendation:** **STATE A — FREEZE**
 **Independent review (planning):** **PASS**
-**Next:** Begin definitive **OTL.4 Jobs Integration planning** from the closed OTL.3 main baseline. Do **not** start OTL.4–OTL.6 implementation or TSC under OTL until planned/frozen.
+**Next:** **OTL.4** Jobs Integration — [OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md](OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; production implementation next). Do **not** start OTL.5–OTL.6 or TSC under OTL until planned/frozen.
 **Related:** [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md)
 
 **Planning freeze contracts recorded:** TI.7 sole publication authority; no OTLPublicationPolicy; Settings gate/mode with immediate-vs-prospective effect honesty; stale published remains published (no auto-unpublish); sync retranslate with mandatory pre-persist `expected_translation_hash` guard (Jobs null-hash unchanged); controlled_auto retranslate confirmation disclosure; gate overlay-eligibility wording (not visibility guarantees); current publication facts vs non-durable operation result; TARGET 7 / no schema / no new ADR.
