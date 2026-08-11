@@ -6,7 +6,7 @@
 
 **Post-v1.1 program:** Translation Intelligence & Quality — [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). **v1.2.0 released**.
 
-**Post-v1.2.0 program:** Operator Translation Lifecycle — [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`; OTL.0–OTL.6). Next: **OTL.0 Foundations** — [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `9b922222564da4f3294e36188de992c1384c630c`). Historical Program C remains catalog history; OTL is authoritative for overlapping operator-lifecycle scope.
+**Post-v1.2.0 program:** Operator Translation Lifecycle — [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`; OTL.0–OTL.6). **OTL.0 Complete**. Next: **OTL.1** — [OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md](plans/OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `30332a315e2b0a99a036a5aa521771b21ba2cd9a`). Historical Program C remains catalog history; OTL is authoritative for overlapping operator-lifecycle scope.
 
 **Release status:** AI Multilingual **v1.2.0** released (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **A.SEO** Complete. **TIQ** Complete. `Migrator::TARGET` **7**.
 

@@ -1,15 +1,18 @@
 # OTL.1 — Operations List + Attention — Implementation Plan
 
-**Status:** Architecture Frozen (planning) — independent review **PASS**; pending merge to `main`
+**Status:** Architecture Frozen (planning) — on `main` — implementation not started
 **Milestone:** OTL.1 — Operations List + Attention (Operator Translation Lifecycle program)
-**Kind:** Milestone implementation plan (authoritative when frozen on `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** OTL parent **Architecture Frozen**; OTL.0 Foundations **Complete**; TIQ **Complete**; AI Multilingual **v1.2.0**; `Migrator::TARGET` **7**
 **Schema:** Migrator `TARGET` = **7** (unchanged — no migration expected)
 **ADR:** **No new ADR.** STOP if OTL.1 requires durable composite operator/risk state, new role architecture, Integration API change, schema/index migration, or TIQ ownership change.
-**Planning branch:** `docs/otl1-operations-list-attention-planning-freeze`
-**Baseline main:** `30674ed7c80ca969b987e0c4ccdfb9b6bfe518db`
-**Independent review (planning):** **PASS** (ordinary defects fixed on branch before freeze merge)
+**Planning branch:** `docs/otl1-operations-list-attention-planning-freeze` (merged)
+**Freeze merge:** `main` @ `30332a315e2b0a99a036a5aa521771b21ba2cd9a` (`merge: freeze OTL.1 Operations list + attention plan`)
+**Baseline main (pre-freeze):** `30674ed7c80ca969b987e0c4ccdfb9b6bfe518db`
+**Independent review (planning):** **PASS**
+**Implementation branch:** create **`feature/otl1-operations-list-attention` only after** this plan is Architecture Frozen on `main` — **not** as part of this planning freeze
+**Next after freeze:** Implement OTL1.0–OTL1.8 strictly per this plan on `feature/otl1-operations-list-attention`. Do **not** begin OTL.2+ or TSC.
 **Related:** [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md)
 
 **Operational success:** Operators can open Workspace → Operations, select a language, see operational attention counts and a paginated cross-object list, understand why a row needs operational attention from cheap Store axes, inspect authoritative TI.4/TI.5/TI.7 facts read-only, and navigate into Translate or Review — without inventing a second policy engine.
@@ -591,7 +594,7 @@ STOP implementation (architecture review) if OTL.1 discovers need for:
 
 ## 30. Exact next action after this plan freezes on main
 
-Run the combined **OTL.1 implementation + independent implementation review + merge + milestone closure** task from the frozen main baseline.
+Run the combined **OTL.1 implementation + independent implementation review + merge + milestone closure** task from the frozen main baseline on `feature/otl1-operations-list-attention`.
 
-Do **not** create `feature/otl1-*` during this planning freeze.
+Do **not** create that feature branch during the planning freeze (this closure records the freeze only).
 Do **not** start OTL.2–OTL.6 or TSC.
