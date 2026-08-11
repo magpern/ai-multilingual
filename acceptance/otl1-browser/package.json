@@ -1,0 +1,11 @@
+{
+  "name": "otl1-browser-smoke",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --project=otl1-smoke"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

@@ -143,6 +143,16 @@ if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 	}
 }
 
+if ( ! function_exists( '__' ) ) {
+	/**
+	 * @param string $text   Text.
+	 * @param string $domain Text domain.
+	 */
+	function __( $text, $domain = 'default' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return $text;
+	}
+}
+
 if ( ! isset( $GLOBALS['aiml_unit_filters'] ) ) {
 	$GLOBALS['aiml_unit_filters'] = array();
 }

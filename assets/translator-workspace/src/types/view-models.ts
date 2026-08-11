@@ -151,10 +151,68 @@ export interface TranslatorWorkspaceConfig {
 	initialLanguageCode?: string;
 	canTranslate: boolean;
 	canReview: boolean;
+	canAccessOperations?: boolean;
 	canViewJobs: boolean;
 	canManageJobs: boolean;
 	canRunJobs: boolean;
 	canCancelJobs: boolean;
+}
+
+export interface AllowedActionDescriptor {
+	id: string;
+	allowed: boolean;
+	reason_code: string;
+}
+
+export interface OperationsListItem {
+	translation_id: number;
+	source_type: string;
+	source_id: number;
+	source_subtype: string;
+	language_id: number;
+	language_code: string;
+	segment_key: string;
+	field_key: string;
+	status: string;
+	review_status: string;
+	publish_status: string;
+	is_stale: boolean;
+	attention_reasons: string[];
+	source_preview: string;
+	target_preview: string;
+	updated_at: string;
+	created_at: string;
+	provider: string;
+	model: string;
+	error_code: string;
+	error_message: string;
+	links: Record< string, string >;
+	allowed_actions: AllowedActionDescriptor[];
+	jobs: null;
+}
+
+export interface OperationsListResponse {
+	items: OperationsListItem[];
+	total: number;
+	page: number;
+	per_page: number;
+}
+
+export interface OperationsDetailResponse extends OperationsListItem {
+	source_text?: string;
+	translated_text?: string;
+	qa?: Record< string, unknown >;
+	assessment?: Record< string, unknown >;
+	publication?: Record< string, unknown >;
+}
+
+export interface OperationsAttentionCountsResponse {
+	total: number;
+	stale: number;
+	review_pending: number;
+	review_rejected: number;
+	unpublished: number;
+	translation_failed: number;
 }
 
 declare global {

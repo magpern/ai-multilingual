@@ -152,6 +152,34 @@ final class OperationsScaleTest extends AimlTestCase {
 		$this->assertGreaterThanOrEqual( 1, $counts['total'] );
 	}
 
+	public function test_attention_counts_scale_without_assembler(): void {
+		$language = $this->add_language();
+		$post     = $this->create_page( 'Count scale', '<p>Body</p>' );
+		$this->seed_operations_rows( $post, $language, 250 );
+
+		$assembler = $this->make_assembler();
+		$assembler->reset_invocation_counts();
+
+		$counts = $this->store->count_operations_attention( (int) $language->language_id );
+		$this->assertGreaterThanOrEqual( 250, $counts['total'] );
+		$this->assertGreaterThanOrEqual( 250, $counts['unpublished'] );
+
+		$list_total = $this->store->query_operations(
+			array(
+				'language_id' => (int) $language->language_id,
+				'page'        => 1,
+				'per_page'    => 1,
+			)
+		)['total'];
+		$this->assertSame( $list_total, $counts['total'] );
+
+		// Assembler unused for counts path.
+		$inv = $assembler->invocation_counts();
+		$this->assertSame( 0, $inv['assessment'] );
+		$this->assertSame( 0, $inv['publication_explain'] );
+		$this->assertSame( 0, $inv['qa'] );
+	}
+
 	/**
 	 * @param \WP_Post $post     Canonical post.
 	 * @param object   $language Language row.

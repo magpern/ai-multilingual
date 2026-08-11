@@ -156,8 +156,11 @@ final class PluginGuardTest extends AimlTestCase {
 
 		// Every read/write of user-supplied values goes through prepare(); the
 		// only interpolation is the table name, which comes from Schema.
+		$reads = substr_count( $store, '$wpdb->get_results(' )
+			+ substr_count( $store, '$wpdb->get_var(' )
+			+ substr_count( $store, '$wpdb->get_row(' );
 		$this->assertSame(
-			substr_count( $store, '$wpdb->get_results(' ) + substr_count( $store, '$wpdb->get_var(' ),
+			$reads,
 			substr_count( $store, '$wpdb->prepare(' ) - substr_count( $store, '$wpdb->query( $wpdb->prepare(' ),
 			'Every read in Store must be a prepared statement.'
 		);
@@ -353,7 +356,13 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$controller = (string) file_get_contents( $this->root() . '/src/Rest/WorkspaceController.php' );
 		$this->assertStringContainsString( '/operations', $controller );
+		$this->assertStringContainsString( 'attention-counts', $controller );
 		$this->assertStringNotContainsString( 'register_rest_route', (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperatorTranslationAssembler.php' ) );
+
+		$attention = (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperationalAttention.php' );
+		$this->assertStringContainsString( 'review_pending', $attention );
+		$this->assertStringContainsString( 'reserved for TI.5', $attention );
+		$this->assertStringNotContainsString( 'ID_NEEDS_REVIEW', $attention );
 
 		$integration = '';
 		$iterator    = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/src/Integration' ) );

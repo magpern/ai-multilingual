@@ -32,6 +32,8 @@ interface ReviewQueuePanelProps {
 	languages: LanguageOption[];
 	canTranslate: boolean;
 	onOpenInEditor: ( postId: number, languageCode: string ) => void;
+	initialLanguageCode?: string;
+	initialPostId?: string;
 }
 
 interface ReviewDialogState {
@@ -48,12 +50,14 @@ export default function ReviewQueuePanel( {
 	languages,
 	canTranslate,
 	onOpenInEditor,
+	initialLanguageCode = '',
+	initialPostId = '',
 }: ReviewQueuePanelProps ) {
 	const [ reviewStatus, setReviewStatus ] = useState< ReviewQueueFilter >(
 		'pending'
 	);
-	const [ languageCode, setLanguageCode ] = useState( '' );
-	const [ postIdFilter, setPostIdFilter ] = useState( '' );
+	const [ languageCode, setLanguageCode ] = useState( initialLanguageCode );
+	const [ postIdFilter, setPostIdFilter ] = useState( initialPostId );
 	const [ page, setPage ] = useState( 1 );
 	const [ items, setItems ] = useState< ReviewQueueItem[] >( [] );
 	const [ total, setTotal ] = useState( 0 );

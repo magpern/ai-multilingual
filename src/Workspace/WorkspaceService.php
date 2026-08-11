@@ -258,6 +258,23 @@ final class WorkspaceService {
 	}
 
 	/**
+	 * OTL.1 language-scoped operational attention counts (auth ≡ list).
+	 *
+	 * @param int $language_id Language id.
+	 * @return array{
+	 *     total: int,
+	 *     stale: int,
+	 *     review_pending: int,
+	 *     review_rejected: int,
+	 *     unpublished: int,
+	 *     translation_failed: int
+	 * }
+	 */
+	public function operations_attention_counts( int $language_id ): array {
+		return $this->store->count_operations_attention( $language_id );
+	}
+
+	/**
 	 * OTL.0 translation detail by primary key.
 	 *
 	 * @param int $translation_id Translation PK.

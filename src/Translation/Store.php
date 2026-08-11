@@ -511,6 +511,73 @@ final class Store {
 	}
 
 	/**
+	 * Language-scoped independent operational attention counts (OTL.1).
+	 *
+	 * Same visibility universe as unfiltered `query_operations` for the language
+	 * (no per-row edit_post filter). Bucket counts may overlap; `total` is the
+	 * unfiltered inventory count, not the sum of buckets.
+	 *
+	 * Single bounded aggregate — no AssessmentAssembler / publication explain.
+	 *
+	 * @param int $language_id Language id.
+	 * @return array{
+	 *     total: int,
+	 *     stale: int,
+	 *     review_pending: int,
+	 *     review_rejected: int,
+	 *     unpublished: int,
+	 *     translation_failed: int
+	 * }
+	 */
+	public function count_operations_attention( int $language_id ): array {
+		global $wpdb;
+
+		$empty = array(
+			'total'              => 0,
+			'stale'              => 0,
+			'review_pending'     => 0,
+			'review_rejected'    => 0,
+			'unpublished'        => 0,
+			'translation_failed' => 0,
+		);
+
+		if ( $language_id <= 0 || ! $this->translations_table_exists() ) {
+			return $empty;
+		}
+
+		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT COUNT(*) AS total,
+					SUM(CASE WHEN is_stale = 1 THEN 1 ELSE 0 END) AS stale,
+					SUM(CASE WHEN review_status = %s THEN 1 ELSE 0 END) AS review_pending,
+					SUM(CASE WHEN review_status = %s THEN 1 ELSE 0 END) AS review_rejected,
+					SUM(CASE WHEN publish_status = %s THEN 1 ELSE 0 END) AS unpublished,
+					SUM(CASE WHEN status = %s THEN 1 ELSE 0 END) AS translation_failed
+				FROM ' . Schema::translations() . ' WHERE language_id = %d', // phpcs:ignore WordPress.DB.PreparedSQL
+				self::REVIEW_PENDING,
+				self::REVIEW_REJECTED,
+				self::PUBLISH_UNPUBLISHED,
+				self::STATUS_FAILED,
+				$language_id
+			),
+			ARRAY_A
+		);
+
+		if ( ! is_array( $row ) ) {
+			return $empty;
+		}
+
+		return array(
+			'total'              => (int) ( $row['total'] ?? 0 ),
+			'stale'              => (int) ( $row['stale'] ?? 0 ),
+			'review_pending'     => (int) ( $row['review_pending'] ?? 0 ),
+			'review_rejected'    => (int) ( $row['review_rejected'] ?? 0 ),
+			'unpublished'        => (int) ( $row['unpublished'] ?? 0 ),
+			'translation_failed' => (int) ( $row['translation_failed'] ?? 0 ),
+		);
+	}
+
+	/**
 	 * Returns the renderable translation for a segment, or null.
 	 *
 	 * A stale translation is still returned. Dropping back to the source the

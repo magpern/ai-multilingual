@@ -23,30 +23,32 @@ final class OperatorTranslationViewModelTest extends TestCase {
 		$out = ( new OperatorTranslationListItemSerializer() )->many_to_arrays(
 			array(
 				array(
-					'translation_id'  => 9,
-					'source_type'     => 'post',
-					'source_id'       => 3,
-					'language_code'   => 'sv',
-					'status'          => 'machine_translated',
-					'review_status'   => 'not_submitted',
-					'publish_status'  => 'unpublished',
-					'is_stale'        => false,
-					'source_preview'  => 'Hello',
-					'target_preview'  => 'Hej',
-					'allowed_actions' => array(
+					'translation_id'    => 9,
+					'source_type'       => 'post',
+					'source_id'         => 3,
+					'language_code'     => 'sv',
+					'status'            => 'machine_translated',
+					'review_status'     => 'not_submitted',
+					'publish_status'    => 'unpublished',
+					'is_stale'          => false,
+					'attention_reasons' => array( 'unpublished', 'needs_review' ),
+					'source_preview'    => 'Hello',
+					'target_preview'    => 'Hej',
+					'allowed_actions'   => array(
 						array(
 							'id'          => 'publish',
 							'allowed'     => false,
 							'reason_code' => 'detail_only',
 						),
 					),
-					'jobs'            => null,
-					'assessment'      => array( 'should' => 'not leak' ),
-					'qa'              => array( 'should' => 'not leak' ),
+					'jobs'              => null,
+					'assessment'        => array( 'should' => 'not leak' ),
+					'qa'                => array( 'should' => 'not leak' ),
 				),
 			)
 		);
 		$this->assertSame( 9, $out[0]['translation_id'] );
+		$this->assertSame( array( 'unpublished' ), $out[0]['attention_reasons'] );
 		$this->assertArrayNotHasKey( 'assessment', $out[0] );
 		$this->assertArrayNotHasKey( 'qa', $out[0] );
 		$this->assertNull( $out[0]['jobs'] );
@@ -69,5 +71,24 @@ final class OperatorTranslationViewModelTest extends TestCase {
 		$this->assertSame( 'structurally_clean', $out['assessment']['overall_category'] );
 		$this->assertFalse( $out['publication']['eligible'] );
 		$this->assertNull( $out['jobs'] );
+	}
+
+	public function test_detail_serializer_includes_attention_reasons(): void {
+		$out = ( new OperatorTranslationDetailSerializer() )->to_array(
+			array(
+				'translation_id'    => 12,
+				'is_stale'          => true,
+				'review_status'     => 'pending',
+				'publish_status'    => 'unpublished',
+				'attention_reasons' => array( 'stale', 'review_pending', 'unpublished', 'needs_review' ),
+				'qa'                => array(),
+				'assessment'        => array(),
+				'publication'       => array(),
+			)
+		);
+		$this->assertSame(
+			array( 'stale', 'review_pending', 'unpublished' ),
+			$out['attention_reasons']
+		);
 	}
 }
