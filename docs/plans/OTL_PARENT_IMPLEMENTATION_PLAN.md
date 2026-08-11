@@ -15,9 +15,9 @@
 
 **This plan is the program architecture contract for OTL (OTL.0–OTL.6).** Do not implement production code under OTL until the relevant milestone plan is Architecture Frozen on `main`. Each milestone receives its own definitive planning freeze before implementation. This document freezes program boundaries, invariants, gates, and Deferred items — not detailed OTL.0 work packages.
 
-**Production implementation status:** OTL.0 Foundations implementation is **REVIEW-READY** on `feature/otl0-foundations` (not merged / not Complete on `main`). OTL.1–OTL.6 and TSC remain not started.
+**Production implementation status:** **OTL.0 Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`). OTL.1–OTL.6 and TSC remain not started.
 
-**Next:** Independently review `feature/otl0-foundations`. If it passes, merge to `main`, run fresh full CI, close OTL.0, and only then begin definitive OTL.1 planning. Do not start Translation Surface Coverage (TSC) under OTL.
+**Next:** Begin the definitive **OTL.1** Operations list + attention **planning** process from the closed OTL.0 main baseline. Do not implement OTL.1 until its plan has been independently reviewed and frozen on `main`. Do not start Translation Surface Coverage (TSC) under OTL.
 
 ---
 
@@ -755,11 +755,11 @@ The repository plan on `main` is authoritative.
 
 This parent is Architecture Frozen on `main` (freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`).
 
-**OTL.0 Foundations** milestone plan: [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md) (Architecture Frozen planning on `main`; freeze merge `9b922222564da4f3294e36188de992c1384c630c`). Implementation is **REVIEW-READY** on `feature/otl0-foundations` — see [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md).
+**OTL.0 Foundations** is **Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`; plan freeze `9b922222564da4f3294e36188de992c1384c630c`). See [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md).
 
-Exact next step: independently review `feature/otl0-foundations`. If it passes, merge to `main`, run fresh full CI, close OTL.0, and only then begin definitive OTL.1 planning.
+Exact next step: begin the definitive OTL.1 Operations list + attention planning process from the closed OTL.0 main baseline. Do not implement OTL.1 until its plan has been independently reviewed and frozen on main.
 
-Do not start TSC planning or implementation under OTL. Do not begin OTL.1+ before OTL.0 closes.
+Do not start TSC planning or implementation under OTL.
 
 ---
 

@@ -1,6 +1,6 @@
 # OTL.0 — Foundations — Implementation Plan
 
-**Status:** Implementation complete on `feature/otl0-foundations` — ready for independent review (not Complete on `main`)
+**Status:** **Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`; independent review PASS)
 **Milestone:** OTL.0 — Foundations (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -10,8 +10,10 @@
 **Planning branch:** `docs/otl0-foundations-planning-freeze` (merged)
 **Freeze merge:** `main` @ `9b922222564da4f3294e36188de992c1384c630c` (`merge: freeze OTL.0 Foundations implementation plan`)
 **Independent review (planning):** **PASS**
-**Implementation branch:** `feature/otl0-foundations` — REVIEW-READY; see [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md)
-**Next after freeze:** Independent review → merge → close OTL.0 on `main`. Do **not** begin OTL.1+ or TSC before OTL.0 closes.
+**Implementation branch:** `feature/otl0-foundations` (merged)
+**Independent review (implementation):** **PASS**
+**Validation:** [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md)
+**Next:** OTL.1 Operations list + attention — **planning only**. Do **not** implement OTL.1 until its plan is independently reviewed and frozen on `main`. Do **not** start TSC under OTL.
 **Related (unchanged ownership):** [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md); TI.4 QA; TI.5 Assessment; TI.6 Jobs; TI.7 Publication
 
 **Operational success:** Later OTL UI milestones can consume one computed operator read model, server-computed `allowed_actions`, and additive list/detail admin REST without inventing a second translator, Store, QA engine, assessment policy, publication policy, or Jobs engine — and without schema change.
@@ -24,12 +26,12 @@
 
 OTL.0 establishes the foundation for the Operator Translation Lifecycle:
 
-1. One **computed, non-persisted** operator translation read model  
-2. Capability-aware server-computed **`allowed_actions`** (UI admission only — not mutation authority)  
-3. Additive language-scoped paginated **Operations list** REST  
-4. Additive **translation detail** REST  
-5. Store **query/filter primitives** for OTL.1  
-6. Stable list/detail **ViewModel** contracts  
+1. One **computed, non-persisted** operator translation read model
+2. Capability-aware server-computed **`allowed_actions`** (UI admission only — not mutation authority)
+3. Additive language-scoped paginated **Operations list** REST
+4. Additive **translation detail** REST
+5. Store **query/filter primitives** for OTL.1
+6. Stable list/detail **ViewModel** contracts
 
 ```text
 Store / review state
@@ -132,19 +134,19 @@ Establish the **backend/application foundation** for later OTL operator UX throu
 
 ### OTL.0 may
 
-- Compose Store rows into operator read models  
-- Resolve **UI admission** `allowed_actions` from observed state ∩ capabilities (read-only)  
-- Call TI.4 / TI.5 / TI.7 / ReviewWorkflowService for **detail presentation**  
-- Add Store query methods and PK lookup  
-- Add thin Workspace REST GET routes + ViewModels  
+- Compose Store rows into operator read models
+- Resolve **UI admission** `allowed_actions` from observed state ∩ capabilities (read-only)
+- Call TI.4 / TI.5 / TI.7 / ReviewWorkflowService for **detail presentation**
+- Add Store query methods and PK lookup
+- Add thin Workspace REST GET routes + ViewModels
 
 ### OTL.0 must NOT create
 
-- Second TranslationService / QA engine / Assessment policy / Publication policy / Store / Jobs engine  
-- Persisted composite `operator_status`  
-- Generic action command bus  
-- Mutation endpoints that trust client `allowed_actions`  
-- Integration API v2  
+- Second TranslationService / QA engine / Assessment policy / Publication policy / Store / Jobs engine
+- Persisted composite `operator_status`
+- Generic action command bus
+- Mutation endpoints that trust client `allowed_actions`
+- Integration API v2
 
 ---
 
@@ -154,28 +156,28 @@ One **computed, non-persisted** model aggregating existing truth.
 
 Conceptual fields:
 
-- `translation_id`  
-- composite identity (`source_type`, `source_id`, `language_id`, `segment_key`, `field_key`)  
-- source object/type  
-- source/target language  
-- source/target preview (list) or full authorized text (detail)  
-- provenance `status`  
-- `review_status`  
-- `publish_status`  
-- `is_stale`  
-- QA / TI.5 / TI.7 evidence (**detail**; not default list)  
-- timestamps / on-row actors  
-- bounded provenance/TM (Partial on detail)  
-- Jobs stub (`null` until OTL.4)  
-- navigation links  
-- `allowed_actions`  
+- `translation_id`
+- composite identity (`source_type`, `source_id`, `language_id`, `segment_key`, `field_key`)
+- source object/type
+- source/target language
+- source/target preview (list) or full authorized text (detail)
+- provenance `status`
+- `review_status`
+- `publish_status`
+- `is_stale`
+- QA / TI.5 / TI.7 evidence (**detail**; not default list)
+- timestamps / on-row actors
+- bounded provenance/TM (Partial on detail)
+- Jobs stub (`null` until OTL.4)
+- navigation links
+- `allowed_actions`
 
 **Forbidden:** durable or canonical `operator_status` collapsing axes.
 
 Application owner (repository-consistent names frozen):
 
-- `AIMultilingual\Workspace\Operator\OperatorTranslationAssembler`  
-- `AIMultilingual\Workspace\Operator\AllowedActionsResolver`  
+- `AIMultilingual\Workspace\Operator\OperatorTranslationAssembler`
+- `AIMultilingual\Workspace\Operator\AllowedActionsResolver`
 
 ---
 
@@ -211,10 +213,10 @@ May compose: authorized full source/target; all axes; QA; TI.5 assessment; TI.7 
 
 **Ownership preserved:**
 
-1. TI.4 remains detector owner.  
-2. TI.5 `AssessmentAssembler` remains assessment owner.  
-3. OTL must not copy either policy.  
-4. If existing repository APIs **cleanly** allow one raw-finding pass to feed both QA representation and assessment **without** changing TI.4/TI.5 ownership/contracts, OTL.0 **may** use that path.  
+1. TI.4 remains detector owner.
+2. TI.5 `AssessmentAssembler` remains assessment owner.
+3. OTL must not copy either policy.
+4. If existing repository APIs **cleanly** allow one raw-finding pass to feed both QA representation and assessment **without** changing TI.4/TI.5 ownership/contracts, OTL.0 **may** use that path.
 5. If not, OTL.0 implementation **must**: keep TI.5 unchanged; measure bounded detail-path cost; invoke existing authoritative services independently; record shared-detection optimization as **later debt** if worthwhile.
 
 A performance optimization **must not** widen OTL.0 into a TI.4/TI.5 API redesign.
@@ -258,11 +260,11 @@ Every eventual mutation **MUST** revalidate through its authoritative service at
 
 Hard requirements:
 
-- no trust in a stale `allowed_actions` response  
-- no mutation endpoint accepts client `allowed=true` as authority  
-- current state/capability rechecked at mutation time  
-- race/concurrent state changes remain safe  
-- `AllowedActionsResolver` does **not** become a second mutation-policy engine  
+- no trust in a stale `allowed_actions` response
+- no mutation endpoint accepts client `allowed=true` as authority
+- current state/capability rechecked at mutation time
+- race/concurrent state changes remain safe
+- `AllowedActionsResolver` does **not** become a second mutation-policy engine
 
 OTL.0 adds **no** new mutation facade; existing POSTs remain authoritative.
 
@@ -317,10 +319,10 @@ No duplicated assessment policy. No persisted assessment. No opaque quality/risk
 
 ## 15. Review / publication / stale
 
-- **ADR-0015** unchanged — expose `not_submitted` \| `pending` \| `approved` \| `rejected`; merchant labels in VM only; **approved ≠ published**  
-- **ADR-0020** unchanged — `publish_status` is publication truth  
-- **Staleness** — expose `is_stale` + timestamps; no `source_hash` redesign; no auto-unpublish  
-- Axes remain separate; no new states  
+- **ADR-0015** unchanged — expose `not_submitted` \| `pending` \| `approved` \| `rejected`; merchant labels in VM only; **approved ≠ published**
+- **ADR-0020** unchanged — `publish_status` is publication truth
+- **Staleness** — expose `is_stale` + timestamps; no `source_hash` redesign; no auto-unpublish
+- Axes remain separate; no new states
 
 ---
 
@@ -330,8 +332,8 @@ Rich Jobs linkage remains **OTL.4**.
 
 OTL.0 may expose only:
 
-- cheap on-row failure fields (`error_code` / `error_message`) if present, and/or  
-- `jobs: null`  
+- cheap on-row failure fields (`error_code` / `error_message`) if present, and/or
+- `jobs: null`
 
 No reverse Jobs history lookups. No Jobs schema. No retry. No Action Scheduler work.
 
@@ -365,14 +367,14 @@ New index/schema requirement = **STOP** / architecture review. Do not silently m
 
 ### List performance model
 
-- Store query only + cheap mapping + list-safe actions  
-- **Zero** AssessmentAssembler / PublicationService::explain invocations per default list row  
+- Store query only + cheap mapping + list-safe actions
+- **Zero** AssessmentAssembler / PublicationService::explain invocations per default list row
 
 ### Detail performance model
 
-- One translation PK load  
-- Authoritative TI.4/TI.5/TI.7 calls bounded to **one** translation  
-- Prefer evidence-gated shared detect (Refinement A); otherwise independent service calls + measured cost  
+- One translation PK load
+- Authoritative TI.4/TI.5/TI.7 calls bounded to **one** translation
+- Prefer evidence-gated shared detect (Refinement A); otherwise independent service calls + measured cost
 
 ### Scale evidence
 
@@ -423,11 +425,11 @@ Navigation: `get_edit_post_link` / `PreviewService` / router — **no** hard-cod
 
 ## 22. Permissions / privacy
 
-- `allowed_actions` incorporates state ∩ capability  
-- No new roles/capability architecture  
-- No global user-specific action cache  
-- List/detail must not leak content operators cannot access  
-- No prompts, API keys, Authorization headers, unrelated order/customer data  
+- `allowed_actions` incorporates state ∩ capability
+- No new roles/capability architecture
+- No global user-specific action cache
+- List/detail must not leak content operators cannot access
+- No prompts, API keys, Authorization headers, unrelated order/customer data
 
 ---
 
@@ -596,108 +598,108 @@ Dependencies: `0 → 1 → 2`; `1 + 2 → 3`; `3 → 4`; `1 + 2 → 5`; `4 + 5 �
 
 ### Parent / boundary
 
-1. OTL.0 remains subordinate to the OTL parent Architecture Freeze.  
-2. OTL.0 delivers foundation contracts only — no Operations UI.  
-3. OTL.0 does not implement unified detail UI.  
-4. OTL.0 does not implement bulk workflows, attention UX, or TSC.  
-5. OTL.0 does not require Playwright product acceptance.  
+1. OTL.0 remains subordinate to the OTL parent Architecture Freeze.
+2. OTL.0 delivers foundation contracts only — no Operations UI.
+3. OTL.0 does not implement unified detail UI.
+4. OTL.0 does not implement bulk workflows, attention UX, or TSC.
+5. OTL.0 does not require Playwright product acceptance.
 
 ### Read model
 
-6. One computed operator translation read model exists for list and detail.  
-7. The read model is **not** persisted as composite state.  
-8. No `operator_status` column or durable composite status is introduced.  
-9. Provenance `status`, `review_status`, `publish_status`, `is_stale`, and assessment remain distinct axes.  
-10. New OTL ViewModels may expose `translation_id`.  
-11. Existing `WorkspaceSegmentViewModel` continues to omit `translation_id`.  
-12. Composite identity fields remain available for current mutation routes.  
+6. One computed operator translation read model exists for list and detail.
+7. The read model is **not** persisted as composite state.
+8. No `operator_status` column or durable composite status is introduced.
+9. Provenance `status`, `review_status`, `publish_status`, `is_stale`, and assessment remain distinct axes.
+10. New OTL ViewModels may expose `translation_id`.
+11. Existing `WorkspaceSegmentViewModel` continues to omit `translation_id`.
+12. Composite identity fields remain available for current mutation routes.
 
 ### allowed_actions
 
-13. `allowed_actions` is server-computed for the current authenticated operator.  
-14. `allowed_actions` reflects state eligibility ∩ capability.  
-15. Descriptor shape includes `id`, `allowed`, and `reason_code` (nullable when allowed).  
-16. List and detail may expose different action sets; `publish` is detail-only.  
-17. `allowed_actions` is **UI admission only** — not mutation authority.  
-18. No mutation endpoint accepts client `allowed=true` as authorization.  
-19. Eventual mutations must revalidate via authoritative services at execution time.  
-20. `AllowedActionsResolver` has no side effects and is not a second mutation-policy engine.  
-21. User-specific actions are not globally cached across requests.  
+13. `allowed_actions` is server-computed for the current authenticated operator.
+14. `allowed_actions` reflects state eligibility ∩ capability.
+15. Descriptor shape includes `id`, `allowed`, and `reason_code` (nullable when allowed).
+16. List and detail may expose different action sets; `publish` is detail-only.
+17. `allowed_actions` is **UI admission only** — not mutation authority.
+18. No mutation endpoint accepts client `allowed=true` as authorization.
+19. Eventual mutations must revalidate via authoritative services at execution time.
+20. `AllowedActionsResolver` has no side effects and is not a second mutation-policy engine.
+21. User-specific actions are not globally cached across requests.
 
 ### TI.7 / TI.4 / TI.5
 
-22. Publication eligibility is owned exclusively by TI.7.  
-23. Default list does not compute TI.7 eligibility or call `PublicationService::explain` per row.  
-24. Detail publication eligibility/reasons come only from TI.7 explain/evaluate.  
-25. OTL never implements `structurally_clean ⇒ eligible` (or equivalent heuristics).  
-26. TI.4 remains detector owner; OTL does not copy QA policy.  
-27. TI.5 remains assessment owner; OTL does not copy assessment policy.  
-28. Default list does not invoke `AssessmentAssembler` or full QA evaluation per row.  
-29. Detail exposes authoritative TI.5 assessment.  
-30. Detail may expose TI.4 QA representation.  
-31. Shared DeterministicQA reuse is **evidence-gated** and must not force TI.4/TI.5 redesign (Refinement A).  
-32. No persisted assessment or opaque quality/risk score is introduced.  
+22. Publication eligibility is owned exclusively by TI.7.
+23. Default list does not compute TI.7 eligibility or call `PublicationService::explain` per row.
+24. Detail publication eligibility/reasons come only from TI.7 explain/evaluate.
+25. OTL never implements `structurally_clean ⇒ eligible` (or equivalent heuristics).
+26. TI.4 remains detector owner; OTL does not copy QA policy.
+27. TI.5 remains assessment owner; OTL does not copy assessment policy.
+28. Default list does not invoke `AssessmentAssembler` or full QA evaluation per row.
+29. Detail exposes authoritative TI.5 assessment.
+30. Detail may expose TI.4 QA representation.
+31. Shared DeterministicQA reuse is **evidence-gated** and must not force TI.4/TI.5 redesign (Refinement A).
+32. No persisted assessment or opaque quality/risk score is introduced.
 
 ### Axes / copy
 
-33. Review states remain ADR-0015 vocabulary.  
-34. UI/docs/tests preserve **approved ≠ published**.  
-35. `publish_status` remains ADR-0020 publication truth.  
-36. `is_stale` / `source_hash` semantics are unchanged; no auto-unpublish.  
-37. Row provenance fields are exposed without inventing new provenance policy.  
+33. Review states remain ADR-0015 vocabulary.
+34. UI/docs/tests preserve **approved ≠ published**.
+35. `publish_status` remains ADR-0020 publication truth.
+36. `is_stale` / `source_hash` semantics are unchanged; no auto-unpublish.
+37. Row provenance fields are exposed without inventing new provenance policy.
 
 ### Jobs / nav / previews
 
-38. Rich Jobs linkage is deferred to OTL.4 (`jobs` may be `null`).  
-39. No expensive reverse Jobs history lookup is added in OTL.0.  
-40. Source edit and frontend links use WordPress/router helpers — no hard-coded hosts.  
-41. List source/target use bounded previews (200-character cap).  
-42. Detail may return authorized full source/target text.  
-43. Unauthorized operators do not receive protected source/target content.  
+38. Rich Jobs linkage is deferred to OTL.4 (`jobs` may be `null`).
+39. No expensive reverse Jobs history lookup is added in OTL.0.
+40. Source edit and frontend links use WordPress/router helpers — no hard-coded hosts.
+41. List source/target use bounded previews (200-character cap).
+42. Detail may return authorized full source/target text.
+43. Unauthorized operators do not receive protected source/target content.
 
 ### Store / query
 
-44. `Store::query_operations` requires `language_id`.  
-45. Supported filters include status, review_status, publish_status, is_stale, source_type, optional source_id.  
-46. Pagination default is 20; maximum is 50.  
-47. Ordering is deterministic and documented.  
-48. List responses include `items`, `total`, `page`, `per_page`.  
-49. Queries do not load all translations into PHP.  
-50. No FULLTEXT / cross-axis text search is admitted.  
-51. SQL does not embed TI.5 or TI.7 policy.  
-52. `Store::get_by_translation_id` uses PRIMARY key lookup.  
+44. `Store::query_operations` requires `language_id`.
+45. Supported filters include status, review_status, publish_status, is_stale, source_type, optional source_id.
+46. Pagination default is 20; maximum is 50.
+47. Ordering is deterministic and documented.
+48. List responses include `items`, `total`, `page`, `per_page`.
+49. Queries do not load all translations into PHP.
+50. No FULLTEXT / cross-axis text search is admitted.
+51. SQL does not embed TI.5 or TI.7 policy.
+52. `Store::get_by_translation_id` uses PRIMARY key lookup.
 
 ### Attention foundation
 
-53. Cheap axis buckets (stale/rejected/unpublished/failed) are available as filter/count primitives.  
-54. Computed attention buckets remain service-derived; no giant SQL policy query.  
-55. No attention-bucket UX endpoint is required in OTL.0 (Deferred OTL.1).  
+53. Cheap axis buckets (stale/rejected/unpublished/failed) are available as filter/count primitives.
+54. Computed attention buckets remain service-derived; no giant SQL policy query.
+55. No attention-bucket UX endpoint is required in OTL.0 (Deferred OTL.1).
 
 ### REST / ViewModels
 
-56. Additive routes exist: `GET /aiml/v1/workspace/operations` and `GET /aiml/v1/workspace/operations/{translation_id}`.  
-57. Responses include `X-AIML-Workspace-Api-Version: 1` on success paths using `respond()`.  
-58. List access requires `aiml_translate` OR `aiml_review_translations`.  
-59. Detail enforces source-object access (`edit_post`) where architecture requires.  
-60. Integration API v1 is unchanged; no operator lifecycle exposure there.  
-61. No OTL.0 mutation command bus / action-execution facade is added.  
-62. List/detail ViewModels serialize stable snake_case fields.  
+56. Additive routes exist: `GET /aiml/v1/workspace/operations` and `GET /aiml/v1/workspace/operations/{translation_id}`.
+57. Responses include `X-AIML-Workspace-Api-Version: 1` on success paths using `respond()`.
+58. List access requires `aiml_translate` OR `aiml_review_translations`.
+59. Detail enforces source-object access (`edit_post`) where architecture requires.
+60. Integration API v1 is unchanged; no operator lifecycle exposure there.
+61. No OTL.0 mutation command bus / action-execution facade is added.
+62. List/detail ViewModels serialize stable snake_case fields.
 
 ### Performance
 
-63. Default list performs **zero** AssessmentAssembler invocations across returned rows.  
-64. Default list performs **zero** PublicationService::explain invocations across returned rows.  
-65. Scale evidence covers hundreds and thousands of rows (10k if harness allows).  
-66. Detail path assessment/explain invocation counts are measured and bounded to one translation.  
+63. Default list performs **zero** AssessmentAssembler invocations across returned rows.
+64. Default list performs **zero** PublicationService::explain invocations across returned rows.
+65. Scale evidence covers hundreds and thousands of rows (10k if harness allows).
+66. Detail path assessment/explain invocation counts are measured and bounded to one translation.
 
 ### Schema / ADR / neutrality / CI
 
-67. Runtime `Migrator::TARGET` remains **7**; no migration ships in OTL.0.  
-68. New index/schema needs **STOP** for architecture review (not silent add).  
-69. No new ADR is required for ordinary REST/ViewModel work.  
-70. Product code and generic tests contain no Biopentra/site-specific product behavior.  
-71. No prompts, API keys, or auth headers appear in OTL payloads.  
-72. Normal CI remains network-free; TIQ regressions covered; docs closed on success.  
+67. Runtime `Migrator::TARGET` remains **7**; no migration ships in OTL.0.
+68. New index/schema needs **STOP** for architecture review (not silent add).
+69. No new ADR is required for ordinary REST/ViewModel work.
+70. Product code and generic tests contain no Biopentra/site-specific product behavior.
+71. No prompts, API keys, or auth headers appear in OTL payloads.
+72. Normal CI remains network-free; TIQ regressions covered; docs closed on success.
 
 **Verified AC count: 72.**
 
@@ -707,25 +709,25 @@ Dependencies: `0 → 1 → 2`; `1 + 2 → 3`; `3 → 4`; `1 + 2 → 5`; `4 + 5 �
 
 ### Unit
 
-- Assembler mapping (list/detail)  
-- AllowedActionsResolver matrices (state × capability; list vs detail)  
-- Admission ≠ mutation (resolver purity)  
-- Serializers; preview truncation; filter/query objects  
+- Assembler mapping (list/detail)
+- AllowedActionsResolver matrices (state × capability; list vs detail)
+- Admission ≠ mutation (resolver purity)
+- Serializers; preview truncation; filter/query objects
 
 ### Integration
 
-- List/detail REST; pagination; filters; permissions  
-- Review/publish/stale combinations  
-- TI.5 detail delegation; TI.7 detail delegation  
-- Invocation counters proving no list assess/explain  
-- Scale/query behavior  
+- List/detail REST; pagination; filters; permissions
+- Review/publish/stale combinations
+- TI.5 detail delegation; TI.7 detail delegation
+- Invocation counters proving no list assess/explain
+- Scale/query behavior
 
 ### PluginGuard
 
-- No persisted OTL composite state  
-- No Integration API leakage  
-- No policy duplication / no force-publish bypass  
-- `WorkspaceController` remains allowlisted registrar  
+- No persisted OTL composite state
+- No Integration API leakage
+- No policy duplication / no force-publish bypass
+- `WorkspaceController` remains allowlisted registrar
 
 ### Browser
 
@@ -750,10 +752,10 @@ Minimal authenticated list/detail smoke only.
 
 ## 29. Documentation / roadmap updates (this freeze)
 
-- This file: `docs/plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md`  
-- Point OTL parent **Next** to OTL.0 Architecture Frozen (planning)  
-- Point PRODUCT_PRIORITIES / ROADMAP next implementation to this plan  
-- Do not rewrite Program C; do not plan OTL.1; do not expand TSC  
+- This file: `docs/plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md`
+- Point OTL parent **Next** to OTL.0 Architecture Frozen (planning)
+- Point PRODUCT_PRIORITIES / ROADMAP next implementation to this plan
+- Do not rewrite Program C; do not plan OTL.1; do not expand TSC
 
 ---
 
