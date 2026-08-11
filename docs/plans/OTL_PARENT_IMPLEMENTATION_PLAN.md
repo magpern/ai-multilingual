@@ -121,6 +121,7 @@ Future generic coverage work is named **Translation Surface Coverage (TSC)** —
 | Multilingual → Translate | Legacy PHP field editor |
 | Multilingual → Workspace | Primary React operator app: Translate / Review queue / Jobs tabs |
 | Multilingual → Glossary | Glossary admin |
+| Multilingual → Limited Rollout | Rollout admin (Strategy F) |
 | Multilingual → SEO Diagnostics | SEO diagnostics |
 | CLI | Jobs + publication explain/publish/unpublish (ops) |
 
@@ -128,7 +129,7 @@ Future generic coverage work is named **Translation Surface Coverage (TSC)** —
 
 ```text
 React UI (assets/translator-workspace/)
-  → REST (WorkspaceController, JobsController)
+  → REST (WorkspaceController; JobsController under src/Jobs/)
     → ViewModels / serializers
       → WorkspaceService / Jobs / PublicationService
         → Store, QA, AssessmentAssembler, ReviewWorkflow, TM, TranslationService
