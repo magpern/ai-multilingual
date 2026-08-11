@@ -140,6 +140,25 @@ final class AllowedActionsResolverTest extends TestCase {
 	}
 
 	/**
+	 * Retranslate stale is admitted without deferred_milestone when stale + caps.
+	 */
+	public function test_retranslate_stale_admitted_without_deferred_milestone(): void {
+		$resolver = new AllowedActionsResolver();
+		$row      = $this->row( array( 'is_stale' => 1 ) );
+		$caps     = array(
+			'can_translate'   => true,
+			'can_review'      => true,
+			'can_edit_source' => true,
+		);
+		$by_id    = $this->index( $resolver->resolve_for_list( $row, $caps ) );
+		$this->assertTrue( $by_id['retranslate_stale']['allowed'] );
+		$this->assertNull( $by_id['retranslate_stale']['reason_code'] );
+
+		$not_stale = $this->index( $resolver->resolve_for_list( $this->row( array( 'is_stale' => 0 ) ), $caps ) );
+		$this->assertFalse( $not_stale['retranslate_stale']['allowed'] );
+	}
+
+	/**
 	 * Resolver has no side effects on the row (admission only).
 	 */
 	public function test_resolver_does_not_mutate_row(): void {
