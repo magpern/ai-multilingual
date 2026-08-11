@@ -17,7 +17,7 @@
 | Review fixes | None (adversarial checker false-positive on `JobBounds::MAX_SELECTED_SEGMENTS` spacing; constant is 50) |
 | Freeze merge |  () |
 | Freeze merge CI | run  — phpcs / unit / integration / quality / build **SUCCESS** (phpcs re-run after transient SSL composer failure) |
-| Closure commit | _(filled at closure)_ |
+| Closure commit | `25ef64637630c32041fa3ab154cc190b73de1511` |
 | Post-closure CI | _(filled after CI)_ |
 | Plugin version | **1.2.0** (unchanged) |
 | TARGET | **7** (unchanged) |
