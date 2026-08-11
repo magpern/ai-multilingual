@@ -10,7 +10,7 @@
 |---|---|
 | Planning baseline main HEAD | `7a2aa2145f95b3cc44ea26a9c004f9296cf09fb6` |
 | Planning branch | `docs/otl5-bounded-bulk-operations-planning-freeze` |
-| Materialization HEAD | _(filled at materialization commit)_ |
+| Materialization HEAD |  |
 | Final reviewed planning HEAD | _(filled after independent review)_ |
 | External freeze review | **PASS** (STATE A — FREEZE; A1–A6) |
 | Independent planning review | _(PASS/FAIL)_ |
