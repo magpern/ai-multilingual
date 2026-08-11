@@ -641,7 +641,6 @@ final class OperationsBulkCoordinator {
 			self::OUTCOME_UNPUBLISHED,
 			self::OUTCOME_NOOP,
 			self::OUTCOME_ENQUEUED,
-			self::OUTCOME_SKIPPED,
 		);
 
 		$ok     = 0;

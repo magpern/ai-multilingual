@@ -167,6 +167,8 @@ final class Otl5BulkOperationsTest extends AimlTestCase {
 		$data = $response->get_data();
 		$this->assertSame( 'skipped', $data['items'][0]['outcome'] );
 		$this->assertContains( 'translation_stale', $data['items'][0]['reason_codes'] ?? array() );
+		$this->assertSame( 'failed', $data['status'] );
+		$this->assertSame( 1, (int) ( $data['summary']['failed'] ?? 0 ) );
 	}
 
 	public function test_bulk_enqueue_returns_enqueued_and_operations(): void {
