@@ -1,6 +1,6 @@
 # OTL.3 — Publication + Stale Workflow — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` (independent planning review **PASS**)
+**Status:** **Complete** on `main` (merge `77fc39da5d9b30d204e5a0c04e318a463ad39484`; independent implementation review PASS)
 **Milestone:** OTL.3 — Publication + Stale Workflow (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -11,11 +11,14 @@
 **Freeze merge:** `main` @ `053570275e019ec88137208fd8d1ba32542961d8` (`merge: freeze OTL.3 Publication + Stale Workflow implementation plan`)
 **Freeze merge CI:** run `31517960903` — **SUCCESS**
 **Reviewed planning HEAD:** `5b778f1c57391182f25d051c9b5553d9bfed8704`
-**Baseline HEAD:** `3186db54e78db663e963752d9a4c1bc8ed7dc599`
+**Implementation branch:** `feature/otl3-publication-stale-workflow` (merged)
+**Final reviewed feature HEAD:** `773a998f9fc076476d0dd4f6a49e7608ac32d1f2`
+**Independent review (implementation):** **PASS**
+**Merge CI:** run `31521213814` — **SUCCESS**
+**Validation:** [OTL3_PUBLICATION_STALE_WORKFLOW_VALIDATION_LOG.md](OTL3_PUBLICATION_STALE_WORKFLOW_VALIDATION_LOG.md)
 **Freeze recommendation:** **STATE A — FREEZE**
-**Independent review (planning):** **PASS** (adversarial falsification Q1–Q24; ordinary FLOW C wording fix)
-**Implementation branch:** **not created**
-**Next:** Combined OTL.3 **implementation** + independent implementation review + merge + milestone closure from this frozen main baseline. Do **not** start OTL.4–OTL.6 or TSC under OTL.
+**Independent review (planning):** **PASS**
+**Next:** Begin definitive **OTL.4 Jobs Integration planning** from the closed OTL.3 main baseline. Do **not** start OTL.4–OTL.6 implementation or TSC under OTL until planned/frozen.
 **Related:** [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md)
 
 **Planning freeze contracts recorded:** TI.7 sole publication authority; no OTLPublicationPolicy; Settings gate/mode with immediate-vs-prospective effect honesty; stale published remains published (no auto-unpublish); sync retranslate with mandatory pre-persist `expected_translation_hash` guard (Jobs null-hash unchanged); controlled_auto retranslate confirmation disclosure; gate overlay-eligibility wording (not visibility guarantees); current publication facts vs non-durable operation result; TARGET 7 / no schema / no new ADR.
