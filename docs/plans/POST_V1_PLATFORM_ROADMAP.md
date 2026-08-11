@@ -10,7 +10,9 @@
 
 **Implementation priority (canonical):** When choosing *which* program to pursue next for Biopentra, follow [`docs/PRODUCT_PRIORITIES.md`](../PRODUCT_PRIORITIES.md). That document does not redefine historical milestone IDs; it records product-direction sequencing only.
 
-**Post-v1.1 Translation Intelligence & Quality:** After AI Multilingual **v1.1.0** and A.SEO completion, intelligence/quality work is governed by [`TIQ_PARENT_IMPLEMENTATION_PLAN.md`](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (milestones **TQ.0–TI.7**). Historical Program B IDs (B.1–B.8) below remain in the catalog; **do not** treat early B.1 as the post-v1.1 default next step.
+**Post-v1.1 Translation Intelligence & Quality:** After AI Multilingual **v1.1.0** and A.SEO completion, intelligence/quality work is governed by [`TIQ_PARENT_IMPLEMENTATION_PLAN.md`](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (milestones **TQ.0–TI.7**; **Complete**). Historical Program B IDs (B.1–B.8) below remain in the catalog; **do not** treat early B.1 as the post-v1.1 default next step.
+
+**Post-v1.2.0 Operator Translation Lifecycle:** After **v1.2.0** / TIQ completion, operator lifecycle work is governed by [`OTL_PARENT_IMPLEMENTATION_PLAN.md`](OTL_PARENT_IMPLEMENTATION_PLAN.md) (milestones **OTL.0–OTL.6**). Historical Program C IDs (C.1–C.7) below remain in the catalog for roadmap history; **where they overlap operator translation lifecycle concerns, OTL supersedes them as the active authoritative program. Program C must not be independently resumed in parallel with OTL.** Future generic coverage work is **Translation Surface Coverage (TSC)** — separate from OTL; not planned in this freeze.
 
 ---
 
@@ -55,10 +57,10 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- Explicit **post-v1.2.0 roadmap** decision before starting another product milestone (`Migrator::TARGET` **7**; tag `v1.2.0` released). Next product milestone **undecided**.
+- **Operator Translation Lifecycle (OTL)** — [parent plan](OTL_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen — program roadmap; OTL.0–OTL.6). Next step: **OTL.0 Foundations** planning. `Migrator::TARGET` **7**; tag `v1.2.0` released.
 - **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). Shipped in **v1.2.0**.
-- Remaining Program A options (not TIQ): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision
-- Later (not default next): historical **B.1** additional providers (Deferred under TIQ until measurement shows need); **C.1–C.3** Workspace productivity; **D.1** unified health/diagnostics
+- Remaining Program A options (not OTL): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision; later generic **Translation Surface Coverage (TSC)** remains separate from OTL
+- Later (not default next): historical **B.1** additional providers (Deferred under TIQ until measurement shows need); historical **C.1–C.3** catalog items superseded for operator-lifecycle scope by OTL; **D.1** unified health/diagnostics
 
 ### LATER
 
@@ -194,6 +196,8 @@ Program A is considered **complete** when AI Multilingual can translate **essent
 **Purpose:** Make Workspace and review the fastest path from source to approved target.
 **Why:** v1 Workspace is capable but MVP; Coverage gains multiply with operator speed.
 **Boundaries:** Operator UI only; no second editor; no assignment/collaboration platform unless product reopen; REST remains ViewModels.
+
+**Authority note (post-v1.2.0):** Historical Program C remains preserved for roadmap history. Where Program C items overlap operator translation lifecycle concerns, **OTL** ([parent](OTL_PARENT_IMPLEMENTATION_PLAN.md)) supersedes them as the active authoritative program. Program C must not be independently resumed in parallel with OTL.
 
 | ID | Milestone | Type |
 |---|---|---|

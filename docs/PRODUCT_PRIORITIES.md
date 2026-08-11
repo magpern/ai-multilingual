@@ -5,9 +5,9 @@
 **Scope:** Implementation priority and product strategy only
 **Does not change:** Architecture, ADRs, schemas, APIs, or historical roadmap milestone IDs
 
-Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
+Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Post-v1.2.0 Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** Explicit **post-v1.2.0 roadmap** decision before starting another product milestone. **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**. Next product milestone remains **undecided**.
+**Current next decision:** **OTL** is the next active product program. **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**. Next milestone after OTL parent freeze: **OTL.0 Foundations** planning (do not implement until OTL.0 plan is frozen on `main`).
 
 ---
 
@@ -38,11 +38,11 @@ Remaining priority order (highest first):
 
 ## 2. Current implementation priority
 
-### Active next decision (post-v1.2.0)
+### Active next program (post-v1.2.0)
 
-| Order | Decision | Focus |
+| Order | Program | Focus |
 |---|---|---|
-| 1 | **Post-v1.2.0 roadmap** | Explicit product decision before starting another milestone. Next milestone undecided. |
+| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services: find → risk → edit/review → publish → verify. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). Next: **OTL.0** Foundations planning. |
 
 **Released:** AI Multilingual **v1.2.0** (tag `v1.2.0`). **v1.1.0** remains the prior intentional release. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. `Migrator::TARGET` is **7**.
 
@@ -128,13 +128,19 @@ Frozen architecture: measurement → structural safety → bounded context → T
 
 This superseded the earlier product-direction preference that Program C and Program D automatically precede Program B after visitor work. Historical Program B milestone IDs (B.1–B.8) remain in the long-term roadmap catalog; **post-v1.1 work followed TIQ**, not early B.1 (additional providers).
 
-### Later (after release/version decision / separate product decisions)
+### Later (separate product decisions)
 
-### Program C — Translator experience
+### Operator Translation Lifecycle (OTL) — active
 
-Examples: Workspace UX, filtering, keyboard shortcuts, better review workflow.
+Authoritative parent: [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md).
 
-These reduce translation cost and improve long-term maintainability. They do **not** replace TIQ measurement and intelligence work.
+Ladder: **OTL.0 → OTL.1–OTL.6** (see parent for dependencies). Orchestration/presentation over frozen TIQ services. Public/SaaS neutrality is a hard invariant. Future generic coverage work is **Translation Surface Coverage (TSC)** — separate from OTL; not planned here.
+
+### Historical Program C — Translator experience
+
+Examples retained in the long-term catalog: Workspace UX, filtering, keyboard shortcuts, better review workflow.
+
+**Historical Program C remains preserved for roadmap history. Where Program C items overlap operator translation lifecycle concerns, OTL supersedes them as the active authoritative program. Program C must not be independently resumed in parallel with OTL.**
 
 ### Program D — Operational maturity
 
@@ -161,7 +167,8 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 | Concern | Canonical document |
 |---|---|
 | Long-term programs, milestone IDs, freezes, architecture boundaries | [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) |
-| **TIQ program (TQ.0–TI.7) architecture** | [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) |
+| **TIQ program (TQ.0–TI.7) architecture** | [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**) |
+| **OTL program (OTL.0–OTL.6) architecture** | [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) |
 | **TQ.0 milestone plan** | [`plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md`](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) |
 | **TI.1 milestone plan** | [`plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md`](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md) |
 | **TI.2 milestone plan** | [`plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md`](plans/TI2_BOUNDED_TRANSLATION_CONTEXT_IMPLEMENTATION_PLAN.md) |
@@ -180,6 +187,7 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 - This document may evolve when product strategy changes.
 - Changes here must **not** renumber historical milestones, rewrite ADRs, or alter frozen platform principles.
 - TIQ child plans must name a TIQ milestone (for example `TQ.0`) and obey [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md).
+- OTL child plans must name an OTL milestone (for example `OTL.0`) and obey [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md).
 
 ---
 
