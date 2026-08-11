@@ -5,6 +5,7 @@
 **Independent review (implementation):** **PASS** (after `fix(otl): restore allVisibleSelected import in App`)
 **Feature CI:** run `31502074356` — phpcs / unit / integration / quality / build **SUCCESS**
 **Fresh main CI:** run `31502287019` — phpcs / unit / integration / quality / build **SUCCESS**
+**Post-closure CI:** run `31502540261` — phpcs / unit / integration / quality / build **SUCCESS**
 **Plan:** [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 **PR:** https://github.com/magpern/ai-multilingual/pull/16
