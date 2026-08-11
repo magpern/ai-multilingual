@@ -571,4 +571,4 @@ Do **not** start OTL.4–OTL.6 or TSC under OTL until their own freezes.
 - [x] Merge `--no-ff` to main (`053570275e019ec88137208fd8d1ba32542961d8`)
 - [x] Merge CI green (`31517960903`)
 - [x] Planning closure docs
-- [ ] Post-closure CI green
+- [x] Post-closure CI green (`31518187220`)
