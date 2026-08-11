@@ -16,6 +16,8 @@
 | Review fixes | Correct ADR-0011 related link (`0011-resumable-job-pipeline.md`) |
 | Freeze merge | `aaacaf3d6bacb2547ff41c53b46a9000a15d7ebd` (`merge: freeze OTL.4 Jobs Integration implementation plan`) |
 | Freeze merge CI | run `31524892001` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Closure commit | `533f392d0ca050a89ef8463c4b29fcae5dc49aea` |
+| Post-closure CI | run `31525114185` — phpcs / unit / integration / quality / build **SUCCESS** |
 | Plugin version | **1.2.0** (unchanged) |
 | TARGET | **7** (unchanged) |
 | Schema / new index | None |

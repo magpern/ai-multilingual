@@ -11,6 +11,8 @@
 **Planning branch:** `docs/otl4-jobs-integration-planning-freeze` (merged)
 **Freeze merge:** `main` @ `aaacaf3d6bacb2547ff41c53b46a9000a15d7ebd` (`merge: freeze OTL.4 Jobs Integration implementation plan`)
 **Freeze merge CI:** run `31524892001` — **SUCCESS**
+**Closure commit:** `533f392d0ca050a89ef8463c4b29fcae5dc49aea`
+**Post-closure CI:** run `31525114185` — **SUCCESS**
 **Reviewed planning HEAD:** `2accd2e0d07daa63eae39e6152cd450186480ccd`
 **Freeze recommendation:** **STATE A — FREEZE**
 **Independent review (planning):** **PASS** (adversarial review on planning branch; ordinary fix: correct ADR-0011 related link)
@@ -646,7 +648,7 @@ OTL.4 is implementable as a **bounded additive integration**:
 - [x] Independent planning review PASS
 - [x] Freeze merge to `main`
 - [x] Planning closure docs
-- [ ] Post-closure CI green
+- [x] Post-closure CI green
 
 ---
 
