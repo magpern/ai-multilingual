@@ -143,6 +143,15 @@ final class TranslationService {
 	private array $last_scaffolding_markers = array();
 
 	/**
+	 * Optional optimistic translation_hash for interactive sync retranslate (OTL.3).
+	 *
+	 * Null = Jobs / legacy callers — no concurrency guard.
+	 *
+	 * @var string|null
+	 */
+	private ?string $expected_translation_hash = null;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param Store                          $store            Segment store.
@@ -218,16 +227,24 @@ final class TranslationService {
 	/**
 	 * Translates one segment synchronously when a provider is configured.
 	 *
-	 * @param WP_Post $post           Canonical post.
-	 * @param int     $language_id    Target language id.
-	 * @param string  $segment_key    Segment key.
-	 * @param bool    $allow_provider When false, TM/skip-only — do not call the provider.
+	 * @param WP_Post     $post                      Canonical post.
+	 * @param int         $language_id               Target language id.
+	 * @param string      $segment_key               Segment key.
+	 * @param bool        $allow_provider            When false, TM/skip-only — do not call the provider.
+	 * @param string|null $expected_translation_hash Optional optimistic target hash (OTL.3 interactive sync).
 	 * @return array<string, mixed>|WP_Error Updated segment DTO or error.
 	 */
-	public function translate_segment( WP_Post $post, int $language_id, string $segment_key, bool $allow_provider = true ) {
-		$this->last_tm_outcome          = null;
-		$this->last_attempt_usage       = null;
-		$this->last_scaffolding_markers = array();
+	public function translate_segment(
+		WP_Post $post,
+		int $language_id,
+		string $segment_key,
+		bool $allow_provider = true,
+		?string $expected_translation_hash = null
+	) {
+		$this->last_tm_outcome           = null;
+		$this->last_attempt_usage        = null;
+		$this->last_scaffolding_markers  = array();
+		$this->expected_translation_hash = $expected_translation_hash;
 
 		$current = $this->assembler->assemble_one( $post, $language_id, $segment_key );
 		if ( null === $current ) {
@@ -236,6 +253,17 @@ final class TranslationService {
 				__( 'Unknown segment key for this post.', 'ai-multilingual' ),
 				array( 'status' => 422 )
 			);
+		}
+
+		if ( null !== $this->expected_translation_hash ) {
+			$assembled_hash = (string) ( $current['translation_hash'] ?? '' );
+			if ( $assembled_hash !== $this->expected_translation_hash ) {
+				return new WP_Error(
+					'aiml_translation_hash_mismatch',
+					__( 'The translation changed since this request was started.', 'ai-multilingual' ),
+					array( 'status' => 409 )
+				);
+			}
 		}
 
 		if ( ! (bool) ( $current['can_edit'] ?? false ) ) {
@@ -648,6 +676,11 @@ final class TranslationService {
 		$segment_key = (string) ( $current['segment_key'] ?? '' );
 		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
 
+		$guard = $this->guard_expected_translation_hash( $post, $language_id, $segment_key );
+		if ( null !== $guard ) {
+			return $guard;
+		}
+
 		$save = $this->store->save_translation(
 			array(
 				'source_type'     => Store::SOURCE_POST,
@@ -700,6 +733,31 @@ final class TranslationService {
 		}
 
 		return $refreshed;
+	}
+
+	/**
+	 * Re-reads Store translation_hash immediately before persist (OTL.3 race window).
+	 *
+	 * @param WP_Post $post         Canonical post.
+	 * @param int     $language_id  Target language id.
+	 * @param string  $segment_key  Segment key.
+	 */
+	private function guard_expected_translation_hash( WP_Post $post, int $language_id, string $segment_key ): ?WP_Error {
+		if ( null === $this->expected_translation_hash ) {
+			return null;
+		}
+
+		$row          = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, $segment_key );
+		$current_hash = null === $row ? '' : (string) ( $row->translation_hash ?? '' );
+		if ( $current_hash !== $this->expected_translation_hash ) {
+			return new WP_Error(
+				'aiml_translation_hash_mismatch',
+				__( 'The translation changed since this request was started.', 'ai-multilingual' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		return null;
 	}
 
 	/**

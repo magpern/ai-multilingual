@@ -644,17 +644,24 @@ final class WorkspaceService {
 	/**
 	 * Operation handler.
 	 *
-	 * @param WP_Post            $post         Canonical post.
-	 * @param int                $language_id  Target language id.
-	 * @param array<int, string> $segment_keys Segment keys.
-	 * @param string             $mode         sync|async placeholder.
+	 * @param WP_Post               $post                       Canonical post.
+	 * @param int                   $language_id                Target language id.
+	 * @param array<int, string>    $segment_keys               Segment keys.
+	 * @param string                $mode                       sync|async placeholder.
+	 * @param array<string, string> $expected_translation_hashes Map of segment_key => translation_hash.
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function translate( WP_Post $post, int $language_id, array $segment_keys, string $mode = 'sync' ) {
+	public function translate(
+		WP_Post $post,
+		int $language_id,
+		array $segment_keys,
+		string $mode = 'sync',
+		array $expected_translation_hashes = array()
+	) {
 		$this->assert_supported_post( $post );
 		unset( $mode );
 
-		return $this->batch->translate_batch( $post, $language_id, $segment_keys );
+		return $this->batch->translate_batch( $post, $language_id, $segment_keys, $expected_translation_hashes );
 	}
 
 	/**

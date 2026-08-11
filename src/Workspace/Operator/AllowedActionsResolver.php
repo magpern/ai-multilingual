@@ -53,7 +53,7 @@ final class AllowedActionsResolver {
 			$this->descriptor( self::ACTION_PUBLISH, false, ActionReasonCodes::DETAIL_ONLY ),
 			$this->action_open_source( $links, $capability_flags ),
 			$this->action_open_frontend( $links ),
-			$this->action_retranslate_stale( $row ),
+			$this->action_retranslate_stale( $row, $capability_flags ),
 		);
 
 		return $actions;
@@ -293,17 +293,24 @@ final class AllowedActionsResolver {
 	}
 
 	/**
-	 * Partial metadata: available when stale (orchestration deferred).
+	 * Resolves retranslate_stale admission (OTL.3 — sync retranslate path).
 	 *
-	 * @param object $row Row.
+	 * @param object               $row              Row.
+	 * @param array<string, mixed> $capability_flags Caps.
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
-	private function action_retranslate_stale( object $row ): array {
+	private function action_retranslate_stale( object $row, array $capability_flags ): array {
+		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			return $this->descriptor( self::ACTION_RETRANSLATE_STALE, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
+		}
+		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
+			return $this->descriptor( self::ACTION_RETRANSLATE_STALE, false, ActionReasonCodes::CAPABILITY_DENIED );
+		}
 		if ( empty( $row->is_stale ) ) {
 			return $this->descriptor( self::ACTION_RETRANSLATE_STALE, false, ActionReasonCodes::STATE_INELIGIBLE );
 		}
 
-		return $this->descriptor( self::ACTION_RETRANSLATE_STALE, true, ActionReasonCodes::DEFERRED_MILESTONE );
+		return $this->descriptor( self::ACTION_RETRANSLATE_STALE, true, null );
 	}
 
 	/**

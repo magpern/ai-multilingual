@@ -1430,7 +1430,14 @@ final class WorkspaceController {
 		$keys = is_array( $params['segment_keys'] ?? null ) ? array_map( 'strval', $params['segment_keys'] ) : array();
 		$mode = (string) ( $params['mode'] ?? 'sync' );
 
-		$result = $this->workspace->translate( $post, (int) $language->language_id, $keys, $mode );
+		$expected_hashes = array();
+		if ( is_array( $params['expected_translation_hashes'] ?? null ) ) {
+			foreach ( $params['expected_translation_hashes'] as $segment_key => $hash ) {
+				$expected_hashes[ (string) $segment_key ] = (string) $hash;
+			}
+		}
+
+		$result = $this->workspace->translate( $post, (int) $language->language_id, $keys, $mode, $expected_hashes );
 		if ( $result instanceof WP_Error ) {
 			return $result;
 		}
