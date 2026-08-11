@@ -39,6 +39,7 @@ export interface WorkspaceSegment extends ReviewMetadata {
 	segment_order: number;
 	source_text: string;
 	source_hash: string;
+	translation_hash?: string;
 	translated_text: string;
 	status: string;
 	is_stale: boolean;
@@ -201,6 +202,10 @@ export interface OperationsListResponse {
 export interface OperationsDetailResponse extends OperationsListItem {
 	source_text?: string;
 	translated_text?: string;
+	text_format?: string;
+	source_hash?: string;
+	translation_hash?: string;
+	tm_id?: number | string | null;
 	qa?: Record< string, unknown >;
 	assessment?: Record< string, unknown >;
 	publication?: Record< string, unknown >;

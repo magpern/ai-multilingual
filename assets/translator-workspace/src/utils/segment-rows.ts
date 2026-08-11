@@ -194,6 +194,21 @@ export function applyBatchSaveResults(
 			continue;
 		}
 
+		if ( item.code === 'aiml_translation_hash_mismatch' ) {
+			const refreshed = item.segments?.find(
+				( segment ) => segment.segment_key === item.segment_key
+			);
+			nextRows = applyConflict(
+				nextRows,
+				item.segment_key,
+				refreshed,
+				preserved.draftText,
+				item.message ||
+					'The saved translation changed since this segment was loaded.'
+			);
+			continue;
+		}
+
 		nextRows = nextRows.map( ( row ) =>
 			row.segmentKey === item.segment_key
 				? {

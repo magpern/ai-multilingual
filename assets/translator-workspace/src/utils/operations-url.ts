@@ -19,6 +19,7 @@ export interface OperationsUrlState {
 	isStale: string;
 	sourceType: string;
 	sourceId: string;
+	translationId: number | null;
 }
 
 export function readOperationsUrlState(
@@ -26,6 +27,7 @@ export function readOperationsUrlState(
 ): OperationsUrlState {
 	const params = new URLSearchParams( search );
 	const pageRaw = Number( params.get( 'page_num' ) ?? '1' );
+	const translationRaw = Number( params.get( 'translation_id' ) ?? '0' );
 	const parsed = parseAttentionFromUrl( params.get( 'attention' ) );
 	return {
 		view: 'operations' === params.get( 'view' ) ? 'operations' : null,
@@ -39,6 +41,10 @@ export function readOperationsUrlState(
 		isStale: ( params.get( 'is_stale' ) ?? '' ).trim(),
 		sourceType: ( params.get( 'source_type' ) ?? '' ).trim(),
 		sourceId: ( params.get( 'source_id' ) ?? '' ).trim(),
+		translationId:
+			Number.isFinite( translationRaw ) && translationRaw > 0
+				? Math.floor( translationRaw )
+				: null,
 	};
 }
 
@@ -52,6 +58,7 @@ export function writeOperationsUrlState( state: {
 	isStale?: string;
 	sourceType?: string;
 	sourceId?: string;
+	translationId?: number | null;
 } ): void {
 	if ( typeof window === 'undefined' ) {
 		return;
@@ -91,6 +98,12 @@ export function writeOperationsUrlState( state: {
 		}
 	}
 
+	if ( state.translationId && state.translationId > 0 ) {
+		params.set( 'translation_id', String( state.translationId ) );
+	} else {
+		params.delete( 'translation_id' );
+	}
+
 	const next = `${ window.location.pathname }?${ params.toString() }`;
 	window.history.replaceState( {}, '', next );
 }
@@ -109,6 +122,7 @@ export function clearOperationsViewFromUrl(): void {
 	params.delete( 'is_stale' );
 	params.delete( 'source_type' );
 	params.delete( 'source_id' );
+	params.delete( 'translation_id' );
 	const qs = params.toString();
 	window.history.replaceState(
 		{},
