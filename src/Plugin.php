@@ -486,6 +486,9 @@ final class Plugin {
 			$assembler
 		) )->register();
 
+		// OTL.5: Jobs must be available to Operations bulk enqueue after Jobs stack exists.
+		$workspace->set_jobs_service( $job_service );
+
 		( new WorkspaceController(
 			$workspace,
 			new WorkspaceSegmentSerializer(),

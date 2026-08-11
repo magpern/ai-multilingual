@@ -17,7 +17,9 @@ use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Jobs\BackgroundTranslationJobService;
 use AIMultilingual\Workspace\Operator\AllowedActionsResolver;
+use AIMultilingual\Workspace\Operator\OperationsBulkCoordinator;
 use AIMultilingual\Workspace\Operator\OperatorTranslationAssembler;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\QA\QAIssue;
@@ -129,6 +131,13 @@ final class WorkspaceService {
 	private ReviewBatchCoordinator $review_batch;
 
 	/**
+	 * Owns bounded Operations bulk orchestration (OTL.5).
+	 *
+	 * @var OperationsBulkCoordinator
+	 */
+	private OperationsBulkCoordinator $operations_bulk;
+
+	/**
 	 * Bounded, low-cardinality review diagnostic counters (ADR-0015 §13).
 	 *
 	 * @var ReviewDiagnosticsCounters
@@ -216,6 +225,7 @@ final class WorkspaceService {
 		$this->publication           = $publication;
 		$this->batch                 = new BatchOperationCoordinator( $this, $translation );
 		$this->review_batch          = new ReviewBatchCoordinator( $this );
+		$this->operations_bulk       = new OperationsBulkCoordinator( $this, $store, $publication );
 	}
 
 	/**
@@ -234,6 +244,34 @@ final class WorkspaceService {
 	 */
 	public function review_batch_coordinator(): ReviewBatchCoordinator {
 		return $this->review_batch;
+	}
+
+	/**
+	 * Returns the Operations bulk coordinator (OTL.5).
+	 */
+	public function operations_bulk_coordinator(): OperationsBulkCoordinator {
+		return $this->operations_bulk;
+	}
+
+	/**
+	 * Injects TI.6 Jobs after Plugin constructs the Jobs stack.
+	 *
+	 * @param BackgroundTranslationJobService $jobs Jobs service.
+	 */
+	public function set_jobs_service( BackgroundTranslationJobService $jobs ): void {
+		$this->operations_bulk->set_jobs( $jobs );
+	}
+
+	/**
+	 * Runs a bounded Operations bulk action (OTL.5).
+	 *
+	 * @param string                           $action  Bulk action.
+	 * @param array<int, array<string, mixed>> $items   Per-item payloads.
+	 * @param int                              $user_id Acting user.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function operations_bulk( string $action, array $items, int $user_id ) {
+		return $this->operations_bulk->run( $action, $items, $user_id );
 	}
 
 	/**

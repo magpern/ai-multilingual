@@ -184,6 +184,16 @@ final class WorkspaceController {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/operations/bulk',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'operations_bulk' ),
+				'permission_callback' => array( $this, 'can_access_operations' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/' . self::REST_BASE . '/operations/(?P<translation_id>\d+)',
 			array(
 				'methods'             => 'GET',
@@ -1372,6 +1382,40 @@ final class WorkspaceController {
 		return $this->respond(
 			$this->workspace->operations_attention_counts( (int) $lang->language_id )
 		);
+	}
+
+	/**
+	 * OTL.5 bounded Operations bulk mutations.
+	 *
+	 * @param WP_REST_Request $request REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function operations_bulk( WP_REST_Request $request ) {
+		$params = $this->body_params( $request );
+		$action = sanitize_key( (string) ( $params['action'] ?? '' ) );
+		$raw    = isset( $params['items'] ) && is_array( $params['items'] ) ? $params['items'] : array();
+
+		$items = array();
+		foreach ( $raw as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$items[] = array(
+				'translation_id'          => (int) ( $row['translation_id'] ?? 0 ),
+				'expected_publish_status' => isset( $row['expected_publish_status'] )
+					? (string) $row['expected_publish_status']
+					: null,
+				'source_hash'             => isset( $row['source_hash'] ) ? (string) $row['source_hash'] : null,
+				'translation_hash'        => isset( $row['translation_hash'] ) ? (string) $row['translation_hash'] : null,
+			);
+		}
+
+		$result = $this->workspace->operations_bulk( $action, $items, get_current_user_id() );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		return $this->respond( $result );
 	}
 
 	/**
