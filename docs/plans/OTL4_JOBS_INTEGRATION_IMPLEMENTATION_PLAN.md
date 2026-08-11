@@ -1,17 +1,22 @@
 # OTL.4 — Jobs Integration — Implementation Plan
 
-**Status:** **Architecture Frozen** (planning freeze; production implementation **not** started)
+**Status:** **Architecture Frozen** on `main` (freeze merge `aaacaf3d6bacb2547ff41c53b46a9000a15d7ebd`; production implementation **not** started)
 **Milestone:** OTL.4 — Jobs Integration (Operator Translation Lifecycle program)
-**Kind:** Milestone implementation plan (authoritative on `main` after freeze merge)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** OTL parent **Architecture Frozen**; OTL.0–OTL.3 **Complete**; TIQ **Complete** (incl. TI.6 Jobs); AI Multilingual **v1.2.0**; `Migrator::TARGET` **7**
 **Schema:** Migrator `TARGET` = **7** (unchanged — **no migration**, **no new index**)
 **ADR:** **No new ADR.** ADR-0011 / TI.6 Jobs ownership unchanged. ADR-0015 / ADR-0019 / ADR-0020 unchanged.
 **Planning baseline main HEAD:** `61ebfc4d4ca47dae9424a71a518000b923edef03`
-**Planning branch:** `docs/otl4-jobs-integration-planning-freeze`
+**Planning branch:** `docs/otl4-jobs-integration-planning-freeze` (merged)
+**Freeze merge:** `main` @ `aaacaf3d6bacb2547ff41c53b46a9000a15d7ebd` (`merge: freeze OTL.4 Jobs Integration implementation plan`)
+**Freeze merge CI:** run `31524892001` — **SUCCESS**
+**Reviewed planning HEAD:** `2accd2e0d07daa63eae39e6152cd450186480ccd`
 **Freeze recommendation:** **STATE A — FREEZE**
 **Independent review (planning):** **PASS** (adversarial review on planning branch; ordinary fix: correct ADR-0011 related link)
-**Implementation branch:** **Do not create until this plan is frozen on `main`.**
+**Validation:** [OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md](OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md)
+**Implementation branch:** **Do not create until the combined OTL.4 implementation task begins.**
+**Next:** Run the combined OTL.4 **implementation** + independent implementation review + merge + milestone closure from this frozen plan. Do **not** start OTL.5–OTL.6 or TSC under OTL.
 **Related:** [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [ADR-0011](../adr/0011-resumable-job-pipeline.md); [TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md)
 
 **External-review amendments locked:** A1 semantic linkage ≠ `active_lock_key`; A2 no serialized `selection_rule`; A3 TI.6 owns operation admission (`JobsOperationAdmission`); A4 Outcome B **Partial** (not from `attempt_count`); A5 bounded-lookup-honest `association=null`.
@@ -639,8 +644,8 @@ OTL.4 is implementable as a **bounded additive integration**:
 - [x] External amendments A1–A5 preserved
 - [x] TARGET 7 / no schema / no new ADR
 - [x] Independent planning review PASS
-- [ ] Freeze merge to `main`
-- [ ] Planning closure docs
+- [x] Freeze merge to `main`
+- [x] Planning closure docs
 - [ ] Post-closure CI green
 
 ---
