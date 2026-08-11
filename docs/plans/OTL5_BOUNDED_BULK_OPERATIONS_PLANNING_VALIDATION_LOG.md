@@ -1,6 +1,6 @@
 # OTL.5 Bounded Bulk Operations — Planning Freeze Validation Log
 
-**Status:** Planning freeze in progress (Architecture Frozen recorded at merge/closure)
+**Status:** **OTL.5 Architecture Frozen** on 
 **Authoritative plan:** [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 
@@ -15,8 +15,8 @@
 | External freeze review | **PASS** (STATE A — FREEZE; A1–A6) |
 | Independent planning review | **PASS** |
 | Review fixes | None (adversarial checker false-positive on `JobBounds::MAX_SELECTED_SEGMENTS` spacing; constant is 50) |
-| Freeze merge | _(filled after merge)_ |
-| Freeze merge CI | _(filled after CI)_ |
+| Freeze merge |  () |
+| Freeze merge CI | run  — phpcs / unit / integration / quality / build **SUCCESS** (phpcs re-run after transient SSL composer failure) |
 | Closure commit | _(filled at closure)_ |
 | Post-closure CI | _(filled after CI)_ |
 | Plugin version | **1.2.0** (unchanged) |
@@ -47,3 +47,25 @@ Run the combined OTL.5 implementation + independent implementation review + merg
 Do **not** implement OTL.5 until that combined implementation task begins.  
 Do **not** create the implementation branch in the planning freeze task.  
 Do **not** start OTL.6 or TSC.
+## Planning closure
+
+**OTL.5 Architecture Frozen** on `main`.
+
+| Item | Value |
+|---|---|
+| Freeze merge | `001cfb0132c2faefaf8243fffed1a16b94beb390` |
+| Freeze merge CI | run `31535262057` — **SUCCESS** |
+| Authoritative plan | [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md) |
+| BO matrix | BO1–BO31 |
+| AC set | AC1–AC74 |
+| Work packages | OTL5.0–OTL5.8 |
+| Max selection | 50 |
+| Supported | publish, unpublish, Jobs enqueue retranslate (`enqueued`) |
+| Deferred | bulk retry-failed |
+| A3 / A6 | result-aware selection; dirty intersection |
+| Version / TARGET | 1.2.0 / 7 |
+| Schema / ADR | none |
+| OTL.5 production implementation | **Not started** |
+| OTL.6 / TSC | Not started |
+
+**Exact next step:** Run the combined OTL.5 Bounded Bulk Operations implementation + independent implementation review + merge + milestone closure from the frozen main baseline. Do not create `feature/otl5-*` until that implementation task begins.
