@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Post-v1.2.0 Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **OTL** is the next active product program. **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**. Next milestone after OTL parent freeze: **OTL.0 Foundations** planning (do not implement until OTL.0 plan is frozen on `main`).
+**Current next decision:** **OTL** is the next active product program — parent Architecture Frozen on `main` ([`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md); freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`). **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**. Next: **OTL.0 Foundations** planning (do not implement until OTL.0 plan is frozen on `main`).
 
 ---
 

@@ -1,21 +1,23 @@
 # Operator Translation Lifecycle (OTL) — Parent Program Architecture Plan
 
-**Status:** Architecture Frozen — program roadmap
+**Status:** Architecture Frozen — program roadmap (on `main`)
 **Program:** Operator Translation Lifecycle (OTL)
 **Plan freeze:** Canonical program architecture for milestones **OTL.0–OTL.6**; orchestration and presentation over frozen TIQ services; public/SaaS neutrality; Deferred boundaries
 **ADR assessment:** **No new ADR required** for this program freeze. A future milestone must **STOP** for ADR review if it proposes durable composite operator state, new permissions/role architecture, new public Integration API contract, new persistent query architecture, or changed review/publication ownership.
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Historical Program C catalog (C.1–C.7) retained for roadmap history; **operator translation lifecycle work is governed by this OTL parent**. Program C must not be independently resumed in parallel with OTL.
 **Implementation priority:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md)
-**Planning branch:** `docs/otl-program-roadmap-freeze`
+**Planning branch:** `docs/otl-program-roadmap-freeze` (merged)
+**Freeze merge:** `main` @ `9a31176f0147d726b251315259cd6d6ca84ea432` (`merge: freeze Operator Translation Lifecycle program roadmap`)
 **Depends on:** AI Multilingual **v1.2.0** released; **TIQ Complete** (TQ.0–TI.7); `Migrator::TARGET` **7**; Integration API v1 unchanged
 **Related:** [adr/0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md); [adr/0019-evidence-based-risk-assessment.md](../adr/0019-evidence-based-risk-assessment.md); [adr/0020-controlled-auto-publication-and-frontend-gate.md](../adr/0020-controlled-auto-publication-and-frontend-gate.md); [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md); [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md); [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md); [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md); [TEST_STRATEGY.md](../TEST_STRATEGY.md)
 
 **Operational success:** Operators can complete find → understand state/risk → review/edit → approve/reject → publish/unpublish → verify using one coherent lifecycle, without inventing a second translator, Store, QA engine, assessment policy, publication policy, or Jobs engine.
 
-**This plan is the program architecture contract for OTL (OTL.0–OTL.6).** Do not implement production code on the planning branch. Do not begin OTL.0 definitive planning until this document is Architecture Frozen on `main`. Each milestone receives its own definitive planning freeze before implementation. This document freezes program boundaries, invariants, gates, and Deferred items — not detailed OTL.0 work packages.
+**This plan is the program architecture contract for OTL (OTL.0–OTL.6).** Do not implement production code under OTL until the relevant milestone plan is Architecture Frozen on `main`. Each milestone receives its own definitive planning freeze before implementation. This document freezes program boundaries, invariants, gates, and Deferred items — not detailed OTL.0 work packages.
 
 **Production implementation status:** **Not started.**
 
+**Next:** Author the definitive **OTL.0 Foundations** implementation plan from this frozen parent. Do not implement OTL.0 until that milestone plan is independently reviewed and frozen on `main`. Do not start Translation Surface Coverage (TSC) under OTL.
 ---
 
 ## 1. Executive summary
@@ -750,7 +752,7 @@ The repository plan on `main` is authoritative.
 
 ## 41. Exact next action
 
-After this parent is Architecture Frozen on `main`:
+This parent is Architecture Frozen on `main` (freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`).
 
 **Author the definitive OTL.0 Foundations implementation plan** from this frozen parent. Do **not** implement OTL.0 until that milestone plan has itself been independently reviewed and frozen on `main`.
 
