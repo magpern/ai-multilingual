@@ -86,8 +86,9 @@ reachable while logged out.
 |---|---|
 | `rest_api_init` | Registers `aiml/v1/workspace/*` routes for the translator workspace (F10 + F11 additive). |
 
-All routes require `aiml_translate`. Post-scoped routes additionally require
-`edit_post` for the requested canonical post. Responses include
+All routes require `aiml_translate` unless noted. Post-scoped routes additionally require
+`edit_post` for the requested canonical post. OTL operations list/detail accept
+`aiml_translate` **or** `aiml_review_translations`. Responses include
 `X-AIML-Workspace-Api-Version: 1` and serialize ViewModels only — controllers
 delegate to `WorkspaceService` and never touch `Store` directly.
 
@@ -109,6 +110,8 @@ delegate to `WorkspaceService` and never touch `Store` directly.
 | POST | `/aiml/v1/workspace/{post_id}/segments/batch-review?language=` | Review Workflow — bounded batch submit/approve/reject (ADR-0015 §11.1) |
 | GET | `/aiml/v1/workspace/review-queue?post_id=&language=&review_status=&page=&per_page=` | Review Workflow — filtered Store view (`aiml_review_translations`), never persisted |
 | GET | `/aiml/v1/workspace/review-diagnostics?post_id=&language=` | Review Workflow — bounded diagnostics (`aiml_review_translations`); ADR-0015 §13 |
+| GET | `/aiml/v1/workspace/operations?language=&status=&review_status=&publish_status=&is_stale=&source_type=&source_id=&page=&per_page=` | OTL.0 — language-scoped cheap operations list (`aiml_translate` **OR** `aiml_review_translations`); no QA/assessment/explain per row |
+| GET | `/aiml/v1/workspace/operations/{translation_id}` | OTL.0 — detail by Store PK; same list capability plus `edit_post` on post-backed sources; TI.4/TI.5/TI.7 composed read-only |
 
 ### Review Workflow audit — `aiml_review_audit` (ADR-0015 §12)
 
