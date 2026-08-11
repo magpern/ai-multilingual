@@ -156,8 +156,11 @@ final class PluginGuardTest extends AimlTestCase {
 
 		// Every read/write of user-supplied values goes through prepare(); the
 		// only interpolation is the table name, which comes from Schema.
+		$reads = substr_count( $store, '$wpdb->get_results(' )
+			+ substr_count( $store, '$wpdb->get_var(' )
+			+ substr_count( $store, '$wpdb->get_row(' );
 		$this->assertSame(
-			substr_count( $store, '$wpdb->get_results(' ) + substr_count( $store, '$wpdb->get_var(' ),
+			$reads,
 			substr_count( $store, '$wpdb->prepare(' ) - substr_count( $store, '$wpdb->query( $wpdb->prepare(' ),
 			'Every read in Store must be a prepared statement.'
 		);

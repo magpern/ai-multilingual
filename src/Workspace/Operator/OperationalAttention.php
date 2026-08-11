@@ -45,6 +45,8 @@ final class OperationalAttention {
 
 	/**
 	 * Whether a string is a valid attention reason ID.
+	 *
+	 * @param string $id Candidate reason ID.
 	 */
 	public static function is_reason_id( string $id ): bool {
 		return in_array( $id, self::reason_ids(), true );
@@ -52,6 +54,8 @@ final class OperationalAttention {
 
 	/**
 	 * Whether a preset is valid for the attention filter (`all` or a reason ID).
+	 *
+	 * @param string $preset Attention preset.
 	 */
 	public static function is_valid_preset( string $preset ): bool {
 		return self::PRESET_ALL === $preset || self::is_reason_id( $preset );
@@ -62,6 +66,7 @@ final class OperationalAttention {
 	 *
 	 * Empty / `all` → no attention filters. Unknown IDs (incl. `needs_review`) → WP_Error.
 	 *
+	 * @param string $preset Attention preset (`all` or a reason ID).
 	 * @return array<string, mixed>|WP_Error Filter fragment (may be empty) or error.
 	 */
 	public static function preset_to_store_filters( string $preset ) {
