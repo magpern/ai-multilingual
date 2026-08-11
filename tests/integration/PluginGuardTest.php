@@ -326,4 +326,63 @@ final class PluginGuardTest extends AimlTestCase {
 			);
 		}
 	}
+
+	/**
+	 * OTL.0 must not persist composite operator state or invent policy engines.
+	 */
+	public function test_otl_foundation_boundaries(): void {
+		$this->assert_absent(
+			array(
+				'operator_status',
+			),
+			'OTL.0 forbids persisted composite operator state.'
+		);
+
+		$schema = (string) file_get_contents( $this->root() . '/src/Database/Schema.php' );
+		$this->assertStringNotContainsString( 'aiml_operator', $schema );
+
+		$assembler = (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperatorTranslationAssembler.php' );
+		$this->assertStringContainsString( 'AssessmentAssembler', $assembler );
+		$this->assertStringContainsString( 'PublicationService', $assembler );
+		$this->assertStringNotContainsString( 'structurally_clean => eligible', $assembler );
+		$this->assertStringNotContainsString( 'structurally_clean ⇒ eligible', $assembler );
+
+		$resolver = (string) file_get_contents( $this->root() . '/src/Workspace/Operator/AllowedActionsResolver.php' );
+		$this->assertStringContainsString( 'NOT mutation authority', $resolver );
+		$this->assertStringNotContainsString( '$wpdb', $resolver );
+
+		$controller = (string) file_get_contents( $this->root() . '/src/Rest/WorkspaceController.php' );
+		$this->assertStringContainsString( '/operations', $controller );
+		$this->assertStringNotContainsString( 'register_rest_route', (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperatorTranslationAssembler.php' ) );
+
+		$integration = '';
+		$iterator    = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/src/Integration' ) );
+		foreach ( $iterator as $file ) {
+			if ( $file->isFile() && 'php' === $file->getExtension() ) {
+				$integration .= (string) file_get_contents( $file->getPathname() );
+			}
+		}
+		$this->assertStringNotContainsString( 'AllowedActionsResolver', $integration );
+		$this->assertStringNotContainsString( 'OperatorTranslation', $integration );
+		$this->assertStringNotContainsString( '/workspace/operations', $integration );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
+	}
+
+	/**
+	 * Product PHP under src/ must stay site-neutral (public/SaaS).
+	 */
+	public function test_otl_product_code_has_no_site_specific_branding(): void {
+		$forbidden = array( 'Biopentra', 'biopentra.eu', 'biopentra', 'peptide' );
+		foreach ( $this->sources() as $path => $code ) {
+			foreach ( $forbidden as $needle ) {
+				$this->assertStringNotContainsString(
+					$needle,
+					$code,
+					$path . ' must not embed site-specific product behavior (' . $needle . ').'
+				);
+			}
+		}
+	}
 }
