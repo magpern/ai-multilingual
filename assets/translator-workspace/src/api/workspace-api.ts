@@ -403,9 +403,26 @@ export async function saveBatch(
 export async function translateBatch(
 	postId: number,
 	languageCode: string,
-	segmentKeys: string[]
+	segmentKeys: string[],
+	expectedTranslationHashes?: Record< string, string >
 ): Promise< BatchTranslateResult > {
 	try {
+		const data: {
+			segment_keys: string[];
+			mode: string;
+			expected_translation_hashes?: Record< string, string >;
+		} = {
+			segment_keys: segmentKeys,
+			mode: 'sync',
+		};
+
+		if (
+			expectedTranslationHashes &&
+			Object.keys( expectedTranslationHashes ).length > 0
+		) {
+			data.expected_translation_hashes = expectedTranslationHashes;
+		}
+
 		const response = await apiFetch< BatchTranslateResult & {
 			segments: WorkspaceSegment[];
 		} >( {
@@ -415,10 +432,7 @@ export async function translateBatch(
 				) }`
 			),
 			method: 'POST',
-			data: {
-				segment_keys: segmentKeys,
-				mode: 'sync',
-			},
+			data,
 		} );
 
 		return {
@@ -427,6 +441,74 @@ export async function translateBatch(
 			errors: response.errors ?? [],
 			job_id: response.job_id ?? null,
 		};
+	} catch ( error ) {
+		const conflict = parseConflict( error );
+		if ( conflict ) {
+			throw conflict;
+		}
+
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+/**
+ * Publishes one post-backed segment (TI.7 manual path).
+ *
+ * @param postId                 Post id.
+ * @param languageCode           Target language code.
+ * @param segmentKey             Segment key.
+ * @param expectedPublishStatus  Optimistic publish_status guard.
+ */
+export async function publishSegment(
+	postId: number,
+	languageCode: string,
+	segmentKey: string,
+	expectedPublishStatus: string
+): Promise< WorkspaceSegment & { publication_result?: Record< string, unknown > } > {
+	try {
+		return await apiFetch( {
+			path: path(
+				`workspace/${ postId }/segments/${ encodeURIComponent(
+					segmentKey
+				) }/publish?language=${ encodeURIComponent( languageCode ) }`
+			),
+			method: 'POST',
+			data: {
+				expected_publish_status: expectedPublishStatus,
+			},
+		} );
+	} catch ( error ) {
+		const conflict = parseConflict( error );
+		if ( conflict ) {
+			throw conflict;
+		}
+
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+/**
+ * Unpublishes one post-backed segment (TI.7 manual path).
+ *
+ * @param postId       Post id.
+ * @param languageCode Target language code.
+ * @param segmentKey   Segment key.
+ */
+export async function unpublishSegment(
+	postId: number,
+	languageCode: string,
+	segmentKey: string
+): Promise< WorkspaceSegment & { publication_result?: Record< string, unknown > } > {
+	try {
+		return await apiFetch( {
+			path: path(
+				`workspace/${ postId }/segments/${ encodeURIComponent(
+					segmentKey
+				) }/unpublish?language=${ encodeURIComponent( languageCode ) }`
+			),
+			method: 'POST',
+			data: {},
+		} );
 	} catch ( error ) {
 		throw new WorkspaceRequestError( userMessageFromError( error ) );
 	}
