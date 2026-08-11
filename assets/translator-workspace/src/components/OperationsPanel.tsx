@@ -671,7 +671,7 @@ export default function OperationsPanel( {
 		if ( mayAutoPublish ) {
 			disclosure.push(
 				__(
-					'Auto-publication mode may publish the new translation again if TI.7 allows after persist. Do not assume it stays unpublished.',
+					'The new translation MAY be automatically published again if TI.7 allows after persist. Do not assume it stays unpublished.',
 					'ai-multilingual'
 				)
 			);
