@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Post-v1.2.0 Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **OTL.1** Operations list + attention — **Architecture Frozen** on `main` ([`plans/OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md`](plans/OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md); freeze merge `30332a315e2b0a99a036a5aa521771b21ba2cd9a`). Next: implement on `feature/otl1-operations-list-attention` only. OTL.0 **Complete** (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`). OTL parent Architecture Frozen ([`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md); freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`). **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**.
+**Current next decision:** **OTL.2** Unified Detail + Edit/Review — **planning only** (OTL.1 **Complete** on `main`; merge `466eb6a470b2ea48b949bc05e0717afbc6600fc3`; plan [`plans/OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md`](plans/OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md)). Do not implement OTL.2 until its plan is independently reviewed and frozen on `main`. OTL.0 **Complete**. OTL parent Architecture Frozen ([`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md); freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`). **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). **OTL.0 Complete.** Next: **OTL.1** implementation — [`OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md`](plans/OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**). |
+| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). **OTL.0–OTL.1 Complete.** Next: **OTL.2** planning only — Unified Detail + Edit/Review. |
 
 **Released:** AI Multilingual **v1.2.0** (tag `v1.2.0`). **v1.1.0** remains the prior intentional release. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. `Migrator::TARGET` is **7**.
 

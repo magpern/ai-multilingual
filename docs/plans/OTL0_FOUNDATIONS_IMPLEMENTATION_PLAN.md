@@ -13,7 +13,7 @@
 **Implementation branch:** `feature/otl0-foundations` (merged)
 **Independent review (implementation):** **PASS**
 **Validation:** [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md)
-**Next:** OTL.1 Operations list + attention — [OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md](OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; freeze merge `30332a315e2b0a99a036a5aa521771b21ba2cd9a`). Implement on `feature/otl1-operations-list-attention` only. Do **not** start TSC under OTL.
+**Next:** OTL.2 Unified Detail + Edit/Review — **planning only**. Do **not** implement OTL.2 until its plan is independently reviewed and frozen on `main`. Do **not** start TSC under OTL.
 **Related (unchanged ownership):** [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md); TI.4 QA; TI.5 Assessment; TI.6 Jobs; TI.7 Publication
 
 **Operational success:** Later OTL UI milestones can consume one computed operator read model, server-computed `allowed_actions`, and additive list/detail admin REST without inventing a second translator, Store, QA engine, assessment policy, publication policy, or Jobs engine — and without schema change.
