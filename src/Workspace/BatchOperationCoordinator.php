@@ -80,7 +80,10 @@ final class BatchOperationCoordinator {
 			}
 
 			try {
-				$succeeded[] = $this->workspace->save_segment(
+				$expected_hash = array_key_exists( 'expected_translation_hash', $item )
+					? (string) $item['expected_translation_hash']
+					: null;
+				$succeeded[]   = $this->workspace->save_segment(
 					$post,
 					$language_id,
 					$key,
@@ -88,12 +91,20 @@ final class BatchOperationCoordinator {
 					(string) ( $item['source_hash'] ?? '' ),
 					(string) ( $item['status'] ?? '' ),
 					(string) ( $item['save_origin'] ?? '' ),
-					(int) ( $item['tm_id'] ?? 0 )
+					(int) ( $item['tm_id'] ?? 0 ),
+					$expected_hash
 				);
 			} catch ( WorkspaceConflictException $conflict ) {
 				$failed[] = array(
 					'segment_key' => $key,
 					'code'        => 'aiml_source_hash_mismatch',
+					'message'     => $conflict->getMessage(),
+					'segments'    => $conflict->segments(),
+				);
+			} catch ( WorkspaceTranslationConflictException $conflict ) {
+				$failed[] = array(
+					'segment_key' => $key,
+					'code'        => 'aiml_translation_hash_mismatch',
 					'message'     => $conflict->getMessage(),
 					'segments'    => $conflict->segments(),
 				);

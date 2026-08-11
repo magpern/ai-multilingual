@@ -47,6 +47,7 @@ final class OperatorTranslationDetailViewModel {
 			'translated_text'     => (string) ( $this->data['translated_text'] ?? '' ),
 			'text_format'         => (string) ( $this->data['text_format'] ?? '' ),
 			'source_hash'         => (string) ( $this->data['source_hash'] ?? '' ),
+			'translation_hash'    => (string) ( $this->data['translation_hash'] ?? '' ),
 			'updated_at'          => (string) ( $this->data['updated_at'] ?? '' ),
 			'created_at'          => (string) ( $this->data['created_at'] ?? '' ),
 			'review_submitted_at' => (string) ( $this->data['review_submitted_at'] ?? '' ),

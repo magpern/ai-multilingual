@@ -24,6 +24,7 @@ use AIMultilingual\Workspace\Review\ReviewWorkflowException;
 use AIMultilingual\Workspace\Review\ReviewWorkflowService;
 use AIMultilingual\Workspace\WorkspaceConflictException;
 use AIMultilingual\Workspace\WorkspaceQAException;
+use AIMultilingual\Workspace\WorkspaceTranslationConflictException;
 use AIMultilingual\Workspace\WorkspaceService;
 use WP_Error;
 use WP_REST_Request;
@@ -713,6 +714,14 @@ final class WorkspaceController {
 		}
 		$key = rawurldecode( (string) $request->get_param( 'segment_key' ) );
 
+		if ( ! array_key_exists( 'expected_translation_hash', $params ) ) {
+			return new WP_Error(
+				'aiml_invalid_segment',
+				__( 'expected_translation_hash is required.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
 		try {
 			$dto = $this->workspace->save_segment(
 				$post,
@@ -720,12 +729,24 @@ final class WorkspaceController {
 				$key,
 				(string) ( $params['translated_text'] ?? '' ),
 				(string) ( $params['source_hash'] ?? '' ),
-				(string) ( $params['status'] ?? '' )
+				(string) ( $params['status'] ?? '' ),
+				'',
+				0,
+				(string) $params['expected_translation_hash']
 			);
 		} catch ( WorkspaceConflictException $conflict ) {
 			return new WP_REST_Response(
 				array(
 					'code'     => 'aiml_source_hash_mismatch',
+					'message'  => $conflict->getMessage(),
+					'segments' => $this->segment_serializer->many_to_arrays( $conflict->segments() ),
+				),
+				409
+			);
+		} catch ( WorkspaceTranslationConflictException $conflict ) {
+			return new WP_REST_Response(
+				array(
+					'code'     => 'aiml_translation_hash_mismatch',
 					'message'  => $conflict->getMessage(),
 					'segments' => $this->segment_serializer->many_to_arrays( $conflict->segments() ),
 				),

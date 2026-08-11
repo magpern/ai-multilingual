@@ -99,6 +99,9 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_edit( object $row, array $capability_flags ): array {
+		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			return $this->descriptor( self::ACTION_EDIT, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
+		}
 		if ( empty( $capability_flags['can_translate'] ) ) {
 			return $this->descriptor( self::ACTION_EDIT, false, ActionReasonCodes::CAPABILITY_DENIED );
 		}
@@ -121,6 +124,9 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_submit( object $row, array $capability_flags ): array {
+		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			return $this->descriptor( self::ACTION_SUBMIT_FOR_REVIEW, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
+		}
 		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
 			return $this->descriptor( self::ACTION_SUBMIT_FOR_REVIEW, false, ActionReasonCodes::CAPABILITY_DENIED );
 		}
@@ -157,6 +163,9 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_approve( object $row, array $capability_flags ): array {
+		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			return $this->descriptor( self::ACTION_APPROVE, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
+		}
 		if ( empty( $capability_flags['can_review'] ) || empty( $capability_flags['can_edit_source'] ) ) {
 			return $this->descriptor( self::ACTION_APPROVE, false, ActionReasonCodes::CAPABILITY_DENIED );
 		}
@@ -175,6 +184,9 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_reject( object $row, array $capability_flags ): array {
+		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			return $this->descriptor( self::ACTION_REJECT, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
+		}
 		if ( empty( $capability_flags['can_review'] ) || empty( $capability_flags['can_edit_source'] ) ) {
 			return $this->descriptor( self::ACTION_REJECT, false, ActionReasonCodes::CAPABILITY_DENIED );
 		}
@@ -193,6 +205,9 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_unpublish( object $row, array $capability_flags ): array {
+		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			return $this->descriptor( self::ACTION_UNPUBLISH, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
+		}
 		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
 			return $this->descriptor( self::ACTION_UNPUBLISH, false, ActionReasonCodes::CAPABILITY_DENIED );
 		}
@@ -226,6 +241,9 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_publish( object $row, array $capability_flags, ?PublicationDecision $publication ): array {
+		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			return $this->descriptor( self::ACTION_PUBLISH, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
+		}
 		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
 			return $this->descriptor( self::ACTION_PUBLISH, false, ActionReasonCodes::CAPABILITY_DENIED );
 		}
