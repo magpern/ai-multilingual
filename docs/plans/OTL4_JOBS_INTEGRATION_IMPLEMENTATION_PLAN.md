@@ -14,6 +14,8 @@
 **Implementation merge:** `main` @ `6e77687f6ebbb000372f68d699fba33c71489704` (`merge: complete OTL.4 Jobs Integration`)
 **Feature CI:** run `31529991869` — **SUCCESS**
 **Fresh main CI:** run `31530162912` — **SUCCESS**
+**Closure commit:** `7729ac02926d1f6fbd299cd25676399cbdc4ab30`
+**Post-closure CI:** run `31530458995` — **SUCCESS**
 **Reviewed planning HEAD:** `2accd2e0d07daa63eae39e6152cd450186480ccd`
 **Final reviewed feature HEAD:** `c1709f245a40ff5b19d5758e68f2d39923da2a52`
 **Independent review (planning):** **PASS**
