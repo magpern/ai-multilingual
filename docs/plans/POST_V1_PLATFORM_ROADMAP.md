@@ -55,7 +55,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- Explicit **release/version** decision from the closed TIQ main baseline (`Migrator::TARGET` **7**). Do not begin another product milestone before that decision.
+- **v1.2.0** release preparation / independent review → merge → annotated tag → GitHub Release (`Migrator::TARGET` **7**). Next product milestone **undecided** until after release.
 - **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). [TI.7 plan](TI7_CONTROLLED_AUTO_PUBLICATION_POLICY_IMPLEMENTATION_PLAN.md) Complete; merge `25fee160f323dd33b7f73d432f446caca6a72075`
 - Remaining Program A options (not TIQ): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision
 - Later (not default next): historical **B.1** additional providers (Deferred under TIQ until measurement shows need); **C.1–C.3** Workspace productivity; **D.1** unified health/diagnostics

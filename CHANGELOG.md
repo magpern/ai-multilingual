@@ -7,9 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [1.2.0] — 2026-08-11
 
-- TQ.0 Translation Quality Baseline (measurement-only): C1.0 corpus, H1.0 deterministic scorer, B1.0 human reviews, official `baseline-v1.1.0` evidence pack, quality CLI/CI (network-free). No production translator redesign. Known retained baseline defect: `gut_01` glossary-instruction leakage.
+### Translation quality and safety
+
+- TQ.0 Translation Quality Baseline: C1.0 corpus, H1.0 scorer, B1.0 reviews, official immutable `baseline-v1.1.0` evidence pack, quality CLI/CI (network-free).
+- TI.1 persist-path structural safety on sync and Background Jobs.
+- TI.4 shared deterministic QA detectors and policy adapters; additive H1.1 / C1.3 evidence.
+
+### Translation intelligence
+
+- TI.2 bounded translation context on the generation path.
+- TI.3 exact approved Translation Memory direct reuse and relevance-gated assisted examples.
+- TI.5 explainable read-only risk/readiness assessment (**R1.0**) — no aggregate score, no LLM confidence, no publication decision.
+
+### Background operations
+
+- TI.6 truthful provider usage/budgets, Retry-After handling, bounded concurrency, and recovery/operator evidence improvements.
+- Exactly-once provider spend is not claimed (Outcome B may repeat a provider call after crash-after-Store).
+
+### Controlled publication
+
+- TI.7 segment publication axis (`publish_status` / `published_at` / `published_by`); Migrator **TARGET 7**.
+- Frontend publication gate (default **off**); modes `manual` (default), `approved_only`, `controlled_auto`.
+- Single PublicationPolicy **P1.0** and PublicationService; Workspace / REST / CLI controls.
+- Sync and Jobs publish via the same service; publication failure is separate from translation failure.
+- Upgrade backfills previously overlayable rows to `published`; new rows default `unpublished`; no silent auto-publication on upgrade.
+
+### Compatibility / infrastructure
+
+- Compatible CI/Actions maintenance landed after v1.1.0 (including Node 24 runtime upgrades).
+- Integration API v1 unchanged; A.SEO / Woo ownership unchanged.
+
+### Notes
+
+- Production package is `ai-multilingual-1.2.0.zip` from `bin/build-zip.sh` / GitHub Actions on `v*` tags.
+- Official quality evidence pack remains labeled **baseline-v1.1.0** (historical behavioral baseline).
+- See [docs/releases/v1.2.0.md](docs/releases/v1.2.0.md) and [docs/releases/V1_2_0_RELEASE_SCOPE.md](docs/releases/V1_2_0_RELEASE_SCOPE.md).
 
 ## [1.1.0] — 2026-08-09
 
