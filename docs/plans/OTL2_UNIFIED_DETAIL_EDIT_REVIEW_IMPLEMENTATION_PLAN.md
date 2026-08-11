@@ -1,18 +1,23 @@
 # OTL.2 — Unified Detail + Edit/Review — Implementation Plan
 
-**Status:** **Architecture Frozen** (planning) — independent review **PASS**; merge to `main` authorized
+**Status:** **Architecture Frozen** on `main` (independent planning review **PASS**)
 **Milestone:** OTL.2 — Unified Detail + Edit/Review (Operator Translation Lifecycle program)
-**Kind:** Milestone implementation plan (authoritative after freeze merge on `main`)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** OTL parent **Architecture Frozen**; OTL.0 Foundations **Complete**; OTL.1 Operations List + Attention **Complete**; TIQ **Complete**; AI Multilingual **v1.2.0**; `Migrator::TARGET` **7**
 **Schema:** Migrator `TARGET` = **7** (unchanged — no migration)
 **ADR:** **No new ADR.** ADR-0015 / ADR-0019 / ADR-0020 unchanged.
-**Planning branch:** `docs/otl2-unified-detail-edit-review-planning-freeze`
+**Planning branch:** `docs/otl2-unified-detail-edit-review-planning-freeze` (merged)
+**Freeze merge:** `main` @ `6e5fb47427676edc156d58335055a488a7f1a899` (`merge: freeze OTL.2 Unified Detail + Edit/Review implementation plan`)
+**Freeze merge CI:** run `31496901459` — **SUCCESS**
+**Reviewed planning HEAD:** `c787a36c85d6cdd517de15be75a172f7a4071d29`
 **Freeze recommendation:** **STATE A — FREEZE**
 **Independent review (planning):** **PASS**
-**Implementation branch:** **not created** in this planning freeze
-**Next (after freeze on main):** Combined OTL.2 implementation + independent implementation review + merge + milestone closure from the frozen main baseline. Do **not** start OTL.3–OTL.6 or TSC under OTL.
+**Implementation branch:** **not created**
+**Next:** Combined OTL.2 **implementation** + independent implementation review + merge + milestone closure from this frozen main baseline. Do **not** start OTL.3–OTL.6 or TSC under OTL.
 **Related:** [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md); [OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md](OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md)
+
+**Planning freeze contracts recorded:** dirty-evidence honesty; dirty review gate; `expected_translation_hash` → 409 `aiml_translation_hash_mismatch` (no schema); cross-object inspection vs post-backed mutation; term/taxonomy mutation **Deferred** (coverage debt); raw target round-trip integrity.
 
 **Operational success:** From Operations, an operator opens one translation and, in one coherent surface, understands source and last-persisted evidence, edits the target safely, saves without silent lost updates, sees structured TI.4 QA and TI.5 assessment for the persisted text, and submits/approves/rejects through ADR-0015 — without confusing unsaved draft with evaluated/reviewable content, and without publishing or retranslating (OTL.3).
 
@@ -881,16 +886,16 @@ Do **not** start OTL.3–OTL.6 or TSC under OTL.
 
 ## 46. Planning freeze checklist
 
-- [x] External amendments A–D incorporated  
-- [x] UD1–UD56 frozen  
-- [x] 88 contiguous ACs  
-- [x] OTL2.0–OTL2.8 ladder  
-- [x] Target concurrency without schema  
-- [x] Dirty evidence + review gate  
-- [x] Cross-object vs post-backed mutation  
-- [x] Raw round-trip integrity  
-- [x] Independent planning review PASS  
-- [ ] Merge `--no-ff` to main  
-- [ ] Merge CI green  
-- [ ] Planning closure docs  
-- [ ] Post-closure CI green  
+- [x] External amendments A–D incorporated
+- [x] UD1–UD56 frozen
+- [x] 88 contiguous ACs
+- [x] OTL2.0–OTL2.8 ladder
+- [x] Target concurrency without schema
+- [x] Dirty evidence + review gate
+- [x] Cross-object vs post-backed mutation
+- [x] Raw round-trip integrity
+- [x] Independent planning review PASS
+- [x] Merge `--no-ff` to main (`6e5fb47427676edc156d58335055a488a7f1a899`)
+- [x] Merge CI green (`31496901459`)
+- [x] Planning closure docs
+- [ ] Post-closure CI green
