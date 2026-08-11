@@ -22,7 +22,7 @@
 **Independent review (implementation):** **PASS**
 **Validation:** [OTL4_JOBS_INTEGRATION_VALIDATION_LOG.md](OTL4_JOBS_INTEGRATION_VALIDATION_LOG.md); planning log [OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md](OTL4_JOBS_INTEGRATION_PLANNING_VALIDATION_LOG.md)
 **Implementation branch:** `feature/otl4-jobs-integration` (merged)
-**Next:** Begin **OTL.5 Bounded Bulk Operations** planning only from this closed OTL.4 baseline. Do **not** implement OTL.5–OTL.6 or TSC under OTL until OTL.5 is frozen.
+**Next:** OTL.5 Bounded Bulk Operations Architecture Frozen planning — [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md). Do **not** implement OTL.5–OTL.6 or TSC under OTL until OTL.5 planning freeze/closure is complete and the combined OTL.5 implementation task begins.
 **Related:** [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [ADR-0011](../adr/0011-resumable-job-pipeline.md); [TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md)
 
 **External-review amendments locked:** A1 semantic linkage ≠ `active_lock_key`; A2 no serialized `selection_rule`; A3 TI.6 owns operation admission (`JobsOperationAdmission`); A4 Outcome B **Partial** (not from `attempt_count`); A5 bounded-lookup-honest `association=null`.
