@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Workspace\Operator;
 
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Jobs\JobsLifecycleLinker;
 use AIMultilingual\Settings;
 use AIMultilingual\Translation\AI\FieldSemanticMapper;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
@@ -34,25 +35,27 @@ final class OperatorTranslationAssembler {
 	/**
 	 * Invocation counters for list/detail performance assertions.
 	 *
-	 * @var array{assessment: int, publication_explain: int, qa: int}
+	 * @var array{assessment: int, publication_explain: int, qa: int, jobs: int}
 	 */
 	private array $invocation_counts = array(
 		'assessment'          => 0,
 		'publication_explain' => 0,
 		'qa'                  => 0,
+		'jobs'                => 0,
 	);
 
 	/**
 	 * Builds the operator translation assembler.
 	 *
-	 * @param Store                   $store              Translation store.
-	 * @param Languages               $languages          Language catalog.
-	 * @param AllowedActionsResolver  $actions            UI admission resolver.
-	 * @param PreviewService          $preview            Preview URLs.
-	 * @param AssessmentAssembler     $assessment         TI.5 assessment.
-	 * @param QAEngine                $qa                 Workspace QA engine.
-	 * @param FieldSemanticMapper     $field_semantic     Field semantic mapper.
-	 * @param PublicationService|null $publication        TI.7 publication service.
+	 * @param Store                    $store              Translation store.
+	 * @param Languages                $languages          Language catalog.
+	 * @param AllowedActionsResolver   $actions            UI admission resolver.
+	 * @param PreviewService           $preview            Preview URLs.
+	 * @param AssessmentAssembler      $assessment         TI.5 assessment.
+	 * @param QAEngine                 $qa                 Workspace QA engine.
+	 * @param FieldSemanticMapper      $field_semantic     Field semantic mapper.
+	 * @param PublicationService|null  $publication        TI.7 publication service.
+	 * @param JobsLifecycleLinker|null $jobs_linker       OTL.4 Jobs linker (detail only).
 	 */
 	public function __construct(
 		private Store $store,
@@ -63,6 +66,7 @@ final class OperatorTranslationAssembler {
 		private QAEngine $qa,
 		private FieldSemanticMapper $field_semantic,
 		private ?PublicationService $publication = null,
+		private ?JobsLifecycleLinker $jobs_linker = null,
 	) {}
 
 	/**
@@ -73,13 +77,14 @@ final class OperatorTranslationAssembler {
 			'assessment'          => 0,
 			'publication_explain' => 0,
 			'qa'                  => 0,
+			'jobs'                => 0,
 		);
 	}
 
 	/**
-	 * Returns current TI.4/TI.5/TI.7 invocation counters.
+	 * Returns current TI.4/TI.5/TI.7/Jobs invocation counters.
 	 *
-	 * @return array{assessment: int, publication_explain: int, qa: int}
+	 * @return array{assessment: int, publication_explain: int, qa: int, jobs: int}
 	 */
 	public function invocation_counts(): array {
 		return $this->invocation_counts;
@@ -213,6 +218,12 @@ final class OperatorTranslationAssembler {
 			$auto_mode = PublicationMode::MANUAL;
 		}
 
+		$jobs = null;
+		if ( $this->jobs_linker instanceof JobsLifecycleLinker ) {
+			$jobs = $this->jobs_linker->link_for_translation( $row, $caps );
+			++$this->invocation_counts['jobs'];
+		}
+
 		return array(
 			'translation_id'       => (int) $row->translation_id,
 			'source_type'          => (string) $row->source_type,
@@ -252,8 +263,8 @@ final class OperatorTranslationAssembler {
 				'auto_publication_mode'            => $auto_mode,
 			),
 			'links'                => $links,
-			'allowed_actions'      => $this->actions->resolve_for_detail( $row, $caps, $publication, $links ),
-			'jobs'                 => null,
+			'allowed_actions'      => $this->actions->resolve_for_detail( $row, $caps, $publication, $links, $jobs ),
+			'jobs'                 => $jobs,
 		);
 	}
 

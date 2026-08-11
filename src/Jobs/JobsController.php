@@ -381,7 +381,7 @@ final class JobsController {
 			return $this->map_domain_error( $result );
 		}
 
-		return $this->respond( $this->serializer->job_from_row( $result )->to_array(), 201 );
+		return $this->respond( $this->serializer->job_array_with_operations( $result ), 201 );
 	}
 
 	/**
@@ -399,7 +399,7 @@ final class JobsController {
 
 		$items = $this->jobs->list_job_items( $job_id );
 
-		return $this->respond( $this->serializer->job_detail_from_rows( $job, $items )->to_array() );
+		return $this->respond( $this->serializer->job_detail_array_with_operations( $job, $items ) );
 	}
 
 	/**
@@ -504,7 +504,7 @@ final class JobsController {
 
 		$job = is_object( $observed ) ? $observed : $result;
 
-		return $this->respond( $this->serializer->job_from_row( $job )->to_array() );
+		return $this->respond( $this->serializer->job_array_with_operations( $job ) );
 	}
 
 	/**
@@ -533,7 +533,7 @@ final class JobsController {
 			return $this->map_domain_error( $wake );
 		}
 
-		return $this->respond( $this->serializer->job_from_row( $result )->to_array() );
+		return $this->respond( $this->serializer->job_array_with_operations( $result ) );
 	}
 
 	/**
@@ -557,7 +557,7 @@ final class JobsController {
 
 		$job = is_object( $observed ) ? $observed : $result;
 
-		return $this->respond( $this->serializer->job_from_row( $job )->to_array() );
+		return $this->respond( $this->serializer->job_array_with_operations( $job ) );
 	}
 
 	/**
@@ -588,7 +588,7 @@ final class JobsController {
 			return $this->map_domain_error( $wake );
 		}
 
-		return $this->respond( $this->serializer->job_from_row( $result )->to_array() );
+		return $this->respond( $this->serializer->job_array_with_operations( $result ) );
 	}
 
 	/**
@@ -616,7 +616,7 @@ final class JobsController {
 				return $this->map_domain_error( $result );
 			}
 
-			return $this->respond( $this->serializer->job_from_row( $result )->to_array() );
+			return $this->respond( $this->serializer->job_array_with_operations( $result ) );
 		}
 
 		$wake = $this->scheduler->enqueue_job( $job_id );
@@ -893,7 +893,7 @@ final class JobsController {
 			return $this->map_domain_error( $result );
 		}
 
-		return $this->respond( $this->serializer->job_from_row( $result )->to_array() );
+		return $this->respond( $this->serializer->job_array_with_operations( $result ) );
 	}
 
 	/**

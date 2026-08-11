@@ -299,7 +299,7 @@ final class WorkspaceService {
 	/**
 	 * Returns OTL assembler invocation counters for tests.
 	 *
-	 * @return array{assessment: int, publication_explain: int, qa: int}
+	 * @return array{assessment: int, publication_explain: int, qa: int, jobs: int}
 	 */
 	public function otl_invocation_counts(): array {
 		return $this->operator()->invocation_counts();
@@ -318,7 +318,8 @@ final class WorkspaceService {
 				$this->assessment,
 				$this->qa,
 				$this->field_semantic_mapper,
-				$this->publication
+				$this->publication,
+				new \AIMultilingual\Jobs\JobsLifecycleLinker()
 			);
 		}
 

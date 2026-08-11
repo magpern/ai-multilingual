@@ -47,10 +47,54 @@ final class JobsViewModelSerializer {
 	public function many_jobs_to_arrays( array $rows ): array {
 		$out = array();
 		foreach ( $rows as $row ) {
-			$out[] = $this->job_from_row( $row )->to_array();
+			$out[] = $this->job_array_with_operations( $row );
 		}
 
 		return $out;
+	}
+
+	/**
+	 * Maps one job row to a summary array including authoritative operations.
+	 *
+	 * @param object $row Job row.
+	 * @return array<string, mixed>
+	 */
+	public function job_array_with_operations( object $row ): array {
+		$payload               = $this->job_from_row( $row )->to_array();
+		$payload['operations'] = $this->operations_for_job( $row );
+		return $payload;
+	}
+
+	/**
+	 * Maps one job row and item rows to a detail array including operations.
+	 *
+	 * @param object        $row   Job row.
+	 * @param array<object> $items Item rows.
+	 * @return array<string, mixed>
+	 */
+	public function job_detail_array_with_operations( object $row, array $items ): array {
+		$payload               = $this->job_detail_from_rows( $row, $items )->to_array();
+		$payload['operations'] = $this->operations_for_job( $row );
+		return $payload;
+	}
+
+	/**
+	 * TI.6 operation admission for the current user.
+	 *
+	 * @param object $row Job row.
+	 * @return list<array{operation_id: string, allowed: bool, reason_code: string|null, mutation_scope: string}>
+	 */
+	private function operations_for_job( object $row ): array {
+		$user_id   = get_current_user_id();
+		$admission = new JobsOperationAdmission();
+
+		return $admission->evaluate(
+			$row,
+			array(
+				'can_run'    => user_can( $user_id, JobsCapabilities::RUN_JOBS ),
+				'can_cancel' => user_can( $user_id, JobsCapabilities::CANCEL_JOBS ),
+			)
+		);
 	}
 
 	/**

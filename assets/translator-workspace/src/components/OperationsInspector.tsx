@@ -1,8 +1,12 @@
 import { Button, Notice, Spinner, TextareaControl } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
+import { mutateJob } from '../api/jobs-api';
+import type { JobAction } from '../types/jobs';
 import type {
 	OperationsDetailResponse,
+	OperationsJobsSubtree,
 	SegmentQA,
 } from '../types/view-models';
 import {
@@ -20,8 +24,13 @@ import {
 } from '../utils/detail-dirty';
 import { canShowPublicationActions } from '../utils/detail-publication-gate';
 import { canShowReviewActions } from '../utils/detail-review-gate';
+import {
+	jobStatusLabel,
+	jobTypeLabel,
+} from '../utils/jobs';
 import { attentionReasonLabel } from '../utils/operations-attention';
 import { reviewStatusLabel } from '../utils/review-status';
+import JobActionConfirmDialog from './JobActionConfirmDialog';
 import QAPanel from './QAPanel';
 
 interface OperationsInspectorProps {
@@ -31,6 +40,7 @@ interface OperationsInspectorProps {
 	onClose: () => void;
 	onOpenInTranslate: ( postId: number, languageCode: string ) => void;
 	onOpenInReview: ( languageCode: string, postId?: number ) => void;
+	onOpenJobs?: ( jobId?: number | null, itemId?: number | null ) => void;
 	canTranslate: boolean;
 	canReview: boolean;
 	draftText: string;
@@ -42,6 +52,7 @@ interface OperationsInspectorProps {
 	onSave: () => void;
 	onDiscard: () => void;
 	onRefreshDetail: () => void;
+	onRefreshJobsSubtree?: () => Promise< void > | void;
 	onSubmitReview: () => void;
 	onApproveReview: () => void;
 	onRejectReview: () => void;
@@ -155,6 +166,36 @@ function publicationModeLabel( mode: string ): string {
 	}
 }
 
+function jobsResumeConfirmMessage( jobId: number ): string {
+	return sprintf(
+		/* translators: %d: job id */
+		__(
+			'Resume job #%d. This affects the entire paused job and returns all remaining items in that job to the queue — not only the translation you are viewing.',
+			'ai-multilingual'
+		),
+		jobId
+	);
+}
+
+function jobsRetryFailedConfirmMessage(
+	jobId: number,
+	failedItemsInJob: number
+): string {
+	return sprintf(
+		/* translators: 1: job id, 2: failed item count */
+		__(
+			'Retry failed items in job #%1$d. This resets all eligible failed items in that job (%2$d failed) and wakes the worker. It does not retry only the translation you are viewing.',
+			'ai-multilingual'
+		),
+		jobId,
+		failedItemsInJob
+	);
+}
+
+function isRetryWaitStatus( status: string ): boolean {
+	return 'retry_wait' === status;
+}
+
 /**
  * Unified translation detail workspace (OTL.2) — extends OTL.1 inspector in place.
  */
@@ -165,6 +206,7 @@ export default function OperationsInspector( {
 	onClose,
 	onOpenInTranslate,
 	onOpenInReview,
+	onOpenJobs,
 	canTranslate,
 	canReview,
 	draftText,
@@ -176,6 +218,7 @@ export default function OperationsInspector( {
 	onSave,
 	onDiscard,
 	onRefreshDetail,
+	onRefreshJobsSubtree,
 	onSubmitReview,
 	onApproveReview,
 	onRejectReview,
@@ -186,6 +229,11 @@ export default function OperationsInspector( {
 	mutationEligible,
 	lastOperationResult = null,
 }: OperationsInspectorProps ) {
+	const [ jobsAction, setJobsAction ] = useState< JobAction | null >( null );
+	const [ jobsActionBusy, setJobsActionBusy ] = useState( false );
+	const [ jobsActionError, setJobsActionError ] = useState( '' );
+	const [ jobsFeedback, setJobsFeedback ] = useState( '' );
+
 	const segmentQa = detail ? detailQaToSegmentQa( detail.qa ) : null;
 	const reviewGate = detail
 		? canShowReviewActions( {
@@ -219,6 +267,80 @@ export default function OperationsInspector( {
 			''
 	);
 	const actionsDisabled = dirty || saving;
+	const jobs: OperationsJobsSubtree | null | undefined = detail?.jobs;
+	const jobsAssociation = jobs?.association ?? null;
+	const jobsJobId = jobsAssociation?.job.job_id ?? jobs?.navigation?.job_id;
+	const jobsItemId =
+		jobsAssociation?.item.item_id ?? jobs?.navigation?.item_id;
+	const failedItemsInJob = jobsAssociation?.failed_items_in_job ?? 0;
+	const jobStatus = jobsAssociation?.job.status ?? '';
+	const itemStatus = jobsAssociation?.item.status ?? '';
+	const showRetryWait =
+		isRetryWaitStatus( jobStatus ) || isRetryWaitStatus( itemStatus );
+	const canOpenJob = Boolean(
+		detail &&
+			onOpenJobs &&
+			( actionAllowed( detail, 'open_job' ) ||
+				actionAllowed( detail, 'open_jobs' ) )
+	);
+	const canResumeJobAction = Boolean(
+		detail && jobsAssociation && actionAllowed( detail, 'resume_job' )
+	);
+	const canRetryFailedJobAction = Boolean(
+		detail &&
+			jobsAssociation &&
+			actionAllowed( detail, 'retry_failed_job' )
+	);
+	const usage =
+		jobs?.presentation?.usage && jobs.presentation.usage.usage_known
+			? jobs.presentation.usage
+			: null;
+	const failure = jobs?.presentation?.failure ?? null;
+	const exactlyOnceHelp = jobs?.presentation?.exactly_once_help ?? null;
+
+	const confirmJobsAction = async () => {
+		if ( ! jobsAction || ! jobsJobId ) {
+			return;
+		}
+
+		setJobsActionBusy( true );
+		setJobsActionError( '' );
+
+		try {
+			await mutateJob( jobsJobId, jobsAction );
+			setJobsFeedback(
+				sprintf(
+					/* translators: 1: action, 2: job id */
+					__( 'Job #%2$d: %1$s succeeded. Refreshing Jobs details…', 'ai-multilingual' ),
+					'resume' === jobsAction
+						? __( 'Resume', 'ai-multilingual' )
+						: __( 'Retry failed', 'ai-multilingual' ),
+					jobsJobId
+				)
+			);
+			setJobsAction( null );
+			await onRefreshJobsSubtree?.();
+			setJobsFeedback(
+				sprintf(
+					/* translators: %d: job id */
+					__( 'Job #%d updated. Jobs details refreshed.', 'ai-multilingual' ),
+					jobsJobId
+				)
+			);
+		} catch ( unknownError ) {
+			const message =
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'The job action could not be completed.',
+							'ai-multilingual'
+					  );
+			setJobsActionError( message );
+			setJobsFeedback( message );
+		} finally {
+			setJobsActionBusy( false );
+		}
+	};
 
 	return (
 		<section
@@ -694,6 +816,267 @@ export default function OperationsInspector( {
 						</dl>
 					</div>
 
+					{ undefined !== jobs && null !== jobs && (
+						<div className="aiml-operations-inspector-block aiml-operations-inspector-jobs">
+							<h3>{ __( 'Jobs', 'ai-multilingual' ) }</h3>
+
+							<div
+								className="aiml-operations-inspector-live"
+								role="status"
+								aria-live="polite"
+								aria-atomic="true"
+							>
+								{ jobsFeedback }
+							</div>
+
+							{ jobs.retention?.applies && (
+								<p
+									className="aiml-operations-inspector-note"
+									role="note"
+								>
+									{ __(
+										'Jobs history may be purged. This panel only shows associations found within the bounded lookup of retained Jobs records.',
+										'ai-multilingual'
+									) }
+								</p>
+							) }
+
+							{ ! jobsAssociation ? (
+								<p role="status">
+									{ __(
+										'No matching Jobs association found within the bounded lookup',
+										'ai-multilingual'
+									) }
+									{ jobs.lookup?.exhausted
+										? __(
+												' (scan window exhausted).',
+												'ai-multilingual'
+										  )
+										: '.' }
+								</p>
+							) : (
+								<>
+									<dl className="aiml-operations-inspector-axes">
+										<div>
+											<dt>
+												{ __( 'Job', 'ai-multilingual' ) }
+											</dt>
+											<dd>
+												#{ jobsAssociation.job.job_id } ·{ ' ' }
+												{ jobTypeLabel(
+													jobsAssociation.job.job_type
+												) }
+											</dd>
+										</div>
+										<div>
+											<dt>
+												{ __(
+													'Job status',
+													'ai-multilingual'
+												) }
+											</dt>
+											<dd>
+												{ jobStatusLabel(
+													jobsAssociation.job.status
+												) }
+											</dd>
+										</div>
+										<div>
+											<dt>
+												{ __(
+													'Item status',
+													'ai-multilingual'
+												) }
+											</dt>
+											<dd>
+												{ jobStatusLabel(
+													jobsAssociation.item.status
+												) }
+											</dd>
+										</div>
+										<div>
+											<dt>
+												{ __(
+													'Item attempts',
+													'ai-multilingual'
+												) }
+											</dt>
+											<dd>
+												{
+													jobsAssociation.item
+														.attempt_count
+												}
+											</dd>
+										</div>
+										<div>
+											<dt>
+												{ __(
+													'Failed items in job',
+													'ai-multilingual'
+												) }
+											</dt>
+											<dd>{ failedItemsInJob }</dd>
+										</div>
+										<div>
+											<dt>
+												{ __(
+													'Mutation scope',
+													'ai-multilingual'
+												) }
+											</dt>
+											<dd>
+												{ jobsAssociation.mutation_scope }
+											</dd>
+										</div>
+									</dl>
+
+									{ showRetryWait && (
+										<p
+											className="aiml-operations-inspector-note"
+											role="status"
+										>
+											{ __(
+												'Waiting for automatic retry',
+												'ai-multilingual'
+											) }
+										</p>
+									) }
+
+									{ failure?.message && (
+										<p
+											className="aiml-operations-inspector-jobs-failure"
+											role="status"
+										>
+											<strong>
+												{ __(
+													'Failure',
+													'ai-multilingual'
+												) }
+											</strong>
+											{ ': ' }
+											{ failure.message }
+											{ failure.code
+												? ` (${ failure.code })`
+												: '' }
+										</p>
+									) }
+
+									{ exactlyOnceHelp?.message && (
+										<p
+											className="aiml-operations-inspector-note"
+											role="note"
+										>
+											{ exactlyOnceHelp.message }
+										</p>
+									) }
+
+									{ usage && (
+										<p role="status">
+											<strong>
+												{ __(
+													'Job usage / budget',
+													'ai-multilingual'
+												) }
+											</strong>
+											{ ': ' }
+											{ [
+												'number' ===
+													typeof usage.budget_used_requests &&
+												'number' ===
+													typeof usage.budget_max_requests
+													? sprintf(
+															/* translators: 1: used requests, 2: max requests */
+															__(
+																'%1$d / %2$d requests',
+																'ai-multilingual'
+															),
+															usage.budget_used_requests,
+															usage.budget_max_requests
+													  )
+													: null,
+												'number' ===
+													typeof usage.budget_used_tokens &&
+												'number' ===
+													typeof usage.budget_max_tokens
+													? sprintf(
+															/* translators: 1: used tokens, 2: max tokens */
+															__(
+																'%1$d / %2$d tokens',
+																'ai-multilingual'
+															),
+															usage.budget_used_tokens,
+															usage.budget_max_tokens
+													  )
+													: null,
+												usage.scope
+													? sprintf(
+															/* translators: %s: usage scope */
+															__(
+																'(%s scope)',
+																'ai-multilingual'
+															),
+															usage.scope
+													  )
+													: null,
+											]
+												.filter( Boolean )
+												.join( ' · ' ) }
+										</p>
+									) }
+								</>
+							) }
+
+							<div className="aiml-operations-inspector-jobs-actions">
+								{ canOpenJob && (
+									<Button
+										variant="secondary"
+										onClick={ () =>
+											onOpenJobs?.(
+												jobsJobId ?? null,
+												jobsItemId ?? null
+											)
+										}
+									>
+										{ __(
+											'Open in Jobs',
+											'ai-multilingual'
+										) }
+									</Button>
+								) }
+								{ canResumeJobAction && (
+									<Button
+										variant="secondary"
+										onClick={ () => {
+											setJobsActionError( '' );
+											setJobsAction( 'resume' );
+										} }
+										disabled={ jobsActionBusy }
+									>
+										{ __( 'Resume', 'ai-multilingual' ) }
+									</Button>
+								) }
+								{ canRetryFailedJobAction &&
+									! showRetryWait && (
+										<Button
+											variant="secondary"
+											onClick={ () => {
+												setJobsActionError( '' );
+												setJobsAction(
+													'retry-failed'
+												);
+											} }
+											disabled={ jobsActionBusy }
+										>
+											{ __(
+												'Retry failed',
+												'ai-multilingual'
+											) }
+										</Button>
+									) }
+							</div>
+						</div>
+					) }
+
 					<div className="aiml-operations-inspector-actions">
 						{ canTranslate &&
 							'post' === detail.source_type &&
@@ -765,6 +1148,29 @@ export default function OperationsInspector( {
 						''
 					) }
 				</p>
+			) }
+			{ jobsAction && jobsJobId && (
+				<JobActionConfirmDialog
+					action={ jobsAction }
+					jobId={ jobsJobId }
+					message={
+						'resume' === jobsAction
+							? jobsResumeConfirmMessage( jobsJobId )
+							: jobsRetryFailedConfirmMessage(
+									jobsJobId,
+									failedItemsInJob
+							  )
+					}
+					onConfirm={ confirmJobsAction }
+					onCancel={ () => {
+						if ( ! jobsActionBusy ) {
+							setJobsAction( null );
+							setJobsActionError( '' );
+						}
+					} }
+					busy={ jobsActionBusy }
+					errorMessage={ jobsActionError }
+				/>
 			) }
 		</section>
 	);

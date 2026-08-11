@@ -126,6 +126,123 @@ describe( 'jobs utils', () => {
 		expect( canRunJob( job( { status: 'queued' } ) ) ).toBe( true );
 	} );
 
+	it( 'prefers server operations over legacy client predicates', () => {
+		expect(
+			canResumeJob(
+				job( {
+					status: 'queued',
+					operations: [
+						{
+							operation_id: 'resume',
+							allowed: true,
+							reason_code: null,
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( true );
+
+		expect(
+			canResumeJob(
+				job( {
+					status: 'paused',
+					operations: [
+						{
+							operation_id: 'resume',
+							allowed: false,
+							reason_code: 'state_ineligible',
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( false );
+
+		expect(
+			canRetryFailedJob(
+				job( {
+					status: 'failed',
+					failed_items: 0,
+					operations: [
+						{
+							operation_id: 'retry-failed',
+							allowed: true,
+							reason_code: null,
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( true );
+
+		expect(
+			canPauseJob(
+				job( {
+					status: 'completed',
+					operations: [
+						{
+							operation_id: 'pause',
+							allowed: true,
+							reason_code: null,
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( true );
+
+		expect(
+			canCancelJob(
+				job( {
+					status: 'completed',
+					operations: [
+						{
+							operation_id: 'cancel',
+							allowed: false,
+							reason_code: 'state_ineligible',
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( false );
+
+		expect(
+			canRunJob(
+				job( {
+					status: 'cancelled',
+					operations: [
+						{
+							operation_id: 'run',
+							allowed: true,
+							reason_code: null,
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( true );
+	} );
+
+	it( 'denies unknown operations when operations array is present', () => {
+		expect(
+			canResumeJob(
+				job( {
+					status: 'paused',
+					operations: [
+						{
+							operation_id: 'pause',
+							allowed: true,
+							reason_code: null,
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( false );
+	} );
+
 	it( 'labels job types and statuses', () => {
 		expect( jobTypeLabel( 'bulk_translate' ) ).toBeTruthy();
 		expect( jobStatusLabel( 'completed_with_errors' ) ).toBeTruthy();

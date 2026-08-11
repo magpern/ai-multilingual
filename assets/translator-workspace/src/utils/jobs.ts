@@ -289,7 +289,30 @@ export function boundedItemError(
 	};
 }
 
+/**
+ * Prefer server `operations[]` when present (TI.6 admission authority).
+ * Returns null only when the operations array is missing (legacy payloads).
+ */
+function operationAllowedFromServer(
+	job: TranslationJobSummary,
+	operationId: string
+): boolean | null {
+	if ( ! Array.isArray( job.operations ) ) {
+		return null;
+	}
+
+	const match = job.operations.find(
+		( operation ) => operation.operation_id === operationId
+	);
+	return match ? Boolean( match.allowed ) : false;
+}
+
 export function canPauseJob( job: TranslationJobSummary ): boolean {
+	const fromServer = operationAllowedFromServer( job, 'pause' );
+	if ( null !== fromServer ) {
+		return fromServer;
+	}
+
 	return (
 		PAUSABLE_STATUSES.has( job.status ) &&
 		'pause' !== job.requested_action &&
@@ -298,10 +321,20 @@ export function canPauseJob( job: TranslationJobSummary ): boolean {
 }
 
 export function canResumeJob( job: TranslationJobSummary ): boolean {
+	const fromServer = operationAllowedFromServer( job, 'resume' );
+	if ( null !== fromServer ) {
+		return fromServer;
+	}
+
 	return RESUMABLE_STATUSES.has( job.status );
 }
 
 export function canCancelJob( job: TranslationJobSummary ): boolean {
+	const fromServer = operationAllowedFromServer( job, 'cancel' );
+	if ( null !== fromServer ) {
+		return fromServer;
+	}
+
 	return (
 		CANCELLABLE_STATUSES.has( job.status ) &&
 		'cancel' !== job.requested_action
@@ -309,10 +342,20 @@ export function canCancelJob( job: TranslationJobSummary ): boolean {
 }
 
 export function canRetryFailedJob( job: TranslationJobSummary ): boolean {
+	const fromServer = operationAllowedFromServer( job, 'retry-failed' );
+	if ( null !== fromServer ) {
+		return fromServer;
+	}
+
 	return RETRYABLE_STATUSES.has( job.status ) && job.failed_items > 0;
 }
 
 export function canRunJob( job: TranslationJobSummary ): boolean {
+	const fromServer = operationAllowedFromServer( job, 'run' );
+	if ( null !== fromServer ) {
+		return fromServer;
+	}
+
 	return RUNNABLE_STATUSES.has( job.status );
 }
 

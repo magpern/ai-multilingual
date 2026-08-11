@@ -34,6 +34,8 @@ interface JobsPanelProps {
 	canManage: boolean;
 	canCancel: boolean;
 	canRun: boolean;
+	focusedJobId?: number | null;
+	focusedItemId?: number | null;
 }
 
 interface PendingAction {
@@ -48,6 +50,8 @@ export default function JobsPanel( {
 	canManage,
 	canCancel,
 	canRun,
+	focusedJobId = null,
+	focusedItemId = null,
 }: JobsPanelProps ) {
 	const [ statusFilter, setStatusFilter ] = useState< JobStatus | 'all' >(
 		'all'
@@ -145,6 +149,13 @@ export default function JobsPanel( {
 	useEffect( () => {
 		loadJobs();
 	}, [ loadJobs ] );
+
+	useEffect( () => {
+		if ( null === focusedJobId || focusedJobId <= 0 ) {
+			return;
+		}
+		setExpandedJobId( focusedJobId );
+	}, [ focusedJobId, focusedItemId ] );
 
 	useEffect( () => {
 		setPage( 1 );
