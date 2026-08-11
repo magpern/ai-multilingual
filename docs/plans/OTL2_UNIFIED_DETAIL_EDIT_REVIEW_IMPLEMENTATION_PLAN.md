@@ -16,7 +16,7 @@
 **Implementation branch:** `feature/otl2-unified-detail-edit-review` (merged)
 **Independent review (implementation):** **PASS**
 **Validation:** [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_VALIDATION_LOG.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_VALIDATION_LOG.md)
-**Next:** OTL.3 Publication + Stale Workflow — **planning only**. Do **not** start OTL.3–OTL.6 implementation or TSC under OTL.
+**Next:** OTL.3 Publication + Stale Workflow — [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; implementation next). Do **not** start OTL.4–OTL.6 or TSC under OTL.
 **Related:** [OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md](OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md); [OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md](OTL1_OPERATIONS_LIST_ATTENTION_IMPLEMENTATION_PLAN.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md)
 
 **Planning freeze contracts recorded:** dirty-evidence honesty; dirty review gate; `expected_translation_hash` → 409 `aiml_translation_hash_mismatch` (no schema); cross-object inspection vs post-backed mutation; term/taxonomy mutation **Deferred** (coverage debt); raw target round-trip integrity.

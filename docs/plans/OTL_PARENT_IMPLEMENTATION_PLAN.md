@@ -15,9 +15,9 @@
 
 **This plan is the program architecture contract for OTL (OTL.0–OTL.6).** Do not implement production code under OTL until the relevant milestone plan is Architecture Frozen on `main`. Each milestone receives its own definitive planning freeze before implementation. This document freezes program boundaries, invariants, gates, and Deferred items — not detailed OTL.0 work packages.
 
-**Production implementation status:** **OTL.0 Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`). **OTL.1 Complete** on `main` (merge `466eb6a470b2ea48b949bc05e0717afbc6600fc3`). **OTL.2 Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`). OTL.3–OTL.6 implementation and TSC remain not started.
+**Production implementation status:** **OTL.0 Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`). **OTL.1 Complete** on `main` (merge `466eb6a470b2ea48b949bc05e0717afbc6600fc3`). **OTL.2 Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`). **OTL.3** Architecture Frozen — [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); production implementation not started. OTL.4–OTL.6 implementation and TSC remain not started.
 
-**Next:** Begin the definitive **OTL.3 Publication + Stale Workflow planning** process from the closed OTL.2 main baseline. Do not implement OTL.3 until its plan has been externally reviewed, materialized, independently reviewed, and frozen on main. Do not start OTL.4–OTL.6 or Translation Surface Coverage (TSC) under OTL.
+**Next:** Run the combined **OTL.3 implementation + independent implementation review + merge + milestone closure** task from the frozen OTL.3 plan on `main`. Do not start OTL.4–OTL.6 or Translation Surface Coverage (TSC) under OTL.
 
 ---
 
@@ -757,7 +757,7 @@ This parent is Architecture Frozen on `main` (freeze merge `9a31176f0147d726b251
 
 **OTL.0 Foundations** is **Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`; plan freeze `9b922222564da4f3294e36188de992c1384c630c`). See [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md).
 
-Exact next step: begin the definitive **OTL.3 Publication + Stale Workflow planning** process from the closed OTL.2 main baseline ([OTL2_UNIFIED_DETAIL_EDIT_REVIEW_VALIDATION_LOG.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_VALIDATION_LOG.md)). Do not implement OTL.3 until its plan has been externally reviewed, materialized, independently reviewed, and frozen on main. Do not start OTL.4–OTL.6 or TSC planning/implementation under OTL.
+Exact next step: run the combined **OTL.3 implementation + independent implementation review + merge + milestone closure** task from the frozen plan ([OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md)). Do not start OTL.4–OTL.6 or TSC planning/implementation under OTL.
 
 ---
 
