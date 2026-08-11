@@ -380,6 +380,48 @@ final class PluginGuardTest extends AimlTestCase {
 	}
 
 	/**
+	 * OTL.2 must reuse Workspace save + existing review/publication owners.
+	 */
+	public function test_otl2_unified_detail_boundaries(): void {
+		$service = (string) file_get_contents( $this->root() . '/src/Workspace/WorkspaceService.php' );
+		$this->assertStringContainsString( 'expected_translation_hash', $service );
+		$this->assertStringContainsString( 'WorkspaceTranslationConflictException', $service );
+
+		$controller = (string) file_get_contents( $this->root() . '/src/Rest/WorkspaceController.php' );
+		$this->assertStringContainsString( 'aiml_translation_hash_mismatch', $controller );
+		$this->assertStringContainsString( 'aiml_source_hash_mismatch', $controller );
+
+		$inspector = (string) file_get_contents(
+			$this->root() . '/assets/translator-workspace/src/components/OperationsInspector.tsx'
+		);
+		$this->assertStringNotContainsString( 'onPublish', $inspector );
+		$this->assertStringNotContainsString( 'publishTranslation', $inspector );
+		$this->assertStringNotContainsString( 'unpublishTranslation', $inspector );
+		$this->assertStringContainsString( 'Approved does not mean published', $inspector );
+
+		$honesty = (string) file_get_contents(
+			$this->root() . '/assets/translator-workspace/src/utils/detail-dirty.ts'
+		);
+		$this->assertStringContainsString( 'last saved', $honesty );
+
+		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlSaveService.php' );
+		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlReviewPolicy.php' );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
+
+		$integration = '';
+		$iterator    = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/src/Integration' ) );
+		foreach ( $iterator as $file ) {
+			if ( $file->isFile() && 'php' === $file->getExtension() ) {
+				$integration .= (string) file_get_contents( $file->getPathname() );
+			}
+		}
+		$this->assertStringNotContainsString( 'expected_translation_hash', $integration );
+		$this->assertStringNotContainsString( 'aiml_translation_hash_mismatch', $integration );
+	}
+
+	/**
 	 * Product PHP under src/ must stay site-neutral (public/SaaS).
 	 */
 	public function test_otl_product_code_has_no_site_specific_branding(): void {

@@ -583,3 +583,101 @@
 	margin-top: 1rem;
 }
 
+.aiml-translator-workspace .aiml-operations-inspector-live {
+	font-size: 13px;
+	margin-bottom: 0.75rem;
+	min-height: 1.25rem;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-honesty {
+	background: #f6f7f7;
+	border-left: 3px solid #646970;
+	margin: 0 0 1rem;
+	padding: 0.65rem 0.75rem;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-honesty--dirty {
+	border-left-color: #996800;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-texts {
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: 1fr;
+	margin-bottom: 1rem;
+}
+
+@media (min-width: 960px) {
+	.aiml-translator-workspace .aiml-operations-inspector-texts {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-textarea textarea {
+	font-family: inherit;
+	white-space: pre-wrap;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-dirty-hint {
+	color: #996800;
+	font-size: 12px;
+	margin: 0.35rem 0 0;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-save {
+	margin-bottom: 1rem;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-save-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.75rem;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-block {
+	border-top: 1px solid #dcdcde;
+	margin-top: 1rem;
+	padding-top: 0.75rem;
+}
+
+.aiml-translator-workspace .aiml-operations-assessment-category--needs-review {
+	color: #8a4b00;
+	font-weight: 600;
+}
+
+.aiml-translator-workspace .aiml-operations-assessment-reasons,
+.aiml-translator-workspace .aiml-operations-publication-reasons {
+	margin: 0.5rem 0 0;
+	padding-left: 1.25rem;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-provenance-list {
+	display: grid;
+	gap: 0.35rem 1rem;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	margin: 0;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-provenance-list dt {
+	font-size: 12px;
+	font-weight: 600;
+	margin: 0;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-provenance-list dd {
+	margin: 0.15rem 0 0;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector-review-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.aiml-translator-workspace .aiml-operations-inspector :focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+

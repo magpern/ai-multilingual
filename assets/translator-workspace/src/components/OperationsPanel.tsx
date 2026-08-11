@@ -1,17 +1,35 @@
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { Button, Notice, Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
 import {
+	WorkspaceConflictError,
+	WorkspaceQABlockedError,
+	WorkspaceReviewActionError,
+	WorkspaceReviewConflictError,
+	approveReview,
 	fetchOperationDetail,
 	fetchOperationsAttentionCounts,
 	fetchOperationsList,
+	rejectReview,
+	saveSegment,
+	submitReview,
 } from '../api/workspace-api';
+import ReviewDecisionDialog from './ReviewDecisionDialog';
 import type {
 	LanguageOption,
 	OperationsDetailResponse,
 	OperationsListItem,
 } from '../types/view-models';
+import {
+	detailConflictMessage,
+	detailConflictStatusMessage,
+	type DetailConflictKind,
+} from '../utils/detail-conflict';
+import {
+	dirtyLeaveConfirmMessage,
+	isDetailDirty,
+} from '../utils/detail-dirty';
 import {
 	ATTENTION_REASON_IDS,
 	EMPTY_ATTENTION_COUNTS,
@@ -38,11 +56,11 @@ interface OperationsPanelProps {
 const PER_PAGE = 20;
 
 function actionAllowed(
-	item: OperationsListItem,
+	item: OperationsListItem | OperationsDetailResponse,
 	id: string
 ): boolean {
 	return ( item.allowed_actions ?? [] ).some(
-		( a ) => a.id === id && a.allowed
+		( action ) => action.id === id && action.allowed
 	);
 }
 
@@ -81,12 +99,38 @@ export default function OperationsPanel( {
 	);
 	const [ loading, setLoading ] = useState( false );
 	const [ error, setError ] = useState( '' );
-	const [ inspectorId, setInspectorId ] = useState< number | null >( null );
+	const [ inspectorId, setInspectorId ] = useState< number | null >(
+		initial.translationId
+	);
 	const [ detail, setDetail ] = useState< OperationsDetailResponse | null >(
 		null
 	);
 	const [ detailLoading, setDetailLoading ] = useState( false );
 	const [ detailError, setDetailError ] = useState( '' );
+	const [ draftText, setDraftText ] = useState( '' );
+	const [ saving, setSaving ] = useState( false );
+	const [ saveError, setSaveError ] = useState( '' );
+	const [ conflictKind, setConflictKind ] =
+		useState< DetailConflictKind | null >( null );
+	const [ statusMessage, setStatusMessage ] = useState( '' );
+	const [ reviewDialogOpen, setReviewDialogOpen ] = useState( false );
+	const [ reviewDialogAction, setReviewDialogAction ] = useState<
+		'approve' | 'reject'
+	>( 'approve' );
+	const [ reviewReason, setReviewReason ] = useState( '' );
+	const [ reviewBusy, setReviewBusy ] = useState( false );
+	const [ reviewDialogError, setReviewDialogError ] = useState( '' );
+
+	const dirty = useMemo(
+		() => isDetailDirty( draftText, detail?.translated_text ),
+		[ draftText, detail?.translated_text ]
+	);
+
+	const mutationEligible = Boolean(
+		detail &&
+			'post' === detail.source_type &&
+			actionAllowed( detail, 'edit' )
+	);
 
 	const syncUrl = useCallback( () => {
 		writeOperationsUrlState( {
@@ -99,6 +143,7 @@ export default function OperationsPanel( {
 			isStale,
 			sourceType,
 			sourceId,
+			translationId: inspectorId,
 		} );
 	}, [
 		languageCode,
@@ -110,11 +155,72 @@ export default function OperationsPanel( {
 		isStale,
 		sourceType,
 		sourceId,
+		inspectorId,
 	] );
 
 	useEffect( () => {
 		syncUrl();
 	}, [ syncUrl ] );
+
+	const loadDetail = useCallback( async ( translationId: number ) => {
+		setDetailLoading( true );
+		setDetailError( '' );
+		setSaveError( '' );
+		setConflictKind( null );
+		try {
+			const next = await fetchOperationDetail( translationId );
+			setDetail( next );
+			setDraftText( next.translated_text ?? '' );
+			setStatusMessage( '' );
+		} catch ( err ) {
+			setDetail( null );
+			setDraftText( '' );
+			setDetailError(
+				err instanceof Error
+					? err.message
+					: __(
+							'Could not open translation details.',
+							'ai-multilingual'
+					  )
+			);
+		} finally {
+			setDetailLoading( false );
+		}
+	}, [] );
+
+	useEffect( () => {
+		if ( null === inspectorId ) {
+			setDetail( null );
+			setDetailError( '' );
+			setDraftText( '' );
+			setSaveError( '' );
+			setConflictKind( null );
+			setStatusMessage( '' );
+			return;
+		}
+		loadDetail( inspectorId );
+	}, [ inspectorId, loadDetail ] );
+
+	useEffect( () => {
+		if ( ! dirty ) {
+			return;
+		}
+		const handler = ( event: BeforeUnloadEvent ) => {
+			event.preventDefault();
+			event.returnValue = '';
+		};
+		window.addEventListener( 'beforeunload', handler );
+		return () => {
+			window.removeEventListener( 'beforeunload', handler );
+		};
+	}, [ dirty ] );
+
+	const requestCloseInspector = useCallback( () => {
+		if ( dirty && ! window.confirm( dirtyLeaveConfirmMessage() ) ) {
+			return;
+		}
+		setInspectorId( null );
+	}, [ dirty ] );
 
 	const load = useCallback( async () => {
 		if ( ! languageCode ) {
@@ -186,43 +292,167 @@ export default function OperationsPanel( {
 		sourceId,
 	] );
 
-	useEffect( () => {
-		if ( null === inspectorId ) {
-			setDetail( null );
-			setDetailError( '' );
+	const handleSave = async () => {
+		if ( ! detail || ! mutationEligible || ! dirty ) {
 			return;
 		}
-		let cancelled = false;
-		( async () => {
-			setDetailLoading( true );
-			setDetailError( '' );
-			try {
-				const next = await fetchOperationDetail( inspectorId );
-				if ( ! cancelled ) {
-					setDetail( next );
-				}
-			} catch ( err ) {
-				if ( ! cancelled ) {
-					setDetail( null );
-					setDetailError(
-						err instanceof Error
-							? err.message
-							: __(
-									'Could not open translation details.',
-									'ai-multilingual'
-							  )
-					);
-				}
-			} finally {
-				if ( ! cancelled ) {
-					setDetailLoading( false );
-				}
+
+		setSaving( true );
+		setSaveError( '' );
+		setConflictKind( null );
+		setStatusMessage( __( 'Saving…', 'ai-multilingual' ) );
+
+		try {
+			await saveSegment(
+				detail.source_id,
+				detail.language_code,
+				detail.segment_key,
+				draftText,
+				detail.source_hash ?? '',
+				detail.translation_hash ?? ''
+			);
+			if ( null !== inspectorId ) {
+				await loadDetail( inspectorId );
 			}
-		} )();
-		return () => {
-			cancelled = true;
-		};
-	}, [ inspectorId ] );
+			setStatusMessage(
+				__( 'Translation saved.', 'ai-multilingual' )
+			);
+		} catch ( unknownError ) {
+			if ( unknownError instanceof WorkspaceConflictError ) {
+				const kind = unknownError.kind;
+				setConflictKind( kind );
+				setSaveError( detailConflictMessage( kind ) );
+				setStatusMessage( detailConflictStatusMessage( kind ) );
+				return;
+			}
+
+			if ( unknownError instanceof WorkspaceQABlockedError ) {
+				const message = sprintf(
+					/* translators: %d: error count */
+					__(
+						'Save blocked by %d quality error(s). Fix QA issues and try again.',
+						'ai-multilingual'
+					),
+					unknownError.qa.summary.errors
+				);
+				setSaveError( message );
+				setStatusMessage( message );
+				return;
+			}
+
+			const message =
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'The translation could not be saved. Please try again.',
+							'ai-multilingual'
+					  );
+			setSaveError( message );
+			setStatusMessage( message );
+		} finally {
+			setSaving( false );
+		}
+	};
+
+	const handleDiscard = () => {
+		setDraftText( detail?.translated_text ?? '' );
+		setSaveError( '' );
+		setConflictKind( null );
+		setStatusMessage( __( 'Changes discarded.', 'ai-multilingual' ) );
+	};
+
+	const handleRefreshDetail = () => {
+		if ( null !== inspectorId ) {
+			if ( dirty && ! window.confirm( dirtyLeaveConfirmMessage() ) ) {
+				return;
+			}
+			loadDetail( inspectorId );
+		}
+	};
+
+	const runReviewMutation = async (
+		action: 'submit' | 'approve' | 'reject',
+		reason = ''
+	) => {
+		if ( ! detail || 'post' !== detail.source_type || dirty ) {
+			return;
+		}
+
+		setReviewBusy( true );
+		setReviewDialogError( '' );
+		setStatusMessage(
+			__( 'Applying review action…', 'ai-multilingual' )
+		);
+
+		try {
+			if ( 'submit' === action ) {
+				await submitReview(
+					detail.source_id,
+					detail.language_code,
+					detail.segment_key
+				);
+				setStatusMessage(
+					__( 'Submitted for review.', 'ai-multilingual' )
+				);
+			} else if ( 'approve' === action ) {
+				await approveReview(
+					detail.source_id,
+					detail.language_code,
+					detail.segment_key
+				);
+				setStatusMessage(
+					__( 'Translation approved.', 'ai-multilingual' )
+				);
+			} else {
+				await rejectReview(
+					detail.source_id,
+					detail.language_code,
+					detail.segment_key,
+					reason
+				);
+				setStatusMessage(
+					__( 'Translation rejected.', 'ai-multilingual' )
+				);
+			}
+
+			if ( null !== inspectorId ) {
+				await loadDetail( inspectorId );
+			}
+			setReviewDialogOpen( false );
+			setReviewReason( '' );
+		} catch ( unknownError ) {
+			if (
+				unknownError instanceof WorkspaceReviewConflictError ||
+				unknownError instanceof WorkspaceReviewActionError
+			) {
+				setReviewDialogError( unknownError.message );
+				setStatusMessage( unknownError.message );
+				if ( null !== inspectorId ) {
+					await loadDetail( inspectorId );
+				}
+				return;
+			}
+
+			const message =
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'The review action could not be completed.',
+							'ai-multilingual'
+					  );
+			setReviewDialogError( message );
+			setStatusMessage( message );
+		} finally {
+			setReviewBusy( false );
+		}
+	};
+
+	const openReviewDialog = ( action: 'approve' | 'reject' ) => {
+		setReviewDialogAction( action );
+		setReviewReason( '' );
+		setReviewDialogError( '' );
+		setReviewDialogOpen( true );
+	};
 
 	const totalPages = Math.max( 1, Math.ceil( total / PER_PAGE ) );
 
@@ -230,7 +460,7 @@ export default function OperationsPanel( {
 		<div className="aiml-operations-panel">
 			<p className="aiml-operations-honesty" role="note">
 				{ __(
-					'Operational attention uses cheap persisted translation lifecycle axes (stale, review, publication, translation status). It is not a complete risk classifier: TI.5 assessment categories, TI.7 publication eligibility, and Jobs failures are not listed here. Use the inspector for richer evidence. Unpublished may dominate new-language inventories.',
+					'Operational attention uses cheap persisted translation lifecycle axes (stale, review, publication, translation status). It is not a complete risk classifier: TI.5 assessment categories, TI.7 publication eligibility, and Jobs failures are not listed here. Use the detail view for richer evidence. Unpublished may dominate new-language inventories.',
 					'ai-multilingual'
 				) }
 			</p>
@@ -453,9 +683,18 @@ export default function OperationsPanel( {
 								<td className="aiml-operations-actions">
 									<Button
 										variant="secondary"
-										onClick={ () =>
-											setInspectorId( item.translation_id )
-										}
+										onClick={ () => {
+											if (
+												dirty &&
+												inspectorId !== item.translation_id &&
+												! window.confirm(
+													dirtyLeaveConfirmMessage()
+												)
+											) {
+												return;
+											}
+											setInspectorId( item.translation_id );
+										} }
 									>
 										{ __( 'View detail', 'ai-multilingual' ) }
 									</Button>
@@ -565,11 +804,46 @@ export default function OperationsPanel( {
 					detail={ detail }
 					loading={ detailLoading }
 					error={ detailError }
-					onClose={ () => setInspectorId( null ) }
+					onClose={ requestCloseInspector }
 					onOpenInTranslate={ onOpenInTranslate }
 					onOpenInReview={ onOpenInReview }
 					canTranslate={ canTranslate }
 					canReview={ canReview }
+					draftText={ draftText }
+					onDraftChange={ setDraftText }
+					dirty={ dirty }
+					saving={ saving }
+					saveError={ saveError }
+					conflictKind={ conflictKind }
+					onSave={ handleSave }
+					onDiscard={ handleDiscard }
+					onRefreshDetail={ handleRefreshDetail }
+					onSubmitReview={ () => runReviewMutation( 'submit' ) }
+					onApproveReview={ () => openReviewDialog( 'approve' ) }
+					onRejectReview={ () => openReviewDialog( 'reject' ) }
+					statusMessage={ statusMessage }
+					mutationEligible={ mutationEligible }
+				/>
+			) }
+
+			{ reviewDialogOpen && (
+				<ReviewDecisionDialog
+					action={ reviewDialogAction }
+					count={ 1 }
+					reason={ reviewReason }
+					onReasonChange={ setReviewReason }
+					onConfirm={ () =>
+						runReviewMutation( reviewDialogAction, reviewReason )
+					}
+					onCancel={ () => {
+						if ( ! reviewBusy ) {
+							setReviewDialogOpen( false );
+							setReviewReason( '' );
+							setReviewDialogError( '' );
+						}
+					} }
+					busy={ reviewBusy }
+					errorMessage={ reviewDialogError }
 				/>
 			) }
 		</div>

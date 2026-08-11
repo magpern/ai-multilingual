@@ -37,10 +37,10 @@ import type {
 	WorkspaceTranslationStatus,
 } from './types/view-models';
 import {
-	matchesSegmentFilter,
-	type SegmentFilter,
-} from './utils/segment-status';
-import { readOperationsUrlState } from './utils/operations-url';
+	detailConflictMessage,
+	detailConflictStatusMessage,
+} from './utils/detail-conflict';
+import { readOperationsUrlState, clearOperationsViewFromUrl } from './utils/operations-url';
 import {
 	applyBatchSaveResults,
 	applyConflict,
@@ -53,6 +53,10 @@ import {
 	mergeSegmentsIntoRows,
 	updateDraftText,
 } from './utils/segment-rows';
+import {
+	matchesSegmentFilter,
+	type SegmentFilter,
+} from './utils/segment-status';
 import { aggregateQaSummary } from './utils/meta';
 import {
 	allVisibleSelected,
@@ -201,6 +205,7 @@ export default function App() {
 					segment_key: row.segmentKey,
 					translated_text: row.draftText,
 					source_hash: row.server.source_hash,
+					expected_translation_hash: row.server.translation_hash ?? '',
 					status: 'manually_edited',
 				} ) )
 			);
@@ -265,6 +270,12 @@ export default function App() {
 		loadSegments();
 	}, [ loadSegments ] );
 
+	useEffect( () => {
+		if ( 'operations' !== viewMode ) {
+			clearOperationsViewFromUrl();
+		}
+	}, [ viewMode ] );
+
 	const handleDraftChange = ( segmentKey: string, value: string ) => {
 		setRows( ( current ) => updateDraftText( current, segmentKey, value ) );
 		setBatchMessage( '' );
@@ -294,7 +305,8 @@ export default function App() {
 				languageCode,
 				segmentKey,
 				row.draftText,
-				row.server.source_hash
+				row.server.source_hash,
+				row.server.translation_hash ?? ''
 			);
 			setRows( ( current ) => applySaveSuccess( current, segmentKey, saved ) );
 			setBatchMessage( '' );
@@ -309,12 +321,10 @@ export default function App() {
 						segmentKey,
 						refreshed,
 						row.draftText,
-						__(
-							'The source text changed since this segment was loaded.',
-							'ai-multilingual'
-						)
+						detailConflictMessage( unknownError.kind )
 					)
 				);
+				setBatchMessage( detailConflictStatusMessage( unknownError.kind ) );
 				return;
 			}
 

@@ -31,6 +31,7 @@ final class WorkspaceSegmentViewModel {
 	 * @param bool                 $can_edit        Whether editing is allowed.
 	 * @param array<string, mixed> $meta            Reserved extension bag.
 	 * @param string               $review_status   Review Workflow status (ADR-0015).
+	 * @param string               $translation_hash Persisted target hash (optimistic concurrency).
 	 * @param string               $submitted_translation_hash Hash captured at last submit.
 	 * @param int|null             $review_submitted_by         Submitting user id.
 	 * @param string|null          $review_submitted_at         Submission timestamp.
@@ -58,6 +59,7 @@ final class WorkspaceSegmentViewModel {
 		public readonly bool $can_edit,
 		public readonly array $meta = array(),
 		public readonly string $review_status = 'not_submitted',
+		public readonly string $translation_hash = '',
 		public readonly string $submitted_translation_hash = '',
 		public readonly ?int $review_submitted_by = null,
 		public readonly ?string $review_submitted_at = null,
@@ -93,6 +95,7 @@ final class WorkspaceSegmentViewModel {
 			'can_edit'                   => $this->can_edit,
 			'meta'                       => $this->meta,
 			'review_status'              => $this->review_status,
+			'translation_hash'           => $this->translation_hash,
 			'submitted_translation_hash' => $this->submitted_translation_hash,
 			'review_submitted_by'        => $this->review_submitted_by,
 			'review_submitted_at'        => $this->review_submitted_at,

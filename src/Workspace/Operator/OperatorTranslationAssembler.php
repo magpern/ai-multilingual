@@ -222,6 +222,7 @@ final class OperatorTranslationAssembler {
 			'translated_text'     => (string) ( $row->translated_text ?? '' ),
 			'text_format'         => (string) ( $row->text_format ?? Store::FORMAT_PLAIN ),
 			'source_hash'         => (string) ( $row->source_hash ?? '' ),
+			'translation_hash'    => (string) ( $row->translation_hash ?? '' ),
 			'updated_at'          => (string) ( $row->updated_at ?? '' ),
 			'created_at'          => (string) ( $row->created_at ?? '' ),
 			'review_submitted_at' => (string) ( $row->review_submitted_at ?? '' ),

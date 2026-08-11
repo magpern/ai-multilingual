@@ -17,11 +17,17 @@ import type {
 
 export class WorkspaceConflictError extends Error {
 	public readonly segments: WorkspaceSegment[];
+	public readonly kind: 'source' | 'translation';
 
-	public constructor( message: string, segments: WorkspaceSegment[] ) {
+	public constructor(
+		message: string,
+		segments: WorkspaceSegment[],
+		kind: 'source' | 'translation' = 'source'
+	) {
 		super( message );
 		this.name = 'WorkspaceConflictError';
 		this.segments = segments;
+		this.kind = kind;
 	}
 }
 
@@ -135,14 +141,21 @@ function parseConflict( error: unknown ): WorkspaceConflictError | null {
 		candidate?.segments ??
 		[];
 
-	if (
-		candidate?.code === 'aiml_source_hash_mismatch' ||
-		candidate?.data?.status === 409
-	) {
+	if ( candidate?.code === 'aiml_source_hash_mismatch' ) {
 		return new WorkspaceConflictError(
 			candidate.message ||
 				'The source text changed since this segment was loaded.',
-			segments
+			segments,
+			'source'
+		);
+	}
+
+	if ( candidate?.code === 'aiml_translation_hash_mismatch' ) {
+		return new WorkspaceConflictError(
+			candidate.message ||
+				'The saved translation changed since this segment was loaded.',
+			segments,
+			'translation'
 		);
 	}
 
@@ -203,7 +216,8 @@ export async function saveSegment(
 	languageCode: string,
 	segmentKey: string,
 	translatedText: string,
-	sourceHash: string
+	sourceHash: string,
+	expectedTranslationHash: string
 ): Promise< WorkspaceSegment > {
 	try {
 		return await apiFetch< WorkspaceSegment >( {
@@ -216,6 +230,7 @@ export async function saveSegment(
 			data: {
 				translated_text: translatedText,
 				source_hash: sourceHash,
+				expected_translation_hash: expectedTranslationHash,
 				status: 'manually_edited',
 			},
 		} );
@@ -356,6 +371,7 @@ export async function saveBatch(
 		segment_key: string;
 		translated_text: string;
 		source_hash: string;
+		expected_translation_hash: string;
 		status: string;
 	} >
 ): Promise< BatchSaveResult > {

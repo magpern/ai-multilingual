@@ -129,6 +129,7 @@ final class SegmentAssembler {
 		$text   = '';
 		$stale  = false;
 
+		$translation_hash           = '';
 		$review_status              = Store::REVIEW_NOT_SUBMITTED;
 		$submitted_translation_hash = '';
 		$review_submitted_by        = null;
@@ -147,6 +148,7 @@ final class SegmentAssembler {
 			$text   = (string) ( $row->translated_text ?? '' );
 			$stale  = (bool) ( (int) ( $row->is_stale ?? 0 ) );
 
+			$translation_hash           = (string) ( $row->translation_hash ?? '' );
 			$review_status              = (string) ( $row->review_status ?? Store::REVIEW_NOT_SUBMITTED );
 			$submitted_translation_hash = (string) ( $row->submitted_translation_hash ?? '' );
 			$review_submitted_by        = $row->review_submitted_by ?? null;
@@ -198,6 +200,7 @@ final class SegmentAssembler {
 			'source_text'                => $source,
 			'source_hash'                => $hash,
 			'translated_text'            => $text,
+			'translation_hash'           => $translation_hash,
 			'status'                     => $status,
 			'is_stale'                   => $stale,
 			'text_format'                => $format,

@@ -452,16 +452,18 @@ final class WorkspaceService {
 	/**
 	 * Saves one segment with optimistic locking.
 	 *
-	 * @param WP_Post $post            Canonical post.
-	 * @param int     $language_id     Target language id.
-	 * @param string  $segment_key     Segment key.
-	 * @param string  $translated_text Target text.
-	 * @param string  $source_hash     Client source hash.
-	 * @param string  $status          Optional workflow status.
-	 * @param string  $save_origin     Optional TM save origin (human|ai_accepted|tm_accepted|machine|import).
-	 * @param int     $tm_id           Optional TM id when accepting an existing memory hit.
+	 * @param WP_Post     $post            Canonical post.
+	 * @param int         $language_id     Target language id.
+	 * @param string      $segment_key     Segment key.
+	 * @param string      $translated_text Target text.
+	 * @param string      $source_hash     Client source hash.
+	 * @param string      $status                     Optional workflow status.
+	 * @param string      $save_origin                Optional TM save origin (human|ai_accepted|tm_accepted|machine|import).
+	 * @param int         $tm_id                      Optional TM id when accepting an existing memory hit.
+	 * @param string|null $expected_translation_hash  Optimistic target token; null = missing (fail closed).
 	 * @return array<string, mixed>
 	 * @throws WorkspaceConflictException When source_hash mismatches.
+	 * @throws WorkspaceTranslationConflictException When expected_translation_hash mismatches.
 	 * @throws WorkspaceQAException When QA errors block the save.
 	 * @throws \InvalidArgumentException When the segment cannot be saved.
 	 * @throws \RuntimeException When the saved segment cannot be reloaded.
@@ -474,7 +476,8 @@ final class WorkspaceService {
 		string $source_hash,
 		string $status = '',
 		string $save_origin = '',
-		int $tm_id = 0
+		int $tm_id = 0,
+		?string $expected_translation_hash = null
 	): array {
 		$this->assert_supported_post( $post );
 
@@ -487,9 +490,19 @@ final class WorkspaceService {
 			throw new \InvalidArgumentException( 'This segment is not editable.' );
 		}
 
+		if ( null === $expected_translation_hash ) {
+			throw new \InvalidArgumentException( 'expected_translation_hash is required.' );
+		}
+
 		if ( '' !== $source_hash && (string) ( $current['source_hash'] ?? '' ) !== $source_hash ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- conflict payload is structured data, not exception text.
 			throw new WorkspaceConflictException( array( $current ) );
+		}
+
+		$current_translation_hash = (string) ( $current['translation_hash'] ?? '' );
+		if ( $expected_translation_hash !== $current_translation_hash ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- conflict payload is structured data, not exception text.
+			throw new WorkspaceTranslationConflictException( array( $current ) );
 		}
 
 		$format  = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
@@ -1083,12 +1096,13 @@ final class WorkspaceService {
 			}
 
 			$items[] = array(
-				'segment_key'     => $key,
-				'translated_text' => $exact['text'],
-				'source_hash'     => (string) ( $segment['source_hash'] ?? '' ),
-				'status'          => Store::STATUS_MANUALLY_EDITED,
-				'save_origin'     => 'tm_accepted',
-				'tm_id'           => $exact['tm_id'],
+				'segment_key'               => $key,
+				'translated_text'           => $exact['text'],
+				'source_hash'               => (string) ( $segment['source_hash'] ?? '' ),
+				'expected_translation_hash' => (string) ( $segment['translation_hash'] ?? '' ),
+				'status'                    => Store::STATUS_MANUALLY_EDITED,
+				'save_origin'               => 'tm_accepted',
+				'tm_id'                     => $exact['tm_id'],
 			);
 		}
 

@@ -170,6 +170,9 @@ trait WorkspaceTestHelpers {
 			)
 		);
 		$request->set_param( 'language', 'sv' );
+		if ( ! array_key_exists( 'expected_translation_hash', $body ) ) {
+			$body['expected_translation_hash'] = (string) ( $segment['translation_hash'] ?? '' );
+		}
 		foreach ( $body as $key => $value ) {
 			$request->set_param( (string) $key, $value );
 		}
@@ -214,13 +217,23 @@ trait WorkspaceTestHelpers {
 		array $items,
 		string $language = 'sv'
 	): WP_REST_Request {
+		$normalized = array();
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			if ( ! array_key_exists( 'expected_translation_hash', $item ) ) {
+				$item['expected_translation_hash'] = (string) ( $item['translation_hash'] ?? '' );
+			}
+			$normalized[] = $item;
+		}
 		$request = new WP_REST_Request(
 			'POST',
 			sprintf( '/aiml/v1/workspace/%d/segments/batch', $post_id )
 		);
 		$request->set_url_params( array( 'post_id' => $post_id ) );
 		$request->set_param( 'language', $language );
-		$request->set_param( 'segments', $items );
+		$request->set_param( 'segments', $normalized );
 
 		return $request;
 	}

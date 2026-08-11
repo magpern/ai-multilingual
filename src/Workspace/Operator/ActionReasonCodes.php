@@ -25,6 +25,7 @@ final class ActionReasonCodes {
 	public const NOT_PUBLISHED              = 'not_published';
 	public const DEFERRED_MILESTONE         = 'deferred_milestone';
 	public const LINK_UNAVAILABLE           = 'link_unavailable';
+	public const MUTATION_UNSUPPORTED_TYPE  = 'mutation_unsupported_source_type';
 
 	/**
 	 * Prevents instantiation.

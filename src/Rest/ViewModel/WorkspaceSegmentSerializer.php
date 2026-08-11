@@ -44,6 +44,7 @@ final class WorkspaceSegmentSerializer {
 			(bool) ( $dto['can_edit'] ?? false ),
 			is_array( $dto['meta'] ?? null ) ? $dto['meta'] : array(),
 			(string) ( $dto['review_status'] ?? 'not_submitted' ),
+			(string) ( $dto['translation_hash'] ?? '' ),
 			(string) ( $dto['submitted_translation_hash'] ?? '' ),
 			null === $review_submitted_by ? null : (int) $review_submitted_by,
 			null === $review_submitted_at ? null : (string) $review_submitted_at,
