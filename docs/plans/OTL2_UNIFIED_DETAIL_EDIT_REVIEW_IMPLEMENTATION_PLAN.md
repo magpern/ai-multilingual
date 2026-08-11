@@ -217,9 +217,9 @@ Silent lost-update scenario today:
 ### OTL.2 contract (no schema)
 
 1. **Expose** current `translation_hash` on Workspace segment ViewModel and operations detail ViewModel (additive read fields).
-2. Save request carries **`expected_translation_hash`** (value from last authoritative load).
+2. Save request carries **`expected_translation_hash`** (value from last authoritative load). For OTL.2 / shared Workspace manual save used by Translate + detail: the field is **required** (clients always send it). **Do not** copy the empty-`source_hash` skip loophole — omitting `expected_translation_hash` must **fail closed** (422/400 invalid request), not silently last-write-wins. Empty-string expected hash is valid only when the client knowingly asserts “no prior persisted target” (new/missing row).
 3. Shared `WorkspaceService::save_segment` compares `expected_translation_hash` to the current persisted row’s `translation_hash` (empty string if no prior translation row/text).
-4. Mismatch → **409** with code **`aiml_translation_hash_mismatch`** and refreshed server segment/detail payload; **persisted newer target unchanged**.
+4. Mismatch → **409** with dedicated code **`aiml_translation_hash_mismatch`** (must **not** be collapsed into `aiml_source_hash_mismatch`) and refreshed server segment/detail payload; **persisted newer target unchanged**. Controller/exception mapping must discriminate source vs target conflict kinds for the client.
 5. Client **preserves** local unsaved draft; shows conflict; operator may refresh/compare before retry — **no automatic overwrite**.
 6. Translate tab `saveSegment` updated in lockstep (one save implementation).
 7. Forbidden: new DB column, lock table, durable editing session, general locking subsystem, OTL-specific Store, presenting last-write-wins as concurrency safety.
@@ -350,13 +350,15 @@ OTL.2 **must not:** publish / unpublish controls or mutation.
 
 CTA copy only (e.g. publication workflow comes later) — no fake mutate button.
 
+**Admission honesty:** OTL.0 detail may still return `allowed_actions` descriptors for `publish` / `unpublish` / `retranslate_stale`. OTL.2 UI **must not render mutation controls** for those actions even when admitted — display status/explain/CTA only. Rendering those mutate controls is OTL.3 scope.
+
 ---
 
 ## 20. Stale / retranslate boundary (OTL.3)
 
 OTL.2 **may show:** `is_stale`, source/hash context for editing.
 
-OTL.2 **must not:** retranslate orchestration, source_hash redesign, auto-unpublish.
+OTL.2 **must not:** retranslate orchestration, source_hash redesign, auto-unpublish, or render a functional retranslate mutation control from `allowed_actions`.
 
 ---
 
@@ -398,7 +400,7 @@ Keep Translate multi-segment editor. Shared save path including `expected_transl
 | Need | Approach |
 |---|---|
 | Load detail | Existing `GET …/operations/{translation_id}` |
-| Save | Existing segment POST + **`expected_translation_hash`** + existing `source_hash` |
+| Save | Existing segment POST + **required** `expected_translation_hash` + existing `source_hash`; target mismatch → **409** `aiml_translation_hash_mismatch` (distinct mapping) |
 | Expose hash | Additive `translation_hash` on segment + detail ViewModels |
 | Review | Existing submit/approve/reject |
 | Refresh | Re-GET detail after success |
@@ -595,8 +597,8 @@ Hard gate. No Biopentra / biopentra.eu / peptides / site IDs / site taxonomy / S
 | **Dependencies** | OTL2.1 |
 | **Code areas** | Editor widget; `workspace-api.ts`; `WorkspaceService::save_segment`; ViewModels; `WorkspaceController` |
 | **Tests** | Unit dirty/round-trip; integration target 409; source 409; no-op preserve |
-| **Acceptance** | Flows A/B/D/E; no silent overwrite |
-| **STOP** | Schema; last-write-wins; client transformers |
+| **Acceptance** | Editor/save/concurrency portions of Flows A/B/D/E (dirty draft + hash guards + round-trip); full Flow A evidence/review gates land in OTL2.3–2.4 |
+| **STOP** | Schema; last-write-wins; empty-skip loophole for expected hash; client transformers |
 | **Completion gate** | Shared save path green |
 
 ### OTL2.3 — QA + assessment + dirty honesty
@@ -674,9 +676,9 @@ Hard gate. No Biopentra / biopentra.eu / peptides / site IDs / site taxonomy / S
 
 ### Parent / boundaries (1–12)
 
-1. OTL parent OT3/OT4/OT7 honored for this milestone’s UI scope.  
-2. No OTL.3 publish/unpublish mutation.  
-3. No OTL.3 retranslate orchestration.  
+1. OTL parent OT3/OT4/OT7 honored for this milestone’s **admitted UI scope** (unified detail, editor Partial, review controls, QA/assessment surfacing). Parent OT3 “Jobs context” remains Deferred to OTL.4 (`jobs: null` stub); OTL.2 does not claim Jobs linkage as delivered.  
+2. No OTL.3 publish/unpublish mutation controls (even if `allowed_actions` admits them).  
+3. No OTL.3 retranslate orchestration / mutate controls.  
 4. No OTL.4 Jobs recovery.  
 5. No OTL.5 new bulk engine.  
 6. No TSC under OTL.2.  
@@ -724,8 +726,8 @@ Hard gate. No Biopentra / biopentra.eu / peptides / site IDs / site taxonomy / S
 39. Material edit clears review to `not_submitted` per Store/ADR-0015.  
 40. Material edit sets publish `unpublished` per Store/ADR-0020.  
 41. No-op save preserves review and publish.  
-42. Source concurrency: `source_hash` → 409 `aiml_source_hash_mismatch`.  
-43. Target concurrency: `expected_translation_hash` → 409 `aiml_translation_hash_mismatch`.  
+42. Source concurrency: `source_hash` → 409 `aiml_source_hash_mismatch` (distinct from target).  
+43. Target concurrency: required `expected_translation_hash` → 409 `aiml_translation_hash_mismatch` (not collapsed into source code); omit fails closed.  
 44. Target conflict leaves persisted newer text unchanged.  
 45. Target conflict preserves operator local draft.  
 46. Publish-invalidation visible after material edit.  
