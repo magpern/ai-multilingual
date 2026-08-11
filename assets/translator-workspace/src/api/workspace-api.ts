@@ -671,4 +671,96 @@ export async function fetchReviewQueue(
 	}
 }
 
+export interface OperationsListParams {
+	languageCode: string;
+	attention?: string;
+	status?: string;
+	reviewStatus?: string;
+	publishStatus?: string;
+	isStale?: string;
+	sourceType?: string;
+	sourceId?: number;
+	page?: number;
+	perPage?: number;
+}
+
+export async function fetchOperationsList(
+	params: OperationsListParams
+): Promise< import('../types/view-models').OperationsListResponse > {
+	const query = new URLSearchParams();
+	query.set( 'language', params.languageCode );
+	if ( params.attention && 'all' !== params.attention ) {
+		query.set( 'attention', params.attention );
+	}
+	if ( params.status ) {
+		query.set( 'status', params.status );
+	}
+	if ( params.reviewStatus ) {
+		query.set( 'review_status', params.reviewStatus );
+	}
+	if ( params.publishStatus ) {
+		query.set( 'publish_status', params.publishStatus );
+	}
+	if ( params.isStale ) {
+		query.set( 'is_stale', params.isStale );
+	}
+	if ( params.sourceType ) {
+		query.set( 'source_type', params.sourceType );
+	}
+	if ( params.sourceId && params.sourceId > 0 ) {
+		query.set( 'source_id', String( params.sourceId ) );
+	}
+	query.set( 'page', String( params.page ?? 1 ) );
+	query.set( 'per_page', String( params.perPage ?? 20 ) );
+
+	try {
+		return await apiFetch( {
+			path: path( `workspace/operations?${ query.toString() }` ),
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function fetchOperationsAttentionCounts(
+	languageCode: string
+): Promise< import('../types/view-models').OperationsAttentionCountsResponse > {
+	const query = new URLSearchParams();
+	query.set( 'language', languageCode );
+	try {
+		return await apiFetch( {
+			path: path(
+				`workspace/operations/attention-counts?${ query.toString() }`
+			),
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function fetchOperationDetail(
+	translationId: number
+): Promise< import('../types/view-models').OperationsDetailResponse > {
+	try {
+		return await apiFetch( {
+			path: path( `workspace/operations/${ translationId }` ),
+		} );
+	} catch ( error: unknown ) {
+		const err = error as { code?: string; data?: { status?: number } };
+		if (
+			'aiml_forbidden' === err?.code ||
+			403 === err?.data?.status ||
+			'rest_forbidden' === err?.code
+		) {
+			throw new WorkspaceRequestError(
+				__(
+					'You do not have permission to inspect this translation.',
+					'ai-multilingual'
+				)
+			);
+		}
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
 export { userMessageFromError };

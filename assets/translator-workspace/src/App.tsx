@@ -25,6 +25,7 @@ import PostSelect from './components/PostSelect';
 import PublishContext from './components/PublishContext';
 import ReviewDecisionDialog from './components/ReviewDecisionDialog';
 import JobsPanel from './components/JobsPanel';
+import OperationsPanel from './components/OperationsPanel';
 import ReviewQueuePanel from './components/ReviewQueuePanel';
 import SegmentFilterBar from './components/SegmentFilterBar';
 import SegmentTable from './components/SegmentTable';
@@ -39,6 +40,7 @@ import {
 	matchesSegmentFilter,
 	type SegmentFilter,
 } from './utils/segment-status';
+import { readOperationsUrlState } from './utils/operations-url';
 import {
 	applyBatchSaveResults,
 	applyConflict,
@@ -64,7 +66,7 @@ import {
 	toggleSelection,
 } from './utils/row-selection';
 
-type WorkspaceViewMode = 'editor' | 'queue' | 'jobs';
+type WorkspaceViewMode = 'editor' | 'queue' | 'jobs' | 'operations';
 
 interface ReviewDialogState {
 	action: 'approve' | 'reject';
@@ -98,6 +100,10 @@ export default function App() {
 		window.aimlTranslatorWorkspace.languages ?? [];
 	const canTranslate = Boolean( window.aimlTranslatorWorkspace.canTranslate );
 	const canReview = Boolean( window.aimlTranslatorWorkspace.canReview );
+	const canAccessOperations = Boolean(
+		window.aimlTranslatorWorkspace.canAccessOperations ??
+			( canTranslate || canReview )
+	);
 	const canViewJobs = Boolean( window.aimlTranslatorWorkspace.canViewJobs );
 	const canManageJobs = Boolean(
 		window.aimlTranslatorWorkspace.canManageJobs
@@ -108,6 +114,13 @@ export default function App() {
 	);
 
 	const [ viewMode, setViewMode ] = useState< WorkspaceViewMode >( () => {
+		const ops =
+			window.aimlTranslatorWorkspace.canAccessOperations ??
+			( window.aimlTranslatorWorkspace.canTranslate ||
+				window.aimlTranslatorWorkspace.canReview );
+		if ( 'operations' === readOperationsUrlState().view && ops ) {
+			return 'operations';
+		}
 		if ( canTranslate ) {
 			return 'editor';
 		}
@@ -118,6 +131,10 @@ export default function App() {
 			return 'jobs';
 		}
 		return 'editor';
+	} );
+	const [ reviewJump, setReviewJump ] = useState( {
+		language: '',
+		postId: '',
 	} );
 	const [ reviewDialog, setReviewDialog ] =
 		useState< ReviewDialogState | null >( null );
@@ -794,12 +811,24 @@ export default function App() {
 
 	return (
 		<div className="aiml-translator-workspace">
-			{ ( canTranslate || canReview || canViewJobs ) && (
+			{ ( canTranslate || canReview || canViewJobs || canAccessOperations ) && (
 				<div
 					className="aiml-workspace-view-tabs"
 					role="tablist"
 					aria-label={ __( 'Workspace views', 'ai-multilingual' ) }
 				>
+					{ canAccessOperations && (
+						<Button
+							variant={
+								viewMode === 'operations' ? 'primary' : 'secondary'
+							}
+							role="tab"
+							aria-selected={ viewMode === 'operations' }
+							onClick={ () => setViewMode( 'operations' ) }
+						>
+							{ __( 'Operations', 'ai-multilingual' ) }
+						</Button>
+					) }
 					{ canTranslate && (
 						<Button
 							variant={ viewMode === 'editor' ? 'primary' : 'secondary' }
@@ -833,7 +862,7 @@ export default function App() {
 				</div>
 			) }
 
-			{ ! canTranslate && ! canReview && ! canViewJobs && (
+			{ ! canTranslate && ! canReview && ! canViewJobs && ! canAccessOperations && (
 				<Notice status="error" isDismissible={ false }>
 					{ __(
 						'You do not have permission to use the translator workspace.',
@@ -999,10 +1028,39 @@ export default function App() {
 				</>
 			) }
 
-			{ canReview && 'queue' === viewMode && (
-				<ReviewQueuePanel
+			{ canAccessOperations && 'operations' === viewMode && (
+				<OperationsPanel
 					languages={ languages }
 					canTranslate={ canTranslate }
+					canReview={ canReview }
+					onOpenInTranslate={ ( openPostId, openLanguageCode ) => {
+						if ( canTranslate ) {
+							setViewMode( 'editor' );
+						}
+						if ( openLanguageCode ) {
+							setLanguageCode( openLanguageCode );
+						}
+						setPostId( openPostId );
+					} }
+					onOpenInReview={ ( openLanguageCode, openPostId ) => {
+						setReviewJump( {
+							language: openLanguageCode,
+							postId: openPostId ? String( openPostId ) : '',
+						} );
+						if ( canReview ) {
+							setViewMode( 'queue' );
+						}
+					} }
+				/>
+			) }
+
+			{ canReview && 'queue' === viewMode && (
+				<ReviewQueuePanel
+					key={ `queue-${ reviewJump.language }-${ reviewJump.postId }` }
+					languages={ languages }
+					canTranslate={ canTranslate }
+					initialLanguageCode={ reviewJump.language }
+					initialPostId={ reviewJump.postId }
 					onOpenInEditor={ ( openPostId, openLanguageCode ) => {
 						if ( canTranslate ) {
 							setViewMode( 'editor' );
