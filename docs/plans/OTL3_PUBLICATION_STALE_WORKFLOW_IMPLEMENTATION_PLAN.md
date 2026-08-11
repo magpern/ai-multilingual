@@ -10,7 +10,7 @@
 **Planning branch:** `docs/otl3-publication-stale-workflow-planning-freeze`
 **Baseline HEAD:** `3186db54e78db663e963752d9a4c1bc8ed7dc599`
 **Freeze recommendation:** **STATE A — FREEZE**
-**Independent review (planning):** pending on this branch
+**Independent review (planning):** **PASS** (adversarial falsification Q1–Q24; ordinary wording fix for FLOW C pre-persist “do not persist” clarity)
 **Implementation:** **Not started.** Do not open an implementation branch from this planning task.
 **Related:** [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md); [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md)
 
@@ -129,7 +129,7 @@ OTL.2 save concurrency does **not** protect AI retranslation.
 2. **null** (Jobs / legacy Translate without hashes): retain existing semantics.
 3. **non-null** (OTL.3 interactive sync retranslate **must** send):
    - Optional early check after load (before provider) to save spend.
-   - **Mandatory** check **immediately before** persist of generated/TM text: re-read Store `translation_hash`; mismatch → **409** `aiml_translation_hash_mismatch`; **do not persist**; newer target authoritative; discard generated text.
+   - **Mandatory** check **immediately before** persist of generated/TM text: re-read Store `translation_hash`; mismatch → **409** `aiml_translation_hash_mismatch`; do **not** persist; newer target authoritative; discard generated text.
 4. No schema, lock table, durable session, second service, or second conflict code.
 5. `allowed_actions` is not a concurrency token.
 
@@ -220,7 +220,7 @@ Lift `deferred_milestone` from `retranslate_stale` when post + stale + caps. Lis
 |---|---|
 | A manual mode | Retranslate → persist → publish cleared → auto skip → unpublished T2 → review → manual publish |
 | B controlled_auto | Confirmation warns possible auto-republish → persist → maybe_auto_publish → refresh actual result |
-| C concurrent edit | Pre-persist hash mismatch → no overwrite |
+| C concurrent edit | Pre-persist hash mismatch → do **not** persist generated text; T2 kept; 409 `aiml_translation_hash_mismatch` |
 | D provider fail | Old target + publication unchanged |
 | E publish fail after persist | Translation success; publication failure separate; no translation retry |
 | F gate OFF | Overlay-eligibility semantics; not guaranteed display |
