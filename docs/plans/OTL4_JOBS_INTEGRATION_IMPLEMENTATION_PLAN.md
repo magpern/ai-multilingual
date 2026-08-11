@@ -10,9 +10,9 @@
 **Planning baseline main HEAD:** `61ebfc4d4ca47dae9424a71a518000b923edef03`
 **Planning branch:** `docs/otl4-jobs-integration-planning-freeze`
 **Freeze recommendation:** **STATE A — FREEZE**
-**Independent review (planning):** *(recorded at freeze closure)*
+**Independent review (planning):** **PASS** (adversarial review on planning branch; ordinary fix: correct ADR-0011 related link)
 **Implementation branch:** **Do not create until this plan is frozen on `main`.**
-**Related:** [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [ADR-0011](../adr/0011-background-translation-jobs.md) (if present) / TI.6 validation log
+**Related:** [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); [TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md](TI6_JOBS_SCALE_SAFETY_POLISH_IMPLEMENTATION_PLAN.md); [ADR-0011](../adr/0011-resumable-job-pipeline.md); [TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md](TI6_JOBS_SCALE_SAFETY_POLISH_VALIDATION_LOG.md)
 
 **External-review amendments locked:** A1 semantic linkage ≠ `active_lock_key`; A2 no serialized `selection_rule`; A3 TI.6 owns operation admission (`JobsOperationAdmission`); A4 Outcome B **Partial** (not from `attempt_count`); A5 bounded-lookup-honest `association=null`.
 
@@ -638,7 +638,7 @@ OTL.4 is implementable as a **bounded additive integration**:
 - [x] AC1–AC79 frozen
 - [x] External amendments A1–A5 preserved
 - [x] TARGET 7 / no schema / no new ADR
-- [ ] Independent planning review PASS
+- [x] Independent planning review PASS
 - [ ] Freeze merge to `main`
 - [ ] Planning closure docs
 - [ ] Post-closure CI green
