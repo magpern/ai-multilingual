@@ -17,6 +17,8 @@ use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\Operator\AllowedActionsResolver;
+use AIMultilingual\Workspace\Operator\OperatorTranslationAssembler;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\QA\QAIssue;
 use AIMultilingual\Workspace\QA\QAResult;
@@ -155,6 +157,13 @@ final class WorkspaceService {
 	private ?PublicationService $publication;
 
 	/**
+	 * Lazy OTL.0 operator assembler.
+	 *
+	 * @var OperatorTranslationAssembler|null
+	 */
+	private ?OperatorTranslationAssembler $operator = null;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param SegmentAssembler               $assembler           Segment assembly.
@@ -225,6 +234,78 @@ final class WorkspaceService {
 	 */
 	public function review_batch_coordinator(): ReviewBatchCoordinator {
 		return $this->review_batch;
+	}
+
+	/**
+	 * OTL.0 language-scoped operations list (cheap — no QA/assessment/explain).
+	 *
+	 * @param array<string, mixed> $args Query args (language_id required).
+	 * @return array{items: list<array<string, mixed>>, total: int, page: int, per_page: int}
+	 */
+	public function list_operations( array $args ): array {
+		$result = $this->store->query_operations( $args );
+		$items  = array();
+		foreach ( $result['items'] as $row ) {
+			$items[] = $this->operator()->assemble_list_item( $row );
+		}
+
+		return array(
+			'items'    => $items,
+			'total'    => $result['total'],
+			'page'     => $result['page'],
+			'per_page' => $result['per_page'],
+		);
+	}
+
+	/**
+	 * OTL.0 translation detail by primary key.
+	 *
+	 * @param int $translation_id Translation PK.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function get_operation( int $translation_id ) {
+		$row = $this->store->get_by_translation_id( $translation_id );
+		if ( null === $row ) {
+			return new WP_Error( 'aiml_translation_missing', __( 'Translation not found.', 'ai-multilingual' ), array( 'status' => 404 ) );
+		}
+
+		return $this->operator()->assemble_detail( $row );
+	}
+
+	/**
+	 * Resets OTL invocation counters (tests).
+	 */
+	public function reset_otl_invocation_counts(): void {
+		$this->operator()->reset_invocation_counts();
+	}
+
+	/**
+	 * Returns OTL assembler invocation counters for tests.
+	 *
+	 * @return array{assessment: int, publication_explain: int, qa: int}
+	 */
+	public function otl_invocation_counts(): array {
+		return $this->operator()->invocation_counts();
+	}
+
+	/**
+	 * Lazy OperatorTranslationAssembler.
+	 */
+	private function operator(): OperatorTranslationAssembler {
+		if ( null === $this->operator ) {
+			$this->operator = new OperatorTranslationAssembler(
+				$this->store,
+				$this->languages,
+				new AllowedActionsResolver(),
+				$this->preview,
+				$this->assessment,
+				$this->qa,
+				$this->field_semantic_mapper,
+				$this->publication
+			);
+		}
+
+		return $this->operator;
 	}
 
 	/**
@@ -892,7 +973,26 @@ final class WorkspaceService {
 	}
 
 	/**
-	 * Operation handler.
+	 * Resolves a language code for OTL operations (required).
+	 *
+	 * @param string $language_code Language code.
+	 * @return object|WP_Error
+	 */
+	public function resolve_language_for_operations( string $language_code ) {
+		$language = $this->resolve_language( $language_code );
+		if ( null === $language ) {
+			return new WP_Error(
+				'aiml_invalid_language',
+				__( 'Unknown language code.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		return $language;
+	}
+
+	/**
+	 * Resolves a language code to a language row.
 	 *
 	 * @param string $language_code Language code from the request.
 	 * @return object|null

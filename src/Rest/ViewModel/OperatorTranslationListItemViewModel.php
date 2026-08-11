@@ -1,0 +1,58 @@
+<?php
+/**
+ * OTL operations list item ViewModel.
+ *
+ * @package AIMultilingual
+ */
+
+declare( strict_types=1 );
+
+namespace AIMultilingual\Rest\ViewModel;
+
+/**
+ * Cheap list representation — no QA/assessment/explain payloads.
+ */
+final class OperatorTranslationListItemViewModel {
+
+	/**
+	 * Constructs a list item ViewModel.
+	 *
+	 * @param array<string, mixed> $data Assembled list item.
+	 */
+	public function __construct(
+		private array $data
+	) {}
+
+	/**
+	 * Serializes the list item.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function to_array(): array {
+		return array(
+			'translation_id'  => (int) ( $this->data['translation_id'] ?? 0 ),
+			'source_type'     => (string) ( $this->data['source_type'] ?? '' ),
+			'source_id'       => (int) ( $this->data['source_id'] ?? 0 ),
+			'source_subtype'  => (string) ( $this->data['source_subtype'] ?? '' ),
+			'language_id'     => (int) ( $this->data['language_id'] ?? 0 ),
+			'language_code'   => (string) ( $this->data['language_code'] ?? '' ),
+			'segment_key'     => (string) ( $this->data['segment_key'] ?? '' ),
+			'field_key'       => (string) ( $this->data['field_key'] ?? '' ),
+			'status'          => (string) ( $this->data['status'] ?? '' ),
+			'review_status'   => (string) ( $this->data['review_status'] ?? '' ),
+			'publish_status'  => (string) ( $this->data['publish_status'] ?? '' ),
+			'is_stale'        => (bool) ( $this->data['is_stale'] ?? false ),
+			'source_preview'  => (string) ( $this->data['source_preview'] ?? '' ),
+			'target_preview'  => (string) ( $this->data['target_preview'] ?? '' ),
+			'updated_at'      => (string) ( $this->data['updated_at'] ?? '' ),
+			'created_at'      => (string) ( $this->data['created_at'] ?? '' ),
+			'provider'        => (string) ( $this->data['provider'] ?? '' ),
+			'model'           => (string) ( $this->data['model'] ?? '' ),
+			'error_code'      => (string) ( $this->data['error_code'] ?? '' ),
+			'error_message'   => (string) ( $this->data['error_message'] ?? '' ),
+			'links'           => is_array( $this->data['links'] ?? null ) ? $this->data['links'] : array(),
+			'allowed_actions' => is_array( $this->data['allowed_actions'] ?? null ) ? $this->data['allowed_actions'] : array(),
+			'jobs'            => $this->data['jobs'] ?? null,
+		);
+	}
+}

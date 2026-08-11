@@ -361,6 +361,156 @@ final class Store {
 	}
 
 	/**
+	 * Returns one translation by primary key (OTL.0).
+	 *
+	 * @param int $translation_id Translation PK.
+	 */
+	public function get_by_translation_id( int $translation_id ): ?object {
+		global $wpdb;
+
+		if ( $translation_id <= 0 || ! $this->translations_table_exists() ) {
+			return null;
+		}
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::translations() . ' WHERE translation_id = %d LIMIT 1', // phpcs:ignore WordPress.DB.PreparedSQL
+				$translation_id
+			)
+		);
+
+		$row = is_array( $rows ) && isset( $rows[0] ) ? $rows[0] : null;
+
+		return $row ? $this->hydrate( $row ) : null;
+	}
+
+	/**
+	 * Upper bound for OTL operations list page size (OTL.0).
+	 */
+	public const OPERATIONS_MAX_PER_PAGE = 50;
+
+	/**
+	 * Language-scoped paginated operations query (OTL.0).
+	 *
+	 * Axis filters only — no TI.5/TI.7 policy in SQL.
+	 *
+	 * @param array<string, mixed> $args {
+	 *     Query arguments.
+	 *
+	 *     @type int         $language_id    Required language id.
+	 *     @type string|null $status         Optional provenance status.
+	 *     @type string|null $review_status  Optional review status.
+	 *     @type string|null $publish_status Optional publish status.
+	 *     @type bool|null   $is_stale       Optional stale filter.
+	 *     @type string|null $source_type    Optional source type.
+	 *     @type int         $source_id      Optional source id (0 = any).
+	 *     @type int         $page           1-based page. Default 1.
+	 *     @type int         $per_page       Page size up to OPERATIONS_MAX_PER_PAGE. Default 20.
+	 * }
+	 * @return array{items: list<object>, total: int, page: int, per_page: int}
+	 */
+	public function query_operations( array $args = array() ): array {
+		global $wpdb;
+
+		$language_id    = (int) ( $args['language_id'] ?? 0 );
+		$page           = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$per_page       = max( 1, min( self::OPERATIONS_MAX_PER_PAGE, (int) ( $args['per_page'] ?? 20 ) ) );
+		$status         = array_key_exists( 'status', $args ) ? $args['status'] : null;
+		$review_status  = array_key_exists( 'review_status', $args ) ? $args['review_status'] : null;
+		$publish_status = array_key_exists( 'publish_status', $args ) ? $args['publish_status'] : null;
+		$is_stale       = array_key_exists( 'is_stale', $args ) ? $args['is_stale'] : null;
+		$source_type    = array_key_exists( 'source_type', $args ) ? $args['source_type'] : null;
+		$source_id      = (int) ( $args['source_id'] ?? 0 );
+
+		$empty = array(
+			'items'    => array(),
+			'total'    => 0,
+			'page'     => $page,
+			'per_page' => $per_page,
+		);
+
+		if ( $language_id <= 0 || ! $this->translations_table_exists() ) {
+			return $empty;
+		}
+
+		if ( null !== $status && '' !== (string) $status && ! in_array( (string) $status, self::statuses(), true ) ) {
+			return $empty;
+		}
+		if ( null !== $review_status && '' !== (string) $review_status && ! in_array( (string) $review_status, self::review_statuses(), true ) ) {
+			return $empty;
+		}
+		if ( null !== $publish_status && '' !== (string) $publish_status && ! in_array( (string) $publish_status, self::publish_statuses(), true ) ) {
+			return $empty;
+		}
+
+		$where  = array( 'language_id = %d' );
+		$params = array( $language_id );
+
+		if ( null !== $status && '' !== (string) $status ) {
+			$where[]  = 'status = %s';
+			$params[] = (string) $status;
+		}
+		if ( null !== $review_status && '' !== (string) $review_status ) {
+			$where[]  = 'review_status = %s';
+			$params[] = (string) $review_status;
+		}
+		if ( null !== $publish_status && '' !== (string) $publish_status ) {
+			$where[]  = 'publish_status = %s';
+			$params[] = (string) $publish_status;
+		}
+		if ( null !== $is_stale ) {
+			$where[]  = 'is_stale = %d';
+			$params[] = $is_stale ? 1 : 0;
+		}
+		if ( null !== $source_type && '' !== (string) $source_type ) {
+			$where[]  = 'source_type = %s';
+			$params[] = (string) $source_type;
+		}
+		if ( $source_id > 0 ) {
+			$where[]  = 'source_id = %d';
+			$params[] = $source_id;
+		}
+
+		$where_sql = implode( ' AND ', $where );
+
+		$total = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM ' . Schema::translations() . ' WHERE ' . $where_sql, // phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				$params
+			)
+		);
+
+		if ( $total <= 0 ) {
+			return $empty;
+		}
+
+		$offset      = ( $page - 1 ) * $per_page;
+		$list_params = array_merge( $params, array( $per_page, $offset ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::translations() . ' WHERE ' . $where_sql
+				. ' ORDER BY updated_at DESC, translation_id DESC LIMIT %d OFFSET %d',
+				$list_params
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+
+		$items = array();
+		foreach ( (array) $rows as $row ) {
+			$items[] = $this->hydrate( $row );
+		}
+
+		return array(
+			'items'    => $items,
+			'total'    => $total,
+			'page'     => $page,
+			'per_page' => $per_page,
+		);
+	}
+
+	/**
 	 * Returns the renderable translation for a segment, or null.
 	 *
 	 * A stale translation is still returned. Dropping back to the source the

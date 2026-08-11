@@ -1,6 +1,6 @@
 # OTL.0 — Foundations — Implementation Plan
 
-**Status:** Architecture Frozen (planning) — on `main` — implementation not started
+**Status:** Implementation complete on `feature/otl0-foundations` — ready for independent review (not Complete on `main`)
 **Milestone:** OTL.0 — Foundations (Operator Translation Lifecycle program)
 **Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
@@ -10,8 +10,8 @@
 **Planning branch:** `docs/otl0-foundations-planning-freeze` (merged)
 **Freeze merge:** `main` @ `9b922222564da4f3294e36188de992c1384c630c` (`merge: freeze OTL.0 Foundations implementation plan`)
 **Independent review (planning):** **PASS**
-**Implementation branch:** create **`feature/otl0-foundations` only after** this plan is Architecture Frozen on `main` — **not** as part of this planning freeze
-**Next after freeze:** Implement OTL0.0–OTL0.8 strictly per this plan on `feature/otl0-foundations`. Do **not** begin OTL.1+ or TSC.
+**Implementation branch:** `feature/otl0-foundations` — REVIEW-READY; see [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md)
+**Next after freeze:** Independent review → merge → close OTL.0 on `main`. Do **not** begin OTL.1+ or TSC before OTL.0 closes.
 **Related (unchanged ownership):** [ADR-0015](../adr/0015-review-workflow-and-tm-approval-policy.md); [ADR-0019](../adr/0019-evidence-based-risk-assessment.md); [ADR-0020](../adr/0020-controlled-auto-publication-and-frontend-gate.md); TI.4 QA; TI.5 Assessment; TI.6 Jobs; TI.7 Publication
 
 **Operational success:** Later OTL UI milestones can consume one computed operator read model, server-computed `allowed_actions`, and additive list/detail admin REST without inventing a second translator, Store, QA engine, assessment policy, publication policy, or Jobs engine — and without schema change.
