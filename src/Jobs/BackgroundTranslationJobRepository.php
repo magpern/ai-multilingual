@@ -472,6 +472,37 @@ final class BackgroundTranslationJobRepository {
 	}
 
 	/**
+	 * Bounded recent jobs for one object+language (OTL.4 detail linkage).
+	 *
+	 * Uses existing object_lang index. Does not scan unbounded history.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @param int    $language_id Language id.
+	 * @param int    $limit       Max rows (caller supplies LOOKUP_JOB_SCAN_LIMIT).
+	 * @return list<object>
+	 */
+	public function list_recent_by_object( string $source_type, int $source_id, int $language_id, int $limit ): array {
+		global $wpdb;
+
+		$limit = max( 1, min( 100, $limit ) );
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::jobs() // phpcs:ignore WordPress.DB.PreparedSQL
+				. ' WHERE source_type = %s AND source_id = %d AND language_id = %d'
+				. ' ORDER BY job_id DESC LIMIT %d',
+				$source_type,
+				$source_id,
+				$language_id,
+				$limit
+			)
+		);
+
+		return is_array( $rows ) ? array_values( $rows ) : array();
+	}
+
+	/**
 	 * Find jobs with expired leases.
 	 *
 	 * @param string $now UTC datetime (Y-m-d H:i:s).

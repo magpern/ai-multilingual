@@ -42,6 +42,11 @@ import {
 } from './utils/detail-conflict';
 import { readOperationsUrlState, clearOperationsViewFromUrl } from './utils/operations-url';
 import {
+	clearJobsViewFromUrl,
+	readJobsUrlState,
+	writeJobsUrlState,
+} from './utils/jobs-url';
+import {
 	applyBatchSaveResults,
 	applyConflict,
 	applyReloadFromServer,
@@ -117,6 +122,7 @@ export default function App() {
 		window.aimlTranslatorWorkspace.canCancelJobs
 	);
 
+	const initialJobsUrl = readJobsUrlState();
 	const [ viewMode, setViewMode ] = useState< WorkspaceViewMode >( () => {
 		const ops =
 			window.aimlTranslatorWorkspace.canAccessOperations ??
@@ -124,6 +130,12 @@ export default function App() {
 				window.aimlTranslatorWorkspace.canReview );
 		if ( 'operations' === readOperationsUrlState().view && ops ) {
 			return 'operations';
+		}
+		if (
+			( 'jobs' === initialJobsUrl.view || null !== initialJobsUrl.jobId ) &&
+			canViewJobs
+		) {
+			return 'jobs';
 		}
 		if ( canTranslate ) {
 			return 'editor';
@@ -136,6 +148,12 @@ export default function App() {
 		}
 		return 'editor';
 	} );
+	const [ focusedJobId, setFocusedJobId ] = useState< number | null >(
+		() => initialJobsUrl.jobId
+	);
+	const [ focusedJobItemId, setFocusedJobItemId ] = useState< number | null >(
+		() => initialJobsUrl.itemId
+	);
 	const [ reviewJump, setReviewJump ] = useState( {
 		language: '',
 		postId: '',
@@ -274,7 +292,15 @@ export default function App() {
 		if ( 'operations' !== viewMode ) {
 			clearOperationsViewFromUrl();
 		}
-	}, [ viewMode ] );
+		if ( 'jobs' !== viewMode ) {
+			clearJobsViewFromUrl();
+		} else {
+			writeJobsUrlState( {
+				jobId: focusedJobId,
+				itemId: focusedJobItemId,
+			} );
+		}
+	}, [ viewMode, focusedJobId, focusedJobItemId ] );
 
 	const handleDraftChange = ( segmentKey: string, value: string ) => {
 		setRows( ( current ) => updateDraftText( current, segmentKey, value ) );
@@ -1061,6 +1087,18 @@ export default function App() {
 							setViewMode( 'queue' );
 						}
 					} }
+					onOpenJobs={ ( jobId, itemId ) => {
+						if ( ! canViewJobs ) {
+							return;
+						}
+						setFocusedJobId( jobId ?? null );
+						setFocusedJobItemId( itemId ?? null );
+						writeJobsUrlState( {
+							jobId: jobId ?? null,
+							itemId: itemId ?? null,
+						} );
+						setViewMode( 'jobs' );
+					} }
 				/>
 			) }
 
@@ -1089,6 +1127,8 @@ export default function App() {
 					canManage={ canManageJobs }
 					canCancel={ canCancelJobs }
 					canRun={ canRunJobs }
+					focusedJobId={ focusedJobId }
+					focusedItemId={ focusedJobItemId }
 				/>
 			) }
 

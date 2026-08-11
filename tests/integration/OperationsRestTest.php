@@ -133,7 +133,11 @@ final class OperationsRestTest extends AimlTestCase {
 		$this->assertArrayHasKey( 'publication', $data );
 		$this->assertArrayHasKey( 'source_text', $data );
 		$this->assertSame( 'Detalj', $data['translated_text'] );
-		$this->assertNull( $data['jobs'] );
+		$this->assertIsArray( $data['jobs'] );
+		$this->assertNull( $data['jobs']['association'] );
+		$this->assertTrue( $data['jobs']['lookup']['bounded'] );
+		$this->assertFalse( $data['jobs']['lookup']['matched'] );
+		$this->assertArrayNotHasKey( 'selection_rule', $data['jobs'] );
 
 		$publish = null;
 		foreach ( $data['allowed_actions'] as $action ) {

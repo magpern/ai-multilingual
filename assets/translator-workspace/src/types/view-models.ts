@@ -189,6 +189,7 @@ export interface OperationsListItem {
 	error_message: string;
 	links: Record< string, string >;
 	allowed_actions: AllowedActionDescriptor[];
+	/** List payloads always omit Jobs enrichment (OTL.4). */
 	jobs: null;
 }
 
@@ -204,7 +205,109 @@ export interface OperationsPublicationSettings {
 	auto_publication_mode?: string;
 }
 
-export interface OperationsDetailResponse extends OperationsListItem {
+/** TI.6 JobsOperationAdmission row mapped into OTL / Jobs ViewModels. */
+export interface JobsOperationDescriptor {
+	operation_id: string;
+	allowed: boolean;
+	reason_code: string | null;
+	mutation_scope: string;
+}
+
+export interface OperationsJobsAssociationJob {
+	job_id: number;
+	status: string;
+	job_type: string;
+	source_type: string;
+	source_id: number;
+	language_id: number;
+	total_items: number;
+	queued_items: number;
+	running_items: number;
+	completed_items: number;
+	failed_items: number;
+	skipped_items: number;
+	stale_items: number;
+	cancelled_items: number;
+	last_error_code: string;
+	last_error_class: string;
+	budget_max_requests?: number;
+	budget_max_tokens?: number;
+	budget_used_requests?: number;
+	budget_used_tokens?: number;
+}
+
+export interface OperationsJobsAssociationItem {
+	item_id: number;
+	segment_key: string;
+	status: string;
+	attempt_count: number;
+	result_code: string;
+	last_error_code: string;
+	last_error_class: string;
+}
+
+export interface OperationsJobsAssociation {
+	job: OperationsJobsAssociationJob;
+	item: OperationsJobsAssociationItem;
+	failed_items_in_job: number;
+	mutation_scope: string;
+	operations?: JobsOperationDescriptor[];
+}
+
+export interface OperationsJobsLookup {
+	bounded: boolean;
+	job_scan_limit: number;
+	matched: boolean;
+	exhausted: boolean;
+}
+
+export interface OperationsJobsRetention {
+	applies: boolean;
+}
+
+export interface OperationsJobsFailurePresentation {
+	category: string;
+	code: string;
+	message: string;
+}
+
+export interface OperationsJobsUsagePresentation {
+	budget_max_requests?: number;
+	budget_max_tokens?: number;
+	budget_used_requests?: number;
+	budget_used_tokens?: number;
+	usage_known: boolean;
+	scope?: string;
+}
+
+export interface OperationsJobsExactlyOnceHelp {
+	code: string;
+	message: string;
+}
+
+export interface OperationsJobsPresentation {
+	failure: OperationsJobsFailurePresentation | null;
+	usage: OperationsJobsUsagePresentation | null;
+	exactly_once_help: OperationsJobsExactlyOnceHelp | null;
+}
+
+export interface OperationsJobsNavigation {
+	jobs_tab: boolean;
+	job_id?: number;
+	item_id?: number;
+}
+
+/** Detail-only Jobs subtree (null when Jobs view is denied). */
+export interface OperationsJobsSubtree {
+	association: OperationsJobsAssociation | null;
+	lookup: OperationsJobsLookup;
+	retention: OperationsJobsRetention;
+	presentation: OperationsJobsPresentation;
+	navigation: OperationsJobsNavigation;
+}
+
+export interface OperationsDetailResponse
+	extends Omit< OperationsListItem, 'jobs' > {
 	source_text?: string;
 	translated_text?: string;
 	text_format?: string;
@@ -217,6 +320,8 @@ export interface OperationsDetailResponse extends OperationsListItem {
 	assessment?: Record< string, unknown >;
 	publication?: Record< string, unknown >;
 	publication_settings?: OperationsPublicationSettings;
+	/** Detail may include Jobs linkage; list always uses `jobs: null`. */
+	jobs?: OperationsJobsSubtree | null;
 }
 
 export interface OperationsAttentionCountsResponse {

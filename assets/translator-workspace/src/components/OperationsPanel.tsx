@@ -55,6 +55,7 @@ interface OperationsPanelProps {
 	canReview: boolean;
 	onOpenInTranslate: ( postId: number, languageCode: string ) => void;
 	onOpenInReview: ( languageCode: string, postId?: number ) => void;
+	onOpenJobs?: ( jobId?: number | null, itemId?: number | null ) => void;
 }
 
 const PER_PAGE = 20;
@@ -74,6 +75,7 @@ export default function OperationsPanel( {
 	canReview,
 	onOpenInTranslate,
 	onOpenInReview,
+	onOpenJobs,
 }: OperationsPanelProps ) {
 	const initial = readOperationsUrlState();
 	const defaultLanguage =
@@ -444,6 +446,50 @@ export default function OperationsPanel( {
 			loadDetail( inspectorId );
 		}
 	};
+
+	/**
+	 * Refresh Jobs subtree / allowed_actions after Jobs mutations.
+	 * Preserves the local editor draft (OTL.2 / OTL.4 dirty contract).
+	 */
+	const refreshJobsSubtree = useCallback( async () => {
+		if ( null === inspectorId ) {
+			return;
+		}
+
+		try {
+			const next = await fetchOperationDetail( inspectorId );
+			setDetail( ( current ) => {
+				if ( ! current ) {
+					return next;
+				}
+				return {
+					...current,
+					jobs: next.jobs,
+					allowed_actions: next.allowed_actions,
+					status: next.status,
+					error_code: next.error_code,
+					error_message: next.error_message,
+					attention_reasons: next.attention_reasons,
+				};
+			} );
+		} catch ( err ) {
+			setStatusMessage(
+				err instanceof Error
+					? err.message
+					: __(
+							'Could not refresh Jobs details for this translation.',
+							'ai-multilingual'
+					  )
+			);
+		}
+	}, [ inspectorId ] );
+
+	const handleOpenJobs = useCallback(
+		( jobId?: number | null, itemId?: number | null ) => {
+			onOpenJobs?.( jobId, itemId );
+		},
+		[ onOpenJobs ]
+	);
 
 	const runReviewMutation = async (
 		action: 'submit' | 'approve' | 'reject',
@@ -1143,6 +1189,8 @@ export default function OperationsPanel( {
 					onSave={ handleSave }
 					onDiscard={ handleDiscard }
 					onRefreshDetail={ handleRefreshDetail }
+					onRefreshJobsSubtree={ refreshJobsSubtree }
+					onOpenJobs={ handleOpenJobs }
 					onSubmitReview={ () => runReviewMutation( 'submit' ) }
 					onApproveReview={ () => openReviewDialog( 'approve' ) }
 					onRejectReview={ () => openReviewDialog( 'reject' ) }

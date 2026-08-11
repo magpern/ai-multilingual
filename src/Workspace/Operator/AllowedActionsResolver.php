@@ -10,6 +10,8 @@ declare( strict_types=1 );
 namespace AIMultilingual\Workspace\Operator;
 
 use AIMultilingual\Plugin;
+use AIMultilingual\Jobs\JobsCapabilities;
+use AIMultilingual\Jobs\JobsOperationAdmission;
 use AIMultilingual\Translation\Publication\PublicationDecision;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\Review\ReviewCapabilities;
@@ -33,6 +35,10 @@ final class AllowedActionsResolver {
 	public const ACTION_OPEN_SOURCE         = 'open_source';
 	public const ACTION_OPEN_FRONTEND       = 'open_frontend';
 	public const ACTION_RETRANSLATE_STALE   = 'retranslate_stale';
+	public const ACTION_OPEN_JOB            = 'open_job';
+	public const ACTION_OPEN_JOBS           = 'open_jobs';
+	public const ACTION_RESUME_JOB          = 'resume_job';
+	public const ACTION_RETRY_FAILED_JOB    = 'retry_failed_job';
 
 	/**
 	 * Resolves list-safe actions (no publish; no TI.7 eligibility evaluation).
@@ -60,19 +66,21 @@ final class AllowedActionsResolver {
 	}
 
 	/**
-	 * Resolves full detail actions including publish via TI.7 decision.
+	 * Resolves full detail actions including publish via TI.7 decision and Jobs admission.
 	 *
-	 * @param object                   $row              Hydrated Store row.
-	 * @param array<string, mixed>     $capability_flags Capability flags.
-	 * @param PublicationDecision|null $publication      TI.7 decision (required for publish).
-	 * @param array<string, mixed>     $links            Link hints.
+	 * @param object                    $row              Hydrated Store row.
+	 * @param array<string, mixed>      $capability_flags Capability flags.
+	 * @param PublicationDecision|null  $publication      TI.7 decision (required for publish).
+	 * @param array<string, mixed>      $links            Link hints.
+	 * @param array<string, mixed>|null $jobs            OTL Jobs subtree (detail).
 	 * @return list<array{id: string, allowed: bool, reason_code: string|null}>
 	 */
 	public function resolve_for_detail(
 		object $row,
 		array $capability_flags,
 		?PublicationDecision $publication,
-		array $links = array()
+		array $links = array(),
+		?array $jobs = null
 	): array {
 		$actions  = $this->resolve_for_list( $row, $capability_flags, $links );
 		$publish  = $this->action_publish( $row, $capability_flags, $publication );
@@ -86,6 +94,10 @@ final class AllowedActionsResolver {
 		}
 		if ( ! $replaced ) {
 			$actions[] = $publish;
+		}
+
+		foreach ( $this->jobs_actions( $capability_flags, $jobs ) as $jobs_action ) {
+			$actions[] = $jobs_action;
 		}
 
 		return $actions;
@@ -314,6 +326,67 @@ final class AllowedActionsResolver {
 	}
 
 	/**
+	 * Maps TI.6 JobsOperationAdmission into OTL allowed_actions (no local retry policy).
+	 *
+	 * @param array<string, mixed>      $capability_flags Caps.
+	 * @param array<string, mixed>|null $jobs             Jobs subtree.
+	 * @return list<array{id: string, allowed: bool, reason_code: string|null}>
+	 */
+	private function jobs_actions( array $capability_flags, ?array $jobs ): array {
+		$can_view  = ! empty( $capability_flags['can_view_jobs'] );
+		$open_jobs = $this->descriptor(
+			self::ACTION_OPEN_JOBS,
+			$can_view,
+			$can_view ? null : ActionReasonCodes::CAPABILITY_DENIED
+		);
+
+		$has_job = is_array( $jobs )
+			&& isset( $jobs['association'] )
+			&& is_array( $jobs['association'] )
+			&& isset( $jobs['association']['job']['job_id'] );
+
+		$open_job = $this->descriptor(
+			self::ACTION_OPEN_JOB,
+			$can_view && $has_job,
+			! $can_view
+				? ActionReasonCodes::CAPABILITY_DENIED
+				: ( $has_job ? null : ActionReasonCodes::STATE_INELIGIBLE )
+		);
+
+		$resume = $this->descriptor( self::ACTION_RESUME_JOB, false, ActionReasonCodes::STATE_INELIGIBLE );
+		$retry  = $this->descriptor( self::ACTION_RETRY_FAILED_JOB, false, ActionReasonCodes::STATE_INELIGIBLE );
+
+		$operations = is_array( $jobs['association']['operations'] ?? null )
+			? $jobs['association']['operations']
+			: array();
+
+		foreach ( $operations as $op ) {
+			if ( ! is_array( $op ) ) {
+				continue;
+			}
+			$op_id   = (string) ( $op['operation_id'] ?? '' );
+			$allowed = ! empty( $op['allowed'] );
+			$reason  = isset( $op['reason_code'] ) ? (string) $op['reason_code'] : ActionReasonCodes::STATE_INELIGIBLE;
+			if ( JobsOperationAdmission::OP_RESUME === $op_id ) {
+				$resume = $this->descriptor(
+					self::ACTION_RESUME_JOB,
+					$allowed,
+					$allowed ? null : ( '' !== $reason ? $reason : ActionReasonCodes::STATE_INELIGIBLE )
+				);
+			}
+			if ( JobsOperationAdmission::OP_RETRY_FAILED === $op_id ) {
+				$retry = $this->descriptor(
+					self::ACTION_RETRY_FAILED_JOB,
+					$allowed,
+					$allowed ? null : ( '' !== $reason ? $reason : ActionReasonCodes::STATE_INELIGIBLE )
+				);
+			}
+		}
+
+		return array( $open_jobs, $open_job, $resume, $retry );
+	}
+
+	/**
 	 * Builds one action descriptor.
 	 *
 	 * @param string      $id          Action id.
@@ -334,7 +407,7 @@ final class AllowedActionsResolver {
 	 *
 	 * @param int|null     $user_id User id (null = current).
 	 * @param WP_Post|null $post Post when source is a post.
-	 * @return array{can_translate: bool, can_review: bool, can_edit_source: bool}
+	 * @return array{can_translate: bool, can_review: bool, can_edit_source: bool, can_view_jobs: bool, can_run_jobs: bool, can_cancel_jobs: bool}
 	 */
 	public static function capability_flags( ?int $user_id = null, ?WP_Post $post = null ): array {
 		$user_id = $user_id ?? get_current_user_id();
@@ -350,6 +423,9 @@ final class AllowedActionsResolver {
 			'can_translate'   => $can_translate,
 			'can_review'      => $can_review,
 			'can_edit_source' => $can_edit,
+			'can_view_jobs'   => user_can( $user_id, JobsCapabilities::VIEW_JOBS ),
+			'can_run_jobs'    => user_can( $user_id, JobsCapabilities::RUN_JOBS ),
+			'can_cancel_jobs' => user_can( $user_id, JobsCapabilities::CANCEL_JOBS ),
 		);
 	}
 }

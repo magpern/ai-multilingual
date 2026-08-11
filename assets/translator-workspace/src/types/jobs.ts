@@ -16,6 +16,13 @@ export type JobStatus =
 
 export type JobRequestedAction = 'none' | 'pause' | 'cancel';
 
+export interface JobOperationDescriptor {
+	operation_id: string;
+	allowed: boolean;
+	reason_code: string | null;
+	mutation_scope: string;
+}
+
 export interface TranslationJobSummary {
 	job_id: number;
 	job_type: JobType | string;
@@ -43,6 +50,8 @@ export interface TranslationJobSummary {
 	updated_at: string;
 	started_at: string | null;
 	finished_at: string | null;
+	/** Authoritative TI.6 admission when present (OTL.4 / JI51). */
+	operations?: JobOperationDescriptor[];
 }
 
 export interface TranslationJobItemSummary {

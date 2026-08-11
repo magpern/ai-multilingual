@@ -440,6 +440,55 @@ final class PluginGuardTest extends AimlTestCase {
 	}
 
 	/**
+	 * OTL.4 Jobs integration boundaries — TI.6 ownership, no schema, list stays cheap.
+	 */
+	public function test_otl4_jobs_integration_boundaries(): void {
+		$linker = (string) file_get_contents( $this->root() . '/src/Jobs/JobsLifecycleLinker.php' );
+		$this->assertStringContainsString( 'LOOKUP_JOB_SCAN_LIMIT = 32', $linker );
+		$this->assertStringContainsString( 'list_recent_by_object', $linker );
+		$this->assertStringNotContainsString( 'selection_rule', $linker );
+
+		$admission = (string) file_get_contents( $this->root() . '/src/Jobs/JobsOperationAdmission.php' );
+		$this->assertStringContainsString( 'validate_resume', $admission );
+		$this->assertStringContainsString( 'mutation_scope', $admission );
+
+		$service = (string) file_get_contents( $this->root() . '/src/Jobs/BackgroundTranslationJobService.php' );
+		$this->assertStringContainsString( 'JobsOperationAdmission', $service );
+		$this->assertStringContainsString( 'OP_RETRY_FAILED', $service );
+
+		$this->assertStringNotContainsString( "'last_error_message'", $linker );
+
+		$assembler = (string) file_get_contents( $this->root() . '/src/Workspace/Operator/OperatorTranslationAssembler.php' );
+		$this->assertStringContainsString( "'jobs'              => null", $assembler );
+		$this->assertStringContainsString( 'JobsLifecycleLinker', $assembler );
+
+		$resolver = (string) file_get_contents(
+			$this->root() . '/src/Workspace/Operator/AllowedActionsResolver.php'
+		);
+		$this->assertStringContainsString( 'ACTION_RESUME_JOB', $resolver );
+		$this->assertStringContainsString( 'JobsOperationAdmission', $resolver );
+
+		$inspector = (string) file_get_contents(
+			$this->root() . '/assets/translator-workspace/src/components/OperationsInspector.tsx'
+		);
+		$this->assertStringContainsString( 'bounded lookup', strtolower( $inspector ) );
+		$this->assertStringNotContainsString( 'no retained Jobs record exists', $inspector );
+		$this->assertStringNotContainsString( 'selection_rule', $inspector );
+		$this->assertStringContainsString( 'entire', strtolower( $inspector ) );
+
+		$jobs_ts = (string) file_get_contents(
+			$this->root() . '/assets/translator-workspace/src/utils/jobs.ts'
+		);
+		$this->assertStringContainsString( 'operations', $jobs_ts );
+
+		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlJobsPolicy.php' );
+		$this->assertFileDoesNotExist( $this->root() . '/src/Jobs/OtlJobsEngine.php' );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/TARGET\s*=\s*7/', $migrator );
+	}
+
+	/**
 	 * Product PHP under src/ must stay site-neutral (public/SaaS).
 	 */
 	public function test_otl_product_code_has_no_site_specific_branding(): void {
