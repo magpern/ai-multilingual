@@ -1,22 +1,27 @@
 # OTL.5 — Bounded Bulk Operations — Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` (freeze merge `001cfb0132c2faefaf8243fffed1a16b94beb390`; production implementation **not started**)
+**Status:** **OTL.5 Complete** on `main` (implementation merge `ed8dbd8f095cf17e2d3031777f763012f65f5663`; freeze merge `001cfb0132c2faefaf8243fffed1a16b94beb390`)
 **Milestone:** OTL.5 — Bounded Bulk Operations (Operator Translation Lifecycle program)
-**Kind:** Milestone implementation plan (authoritative on `main` after freeze merge)
+**Kind:** Milestone implementation plan (authoritative on `main`)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** OTL parent **Architecture Frozen**; OTL.0–OTL.4 **Complete**; TIQ **Complete** (incl. TI.6 Jobs, TI.7 Publication); AI Multilingual **v1.2.0**; `Migrator::TARGET` **7**
 **Schema:** Migrator `TARGET` = **7** (unchanged — **no migration**, **no new index**)
 **ADR:** **No new ADR.** ADR-0015 / ADR-0020 / ADR-0011 / TI.6–TI.7 ownership unchanged.
 **Planning baseline main HEAD:** `7a2aa2145f95b3cc44ea26a9c004f9296cf09fb6`
-**Planning branch:** `docs/otl5-bounded-bulk-operations-planning-freeze`
+**Planning branch:** `docs/otl5-bounded-bulk-operations-planning-freeze` (merged)
 **External freeze review:** **PASS** (STATE A — FREEZE; A1–A6 locked)
 **Independent planning review:** **PASS**
+**Independent implementation review:** **PASS**
 **Reviewed planning HEAD:** `d27b5db32badf90243d2b5d8739d26e7008d9c05`
+**Final reviewed feature HEAD:** `9ceb56375b03e769ba1fc8db819ea78b304a5342`
 **Freeze merge:** `main` @ `001cfb0132c2faefaf8243fffed1a16b94beb390`
 **Freeze merge CI:** run `31535262057` — **SUCCESS**
-**Validation:** [OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md)
-**Implementation branch:** **Do not create** until this plan is frozen on `main` and the combined implementation task begins.
-**Next after freeze/closure:** Run the combined **OTL.5 Bounded Bulk Operations implementation** + independent implementation review + merge + milestone closure from the frozen main baseline. Do **not** start OTL.6 or TSC under OTL.
+**Implementation merge:** `main` @ `ed8dbd8f095cf17e2d3031777f763012f65f5663` (`merge: complete OTL.5 Bounded Bulk Operations`)
+**Feature CI:** run `31537721500` — **SUCCESS**
+**Fresh main CI:** run `31538065663` — **SUCCESS**
+**Validation:** [OTL5_BOUNDED_BULK_OPERATIONS_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_VALIDATION_LOG.md); planning log [OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md)
+**Implementation branch:** `feature/otl5-bounded-bulk-operations` (merged)
+**Next:** Begin definitive **OTL.6 Final Operator Lifecycle Polish** planning from this closed baseline. Do **not** implement OTL.6 or start TSC under OTL until OTL.6 is frozen on main.
 **Related:** [OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md](OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md); [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 
 **External-review amendments locked:**
@@ -550,12 +555,10 @@ Evidence pack after implementation (separate lifecycle). No version bump/tag in 
 
 ---
 
-## 23. Exact implementation next step
+## 23. Exact next step after OTL.5 Complete
 
-After this plan is Architecture Frozen on `main` and planning closure is recorded:
+Begin the definitive **OTL.6 Final Operator Lifecycle Polish** planning process from the closed OTL.5 main baseline.
 
-Run the combined **OTL.5 Bounded Bulk Operations implementation** + independent implementation review + merge + milestone closure task from the frozen main baseline.
-
-Do **not** create `feature/otl5-*` in the planning freeze task.  
-Do **not** start OTL.6 or TSC.  
-Do **not** bump version, change TARGET, create ADR, or tag/release under OTL.5.
+Do **not** implement OTL.6 until its plan has been externally reviewed, materialized, independently reviewed, and frozen on main.  
+Do **not** start TSC under OTL.  
+Do **not** bump version, change TARGET, create ADR, or tag/release under OTL.5 closure.

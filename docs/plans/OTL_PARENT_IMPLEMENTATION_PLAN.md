@@ -15,9 +15,9 @@
 
 **This plan is the program architecture contract for OTL (OTL.0–OTL.6).** Do not implement production code under OTL until the relevant milestone plan is Architecture Frozen on `main`. Each milestone receives its own definitive planning freeze before implementation. This document freezes program boundaries, invariants, gates, and Deferred items — not detailed OTL.0 work packages.
 
-**Production implementation status:** **OTL.0 Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`). **OTL.1 Complete** on `main` (merge `466eb6a470b2ea48b949bc05e0717afbc6600fc3`). **OTL.2 Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`). **OTL.3 Complete** on `main` (merge `77fc39da5d9b30d204e5a0c04e318a463ad39484`). **OTL.4 Complete** on `main` (merge `6e77687f6ebbb000372f68d699fba33c71489704`). **OTL.5** Architecture Frozen planning lifecycle (see [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md)); production implementation **not started**. OTL.6 and TSC remain not started.
+**Production implementation status:** **OTL.0 Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`). **OTL.1 Complete** on `main` (merge `466eb6a470b2ea48b949bc05e0717afbc6600fc3`). **OTL.2 Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`). **OTL.3 Complete** on `main` (merge `77fc39da5d9b30d204e5a0c04e318a463ad39484`). **OTL.4 Complete** on `main` (merge `6e77687f6ebbb000372f68d699fba33c71489704`). **OTL.5 Complete** on `main` (merge `ed8dbd8f095cf17e2d3031777f763012f65f5663`). OTL.6 and TSC remain not started.
 
-**Next:** After OTL.5 planning freeze + closure on `main`, run the combined **OTL.5 Bounded Bulk Operations implementation** + independent implementation review + merge + milestone closure from the frozen OTL.5 plan. Do not start OTL.6 or Translation Surface Coverage (TSC) under OTL.
+**Next:** Begin the definitive **OTL.6 Final Operator Lifecycle Polish** planning process from the closed OTL.5 main baseline. Do not implement OTL.6 or Translation Surface Coverage (TSC) under OTL until OTL.6 is frozen on main.
 
 ---
 
@@ -757,7 +757,7 @@ This parent is Architecture Frozen on `main` (freeze merge `9a31176f0147d726b251
 
 **OTL.0 Foundations** is **Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`; plan freeze `9b922222564da4f3294e36188de992c1384c630c`). See [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md).
 
-Exact next step: after OTL.5 Architecture Frozen + planning closure on `main`, run the combined **OTL.5 Bounded Bulk Operations implementation** + independent implementation review + merge + milestone closure from the frozen plan ([OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md)). Do not start OTL.6 or TSC under OTL. Do not create the OTL.5 implementation branch until planning freeze/closure is complete.
+Exact next step: Begin the definitive **OTL.6 Final Operator Lifecycle Polish** planning process from the closed OTL.5 main baseline ([OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md)). Do not implement OTL.6 or TSC under OTL until OTL.6 is frozen on main.
 
 ---
 
