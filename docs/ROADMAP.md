@@ -4,9 +4,9 @@
 
 **Implementation priority (canonical):** [PRODUCT_PRIORITIES.md](PRODUCT_PRIORITIES.md) — product-direction guidance for which program to pursue next.
 
-**Post-v1.1 program:** Translation Intelligence & Quality — [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). **v1.2.0** release preparation in progress (`release/v1.2.0-preparation`). Next product milestone **undecided** until after release.
+**Post-v1.1 program:** Translation Intelligence & Quality — [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). **v1.2.0 released**. Next product milestone **undecided**.
 
-**Release status:** AI Multilingual **v1.1.0** released (tag `v1.1.0`). **A.SEO** Complete. **TIQ** Complete. Preparing **v1.2.0** (not tagged yet).
+**Release status:** AI Multilingual **v1.2.0** released (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **A.SEO** Complete. **TIQ** Complete. `Migrator::TARGET` **7**.
 
 This document retains the classic milestone table (M0–M7) and Strategy F completion status for historical orientation. One approved milestone at a time. Each is accepted before the next begins.
 

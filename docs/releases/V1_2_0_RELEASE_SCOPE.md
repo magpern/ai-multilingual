@@ -1,14 +1,14 @@
 # AI Multilingual v1.2.0 — Release Scope Audit
 
-**Status:** **PREPARATION** (not tagged / not published)
+**Status:** **CLOSED / RELEASED**
 **Date:** 2026-08-11
-**Preparation branch:** `release/v1.2.0-preparation`
+**Preparation branch:** `release/v1.2.0-preparation` (PR #13)
 **Baseline main HEAD:** `d4ac047ad2e3f21a87b45a5d661d95c8078fa68b`
+**Merge / tag target:** `b67fc296e2b2170dea84228b1acda502e518f07a`
 **Previous intentional release:** `v1.1.0` @ `d9c2336182fa2e0ae0582ead78cc0a346670c92a`
 **Schema:** Migrator `TARGET = 7` (6 → 7 publication axis; ADR-0020)
 **Decision:** TARGET RELEASE VERSION = **1.2.0** (post-TIQ product baseline)
-
-Tag / GitHub Release are **out of scope** for this preparation branch. After independent review + merge to `main`, the annotated tag `v1.2.0` must land on the **release-preparation merge commit**, not this branch tip.
+**Published:** tag `v1.2.0` + GitHub Release (workflow `31467161198`); published ZIP audit PASS
 
 ## Intent
 

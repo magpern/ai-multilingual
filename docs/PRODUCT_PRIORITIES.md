@@ -1,13 +1,13 @@
 # Product Priorities — AI Multilingual
 
 **Status:** Canonical product-direction document
-**Date:** 2026-08-10
+**Date:** 2026-08-11
 **Scope:** Implementation priority and product strategy only
 **Does not change:** Architecture, ADRs, schemas, APIs, or historical roadmap milestone IDs
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** Complete **v1.2.0** release (independent review → merge → tag → GitHub Release). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**. Preparation branch: `release/v1.2.0-preparation`. Do **not** begin another product milestone until after the release is closed. Next product milestone remains **undecided**.
+**Current next decision:** Explicit **post-v1.2.0 roadmap** decision before starting another product milestone. **v1.2.0 released** (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**. Next product milestone remains **undecided**.
 
 ---
 
@@ -38,13 +38,13 @@ Remaining priority order (highest first):
 
 ## 2. Current implementation priority
 
-### Active next decision (post-TIQ)
+### Active next decision (post-v1.2.0)
 
 | Order | Decision | Focus |
 |---|---|---|
-| 1 | **v1.2.0 release** | Independent review of `release/v1.2.0-preparation`, then merge, tag, and GitHub Release. Next product milestone undecided until after release. |
+| 1 | **Post-v1.2.0 roadmap** | Explicit product decision before starting another milestone. Next milestone undecided. |
 
-**Released:** AI Multilingual **v1.1.0** (tag `v1.1.0`). **A.SEO** (A.SEOa–A.SEOf) is **Complete**. **TIQ (TQ.0–TI.7)** is **Complete**. CI/release baseline is green. `Migrator::TARGET` is **7**. Preparation targets **v1.2.0**.
+**Released:** AI Multilingual **v1.2.0** (tag `v1.2.0`). **v1.1.0** remains the prior intentional release. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. `Migrator::TARGET` is **7**.
 
 Visitor-facing Program A waves below remain listed for historical priority context and are **not** reopened by TIQ. Coverage-Deferred surfaces stay Deferred unless a separate product decision reopens them.
 
