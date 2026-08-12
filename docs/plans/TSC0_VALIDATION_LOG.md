@@ -19,7 +19,7 @@
 | Merge SHA | `6ee696cff87070c23201e9bb9447067e72af7248` |
 | Fresh main CI | run `31605113137` — **SUCCESS** |
 | Closure commit | `1c6a203fc8c3f0f7cc99630d27d31ac4e0e71955` |
-| Post-closure CI | *(pending)* |
+| Post-closure CI | run `31605358832` — **SUCCESS** (tip `d1ac310d68057d78c25ec997391c4c3685051edc`) |
 | Version | **1.3.0** |
 | TARGET | **7** |
 | Schema | STATE A — no migration |
