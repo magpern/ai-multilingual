@@ -20,7 +20,8 @@
 | Implementation review | **PASS** (after Rank Math activation / TranslationService provider / Woo economic guards) |
 | Merge SHA | `53470811a92147f4141395f4da63b8d04fea3b46` |
 | Fresh main CI | run `31640944986` — **SUCCESS** |
-| Closure commit | *(this commit)* |
+| Closure commit | `7f301b3e9` |
+| Post-closure CI | run `31641176160` — **SUCCESS** (tip `7f301b3e9`) |
 | Version | **1.3.0** |
 | TARGET | **7** |
 | Schema | STATE A — no migration |
