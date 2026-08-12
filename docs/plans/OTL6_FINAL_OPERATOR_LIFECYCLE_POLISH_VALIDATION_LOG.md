@@ -6,6 +6,9 @@
 **Feature CI (authoritative reviewed):** run `31575076430` — phpcs / unit / integration / quality / build **SUCCESS**
 **Feature CI (pre-fix):** run `31574802885` — **SUCCESS**
 **Fresh main CI:** run `31575209778` — phpcs / unit / integration / quality / build **SUCCESS**
+**Closure commit:** `d650141210b19712b4f02044b29409bc4fbefaec`
+**Priorities wording commit:** `38a3f0cf6`
+**Post-closure CI:** run `31575450421` — phpcs / unit / integration / quality / build **SUCCESS**
 **Plan:** [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md)
 **Evidence:** [OTL6_IMPLEMENTATION_EVIDENCE.md](OTL6_IMPLEMENTATION_EVIDENCE.md)
 **Baseline:** [OTL6_IMPLEMENTATION_BASELINE.md](OTL6_IMPLEMENTATION_BASELINE.md)

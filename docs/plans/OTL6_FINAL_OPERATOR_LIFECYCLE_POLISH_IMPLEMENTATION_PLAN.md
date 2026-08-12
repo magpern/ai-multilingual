@@ -19,6 +19,8 @@
 **Implementation merge:** `main` @ `d302c9640cb4f9d950400af1fcbb5fe4ae1ce39f` (`merge: complete OTL.6 Final Operator Lifecycle Polish`)
 **Feature CI:** run `31575076430` — **SUCCESS**
 **Fresh main CI:** run `31575209778` — **SUCCESS**
+**Closure commit:** `d650141210b19712b4f02044b29409bc4fbefaec`
+**Post-closure CI:** run `31575450421` — **SUCCESS**
 **Validation:** [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_VALIDATION_LOG.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_VALIDATION_LOG.md); planning log [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_PLANNING_VALIDATION_LOG.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_PLANNING_VALIDATION_LOG.md)
 **Evidence:** [OTL6_IMPLEMENTATION_EVIDENCE.md](OTL6_IMPLEMENTATION_EVIDENCE.md)
 **Implementation branch:** `feature/otl6-final-operator-lifecycle-polish` (merged)
