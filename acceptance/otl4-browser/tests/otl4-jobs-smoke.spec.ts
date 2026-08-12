@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { loginWithCookies } from '../helpers/login';
-import { f10Language } from '../helpers/env';
+import { F10_LANGUAGE, loadCredentials } from '../helpers/env';
 
 test.describe('OTL.4 Jobs integration smoke', () => {
 	test('operations detail exposes Jobs section and Jobs tab deep-link', async ({
 		page,
 	}) => {
-		await loginWithCookies(page);
-		const language = f10Language();
+		await loginWithCookies(page, loadCredentials());
+		const language = F10_LANGUAGE;
 		await page.goto(
 			`/wp-admin/admin.php?page=aiml-translator&view=operations&language=${encodeURIComponent(
 				language
