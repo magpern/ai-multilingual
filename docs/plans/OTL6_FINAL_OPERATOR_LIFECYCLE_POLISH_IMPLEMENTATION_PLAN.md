@@ -95,12 +95,13 @@ Leave clears Ops URL (language leaks); remount loses filters (A2). Jobs URL writ
 
 **Freeze mechanism:**
 
-1. Shared helper / Modal path for all in-panel leave/replace decisions.
-2. App-owned `requestViewChange(next)` / Open-in handlers gated by a panel-registered leave guard ref (`() => boolean`), registered while Operations is mounted and cleared on unmount.
-3. **Do not** duplicate independent dirty policy across App / Panel / Inspector.
-4. **`beforeunload` remains a separate browser-level guard** in OperationsPanel.
-5. **OTL.5 A6 `dirtyBlocksBulk` remains orthogonal and unchanged**.
-6. **No durable draft store**; no keep-mounted-hidden panel to preserve dirty text across tabs.
+1. Shared dirty-leave **admission API** used by all leave/replace decisions (in-panel and App-level). Because ConfirmDialog is a WP Modal, admission is **async** (`Promise<boolean>` / confirm-then-continue) — not a sync `window.confirm` boolean.
+2. App-owned `requestViewChange(next)` / Open-in handlers consult a panel-registered dirty predicate (e.g. `isOperationsDirty(): boolean`). If dirty, App (or a shared helper) opens the shared ConfirmDialog and proceeds only on confirm; if clean, proceeds immediately. Registration is cleared on Operations unmount.
+3. In-panel close / row-switch / refresh call the **same** shared admission helper (same ConfirmDialog), not a second policy.
+4. **Do not** duplicate independent dirty policy across App / Panel / Inspector.
+5. **`beforeunload` remains a separate browser-level guard** in OperationsPanel (sync browser dialog; not the Modal path).
+6. **OTL.5 A6 `dirtyBlocksBulk` remains orthogonal and unchanged**.
+7. **No durable draft store**; no keep-mounted-hidden panel to preserve dirty text across tabs.
 
 ### A2 — Operations context ownership
 
@@ -127,7 +128,7 @@ Leave clears Ops URL (language leaks); remount loses filters (A2). Jobs URL writ
 
 **Disposition:** Do **not** widen OTL.6 with Jobs Store enrichment. **OP15 = Partial / Deferred** (continue JI50). No heuristic client identity; no `active_lock_key`; no unbounded lookup; no new policy.
 
-**Contrast:** Review→Ops (OP13/OP14) **Supported** — `Store::query_review_queue` uses `SELECT *` + hydrate (includes `translation_id`); additive ViewModel field is serializer-only.
+**Contrast:** Review→Ops (OP13/OP14) **Supported** — `Store::query_review_queue` uses `SELECT *` + hydrate (includes `translation_id`); additive ViewModel field is serializer-only. Operations URL `language` is a **code**; Review UI already resolves `language_id → code` via existing `languageCodeForId(languages, …)` — OTL.6 uses that client mapping with `translation_id` (no required new `language_code` REST field).
 
 **Bulk result → Jobs** (OP16) **Supported**.
 
@@ -216,7 +217,7 @@ Replace Operations `window.confirm` call sites.
 Do **not** rewrite `ReviewDecisionDialog` or `JobActionConfirmDialog`.  
 Single publish gains the same Modal confirm (parent §29 higher-risk tier).
 
-Dirty-leave uses the **same** ConfirmDialog via the **centralized admission path (A1)**.
+Dirty-leave uses the **same** ConfirmDialog via the **centralized async admission path (A1)** — App tab/Open-in leaves and in-panel close/row/refresh share one decision surface. `beforeunload` remains the separate browser-native path.
 
 ---
 
@@ -285,7 +286,7 @@ Neutrality: no Biopentra/site strings; extend PluginGuard to TS workspace source
 | OP1 | Shared accessible ConfirmDialog for Operations consequential actions | Supported |
 | OP2 | Replace all Operations `window.confirm` | Supported |
 | OP3 | Confirm single publish (higher-risk tier) | Supported |
-| OP4 | Single shared in-app dirty-leave admission (App gate + panel guard); all tab/Open-in/close/row/refresh paths | Supported |
+| OP4 | Single shared **async** in-app dirty-leave admission (App gate + panel dirty predicate + ConfirmDialog); all tab/Open-in/close/row/refresh paths | Supported |
 | OP5 | `beforeunload` remains separate browser guard | Supported |
 | OP6 | OTL.5 A6 `dirtyBlocksBulk` unchanged / orthogonal | Supported |
 | OP7 | Session-only Ops nav snapshot on leave; clear URL including `language`; hydrate on remount | Supported |
@@ -320,12 +321,12 @@ Neutrality: no Biopentra/site strings; extend PluginGuard to TS workspace source
 **AC6** No remaining Operations `window.confirm` for the above consequential paths.
 
 ### Dirty-leave (A1)
-**AC7** One shared in-app dirty-leave admission mechanism (App gate + panel-registered guard).  
+**AC7** One shared async in-app dirty-leave admission mechanism (panel dirty predicate + ConfirmDialog; App `requestViewChange` gated).  
 **AC8** Leaving Operations via workspace tab change admits/denies through that mechanism.  
 **AC9** Open-in-Translate admits/denies through that mechanism.  
 **AC10** Open-in-Review admits/denies through that mechanism.  
 **AC11** Open-in-Jobs admits/denies through that mechanism.  
-**AC12** Detail close, other-row switch, and detail refresh use the same admission path.  
+**AC12** Detail close, other-row switch, and detail refresh use the same admission path (not a second policy).  
 **AC13** No durable draft store; dirty draft is not preserved across tabs by hidden mount.  
 **AC14** OTL.5 A6 `dirtyBlocksBulk` behavior unchanged (regression).
 
@@ -335,7 +336,7 @@ Neutrality: no Biopentra/site strings; extend PluginGuard to TS workspace source
 **AC17** While on Jobs/Translate/Review, Ops-specific params do not remain as canonical URL pollution.  
 **AC18** Returning to Operations remount hydrates from session snapshot (when present) then rewrites Ops URL.  
 **AC19** Selection and bulk results remain non-persistent across unmount.  
-**AC20** Cold deep-link with `view=operations` still hydrates from URL when no/overridden session snapshot rules apply as frozen.
+**AC20** Cold load / shared deep-link with `view=operations` hydrates from URL; in-SPA return to Operations prefers session snapshot when present, then rewrites Ops URL.
 
 ### Honesty / presentation
 **AC21** List publish_status is human-labeled (not raw-only).  
@@ -347,7 +348,7 @@ Neutrality: no Biopentra/site strings; extend PluginGuard to TS workspace source
 
 ### Navigation
 **AC27** Review queue exposes `translation_id` when present on Store row.  
-**AC28** Review → Operations detail deep-link works when `translation_id` is present.  
+**AC28** Review → Operations detail deep-link works when `translation_id` is present (language code via existing client `languageCodeForId`).  
 **AC29** Operations → Jobs navigation retained.  
 **AC30** Bulk result `job_id` can open Jobs tab deep-link.  
 **AC31** Jobs → Operations deep-link is **not required** for OTL.6 PASS (OP15 Partial).
