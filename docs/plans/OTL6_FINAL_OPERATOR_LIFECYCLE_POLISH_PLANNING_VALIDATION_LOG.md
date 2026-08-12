@@ -11,7 +11,7 @@
 | Planning baseline main HEAD | `78c56d3c4bba154fe73f54269ae8f0243658849d` |
 | Planning branch | `docs/otl6-final-operator-lifecycle-polish-planning-freeze` |
 | Materialization HEAD | `f2769c7be648b908bc7304fa197f7585a1e33465` |
-| Final reviewed planning HEAD | *(set after this review-fix commit)* |
+| Final reviewed planning HEAD | `66a0f405242798f594377e3bf52f3d06348f3179` |
 | External freeze review | **PASS** (STATE A — FREEZE; A1–A4) |
 | Independent planning review | **PASS** |
 | Review fixes | See below |
