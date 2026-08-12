@@ -13,7 +13,7 @@
 | Baseline drift | None; `main` == `origin/main` at branch creation |
 | Planning branch | `docs/tsc1-first-class-taxonomy-terms-planning-freeze` |
 | Materialization commit | `d1c467c3081fd781ebe8d533d9587d00434d57c1` |
-| Final reviewed planning HEAD | _(this tip after review-fix commit)_ |
+| Final reviewed planning HEAD | `0a0d0b57c396ae74788fb03c7c821adf71d60bd7` |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 (eight amendments) |
 | Independent planning review | **PASS** |
 | Review fixes | Gap-lock note for absent native; WP VARCHAR(32) citation; FE guard honesty; parent §6 retirement wording aligned to ADR-0021 |
