@@ -35,13 +35,15 @@ final class RegisteredMetaRegistryTest extends TestCase {
 		);
 		$this->assertSame( 'm:demo:subtitle', $def->native_segment_key() );
 		$this->assertSame( RegisteredMetaDefinition::FIELD_KEY, RegisteredMetaDefinition::FIELD_KEY );
-		$this->assertFalse( ( new RegisteredMetaDefinition(
-			namespace: 'demo',
-			source_type: Store::SOURCE_POST,
-			meta_key: 'x',
-			segment_key_mode: RegisteredMetaDefinition::MODE_NATIVE_M,
-			label: 'X',
-		) )->provider_allowed );
+		$this->assertFalse(
+			( new RegisteredMetaDefinition(
+				namespace: 'demo',
+				source_type: Store::SOURCE_POST,
+				meta_key: 'x',
+				segment_key_mode: RegisteredMetaDefinition::MODE_NATIVE_M,
+				label: 'X',
+			) )->provider_allowed
+		);
 	}
 
 	public function test_rejects_wildcard_meta_key(): void {

@@ -1436,7 +1436,7 @@ final class Store {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$rows = $wpdb->get_col(
+		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT DISTINCT segment_key FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				. ' WHERE source_type = %s AND source_id = %d',
@@ -1446,8 +1446,8 @@ final class Store {
 		);
 
 		$out = array();
-		foreach ( (array) $rows as $key ) {
-			$key = (string) $key;
+		foreach ( (array) $rows as $row ) {
+			$key = (string) ( $row->segment_key ?? '' );
 			if ( '' !== $key ) {
 				$out[] = $key;
 			}
