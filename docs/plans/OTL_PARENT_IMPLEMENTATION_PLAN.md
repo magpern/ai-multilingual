@@ -1,6 +1,6 @@
 # Operator Translation Lifecycle (OTL) — Parent Program Architecture Plan
 
-**Status:** Architecture Frozen — program roadmap (on `main`)
+**Status:** **OTL program COMPLETE** on `main` (OTL.0–OTL.6 Complete)
 **Program:** Operator Translation Lifecycle (OTL)
 **Plan freeze:** Canonical program architecture for milestones **OTL.0–OTL.6**; orchestration and presentation over frozen TIQ services; public/SaaS neutrality; Deferred boundaries
 **ADR assessment:** **No new ADR required** for this program freeze. A future milestone must **STOP** for ADR review if it proposes durable composite operator state, new permissions/role architecture, new public Integration API contract, new persistent query architecture, or changed review/publication ownership.
@@ -11,13 +11,13 @@
 **Depends on:** AI Multilingual **v1.2.0** released; **TIQ Complete** (TQ.0–TI.7); `Migrator::TARGET` **7**; Integration API v1 unchanged
 **Related:** [adr/0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md); [adr/0019-evidence-based-risk-assessment.md](../adr/0019-evidence-based-risk-assessment.md); [adr/0020-controlled-auto-publication-and-frontend-gate.md](../adr/0020-controlled-auto-publication-and-frontend-gate.md); [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md); [STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md](STRATEGY_F_F10_TRANSLATOR_WORKSPACE.md); [REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md](REVIEW_WORKFLOW_IMPLEMENTATION_PLAN.md); [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md); [TEST_STRATEGY.md](../TEST_STRATEGY.md)
 
-**Operational success:** Operators can complete find → understand state/risk → review/edit → approve/reject → publish/unpublish → verify using one coherent lifecycle, without inventing a second translator, Store, QA engine, assessment policy, publication policy, or Jobs engine.
+**Operational success:** Operators can complete find → inspect/risk → edit/review → publish → verify/navigation → Jobs/bulk follow-up using one coherent lifecycle, without inventing a second translator, Store, QA engine, assessment policy, publication policy, or Jobs engine.
 
 **This plan is the program architecture contract for OTL (OTL.0–OTL.6).** Do not implement production code under OTL until the relevant milestone plan is Architecture Frozen on `main`. Each milestone receives its own definitive planning freeze before implementation. This document freezes program boundaries, invariants, gates, and Deferred items — not detailed OTL.0 work packages.
 
-**Production implementation status:** **OTL.0 Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`). **OTL.1 Complete** on `main` (merge `466eb6a470b2ea48b949bc05e0717afbc6600fc3`). **OTL.2 Complete** on `main` (merge `060649d9a8cf20c3698f9ed145d29c8d20d67143`). **OTL.3 Complete** on `main` (merge `77fc39da5d9b30d204e5a0c04e318a463ad39484`). **OTL.4 Complete** on `main` (merge `6e77687f6ebbb000372f68d699fba33c71489704`). **OTL.5 Complete** on `main` (merge `ed8dbd8f095cf17e2d3031777f763012f65f5663`). **OTL.6** Architecture Frozen planning lifecycle (see [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md)); production implementation **not started**. TSC remains not started.
+**Production implementation status:** **OTL.0 Complete** · **OTL.1 Complete** · **OTL.2 Complete** · **OTL.3 Complete** · **OTL.4 Complete** · **OTL.5 Complete** · **OTL.6 Complete** on `main` (merge `d302c9640cb4f9d950400af1fcbb5fe4ae1ce39f`). **OTL program COMPLETE.** TSC remains not started.
 
-**Next:** After OTL.6 planning freeze + closure on `main`, run the combined **OTL.6 Final Operator Lifecycle Polish implementation** + independent implementation review + merge + milestone/program closure from the frozen OTL.6 plan. Do not start Translation Surface Coverage (TSC) under OTL.
+**Next:** Make an explicit post-OTL roadmap decision from the closed OTL main baseline. TSC remains a separate site-neutral candidate and must not be started implicitly.
 
 ---
 
@@ -757,7 +757,7 @@ This parent is Architecture Frozen on `main` (freeze merge `9a31176f0147d726b251
 
 **OTL.0 Foundations** is **Complete** on `main` (merge `13e68f9d51ca5a4a0a8704ed048cf51e3eec3d3a`; plan freeze `9b922222564da4f3294e36188de992c1384c630c`). See [OTL0_FOUNDATIONS_VALIDATION_LOG.md](OTL0_FOUNDATIONS_VALIDATION_LOG.md).
 
-Exact next step: after OTL.6 Architecture Frozen + planning closure on `main`, run the combined **OTL.6 Final Operator Lifecycle Polish implementation** + independent implementation review + merge + milestone/program closure from the frozen plan ([OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md)). Do not start TSC under OTL. Do not create the OTL.6 implementation branch until planning freeze/closure is complete.
+Exact next step: Make an explicit post-OTL roadmap decision from the closed OTL main baseline (`d302c9640cb4f9d950400af1fcbb5fe4ae1ce39f` + closure). TSC remains a separate site-neutral candidate and must not be started implicitly.
 
 ---
 

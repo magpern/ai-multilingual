@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Post-v1.2.0 Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **OTL.6** Final Operator Lifecycle Polish — Architecture Frozen planning ([`plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md`](plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md)). Do **not** implement OTL.6 production code until the combined implementation task begins. Do not start TSC under OTL. **OTL.0–OTL.5 Complete**. OTL parent Architecture Frozen (freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`). **v1.2.0 released** (tag `v1.2.0`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**.
+**Current next decision:** Make an explicit **post-OTL** roadmap decision from the closed OTL main baseline. **OTL program COMPLETE** (OTL.0–OTL.6). Do not start TSC implicitly — TSC remains a separate site-neutral candidate. OTL parent Complete ([`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md)). **v1.2.0 released** (tag `v1.2.0`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**.
 
 ---
 
@@ -42,7 +42,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). **OTL.0–OTL.5 Complete.** **OTL.6** Final Operator Lifecycle Polish — Architecture Frozen ([`plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md`](plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md)); production implementation not started. |
+| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). **OTL program COMPLETE** (OTL.0–OTL.6). Final polish: [`plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md`](plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md). |
 
 **Released:** AI Multilingual **v1.2.0** (tag `v1.2.0`). **v1.1.0** remains the prior intentional release. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. `Migrator::TARGET` is **7**.
 

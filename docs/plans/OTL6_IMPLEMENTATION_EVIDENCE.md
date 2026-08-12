@@ -1,10 +1,15 @@
 # OTL.6 Implementation Evidence
 
-**Branch:** `feature/otl6-final-operator-lifecycle-polish`
+**Branch:** `feature/otl6-final-operator-lifecycle-polish` (merged)
 **Baseline main:** `986902f5dc8ed1790c5346d5b70e70b2dc5ee818`
+**Final reviewed feature HEAD:** `4a55cf4884ae5cf3dc17c6f631198df871bbbfc3`
+**Implementation merge:** `d302c9640cb4f9d950400af1fcbb5fe4ae1ce39f`
+**Feature CI:** `31575076430` SUCCESS
+**Fresh main CI:** `31575209778` SUCCESS
 **Frozen plan:** `docs/plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md`
 **Freeze merge:** `7e4bdd7e1e750abdd143ce10ba865437b15ea1f0`
 **Version:** 1.2.0 · **TARGET:** 7 · **ADR:** none · **TSC:** not started
+**AC:** 52/52 PASS · **OP15:** Partial retained
 
 ## Work packages
 
