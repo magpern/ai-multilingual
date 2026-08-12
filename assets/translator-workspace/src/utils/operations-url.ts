@@ -108,12 +108,17 @@ export function writeOperationsUrlState( state: {
 	window.history.replaceState( {}, '', next );
 }
 
+/**
+ * Clear Operations-owned URL keys when leaving Operations (OTL.6 A2).
+ * Includes `language` so Jobs/Review/Translate URLs are not polluted.
+ */
 export function clearOperationsViewFromUrl(): void {
 	if ( typeof window === 'undefined' ) {
 		return;
 	}
 	const params = new URLSearchParams( window.location.search );
 	params.delete( 'view' );
+	params.delete( 'language' );
 	params.delete( 'attention' );
 	params.delete( 'page_num' );
 	params.delete( 'status' );

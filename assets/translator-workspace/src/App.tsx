@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { Button, Notice, Panel, PanelBody } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -40,7 +40,18 @@ import {
 	detailConflictMessage,
 	detailConflictStatusMessage,
 } from './utils/detail-conflict';
-import { readOperationsUrlState, clearOperationsViewFromUrl } from './utils/operations-url';
+import { useConfirmDialog } from './hooks/useConfirmDialog';
+import { dirtyLeaveConfirmMessage } from './utils/detail-dirty';
+import {
+	clearOperationsSession,
+	stashOperationsSession,
+	type OperationsNavSnapshot,
+} from './utils/operations-session';
+import {
+	readOperationsUrlState,
+	clearOperationsViewFromUrl,
+	writeOperationsUrlState,
+} from './utils/operations-url';
 import {
 	clearJobsViewFromUrl,
 	readJobsUrlState,
@@ -287,6 +298,51 @@ export default function App() {
 	useEffect( () => {
 		loadSegments();
 	}, [ loadSegments ] );
+
+	const dirtyGuardRef = useRef< ( () => boolean ) | null >( null );
+	const navSnapshotRef = useRef< ( () => OperationsNavSnapshot ) | null >(
+		null
+	);
+	const { requestConfirm, confirmDialog } = useConfirmDialog();
+
+	const requestLeaveOperations = useCallback( async (): Promise< boolean > => {
+		if ( 'operations' !== viewMode ) {
+			return true;
+		}
+		const isDirty = dirtyGuardRef.current?.() ?? false;
+		if ( isDirty ) {
+			const confirmed = await requestConfirm( {
+				title: __( 'Unsaved changes', 'ai-multilingual' ),
+				message: dirtyLeaveConfirmMessage(),
+				confirmLabel: __( 'Discard and continue', 'ai-multilingual' ),
+				isDestructive: true,
+			} );
+			if ( ! confirmed ) {
+				return false;
+			}
+		}
+		const snapshot = navSnapshotRef.current?.() ?? null;
+		if ( snapshot ) {
+			stashOperationsSession( snapshot );
+		}
+		clearOperationsViewFromUrl();
+		return true;
+	}, [ requestConfirm, viewMode ] );
+
+	const requestViewChange = useCallback(
+		async ( next: WorkspaceViewMode ) => {
+			if ( next === viewMode ) {
+				return;
+			}
+			if ( 'operations' === viewMode && 'operations' !== next ) {
+				if ( ! ( await requestLeaveOperations() ) ) {
+					return;
+				}
+			}
+			setViewMode( next );
+		},
+		[ requestLeaveOperations, viewMode ]
+	);
 
 	useEffect( () => {
 		if ( 'operations' !== viewMode ) {
@@ -860,7 +916,9 @@ export default function App() {
 							}
 							role="tab"
 							aria-selected={ viewMode === 'operations' }
-							onClick={ () => setViewMode( 'operations' ) }
+							onClick={ () => {
+								void requestViewChange( 'operations' );
+							} }
 						>
 							{ __( 'Operations', 'ai-multilingual' ) }
 						</Button>
@@ -870,7 +928,9 @@ export default function App() {
 							variant={ viewMode === 'editor' ? 'primary' : 'secondary' }
 							role="tab"
 							aria-selected={ viewMode === 'editor' }
-							onClick={ () => setViewMode( 'editor' ) }
+							onClick={ () => {
+								void requestViewChange( 'editor' );
+							} }
 						>
 							{ __( 'Translate', 'ai-multilingual' ) }
 						</Button>
@@ -880,7 +940,9 @@ export default function App() {
 							variant={ viewMode === 'queue' ? 'primary' : 'secondary' }
 							role="tab"
 							aria-selected={ viewMode === 'queue' }
-							onClick={ () => setViewMode( 'queue' ) }
+							onClick={ () => {
+								void requestViewChange( 'queue' );
+							} }
 						>
 							{ __( 'Review queue', 'ai-multilingual' ) }
 						</Button>
@@ -890,7 +952,9 @@ export default function App() {
 							variant={ viewMode === 'jobs' ? 'primary' : 'secondary' }
 							role="tab"
 							aria-selected={ viewMode === 'jobs' }
-							onClick={ () => setViewMode( 'jobs' ) }
+							onClick={ () => {
+								void requestViewChange( 'jobs' );
+							} }
 						>
 							{ __( 'Jobs', 'ai-multilingual' ) }
 						</Button>
@@ -1069,6 +1133,14 @@ export default function App() {
 					languages={ languages }
 					canTranslate={ canTranslate }
 					canReview={ canReview }
+					requestConfirm={ requestConfirm }
+					onRegisterDirtyGuard={ ( guard ) => {
+						dirtyGuardRef.current = guard;
+					} }
+					onRegisterNavSnapshot={ ( getter ) => {
+						navSnapshotRef.current = getter;
+					} }
+					onRequestLeaveOperations={ requestLeaveOperations }
 					onOpenInTranslate={ ( openPostId, openLanguageCode ) => {
 						if ( canTranslate ) {
 							setViewMode( 'editor' );
@@ -1118,6 +1190,20 @@ export default function App() {
 						}
 						setPostId( openPostId );
 					} }
+					onOpenInOperations={
+						canAccessOperations
+							? ( translationId, languageCode ) => {
+									clearOperationsSession();
+									writeOperationsUrlState( {
+										language: languageCode || '',
+										attention: 'all',
+										pageNum: 1,
+										translationId,
+									} );
+									setViewMode( 'operations' );
+							  }
+							: undefined
+					}
 				/>
 			) }
 
@@ -1132,6 +1218,7 @@ export default function App() {
 				/>
 			) }
 
+			{ confirmDialog }
 			{ reviewDialog && (
 				<ReviewDecisionDialog
 					action={ reviewDialog.action }
