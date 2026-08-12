@@ -12,7 +12,7 @@
 | Baseline drift | None |
 | Planning branch | `docs/tsc0-internal-surface-capability-foundation-planning-freeze` |
 | Materialization commit | `52324bdb2b8ca5b41179a699ce9ef73f68dc99c1` |
-| Final reviewed planning HEAD | *(this tip)* |
+| Final reviewed planning HEAD | `e376dd37670186276067489b51d32620ecac6e2a` |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 |
 | Independent planning review | **PASS** |
 | Review fixes | Documented shutdown-primary flush (meta often updates after `save_post`); STATE A mechanism refinement preserving AC18/AC19/AC36 |
