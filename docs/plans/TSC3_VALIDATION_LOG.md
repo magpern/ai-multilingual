@@ -24,8 +24,8 @@
 | Review fixes | `bdeac1415`, `153e74466` |
 | Merge SHA | `d7a7545d2b64ee188058ada8acfed8fefd5b1dea` |
 | Fresh main CI | run `31644551374` — **SUCCESS** |
-| Closure commit | `e7ceb81c6e4f88ad601c334149dea6f5a0b60f45` |
-| Final main HEAD | `e7ceb81c6e4f88ad601c334149dea6f5a0b60f45` |
+| Closure commit | `e7c849c75317a52e66408e2e6927d6eaadaefd64` |
+| Final main HEAD | `e7c849c75317a52e66408e2e6927d6eaadaefd64` |
 | Version | **1.3.0** |
 | TARGET | **7** |
 | Schema | STATE A — no migration |
