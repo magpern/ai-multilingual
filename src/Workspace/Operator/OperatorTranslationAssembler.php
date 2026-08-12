@@ -100,7 +100,7 @@ final class OperatorTranslationAssembler {
 	 */
 	public function assemble_list_item( object $row ): array {
 		$post  = $this->post_for_row( $row );
-		$caps  = AllowedActionsResolver::capability_flags( null, $post );
+		$caps  = AllowedActionsResolver::capability_flags( null, $post, $row );
 		$links = $this->links_for_row( $row, $post, false );
 		$lang  = $this->languages->find( (int) $row->language_id );
 
@@ -147,8 +147,8 @@ final class OperatorTranslationAssembler {
 			return new WP_Error( 'aiml_source_missing', __( 'Source object not found.', 'ai-multilingual' ), array( 'status' => 404 ) );
 		}
 
-		$caps = AllowedActionsResolver::capability_flags( null, $post );
-		if ( $post instanceof WP_Post && empty( $caps['can_edit_source'] ) ) {
+		$caps = AllowedActionsResolver::capability_flags( null, $post, $row );
+		if ( empty( $caps['can_edit_source'] ) ) {
 			return new WP_Error( 'aiml_forbidden', __( 'You cannot access this translation.', 'ai-multilingual' ), array( 'status' => 403 ) );
 		}
 
@@ -306,6 +306,21 @@ final class OperatorTranslationAssembler {
 	}
 
 	/**
+	 * Term edit screen link for a term-backed row.
+	 *
+	 * @param object $row Store row.
+	 */
+	private function term_edit_link( object $row ): ?string {
+		if ( ! function_exists( 'get_edit_term_link' ) ) {
+			return null;
+		}
+
+		$link = get_edit_term_link( (int) ( $row->source_id ?? 0 ), (string) ( $row->source_subtype ?? '' ) );
+
+		return is_string( $link ) && '' !== $link ? $link : null;
+	}
+
+	/**
 	 * Builds navigation links for a translation row.
 	 *
 	 * @param object       $row          Row.
@@ -321,6 +336,10 @@ final class OperatorTranslationAssembler {
 		);
 
 		if ( ! ( $post instanceof WP_Post ) ) {
+			if ( Store::SOURCE_TERM === (string) ( $row->source_type ?? '' ) ) {
+				$links['edit_link'] = $this->term_edit_link( $row );
+			}
+
 			return $links;
 		}
 

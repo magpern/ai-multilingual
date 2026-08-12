@@ -497,14 +497,25 @@ final class JobsCli {
 	 * @param object $job Job row.
 	 */
 	private static function assert_post_scope( object $job ): void {
-		if ( Store::SOURCE_POST !== (string) $job->source_type ) {
+		$source_type = (string) $job->source_type;
+		$source_id   = (int) $job->source_id;
+		$user_id     = (int) get_current_user_id();
+
+		if ( Store::SOURCE_POST === $source_type ) {
+			if ( ! user_can( $user_id, 'edit_post', $source_id ) ) {
+				WP_CLI::error( 'Current user lacks edit_post on job source.' );
+			}
 			return;
 		}
 
-		$user_id = (int) get_current_user_id();
-		if ( ! user_can( $user_id, 'edit_post', (int) $job->source_id ) ) {
-			WP_CLI::error( 'Current user lacks edit_post on job source.' );
+		if ( Store::SOURCE_TERM === $source_type ) {
+			if ( ! user_can( $user_id, 'edit_term', $source_id ) ) {
+				WP_CLI::error( 'Current user lacks edit_term on job source.' );
+			}
+			return;
 		}
+
+		WP_CLI::error( 'Unsupported job source type for CLI scope check.' );
 	}
 
 	/**

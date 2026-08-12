@@ -95,18 +95,18 @@ final class BackgroundTranslationItemProcessor {
 	/**
 	 * Process one job item through the existing translation pipeline.
 	 *
-	 * @param object  $job            Job row.
-	 * @param object  $item           Item row.
-	 * @param WP_Post $post           Canonical post.
-	 * @param bool    $allow_provider When false, TM/skip/conflict only — no provider call.
+	 * @param object       $job            Job row.
+	 * @param object       $item           Item row.
+	 * @param WP_Post|null $post           Canonical post when source_type is post.
+	 * @param bool         $allow_provider When false, TM/skip/conflict only — no provider call.
 	 * @return ItemResult
 	 */
-	public function process( object $job, object $item, WP_Post $post, bool $allow_provider = true ): ItemResult {
+	public function process( object $job, object $item, ?WP_Post $post = null, bool $allow_provider = true ): ItemResult {
 		$language_id = (int) $job->language_id;
 		$segment_key = (string) $item->segment_key;
 		$job_type    = (string) $job->job_type;
 		$source_type = (string) ( $job->source_type ?? Store::SOURCE_POST );
-		$source_id   = (int) ( $job->source_id ?? $post->ID );
+		$source_id   = (int) ( $job->source_id ?? ( $post instanceof WP_Post ? $post->ID : 0 ) );
 
 		if ( null !== $this->surfaces ) {
 			$surface = $this->surfaces->for( $source_type );
@@ -122,6 +122,19 @@ final class BackgroundTranslationItemProcessor {
 			if ( Store::STATUS_IGNORED === $status || 'orphaned' === $error_code ) {
 				return ItemResult::skipped_conflict( 'Authoritative Store state is ignored/orphaned; not provider-processed.' );
 			}
+		}
+
+		if ( Store::SOURCE_TERM === $source_type ) {
+			return $this->process_term_item( $job, $item, $row, $allow_provider );
+		}
+
+		if ( ! $post instanceof WP_Post ) {
+			return ItemResult::from_error(
+				ItemStatuses::FAILED,
+				'aiml_invalid_source',
+				ProviderResult::ERROR_PERMANENT,
+				'Job source post is required for post-typed work.'
+			);
 		}
 
 		$assembled = $this->assembler->assemble_one( $post, $language_id, $segment_key );
@@ -162,6 +175,75 @@ final class BackgroundTranslationItemProcessor {
 		// success (same path as sync). Jobs must not duplicate or own policy.
 
 		return ItemResult::completed( $glossary_version, $usage );
+	}
+
+	/**
+	 * Term-typed job item path (TSC.1).
+	 *
+	 * @param object      $job            Job row.
+	 * @param object      $item           Item row.
+	 * @param object|null $row            Existing Store row.
+	 * @param bool        $allow_provider Provider permission.
+	 */
+	private function process_term_item( object $job, object $item, ?object $row, bool $allow_provider ): ItemResult {
+		$language_id = (int) $job->language_id;
+		$segment_key = (string) $item->segment_key;
+		$job_type    = (string) $job->job_type;
+		$term_id     = (int) $job->source_id;
+
+		$surface = null !== $this->surfaces ? $this->surfaces->for( Store::SOURCE_TERM ) : null;
+		if ( null === $surface ) {
+			return ItemResult::skipped_conflict( 'Term surface is not registered.' );
+		}
+
+		$segments = $surface->extract_segments( $term_id );
+		$unit     = $segments[ $segment_key ] ?? null;
+		if ( ! is_array( $unit ) ) {
+			return ItemResult::from_error(
+				ItemStatuses::FAILED,
+				'aiml_invalid_segment',
+				ProviderResult::ERROR_PERMANENT,
+				'Unknown segment key for this term.'
+			);
+		}
+
+		$current_source_hash = Store::source_hash(
+			(string) ( $unit['source_text'] ?? '' ),
+			(string) ( $unit['text_format'] ?? Store::FORMAT_PLAIN )
+		);
+		$captured_source     = (string) ( $item->source_hash_captured ?? '' );
+
+		if ( '' !== $captured_source && $current_source_hash !== $captured_source ) {
+			return ItemResult::stale_source();
+		}
+
+		$conflict = $this->evaluate_conflict(
+			$row,
+			$job_type,
+			(string) ( $item->translation_hash_captured ?? '' )
+		);
+		if ( null !== $conflict ) {
+			return $conflict;
+		}
+
+		if ( ! $allow_provider ) {
+			return ItemResult::skipped_conflict( 'Provider calls are not allowed in this wake.' );
+		}
+
+		$result = $this->translation->translate_term_segment(
+			$term_id,
+			$surface->source_subtype( $term_id ),
+			$language_id,
+			$segment_key,
+			true
+		);
+		$usage = $this->last_attempt_usage();
+
+		if ( $result instanceof WP_Error ) {
+			return $this->map_translate_error( $result, $usage );
+		}
+
+		return ItemResult::completed( $this->glossary->current_version(), $usage );
 	}
 
 	/**

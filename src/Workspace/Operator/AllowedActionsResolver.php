@@ -434,13 +434,14 @@ final class AllowedActionsResolver {
 	}
 
 	/**
-	 * Builds capability flags for the current user and optional post.
+	 * Builds capability flags for the current user and optional source.
 	 *
 	 * @param int|null     $user_id User id (null = current).
-	 * @param WP_Post|null $post Post when source is a post.
+	 * @param WP_Post|null $post    Post when source is a post.
+	 * @param object|null  $row     Store row, for surfaces that are not posts.
 	 * @return array{can_translate: bool, can_review: bool, can_edit_source: bool, can_view_jobs: bool, can_run_jobs: bool, can_cancel_jobs: bool}
 	 */
-	public static function capability_flags( ?int $user_id = null, ?WP_Post $post = null ): array {
+	public static function capability_flags( ?int $user_id = null, ?WP_Post $post = null, ?object $row = null ): array {
 		$user_id = $user_id ?? get_current_user_id();
 
 		$can_translate = user_can( $user_id, Plugin::CAPABILITY );
@@ -448,6 +449,8 @@ final class AllowedActionsResolver {
 		$can_edit      = true;
 		if ( $post instanceof WP_Post ) {
 			$can_edit = user_can( $user_id, 'edit_post', (int) $post->ID );
+		} elseif ( null !== $row ) {
+			$can_edit = self::can_edit_non_post_source( $user_id, $row );
 		}
 
 		return array(
@@ -458,5 +461,27 @@ final class AllowedActionsResolver {
 			'can_run_jobs'    => user_can( $user_id, JobsCapabilities::RUN_JOBS ),
 			'can_cancel_jobs' => user_can( $user_id, JobsCapabilities::CANCEL_JOBS ),
 		);
+	}
+
+	/**
+	 * Source-edit permission for a row whose source is not a post.
+	 *
+	 * Each surface owns its own capability — a term answers `edit_term`, not
+	 * `edit_post` — so the registry decides. An unregistered source type has no
+	 * safe default: `true` would hand out edit rights nobody checked.
+	 *
+	 * @param int    $user_id Acting user id.
+	 * @param object $row     Store row.
+	 */
+	private static function can_edit_non_post_source( int $user_id, object $row ): bool {
+		$source_type = (string) ( $row->source_type ?? '' );
+
+		if ( '' === $source_type || Store::SOURCE_POST === $source_type ) {
+			return true;
+		}
+
+		$surface = null !== self::$surfaces ? self::$surfaces->for( $source_type ) : null;
+
+		return null !== $surface && $surface->user_can_edit_source( $user_id, (int) ( $row->source_id ?? 0 ) );
 	}
 }

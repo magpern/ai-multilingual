@@ -17,7 +17,9 @@ use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Publication\PublicationService;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermAdoptionService;
 use AIMultilingual\Jobs\BackgroundTranslationJobService;
 use AIMultilingual\Workspace\Operator\AllowedActionsResolver;
 use AIMultilingual\Workspace\Operator\OperationsBulkCoordinator;
@@ -174,6 +176,13 @@ final class WorkspaceService {
 	private ?OperatorTranslationAssembler $operator = null;
 
 	/**
+	 * TSC.1 hosted-to-native term adoption (content writes only).
+	 *
+	 * @var TermAdoptionService|null
+	 */
+	private ?TermAdoptionService $term_adoption;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param SegmentAssembler               $assembler           Segment assembly.
@@ -191,6 +200,8 @@ final class WorkspaceService {
 	 * @param AssessmentAssembler|null       $assessment          Optional TI.5 assessment core.
 	 * @param FieldSemanticMapper|null       $field_semantic_mapper Optional FieldSemantic mapper.
 	 * @param PublicationService|null        $publication         Optional TI.7 publication service.
+	 * @param SurfaceRegistry|null           $surfaces            Optional surface registry (TSC.0).
+	 * @param TermAdoptionService|null       $term_adoption       Optional TSC.1 term adoption service.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -207,7 +218,9 @@ final class WorkspaceService {
 		?ReviewDiagnosticsCounters $review_diagnostics = null,
 		?AssessmentAssembler $assessment = null,
 		?FieldSemanticMapper $field_semantic_mapper = null,
-		?PublicationService $publication = null
+		?PublicationService $publication = null,
+		?SurfaceRegistry $surfaces = null,
+		?TermAdoptionService $term_adoption = null
 	) {
 		$this->assembler             = $assembler;
 		$this->status_calculator     = $status_calculator;
@@ -224,9 +237,10 @@ final class WorkspaceService {
 		$this->assessment            = $assessment ?? new AssessmentAssembler();
 		$this->field_semantic_mapper = $field_semantic_mapper ?? new FieldSemanticMapper();
 		$this->publication           = $publication;
+		$this->term_adoption         = $term_adoption;
 		$this->batch                 = new BatchOperationCoordinator( $this, $translation );
 		$this->review_batch          = new ReviewBatchCoordinator( $this );
-		$this->operations_bulk       = new OperationsBulkCoordinator( $this, $store, $publication );
+		$this->operations_bulk       = new OperationsBulkCoordinator( $this, $store, $publication, null, $surfaces );
 	}
 
 	/**
@@ -581,19 +595,22 @@ final class WorkspaceService {
 		}
 
 		$result = $this->store->save_translation(
-			array(
-				'source_type'     => Store::SOURCE_POST,
-				'source_id'       => (int) $post->ID,
-				'source_subtype'  => (string) $post->post_type,
-				'language_id'     => $language_id,
-				'field_key'       => (string) ( $current['field_key'] ?? '' ),
-				'segment_key'     => $segment_key,
-				'segment_kind'    => (string) ( $current['segment_kind'] ?? Store::KIND_BLOCK ),
-				'segment_order'   => (int) ( $current['segment_order'] ?? 0 ),
-				'text_format'     => (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN ),
-				'source_text'     => (string) ( $current['source_text'] ?? '' ),
-				'translated_text' => $translated_text,
-				'status'          => $save_status,
+			array_merge(
+				array(
+					'source_type'     => Store::SOURCE_POST,
+					'source_id'       => (int) $post->ID,
+					'source_subtype'  => (string) $post->post_type,
+					'language_id'     => $language_id,
+					'field_key'       => (string) ( $current['field_key'] ?? '' ),
+					'segment_key'     => $segment_key,
+					'segment_kind'    => (string) ( $current['segment_kind'] ?? Store::KIND_BLOCK ),
+					'segment_order'   => (int) ( $current['segment_order'] ?? 0 ),
+					'text_format'     => (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN ),
+					'source_text'     => (string) ( $current['source_text'] ?? '' ),
+					'translated_text' => $translated_text,
+					'status'          => $save_status,
+				),
+				$this->term_write_identity( Store::SOURCE_POST, (int) $post->ID, $language_id, $segment_key )
 			)
 		);
 
@@ -617,6 +634,35 @@ final class WorkspaceService {
 		$with_meta = $this->attach_meta( array( $refreshed ), $language_id );
 
 		return $with_meta[0];
+	}
+
+	/**
+	 * Identity a content write must target when the segment holds a term field.
+	 *
+	 * Editing a hosted compatibility row is a content write, so the field is
+	 * adopted first and the save lands on the term identity — otherwise the
+	 * edit would live on a row the resolver has already stopped treating as
+	 * authoritative. Returns nothing for ordinary post segments.
+	 *
+	 * @param string $source_type Address source type.
+	 * @param int    $source_id   Address source id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Address segment key.
+	 * @return array<string, mixed>
+	 * @throws \InvalidArgumentException When adoption fails.
+	 */
+	private function term_write_identity( string $source_type, int $source_id, int $language_id, string $segment_key ): array {
+		if ( null === $this->term_adoption ) {
+			return array();
+		}
+
+		$identity = $this->term_adoption->native_write_identity( $source_type, $source_id, $language_id, $segment_key );
+
+		if ( $identity instanceof WP_Error ) {
+			throw new \InvalidArgumentException( esc_html( $identity->get_error_message() ) );
+		}
+
+		return $identity;
 	}
 
 	/**

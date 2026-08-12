@@ -15,6 +15,8 @@ use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\AI\FieldSemantic;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermCompatRef;
+use AIMultilingual\Translation\TermTranslationResolver;
 use WP_Error;
 use WP_Post;
 
@@ -32,6 +34,7 @@ final class PublicationService {
 	 * @param PublicationAuditLogger $audit      Bounded audit logger.
 	 * @param Settings|null          $settings   Plugin settings.
 	 * @param SurfaceRegistry|null   $surfaces   Optional surface registry for visibility facts.
+	 * @param TermTranslationResolver|null $terms Optional term address resolver (TSC.1).
 	 */
 	public function __construct(
 		private Store $store,
@@ -40,6 +43,7 @@ final class PublicationService {
 		private PublicationAuditLogger $audit,
 		private ?Settings $settings = null,
 		private ?SurfaceRegistry $surfaces = null,
+		private ?TermTranslationResolver $terms = null,
 	) {
 		$this->settings = $settings ?? new Settings();
 	}
@@ -65,6 +69,11 @@ final class PublicationService {
 		array $scaffolding_markers = array(),
 		?bool $markers_applicable = null
 	) {
+		$term_ref = $this->term_ref( $source_type, $source_id, $language_id, $segment_key );
+		if ( null !== $term_ref ) {
+			[ $source_type, $source_id, $segment_key ] = $this->authoritative_address( $term_ref, $source_type, $source_id, $segment_key );
+		}
+
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
 			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );

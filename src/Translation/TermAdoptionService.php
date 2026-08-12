@@ -92,6 +92,64 @@ final class TermAdoptionService {
 	}
 
 	/**
+	 * Term reference behind a Store address, or null when it is not a term field.
+	 *
+	 * @param string $source_type Stored source type.
+	 * @param int    $source_id   Stored source id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Stored segment key.
+	 */
+	public function ref_for_store_address( string $source_type, int $source_id, int $language_id, string $segment_key ): ?TermCompatRef {
+		return $this->resolver()->ref_for_store_address( $source_type, $source_id, $segment_key, $language_id );
+	}
+
+	/**
+	 * Guarantees the native identity is authoritative before a content write.
+	 *
+	 * @param TermCompatRef $ref Identity reference.
+	 * @return true|WP_Error
+	 */
+	public function ensure_native_for_ref( TermCompatRef $ref ) {
+		return $this->ensure_native_before_content_write(
+			$ref->term_id,
+			$ref->taxonomy,
+			$ref->language_id,
+			$ref->logical_field
+		);
+	}
+
+	/**
+	 * Adopts a term field and returns the identity a content write must target.
+	 *
+	 * The single entry point for write paths that address segments by
+	 * `(source_type, source_id, segment_key)`: they get either nothing to change
+	 * (the common non-term case), or the native identity columns to write
+	 * instead of the hosted ones. Adoption has already happened by then, so the
+	 * write cannot create a second live copy of the translation.
+	 *
+	 * @param string $source_type Address source type.
+	 * @param int    $source_id   Address source id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Address segment key.
+	 * @return array<string, mixed>|WP_Error Identity overrides, empty when not a term field.
+	 */
+	public function native_write_identity( string $source_type, int $source_id, int $language_id, string $segment_key ) {
+		$ref = $this->ref_for_store_address( $source_type, $source_id, $language_id, $segment_key );
+
+		if ( null === $ref ) {
+			return array();
+		}
+
+		$adopted = $this->ensure_native_for_ref( $ref );
+
+		if ( $adopted instanceof WP_Error ) {
+			return $adopted;
+		}
+
+		return $ref->to_native_identity();
+	}
+
+	/**
 	 * Guarantees the native identity is authoritative before a content write.
 	 *
 	 * Content writes (manual save, retranslate persist, provider persist) must

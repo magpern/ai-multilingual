@@ -12,6 +12,9 @@ namespace AIMultilingual\Workspace\Operator;
 use AIMultilingual\Jobs\BackgroundTranslationJobService;
 use AIMultilingual\Jobs\JobTypes;
 use AIMultilingual\Plugin;
+use AIMultilingual\Surface\SurfaceCapability;
+use AIMultilingual\Surface\SurfaceCapabilityNames;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\WorkspaceService;
@@ -71,23 +74,33 @@ final class OperationsBulkCoordinator {
 	private ?BackgroundTranslationJobService $jobs;
 
 	/**
+	 * Surface registry for source facts and authorization (TSC.0).
+	 *
+	 * @var SurfaceRegistry|null
+	 */
+	private ?SurfaceRegistry $surfaces;
+
+	/**
 	 * Builds the coordinator.
 	 *
 	 * @param WorkspaceService                     $workspace   Workspace facade.
 	 * @param Store                                $store       Translation store.
 	 * @param PublicationService|null              $publication TI.7 service.
 	 * @param BackgroundTranslationJobService|null $jobs        TI.6 job service.
+	 * @param SurfaceRegistry|null                 $surfaces    Surface registry.
 	 */
 	public function __construct(
 		WorkspaceService $workspace,
 		Store $store,
 		?PublicationService $publication = null,
-		?BackgroundTranslationJobService $jobs = null
+		?BackgroundTranslationJobService $jobs = null,
+		?SurfaceRegistry $surfaces = null
 	) {
 		$this->workspace   = $workspace;
 		$this->store       = $store;
 		$this->publication = $publication;
 		$this->jobs        = $jobs;
+		$this->surfaces    = $surfaces;
 	}
 
 	/**
@@ -231,18 +244,18 @@ final class OperationsBulkCoordinator {
 				continue;
 			}
 
-			$access = $this->assert_post_access( $row );
+			$access = $this->assert_source_access( $row );
 			if ( $access instanceof WP_Error ) {
 				$item_map[ $tid ] = $this->from_access_error( $tid, $access );
 				continue;
 			}
 
-			if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+			if ( ! $this->source_supports_jobs( $row ) ) {
 				$item_map[ $tid ] = $this->item_result(
 					$tid,
 					self::OUTCOME_BLOCKED,
 					'aiml_mutation_unsupported_type',
-					__( 'Only post-backed translations can be retranslated.', 'ai-multilingual' )
+					__( 'This translation source cannot be retranslated in the background.', 'ai-multilingual' )
 				);
 				continue;
 			}
@@ -360,7 +373,7 @@ final class OperationsBulkCoordinator {
 			return $this->from_resolve_error( $tid, $row );
 		}
 
-		$access = $this->assert_post_access( $row );
+		$access = $this->assert_source_access( $row );
 		if ( $access instanceof WP_Error ) {
 			return $this->from_access_error( $tid, $access );
 		}
@@ -406,7 +419,7 @@ final class OperationsBulkCoordinator {
 			return $this->from_resolve_error( $tid, $row );
 		}
 
-		$access = $this->assert_post_access( $row );
+		$access = $this->assert_source_access( $row );
 		if ( $access instanceof WP_Error ) {
 			return $this->from_access_error( $tid, $access );
 		}
@@ -517,12 +530,16 @@ final class OperationsBulkCoordinator {
 	}
 
 	/**
-	 * Per-item post edit + translate capability check.
+	 * Per-item source existence + edit capability check.
+	 *
+	 * Any registered surface that declares MUTATE may be bulk-mutated; the
+	 * surface answers existence and authorization, so a term is checked with
+	 * `edit_term` rather than being refused for not being a post.
 	 *
 	 * @param object $row Store row.
 	 * @return true|WP_Error
 	 */
-	private function assert_post_access( object $row ) {
+	private function assert_source_access( object $row ) {
 		if ( ! current_user_can( Plugin::CAPABILITY ) ) {
 			return new WP_Error(
 				'aiml_capability_denied',
@@ -531,17 +548,81 @@ final class OperationsBulkCoordinator {
 			);
 		}
 
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		$source_type = (string) ( $row->source_type ?? '' );
+		$source_id   = (int) ( $row->source_id ?? 0 );
+		$surface     = $this->surface_for( $source_type, SurfaceCapabilityNames::MUTATE );
+
+		if ( null === $surface ) {
+			return $this->assert_legacy_post_access( $source_type, $source_id );
+		}
+
+		if ( ! $surface->exists( $source_id ) ) {
+			return new WP_Error(
+				'aiml_source_missing',
+				__( 'Source object not found.', 'ai-multilingual' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( ! $surface->user_can_edit_source( 0, $source_id ) ) {
+			return new WP_Error(
+				'aiml_source_access_denied',
+				__( 'You cannot edit this source object.', 'ai-multilingual' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Whether the row's source can carry background translation work.
+	 *
+	 * @param object $row Store row.
+	 */
+	private function source_supports_jobs( object $row ): bool {
+		$source_type = (string) ( $row->source_type ?? '' );
+
+		if ( null === $this->surfaces ) {
+			return Store::SOURCE_POST === $source_type;
+		}
+
+		return null !== $this->surface_for( $source_type, SurfaceCapabilityNames::JOBS );
+	}
+
+	/**
+	 * Registered surface declaring a capability, or null.
+	 *
+	 * @param string $source_type Source type.
+	 * @param string $capability  Capability name.
+	 */
+	private function surface_for( string $source_type, string $capability ): ?SurfaceCapability {
+		if ( null === $this->surfaces ) {
+			return null;
+		}
+
+		$surface = $this->surfaces->for( $source_type );
+
+		return null !== $surface && $surface->supports( $capability ) ? $surface : null;
+	}
+
+	/**
+	 * Post-only access path for callers that run without a wired registry.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @return true|WP_Error
+	 */
+	private function assert_legacy_post_access( string $source_type, int $source_id ) {
+		if ( Store::SOURCE_POST !== $source_type ) {
 			return new WP_Error(
 				'aiml_mutation_unsupported_type',
-				__( 'Only post-backed translations support this mutation.', 'ai-multilingual' ),
+				__( 'This translation source does not support this mutation.', 'ai-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
 
-		$post_id = (int) ( $row->source_id ?? 0 );
-		$post    = get_post( $post_id );
-		if ( ! $post instanceof WP_Post ) {
+		if ( ! get_post( $source_id ) instanceof WP_Post ) {
 			return new WP_Error(
 				'aiml_source_missing',
 				__( 'Source post not found.', 'ai-multilingual' ),
@@ -549,7 +630,7 @@ final class OperationsBulkCoordinator {
 			);
 		}
 
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		if ( ! current_user_can( 'edit_post', $source_id ) ) {
 			return new WP_Error(
 				'aiml_source_access_denied',
 				__( 'You cannot edit this source post.', 'ai-multilingual' ),

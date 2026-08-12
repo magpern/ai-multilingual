@@ -124,6 +124,98 @@ final class TermTranslationResolver {
 	}
 
 	/**
+	 * Term reference behind one concrete Store address, when it holds a term field.
+	 *
+	 * Callers that start from a stored row — OTL, review, publication, Jobs —
+	 * know a `(source_type, source_id, segment_key)` triple, not a logical term
+	 * field. This translates one into the other so the authority lock and the
+	 * adoption trigger share the resolver's view of where a term field lives
+	 * instead of re-deriving it. Returns null for everything that is not a term
+	 * field, which is the common case.
+	 *
+	 * @param string $source_type Stored source type.
+	 * @param int    $source_id   Stored source id.
+	 * @param string $segment_key Stored segment key.
+	 * @param int    $language_id Language id.
+	 */
+	public function ref_for_store_address( string $source_type, int $source_id, string $segment_key, int $language_id ): ?TermCompatRef {
+		if ( Store::SOURCE_TERM === $source_type ) {
+			return $this->compat_ref( $source_id, $this->taxonomy_of( $source_id ), $segment_key, $language_id );
+		}
+
+		if ( Store::SOURCE_POST !== $source_type ) {
+			return null;
+		}
+
+		$hosted = $this->term_field_for_segment_key( $segment_key );
+		if ( null === $hosted ) {
+			return null;
+		}
+
+		$taxonomy = '' !== $hosted['taxonomy'] ? $hosted['taxonomy'] : $this->taxonomy_of( $hosted['term_id'] );
+
+		$ref = $this->compat_ref( $hosted['term_id'], $taxonomy, $hosted['logical_field'], $language_id );
+
+		// A key that would be hosted somewhere else is not this row's term
+		// field; remapping it would move a write onto an unrelated identity.
+		if ( null === $ref || $ref->hosted_source_id !== $source_id ) {
+			return null;
+		}
+
+		return $ref;
+	}
+
+	/**
+	 * Term field a hosted compatibility segment key stands for.
+	 *
+	 * @param string $segment_key Stored segment key.
+	 * @return array{term_id: int, taxonomy: string, logical_field: string}|null
+	 */
+	public function term_field_for_segment_key( string $segment_key ): ?array {
+		if ( ! $this->is_plugin_key( $segment_key ) ) {
+			return null;
+		}
+
+		$parsed = $this->identity()->parse( $segment_key );
+		if ( ! is_array( $parsed ) ) {
+			return null;
+		}
+
+		$integration = (string) $parsed['integration_id'];
+		$owner_type  = (string) $parsed['owner_type'];
+		$owner_id    = (string) $parsed['owner_id'];
+		$field       = (string) $parsed['field'];
+
+		if ( ! ctype_digit( $owner_id ) || (int) $owner_id <= 0 ) {
+			return null;
+		}
+
+		if (
+			WooCommerceIntegration::ID === $integration
+			&& in_array( $owner_type, self::SHOP_HOSTED_TAXONOMIES, true )
+			&& in_array( $field, array( TermExtractor::FIELD_NAME, TermExtractor::FIELD_DESCRIPTION ), true )
+		) {
+			return array(
+				'term_id'       => (int) $owner_id,
+				'taxonomy'      => $owner_type,
+				'logical_field' => $field,
+			);
+		}
+
+		if ( RankMathIntegration::ID === $integration && RankMathIntegration::OWNER_TERM === $owner_type ) {
+			// Rank Math term SEO keeps its segment key through adoption, so the
+			// key itself is the logical field.
+			return array(
+				'term_id'       => (int) $owner_id,
+				'taxonomy'      => '',
+				'logical_field' => $segment_key,
+			);
+		}
+
+		return null;
+	}
+
+	/**
 	 * Builds the native and hosted addresses of one logical term field.
 	 *
 	 * @param int    $term_id       Term id.
@@ -173,6 +265,21 @@ final class TermTranslationResolver {
 			$hosted_source_id > 0 ? Contract::FIELD_KEY : '',
 			$hosted_segment_key
 		);
+	}
+
+	/**
+	 * Taxonomy of a term, or '' when it cannot be read.
+	 *
+	 * @param int $term_id Term id.
+	 */
+	private function taxonomy_of( int $term_id ): string {
+		if ( $term_id <= 0 || ! function_exists( 'get_term' ) ) {
+			return '';
+		}
+
+		$term = get_term( $term_id );
+
+		return is_object( $term ) && isset( $term->taxonomy ) ? (string) $term->taxonomy : '';
 	}
 
 	/**

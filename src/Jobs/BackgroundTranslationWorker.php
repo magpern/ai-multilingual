@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Jobs;
 
+use AIMultilingual\Translation\Store;
 use WP_Error;
 use WP_Post;
 
@@ -235,6 +236,22 @@ final class BackgroundTranslationWorker {
 
 		$post = get_post( (int) $job->source_id );
 		if ( ! $post instanceof WP_Post ) {
+			$source_type = (string) ( $job->source_type ?? '' );
+			if ( \AIMultilingual\Translation\Store::SOURCE_TERM === $source_type ) {
+				$term = function_exists( 'get_term' ) ? get_term( (int) $job->source_id ) : null;
+				if ( ! is_object( $term ) || ( function_exists( 'is_wp_error' ) && is_wp_error( $term ) ) ) {
+					$this->leases->release( $job_id, $owner_token );
+
+					return new WP_Error( 'source_not_found', 'Job source term no longer exists.' );
+				}
+
+				try {
+					return $this->process_items( $job_id, $owner_token, $job, null );
+				} finally {
+					$this->leases->release( $job_id, $owner_token );
+				}
+			}
+
 			$this->leases->release( $job_id, $owner_token );
 
 			return new WP_Error( 'source_not_found', 'Job source post no longer exists.' );
@@ -250,13 +267,13 @@ final class BackgroundTranslationWorker {
 	/**
 	 * Item processing loop for one wake.
 	 *
-	 * @param int     $job_id      Job id.
-	 * @param string  $owner_token Lease owner.
-	 * @param object  $job         Job row.
-	 * @param WP_Post $post        Source post.
+	 * @param int          $job_id      Job id.
+	 * @param string       $owner_token Lease owner.
+	 * @param object       $job         Job row.
+	 * @param WP_Post|null $post        Source post when source_type is post.
 	 * @return object|WP_Error
 	 */
-	private function process_items( int $job_id, string $owner_token, object $job, WP_Post $post ) {
+	private function process_items( int $job_id, string $owner_token, object $job, ?WP_Post $post ) {
 		$processed = 0;
 
 		while ( $processed < self::MAX_ITEMS_PER_WAKE ) {

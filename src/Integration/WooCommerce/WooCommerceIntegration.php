@@ -597,6 +597,9 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		if ( ! is_string( $description ) ) {
 			return $description;
 		}
+		if ( $this->is_non_visitor_term_overlay_context() ) {
+			return $description;
+		}
 		$term_id = (int) $term_id;
 		if ( $term_id <= 0 ) {
 			return $description;
@@ -624,6 +627,32 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			return wp_kses_post( $translated );
 		}
 		return $translated;
+	}
+
+	/**
+	 * Hard visitor guards for term_description overlays (TSC.1).
+	 */
+	private function is_non_visitor_term_overlay_context(): bool {
+		if ( function_exists( 'is_admin' ) && is_admin() ) {
+			return true;
+		}
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return true;
+		}
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			return true;
+		}
+		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+			return true;
+		}
+		if ( function_exists( 'is_feed' ) && is_feed() ) {
+			return true;
+		}
+		if ( function_exists( 'is_embed' ) && is_embed() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
