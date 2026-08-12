@@ -140,7 +140,7 @@ final class Tsc1TermAdoptionIntegrationTest extends AimlTestCase {
 		$ref = $this->term_resolver->compat_ref( $term_id, 'product_cat', 'name', (int) $language->language_id );
 		$this->assertNotNull( $ref );
 
-		$seen = null;
+		$seen   = null;
 		$result = $this->store->mutate_under_term_compat_authority(
 			$ref->to_store_ref(),
 			static function ( string $source_type, int $source_id, int $language_id, string $segment_key, object $row ) use ( &$seen ) {

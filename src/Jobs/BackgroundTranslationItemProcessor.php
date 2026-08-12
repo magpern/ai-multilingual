@@ -237,7 +237,7 @@ final class BackgroundTranslationItemProcessor {
 			$segment_key,
 			true
 		);
-		$usage = $this->last_attempt_usage();
+		$usage  = $this->last_attempt_usage();
 
 		if ( $result instanceof WP_Error ) {
 			return $this->map_translate_error( $result, $usage );

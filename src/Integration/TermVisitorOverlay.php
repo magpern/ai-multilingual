@@ -21,8 +21,8 @@ final class TermVisitorOverlay {
 	/**
 	 * Builds the overlay.
 	 *
-	 * @param TermTranslationResolver $resolver Term resolver.
-	 * @param callable(string): (?string) $resolve Legacy bridge resolve (optional unused).
+	 * @param TermTranslationResolver $resolver    Term resolver.
+	 * @param int                     $language_id Active visitor language id.
 	 */
 	public function __construct(
 		private TermTranslationResolver $resolver,

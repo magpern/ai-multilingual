@@ -64,6 +64,13 @@ final class AimlUnitWpdb {
 	private ?int $snapshot_next_id = null;
 
 	/**
+	 * Savepoint snapshots keyed by name.
+	 *
+	 * @var array<string, array{rows: array<int, array<string, mixed>>, next_id: int}>
+	 */
+	private array $savepoints = array();
+
+	/**
 	 * Clears all rows.
 	 */
 	public function reset(): void {
@@ -72,6 +79,7 @@ final class AimlUnitWpdb {
 		$this->in_transaction   = false;
 		$this->snapshot         = null;
 		$this->snapshot_next_id = null;
+		$this->savepoints       = array();
 		$this->last_error       = '';
 	}
 
@@ -132,19 +140,19 @@ final class AimlUnitWpdb {
 
 		return (string) preg_replace_callback(
 			'/%[sdfF]/',
-			static function ( array $match ) use ( &$i, $args ): string {
+			static function ( array $token ) use ( &$i, $args ): string {
 				$value = $args[ $i ] ?? null;
 				++$i;
 
-				if ( '%d' === $match[0] ) {
+				if ( '%d' === $token[0] ) {
 					return (string) (int) $value;
 				}
 
-				if ( '%f' === $match[0] || '%F' === $match[0] ) {
+				if ( '%f' === $token[0] || '%F' === $token[0] ) {
 					return (string) (float) $value;
 				}
 
-				return "'" . str_replace( array( "\\", "'" ), array( '\\\\', "''" ), (string) $value ) . "'";
+				return "'" . str_replace( array( '\\', "'" ), array( '\\\\', "''" ), (string) $value ) . "'";
 			},
 			(string) $query
 		);
@@ -163,6 +171,7 @@ final class AimlUnitWpdb {
 			$this->snapshot         = $this->rows;
 			$this->snapshot_next_id = $this->next_id;
 			$this->in_transaction   = true;
+			$this->savepoints       = array();
 
 			return true;
 		}
@@ -171,6 +180,7 @@ final class AimlUnitWpdb {
 			$this->in_transaction   = false;
 			$this->snapshot         = null;
 			$this->snapshot_next_id = null;
+			$this->savepoints       = array();
 
 			return true;
 		}
@@ -183,13 +193,43 @@ final class AimlUnitWpdb {
 			$this->in_transaction   = false;
 			$this->snapshot         = null;
 			$this->snapshot_next_id = null;
+			$this->savepoints       = array();
 
 			return true;
 		}
 
-		if ( preg_match( '/^INSERT\s+INTO\s+(\S+)\s*\(([^)]+)\)\s*VALUES\s*\((.+)\)\s*$/is', $sql, $match ) ) {
-			$columns = array_map( 'trim', explode( ',', $match[2] ) );
-			$values  = $this->split_values( $match[3] );
+		if ( preg_match( '/^SAVEPOINT\s+`([^`]+)`\s*$/i', $sql, $token ) ) {
+			$this->savepoints[ $token[1] ] = array(
+				'rows'    => $this->rows,
+				'next_id' => $this->next_id,
+			);
+
+			return true;
+		}
+
+		if ( preg_match( '/^RELEASE\s+SAVEPOINT\s+`([^`]+)`\s*$/i', $sql, $token ) ) {
+			unset( $this->savepoints[ $token[1] ] );
+
+			return true;
+		}
+
+		if ( preg_match( '/^ROLLBACK\s+TO\s+SAVEPOINT\s+`([^`]+)`\s*$/i', $sql, $token ) ) {
+			$point = $this->savepoints[ $token[1] ] ?? null;
+			if ( null === $point ) {
+				$this->last_error = 'unknown savepoint';
+
+				return false;
+			}
+			$this->rows    = $point['rows'];
+			$this->next_id = $point['next_id'];
+			unset( $this->savepoints[ $token[1] ] );
+
+			return true;
+		}
+
+		if ( preg_match( '/^INSERT\s+INTO\s+(\S+)\s*\(([^)]+)\)\s*VALUES\s*\((.+)\)\s*$/is', $sql, $token ) ) {
+			$columns = array_map( 'trim', explode( ',', $token[2] ) );
+			$values  = $this->split_values( $token[3] );
 
 			if ( count( $columns ) !== count( $values ) ) {
 				$this->last_error = 'column/value count mismatch';
@@ -305,8 +345,14 @@ final class AimlUnitWpdb {
 	 * @return mixed
 	 */
 	public function get_var( $sql = null ) {
-		if ( preg_match( '/SHOW TABLES LIKE\s+\'([^\']+)\'/i', (string) $sql, $match ) ) {
-			return $match[1] === $this->prefix . 'aiml_translations' ? $match[1] : null;
+		$sql = (string) $sql;
+
+		if ( preg_match( '/@@SESSION\.in_transaction/i', $sql ) ) {
+			return $this->in_transaction ? 1 : 0;
+		}
+
+		if ( preg_match( '/SHOW TABLES LIKE\s+\'([^\']+)\'/i', $sql, $token ) ) {
+			return $token[1] === $this->prefix . 'aiml_translations' ? $token[1] : null;
 		}
 
 		$row = $this->get_row( $sql );
@@ -323,9 +369,9 @@ final class AimlUnitWpdb {
 	/**
 	 * Updates matching rows.
 	 *
-	 * @param string               $table  Table name.
-	 * @param array<string, mixed> $data   Columns to set.
-	 * @param array<string, mixed> $where  WHERE map.
+	 * @param string                       $table        Table name.
+	 * @param array<string, mixed>         $data         Columns to set.
+	 * @param array<string, mixed>         $where        WHERE map.
 	 * @param array<int, string|null>|null $format       Unused.
 	 * @param array<int, string>|null      $where_format Unused.
 	 * @return int|false
@@ -348,8 +394,8 @@ final class AimlUnitWpdb {
 	/**
 	 * Deletes matching rows.
 	 *
-	 * @param string               $table        Table name.
-	 * @param array<string, mixed> $where        WHERE map.
+	 * @param string                  $table        Table name.
+	 * @param array<string, mixed>    $where        WHERE map.
 	 * @param array<int, string>|null $where_format Unused.
 	 * @return int|false
 	 */
@@ -371,10 +417,13 @@ final class AimlUnitWpdb {
 	/**
 	 * Filters stored rows.
 	 *
-	 * @param callable(array<string, mixed>): bool $predicate Predicate.
+	 * @param array $predicate Predicate callable receiving a row array.
 	 * @return list<object>
 	 */
-	private function filter_rows( callable $predicate ): array {
+	private function filter_rows( $predicate ): array { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint -- Callable row filter.
+		if ( ! is_callable( $predicate ) ) {
+			return array();
+		}
 		$out = array();
 		foreach ( $this->rows as $row ) {
 			if ( $predicate( $row ) ) {
@@ -397,7 +446,7 @@ final class AimlUnitWpdb {
 				return false;
 			}
 
-			// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- Match WP $wpdb->update semantics.
+			// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison,Universal.Operators.StrictComparisons.LooseNotEqual -- Match WP $wpdb->update semantics.
 			if ( $row[ $column ] != $value ) {
 				return false;
 			}
@@ -424,7 +473,7 @@ final class AimlUnitWpdb {
 			if ( "'" === $char ) {
 				$prev = $i > 0 ? $values[ $i - 1 ] : '';
 				if ( ! $in_str ) {
-					$in_str = true;
+					$in_str   = true;
 					$current .= $char;
 					continue;
 				}

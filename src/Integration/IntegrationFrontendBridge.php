@@ -178,7 +178,9 @@ final class IntegrationFrontendBridge {
 				return $this->posts_page_source_id();
 			}
 			if ( AdmittedTaxonomies::admits( $taxonomy ) ) {
-				return $this->shop_page_source_id() ?: $this->posts_page_source_id();
+				$shop = $this->shop_page_source_id();
+
+				return $shop > 0 ? $shop : $this->posts_page_source_id();
 			}
 		}
 

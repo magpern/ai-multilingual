@@ -62,19 +62,19 @@ final class Tsc1AdoptionRaceTest extends TestCase {
 		$GLOBALS['aiml_unit_terms']                   = array();
 		AdmittedTaxonomies::reset_for_tests();
 
-		$term           = new WP_Term();
-		$term->term_id  = self::TERM_ID;
-		$term->taxonomy = 'product_cat';
-		$term->name     = 'Shoes';
-		$term->description = 'Footwear';
+		$term                                        = new WP_Term();
+		$term->term_id                               = self::TERM_ID;
+		$term->taxonomy                              = 'product_cat';
+		$term->name                                  = 'Shoes';
+		$term->description                           = 'Footwear';
 		$GLOBALS['aiml_unit_terms'][ self::TERM_ID ] = $term;
 
-		$this->wpdb              = new AimlUnitWpdb();
-		$GLOBALS['wpdb']         = $this->wpdb;
-		$this->cache             = new Cache();
-		$this->store             = new Store( $this->cache );
-		$this->resolver          = new TermTranslationResolver( $this->store );
-		$this->adoption          = new TermAdoptionService( $this->store, new TermExtractor(), $this->resolver );
+		$this->wpdb      = new AimlUnitWpdb();
+		$GLOBALS['wpdb'] = $this->wpdb;
+		$this->cache     = new Cache();
+		$this->store     = new Store( $this->cache );
+		$this->resolver  = new TermTranslationResolver( $this->store );
+		$this->adoption  = new TermAdoptionService( $this->store, new TermExtractor(), $this->resolver );
 	}
 
 	protected function tearDown(): void {
@@ -96,13 +96,13 @@ final class Tsc1AdoptionRaceTest extends TestCase {
 		$hosted_id = $this->seed_hosted(
 			'p:woocommerce:product_cat:7:name',
 			array(
-				'translated_text'  => 'Skor',
-				'review_status'    => Store::REVIEW_APPROVED,
-				'publish_status'   => Store::PUBLISH_PUBLISHED,
-				'published_at'     => '2026-01-01 00:00:00',
-				'published_by'     => 3,
+				'translated_text'            => 'Skor',
+				'review_status'              => Store::REVIEW_APPROVED,
+				'publish_status'             => Store::PUBLISH_PUBLISHED,
+				'published_at'               => '2026-01-01 00:00:00',
+				'published_by'               => 3,
 				'submitted_translation_hash' => Store::translation_hash( 'Skor' ),
-				'translation_hash' => Store::translation_hash( 'Skor' ),
+				'translation_hash'           => Store::translation_hash( 'Skor' ),
 			)
 		);
 

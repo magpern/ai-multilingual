@@ -1563,7 +1563,11 @@ final class Store {
 			return $normalized;
 		}
 
-		$wpdb->query( 'START TRANSACTION' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		// Nesting under an outer transaction (PHPUnit, or a caller that already
+		// opened one) must use SAVEPOINT. A nested START TRANSACTION / COMMIT
+		// implicitly commits the outer unit in MySQL/MariaDB and would leak
+		// writes across tests and caller scopes.
+		$boundary = $this->begin_term_compat_boundary();
 
 		$committed = false;
 
@@ -1598,7 +1602,7 @@ final class Store {
 				return $result;
 			}
 
-			$wpdb->query( 'COMMIT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+			$this->commit_term_compat_boundary( $boundary );
 			$committed = true;
 
 			return $result;
@@ -1608,9 +1612,73 @@ final class Store {
 			// Exceptions keep propagating; a half-applied adoption would be a
 			// worse outcome than a visible failure.
 			if ( ! $committed ) {
-				$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+				$this->rollback_term_compat_boundary( $boundary );
 			}
 		}
+	}
+
+	/**
+	 * Opens a transaction or savepoint for term compatibility authority work.
+	 *
+	 * @return array{mode: string, name: string}
+	 */
+	private function begin_term_compat_boundary(): array {
+		global $wpdb;
+
+		$in_transaction = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare( 'SELECT @@SESSION.in_transaction WHERE %d = %d', 1, 1 ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+
+		if ( $in_transaction > 0 ) {
+			$name = 'aiml_tc_' . str_replace( '.', '', uniqid( '', true ) );
+			$wpdb->query( 'SAVEPOINT `' . $name . '`' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+			return array(
+				'mode' => 'savepoint',
+				'name' => $name,
+			);
+		}
+
+		$wpdb->query( 'START TRANSACTION' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+		return array(
+			'mode' => 'transaction',
+			'name' => '',
+		);
+	}
+
+	/**
+	 * Commits a term compatibility boundary opened by begin_term_compat_boundary.
+	 *
+	 * @param array{mode: string, name: string} $boundary Boundary descriptor.
+	 */
+	private function commit_term_compat_boundary( array $boundary ): void {
+		global $wpdb;
+
+		if ( 'savepoint' === $boundary['mode'] ) {
+			$wpdb->query( 'RELEASE SAVEPOINT `' . $boundary['name'] . '`' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+			return;
+		}
+
+		$wpdb->query( 'COMMIT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+	}
+
+	/**
+	 * Rolls back a term compatibility boundary opened by begin_term_compat_boundary.
+	 *
+	 * @param array{mode: string, name: string} $boundary Boundary descriptor.
+	 */
+	private function rollback_term_compat_boundary( array $boundary ): void {
+		global $wpdb;
+
+		if ( 'savepoint' === $boundary['mode'] ) {
+			$wpdb->query( 'ROLLBACK TO SAVEPOINT `' . $boundary['name'] . '`' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+			return;
+		}
+
+		$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 	}
 
 	/**

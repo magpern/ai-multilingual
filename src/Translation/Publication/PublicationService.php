@@ -28,12 +28,12 @@ final class PublicationService {
 	/**
 	 * Builds the publication service.
 	 *
-	 * @param Store                  $store      Translation store.
-	 * @param AssessmentAssembler    $assembler  TI.5 assessment assembler.
-	 * @param PublicationPolicy      $policy     Pure eligibility policy.
-	 * @param PublicationAuditLogger $audit      Bounded audit logger.
-	 * @param Settings|null          $settings   Plugin settings.
-	 * @param SurfaceRegistry|null   $surfaces   Optional surface registry for visibility facts.
+	 * @param Store                        $store      Translation store.
+	 * @param AssessmentAssembler          $assembler  TI.5 assessment assembler.
+	 * @param PublicationPolicy            $policy     Pure eligibility policy.
+	 * @param PublicationAuditLogger       $audit      Bounded audit logger.
+	 * @param Settings|null                $settings   Plugin settings.
+	 * @param SurfaceRegistry|null         $surfaces   Optional surface registry for visibility facts.
 	 * @param TermTranslationResolver|null $terms Optional term address resolver (TSC.1).
 	 */
 	public function __construct(

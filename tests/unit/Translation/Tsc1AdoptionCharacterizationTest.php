@@ -97,7 +97,7 @@ final class Tsc1AdoptionCharacterizationTest extends TestCase {
 		$this->assertNotFalse( $start );
 		$chunk = substr( $store, (int) $start, 900 );
 
-		$this->assertStringContainsString( "self::STATUS_IGNORED", $chunk );
+		$this->assertStringContainsString( 'self::STATUS_IGNORED', $chunk );
 		$this->assertStringContainsString( "'error_code'    => ''", $chunk );
 		$this->assertStringNotContainsString( 'orphaned', $chunk );
 	}

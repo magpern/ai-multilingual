@@ -445,8 +445,8 @@ if ( ! function_exists( 'wc_get_page_id' ) ) {
 
 if ( ! function_exists( 'current_time' ) ) {
 	/**
-	 * @param string    $type Type (mysql / timestamp).
-	 * @param int|bool  $gmt  GMT flag.
+	 * @param string   $type Type (mysql / timestamp).
+	 * @param int|bool $gmt  GMT flag.
 	 */
 	function current_time( $type, $gmt = 0 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		return 'mysql' === $type ? '2026-08-12 12:00:00' : time();
