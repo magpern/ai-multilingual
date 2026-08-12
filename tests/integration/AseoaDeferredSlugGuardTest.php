@@ -14,6 +14,7 @@ use AIMultilingual\Database\Schema;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermExtractor;
 use ReflectionClass;
 
 /**
@@ -25,10 +26,19 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 		$this->assertSame( 7, Migrator::TARGET );
 	}
 
-	public function test_store_has_no_source_term_constant(): void {
+	public function test_term_identity_exists_without_slug_translation(): void {
+		// TSC.1 / ADR-0021 introduced SOURCE_TERM deliberately. What A.SEOa
+		// deferred was translating the term *slug*, and that is still deferred:
+		// only name and description are extractable fields.
 		$ref = new ReflectionClass( Store::class );
-		$this->assertFalse( $ref->hasConstant( 'SOURCE_TERM' ) );
+		$this->assertTrue( $ref->hasConstant( 'SOURCE_TERM' ) );
+		$this->assertSame( 'term', Store::SOURCE_TERM );
 		$this->assertSame( 'post', Store::SOURCE_POST );
+
+		$this->assertSame(
+			array( TermExtractor::FIELD_NAME, TermExtractor::FIELD_DESCRIPTION ),
+			array_keys( TermExtractor::fields() )
+		);
 	}
 
 	public function test_store_has_no_reverse_translated_text_lookup_api(): void {

@@ -12,7 +12,7 @@ namespace AIMultilingual\Tests\Unit\Surface;
 use AIMultilingual\Block\BlockIdentityMigration;
 use AIMultilingual\Cache\Cache;
 use AIMultilingual\Surface\RequestLocalInvalidationCoordinator;
-use AIMultilingual\Translation\Extractor;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Store;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +28,7 @@ final class RequestLocalInvalidationCoordinatorTest extends TestCase {
 		BlockIdentityMigration::reset_for_tests();
 		$this->coordinator = new RequestLocalInvalidationCoordinator(
 			new Store( new Cache() ),
-			new Extractor()
+			new SurfaceRegistry()
 		);
 	}
 
@@ -46,8 +46,9 @@ final class RequestLocalInvalidationCoordinatorTest extends TestCase {
 	}
 
 	public function test_flush_coalesces_then_allows_a_new_dirty_cycle(): void {
-		// Non-post identities are accepted into the dirty set but skipped by sync_identity
-		// (no Store call). That lets us prove coalesce + flush without a WordPress DB.
+		// Unregistered identities are accepted into the dirty set but skipped by
+		// sync_identity (no Store call). That lets us prove coalesce + flush
+		// without a WordPress DB.
 		$this->coordinator->mark_dirty( 'term', 7 );
 		$this->coordinator->mark_dirty( 'term', 7 );
 		$this->assertSame( 1, $this->coordinator->dirty_count() );
@@ -94,8 +95,18 @@ final class RequestLocalInvalidationCoordinatorTest extends TestCase {
 	public function test_distinct_identities_remain_distinct_until_flush(): void {
 		$this->coordinator->mark_dirty( Store::SOURCE_POST, 1 );
 		$this->coordinator->mark_dirty( Store::SOURCE_POST, 2 );
-		$this->coordinator->mark_dirty( 'term', 1 );
+		$this->coordinator->mark_dirty( Store::SOURCE_TERM, 1 );
 
 		$this->assertSame( 3, $this->coordinator->dirty_count() );
+	}
+
+	public function test_flush_skips_source_types_no_surface_claims(): void {
+		$registry    = new SurfaceRegistry();
+		$coordinator = new RequestLocalInvalidationCoordinator( new Store( new Cache() ), $registry );
+
+		$coordinator->mark_dirty( 'attachment_meta', 4 );
+		$coordinator->flush();
+
+		$this->assertSame( 0, $coordinator->sync_count() );
 	}
 }

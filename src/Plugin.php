@@ -78,9 +78,11 @@ use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationDiagnostics;
 use AIMultilingual\Integration\IntegrationFrontendBridge;
 use AIMultilingual\Integration\IntegrationRegistry;
+use AIMultilingual\Integration\TermVisitorOverlay;
 use AIMultilingual\Surface\PostSurfaceAdapter;
 use AIMultilingual\Surface\RequestLocalInvalidationCoordinator;
 use AIMultilingual\Surface\SurfaceRegistry;
+use AIMultilingual\Surface\TermSurfaceAdapter;
 use AIMultilingual\Workspace\Operator\AllowedActionsResolver;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
@@ -129,6 +131,9 @@ use AIMultilingual\Translation\BlockTranslationSanitizer;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermAdoptionService;
+use AIMultilingual\Translation\TermExtractor;
+use AIMultilingual\Translation\TermTranslationResolver;
 use AIMultilingual\Workspace\QA\Checks\GlossaryTermCheck;
 use AIMultilingual\Workspace\QA\QAEngine;
 use AIMultilingual\Workspace\PreviewService;
@@ -336,15 +341,38 @@ final class Plugin {
 		) )->register();
 		( new ElementorCacheInvalidation( $elementor_detector, $elementor_compatibility, $settings, $context ) )->register();
 
+		$term_extractor = new TermExtractor();
+		$term_resolver  = new TermTranslationResolver( $store );
+		$term_adoption  = new TermAdoptionService( $store, $term_extractor, $term_resolver );
+
 		( new IntegrationFrontendBridge(
 			$settings,
 			$context,
 			$integration_registry,
 			$store,
-			$integration_diagnostics
+			$integration_diagnostics,
+			$term_resolver
 		) )->register();
 
-		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry );
+		add_action(
+			'wp',
+			static function () use ( $context, $term_resolver ): void {
+				if ( function_exists( 'is_admin' ) && is_admin() ) {
+					return;
+				}
+				if ( $context->is_default() ) {
+					return;
+				}
+				$language = $context->current();
+				if ( null === $language ) {
+					return;
+				}
+				( new TermVisitorOverlay( $term_resolver, (int) $language->language_id ) )->register();
+			},
+			6
+		);
+
+		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry, $term_extractor, $term_resolver );
 		$status_calculator = new TranslationStatusCalculator( $store );
 		$vault             = new CredentialVault();
 		$profiles          = new PromptProfileRegistry();
@@ -367,10 +395,13 @@ final class Plugin {
 		$publication_policy   = new PublicationPolicy();
 		$publication_audit    = new PublicationAuditLogger();
 		$surface_registry     = new SurfaceRegistry();
-		$post_surface         = new PostSurfaceAdapter( $this->settings );
+		$post_surface         = new PostSurfaceAdapter( $this->settings, $extractor );
+		$term_surface         = new TermSurfaceAdapter( $term_extractor );
 		$surface_registry->register( $post_surface );
-		$invalidation_coordinator = new RequestLocalInvalidationCoordinator( $store, $extractor );
+		$surface_registry->register( $term_surface );
+		$invalidation_coordinator = new RequestLocalInvalidationCoordinator( $store, $surface_registry );
 		$post_surface->register_invalidation_events( $invalidation_coordinator );
+		$term_surface->register_invalidation_events( $invalidation_coordinator );
 		$invalidation_coordinator->ensure_shutdown_hook();
 		AllowedActionsResolver::set_surface_registry( $surface_registry );
 
@@ -380,7 +411,8 @@ final class Plugin {
 			$publication_policy,
 			$publication_audit,
 			$this->settings,
-			$surface_registry
+			$surface_registry,
+			$term_resolver
 		);
 		$translation        = new TranslationService(
 			$store,
@@ -393,7 +425,8 @@ final class Plugin {
 			null,
 			$tm_lookup,
 			$tm_service,
-			$publication
+			$publication,
+			$term_adoption
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$suggestion_service = new TranslationSuggestionService(
@@ -408,7 +441,7 @@ final class Plugin {
 			! empty( $this->settings->get()['qa_block_on_error'] )
 		);
 		$qa_engine->register( new GlossaryTermCheck( $glossary_service ) );
-		$review    = new ReviewWorkflowService( $store );
+		$review    = new ReviewWorkflowService( $store, null, $term_resolver );
 		$workspace = new WorkspaceService(
 			$assembler,
 			$status_calculator,
@@ -424,7 +457,9 @@ final class Plugin {
 			null,
 			$assessment_assembler,
 			null,
-			$publication
+			$publication,
+			$surface_registry,
+			$term_adoption
 		);
 
 		$job_repo        = new BackgroundTranslationJobRepository();
@@ -498,7 +533,8 @@ final class Plugin {
 			$job_diagnostics,
 			$job_concurrency,
 			$assessment_assembler,
-			$assembler
+			$assembler,
+			$surface_registry
 		) )->register();
 
 		// OTL.5: Jobs must be available to Operations bulk enqueue after Jobs stack exists.

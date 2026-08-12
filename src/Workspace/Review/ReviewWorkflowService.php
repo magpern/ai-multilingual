@@ -10,6 +10,8 @@ declare( strict_types=1 );
 namespace AIMultilingual\Workspace\Review;
 
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermCompatRef;
+use AIMultilingual\Translation\TermTranslationResolver;
 use WP_Error;
 
 /**
@@ -52,14 +54,23 @@ final class ReviewWorkflowService {
 	private ReviewAuditLogger $audit;
 
 	/**
+	 * Sole term address resolver (TSC.1); null keeps pre-TSC.1 behavior.
+	 *
+	 * @var TermTranslationResolver|null
+	 */
+	private ?TermTranslationResolver $terms;
+
+	/**
 	 * Builds the service.
 	 *
-	 * @param Store                  $store Segment store.
-	 * @param ReviewAuditLogger|null $audit Audit logger.
+	 * @param Store                        $store Segment store.
+	 * @param ReviewAuditLogger|null       $audit Audit logger.
+	 * @param TermTranslationResolver|null $terms Term address resolver.
 	 */
-	public function __construct( Store $store, ?ReviewAuditLogger $audit = null ) {
+	public function __construct( Store $store, ?ReviewAuditLogger $audit = null, ?TermTranslationResolver $terms = null ) {
 		$this->store = $store;
 		$this->audit = $audit ?? new ReviewAuditLogger();
+		$this->terms = $terms;
 	}
 
 	/**
@@ -83,6 +94,11 @@ final class ReviewWorkflowService {
 		int $user_id,
 		?string $expected_review_status = null
 	): object {
+		$term_ref = $this->authoritative_term_ref( $source_type, $source_id, $language_id, $segment_key );
+		if ( null !== $term_ref ) {
+			[ $source_type, $source_id, $segment_key ] = $this->authoritative_address( $term_ref, $source_type, $source_id, $segment_key );
+		}
+
 		$row = $this->load_segment( $source_type, $source_id, $language_id, $segment_key );
 		$this->assert_eligible_translation( $row );
 		$this->assert_expected_review_status( $row, $expected_review_status );
@@ -131,7 +147,8 @@ final class ReviewWorkflowService {
 				'rejection_reason'           => '',
 				'rejected_by'                => null,
 				'rejected_at'                => null,
-			)
+			),
+			$term_ref
 		);
 
 		$this->audit->log(
@@ -174,6 +191,11 @@ final class ReviewWorkflowService {
 		?string $expected_review_status = null,
 		?string $client_submitted_hash = null
 	): object {
+		$term_ref = $this->authoritative_term_ref( $source_type, $source_id, $language_id, $segment_key );
+		if ( null !== $term_ref ) {
+			[ $source_type, $source_id, $segment_key ] = $this->authoritative_address( $term_ref, $source_type, $source_id, $segment_key );
+		}
+
 		$row = $this->load_segment( $source_type, $source_id, $language_id, $segment_key );
 
 		if ( $this->is_idempotent_approved( $row, $client_submitted_hash ) ) {
@@ -205,7 +227,8 @@ final class ReviewWorkflowService {
 				'rejection_reason' => '',
 				'rejected_by'      => null,
 				'rejected_at'      => null,
-			)
+			),
+			$term_ref
 		);
 
 		$this->audit->log(
@@ -252,6 +275,11 @@ final class ReviewWorkflowService {
 	): object {
 		$normalized_reason = self::normalize_rejection_reason( $reason );
 
+		$term_ref = $this->authoritative_term_ref( $source_type, $source_id, $language_id, $segment_key );
+		if ( null !== $term_ref ) {
+			[ $source_type, $source_id, $segment_key ] = $this->authoritative_address( $term_ref, $source_type, $source_id, $segment_key );
+		}
+
 		$row = $this->load_segment( $source_type, $source_id, $language_id, $segment_key );
 
 		if ( $this->is_idempotent_rejected( $row, $normalized_reason, $client_submitted_hash ) ) {
@@ -283,7 +311,8 @@ final class ReviewWorkflowService {
 				'rejected_at'      => $now,
 				'reviewed_by'      => null,
 				'reviewed_at'      => null,
-			)
+			),
+			$term_ref
 		);
 
 		$this->audit->log(
@@ -516,6 +545,7 @@ final class ReviewWorkflowService {
 	 * @param int                  $language_id Language id.
 	 * @param string               $segment_key Segment key.
 	 * @param array<string, mixed> $fields      Review fields.
+	 * @param TermCompatRef|null   $term_ref    Term reference when the segment is a term field.
 	 *
 	 * @throws ReviewWorkflowException When persistence fails.
 	 */
@@ -524,19 +554,87 @@ final class ReviewWorkflowService {
 		int $source_id,
 		int $language_id,
 		string $segment_key,
-		array $fields
+		array $fields,
+		?TermCompatRef $term_ref = null
 	): void {
-		$result = $this->store->update_review_metadata(
-			$source_type,
-			$source_id,
-			$language_id,
-			$segment_key,
-			$fields
-		);
+		if ( null === $term_ref ) {
+			$result = $this->store->update_review_metadata(
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				$fields
+			);
+		} else {
+			// A term field can be mid-adoption: authority is re-resolved under
+			// the Store lock so the transition cannot be recorded on a hosted
+			// row that a concurrent content write has just retired. The axis
+			// itself never adopts.
+			$result = $this->store->mutate_under_term_compat_authority(
+				$term_ref->to_store_ref(),
+				fn ( string $type, int $id, int $language, string $key ) => $this->store->update_review_metadata(
+					$type,
+					$id,
+					$language,
+					$key,
+					$fields
+				)
+			);
+		}
 
 		if ( $result instanceof WP_Error ) {
 			$this->raise( self::CODE_SERVICE_ERROR, $result->get_error_message() );
 		}
+	}
+
+	/**
+	 * Term reference for an axis address, or null when it is not a term field.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source object id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Segment key.
+	 */
+	private function authoritative_term_ref(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key
+	): ?TermCompatRef {
+		if ( null === $this->terms ) {
+			return null;
+		}
+
+		return $this->terms->ref_for_store_address( $source_type, $source_id, $segment_key, $language_id );
+	}
+
+	/**
+	 * Address of the row that currently holds authority for a term field.
+	 *
+	 * The checks, the audit event and the refreshed row all have to describe
+	 * the row the transition actually lands on, so the remap happens before
+	 * anything is read — not only at persist time.
+	 *
+	 * @param TermCompatRef $ref         Term reference.
+	 * @param string        $source_type Requested source type.
+	 * @param int           $source_id   Requested source id.
+	 * @param string        $segment_key Requested segment key.
+	 * @return array{0: string, 1: int, 2: string}
+	 */
+	private function authoritative_address( TermCompatRef $ref, string $source_type, int $source_id, string $segment_key ): array {
+		$resolved = null !== $this->terms
+			? $this->terms->resolve( $ref->term_id, $ref->taxonomy, $ref->logical_field, $ref->language_id )
+			: null;
+
+		if ( null === $resolved ) {
+			return array( $source_type, $source_id, $segment_key );
+		}
+
+		return array(
+			(string) $resolved['source_type'],
+			(int) $resolved['source_id'],
+			(string) $resolved['segment_key'],
+		);
 	}
 
 	/**

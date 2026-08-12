@@ -10,6 +10,8 @@ declare( strict_types=1 );
 namespace AIMultilingual\Jobs;
 
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Surface\SurfaceCapabilityNames;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\SegmentAssembler;
@@ -109,6 +111,7 @@ final class JobsController {
 	 * @param BackgroundTranslationConcurrencyPolicy|null $concurrency Concurrency gate.
 	 * @param AssessmentAssembler|null                    $assessment Assessment assembler.
 	 * @param SegmentAssembler|null                       $assembler Segment assembler.
+	 * @param SurfaceRegistry|null                        $surfaces  Surface registry (TSC.0/TSC.1).
 	 */
 	public function __construct(
 		BackgroundTranslationJobService $jobs,
@@ -120,7 +123,8 @@ final class JobsController {
 		?BackgroundTranslationDiagnostics $diagnostics = null,
 		?BackgroundTranslationConcurrencyPolicy $concurrency = null,
 		?AssessmentAssembler $assessment = null,
-		?SegmentAssembler $assembler = null
+		?SegmentAssembler $assembler = null,
+		private ?SurfaceRegistry $surfaces = null
 	) {
 		$this->jobs        = $jobs;
 		$this->batches     = $batches;
@@ -793,22 +797,44 @@ final class JobsController {
 	}
 
 	/**
-	 * Ensures the current user may edit every requested post source.
+	 * Ensures the current user may edit every requested source.
 	 *
 	 * @param list<array<string, mixed>> $sources Source descriptors.
 	 * @return true|WP_Error
 	 */
 	private function assert_edit_post_for_sources( array $sources ) {
 		foreach ( $sources as $source ) {
-			if ( Store::SOURCE_POST !== (string) ( $source['source_type'] ?? '' ) ) {
+			$source_type = (string) ( $source['source_type'] ?? Store::SOURCE_POST );
+			$source_id   = (int) ( $source['source_id'] ?? 0 );
+
+			if ( $source_id <= 0 ) {
+				return new WP_Error(
+					'aiml_forbidden',
+					__( 'You do not have permission to create jobs for one or more requested sources.', 'ai-multilingual' ),
+					array( 'status' => 403 )
+				);
+			}
+
+			if ( Store::SOURCE_POST === $source_type ) {
+				if ( ! current_user_can( 'edit_post', $source_id ) ) {
+					return new WP_Error(
+						'aiml_forbidden',
+						__( 'You do not have permission to create jobs for one or more requested posts.', 'ai-multilingual' ),
+						array( 'status' => 403 )
+					);
+				}
 				continue;
 			}
 
-			$post_id = (int) ( $source['source_id'] ?? 0 );
-			if ( $post_id <= 0 || ! current_user_can( 'edit_post', $post_id ) ) {
+			$surface = null !== $this->surfaces ? $this->surfaces->for( $source_type ) : null;
+			if (
+				null === $surface
+				|| ! $surface->supports( SurfaceCapabilityNames::JOBS )
+				|| ! $surface->user_can_edit_source( 0, $source_id )
+			) {
 				return new WP_Error(
 					'aiml_forbidden',
-					__( 'You do not have permission to create jobs for one or more requested posts.', 'ai-multilingual' ),
+					__( 'You do not have permission to create jobs for one or more requested sources.', 'ai-multilingual' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -818,7 +844,7 @@ final class JobsController {
 	}
 
 	/**
-	 * Ensures the current user may access the job's post scope.
+	 * Ensures the current user may access the job's source scope.
 	 *
 	 * @param int $job_id Job id.
 	 * @return true|WP_Error
@@ -829,11 +855,27 @@ final class JobsController {
 			return new WP_Error( 'job_not_found', 'Job not found.', array( 'status' => 404 ) );
 		}
 
-		if ( Store::SOURCE_POST !== (string) $job->source_type ) {
+		$source_type = (string) $job->source_type;
+		$source_id   = (int) $job->source_id;
+
+		if ( Store::SOURCE_POST === $source_type ) {
+			if ( ! current_user_can( 'edit_post', $source_id ) ) {
+				return new WP_Error(
+					'aiml_forbidden',
+					__( 'You do not have permission to access this translation job.', 'ai-multilingual' ),
+					array( 'status' => 403 )
+				);
+			}
+
 			return true;
 		}
 
-		if ( ! current_user_can( 'edit_post', (int) $job->source_id ) ) {
+		$surface = null !== $this->surfaces ? $this->surfaces->for( $source_type ) : null;
+		if (
+			null === $surface
+			|| ! $surface->supports( SurfaceCapabilityNames::JOBS )
+			|| ! $surface->user_can_edit_source( 0, $source_id )
+		) {
 			return new WP_Error(
 				'aiml_forbidden',
 				__( 'You do not have permission to access this translation job.', 'ai-multilingual' ),

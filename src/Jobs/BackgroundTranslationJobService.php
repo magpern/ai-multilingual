@@ -804,14 +804,44 @@ final class BackgroundTranslationJobService {
 			return new WP_Error( 'segment_resolution_unavailable', 'Segment resolution requires Store and SegmentAssembler.' );
 		}
 
-		$post = get_post( (int) ( $args['source_id'] ?? 0 ) );
+		$source_type = (string) ( $args['source_type'] ?? Store::SOURCE_POST );
+		$source_id   = (int) ( $args['source_id'] ?? 0 );
+		$language_id = (int) ( $args['language_id'] ?? 0 );
+
+		if ( Store::SOURCE_TERM === $source_type ) {
+			$surface = null !== $this->surfaces ? $this->surfaces->for( Store::SOURCE_TERM ) : null;
+			if ( null === $surface || ! $surface->exists( $source_id ) ) {
+				return new WP_Error( 'source_not_found', 'Job source term not found.' );
+			}
+
+			$keys = array();
+			foreach ( $surface->extract_segments( $source_id ) as $segment_key => $unit ) {
+				if ( ! is_array( $unit ) || ! is_string( $segment_key ) || '' === $segment_key ) {
+					continue;
+				}
+				$row    = $this->store->get( Store::SOURCE_TERM, $source_id, $language_id, $segment_key );
+				$status = null === $row ? Store::STATUS_MISSING : (string) ( $row->status ?? Store::STATUS_MISSING );
+				$text   = null === $row ? '' : trim( (string) ( $row->translated_text ?? '' ) );
+				$stale  = null !== $row && ! empty( $row->is_stale );
+
+				if ( JobTypes::TRANSLATE_MISSING === $job_type && ( Store::STATUS_MISSING === $status || '' === $text ) ) {
+					$keys[] = $segment_key;
+				}
+				if ( JobTypes::RETRANSLATE_STALE === $job_type && $stale ) {
+					$keys[] = $segment_key;
+				}
+			}
+
+			return $keys;
+		}
+
+		$post = get_post( $source_id );
 		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error( 'source_not_found', 'Job source post not found.' );
 		}
 
-		$language_id = (int) ( $args['language_id'] ?? 0 );
-		$segments    = $this->assembler->assemble_for_post( $post, $language_id );
-		$keys        = array();
+		$segments = $this->assembler->assemble_for_post( $post, $language_id );
+		$keys     = array();
 
 		foreach ( $segments as $segment ) {
 			if ( empty( $segment['can_edit'] ) ) {

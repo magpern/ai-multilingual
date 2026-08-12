@@ -74,10 +74,38 @@ if ( ! class_exists( 'WP_Post', false ) ) {
 		public $post_type = 'post';
 
 		/** @var string */
+		public $post_title = '';
+
+		/** @var string */
+		public $post_excerpt = '';
+
+		/** @var string */
 		public $post_content = '';
 
 		/** @var string */
 		public $post_status = 'publish';
+	}
+}
+
+if ( ! class_exists( 'WP_Term', false ) ) {
+	/**
+	 * Minimal WP_Term stub for unit tests.
+	 */
+	class WP_Term {
+		/** @var int */
+		public $term_id = 0;
+
+		/** @var string */
+		public $taxonomy = '';
+
+		/** @var string */
+		public $name = '';
+
+		/** @var string */
+		public $slug = '';
+
+		/** @var string */
+		public $description = '';
 	}
 }
 
@@ -299,5 +327,137 @@ if ( ! function_exists( 'get_option' ) ) {
 	 */
 	function get_option( $option, $default_value = false ) {
 		return $GLOBALS['aiml_unit_options'][ (string) $option ] ?? $default_value;
+	}
+}
+
+if ( ! isset( $GLOBALS['aiml_unit_object_cache'] ) ) {
+	$GLOBALS['aiml_unit_object_cache'] = array();
+}
+
+if ( ! function_exists( 'wp_cache_get' ) ) {
+	/**
+	 * @param string $key   Cache key.
+	 * @param string $group Cache group.
+	 * @param bool   $force Unused.
+	 * @param bool   $found Whether the key was present.
+	 * @return mixed
+	 */
+	function wp_cache_get( $key, $group = '', $force = false, &$found = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		$slot  = $GLOBALS['aiml_unit_object_cache'][ (string) $group ][ (string) $key ] ?? null;
+		$found = null !== $slot;
+		return $found ? $slot : false;
+	}
+}
+
+if ( ! function_exists( 'wp_cache_set' ) ) {
+	/**
+	 * @param string $key   Cache key.
+	 * @param mixed  $value Value.
+	 * @param string $group Cache group.
+	 * @param int    $ttl   Unused.
+	 */
+	function wp_cache_set( $key, $value, $group = '', $ttl = 0 ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		$GLOBALS['aiml_unit_object_cache'][ (string) $group ][ (string) $key ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_cache_delete' ) ) {
+	/**
+	 * @param string $key   Cache key.
+	 * @param string $group Cache group.
+	 */
+	function wp_cache_delete( $key, $group = '' ): bool {
+		unset( $GLOBALS['aiml_unit_object_cache'][ (string) $group ][ (string) $key ] );
+		return true;
+	}
+}
+
+if ( ! isset( $GLOBALS['aiml_unit_terms'] ) ) {
+	$GLOBALS['aiml_unit_terms'] = array();
+}
+
+if ( ! function_exists( 'get_term' ) ) {
+	/**
+	 * @param int|WP_Term $term     Term id or object.
+	 * @param string      $taxonomy Taxonomy.
+	 * @return WP_Term|null
+	 */
+	function get_term( $term, $taxonomy = '' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		if ( $term instanceof WP_Term ) {
+			return $term;
+		}
+		$found = $GLOBALS['aiml_unit_terms'][ (int) $term ] ?? null;
+		return $found instanceof WP_Term ? $found : null;
+	}
+}
+
+if ( ! isset( $GLOBALS['aiml_unit_taxonomies'] ) ) {
+	$GLOBALS['aiml_unit_taxonomies'] = array();
+}
+
+if ( ! function_exists( 'get_taxonomy' ) ) {
+	/**
+	 * @param string $taxonomy Taxonomy slug.
+	 * @return object|false
+	 */
+	function get_taxonomy( $taxonomy ) {
+		$found = $GLOBALS['aiml_unit_taxonomies'][ (string) $taxonomy ] ?? null;
+		return is_array( $found ) ? (object) $found : false;
+	}
+}
+
+if ( ! isset( $GLOBALS['aiml_unit_wc_attribute_taxonomies'] ) ) {
+	$GLOBALS['aiml_unit_wc_attribute_taxonomies'] = array();
+}
+
+if ( ! function_exists( 'wc_get_attribute_taxonomies' ) ) {
+	/**
+	 * @return array<int, object>
+	 */
+	function wc_get_attribute_taxonomies() {
+		return array_map(
+			static function ( $attribute ) {
+				return is_array( $attribute ) ? (object) $attribute : $attribute;
+			},
+			(array) $GLOBALS['aiml_unit_wc_attribute_taxonomies']
+		);
+	}
+}
+
+if ( ! function_exists( 'wc_attribute_taxonomy_name' ) ) {
+	/**
+	 * @param string $name Attribute name.
+	 */
+	function wc_attribute_taxonomy_name( $name ): string {
+		return 'pa_' . (string) $name;
+	}
+}
+
+if ( ! function_exists( 'wc_get_page_id' ) ) {
+	/**
+	 * @param string $page Page slug.
+	 */
+	function wc_get_page_id( $page ): int {
+		return (int) ( $GLOBALS['aiml_unit_wc_pages'][ (string) $page ] ?? 0 );
+	}
+}
+
+if ( ! function_exists( 'current_time' ) ) {
+	/**
+	 * @param string   $type Type (mysql / timestamp).
+	 * @param int|bool $gmt  GMT flag.
+	 */
+	function current_time( $type, $gmt = 0 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return 'mysql' === $type ? '2026-08-12 12:00:00' : time();
+	}
+}
+
+if ( ! function_exists( 'get_current_user_id' ) ) {
+	/**
+	 * Current user id stub.
+	 */
+	function get_current_user_id(): int {
+		return (int) ( $GLOBALS['aiml_unit_current_user_id'] ?? 0 );
 	}
 }

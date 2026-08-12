@@ -11,6 +11,7 @@ namespace AIMultilingual\Surface;
 
 use AIMultilingual\Integration\RankMath\RankMathIntegration;
 use AIMultilingual\Settings;
+use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use WP_Post;
 
@@ -39,10 +40,12 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 	/**
 	 * Builds the post surface adapter.
 	 *
-	 * @param Settings|null $settings Optional settings for activation facts.
+	 * @param Settings|null  $settings  Optional settings for activation facts.
+	 * @param Extractor|null $extractor Source extractor (required in production).
 	 */
 	public function __construct(
-		private ?Settings $settings = null
+		private ?Settings $settings = null,
+		private ?Extractor $extractor = null
 	) {
 	}
 
@@ -144,6 +147,32 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 			'elementor_extraction' => $this->settings->elementor_extraction_enabled(),
 			default => false,
 		};
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @param int $source_id Post id.
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function extract_segments( int $source_id ): array {
+		if ( null === $this->extractor ) {
+			return array();
+		}
+
+		$post = $this->post( $source_id );
+
+		if ( ! $post instanceof WP_Post ) {
+			return array();
+		}
+
+		// Revisions and autosaves are not the readable object; they own no
+		// stored segments, so reconciling against them would be meaningless.
+		if ( wp_is_post_revision( $post ) || wp_is_post_autosave( $post ) ) {
+			return array();
+		}
+
+		return $this->extractor->extract( $post );
 	}
 
 	/**

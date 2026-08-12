@@ -12,6 +12,8 @@ namespace AIMultilingual\Workspace;
 use AIMultilingual\Block\BlockRegistry;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermExtractor;
+use AIMultilingual\Translation\TermTranslationResolver;
 use WP_Post;
 
 /**
@@ -41,16 +43,40 @@ final class SegmentAssembler {
 	private BlockRegistry $block_registry;
 
 	/**
+	 * Term field extractor for term identities (TSC.1).
+	 *
+	 * @var TermExtractor|null
+	 */
+	private ?TermExtractor $term_extractor;
+
+	/**
+	 * Sole term address resolver (TSC.1).
+	 *
+	 * @var TermTranslationResolver|null
+	 */
+	private ?TermTranslationResolver $term_resolver;
+
+	/**
 	 * Builds the collaborator.
 	 *
-	 * @param Extractor     $extractor      Source extractor.
-	 * @param Store         $store          Segment store.
-	 * @param BlockRegistry $block_registry Block allowlist policy.
+	 * @param Extractor                    $extractor      Source extractor.
+	 * @param Store                        $store          Segment store.
+	 * @param BlockRegistry                $block_registry Block allowlist policy.
+	 * @param TermExtractor|null           $term_extractor Term field extractor.
+	 * @param TermTranslationResolver|null $term_resolver  Term address resolver.
 	 */
-	public function __construct( Extractor $extractor, Store $store, BlockRegistry $block_registry ) {
+	public function __construct(
+		Extractor $extractor,
+		Store $store,
+		BlockRegistry $block_registry,
+		?TermExtractor $term_extractor = null,
+		?TermTranslationResolver $term_resolver = null
+	) {
 		$this->extractor      = $extractor;
 		$this->store          = $store;
 		$this->block_registry = $block_registry;
+		$this->term_extractor = $term_extractor;
+		$this->term_resolver  = $term_resolver;
 	}
 
 	/**
@@ -74,9 +100,73 @@ final class SegmentAssembler {
 
 		$dtos = array();
 		foreach ( $extracted as $segment_key => $segment ) {
+			$row    = $stored[ $segment_key ] ?? null;
+			$dtos[] = $this->merge_segment(
+				$segment_key,
+				$segment,
+				$this->adopted_term_row( (int) $post->ID, $language_id, $segment_key, $row ) ?? $row
+			);
+		}
+
+		return $this->ordered( $dtos );
+	}
+
+	/**
+	 * Loads merged segment DTOs for one taxonomy term and language.
+	 *
+	 * Terms are their own Store identity, so the post pipeline cannot answer
+	 * for them; only the extractor and the identity differ.
+	 *
+	 * @param int    $term_id     Term id.
+	 * @param string $taxonomy    Taxonomy slug.
+	 * @param int    $language_id Target language id.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function assemble_for_term( int $term_id, string $taxonomy, int $language_id ): array {
+		if ( null === $this->term_extractor || $term_id <= 0 ) {
+			return array();
+		}
+
+		$extracted = $this->term_extractor->extract( $term_id );
+
+		$this->store->sync_source( Store::SOURCE_TERM, $term_id, $taxonomy, $extracted );
+
+		$stored = $this->store->load_object( Store::SOURCE_TERM, $term_id, $language_id );
+
+		$dtos = array();
+		foreach ( $extracted as $segment_key => $segment ) {
 			$dtos[] = $this->merge_segment( $segment_key, $segment, $stored[ $segment_key ] ?? null );
 		}
 
+		return $this->ordered( $dtos );
+	}
+
+	/**
+	 * Returns one merged term segment DTO, or null when absent from extraction.
+	 *
+	 * @param int    $term_id     Term id.
+	 * @param string $taxonomy    Taxonomy slug.
+	 * @param int    $language_id Target language id.
+	 * @param string $segment_key Segment key.
+	 * @return array<string, mixed>|null
+	 */
+	public function assemble_one_for_term( int $term_id, string $taxonomy, int $language_id, string $segment_key ): ?array {
+		foreach ( $this->assemble_for_term( $term_id, $taxonomy, $language_id ) as $dto ) {
+			if ( (string) ( $dto['segment_key'] ?? '' ) === $segment_key ) {
+				return $dto;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Sorts segment DTOs by extraction order then key.
+	 *
+	 * @param array<int, array<string, mixed>> $dtos Segment DTOs.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function ordered( array $dtos ): array {
 		usort(
 			$dtos,
 			static function ( array $left, array $right ): int {
@@ -90,6 +180,38 @@ final class SegmentAssembler {
 		);
 
 		return $dtos;
+	}
+
+	/**
+	 * Native row that superseded a retired hosted term row, when there is one.
+	 *
+	 * A hosted compatibility row stays in the post's extraction after adoption,
+	 * so without this the workspace would keep showing the retired copy — empty
+	 * and unreviewed — while the real translation lives on the term identity.
+	 * Only retired rows are followed: an active hosted row is still
+	 * authoritative, and probing every untranslated term key would turn one
+	 * shop-page load into a query per term.
+	 *
+	 * @param int         $post_id     Hosting post id.
+	 * @param int         $language_id Language id.
+	 * @param string      $segment_key Hosted segment key.
+	 * @param object|null $row         Hosted row when present.
+	 */
+	private function adopted_term_row( int $post_id, int $language_id, string $segment_key, ?object $row ): ?object {
+		if ( null === $this->term_resolver || null === $row ) {
+			return null;
+		}
+
+		if ( Store::STATUS_IGNORED !== (string) ( $row->status ?? '' ) || '' !== (string) ( $row->error_code ?? '' ) ) {
+			return null;
+		}
+
+		$ref = $this->term_resolver->ref_for_store_address( Store::SOURCE_POST, $post_id, $segment_key, $language_id );
+		if ( null === $ref ) {
+			return null;
+		}
+
+		return $this->store->get( Store::SOURCE_TERM, $ref->term_id, $language_id, $ref->native_segment_key );
 	}
 
 	/**

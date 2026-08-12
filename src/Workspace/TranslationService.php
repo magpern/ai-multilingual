@@ -25,6 +25,7 @@ use AIMultilingual\Translation\Memory\TranslationMemoryService;
 use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\QA\ScaffoldingMarkerSource;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermAdoptionService;
 use WP_Error;
 use WP_Post;
 
@@ -122,6 +123,13 @@ final class TranslationService {
 	private ?PublicationService $publication;
 
 	/**
+	 * TSC.1 hosted-to-native term adoption (content writes only).
+	 *
+	 * @var TermAdoptionService|null
+	 */
+	private ?TermAdoptionService $term_adoption;
+
+	/**
 	 * Last TM outcome for diagnostics/tests (no full text bodies).
 	 *
 	 * @var TMGenerationOutcome|null
@@ -165,6 +173,7 @@ final class TranslationService {
 	 * @param TMGenerationLookup|null        $tm_lookup        Generation-path TM lookup.
 	 * @param TranslationMemoryService|null  $tm_memory        TM memory for usage.
 	 * @param PublicationService|null        $publication      Optional TI.7 publication service.
+	 * @param TermAdoptionService|null       $term_adoption    Optional TSC.1 term adoption service.
 	 */
 	public function __construct(
 		Store $store,
@@ -177,7 +186,8 @@ final class TranslationService {
 		?TranslationContextBuilder $context_builder = null,
 		?TMGenerationLookup $tm_lookup = null,
 		?TranslationMemoryService $tm_memory = null,
-		?PublicationService $publication = null
+		?PublicationService $publication = null,
+		?TermAdoptionService $term_adoption = null
 	) {
 		$this->store           = $store;
 		$this->assembler       = $assembler;
@@ -190,6 +200,7 @@ final class TranslationService {
 		$this->tm_lookup       = $tm_lookup;
 		$this->tm_memory       = $tm_memory;
 		$this->publication     = $publication;
+		$this->term_adoption   = $term_adoption;
 	}
 
 	/**
@@ -657,6 +668,236 @@ final class TranslationService {
 	}
 
 	/**
+	 * Translates one native term segment (TSC.1 Jobs path).
+	 *
+	 * @param int    $term_id        Term id.
+	 * @param string $taxonomy       Taxonomy slug.
+	 * @param int    $language_id    Target language id.
+	 * @param string $segment_key    Native segment key (name|description|rankmath key).
+	 * @param bool   $allow_provider Whether provider calls are allowed.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function translate_term_segment(
+		int $term_id,
+		string $taxonomy,
+		int $language_id,
+		string $segment_key,
+		bool $allow_provider = true
+	) {
+		$this->last_tm_outcome           = null;
+		$this->last_attempt_usage        = null;
+		$this->last_scaffolding_markers  = array();
+		$this->expected_translation_hash = null;
+
+		if ( null === $this->term_adoption ) {
+			return new WP_Error(
+				'aiml_term_adoption_unavailable',
+				__( 'Term adoption is not available.', 'ai-multilingual' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$ensure = $this->term_adoption->ensure_native_before_content_write(
+			$term_id,
+			$taxonomy,
+			$language_id,
+			$segment_key
+		);
+		if ( $ensure instanceof WP_Error ) {
+			return $ensure;
+		}
+
+		$extractor = new \AIMultilingual\Translation\TermExtractor();
+		$segments  = $extractor->extract( $term_id );
+		$unit      = $segments[ $segment_key ] ?? null;
+		if ( ! is_array( $unit ) ) {
+			return new WP_Error(
+				'aiml_invalid_segment',
+				__( 'Unknown segment key for this term.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$current = array_merge(
+			$unit,
+			array(
+				'segment_key'      => $segment_key,
+				'can_edit'         => true,
+				'translated_text'  => '',
+				'translation_hash' => '',
+				'status'           => Store::STATUS_MISSING,
+				'is_stale'         => false,
+			)
+		);
+
+		$row = $this->store->get( Store::SOURCE_TERM, $term_id, $language_id, $segment_key );
+		if ( null !== $row ) {
+			$current['translated_text']  = (string) ( $row->translated_text ?? '' );
+			$current['translation_hash'] = (string) ( $row->translation_hash ?? '' );
+			$current['status']           = (string) ( $row->status ?? Store::STATUS_MISSING );
+			$current['is_stale']         = (bool) ( (int) ( $row->is_stale ?? 0 ) );
+		}
+
+		$target = $this->languages->find( $language_id );
+		$source = $this->languages->default();
+		if ( null === $target || null === $source ) {
+			return new WP_Error(
+				'aiml_invalid_language',
+				__( 'Unknown language code.', 'ai-multilingual' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$source_text = (string) ( $current['source_text'] ?? '' );
+		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
+
+		if ( ! $allow_provider ) {
+			return new WP_Error(
+				'aiml_provider_disabled',
+				__( 'Provider calls are not allowed in this wake.', 'ai-multilingual' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		$translated = $this->request_provider_translation(
+			$source_text,
+			$format,
+			(string) $source->locale,
+			(string) $target->locale,
+			$segment_key
+		);
+		if ( $translated instanceof WP_Error ) {
+			return $translated;
+		}
+
+		$validation = $this->validator->validate(
+			$source_text,
+			$translated,
+			$format,
+			$this->validator->persist_constraints( $source_text, $format )
+		);
+		if ( ! $validation->valid ) {
+			return new WP_Error(
+				(string) ( $validation->code ?? ResponseValidator::CODE_EMPTY_TARGET ),
+				'' !== $validation->message
+					? $validation->message
+					: __( 'Provider response failed structural validation.', 'ai-multilingual' ),
+				array( 'status' => 422 )
+			);
+		}
+
+		$save = $this->store->save_translation(
+			array(
+				'source_type'     => Store::SOURCE_TERM,
+				'source_id'       => $term_id,
+				'source_subtype'  => $taxonomy,
+				'language_id'     => $language_id,
+				'field_key'       => (string) ( $current['field_key'] ?? $segment_key ),
+				'segment_key'     => $segment_key,
+				'segment_kind'    => (string) ( $current['segment_kind'] ?? Store::KIND_FIELD ),
+				'segment_order'   => (int) ( $current['segment_order'] ?? 0 ),
+				'text_format'     => $format,
+				'source_text'     => $source_text,
+				'translated_text' => $translated,
+				'status'          => Store::STATUS_MACHINE_TRANSLATED,
+			)
+		);
+
+		if ( $save instanceof WP_Error ) {
+			return $save;
+		}
+
+		if ( null !== $this->publication ) {
+			$this->publication->maybe_auto_publish(
+				Store::SOURCE_TERM,
+				$term_id,
+				$language_id,
+				$segment_key
+			);
+		}
+
+		$row = $this->store->get( Store::SOURCE_TERM, $term_id, $language_id, $segment_key );
+
+		return array_merge(
+			$current,
+			array(
+				'translated_text'  => null !== $row ? (string) ( $row->translated_text ?? $translated ) : $translated,
+				'translation_hash' => null !== $row ? (string) ( $row->translation_hash ?? '' ) : '',
+				'status'           => null !== $row ? (string) ( $row->status ?? Store::STATUS_MACHINE_TRANSLATED ) : Store::STATUS_MACHINE_TRANSLATED,
+			)
+		);
+	}
+
+	/**
+	 * Requests a single-segment provider translation.
+	 *
+	 * @param string $source_text Source text.
+	 * @param string $format      Text format.
+	 * @param string $source_locale Source locale.
+	 * @param string $target_locale Target locale.
+	 * @param string $segment_key Segment key.
+	 * @return string|WP_Error
+	 */
+	private function request_provider_translation(
+		string $source_text,
+		string $format,
+		string $source_locale,
+		string $target_locale,
+		string $segment_key
+	) {
+		$batch = new TranslationBatch(
+			$source_locale,
+			$target_locale,
+			PromptProfileRegistry::TRANSLATE,
+			PromptProfileRegistry::VERSION,
+			'',
+			array(
+				new ProviderSegment(
+					$segment_key,
+					$source_text,
+					$format
+				),
+			),
+			TranslationBatch::OPERATION_TRANSLATE
+		);
+
+		$result = $this->provider->translate_batch( $batch );
+		if ( $result instanceof WP_Error ) {
+			return $result;
+		}
+
+		$this->last_attempt_usage = array(
+			'provider_requests' => 1,
+			'input_tokens'      => max( 0, $result->input_tokens ),
+			'output_tokens'     => max( 0, $result->output_tokens ),
+			'usage_known'       => true,
+			'tm_outcome_code'   => '',
+		);
+
+		foreach ( $result->segments as $segment ) {
+			if ( (string) ( $segment['segment_key'] ?? '' ) !== $segment_key ) {
+				continue;
+			}
+			$translated = (string) ( $segment['translated_text'] ?? '' );
+			if ( '' === trim( $translated ) ) {
+				return new WP_Error(
+					'aiml_empty_translation',
+					__( 'Provider returned an empty translation.', 'ai-multilingual' ),
+					array( 'status' => 422 )
+				);
+			}
+
+			return $translated;
+		}
+
+		return new WP_Error(
+			'aiml_ai_invalid_response',
+			__( 'Provider response is missing the requested segment.', 'ai-multilingual' ),
+			array( 'status' => 422 )
+		);
+	}
+
+	/**
 	 * Persists already-validated target text via Store (shared AI + TM8 path).
 	 *
 	 * Does not write translations.tm_id (TM21 NARROWED — dormant).
@@ -676,25 +917,41 @@ final class TranslationService {
 		$segment_key = (string) ( $current['segment_key'] ?? '' );
 		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
 
-		$guard = $this->guard_expected_translation_hash( $post, $language_id, $segment_key );
+		// Adoption runs before the concurrency guard: the guard must compare
+		// against the row this persist is about to write, and for a term field
+		// that row is the native one.
+		$identity = $this->term_write_identity( (int) $post->ID, $language_id, $segment_key );
+		if ( $identity instanceof WP_Error ) {
+			return $identity;
+		}
+
+		$guard = $this->guard_expected_translation_hash(
+			(string) ( $identity['source_type'] ?? Store::SOURCE_POST ),
+			(int) ( $identity['source_id'] ?? $post->ID ),
+			$language_id,
+			(string) ( $identity['segment_key'] ?? $segment_key )
+		);
 		if ( null !== $guard ) {
 			return $guard;
 		}
 
 		$save = $this->store->save_translation(
-			array(
-				'source_type'     => Store::SOURCE_POST,
-				'source_id'       => (int) $post->ID,
-				'source_subtype'  => (string) $post->post_type,
-				'language_id'     => $language_id,
-				'field_key'       => (string) ( $current['field_key'] ?? '' ),
-				'segment_key'     => $segment_key,
-				'segment_kind'    => (string) ( $current['segment_kind'] ?? Store::KIND_BLOCK ),
-				'segment_order'   => (int) ( $current['segment_order'] ?? 0 ),
-				'text_format'     => $format,
-				'source_text'     => (string) ( $current['source_text'] ?? '' ),
-				'translated_text' => $translated,
-				'status'          => Store::STATUS_MACHINE_TRANSLATED,
+			array_merge(
+				array(
+					'source_type'     => Store::SOURCE_POST,
+					'source_id'       => (int) $post->ID,
+					'source_subtype'  => (string) $post->post_type,
+					'language_id'     => $language_id,
+					'field_key'       => (string) ( $current['field_key'] ?? '' ),
+					'segment_key'     => $segment_key,
+					'segment_kind'    => (string) ( $current['segment_kind'] ?? Store::KIND_BLOCK ),
+					'segment_order'   => (int) ( $current['segment_order'] ?? 0 ),
+					'text_format'     => $format,
+					'source_text'     => (string) ( $current['source_text'] ?? '' ),
+					'translated_text' => $translated,
+					'status'          => Store::STATUS_MACHINE_TRANSLATED,
+				),
+				$identity
 			)
 		);
 
@@ -715,10 +972,10 @@ final class TranslationService {
 		if ( null !== $this->publication ) {
 			$markers            = $this->last_scaffolding_markers;
 			$publication_result = $this->publication->maybe_auto_publish(
-				Store::SOURCE_POST,
-				(int) $post->ID,
+				(string) ( $identity['source_type'] ?? Store::SOURCE_POST ),
+				(int) ( $identity['source_id'] ?? $post->ID ),
 				$language_id,
-				$segment_key,
+				(string) ( $identity['segment_key'] ?? $segment_key ),
 				$markers,
 				array() !== $markers
 			);
@@ -736,18 +993,35 @@ final class TranslationService {
 	}
 
 	/**
+	 * Identity a provider persist must target when the segment holds a term field.
+	 *
+	 * @param int    $post_id     Hosting post id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Segment key.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	private function term_write_identity( int $post_id, int $language_id, string $segment_key ) {
+		if ( null === $this->term_adoption ) {
+			return array();
+		}
+
+		return $this->term_adoption->native_write_identity( Store::SOURCE_POST, $post_id, $language_id, $segment_key );
+	}
+
+	/**
 	 * Re-reads Store translation_hash immediately before persist (OTL.3 race window).
 	 *
-	 * @param WP_Post $post         Canonical post.
-	 * @param int     $language_id  Target language id.
-	 * @param string  $segment_key  Segment key.
+	 * @param string $source_type Authoritative source type.
+	 * @param int    $source_id   Authoritative source id.
+	 * @param int    $language_id Target language id.
+	 * @param string $segment_key Segment key.
 	 */
-	private function guard_expected_translation_hash( WP_Post $post, int $language_id, string $segment_key ): ?WP_Error {
+	private function guard_expected_translation_hash( string $source_type, int $source_id, int $language_id, string $segment_key ): ?WP_Error {
 		if ( null === $this->expected_translation_hash ) {
 			return null;
 		}
 
-		$row          = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, $segment_key );
+		$row          = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		$current_hash = null === $row ? '' : (string) ( $row->translation_hash ?? '' );
 		if ( $current_hash !== $this->expected_translation_hash ) {
 			return new WP_Error(

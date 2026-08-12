@@ -75,6 +75,17 @@ interface SurfaceCapability {
 	public function feature_activated( string $feature ): bool;
 
 	/**
+	 * Current source segments for this identity, keyed by segment key.
+	 *
+	 * Delegation only — the surface owns which extractor answers for its
+	 * source type, never how segments are stored or reconciled.
+	 *
+	 * @param int $source_id Source object id.
+	 * @return array<string, array<string, mixed>>
+	 */
+	public function extract_segments( int $source_id ): array;
+
+	/**
 	 * Register invalidation event mappers into the request-local coordinator.
 	 *
 	 * Hooks must only mark dirty — never sync or call providers.

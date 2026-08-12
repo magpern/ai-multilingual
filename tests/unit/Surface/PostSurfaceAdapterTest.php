@@ -15,6 +15,7 @@ use AIMultilingual\Settings;
 use AIMultilingual\Surface\PostSurfaceAdapter;
 use AIMultilingual\Surface\RequestLocalInvalidationCoordinator;
 use AIMultilingual\Surface\SurfaceCapabilityNames;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use PHPUnit\Framework\TestCase;
@@ -129,11 +130,24 @@ final class PostSurfaceAdapterTest extends TestCase {
 	public function test_register_invalidation_events_accepts_coordinator(): void {
 		$coordinator = new RequestLocalInvalidationCoordinator(
 			new Store( new Cache() ),
-			new Extractor()
+			new SurfaceRegistry()
 		);
 		$adapter     = new PostSurfaceAdapter( new Settings( array() ) );
 
 		$adapter->register_invalidation_events( $coordinator );
 		$this->assertSame( 0, $coordinator->dirty_count() );
+	}
+
+	public function test_extract_segments_is_empty_without_an_extractor_or_post(): void {
+		$post                           = new WP_Post();
+		$post->ID                       = 21;
+		$post->post_type                = 'page';
+		$GLOBALS['aiml_unit_posts'][21] = $post;
+
+		$this->assertSame( array(), ( new PostSurfaceAdapter( new Settings( array() ) ) )->extract_segments( 21 ) );
+		$this->assertSame(
+			array(),
+			( new PostSurfaceAdapter( new Settings( array() ), new Extractor() ) )->extract_segments( 404 )
+		);
 	}
 }

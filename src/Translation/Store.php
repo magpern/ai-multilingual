@@ -88,6 +88,12 @@ final class Store {
 	public const SOURCE_POST = 'post';
 
 	/**
+	 * Taxonomy-term identity (TSC.1 / ADR-0021). `source_id` is the term id and
+	 * `source_subtype` the taxonomy slug.
+	 */
+	public const SOURCE_TERM = 'term';
+
+	/**
 	 * Object cache.
 	 *
 	 * @var Cache
@@ -1522,6 +1528,593 @@ final class Store {
 		);
 
 		$this->invalidate( $source_type, $source_id, $language_id );
+	}
+
+	// -- Term compatibility authority (TSC.1 / ADR-0021) --
+
+	/**
+	 * Runs a callback while holding the term compatibility authority lock.
+	 *
+	 * Serializes adoption against axis mutation so a review or publication
+	 * write can never land on a hosted row that another request has just
+	 * superseded. The lock order is frozen: native candidate key first, hosted
+	 * key second, identically for both callers. The native row is usually
+	 * absent, which is why the lock is taken through the unique key rather
+	 * than a primary key — InnoDB then holds a gap lock on the missing row and
+	 * a concurrent insert of the same identity blocks.
+	 *
+	 * Callers must not already hold a `translation_id` lock on the hosted row.
+	 *
+	 * @param array<string, mixed> $ref      Identity reference. Requires term_id,
+	 *                                       language_id and native_segment_key; accepts
+	 *                                       taxonomy, native_field_key, hosted_source_type,
+	 *                                       hosted_source_id, hosted_field_key,
+	 *                                       hosted_segment_key.
+	 * @param callable             $callback Receives one array with native, hosted,
+	 *                                       authoritative and ref.
+	 * @return mixed|WP_Error Callback result. A WP_Error result rolls the transaction back;
+	 *                        a thrown failure rolls back and keeps propagating.
+	 */
+	public function with_term_compat_authority( array $ref, callable $callback ) {
+		global $wpdb;
+
+		$normalized = $this->normalize_term_compat_ref( $ref );
+		if ( $normalized instanceof WP_Error ) {
+			return $normalized;
+		}
+
+		// Nesting under an outer transaction (PHPUnit, or a caller that already
+		// opened one) must use SAVEPOINT. A nested START TRANSACTION / COMMIT
+		// implicitly commits the outer unit in MySQL/MariaDB and would leak
+		// writes across tests and caller scopes.
+		$boundary = $this->begin_term_compat_boundary();
+
+		$committed = false;
+
+		try {
+			$native = $this->lock_row_by_identity(
+				self::SOURCE_TERM,
+				$normalized['term_id'],
+				$normalized['language_id'],
+				self::segment_hash( $normalized['native_field_key'], $normalized['native_segment_key'] )
+			);
+
+			$hosted = null;
+			if ( $normalized['hosted_source_id'] > 0 && '' !== $normalized['hosted_segment_key'] ) {
+				$hosted = $this->lock_row_by_identity(
+					$normalized['hosted_source_type'],
+					$normalized['hosted_source_id'],
+					$normalized['language_id'],
+					self::segment_hash( $normalized['hosted_field_key'], $normalized['hosted_segment_key'] )
+				);
+			}
+
+			$result = $callback(
+				array(
+					'native'        => $native,
+					'hosted'        => $hosted,
+					'authoritative' => $this->resolve_authority( $native, $hosted ),
+					'ref'           => $normalized,
+				)
+			);
+
+			if ( $result instanceof WP_Error ) {
+				return $result;
+			}
+
+			$this->commit_term_compat_boundary( $boundary );
+			$committed = true;
+
+			return $result;
+		} finally {
+			// Anything that did not reach the commit — a returned WP_Error or a
+			// thrown failure on its way out — leaves the prior authority intact.
+			// Exceptions keep propagating; a half-applied adoption would be a
+			// worse outcome than a visible failure.
+			if ( ! $committed ) {
+				$this->rollback_term_compat_boundary( $boundary );
+			}
+		}
+	}
+
+	/**
+	 * Opens a transaction or savepoint for term compatibility authority work.
+	 *
+	 * @return array{mode: string, name: string}
+	 */
+	private function begin_term_compat_boundary(): array {
+		global $wpdb;
+
+		$in_transaction = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare( 'SELECT @@SESSION.in_transaction WHERE %d = %d', 1, 1 ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+
+		if ( $in_transaction > 0 ) {
+			$name = 'aiml_tc_' . str_replace( '.', '', uniqid( '', true ) );
+			$wpdb->query( 'SAVEPOINT `' . $name . '`' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+			return array(
+				'mode' => 'savepoint',
+				'name' => $name,
+			);
+		}
+
+		$wpdb->query( 'START TRANSACTION' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+		return array(
+			'mode' => 'transaction',
+			'name' => '',
+		);
+	}
+
+	/**
+	 * Commits a term compatibility boundary opened by begin_term_compat_boundary.
+	 *
+	 * @param array{mode: string, name: string} $boundary Boundary descriptor.
+	 */
+	private function commit_term_compat_boundary( array $boundary ): void {
+		global $wpdb;
+
+		if ( 'savepoint' === $boundary['mode'] ) {
+			$wpdb->query( 'RELEASE SAVEPOINT `' . $boundary['name'] . '`' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+			return;
+		}
+
+		$wpdb->query( 'COMMIT' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+	}
+
+	/**
+	 * Rolls back a term compatibility boundary opened by begin_term_compat_boundary.
+	 *
+	 * @param array{mode: string, name: string} $boundary Boundary descriptor.
+	 */
+	private function rollback_term_compat_boundary( array $boundary ): void {
+		global $wpdb;
+
+		if ( 'savepoint' === $boundary['mode'] ) {
+			$wpdb->query( 'ROLLBACK TO SAVEPOINT `' . $boundary['name'] . '`' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+
+			return;
+		}
+
+		$wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+	}
+
+	/**
+	 * Mutates whichever row currently holds authority for a logical term field.
+	 *
+	 * Axis writes (review, publication) never adopt. They re-resolve authority
+	 * under the lock and are remapped to the native row the moment one exists,
+	 * so a successful mutation can never be recorded only on a retired hosted
+	 * row.
+	 *
+	 * @param array<string, mixed>                              $ref     Identity reference (see with_term_compat_authority).
+	 * @param callable(string, int, int, string, object): mixed $mutator Receives source_type, source_id, language_id, segment_key, row.
+	 * @return mixed|WP_Error Mutator result, or WP_Error when no row holds authority.
+	 */
+	public function mutate_under_term_compat_authority( array $ref, callable $mutator ) {
+		return $this->with_term_compat_authority(
+			$ref,
+			static function ( array $context ) use ( $mutator ) {
+				$authority = (string) $context['authoritative'];
+
+				if ( 'native' === $authority ) {
+					$row = $context['native'];
+				} elseif ( 'hosted' === $authority ) {
+					$row = $context['hosted'];
+				} else {
+					return new WP_Error(
+						'aiml_term_authority_missing',
+						__( 'No translation row holds authority for this term field.', 'ai-multilingual' )
+					);
+				}
+
+				return $mutator(
+					(string) $row->source_type,
+					(int) $row->source_id,
+					(int) $row->language_id,
+					(string) $row->segment_key,
+					$row
+				);
+			}
+		);
+	}
+
+	/**
+	 * Moves a hosted compatibility row onto a first-class identity.
+	 *
+	 * Deliberately not `save_translation`: that recomputes the content hashes
+	 * and clears the review and publication axes on any material change, which
+	 * would silently destroy approval and publication evidence. Columns are
+	 * copied only while they stay semantically valid under the new identity
+	 * and hash contract; everything else is recomputed or honestly reset.
+	 *
+	 * The hosted row is retained and retired as `ignored` with an empty
+	 * `error_code`. `orphaned` keeps meaning "the source no longer produces
+	 * this segment", which is a different fact from "superseded".
+	 *
+	 * @param object                                                      $hosted_row           Row currently holding the translation.
+	 * @param array<string, mixed>                                        $native_identity      Target identity: source_type, source_id,
+	 *                                                                                          source_subtype, field_key, segment_key.
+	 * @param callable(string, string): (array<string, string>|null)|null $source_text_resolver Optional
+	 *                                                   current-extract lookup for source honesty.
+	 * @return object|WP_Error Native row, or WP_Error.
+	 */
+	public function adopt_row_to_identity( object $hosted_row, array $native_identity, ?callable $source_text_resolver = null ) {
+		$target_type = (string) ( $native_identity['source_type'] ?? self::SOURCE_TERM );
+		$target_id   = (int) ( $native_identity['source_id'] ?? 0 );
+		$segment_key = (string) ( $native_identity['segment_key'] ?? '' );
+		$field_key   = (string) ( $native_identity['field_key'] ?? $segment_key );
+		$language_id = (int) ( $hosted_row->language_id ?? 0 );
+
+		if ( self::SOURCE_TERM !== $target_type ) {
+			return new WP_Error( 'aiml_adopt_unsupported_identity', __( 'Only term identities can be adopted.', 'ai-multilingual' ) );
+		}
+
+		if ( $target_id <= 0 || $language_id <= 0 || '' === $segment_key ) {
+			return new WP_Error( 'aiml_adopt_invalid_identity', __( 'Incomplete adoption identity.', 'ai-multilingual' ) );
+		}
+
+		$ref = array(
+			'term_id'            => $target_id,
+			'taxonomy'           => (string) ( $native_identity['source_subtype'] ?? '' ),
+			'language_id'        => $language_id,
+			'native_field_key'   => $field_key,
+			'native_segment_key' => $segment_key,
+			'hosted_source_type' => (string) ( $hosted_row->source_type ?? self::SOURCE_POST ),
+			'hosted_source_id'   => (int) ( $hosted_row->source_id ?? 0 ),
+			'hosted_field_key'   => (string) ( $hosted_row->field_key ?? '' ),
+			'hosted_segment_key' => (string) ( $hosted_row->segment_key ?? '' ),
+		);
+
+		$adopted = $this->with_term_compat_authority(
+			$ref,
+			function ( array $context ) use ( $native_identity, $source_text_resolver ) {
+				$native = $context['native'];
+				$hosted = $context['hosted'];
+				$locked = $context['ref'];
+
+				// Native already exists: it stays authoritative and is never
+				// overwritten by the older hosted copy.
+				if ( null !== $native ) {
+					$this->retire_hosted_compat_row( $hosted );
+
+					return $native;
+				}
+
+				if ( null === $hosted ) {
+					return new WP_Error( 'aiml_adopt_hosted_missing', __( 'The hosted translation row no longer exists.', 'ai-multilingual' ) );
+				}
+
+				$this->insert_raw( $this->adopt_column_map( $hosted, $native_identity, $source_text_resolver ) );
+
+				// Re-read rather than trust the insert result: a concurrent
+				// adoption that won the unique key is a success for us too.
+				$adopted = $this->fetch_row_by_identity(
+					self::SOURCE_TERM,
+					$locked['term_id'],
+					$locked['language_id'],
+					self::segment_hash( $locked['native_field_key'], $locked['native_segment_key'] )
+				);
+
+				if ( null === $adopted ) {
+					return new WP_Error( 'aiml_adopt_insert_failed', __( 'Could not create the term translation row.', 'ai-multilingual' ) );
+				}
+
+				$this->retire_hosted_compat_row( $hosted );
+
+				return $adopted;
+			}
+		);
+
+		// Caches are dropped only once the transaction is durable: dropping them
+		// earlier would let a concurrent read repopulate them from uncommitted
+		// state and outlive the rollback.
+		if ( ! $adopted instanceof WP_Error ) {
+			$this->invalidate_adopted_identities( $ref );
+		}
+
+		return $adopted;
+	}
+
+	/**
+	 * Normalizes and validates a term compatibility reference.
+	 *
+	 * @param array<string, mixed> $ref Raw reference.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	private function normalize_term_compat_ref( array $ref ) {
+		$term_id            = (int) ( $ref['term_id'] ?? 0 );
+		$language_id        = (int) ( $ref['language_id'] ?? 0 );
+		$native_segment_key = (string) ( $ref['native_segment_key'] ?? '' );
+
+		if ( $term_id <= 0 || $language_id <= 0 || '' === $native_segment_key ) {
+			return new WP_Error( 'aiml_invalid_term_ref', __( 'Incomplete term identity reference.', 'ai-multilingual' ) );
+		}
+
+		$hosted_segment_key = (string) ( $ref['hosted_segment_key'] ?? '' );
+
+		return array(
+			'term_id'            => $term_id,
+			'taxonomy'           => (string) ( $ref['taxonomy'] ?? '' ),
+			'language_id'        => $language_id,
+			'native_field_key'   => (string) ( $ref['native_field_key'] ?? $native_segment_key ),
+			'native_segment_key' => $native_segment_key,
+			'hosted_source_type' => (string) ( $ref['hosted_source_type'] ?? self::SOURCE_POST ),
+			'hosted_source_id'   => (int) ( $ref['hosted_source_id'] ?? 0 ),
+			'hosted_field_key'   => (string) ( $ref['hosted_field_key'] ?? $hosted_segment_key ),
+			'hosted_segment_key' => $hosted_segment_key,
+		);
+	}
+
+	/**
+	 * Which of the two candidate rows may currently be written as authoritative.
+	 *
+	 * @param object|null $native Native row.
+	 * @param object|null $hosted Hosted row.
+	 */
+	private function resolve_authority( ?object $native, ?object $hosted ): string {
+		if ( null !== $native ) {
+			return 'native';
+		}
+
+		if ( null !== $hosted && self::STATUS_IGNORED !== (string) $hosted->status ) {
+			return 'hosted';
+		}
+
+		return 'none';
+	}
+
+	/**
+	 * Reads one row through the segment identity key, holding a write lock.
+	 *
+	 * @param string $source_type  Source type.
+	 * @param int    $source_id    Source object id.
+	 * @param int    $language_id  Language id.
+	 * @param string $segment_hash Segment identity hash.
+	 */
+	private function lock_row_by_identity( string $source_type, int $source_id, int $language_id, string $segment_hash ): ?object {
+		return $this->fetch_row_by_identity( $source_type, $source_id, $language_id, $segment_hash, true );
+	}
+
+	/**
+	 * Reads one row through the segment identity key.
+	 *
+	 * @param string $source_type  Source type.
+	 * @param int    $source_id    Source object id.
+	 * @param int    $language_id  Language id.
+	 * @param string $segment_hash Segment identity hash.
+	 * @param bool   $for_update   Whether to take a write lock.
+	 */
+	private function fetch_row_by_identity(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_hash,
+		bool $for_update = false
+	): ?object {
+		global $wpdb;
+
+		$sql = 'SELECT * FROM ' . Schema::translations()
+			. ' WHERE source_type = %s AND source_id = %d AND segment_hash = %s AND language_id = %d'
+			. ( $for_update ? ' FOR UPDATE' : '' );
+
+		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare( $sql, $source_type, $source_id, $segment_hash, $language_id ) // phpcs:ignore WordPress.DB.PreparedSQL
+		);
+
+		return is_object( $row ) ? $this->hydrate( $row ) : null;
+	}
+
+	/**
+	 * Retires a superseded hosted row without pretending its source vanished.
+	 *
+	 * @param object|null $row Hosted row, when one is still present.
+	 */
+	private function retire_hosted_compat_row( ?object $row ): void {
+		global $wpdb;
+
+		if ( null === $row || self::STATUS_IGNORED === (string) $row->status ) {
+			return;
+		}
+
+		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::translations(),
+			array(
+				'status'        => self::STATUS_IGNORED,
+				'error_code'    => '',
+				'error_message' => '',
+				'updated_at'    => current_time( 'mysql', true ),
+			),
+			array( 'translation_id' => (int) $row->translation_id ),
+			array( '%s', '%s', '%s', '%s' ),
+			array( '%d' )
+		);
+	}
+
+	/**
+	 * Drops the cached segment maps of both identities touched by an adoption.
+	 *
+	 * @param array<string, mixed> $ref Normalized reference.
+	 */
+	private function invalidate_adopted_identities( array $ref ): void {
+		$this->invalidate( self::SOURCE_TERM, (int) $ref['term_id'], (int) $ref['language_id'] );
+
+		if ( (int) $ref['hosted_source_id'] > 0 ) {
+			$this->invalidate(
+				(string) $ref['hosted_source_type'],
+				(int) $ref['hosted_source_id'],
+				(int) $ref['language_id']
+			);
+		}
+	}
+
+	/**
+	 * Builds the native row from a hosted row per the column validity matrix.
+	 *
+	 * @param object                                                      $hosted               Hosted row.
+	 * @param array<string, mixed>                                        $native_identity      Target identity.
+	 * @param callable(string, string): (array<string, string>|null)|null $source_text_resolver Current extract lookup.
+	 * @return array<string, mixed>
+	 */
+	private function adopt_column_map( object $hosted, array $native_identity, ?callable $source_text_resolver ): array {
+		$field_key   = (string) ( $native_identity['field_key'] ?? '' );
+		$segment_key = (string) ( $native_identity['segment_key'] ?? '' );
+
+		$format = (string) $hosted->text_format;
+		if ( ! in_array( $format, self::formats(), true ) ) {
+			$format = self::FORMAT_PLAIN;
+		}
+
+		$source_text = (string) ( $hosted->source_text ?? '' );
+		$is_stale    = (bool) $hosted->is_stale;
+
+		if ( null !== $source_text_resolver ) {
+			$extract = $source_text_resolver( $field_key, $segment_key );
+
+			if ( is_array( $extract ) ) {
+				$extract_format = (string) ( $extract['text_format'] ?? $format );
+				if ( in_array( $extract_format, self::formats(), true ) ) {
+					$format = $extract_format;
+				}
+
+				$extract_text = (string) ( $extract['source_text'] ?? '' );
+				if ( $extract_text !== $source_text ) {
+					// The source moved on while the translation lived on the
+					// hosted identity: carry the current text and say so.
+					$source_text = $extract_text;
+					$is_stale    = true;
+				}
+			}
+		}
+
+		$translation_hash = (string) ( $hosted->translation_hash ?? '' );
+		$submitted_hash   = (string) ( $hosted->submitted_translation_hash ?? '' );
+		$status           = (string) $hosted->status;
+
+		$data = array(
+			'source_type'      => self::SOURCE_TERM,
+			'source_id'        => (int) ( $native_identity['source_id'] ?? 0 ),
+			'source_subtype'   => (string) ( $native_identity['source_subtype'] ?? '' ),
+			'language_id'      => (int) $hosted->language_id,
+			'field_key'        => $field_key,
+			'segment_key'      => $segment_key,
+			'segment_hash'     => self::segment_hash( $field_key, $segment_key ),
+			'segment_kind'     => (string) ( $hosted->segment_kind ?? self::KIND_FIELD ),
+			'segment_order'    => (int) $hosted->segment_order,
+			'text_format'      => $format,
+			'source_text'      => $source_text,
+			'source_hash'      => self::source_hash( $source_text, $format ),
+			'norm_version'     => self::NORM_VERSION,
+			'translated_text'  => (string) ( $hosted->translated_text ?? '' ),
+			'translation_hash' => $translation_hash,
+			'status'           => $status,
+			'is_stale'         => $is_stale ? 1 : 0,
+			'provider'         => (string) ( $hosted->provider ?? '' ),
+			'model'            => (string) ( $hosted->model ?? '' ),
+			'prompt_profile'   => (string) ( $hosted->prompt_profile ?? '' ),
+			'prompt_version'   => (string) ( $hosted->prompt_version ?? '' ),
+			'glossary_version' => (int) ( $hosted->glossary_version ?? 0 ),
+			'tm_id'            => self::copy_nullable_int( $hosted, 'tm_id' ),
+			'translated_by'    => self::copy_nullable_int( $hosted, 'translated_by' ),
+			// Publication survives adoption: nothing about the translated text
+			// changed, so a published segment stays published (AC14).
+			'publish_status'   => (string) $hosted->publish_status,
+			'published_at'     => self::copy_nullable_value( $hosted, 'published_at' ),
+			'published_by'     => self::copy_nullable_int( $hosted, 'published_by' ),
+			'error_code'       => self::STATUS_FAILED === $status ? (string) ( $hosted->error_code ?? '' ) : '',
+			'error_message'    => self::STATUS_FAILED === $status ? (string) ( $hosted->error_message ?? '' ) : '',
+			'created_at'       => (string) $hosted->created_at,
+			'updated_at'       => current_time( 'mysql', true ),
+		);
+
+		// Review evidence only survives while it still describes the text that
+		// is actually stored. A submitted hash that no longer matches is not
+		// evidence, so it is reset rather than carried forward as a claim.
+		if ( '' === $submitted_hash || $submitted_hash === $translation_hash ) {
+			$data += array(
+				'review_status'              => (string) $hosted->review_status,
+				'review_submitted_by'        => self::copy_nullable_int( $hosted, 'review_submitted_by' ),
+				'review_submitted_at'        => self::copy_nullable_value( $hosted, 'review_submitted_at' ),
+				'submitted_translation_hash' => $submitted_hash,
+				'reviewed_by'                => self::copy_nullable_int( $hosted, 'reviewed_by' ),
+				'reviewed_at'                => self::copy_nullable_value( $hosted, 'reviewed_at' ),
+				'rejection_reason'           => (string) ( $hosted->rejection_reason ?? '' ),
+				'rejected_by'                => self::copy_nullable_int( $hosted, 'rejected_by' ),
+				'rejected_at'                => self::copy_nullable_value( $hosted, 'rejected_at' ),
+			);
+		} else {
+			$data += self::review_clear_fields();
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Copies a nullable integer column, treating empty strings as null.
+	 *
+	 * @param object $row    Source row.
+	 * @param string $column Column name.
+	 */
+	private static function copy_nullable_int( object $row, string $column ): ?int {
+		$value = $row->{$column} ?? null;
+
+		if ( null === $value || '' === (string) $value ) {
+			return null;
+		}
+
+		return (int) $value;
+	}
+
+	/**
+	 * Copies a nullable string column, treating empty strings as null.
+	 *
+	 * @param object $row    Source row.
+	 * @param string $column Column name.
+	 */
+	private static function copy_nullable_value( object $row, string $column ): ?string {
+		$value = $row->{$column} ?? null;
+
+		if ( null === $value || '' === (string) $value ) {
+			return null;
+		}
+
+		return (string) $value;
+	}
+
+	/**
+	 * Inserts a fully-formed row without the save_translation lifecycle rules.
+	 *
+	 * @param array<string, mixed> $data Column values.
+	 */
+	private function insert_raw( array $data ): bool {
+		global $wpdb;
+
+		$columns      = array_keys( $data );
+		$placeholders = array();
+		$values       = array();
+
+		foreach ( $columns as $column ) {
+			$value = $data[ $column ];
+
+			if ( null === $value ) {
+				$placeholders[] = 'NULL';
+				continue;
+			}
+
+			$placeholders[] = is_int( $value ) ? '%d' : '%s';
+			$values[]       = $value;
+		}
+
+		$sql = 'INSERT INTO ' . Schema::translations()
+			. ' (' . implode( ', ', $columns ) . ') VALUES (' . implode( ', ', $placeholders ) . ')';
+
+		if ( array() === $values ) {
+			return false !== $wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
+		}
+
+		return false !== $wpdb->query( $wpdb->prepare( $sql, $values ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL
 	}
 
 	// -- Internals --

@@ -12,7 +12,9 @@ namespace AIMultilingual\Integration;
 use AIMultilingual\Integration\RankMath\RankMathIntegration;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Settings;
+use AIMultilingual\Surface\AdmittedTaxonomies;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermTranslationResolver;
 
 /**
  * Registers integration output hooks when a non-default language is active.
@@ -22,11 +24,12 @@ final class IntegrationFrontendBridge {
 	/**
 	 * Builds the frontend overlay bridge.
 	 *
-	 * @param Settings               $settings    Settings.
-	 * @param LanguageContext        $context     Language context.
-	 * @param IntegrationRegistry    $registry    Registry.
-	 * @param Store                  $store       Store.
-	 * @param IntegrationDiagnostics $diagnostics Diagnostics.
+	 * @param Settings                     $settings      Settings.
+	 * @param LanguageContext              $context       Language context.
+	 * @param IntegrationRegistry          $registry      Registry.
+	 * @param Store                        $store         Store.
+	 * @param IntegrationDiagnostics       $diagnostics   Diagnostics.
+	 * @param TermTranslationResolver|null $term_resolver Term native/hosted resolver (TSC.1).
 	 */
 	public function __construct(
 		private Settings $settings,
@@ -34,6 +37,7 @@ final class IntegrationFrontendBridge {
 		private IntegrationRegistry $registry,
 		private Store $store,
 		private IntegrationDiagnostics $diagnostics,
+		private ?TermTranslationResolver $term_resolver = null,
 	) {
 	}
 
@@ -74,15 +78,27 @@ final class IntegrationFrontendBridge {
 			return;
 		}
 
-		$source_id = $this->resolve_source_id( get_queried_object() );
-		if ( $source_id <= 0 ) {
+		$queried     = get_queried_object();
+		$source_id   = $this->resolve_source_id( $queried );
+		$language_id = (int) $language->language_id;
+		$term_id     = 0;
+		$taxonomy    = '';
+
+		if ( is_object( $queried ) && isset( $queried->taxonomy, $queried->term_id ) ) {
+			$taxonomy = (string) $queried->taxonomy;
+			$term_id  = (int) $queried->term_id;
+			if ( $term_id <= 0 || ! AdmittedTaxonomies::admits( $taxonomy ) ) {
+				$term_id  = 0;
+				$taxonomy = '';
+			}
+		}
+
+		if ( $source_id <= 0 && $term_id <= 0 ) {
 			return;
 		}
 
-		$language_id = (int) $language->language_id;
-
-		$resolve = function ( string $segment_key ) use ( $source_id, $language_id ): ?string {
-			$row = $this->store->get( 'post', $source_id, $language_id, $segment_key );
+		$resolve = function ( string $segment_key ) use ( $source_id, $language_id, $term_id, $taxonomy ): ?string {
+			$row = $this->resolve_overlay_row( $segment_key, $source_id, $language_id, $term_id, $taxonomy );
 			if ( null === $row || ! Store::is_publicly_overlay_eligible( $row ) ) {
 				$this->diagnostics->increment( IntegrationDiagnostics::COUNTER_SOURCE_FALLBACK );
 				return null;
@@ -93,6 +109,50 @@ final class IntegrationFrontendBridge {
 		};
 
 		$this->registry->register_output_hooks( $resolve );
+	}
+
+	/**
+	 * Native-first term row, else hosted post row for the segment key.
+	 *
+	 * @param string $segment_key Segment key.
+	 * @param int    $source_id   Hosted post source id.
+	 * @param int    $language_id Language id.
+	 * @param int    $term_id     Queried term id when on a term archive.
+	 * @param string $taxonomy    Queried taxonomy.
+	 */
+	private function resolve_overlay_row(
+		string $segment_key,
+		int $source_id,
+		int $language_id,
+		int $term_id,
+		string $taxonomy
+	): ?object {
+		if ( $term_id > 0 && '' !== $taxonomy && null !== $this->term_resolver ) {
+			$field = $this->term_resolver->term_field_for_segment_key( $segment_key );
+			if ( null !== $field ) {
+				$logical = (string) ( $field['logical_field'] ?? '' );
+				if ( '' !== $logical ) {
+					$resolved = $this->term_resolver->resolve( $term_id, $taxonomy, $logical, $language_id );
+					if ( null !== $resolved ) {
+						return $resolved['row'];
+					}
+				}
+			}
+
+			// Native name/description keys (post-adoption).
+			if ( in_array( $segment_key, array( 'name', 'description' ), true ) ) {
+				$resolved = $this->term_resolver->resolve( $term_id, $taxonomy, $segment_key, $language_id );
+				if ( null !== $resolved ) {
+					return $resolved['row'];
+				}
+			}
+		}
+
+		if ( $source_id <= 0 ) {
+			return null;
+		}
+
+		return $this->store->get( Store::SOURCE_POST, $source_id, $language_id, $segment_key );
 	}
 
 	/**
@@ -116,6 +176,11 @@ final class IntegrationFrontendBridge {
 			}
 			if ( 'category' === $taxonomy || 'post_tag' === $taxonomy ) {
 				return $this->posts_page_source_id();
+			}
+			if ( AdmittedTaxonomies::admits( $taxonomy ) ) {
+				$shop = $this->shop_page_source_id();
+
+				return $shop > 0 ? $shop : $this->posts_page_source_id();
 			}
 		}
 
