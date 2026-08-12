@@ -679,4 +679,170 @@ final class PluginGuardTest extends AimlTestCase {
 			'TSC.0 forbids a public CPT admission filter (aiml_admitted_post_types).'
 		);
 	}
+
+	/**
+	 * TSC.1 term-identity structural invariants (AC36, AC40, AC52, AC54, AC58).
+	 *
+	 * Sole alias resolver; no get_term mutation; overlay seam scope; neutrality;
+	 * TARGET stays 7; no opportunistic TSC.2+ Store source types; resolver read-only.
+	 */
+	public function test_tsc1_term_identity_invariants(): void {
+		// AC1 / AC54 — SOURCE_TERM + schema TARGET unchanged.
+		$store = (string) file_get_contents( $this->root() . '/src/Translation/Store.php' );
+		$this->assertMatchesRegularExpression(
+			"/const\s+SOURCE_TERM\s*=\s*'term'\s*;/",
+			$store,
+			'Store::SOURCE_TERM must exist and equal term (AC1).'
+		);
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression(
+			'/const TARGET = 7;/',
+			$migrator,
+			'TSC.1 is STATE A; Migrator::TARGET must remain 7 (AC54).'
+		);
+
+		// AC36 — sole hosted-key builder; no duplicate alias implementation.
+		$alias_builders = array();
+		foreach ( $this->sources() as $path => $code ) {
+			if ( preg_match( '/\bfunction\s+hosted_segment_key\s*\(/', $code ) ) {
+				$alias_builders[] = $path;
+			}
+		}
+		$this->assertSame(
+			array( 'src/Translation/TermTranslationResolver.php' ),
+			$alias_builders,
+			'Only TermTranslationResolver may define hosted_segment_key (AC36 / TT16).'
+		);
+
+		// Literal hosted catalog-key construction must not fork outside the resolver.
+		// Allowlist: DTO/adoption consumers that carry resolver-built addresses, extractors,
+		// and Rank Math which retains p:rankmath:term:* keys (not product_cat hosted keys).
+		$hosted_key_allowlist = array(
+			'src/Translation/TermTranslationResolver.php',
+			'src/Translation/TermCompatRef.php',
+			'src/Translation/TermAdoptionService.php',
+			'src/Translation/TermExtractor.php',
+			'src/Integration/RankMath/RankMathIntegration.php',
+			'src/Integration/RankMath/RankMathSitemapOverlay.php',
+		);
+		foreach ( $this->sources() as $path => $code ) {
+			if ( in_array( $path, $hosted_key_allowlist, true ) ) {
+				continue;
+			}
+			$builds_hosted_catalog_key = false !== strpos( $code, 'p:woocommerce:product_cat:' )
+				|| (
+					false !== strpos( $code, 'product_cat:' )
+					&& (
+						false !== strpos( $code, '->build(' )
+						|| false !== strpos( $code, 'hosted_segment_key' )
+						|| preg_match( '/SEGMENT_KEY_PREFIX/', $code )
+					)
+				);
+			$this->assertFalse(
+				$builds_hosted_catalog_key,
+				$path . ' must not construct hosted product_cat segment keys; use TermTranslationResolver (AC36).'
+			);
+		}
+
+		$this->assertDoesNotMatchRegularExpression(
+			'/\bfinal\s+class\s+\w*TermAlias\w*/',
+			implode( "\n", $this->sources() ),
+			'No second TermAlias* class may implement term address resolution (AC36).'
+		);
+
+		// AC40 — no get_term mutation hooks anywhere in src/.
+		foreach ( $this->sources() as $path => $code ) {
+			$this->assertDoesNotMatchRegularExpression(
+				'/add_(?:filter|action)\s*\(\s*[\'"]get_term[\'"]/',
+				$code,
+				$path . ' must not register get_term mutation hooks (AC40 / TT31).'
+			);
+		}
+
+		// Overlay seam scope: deferred archive title + attribute labels out of TSC.1
+		// (AC37–AC39 seams only; TT33 / TSC.3). Checked on the TSC.1 visitor surfaces only —
+		// WooCommerceIntegration may still host attribute-label chrome until TSC.3.
+		foreach ( array(
+			'src/Integration/TermVisitorOverlay.php',
+			'src/Integration/IntegrationFrontendBridge.php',
+		) as $rel ) {
+			$code = (string) file_get_contents( $this->root() . '/' . $rel );
+			$this->assertStringNotContainsString(
+				'get_the_archive_title',
+				$code,
+				$rel . ' must not hook get_the_archive_title (Deferred).'
+			);
+			$this->assertStringNotContainsString(
+				'woocommerce_attribute_label',
+				$code,
+				$rel . ' must not hook woocommerce_attribute_label (TSC.3 / TT33).'
+			);
+		}
+
+		// AC52 — neutrality + no public taxonomy admission API.
+		$this->assert_absent(
+			array( 'aiml_admitted_taxonomies' ),
+			'TSC.1 forbids a public taxonomy admission filter (aiml_admitted_taxonomies).'
+		);
+
+		$forbidden_site = array( 'Biopentra', 'biopentra.eu', 'biopentra', 'peptide' );
+		$surface_root   = $this->root() . '/src/Surface';
+		$surface_files  = array( 'src/Surface/AdmittedTaxonomies.php' );
+		$iterator       = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $surface_root ) );
+		foreach ( $iterator as $file ) {
+			if ( $file->isFile() && 'php' === $file->getExtension() ) {
+				$surface_files[] = str_replace( $this->root() . '/', '', $file->getPathname() );
+			}
+		}
+		$surface_files = array_values( array_unique( $surface_files ) );
+		foreach ( $surface_files as $rel ) {
+			$code = (string) file_get_contents( $this->root() . '/' . $rel );
+			foreach ( $forbidden_site as $needle ) {
+				$this->assertStringNotContainsString(
+					$needle,
+					$code,
+					$rel . ' must not embed site-specific taxonomy/product literals (' . $needle . ') (AC52).'
+				);
+			}
+			$this->assertStringNotContainsString(
+				'apply_filters',
+				$code,
+				$rel . ' must remain code-owned; no public Surface/taxonomy admission filter (AC52).'
+			);
+		}
+
+		$admitted = (string) file_get_contents( $this->root() . '/src/Surface/AdmittedTaxonomies.php' );
+		$this->assertStringContainsString( 'CORE_TAXONOMIES', $admitted );
+		$this->assertStringContainsString( 'CATALOG_TAXONOMIES', $admitted );
+		$this->assertStringNotContainsString( 'get_taxonomies(', $admitted );
+
+		// AC58 — no opportunistic TSC.2+ Store source_type constants.
+		foreach ( $this->sources() as $path => $code ) {
+			$this->assertDoesNotMatchRegularExpression(
+				'/\bconst\s+SOURCE_(?:MENU|WIDGET|BLOCK|NAV|SHORTCODE|ELEMENTOR)\b/',
+				$code,
+				$path . ' must not register unfrozen TSC.2+ Store source types (AC58).'
+			);
+		}
+		$this->assertDoesNotMatchRegularExpression(
+			'/\bconst\s+SOURCE_(?:MENU|WIDGET)\b/',
+			$store,
+			'Store must not define SOURCE_MENU / SOURCE_WIDGET until those milestones freeze (AC58).'
+		);
+
+		// AC35 / TT17 — TermTranslationResolver is read-only (no public write/lock/adopt).
+		$reflection = new \ReflectionClass( \AIMultilingual\Translation\TermTranslationResolver::class );
+		foreach ( $reflection->getMethods( \ReflectionMethod::IS_PUBLIC ) as $method ) {
+			if ( $method->getDeclaringClass()->getName() !== $reflection->getName() ) {
+				continue;
+			}
+			$name = $method->getName();
+			$this->assertDoesNotMatchRegularExpression(
+				'/(?:write|lock|adopt|save|mutate|insert|update|delete)/i',
+				$name,
+				'TermTranslationResolver::' . $name . ' must not be a public write/lock/adopt API (AC35).'
+			);
+		}
+	}
 }

@@ -372,7 +372,7 @@ final class Plugin {
 			6
 		);
 
-		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry, $term_resolver );
+		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry, $term_extractor, $term_resolver );
 		$status_calculator = new TranslationStatusCalculator( $store );
 		$vault             = new CredentialVault();
 		$profiles          = new PromptProfileRegistry();
