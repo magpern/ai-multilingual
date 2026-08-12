@@ -11,6 +11,7 @@ namespace AIMultilingual\Translation;
 
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Settings;
+use AIMultilingual\Surface\AdmittedPostTypes;
 use WP_Post;
 
 /**
@@ -23,7 +24,7 @@ final class RenderGateContext {
 	 *
 	 * @var list<string>
 	 */
-	public const SUPPORTED_POST_TYPES = array( 'post', 'page', 'product' );
+	public const SUPPORTED_POST_TYPES = AdmittedPostTypes::FRONTEND_OVERLAY_TYPES;
 
 	/**
 	 * Builds a render gate context.

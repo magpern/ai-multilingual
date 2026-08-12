@@ -1,11 +1,11 @@
 <?php
 /**
- * Fluent Forms Contact Form #5 Integration API v1 consumer (A.8).
+ * Fluent Forms Integration API v1 consumer (host-local, site-neutral).
  *
  * @package AIMultilingual
  */
 
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace AIMultilingual\Integration\FluentForms;
 
@@ -20,18 +20,15 @@ use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
- * Record-owned Fluent Forms bridge for Contact Form #5 only.
+ * Record-owned Fluent Forms bridge for forms embedded on the current host post.
  *
- * Surfaces: full_name label, email label, submit_text.
- * Overlays via verified Fluent Forms 6.2.9 field-data filters only.
+ * Surfaces: full_name label, email label, submit_text (code-owned allowlist).
+ * Overlays via verified Fluent Forms field-data filters only.
+ * Stale invalidation for form-definition edits remains UNSUPPORTED (no reverse-host map).
  */
 final class FluentFormsIntegration implements PluginIntegrationInterface {
 
 	public const ID = 'fluentform';
-
-	public const FORM_ID = 5;
-
-	public const CONTACT_PAGE_ID = 3410;
 
 	public const MIN_VERSION = '6.2.0';
 
@@ -60,7 +57,7 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	 * @param string|null                $version        Test override.
 	 * @param bool|null                  $disabled       Test override.
 	 * @param bool|null                  $hooks_present  Test override.
-	 * @param bool|null                  $embed_override Test override for embed detection.
+	 * @param list<int>|null             $embed_ids_override Test override for discovered form ids.
 	 */
 	public function __construct(
 		private PluginIdentity $identity,
@@ -71,7 +68,7 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 		private ?string $version = null,
 		private ?bool $disabled = null,
 		private ?bool $hooks_present = null,
-		private ?bool $embed_override = null,
+		private ?array $embed_ids_override = null,
 	) {
 	}
 
@@ -125,7 +122,7 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Extract allowlisted Form #5 units when the post embeds the form.
+	 * Extract allowlisted units for forms embedded on this host post only.
 	 *
 	 * @param WP_Post $post Canonical post.
 	 * @return list<TranslationUnitDescriptor>
@@ -135,46 +132,51 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 		if ( ! $this->get_compatibility()->allows_operation() ) {
 			return array();
 		}
-		if ( ! $this->post_embeds_form( $post ) ) {
+
+		$form_ids = $this->discover_embedded_form_ids( $post );
+		if ( array() === $form_ids ) {
 			return array();
 		}
 
-		$fields = $this->reader->get_decoded_fields( self::FORM_ID );
-		if ( null === $fields ) {
-			return array();
-		}
+		// Multi-form on one host: extract each form with distinct identity tokens.
+		$units = array();
+		$seen  = array();
 
-		$owner_id = (string) self::FORM_ID;
-		$units    = array();
-		$seen     = array();
-
-		foreach ( $this->allowlisted_sources( $fields ) as $item ) {
-			$text = IntegrationSecurity::sanitize_plain( $item['source'] );
-			if ( '' === $text ) {
+		foreach ( $form_ids as $form_id ) {
+			$fields = $this->reader->get_decoded_fields( $form_id );
+			if ( null === $fields ) {
 				continue;
 			}
-			try {
-				$key = $this->build_key( $item['field'], $item['nested'] );
-			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
-				continue;
+
+			$owner_id = (string) $form_id;
+			foreach ( $this->allowlisted_sources( $fields ) as $item ) {
+				$text = IntegrationSecurity::sanitize_plain( $item['source'] );
+				if ( '' === $text ) {
+					continue;
+				}
+				try {
+					$key = $this->build_key( $owner_id, $item['field'], $item['nested'] );
+				} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+					continue;
+				}
+				if ( isset( $seen[ $key ] ) ) {
+					throw new \RuntimeException( 'Duplicate Fluent Forms segment key.' );
+				}
+				$seen[ $key ] = true;
+				$units[]      = new TranslationUnitDescriptor(
+					$key,
+					$text,
+					Store::source_hash( $text, Store::FORMAT_PLAIN ),
+					Store::FORMAT_PLAIN,
+					Contract::OWNERSHIP_RECORD,
+					'form',
+					$owner_id,
+					$item['field'],
+					$item['label'],
+					self::ID,
+					'Fluent Form #' . $form_id
+				);
 			}
-			if ( isset( $seen[ $key ] ) ) {
-				throw new \RuntimeException( 'Duplicate Fluent Forms segment key.' );
-			}
-			$seen[ $key ] = true;
-			$units[]      = new TranslationUnitDescriptor(
-				$key,
-				$text,
-				Store::source_hash( $text, Store::FORMAT_PLAIN ),
-				Store::FORMAT_PLAIN,
-				Contract::OWNERSHIP_RECORD,
-				'form',
-				$owner_id,
-				$item['field'],
-				$item['label'],
-				self::ID,
-				'Contact Form #' . self::FORM_ID
-			);
 		}
 
 		return $units;
@@ -268,6 +270,15 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Test helper: override discovered embed form ids.
+	 *
+	 * @param list<int>|null $form_ids Form ids or null to clear.
+	 */
+	public function set_embed_ids_override( ?array $form_ids ): void {
+		$this->embed_ids_override = $form_ids;
+	}
+
+	/**
 	 * Overlay a field label when the field name matches the allowlist.
 	 *
 	 * @param array<string, mixed>        $data       Field data.
@@ -279,7 +290,8 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	 * @return array<string, mixed>|mixed
 	 */
 	private function overlay_field_label( $data, $form, string $field, callable $resolve, PluginIdentity $identity, bool $use_nested ) {
-		if ( ! is_array( $data ) || ! $this->is_target_form( $form ) ) {
+		$form_id = $this->form_id( $form );
+		if ( ! is_array( $data ) || $form_id <= 0 ) {
 			return $data;
 		}
 		$name = isset( $data['attributes']['name'] ) ? (string) $data['attributes']['name'] : '';
@@ -288,8 +300,8 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 		}
 		try {
 			$key = $use_nested
-				? $identity->build( self::ID, 'form', (string) self::FORM_ID, $field, 'label' )
-				: $identity->build( self::ID, 'form', (string) self::FORM_ID, $field );
+				? $identity->build( self::ID, 'form', (string) $form_id, $field, 'label' )
+				: $identity->build( self::ID, 'form', (string) $form_id, $field );
 		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			return $data;
 		}
@@ -309,7 +321,7 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Overlay submit button text for Form #5.
+	 * Overlay submit button text for the rendering form.
 	 *
 	 * @param array<string, mixed>        $data     Button data.
 	 * @param mixed                       $form     Form object.
@@ -318,11 +330,12 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	 * @return array<string, mixed>|mixed
 	 */
 	private function overlay_submit_text( $data, $form, callable $resolve, PluginIdentity $identity ) {
-		if ( ! is_array( $data ) || ! $this->is_target_form( $form ) ) {
+		$form_id = $this->form_id( $form );
+		if ( ! is_array( $data ) || $form_id <= 0 ) {
 			return $data;
 		}
 		try {
-			$key = $identity->build( self::ID, 'form', (string) self::FORM_ID, self::FIELD_SUBMIT );
+			$key = $identity->build( self::ID, 'form', (string) $form_id, self::FIELD_SUBMIT );
 		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 			return $data;
 		}
@@ -345,32 +358,29 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Whether the form object is Contact Form #5.
+	 * Resolve form id from a Fluent Forms form object.
 	 *
 	 * @param mixed $form Form object.
 	 */
-	private function is_target_form( $form ): bool {
-		if ( ! is_object( $form ) ) {
-			return false;
+	private function form_id( $form ): int {
+		if ( ! is_object( $form ) || ! isset( $form->id ) ) {
+			return 0;
 		}
-		$id = 0;
-		if ( isset( $form->id ) ) {
-			$id = (int) $form->id;
-		}
-		return self::FORM_ID === $id;
+		return (int) $form->id;
 	}
 
 	/**
 	 * Build a frozen p: identity for an allowlisted field.
 	 *
-	 * @param string      $field  Field token.
-	 * @param string|null $nested Nested token or null.
+	 * @param string      $owner_id Form id string.
+	 * @param string      $field    Field token.
+	 * @param string|null $nested   Nested token or null.
 	 */
-	private function build_key( string $field, ?string $nested ): string {
+	private function build_key( string $owner_id, string $field, ?string $nested ): string {
 		if ( null === $nested || '' === $nested ) {
-			return $this->identity->build( self::ID, 'form', (string) self::FORM_ID, $field );
+			return $this->identity->build( self::ID, 'form', $owner_id, $field );
 		}
-		return $this->identity->build( self::ID, 'form', (string) self::FORM_ID, $field, $nested );
+		return $this->identity->build( self::ID, 'form', $owner_id, $field, $nested );
 	}
 
 	/**
@@ -420,15 +430,21 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Whether the post embeds Form #5.
+	 * Discover form ids on the host post (or test override).
 	 *
 	 * @param WP_Post $post Post.
+	 * @return list<int>
 	 */
-	private function post_embeds_form( WP_Post $post ): bool {
-		if ( null !== $this->embed_override ) {
-			return $this->embed_override;
+	private function discover_embedded_form_ids( WP_Post $post ): array {
+		if ( null !== $this->embed_ids_override ) {
+			return array_values(
+				array_filter(
+					array_map( 'intval', $this->embed_ids_override ),
+					static fn( int $id ): bool => $id > 0
+				)
+			);
 		}
-		return $this->embed->embeds_form( $post, self::FORM_ID );
+		return $this->embed->discover_form_ids( $post );
 	}
 
 	/**
@@ -468,7 +484,7 @@ final class FluentFormsIntegration implements PluginIntegrationInterface {
 			return $this->disabled;
 		}
 		/**
-		 * Disable the Fluent Forms Contact Form #5 integration.
+		 * Disable the Fluent Forms integration.
 		 *
 		 * @since 1.1.0
 		 *

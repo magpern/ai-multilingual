@@ -10,6 +10,8 @@ declare( strict_types=1 );
 namespace AIMultilingual\Jobs;
 
 use AIMultilingual\Glossary\GlossaryService;
+use AIMultilingual\Surface\SurfaceCapabilityNames;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\AI\ProviderResult;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\SegmentAssembler;
@@ -58,6 +60,13 @@ final class BackgroundTranslationItemProcessor {
 	private BackgroundTranslationRetryPolicy $retry_policy;
 
 	/**
+	 * Surface registry for existence / Jobs facts (TSC.0).
+	 *
+	 * @var SurfaceRegistry|null
+	 */
+	private ?SurfaceRegistry $surfaces;
+
+	/**
 	 * Builds the processor.
 	 *
 	 * @param Store                                 $store        Segment store.
@@ -65,19 +74,22 @@ final class BackgroundTranslationItemProcessor {
 	 * @param GlossaryService                       $glossary     Glossary service.
 	 * @param SegmentAssembler                      $assembler    Segment assembler.
 	 * @param BackgroundTranslationRetryPolicy|null $retry_policy Retry policy.
+	 * @param SurfaceRegistry|null                  $surfaces     Surface registry.
 	 */
 	public function __construct(
 		Store $store,
 		TranslationService $translation,
 		GlossaryService $glossary,
 		SegmentAssembler $assembler,
-		?BackgroundTranslationRetryPolicy $retry_policy = null
+		?BackgroundTranslationRetryPolicy $retry_policy = null,
+		?SurfaceRegistry $surfaces = null
 	) {
 		$this->store        = $store;
 		$this->translation  = $translation;
 		$this->glossary     = $glossary;
 		$this->assembler    = $assembler;
 		$this->retry_policy = $retry_policy ?? new BackgroundTranslationRetryPolicy();
+		$this->surfaces     = $surfaces;
 	}
 
 	/**
@@ -93,6 +105,24 @@ final class BackgroundTranslationItemProcessor {
 		$language_id = (int) $job->language_id;
 		$segment_key = (string) $item->segment_key;
 		$job_type    = (string) $job->job_type;
+		$source_type = (string) ( $job->source_type ?? Store::SOURCE_POST );
+		$source_id   = (int) ( $job->source_id ?? $post->ID );
+
+		if ( null !== $this->surfaces ) {
+			$surface = $this->surfaces->for( $source_type );
+			if ( null === $surface || ! $surface->supports( SurfaceCapabilityNames::JOBS ) || ! $surface->exists( $source_id ) ) {
+				return ItemResult::skipped_conflict( 'Source object is missing or unregistered for Jobs work.' );
+			}
+		}
+
+		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
+		if ( null !== $row ) {
+			$status     = (string) ( $row->status ?? '' );
+			$error_code = (string) ( $row->error_code ?? '' );
+			if ( Store::STATUS_IGNORED === $status || 'orphaned' === $error_code ) {
+				return ItemResult::skipped_conflict( 'Authoritative Store state is ignored/orphaned; not provider-processed.' );
+			}
+		}
 
 		$assembled = $this->assembler->assemble_one( $post, $language_id, $segment_key );
 		if ( null === $assembled ) {
@@ -110,8 +140,6 @@ final class BackgroundTranslationItemProcessor {
 		if ( '' !== $captured_source && $current_source_hash !== $captured_source ) {
 			return ItemResult::stale_source();
 		}
-
-		$row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, $segment_key );
 
 		$conflict = $this->evaluate_conflict(
 			$row,

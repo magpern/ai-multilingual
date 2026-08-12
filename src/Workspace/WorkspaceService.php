@@ -11,6 +11,7 @@ namespace AIMultilingual\Workspace;
 
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
+use AIMultilingual\Surface\AdmittedPostTypes;
 use AIMultilingual\Translation\AI\FieldSemanticMapper;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Extractor;
@@ -37,7 +38,7 @@ use WP_Query;
  */
 final class WorkspaceService {
 
-	public const SUPPORTED_POST_TYPES = array( 'post', 'page', 'product', 'nav_menu_item' );
+	public const SUPPORTED_POST_TYPES = AdmittedPostTypes::WORKSPACE_TYPES;
 
 	/**
 	 * Injected dependency.

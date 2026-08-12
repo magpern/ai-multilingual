@@ -5,7 +5,7 @@
  * @package AIMultilingual
  */
 
-declare( strict_types=1 );
+declare(strict_types=1);
 
 namespace AIMultilingual\Integration\FluentForms;
 
@@ -13,7 +13,9 @@ use AIMultilingual\Elementor\ElementorDocumentDetector;
 use WP_Post;
 
 /**
- * Bounded Form #5 embed detection (Elementor widget + shortcode).
+ * Bounded host-local Fluent Forms embed detection (Elementor widget + shortcode).
+ *
+ * No sitewide enumeration. Forward discovery only — no reverse form→host index.
  */
 final class FluentFormsEmbedDetector {
 
@@ -39,28 +41,45 @@ final class FluentFormsEmbedDetector {
 		if ( $form_id <= 0 ) {
 			return false;
 		}
-
-		$elements = $this->detector->decode_elements( (int) $post->ID );
-		if ( is_array( $elements ) && $this->walk_elements( $elements, $form_id ) ) {
-			return true;
-		}
-
-		$content = (string) ( $post->post_content ?? '' );
-		if ( '' === $content ) {
-			return false;
-		}
-
-		$pattern = '/\[fluentform[^\]]*?\bid\s*=\s*[\'"]?' . preg_quote( (string) $form_id, '/' ) . '[\'"]?/i';
-		return 1 === preg_match( $pattern, $content );
+		return in_array( $form_id, $this->discover_form_ids( $post ), true );
 	}
 
 	/**
-	 * Recursively search Elementor nodes for a fluent-form-widget embed.
+	 * Discover Fluent Forms IDs embedded on this host post only.
 	 *
-	 * @param array<int, mixed> $nodes   Elementor nodes.
-	 * @param int               $form_id Form ID.
+	 * @param WP_Post $post Host post.
+	 * @return list<int>
 	 */
-	private function walk_elements( array $nodes, int $form_id ): bool {
+	public function discover_form_ids( WP_Post $post ): array {
+		$found = array();
+
+		$elements = $this->detector->decode_elements( (int) $post->ID );
+		if ( is_array( $elements ) ) {
+			$this->collect_elementor_form_ids( $elements, $found );
+		}
+
+		$content = (string) ( $post->post_content ?? '' );
+		if ( '' !== $content && preg_match_all( '/\[fluentform[^\]]*?\bid\s*=\s*[\'"]?(\d+)[\'"]?/i', $content, $matches ) ) {
+			foreach ( $matches[1] as $raw ) {
+				$id = (int) $raw;
+				if ( $id > 0 ) {
+					$found[ $id ] = $id;
+				}
+			}
+		}
+
+		$form_ids = array_values( $found );
+		sort( $form_ids, SORT_NUMERIC );
+		return $form_ids;
+	}
+
+	/**
+	 * Recursively collect Elementor fluent-form-widget form ids.
+	 *
+	 * @param array<int, mixed> $nodes Elementor nodes.
+	 * @param array<int, int>   $found Accumulator keyed by form id.
+	 */
+	private function collect_elementor_form_ids( array $nodes, array &$found ): void {
 		foreach ( $nodes as $node ) {
 			if ( ! is_array( $node ) ) {
 				continue;
@@ -69,14 +88,14 @@ final class FluentFormsEmbedDetector {
 			if ( self::ELEMENTOR_WIDGET === $widget ) {
 				$settings = isset( $node['settings'] ) && is_array( $node['settings'] ) ? $node['settings'] : array();
 				$list     = isset( $settings['form_list'] ) ? (string) $settings['form_list'] : '';
-				if ( (string) $form_id === $list ) {
-					return true;
+				$id       = (int) $list;
+				if ( $id > 0 ) {
+					$found[ $id ] = $id;
 				}
 			}
-			if ( isset( $node['elements'] ) && is_array( $node['elements'] ) && $this->walk_elements( $node['elements'], $form_id ) ) {
-				return true;
+			if ( isset( $node['elements'] ) && is_array( $node['elements'] ) ) {
+				$this->collect_elementor_form_ids( $node['elements'], $found );
 			}
 		}
-		return false;
 	}
 }

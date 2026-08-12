@@ -12,6 +12,8 @@ namespace AIMultilingual\Workspace\Operator;
 use AIMultilingual\Plugin;
 use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Jobs\JobsOperationAdmission;
+use AIMultilingual\Surface\SurfaceCapabilityNames;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Publication\PublicationDecision;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\Review\ReviewCapabilities;
@@ -39,6 +41,35 @@ final class AllowedActionsResolver {
 	public const ACTION_OPEN_JOBS           = 'open_jobs';
 	public const ACTION_RESUME_JOB          = 'resume_job';
 	public const ACTION_RETRY_FAILED_JOB    = 'retry_failed_job';
+
+	/**
+	 * Optional surface registry for mutate/supports facts (O(1) lookup).
+	 *
+	 * @var SurfaceRegistry|null
+	 */
+	private static ?SurfaceRegistry $surfaces = null;
+
+	/**
+	 * Wires the surface registry for OTL list/detail admission facts.
+	 *
+	 * @param SurfaceRegistry|null $surfaces Registry or null to clear.
+	 */
+	public static function set_surface_registry( ?SurfaceRegistry $surfaces ): void {
+		self::$surfaces = $surfaces;
+	}
+
+	/**
+	 * Whether the row's source_type supports mutate via registry (or legacy post).
+	 *
+	 * @param object $row Store row.
+	 */
+	private function source_supports_mutate( object $row ): bool {
+		$source_type = (string) ( $row->source_type ?? '' );
+		if ( null !== self::$surfaces ) {
+			return self::$surfaces->supports( $source_type, SurfaceCapabilityNames::MUTATE );
+		}
+		return Store::SOURCE_POST === $source_type;
+	}
 
 	/**
 	 * Resolves list-safe actions (no publish; no TI.7 eligibility evaluation).
@@ -111,7 +142,7 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_edit( object $row, array $capability_flags ): array {
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		if ( ! $this->source_supports_mutate( $row ) ) {
 			return $this->descriptor( self::ACTION_EDIT, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
 		}
 		if ( empty( $capability_flags['can_translate'] ) ) {
@@ -136,7 +167,7 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_submit( object $row, array $capability_flags ): array {
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		if ( ! $this->source_supports_mutate( $row ) ) {
 			return $this->descriptor( self::ACTION_SUBMIT_FOR_REVIEW, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
 		}
 		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
@@ -175,7 +206,7 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_approve( object $row, array $capability_flags ): array {
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		if ( ! $this->source_supports_mutate( $row ) ) {
 			return $this->descriptor( self::ACTION_APPROVE, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
 		}
 		if ( empty( $capability_flags['can_review'] ) || empty( $capability_flags['can_edit_source'] ) ) {
@@ -196,7 +227,7 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_reject( object $row, array $capability_flags ): array {
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		if ( ! $this->source_supports_mutate( $row ) ) {
 			return $this->descriptor( self::ACTION_REJECT, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
 		}
 		if ( empty( $capability_flags['can_review'] ) || empty( $capability_flags['can_edit_source'] ) ) {
@@ -217,7 +248,7 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_unpublish( object $row, array $capability_flags ): array {
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		if ( ! $this->source_supports_mutate( $row ) ) {
 			return $this->descriptor( self::ACTION_UNPUBLISH, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
 		}
 		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
@@ -253,7 +284,7 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_publish( object $row, array $capability_flags, ?PublicationDecision $publication ): array {
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		if ( ! $this->source_supports_mutate( $row ) ) {
 			return $this->descriptor( self::ACTION_PUBLISH, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
 		}
 		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
@@ -312,7 +343,7 @@ final class AllowedActionsResolver {
 	 * @return array{id: string, allowed: bool, reason_code: string|null}
 	 */
 	private function action_retranslate_stale( object $row, array $capability_flags ): array {
-		if ( Store::SOURCE_POST !== (string) ( $row->source_type ?? '' ) ) {
+		if ( ! $this->source_supports_mutate( $row ) ) {
 			return $this->descriptor( self::ACTION_RETRANSLATE_STALE, false, ActionReasonCodes::MUTATION_UNSUPPORTED_TYPE );
 		}
 		if ( empty( $capability_flags['can_translate'] ) || empty( $capability_flags['can_edit_source'] ) ) {
