@@ -155,7 +155,12 @@ final class Tsc2RegisteredMetaLifecycleTest extends AimlTestCase {
 	}
 
 	public function test_term_native_meta_extract_additional_to_name_description(): void {
-		$term_id = self::factory()->term->create( array( 'taxonomy' => 'category', 'name' => 'News' ) );
+		$term_id = self::factory()->term->create(
+			array(
+				'taxonomy' => 'category',
+				'name'     => 'News',
+			)
+		);
 		update_term_meta( $term_id, '_aiml_tsc2_blurb', 'Category blurb' );
 
 		$registry = new RegisteredMetaRegistry();
@@ -173,7 +178,7 @@ final class Tsc2RegisteredMetaLifecycleTest extends AimlTestCase {
 		$extractor = new TermExtractor(
 			new RegisteredMetaExtractor( $registry, new RegisteredMetaReader() )
 		);
-		$segments = $extractor->extract( $term_id );
+		$segments  = $extractor->extract( $term_id );
 		$this->assertArrayHasKey( 'name', $segments );
 		$this->assertArrayHasKey( 'm:aiml_tsc2:_aiml_tsc2_blurb', $segments );
 		$this->assertSame( 'News', (string) ( $segments['name']['source_text'] ?? '' ) );
@@ -310,7 +315,7 @@ final class Tsc2RegisteredMetaLifecycleTest extends AimlTestCase {
 				},
 			)
 		);
-		$translation = new \AIMultilingual\Workspace\TranslationService(
+		$translation    = new \AIMultilingual\Workspace\TranslationService(
 			$this->store,
 			$assembler,
 			$this->languages,
@@ -319,7 +324,7 @@ final class Tsc2RegisteredMetaLifecycleTest extends AimlTestCase {
 			null,
 			$glossary
 		);
-		$processor = new \AIMultilingual\Jobs\BackgroundTranslationItemProcessor(
+		$processor      = new \AIMultilingual\Jobs\BackgroundTranslationItemProcessor(
 			$this->store,
 			$translation,
 			$glossary,
