@@ -1,22 +1,22 @@
 # TSC.1 First-Class Taxonomy Terms — Planning Freeze Validation Log
 
-**Status:** Planning freeze in progress on branch `docs/tsc1-first-class-taxonomy-terms-planning-freeze`
+**Status:** Planning freeze on branch `docs/tsc1-first-class-taxonomy-terms-planning-freeze` — independent review **PASS**
 **Authoritative plan:** [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md)
 **ADR:** [0021-first-class-taxonomy-term-identity-and-lazy-adoption.md](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md)
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md)
 
-## Freeze record (filled through closure)
+## Freeze record
 
 | Field | Value |
 |---|---|
 | Planning baseline main HEAD | `56eff6aa172e1dd8b4f9267a11bc53afa0508f1d` |
-| Baseline drift | None vs recorded baseline; `main` == `origin/main` at branch creation |
+| Baseline drift | None; `main` == `origin/main` at branch creation |
 | Planning branch | `docs/tsc1-first-class-taxonomy-terms-planning-freeze` |
-| Materialization commit | _(pending)_ |
-| Final reviewed planning HEAD | _(pending)_ |
+| Materialization commit | `d1c467c3081fd781ebe8d533d9587d00434d57c1` |
+| Final reviewed planning HEAD | _(this tip after review-fix commit)_ |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 (eight amendments) |
-| Independent planning review | _(pending)_ |
-| Review fixes | _(pending)_ |
+| Independent planning review | **PASS** |
+| Review fixes | Gap-lock note for absent native; WP VARCHAR(32) citation; FE guard honesty; parent §6 retirement wording aligned to ADR-0021 |
 | Planning PR | _(pending)_ |
 | Planning CI | _(pending)_ |
 | Freeze merge | _(pending)_ |
@@ -43,29 +43,51 @@
 
 ## STATE A reasoning
 
-- Unique key `(source_type, source_id, segment_hash, language_id)` admits `source_type=term` without migration (`source_id` BIGINT fits `term_id`; `source_subtype` VARCHAR(32) fits taxonomy slugs; subtype not in uniqueness).
+- Unique key `(source_type, source_id, segment_hash, language_id)` admits `source_type=term` without migration.
+- `source_id` BIGINT fits `term_id`; `source_subtype` VARCHAR(32) matches WP `wp_term_taxonomy.taxonomy`.
 - No durable alias table; supersession via native existence + resolver.
 - No TARGET bump; locking is application-level on existing InnoDB table.
 
 ## Independent planning review
 
-**Verdict:** _(pending — run against materialized docs + current source)_
+**Verdict:** `TSC.1 PLANNING FREEZE REVIEW: PASS`
+
+Falsified against source at materialization tip (Store, Schema, Surface coordinator, Woo/Rank Math hosts, OTL, Jobs). No blocking defects.
 
 ### Checklist
 
 | ID | Check | Result |
 |---|---|---|
-| A | Identity/schema fits Store | _(pending)_ |
-| B | Adoption columns/writes/locks sound | _(pending)_ |
-| C | Axis/adopt race serialization sound | _(pending)_ |
-| D | Resolver read-only / native precedence | _(pending)_ |
-| E | OTL implications sound | _(pending)_ |
-| F | Jobs implications sound | _(pending)_ |
-| G | Frontend seams sound | _(pending)_ |
-| H | Rank Math disposition sound | _(pending)_ |
-| I | Deletion/orphan sound | _(pending)_ |
-| J | Scope excludes TSC.2+ / labels / public API | _(pending)_ |
+| A | Identity/schema fits Store | **PASS** — unique key / BIGINT / VARCHAR widths |
+| B | Adoption columns/writes/locks sound | **PASS** — `save_translation` unsafe confirmed; dedicated adopt required; no locks today |
+| C | Axis/adopt race serialization sound | **PASS** — shared native-then-hosted order; gap-lock note added |
+| D | Resolver read-only / native precedence | **PASS** |
+| E | OTL implications sound | **PASS** — post-shaped gaps match TSC1.4 |
+| F | Jobs implications sound | **PASS** — non-post auth skip hole confirmed; plan targets it |
+| G | Frontend seams sound | **PASS** — existing Woo hooks; hard guards additive |
+| H | Rank Math disposition sound | **PASS** — hosted keys/`p:rankmath:term:` match |
+| I | Deletion/orphan sound | **PASS** — true orphan vs adopt retirement distinguished |
+| J | Scope excludes TSC.2+ / labels / public API | **PASS** |
 
-## Planning closure (after merge)
+### Defects found
 
-**TSC.1 Architecture Frozen** on `main` — filled in closure commit.
+None blocking. Non-blocking documentation tighten-ups applied (see Review fixes).
+
+### Fixes applied
+
+1. Authority lock: absent-native unique-key `FOR UPDATE` + ban premature hosted `translation_id` lock.  
+2. Cite WP `taxonomy` VARCHAR(32) for `source_subtype`.  
+3. Note current FE bridge primarily `is_admin()`; TSC.1 hard guards additive.  
+4. Parent §6 item 3: retire hosted as `ignored` with cleared `error_code` (not `orphaned`).
+
+## Matrices frozen
+
+| Matrix | Count |
+|---|---|
+| TT | TT1–TT40 |
+| AC | AC1–AC58 |
+| WP | TSC1.0–TSC1.8 |
+
+## Planning closure
+
+Filled after merge to `main`.

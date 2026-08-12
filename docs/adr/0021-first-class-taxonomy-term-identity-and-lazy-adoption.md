@@ -85,7 +85,7 @@ Successful adopt retires hosted as `status=ignored` with `error_code=''` (cleare
 ### 6. Adoption persistence + mutation serialization
 
 - `Store::adopt_row_to_identity` — transactional clone/move; **must not** use `save_translation`.
-- `Store::with_term_compat_authority` — lock order: native candidate key, then hosted key; shared by adopt and hosted-compat axis persist.
+- `Store::with_term_compat_authority` — lock order: native candidate key, then hosted key; shared by adopt and hosted-compat axis persist. Absent native uses unique-key `SELECT … FOR UPDATE` (InnoDB gap/next-key). Do not lock hosted by `translation_id` before entering the helper.
 - Under lock: if native appeared, remap axis to native; never write retired hosted as authoritative.
 - TI.5/TI.7 still decide whether review/publication is legal; this ADR only freezes identity/authority serialization.
 

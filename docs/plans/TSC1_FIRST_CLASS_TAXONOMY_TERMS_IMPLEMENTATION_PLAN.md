@@ -36,7 +36,7 @@
 
 | Concern | Reality |
 |---|---|
-| Store unique key | `(source_type, source_id, segment_hash, language_id)` — `source_type` VARCHAR(20), `source_id` BIGINT, `source_subtype` VARCHAR(32) **not** in uniqueness ([Schema::create_translations](../src/Database/Schema.php)) |
+| Store unique key | `(source_type, source_id, segment_hash, language_id)` — `source_type` VARCHAR(20), `source_id` BIGINT, `source_subtype` VARCHAR(32) **not** in uniqueness ([Schema::create_translations](../src/Database/Schema.php)). VARCHAR(32) matches WordPress `wp_term_taxonomy.taxonomy` width, so any WP-storable taxonomy slug fits. |
 | `Store::SOURCE_*` | Only `SOURCE_POST` today |
 | `save_translation` | Recomputes hashes; on text change clears review + publish axes — **unsafe for adopt** |
 | `update_review_metadata` / `update_publish_metadata` | get → update by `translation_id`; **no** row locks / authority re-check |
@@ -45,7 +45,7 @@
 | SurfaceCapability | Source-type-generic; coordinator `sync_identity` still **post-only** |
 | Hosted Woo terms | `post` + shop page; keys `p:woocommerce:{tax}:{term_id}:name\|description` |
 | Rank Math term SEO | Hosted on shop / `page_for_posts`; keys `p:rankmath:term:{term_id}:*` |
-| FE overlays today | Woo: `single_term_title`, `woocommerce_page_title`, `term_description` — no `get_term` mutation |
+| FE overlays today | Woo: `single_term_title`, `woocommerce_page_title`, `term_description` — no `get_term` mutation. Current bridge primarily skips `is_admin()`; TSC.1 hard guards for REST/AJAX/cron/feed/embed on `term_description` are **additive**. |
 | OTL classic REST | `post_id` routes stay post-only; terms use `translation_id` routes |
 | Jobs | Create registry-ready; execution/auth still post-shaped (non-post auth skip hole) |
 
@@ -166,7 +166,7 @@ Orchestrator: `TermAdoptionService`. **Store remains persistence owner.** No sec
 |---|---|
 | Owner | Store only |
 | Lock order | (1) native candidate key, (2) hosted key — same for adopt and axis |
-| Mechanism | Transaction + `SELECT … FOR UPDATE` (InnoDB); **new** in TSC.1 (absent today) |
+| Mechanism | Transaction + `SELECT … FOR UPDATE` (InnoDB); **new** in TSC.1 (absent today). Absent native is locked via unique-key `SELECT … FOR UPDATE` (InnoDB gap/next-key). Callers must **not** take a hosted `translation_id` row lock before entering this helper. |
 | Re-validate | Native exists → native authoritative; else active hosted → hosted; else miss |
 | Defense | Refuse axis write to hosted when native exists or hosted already `ignored` |
 
