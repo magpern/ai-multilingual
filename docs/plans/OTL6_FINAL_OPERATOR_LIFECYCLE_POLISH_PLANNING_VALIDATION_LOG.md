@@ -17,7 +17,7 @@
 | Review fixes | Async dirty-leave admission; Review→Ops `languageCodeForId`; AC20 restore precedence |
 | Freeze merge | `7e4bdd7e1e750abdd143ce10ba865437b15ea1f0` (`merge: freeze OTL.6 Final Operator Lifecycle Polish implementation plan`) |
 | Freeze merge CI | run `31571822674` — phpcs / unit / integration / quality / build **SUCCESS** |
-| Closure commit | *(this commit)* |
+| Closure commit | `bfa6cadb1e9cd0d5d021db87b4e1469eb400adfd` |
 | Post-closure CI | *(pending)* |
 | Plugin version | **1.2.0** (unchanged) |
 | TARGET | **7** (unchanged) |
