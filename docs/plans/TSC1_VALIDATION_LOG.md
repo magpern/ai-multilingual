@@ -20,6 +20,8 @@
 | Implementation review | **PASS** (after publication-axis + savepoint fixes) |
 | Merge SHA | `4d21536f07f414f84a8b30501e25d5995aff11ff` |
 | Fresh main CI | run `31624815249` — **SUCCESS** |
+| Closure commit | `f2129c30db6c10a54449e112fc790ad066d84e22` |
+| Post-closure CI | run `31625069393` — **SUCCESS** (tip `f2129c30d`) |
 | Version | **1.3.0** |
 | TARGET | **7** |
 | Schema | STATE A — no migration |
