@@ -1,8 +1,9 @@
 # TSC.2 Implementation Evidence
 
-**Status:** Implementation on `feature/tsc2-registered-meta-surfaces`
+**Status:** **COMPLETE** on `main` (merge `53470811a92147f4141395f4da63b8d04fea3b46`)
 **Plan:** [TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md](TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md)
 **Baseline:** [TSC2_IMPLEMENTATION_BASELINE.md](TSC2_IMPLEMENTATION_BASELINE.md)
+**Validation:** [TSC2_VALIDATION_LOG.md](TSC2_VALIDATION_LOG.md)
 
 ## Work packages
 

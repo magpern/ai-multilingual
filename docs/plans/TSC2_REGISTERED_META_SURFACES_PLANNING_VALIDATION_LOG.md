@@ -1,6 +1,6 @@
 # TSC.2 Registered Meta Translation Surfaces — Planning Freeze Validation Log
 
-**Status:** **TSC.2 Architecture Frozen** on `main`
+**Status:** **TSC.2 Architecture Frozen** on `main` — production implementation **COMPLETE** (`53470811a`)
 **Authoritative plan:** [TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md](TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md)
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md)
 **ADR:** **None**
@@ -28,7 +28,7 @@
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (STATE A) |
 | New ADR | **None** |
-| Production implementation | **NOT STARTED** |
+| Production implementation | **COMPLETE** (`53470811a92147f4141395f4da63b8d04fea3b46`) |
 | Tag | No new tag; existing `v1.3.0` unchanged |
 
 ## External amendments incorporated
@@ -150,4 +150,4 @@ No production code changes. STATE A remains valid — no redesign.
 | TSC2.0–TSC2.7 | Frozen (not started) |
 | Limitations / debt | CASE B retain formula must cover host-emitted Rank Math; no generic custom-field product claim |
 
-**Exact next step:** Run the separate **TSC.2 implementation + independent implementation review + review-fix loop + merge + fresh main CI + milestone closure** task from the frozen main baseline. Do **not** start that task until authorized. Do **not** start TSC.3+.
+**Exact next step:** Definitive **TSC.3 planning**, only when separately authorized. Do **not** start TSC.3 implementation. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.2 closure.
