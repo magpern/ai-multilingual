@@ -130,11 +130,11 @@ This superseded the earlier product-direction preference that Program C and Prog
 
 ### Later (separate product decisions)
 
-### Operator Translation Lifecycle (OTL) — active
+### Operator Translation Lifecycle (OTL) — COMPLETE
 
 Authoritative parent: [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md).
 
-Ladder: **OTL.0 → OTL.1–OTL.6** (see parent for dependencies). Orchestration/presentation over frozen TIQ services. Public/SaaS neutrality is a hard invariant. Future generic coverage work is **Translation Surface Coverage (TSC)** — separate from OTL; not planned here.
+Ladder: **OTL.0 → OTL.1–OTL.6** (all Complete). Orchestration/presentation over frozen TIQ services. Public/SaaS neutrality is a hard invariant. Future generic coverage work is **Translation Surface Coverage (TSC)** — separate from OTL; not started.
 
 ### Historical Program C — Translator experience
 
