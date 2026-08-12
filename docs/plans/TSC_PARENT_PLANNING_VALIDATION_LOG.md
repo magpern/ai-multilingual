@@ -18,8 +18,8 @@
 | Planning CI (feature branch) | run `31593873062` — phpcs / unit / integration / quality / build **SUCCESS** |
 | Freeze merge | `8c93d505a2afc7d9ebc14a29a44d9d3ceb98e41b` (`merge: freeze Translation Surface Coverage parent architecture`) |
 | Freeze merge / fresh main CI | run `31594045929` — phpcs / unit / integration / quality / build **SUCCESS** |
-| Closure commit | *(this closure commit on main)* |
-| Post-closure CI | *(filled after push)* |
+| Closure commit | `13739bdb6fa6fbb732fcb0cc275e178fb54427aa` |
+| Post-closure CI | run `31594300537` — phpcs / unit / integration / quality / build **SUCCESS** |
 | Plugin version | **1.3.0** (unchanged) |
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (STATE A) |
@@ -101,8 +101,9 @@ None. Materialization matches the externally approved blocker-closed parent.
 
 | Item | Value |
 |---|---|
-| Freeze merge | `8c93d505a2afc7d9ebc14a29a44d9d3ceb98e41b` |
-| Fresh main CI | run `31594045929` — **SUCCESS** |
+| Closure commit | `13739bdb6fa6fbb732fcb0cc275e178fb54427aa` |
+| Post-closure CI | run `31594300537` — **SUCCESS** |
+| Fresh main CI (freeze merge) | run `31594045929` — **SUCCESS** |
 | Authoritative plan | [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) |
 | Schema | STATE A / TARGET **7** |
 | Ladder | TSC.0–TSC.6 |
