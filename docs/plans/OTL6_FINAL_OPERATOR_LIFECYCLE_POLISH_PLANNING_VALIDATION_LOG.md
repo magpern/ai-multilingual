@@ -1,6 +1,6 @@
 # OTL.6 Final Operator Lifecycle Polish — Planning Freeze Validation Log
 
-**Status:** Independent planning review **PASS** (awaiting freeze merge)
+**Status:** **OTL.6 Architecture Frozen** on `main`
 **Authoritative plan:** [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 
@@ -14,10 +14,10 @@
 | Final reviewed planning HEAD | `66a0f405242798f594377e3bf52f3d06348f3179` |
 | External freeze review | **PASS** (STATE A — FREEZE; A1–A4) |
 | Independent planning review | **PASS** |
-| Review fixes | See below |
-| Freeze merge | *(pending)* |
-| Freeze merge CI | *(pending)* |
-| Closure commit | *(pending)* |
+| Review fixes | Async dirty-leave admission; Review→Ops `languageCodeForId`; AC20 restore precedence |
+| Freeze merge | `7e4bdd7e1e750abdd143ce10ba865437b15ea1f0` (`merge: freeze OTL.6 Final Operator Lifecycle Polish implementation plan`) |
+| Freeze merge CI | run `31571822674` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Closure commit | *(this commit)* |
 | Post-closure CI | *(pending)* |
 | Plugin version | **1.2.0** (unchanged) |
 | TARGET | **7** (unchanged) |
@@ -31,34 +31,35 @@
 
 **Verdict:** `OTL.6 PLANNING FREEZE REVIEW: PASS`
 
-Adversarial checks against OTL parent, OTL.0–OTL.5 closures, TIQ ownership, App/Operations/Jobs/Review code, A6, Playwright strategy, neutrality, and STOP conditions.
+### Defects found and fixed (pre-merge)
 
-### Defects found and fixed
-
-1. **Async dirty-leave vs Modal ConfirmDialog** — Draft described a sync `() => boolean` guard incompatible with WP Modal confirms. Fixed: freeze **async** admission (dirty predicate + ConfirmDialog; App `requestViewChange` gated). `beforeunload` remains separate sync browser guard.
-2. **Review→Ops language identity** — Ops URL needs language **code**; Review queue has `language_id`. Fixed: document use of existing client `languageCodeForId` with additive `translation_id` (no new REST language_code field required). Confirmed `Store::query_review_queue` is `SELECT *` + hydrate including `translation_id`.
-3. **AC20 restore precedence** — Clarified cold URL deep-link vs in-SPA session snapshot preference.
-
-### Checks that passed without change
-
-- A1/A2/A3/A4 locks match repository reality and do not reopen Deferred bulk retry / Jobs enrichment / schema.
-- OP15 Partial correctly avoids Jobs Store enrichment (A3).
-- OP1–OP24 / AC1–AC52 / OTL6.0–OTL6.8 contiguous and consistent after fixes.
-- A6 orthogonal to dirty-leave.
-- No STATE B triggers.
+1. Async dirty-leave vs Modal ConfirmDialog — freeze async admission.
+2. Review→Ops language identity — use existing `languageCodeForId` + additive `translation_id`.
+3. AC20 restore precedence — cold URL vs in-SPA session snapshot.
 
 ## Locked contracts (A1–A4)
 
-- **A1** Centralized **async** dirty-leave admission; beforeunload separate; A6 orthogonal; no durable draft
+- **A1** Centralized async dirty-leave admission; beforeunload separate; A6 orthogonal; no durable draft
 - **A2** Session-only Ops nav snapshot; URL canonical only on Ops; clear including language; selection/bulk non-persistent
 - **A3** Jobs→Ops **Partial/Deferred** (OP15); Review→Ops Supported; bulk→Jobs Supported
 - **A4** `acceptance/otl-browser/` authoritative; otl1–otl5 archives retained; live non-CI
 - OP1–OP24 · AC1–AC52 · OTL6.0–OTL6.8
 
-## Exact next step (after freeze + closure)
+## Planning closure
 
-Run the combined OTL.6 implementation + independent implementation review + merge + milestone/program closure from the frozen main baseline.
+**OTL.6 Architecture Frozen** on `main`.
 
-Do **not** implement OTL.6 until that combined implementation task begins.  
-Do **not** create the implementation branch in the planning freeze task.  
-Do **not** start TSC.
+| Item | Value |
+|---|---|
+| Freeze merge | `7e4bdd7e1e750abdd143ce10ba865437b15ea1f0` |
+| Freeze merge CI | run `31571822674` — **SUCCESS** |
+| Authoritative plan | [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md) |
+| OP matrix | OP1–OP24 |
+| AC set | AC1–AC52 |
+| Work packages | OTL6.0–OTL6.8 |
+| Version / TARGET | 1.2.0 / 7 |
+| Schema / ADR | none |
+| OTL.6 production implementation | **Not started** |
+| TSC | Not started |
+
+**Exact next step:** Run the combined OTL.6 Final Operator Lifecycle Polish implementation + independent implementation review + review-fix loop + merge + fresh main CI + OTL.6/program closure from the frozen main baseline. Do not create `feature/otl6-*` until that implementation task begins. Do not start TSC.

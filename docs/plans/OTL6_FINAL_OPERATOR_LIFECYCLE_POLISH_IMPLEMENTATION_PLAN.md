@@ -1,19 +1,21 @@
 # OTL.6 — Final Operator Lifecycle Polish — Implementation Plan
 
-**Status:** **Architecture Frozen** candidate on planning branch (awaiting freeze merge to `main`; production implementation **not started**)
+**Status:** **Architecture Frozen** on `main` (freeze merge `7e4bdd7e1e750abdd143ce10ba865437b15ea1f0`; production implementation **not started**)
 **Milestone:** OTL.6 — Final Operator Lifecycle Polish (Operator Translation Lifecycle program)
-**Kind:** Milestone implementation plan (authoritative after freeze merge)
+**Kind:** Milestone implementation plan (authoritative on `main` after freeze merge)
 **Parent:** [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 **Prerequisites:** OTL parent **Architecture Frozen**; OTL.0–OTL.5 **Complete**; TIQ **Complete**; AI Multilingual **v1.2.0**; `Migrator::TARGET` **7**
 **Schema:** Migrator `TARGET` = **7** (unchanged — **no migration**, **no new index**)
 **ADR:** **No new ADR.** ADR-0015 / ADR-0019 / ADR-0020 / ADR-0011 / TI.6–TI.7 ownership unchanged.
 **Planning baseline main HEAD:** `78c56d3c4bba154fe73f54269ae8f0243658849d`
-**Planning branch:** `docs/otl6-final-operator-lifecycle-polish-planning-freeze`
+**Planning branch:** `docs/otl6-final-operator-lifecycle-polish-planning-freeze` (merged)
 **External freeze review:** **PASS** (STATE A — FREEZE; A1–A4 locked)
 **Independent planning review:** **PASS**
 **Reviewed planning HEAD:** `66a0f405242798f594377e3bf52f3d06348f3179`
+**Freeze merge:** `main` @ `7e4bdd7e1e750abdd143ce10ba865437b15ea1f0`
+**Freeze merge CI:** run `31571822674` — **SUCCESS**
 **Validation:** [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_PLANNING_VALIDATION_LOG.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_PLANNING_VALIDATION_LOG.md)
-**Implementation branch:** **Do not create** until this plan is frozen on `main` and the combined implementation task begins.
+**Implementation branch:** **Do not create** until the combined implementation task begins.
 **Next after freeze/closure:** Run the combined **OTL.6 Final Operator Lifecycle Polish implementation** + independent implementation review + merge + milestone/program closure from the frozen main baseline. Do **not** start TSC under OTL.
 **Related:** [OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md](OTL5_BOUNDED_BULK_OPERATIONS_IMPLEMENTATION_PLAN.md); [OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md](OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md); [OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md](OTL2_UNIFIED_DETAIL_EDIT_REVIEW_IMPLEMENTATION_PLAN.md); [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 

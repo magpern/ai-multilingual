@@ -24,7 +24,7 @@
 **Final main HEAD CI:** run `31538489271` — **SUCCESS**
 **Validation:** [OTL5_BOUNDED_BULK_OPERATIONS_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_VALIDATION_LOG.md); planning log [OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md](OTL5_BOUNDED_BULK_OPERATIONS_PLANNING_VALIDATION_LOG.md)
 **Implementation branch:** `feature/otl5-bounded-bulk-operations` (merged)
-**Next:** Begin definitive **OTL.6 Final Operator Lifecycle Polish** planning from this closed baseline. Do **not** implement OTL.6 or start TSC under OTL until OTL.6 is frozen on main.
+**Next:** Begin definitive **OTL.6 Final Operator Lifecycle Polish** implementation from the frozen plan ([OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md)). Do **not** start TSC under OTL until OTL.6 is complete.
 **Related:** [OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md](OTL4_JOBS_INTEGRATION_IMPLEMENTATION_PLAN.md); [OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md](OTL3_PUBLICATION_STALE_WORKFLOW_IMPLEMENTATION_PLAN.md); [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md)
 
 **External-review amendments locked:**
