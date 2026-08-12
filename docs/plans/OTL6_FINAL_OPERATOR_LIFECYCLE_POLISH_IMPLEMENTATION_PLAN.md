@@ -14,6 +14,8 @@
 **Reviewed planning HEAD:** `66a0f405242798f594377e3bf52f3d06348f3179`
 **Freeze merge:** `main` @ `7e4bdd7e1e750abdd143ce10ba865437b15ea1f0`
 **Freeze merge CI:** run `31571822674` — **SUCCESS**
+**Closure commit:** `bfa6cadb1e9cd0d5d021db87b4e1469eb400adfd`
+**Post-closure CI:** run `31572009224` — **SUCCESS**
 **Validation:** [OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_PLANNING_VALIDATION_LOG.md](OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_PLANNING_VALIDATION_LOG.md)
 **Implementation branch:** **Do not create** until the combined implementation task begins.
 **Next after freeze/closure:** Run the combined **OTL.6 Final Operator Lifecycle Polish implementation** + independent implementation review + merge + milestone/program closure from the frozen main baseline. Do **not** start TSC under OTL.
