@@ -28,7 +28,7 @@
 | TSC0.0–TSC0.7 | **COMPLETE** |
 | SF1–SF22 | PASS |
 | AC1–AC36 | PASS |
-| TSC.1–TSC.6 | **NOT STARTED** |
+| TSC.1–TSC.6 | TSC.1 **Architecture Frozen** (implementation NOT STARTED); TSC.2–TSC.6 **NOT STARTED** |
 
 ## Independent implementation review
 
@@ -38,4 +38,4 @@ See checklist in prior feature-branch section; defects fixed before merge (coord
 
 ## Exact next step
 
-Begin definitive **TSC.1** milestone planning when authorized. Do not implement TSC.1 until its plan is frozen on `main`.
+TSC.1 planning is **Architecture Frozen** on `main`. Begin authorized **TSC.1 implementation** via `feature/tsc1-first-class-taxonomy-terms` only when an implementation task is opened. Do not start TSC.2+.

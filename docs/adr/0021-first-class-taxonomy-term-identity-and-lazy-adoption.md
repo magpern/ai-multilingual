@@ -2,12 +2,14 @@
 
 ## Status
 
-**Proposed** (2026-08-12) — Accepted upon TSC.1 Architecture Frozen on `main`.
+**Accepted** (2026-08-12) — First-class taxonomy-term identity, lazy adoption, and visitor-only overlays for TSC.1.
 
 **Decision maker:** Product Owner  
+**Approval date:** 2026-08-12  
+**Decision:** ADR-0021 **Accepted** (planning freeze)  
 **Scope:** `SOURCE_TERM` / TERM_ID; taxonomy `source_subtype`; native name/description identity; lazy hosted→native adoption; temporary read-alias; native precedence; honest hosted retirement; single authoritative writer; permanent dual-write prohibition; Store adoption persistence primitive; lifecycle/evidence preservation; adoption/mutation serialization; adoption triggers; read-only compatibility resolver; visitor-only overlays; no broad `get_term` mutation; `pa_*` term values vs attribute taxonomy labels.
 
-**Does not authorize:** TSC.1 production coding until [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](../plans/TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md) is **Architecture Frozen** on `main`. Does **not** bump `Migrator::TARGET` or plugin version.
+**Does not authorize:** TSC.1 production coding until an implementation task opens `feature/tsc1-first-class-taxonomy-terms` against the Architecture Frozen plan. Does **not** bump `Migrator::TARGET` or plugin version.
 
 **Residual risks accepted:**
 
@@ -144,4 +146,4 @@ Implement via TSC.0 `SurfaceCapability` / registry (`TermSurfaceAdapter`). Addit
 
 ## Implementation gate
 
-**Open for TSC.1 implementation** only after the TSC.1 plan is **Architecture Frozen** on `main` and an implementation task opens `feature/tsc1-first-class-taxonomy-terms`.
+**Implementation gate:** **Open for TSC.1 implementation** after Architecture Frozen on `main` (freeze merge `1fcf8d2e3088b09174526643e13a2d8ccf5cb2d4`) when an implementation task opens `feature/tsc1-first-class-taxonomy-terms`.

@@ -1,11 +1,12 @@
 # TSC.1 — First-Class Taxonomy Terms Implementation Plan
 
-**Status:** **Architecture Frozen (planning)** — production implementation **NOT STARTED**
+**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
 **Milestone:** TSC.1 First-Class Taxonomy Terms
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`)
 **External review:** **FREEZE** (eight amendments incorporated) · **STATE A** · **TARGET 7**
-**Independent planning review:** see [TSC1_PLANNING_VALIDATION_LOG.md](TSC1_PLANNING_VALIDATION_LOG.md)
-**ADR:** [0021-first-class-taxonomy-term-identity-and-lazy-adoption.md](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md)
+**Independent planning review:** **PASS** — [TSC1_PLANNING_VALIDATION_LOG.md](TSC1_PLANNING_VALIDATION_LOG.md)
+**ADR:** [0021-first-class-taxonomy-term-identity-and-lazy-adoption.md](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md) (**Accepted** with this freeze)
+**Freeze merge:** `1fcf8d2e3088b09174526643e13a2d8ccf5cb2d4`
 **Depends on:** AI Multilingual **v1.3.0**; TIQ Complete; OTL Complete; TSC Parent Frozen; **TSC.0 COMPLETE**; `Migrator::TARGET` **7**
 **Related:** ADR-0001 overlay; ADR-0005 Store; ADR-0007 hashes; ADR-0015 Review; ADR-0017 Integration; ADR-0020 Publication; [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md)
 
@@ -14,7 +15,7 @@
 **Production implementation status:** **NOT STARTED.**
 **TSC.2–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step (after this freeze closes on main):** Open `feature/tsc1-first-class-taxonomy-terms` and execute TSC1.0→TSC1.8 per this plan. Do not bump version/TARGET, tag, release, or deploy as part of planning closure.
+**Exact next step:** Open `feature/tsc1-first-class-taxonomy-terms` and execute TSC1.0→TSC1.8 per this plan when an implementation task is authorized. Do not bump version/TARGET, tag, release, or deploy as part of planning closure.
 
 ---
 

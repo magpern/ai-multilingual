@@ -1,6 +1,6 @@
 # TSC.1 First-Class Taxonomy Terms — Planning Freeze Validation Log
 
-**Status:** Planning freeze on branch `docs/tsc1-first-class-taxonomy-terms-planning-freeze` — independent review **PASS**
+**Status:** **TSC.1 Architecture Frozen** on `main`
 **Authoritative plan:** [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md)
 **ADR:** [0021-first-class-taxonomy-term-identity-and-lazy-adoption.md](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md)
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md)
@@ -13,16 +13,16 @@
 | Baseline drift | None; `main` == `origin/main` at branch creation |
 | Planning branch | `docs/tsc1-first-class-taxonomy-terms-planning-freeze` |
 | Materialization commit | `d1c467c3081fd781ebe8d533d9587d00434d57c1` |
-| Final reviewed planning HEAD | `0a0d0b57c396ae74788fb03c7c821adf71d60bd7` |
+| Final reviewed planning HEAD | `e801a685691b8d1bbd4558cf8145892388c2ea9f` (pin tip); review content `0a0d0b57c396ae74788fb03c7c821adf71d60bd7` |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 (eight amendments) |
 | Independent planning review | **PASS** |
-| Review fixes | Gap-lock note for absent native; WP VARCHAR(32) citation; FE guard honesty; parent §6 retirement wording aligned to ADR-0021 |
-| Planning PR | _(pending)_ |
-| Planning CI | _(pending)_ |
-| Freeze merge | _(pending)_ |
-| Fresh main CI | _(pending)_ |
-| Closure commit | _(pending)_ |
-| Post-closure CI | _(pending)_ |
+| Review fixes | Gap-lock note; WP VARCHAR(32) citation; FE guard honesty; parent §6 retirement wording |
+| Planning PR | https://github.com/magpern/ai-multilingual/pull/25 |
+| Planning CI (feature branch) | run `31615465586` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Freeze merge | `1fcf8d2e3088b09174526643e13a2d8ccf5cb2d4` (`merge: freeze TSC.1 First-Class Taxonomy Terms plan`) |
+| Fresh main CI (freeze merge) | run `31615645190` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Closure commit | _(this commit)_ |
+| Post-closure CI | _(pending follow-up)_ |
 | Plugin version | **1.3.0** (unchanged) |
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (STATE A) |
@@ -52,26 +52,26 @@
 
 **Verdict:** `TSC.1 PLANNING FREEZE REVIEW: PASS`
 
-Falsified against source at materialization tip (Store, Schema, Surface coordinator, Woo/Rank Math hosts, OTL, Jobs). No blocking defects.
+Falsified against source (Store, Schema, Surface coordinator, Woo/Rank Math hosts, OTL, Jobs). No blocking defects.
 
 ### Checklist
 
 | ID | Check | Result |
 |---|---|---|
-| A | Identity/schema fits Store | **PASS** — unique key / BIGINT / VARCHAR widths |
-| B | Adoption columns/writes/locks sound | **PASS** — `save_translation` unsafe confirmed; dedicated adopt required; no locks today |
-| C | Axis/adopt race serialization sound | **PASS** — shared native-then-hosted order; gap-lock note added |
+| A | Identity/schema fits Store | **PASS** |
+| B | Adoption columns/writes/locks sound | **PASS** |
+| C | Axis/adopt race serialization sound | **PASS** |
 | D | Resolver read-only / native precedence | **PASS** |
-| E | OTL implications sound | **PASS** — post-shaped gaps match TSC1.4 |
-| F | Jobs implications sound | **PASS** — non-post auth skip hole confirmed; plan targets it |
-| G | Frontend seams sound | **PASS** — existing Woo hooks; hard guards additive |
-| H | Rank Math disposition sound | **PASS** — hosted keys/`p:rankmath:term:` match |
-| I | Deletion/orphan sound | **PASS** — true orphan vs adopt retirement distinguished |
+| E | OTL implications sound | **PASS** |
+| F | Jobs implications sound | **PASS** |
+| G | Frontend seams sound | **PASS** |
+| H | Rank Math disposition sound | **PASS** |
+| I | Deletion/orphan sound | **PASS** |
 | J | Scope excludes TSC.2+ / labels / public API | **PASS** |
 
 ### Defects found
 
-None blocking. Non-blocking documentation tighten-ups applied (see Review fixes).
+None blocking. Non-blocking documentation tighten-ups applied before merge.
 
 ### Fixes applied
 
@@ -90,4 +90,18 @@ None blocking. Non-blocking documentation tighten-ups applied (see Review fixes)
 
 ## Planning closure
 
-Filled after merge to `main`.
+**TSC.1 Architecture Frozen** on `main`.
+
+**TSC.1 production implementation NOT STARTED.**
+
+**TSC.2–TSC.6 implementation NOT STARTED.**
+
+| Item | Value |
+|---|---|
+| Authoritative plan | [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md) |
+| ADR | [0021](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md) |
+| Schema | STATE A / TARGET **7** |
+| Version | **1.3.0** |
+| Limitations / debt | Alias sunset optional; archive-title/breadcrumbs deferred; attribute labels TSC.3; classic `post_id` REST post-only; Store locking new infra |
+
+**Exact next step:** Begin authorized **TSC.1 implementation** from frozen main via `feature/tsc1-first-class-taxonomy-terms` only when an implementation task is opened. Execute TSC1.0→TSC1.8 per the authoritative plan. Do **not** start TSC.2+. Do **not** bump version/TARGET, tag, release, or deploy as part of planning closure.
