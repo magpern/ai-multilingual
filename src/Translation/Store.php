@@ -1456,6 +1456,120 @@ final class Store {
 	}
 
 	/**
+	 * Bounded rehost of matching segment rows from one Store host to another (TSC.3).
+	 *
+	 * Moves only rows whose segment_key satisfies $predicate. Does not change
+	 * segment_key / language / lifecycle columns other than source_id (and
+	 * updated_at). Destination conflicts keep the destination row and retire
+	 * the source duplicate as ignored/orphaned — never two writable authorities.
+	 *
+	 * @param string                 $source_type Source type (typically post).
+	 * @param int                    $from_id     Old host id.
+	 * @param int                    $to_id       New host id.
+	 * @param callable(string): bool $predicate   Segment key admission.
+	 * @return array{moved:int, retired:int, skipped:int}
+	 */
+	public function rehost_segments( string $source_type, int $from_id, int $to_id, callable $predicate ): array {
+		global $wpdb;
+
+		$stats = array(
+			'moved'   => 0,
+			'retired' => 0,
+			'skipped' => 0,
+		);
+
+		if ( '' === $source_type || $from_id <= 0 || $to_id <= 0 || $from_id === $to_id ) {
+			return $stats;
+		}
+
+		$table = Schema::translations();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT * FROM ' . $table // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				. ' WHERE source_type = %s AND source_id = %d',
+				$source_type,
+				$from_id
+			)
+		);
+
+		$now     = current_time( 'mysql', true );
+		$touched = array();
+
+		foreach ( (array) $rows as $row ) {
+			$key = (string) ( $row->segment_key ?? '' );
+			if ( '' === $key || ! $predicate( $key ) ) {
+				++$stats['skipped'];
+				continue;
+			}
+
+			$language_id  = (int) ( $row->language_id ?? 0 );
+			$segment_hash = (string) ( $row->segment_hash ?? '' );
+			if ( $language_id <= 0 || '' === $segment_hash ) {
+				++$stats['skipped'];
+				continue;
+			}
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$dest = $wpdb->get_row(
+				$wpdb->prepare(
+					'SELECT translation_id FROM ' . $table // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					. ' WHERE source_type = %s AND source_id = %d AND segment_hash = %s AND language_id = %d LIMIT 1',
+					$source_type,
+					$to_id,
+					$segment_hash,
+					$language_id
+				)
+			);
+
+			if ( null !== $dest ) {
+				// Destination already authoritative — retire source duplicate.
+				$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+					$table,
+					array(
+						'status'     => self::STATUS_IGNORED,
+						'error_code' => 'orphaned',
+						'updated_at' => $now,
+					),
+					array( 'translation_id' => (int) $row->translation_id ),
+					array( '%s', '%s', '%s' ),
+					array( '%d' )
+				);
+				++$stats['retired'];
+				$touched[ $language_id ] = true;
+				continue;
+			}
+
+			$updated = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$table,
+				array(
+					'source_id'  => $to_id,
+					'updated_at' => $now,
+				),
+				array( 'translation_id' => (int) $row->translation_id ),
+				array( '%d', '%s' ),
+				array( '%d' )
+			);
+
+			if ( false === $updated ) {
+				++$stats['skipped'];
+				continue;
+			}
+
+			++$stats['moved'];
+			$touched[ $language_id ] = true;
+		}
+
+		foreach ( array_keys( $touched ) as $language_id ) {
+			$this->invalidate( $source_type, $from_id, (int) $language_id );
+			$this->invalidate( $source_type, $to_id, (int) $language_id );
+		}
+
+		return $stats;
+	}
+
+	/**
 	 * Reconciles stored segments against the current source content.
 	 *
 	 * Runs for every language when the canonical object changes. Translated

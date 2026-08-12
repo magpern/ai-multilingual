@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Translation\Publication;
 
 use AIMultilingual\Settings;
+use AIMultilingual\Integration\IntegrationSegmentAuthorityRegistry;
 use AIMultilingual\Surface\SurfaceCapabilityNames;
 use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\AI\FieldSemantic;
@@ -28,13 +29,14 @@ final class PublicationService {
 	/**
 	 * Builds the publication service.
 	 *
-	 * @param Store                        $store      Translation store.
-	 * @param AssessmentAssembler          $assembler  TI.5 assessment assembler.
-	 * @param PublicationPolicy            $policy     Pure eligibility policy.
-	 * @param PublicationAuditLogger       $audit      Bounded audit logger.
-	 * @param Settings|null                $settings   Plugin settings.
-	 * @param SurfaceRegistry|null         $surfaces   Optional surface registry for visibility facts.
-	 * @param TermTranslationResolver|null $terms Optional term address resolver (TSC.1).
+	 * @param Store                                    $store      Translation store.
+	 * @param AssessmentAssembler                      $assembler  TI.5 assessment assembler.
+	 * @param PublicationPolicy                        $policy     Pure eligibility policy.
+	 * @param PublicationAuditLogger                   $audit      Bounded audit logger.
+	 * @param Settings|null                            $settings   Plugin settings.
+	 * @param SurfaceRegistry|null                     $surfaces   Optional surface registry for visibility facts.
+	 * @param TermTranslationResolver|null             $terms Optional term address resolver (TSC.1).
+	 * @param IntegrationSegmentAuthorityRegistry|null $segment_authorities Optional TSC.3 segment facts.
 	 */
 	public function __construct(
 		private Store $store,
@@ -44,6 +46,7 @@ final class PublicationService {
 		private ?Settings $settings = null,
 		private ?SurfaceRegistry $surfaces = null,
 		private ?TermTranslationResolver $terms = null,
+		private ?IntegrationSegmentAuthorityRegistry $segment_authorities = null,
 	) {
 		$this->settings = $settings ?? new Settings();
 	}
@@ -443,7 +446,7 @@ final class PublicationService {
 			$this->current_mode(),
 			(string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED ),
 			(string) ( $row->review_status ?? Store::REVIEW_NOT_SUBMITTED ),
-			$this->is_source_public( (string) ( $row->source_type ?? Store::SOURCE_POST ), (int) ( $row->source_id ?? 0 ) ),
+			$this->is_row_source_public( $row ),
 			! empty( $row->is_stale ),
 			$for_automatic
 		);
@@ -745,6 +748,27 @@ final class PublicationService {
 			'status'         => 'unpublished',
 			'publish_status' => Store::PUBLISH_UNPUBLISHED,
 			'reason_codes'   => array( PublicationReasonCodes::UNPUBLISHED ),
+		);
+	}
+
+	/**
+	 * Row-aware visitor-public fact (TSC.3 IntegrationSegmentAuthority when applies).
+	 *
+	 * TI.7 PublicationPolicy still owns eligibility — this only corrects the fact input.
+	 *
+	 * @param object $row Store translation row.
+	 */
+	public function is_row_source_public( object $row ): bool {
+		if ( null !== $this->segment_authorities ) {
+			$authority = $this->segment_authorities->for_row( $row );
+			if ( null !== $authority ) {
+				return $authority->is_visitor_public( $row );
+			}
+		}
+
+		return $this->is_source_public(
+			(string) ( $row->source_type ?? Store::SOURCE_POST ),
+			(int) ( $row->source_id ?? 0 )
 		);
 	}
 

@@ -887,5 +887,46 @@ final class PluginGuardTest extends AimlTestCase {
 				'TermTranslationResolver::' . $name . ' must not be a public write/lock/adopt API (AC35).'
 			);
 		}
+
+		$this->assert_tsc3_invariants();
+	}
+
+	/**
+	 * TSC.3 WooCommerce extended surfaces architecture guards.
+	 */
+	private function assert_tsc3_invariants(): void {
+		$woo = (string) file_get_contents( $this->root() . '/src/Integration/WooCommerce/WooCommerceIntegration.php' );
+		$this->assertStringContainsString( 'extract_global_attribute_label_units', $woo );
+		$this->assertStringContainsString( 'is_taxonomy', $woo );
+		$this->assertStringContainsString( 'AttributeLabelIdentity', $woo );
+
+		$identity = (string) file_get_contents( $this->root() . '/src/Integration/WooCommerce/AttributeLabelIdentity.php' );
+		$this->assertStringContainsString( "OWNER_ATTRIBUTE = 'attribute'", $identity );
+		$this->assertStringContainsString( 'rehost_predicate', $identity );
+
+		$store = (string) file_get_contents( $this->root() . '/src/Translation/Store.php' );
+		$this->assertStringContainsString( 'function rehost_segments', $store );
+
+		$auth = (string) file_get_contents( $this->root() . '/src/Integration/WooCommerce/WooAttributeLabelAuthority.php' );
+		$this->assertStringContainsString( 'manage_product_terms', $auth );
+
+		$inv = (string) file_get_contents( $this->root() . '/src/Integration/WooCommerce/WooCommerceInvalidation.php' );
+		$this->assertStringContainsString( 'woocommerce_shop_page_id', $inv );
+		$this->assertStringContainsString( 'woocommerce_attribute_updated', $inv );
+		$this->assertStringContainsString( '_settings', $inv );
+
+		$pub = (string) file_get_contents( $this->root() . '/src/Translation/Publication/PublicationService.php' );
+		$this->assertStringContainsString( 'is_row_source_public', $pub );
+
+		$otl = (string) file_get_contents( $this->root() . '/src/Workspace/Operator/AllowedActionsResolver.php' );
+		$this->assertStringContainsString( 'denies_row_write', $otl );
+		$this->assertStringContainsString( 'set_segment_authority_registry', $otl );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+
+		// No public registration API leakage / no SOURCE_META.
+		$this->assertStringNotContainsString( 'SOURCE_META', $identity );
+		$this->assertStringNotContainsString( 'register_translatable_attribute', $woo );
 	}
 }

@@ -307,6 +307,12 @@ final class SegmentAssembler {
 		if ( 'elementor' === $surface || 'plugin_integration' === $surface || 'registered_meta' === $surface ) {
 			$can_edit = true;
 		}
+		if (
+			'plugin_integration' === $surface
+			&& \AIMultilingual\Integration\WooCommerce\AttributeLabelIdentity::is_taxonomy_compat_product_key( $segment_key )
+		) {
+			$can_edit = false;
+		}
 
 		$meta = array();
 		if ( 'elementor' === $surface ) {
@@ -373,9 +379,21 @@ final class SegmentAssembler {
 	 * @return list<string>
 	 */
 	private function retain_keys( string $source_type, int $source_id ): array {
-		if ( null === $this->meta_registry ) {
-			return array();
+		$retain = array();
+		if ( null !== $this->meta_registry ) {
+			$retain = $this->meta_registry->retain_segment_keys( $source_type, $source_id );
 		}
-		return $this->meta_registry->retain_segment_keys( $source_type, $source_id );
+		if ( Store::SOURCE_POST === $source_type && $source_id > 0 ) {
+			$retain = array_values(
+				array_unique(
+					array_merge(
+						$retain,
+						\AIMultilingual\Integration\WooCommerce\AttributeLabelIdentity::retain_taxonomy_compat_keys( $this->store, $source_id )
+					)
+				)
+			);
+		}
+
+		return $retain;
 	}
 }

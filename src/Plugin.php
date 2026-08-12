@@ -251,7 +251,7 @@ final class Plugin {
 		$integration_diagnostics = new IntegrationDiagnostics();
 		$integration_registry    = new IntegrationRegistry( $integration_diagnostics );
 		$plugin_identity         = new PluginIdentity( $integration_diagnostics );
-		$woo_integration         = WooCommerceIntegration::create_default( $plugin_identity );
+		$woo_integration         = WooCommerceIntegration::create_default( $plugin_identity, $store, $context );
 		$relationships           = new LanguageRelationshipService( $languages, $context );
 		$integration_registry->register(
 			FluentFormsIntegration::create_default( $plugin_identity )
@@ -415,7 +415,16 @@ final class Plugin {
 		$post_surface->register_invalidation_events( $invalidation_coordinator );
 		$term_surface->register_invalidation_events( $invalidation_coordinator );
 		$invalidation_coordinator->ensure_shutdown_hook();
+		( new \AIMultilingual\Integration\WooCommerce\WooCommerceInvalidation(
+			$woo_integration,
+			$store,
+			$invalidation_coordinator
+		) )->register();
+
+		$segment_authority_registry = new \AIMultilingual\Integration\IntegrationSegmentAuthorityRegistry();
+		$segment_authority_registry->register( new \AIMultilingual\Integration\WooCommerce\WooAttributeLabelAuthority() );
 		AllowedActionsResolver::set_surface_registry( $surface_registry );
+		AllowedActionsResolver::set_segment_authority_registry( $segment_authority_registry );
 
 		$publication        = new PublicationService(
 			$store,
@@ -424,7 +433,8 @@ final class Plugin {
 			$publication_audit,
 			$this->settings,
 			$surface_registry,
-			$term_resolver
+			$term_resolver,
+			$segment_authority_registry
 		);
 		$translation        = new TranslationService(
 			$store,
