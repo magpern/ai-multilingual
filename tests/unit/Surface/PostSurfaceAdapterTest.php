@@ -66,10 +66,10 @@ final class PostSurfaceAdapterTest extends TestCase {
 		$adapter = new PostSurfaceAdapter(
 			new Settings(
 				array(
-					'block_attr_registration_enabled'  => true,
-					'block_uuid_injection_enabled'     => true,
-					'block_extraction_enabled'         => true,
-					'elementor_extraction_enabled'     => true,
+					'block_attr_registration_enabled' => true,
+					'block_uuid_injection_enabled'    => true,
+					'block_extraction_enabled'        => true,
+					'elementor_extraction_enabled'    => true,
 				)
 			)
 		);
@@ -93,11 +93,11 @@ final class PostSurfaceAdapterTest extends TestCase {
 	}
 
 	public function test_exists_subtype_and_visibility_facts(): void {
-		$post              = new WP_Post();
-		$post->ID          = 12;
-		$post->post_type   = 'page';
-		$post->post_status = 'publish';
-		$GLOBALS['aiml_unit_posts'][ 12 ] = $post;
+		$post                           = new WP_Post();
+		$post->ID                       = 12;
+		$post->post_type                = 'page';
+		$post->post_status              = 'publish';
+		$GLOBALS['aiml_unit_posts'][12] = $post;
 
 		$adapter = new PostSurfaceAdapter();
 
@@ -111,8 +111,8 @@ final class PostSurfaceAdapterTest extends TestCase {
 	}
 
 	public function test_user_can_edit_source_uses_wp_caps(): void {
-		$GLOBALS['aiml_unit_user_can'][ 5 ]['edit_post'] = true;
-		$adapter = new PostSurfaceAdapter();
+		$GLOBALS['aiml_unit_user_can'][5]['edit_post'] = true;
+		$adapter                                       = new PostSurfaceAdapter();
 
 		$this->assertTrue( $adapter->user_can_edit_source( 5, 12 ) );
 		$this->assertFalse( $adapter->user_can_edit_source( 6, 12 ) );
@@ -131,7 +131,7 @@ final class PostSurfaceAdapterTest extends TestCase {
 			new Store( new Cache() ),
 			new Extractor()
 		);
-		$adapter = new PostSurfaceAdapter( new Settings( array() ) );
+		$adapter     = new PostSurfaceAdapter( new Settings( array() ) );
 
 		$adapter->register_invalidation_events( $coordinator );
 		$this->assertSame( 0, $coordinator->dirty_count() );

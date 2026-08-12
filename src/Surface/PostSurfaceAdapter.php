@@ -37,6 +37,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 	);
 
 	/**
+	 * Builds the post surface adapter.
+	 *
 	 * @param Settings|null $settings Optional settings for activation facts.
 	 */
 	public function __construct(
@@ -53,6 +55,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param int $source_id Source object id.
 	 */
 	public function exists( int $source_id ): bool {
 		if ( $source_id <= 0 || ! function_exists( 'get_post' ) ) {
@@ -64,6 +68,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param int $source_id Source object id.
 	 */
 	public function source_subtype( int $source_id ): string {
 		$post = $this->post( $source_id );
@@ -72,6 +78,9 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param int $user_id   User id.
+	 * @param int $source_id Source object id.
 	 */
 	public function user_can_edit_source( int $user_id, int $source_id ): bool {
 		if ( $source_id <= 0 || ! function_exists( 'user_can' ) ) {
@@ -85,6 +94,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param int $source_id Source object id.
 	 */
 	public function is_visitor_public( int $source_id ): bool {
 		$post = $this->post( $source_id );
@@ -99,6 +110,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param string $capability Capability name.
 	 */
 	public function supports( string $capability ): bool {
 		return in_array( $capability, SurfaceCapabilityNames::all(), true );
@@ -106,6 +119,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param string $feature Feature token.
 	 */
 	public function feature_implemented( string $feature ): bool {
 		return in_array(
@@ -117,6 +132,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param string $feature Feature token.
 	 */
 	public function feature_activated( string $feature ): bool {
 		if ( null === $this->settings ) {
@@ -131,6 +148,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param RequestLocalInvalidationCoordinator $coordinator Coordinator.
 	 */
 	public function register_invalidation_events( RequestLocalInvalidationCoordinator $coordinator ): void {
 		$adapter = $this;
@@ -199,6 +218,8 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 	}
 
 	/**
+	 * Loads a post by id when present.
+	 *
 	 * @param int $source_id Post id.
 	 */
 	private function post( int $source_id ): ?WP_Post {

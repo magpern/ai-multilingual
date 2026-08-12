@@ -15,6 +15,8 @@ namespace AIMultilingual\Surface;
 final class SurfaceRegistry {
 
 	/**
+	 * Registered adapters keyed by source_type.
+	 *
 	 * @var array<string, SurfaceCapability>
 	 */
 	private array $by_type = array();
@@ -46,7 +48,7 @@ final class SurfaceRegistry {
 	public function require( string $source_type ): SurfaceCapability {
 		$capability = $this->for( $source_type );
 		if ( null === $capability ) {
-			throw new \InvalidArgumentException( 'Unregistered source_type: ' . $source_type );
+			throw new \InvalidArgumentException( 'Unregistered source_type.' );
 		}
 		return $capability;
 	}

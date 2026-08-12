@@ -293,11 +293,11 @@ if ( ! function_exists( 'current_user_can' ) ) {
 
 if ( ! function_exists( 'get_option' ) ) {
 	/**
-	 * @param string $option  Option name.
-	 * @param mixed  $default Default.
+	 * @param string $option         Option name.
+	 * @param mixed  $default_value  Default.
 	 * @return mixed
 	 */
-	function get_option( $option, $default = false ) {
-		return $GLOBALS['aiml_unit_options'][ (string) $option ] ?? $default;
+	function get_option( $option, $default_value = false ) {
+		return $GLOBALS['aiml_unit_options'][ (string) $option ] ?? $default_value;
 	}
 }

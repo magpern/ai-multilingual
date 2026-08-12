@@ -43,7 +43,7 @@ final class SurfaceRegistryTest extends TestCase {
 		$registry = new SurfaceRegistry();
 
 		$this->expectException( \InvalidArgumentException::class );
-		$this->expectExceptionMessage( 'Unregistered source_type: term' );
+		$this->expectExceptionMessage( 'Unregistered source_type.' );
 		$registry->require( 'term' );
 	}
 

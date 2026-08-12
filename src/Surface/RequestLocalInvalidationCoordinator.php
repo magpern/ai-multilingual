@@ -29,21 +29,29 @@ final class RequestLocalInvalidationCoordinator {
 	private array $dirty = array();
 
 	/**
-	 * Whether shutdown flush already ran for this request.
+	 * Whether a flush is currently running (re-entrancy guard).
+	 *
+	 * @var bool
 	 */
-	private bool $flushed = false;
+	private bool $flushing = false;
 
 	/**
 	 * Whether the shutdown hook is registered.
+	 *
+	 * @var bool
 	 */
 	private bool $shutdown_registered = false;
 
 	/**
 	 * Sync callback count (tests / architecture proofs).
+	 *
+	 * @var int
 	 */
 	private int $sync_count = 0;
 
 	/**
+	 * Builds the coordinator.
+	 *
 	 * @param Store     $store     Segment store.
 	 * @param Extractor $extractor Source extractor.
 	 */
@@ -92,27 +100,35 @@ final class RequestLocalInvalidationCoordinator {
 		}
 		$this->shutdown_registered = true;
 		add_action( 'shutdown', array( $this, 'flush' ), 20 );
+		// Internal/test flush trigger without running the full WP shutdown cascade.
+		add_action( 'aiml_flush_surface_invalidations', array( $this, 'flush' ), 10 );
 	}
 
 	/**
 	 * Sole flush authority: one Store::sync_source per dirty identity.
+	 *
+	 * Safe to call again after new dirty marks (re-entrancy blocked only while flushing).
 	 */
 	public function flush(): void {
-		if ( $this->flushed ) {
+		if ( $this->flushing ) {
 			return;
 		}
-		$this->flushed = true;
+		$this->flushing = true;
 
-		if ( BlockIdentityMigration::is_active() ) {
+		try {
+			if ( BlockIdentityMigration::is_active() ) {
+				$this->dirty = array();
+				return;
+			}
+
+			$pending     = $this->dirty;
 			$this->dirty = array();
-			return;
-		}
 
-		$pending     = $this->dirty;
-		$this->dirty = array();
-
-		foreach ( $pending as $identity ) {
-			$this->sync_identity( (string) $identity['source_type'], (int) $identity['source_id'] );
+			foreach ( $pending as $identity ) {
+				$this->sync_identity( (string) $identity['source_type'], (int) $identity['source_id'] );
+			}
+		} finally {
+			$this->flushing = false;
 		}
 	}
 
@@ -134,8 +150,8 @@ final class RequestLocalInvalidationCoordinator {
 	 * Test helper: reset request-local state.
 	 */
 	public function reset_for_tests(): void {
-		$this->dirty   = array();
-		$this->flushed = false;
+		$this->dirty      = array();
+		$this->flushing   = false;
 		$this->sync_count = 0;
 	}
 

@@ -14,15 +14,17 @@ namespace AIMultilingual\Surface;
  */
 final class SurfaceCapabilityNames {
 
-	public const INSPECT         = 'inspect';
-	public const TRANSLATE       = 'translate';
-	public const MUTATE          = 'mutate';
-	public const JOBS            = 'jobs';
-	public const PUBLISH_INPUTS  = 'publish_inputs';
-	public const OVERLAY         = 'overlay';
-	public const STALE_OBSERVE   = 'stale_observe';
+	public const INSPECT        = 'inspect';
+	public const TRANSLATE      = 'translate';
+	public const MUTATE         = 'mutate';
+	public const JOBS           = 'jobs';
+	public const PUBLISH_INPUTS = 'publish_inputs';
+	public const OVERLAY        = 'overlay';
+	public const STALE_OBSERVE  = 'stale_observe';
 
 	/**
+	 * All capability name tokens.
+	 *
 	 * @return list<string>
 	 */
 	public static function all(): array {

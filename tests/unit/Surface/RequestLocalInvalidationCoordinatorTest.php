@@ -45,9 +45,9 @@ final class RequestLocalInvalidationCoordinatorTest extends TestCase {
 		$this->assertSame( 1, $this->coordinator->dirty_count() );
 	}
 
-	public function test_flush_runs_once_and_leaves_later_marks_unflushed(): void {
+	public function test_flush_coalesces_then_allows_a_new_dirty_cycle(): void {
 		// Non-post identities are accepted into the dirty set but skipped by sync_identity
-		// (no Store call). That lets us prove flush-once without a WordPress DB.
+		// (no Store call). That lets us prove coalesce + flush without a WordPress DB.
 		$this->coordinator->mark_dirty( 'term', 7 );
 		$this->coordinator->mark_dirty( 'term', 7 );
 		$this->assertSame( 1, $this->coordinator->dirty_count() );
@@ -60,7 +60,7 @@ final class RequestLocalInvalidationCoordinatorTest extends TestCase {
 		$this->assertSame( 1, $this->coordinator->dirty_count() );
 
 		$this->coordinator->flush();
-		$this->assertSame( 1, $this->coordinator->dirty_count(), 'Second flush must be a no-op once flushed.' );
+		$this->assertSame( 0, $this->coordinator->dirty_count(), 'A later dirty cycle must flush again.' );
 	}
 
 	public function test_clear_dirty_drops_pending_mark(): void {

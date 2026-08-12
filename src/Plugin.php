@@ -366,15 +366,15 @@ final class Plugin {
 		$assessment_assembler = new AssessmentAssembler();
 		$publication_policy   = new PublicationPolicy();
 		$publication_audit    = new PublicationAuditLogger();
-		$surface_registry = new SurfaceRegistry();
-		$post_surface     = new PostSurfaceAdapter( $this->settings );
+		$surface_registry     = new SurfaceRegistry();
+		$post_surface         = new PostSurfaceAdapter( $this->settings );
 		$surface_registry->register( $post_surface );
 		$invalidation_coordinator = new RequestLocalInvalidationCoordinator( $store, $extractor );
 		$post_surface->register_invalidation_events( $invalidation_coordinator );
 		$invalidation_coordinator->ensure_shutdown_hook();
 		AllowedActionsResolver::set_surface_registry( $surface_registry );
 
-		$publication          = new PublicationService(
+		$publication        = new PublicationService(
 			$store,
 			$assessment_assembler,
 			$publication_policy,
@@ -382,7 +382,7 @@ final class Plugin {
 			$this->settings,
 			$surface_registry
 		);
-		$translation          = new TranslationService(
+		$translation        = new TranslationService(
 			$store,
 			$assembler,
 			$languages,
@@ -395,15 +395,15 @@ final class Plugin {
 			$tm_service,
 			$publication
 		);
-		$preview              = new PreviewService( $languages, $context, $router );
-		$suggestion_service   = new TranslationSuggestionService(
+		$preview            = new PreviewService( $languages, $context, $router );
+		$suggestion_service = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),
 				new GlossarySuggestionProvider( $glossary_service ),
 				new AISuggestionProvider( $translation ),
 			)
 		);
-		$qa_engine            = new QAEngine(
+		$qa_engine          = new QAEngine(
 			null,
 			! empty( $this->settings->get()['qa_block_on_error'] )
 		);
@@ -627,5 +627,4 @@ final class Plugin {
 			}
 		}
 	}
-
 }

@@ -20,8 +20,8 @@ use PHPUnit\Framework\TestCase;
 final class Tsc0CharacterizationTest extends TestCase {
 
 	public function test_fluent_stale_invalidation_remains_unsupported(): void {
-		$root = dirname( __DIR__, 3 );
-		$ff   = (string) file_get_contents( $root . '/src/Integration/FluentForms/FluentFormsIntegration.php' );
+		$root  = dirname( __DIR__, 3 );
+		$ff    = (string) file_get_contents( $root . '/src/Integration/FluentForms/FluentFormsIntegration.php' );
 		$embed = (string) file_get_contents( $root . '/src/Integration/FluentForms/FluentFormsEmbedDetector.php' );
 
 		$this->assertStringContainsString( 'UNSUPPORTED', $ff );

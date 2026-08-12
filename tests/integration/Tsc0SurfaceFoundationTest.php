@@ -105,10 +105,10 @@ final class Tsc0SurfaceFoundationTest extends AimlTestCase {
 	public function test_item_processor_short_circuits_ignored_orphaned_rows(): void {
 		$this->enable_strategy_f_flags();
 
-		$settings  = new Settings();
-		$adapters  = new AdapterRegistry();
-		$blocks    = new BlockRegistry( $adapters );
-		$extractor = new Extractor(
+		$settings    = new Settings();
+		$adapters    = new AdapterRegistry();
+		$blocks      = new BlockRegistry( $adapters );
+		$extractor   = new Extractor(
 			$settings,
 			new BlockExtractor(
 				$adapters,
@@ -116,8 +116,8 @@ final class Tsc0SurfaceFoundationTest extends AimlTestCase {
 				new BlockExtractionLogger()
 			)
 		);
-		$assembler = new SegmentAssembler( $extractor, $this->store, $blocks );
-		$glossary  = new GlossaryService(
+		$assembler   = new SegmentAssembler( $extractor, $this->store, $blocks );
+		$glossary    = new GlossaryService(
 			new GlossaryRepository(),
 			new GlossaryNormalizer(),
 			new GlossaryMatcher( new GlossaryNormalizer() )
