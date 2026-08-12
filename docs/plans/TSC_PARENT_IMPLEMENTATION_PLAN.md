@@ -19,7 +19,7 @@
 
 **Production implementation status:** **TSC NOT STARTED.**
 
-**Next:** **TSC.0** milestone plan — [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started). Do not start TSC.0 implementation until that plan is frozen on `main` (this freeze). Do not start TSC.1.
+**Next:** **TSC.0** milestone plan — [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation not started). Begin implementation only via authorized `feature/tsc0-*`. Do not start TSC.1.
 
 ---
 

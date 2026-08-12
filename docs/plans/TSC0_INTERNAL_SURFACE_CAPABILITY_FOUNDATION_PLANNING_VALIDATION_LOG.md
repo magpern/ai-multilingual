@@ -1,6 +1,6 @@
 # TSC.0 Internal Surface Capability Foundation — Planning Freeze Validation Log
 
-**Status:** Independent review complete — awaiting merge
+**Status:** **TSC.0 Architecture Frozen** on `main`
 **Authoritative plan:** [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md)
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md)
 
@@ -12,17 +12,22 @@
 | Baseline drift | None |
 | Planning branch | `docs/tsc0-internal-surface-capability-foundation-planning-freeze` |
 | Materialization commit | `52324bdb2b8ca5b41179a699ce9ef73f68dc99c1` |
-| Final reviewed planning HEAD | `e376dd37670186276067489b51d32620ecac6e2a` |
+| Final reviewed planning HEAD | `58a600b4bc9fd135cb3ed206a20f284654511765` (pin tip; review PASS content `e376dd376`) |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 |
 | Independent planning review | **PASS** |
-| Review fixes | Documented shutdown-primary flush (meta often updates after `save_post`); STATE A mechanism refinement preserving AC18/AC19/AC36 |
-| Freeze merge | *(pending)* |
-| Fresh main CI | *(pending)* |
-| Closure | *(pending)* |
-| Version | **1.3.0** |
-| TARGET | **7** |
-| ADR | None |
+| Review fixes | Shutdown-primary flush (meta often updates after `save_post`); STATE A mechanism refinement preserving AC18/AC19/AC36 |
+| Planning PR | https://github.com/magpern/ai-multilingual/pull/23 |
+| Planning CI (feature branch) | run `31600598772` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Freeze merge | `3532a490cd09487876d5bf09c0eec10ba8566bea` (`merge: freeze TSC.0 Internal Surface Capability Foundation plan`) |
+| Fresh main CI (freeze merge) | run `31600740268` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Closure commit | *(this commit)* |
+| Post-closure CI | *(pending)* |
+| Plugin version | **1.3.0** (unchanged) |
+| TARGET | **7** (unchanged) |
+| Schema / migration | None (STATE A) |
+| New ADR | None (TSC.1 planning owns ADR) |
 | Production implementation | **NOT STARTED** |
+| Tag | No new tag; existing `v1.3.0` unchanged |
 
 ## Independent planning review
 
@@ -52,8 +57,28 @@
 
 1. Proposed dual flush (late save_post + shutdown for meta-only) risked intermediate Rank Math meta written **after** save_post in the same request.
 
-### Fixes applied (in materialized plan)
+### Fixes applied
 
 1. **Shutdown is sole flush authority** for dirty post identities; `save_post` and meta hooks only mark dirty. Preserves final-state AC18/AC19/AC36 within STATE A.
 
 No FAIL — REDESIGN conditions.
+
+## Planning closure
+
+**TSC.0 Architecture Frozen** on `main`.
+
+**TSC.0 production implementation NOT STARTED.**
+
+**TSC.1–TSC.6 implementation NOT STARTED.**
+
+| Item | Value |
+|---|---|
+| Authoritative plan | [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) |
+| Schema | STATE A / TARGET **7** |
+| Version | **1.3.0** |
+| ADR | None |
+| SF1–SF22 | Frozen in plan |
+| AC1–AC36 | Frozen contiguous set |
+| TSC0.0–TSC0.7 | **PLANNED/FROZEN**, not implemented |
+
+**Exact next step:** Begin authorized **TSC.0 implementation** from frozen main via `feature/tsc0-*` only when an implementation task is opened. Execute TSC0.0→TSC0.7 per the authoritative plan. Do **not** start TSC.1. Do **not** bump version/TARGET, tag, release, or deploy as part of planning closure.
