@@ -14,9 +14,9 @@
 | Planning branch | `docs/tsc2-registered-meta-surfaces-planning-freeze` |
 | Plan source | Externally reviewed amended Cursor plan · verdict **TSC.2 PLAN REVIEW: FREEZE** (ten amendments) |
 | Materialization commit | `f7169cd53fe89afdc3c5846da905e2b3d0e99013` |
-| Final reviewed planning HEAD | *(filled after independent review)* |
+| Final reviewed planning HEAD | *(pin tip after this commit)* |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 |
-| Independent planning review | *(pending)* |
+| Independent planning review | **PASS** |
 | Planning PR | *(pending)* |
 | Planning CI | *(pending)* |
 | Freeze merge | *(pending)* |
