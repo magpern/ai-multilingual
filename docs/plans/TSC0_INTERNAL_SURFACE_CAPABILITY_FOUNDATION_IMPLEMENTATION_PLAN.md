@@ -19,7 +19,7 @@
 **Production implementation status:** **COMPLETE.**
 **TSC.1–TSC.6 implementation status:** TSC.1 **COMPLETE**; TSC.2–TSC.6 **NOT STARTED.**
 
-**Exact next step:** Do not start TSC.2 until a separate planning freeze is authorized.
+**Exact next step:** **TSC.2 Architecture Frozen** — begin authorized TSC.2 implementation when an implementation task is opened. Do **not** start TSC.3+.
 
 ---
 

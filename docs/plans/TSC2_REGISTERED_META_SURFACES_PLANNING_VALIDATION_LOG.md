@@ -1,6 +1,6 @@
 # TSC.2 Registered Meta Translation Surfaces — Planning Freeze Validation Log
 
-**Status:** Planning freeze in progress (docs branch)
+**Status:** **TSC.2 Architecture Frozen** on `main`
 **Authoritative plan:** [TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md](TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md)
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md)
 **ADR:** **None**
@@ -14,14 +14,15 @@
 | Planning branch | `docs/tsc2-registered-meta-surfaces-planning-freeze` |
 | Plan source | Externally reviewed amended Cursor plan · verdict **TSC.2 PLAN REVIEW: FREEZE** (ten amendments) |
 | Materialization commit | `f7169cd53fe89afdc3c5846da905e2b3d0e99013` |
-| Final reviewed planning HEAD | `7d62807700bc08967df0101a8179a3bd2e976e74` (docs tip); review content `e54f4780b7b81ef72ced15697adcdba82b19b6a9` |
+| Final reviewed planning HEAD | `bf4f02dfc90ff0ba1d6f1f37d9917d34aaf1a4f5` (docs tip); review content `e54f4780b7b81ef72ced15697adcdba82b19b6a9` |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 |
 | Independent planning review | **PASS** |
-| Planning PR | *(pending)* |
-| Planning CI | *(pending)* |
-| Freeze merge | *(pending)* |
-| Fresh main CI | *(pending)* |
-| Closure commit | *(pending)* |
+| Review fixes | CASE B retain_keys for Rank Math host-emitted `p:` identities; explicit untouched-row semantics |
+| Planning PR | https://github.com/magpern/ai-multilingual/pull/27 |
+| Planning CI (feature branch) | run `31637288451` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Freeze merge | `51be1f0aa771261c3d7e44d2ea891da7bb9ffcd1` (`merge: freeze TSC.2 Registered Meta Translation Surfaces plan`) |
+| Fresh main CI (freeze merge) | run `31637462656` — phpcs / unit / integration / quality / build **SUCCESS** |
+| Closure commit | *(this commit)* |
 | Plugin version | **1.3.0** (unchanged) |
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (STATE A) |
@@ -131,4 +132,21 @@ No production code changes. STATE A remains valid — no redesign.
 
 ## Planning closure
 
-*(Filled after merge to main.)*
+**TSC.2 Architecture Frozen** on `main`.
+
+**TSC.2 production implementation NOT STARTED.**
+
+**TSC.3–TSC.6 implementation NOT STARTED.**
+
+| Item | Value |
+|---|---|
+| Authoritative plan | [TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md](TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md) |
+| Schema | STATE A / TARGET **7** |
+| Version | **1.3.0** |
+| ADR | None |
+| RM1–RM34 | Frozen |
+| AC1–AC32 | Frozen |
+| TSC2.0–TSC2.7 | Frozen (not started) |
+| Limitations / debt | CASE B retain formula must cover host-emitted Rank Math; no generic custom-field product claim |
+
+**Exact next step:** Run the separate **TSC.2 implementation + independent implementation review + review-fix loop + merge + fresh main CI + milestone closure** task from the frozen main baseline. Do **not** start that task until authorized. Do **not** start TSC.3+.

@@ -1,11 +1,12 @@
 # TSC.2 — Registered Meta Translation Surfaces Implementation Plan
 
-**Status:** **Architecture Frozen** (planning freeze in progress on docs branch) — production implementation **NOT STARTED**
+**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
 **Milestone:** TSC.2 Registered Meta Translation Surfaces
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`) §16 / TS18
 **External review:** **FREEZE** (ten amendments incorporated) · **STATE A** · **TARGET 7**
 **Independent planning review:** **PASS** — [TSC2_REGISTERED_META_SURFACES_PLANNING_VALIDATION_LOG.md](TSC2_REGISTERED_META_SURFACES_PLANNING_VALIDATION_LOG.md)
 **ADR:** **None** (direct application of parent §16 + ADR-0001/0005/0007 + TSC.0 Surface spine; ADR-0017 Integration `p:` retained for Rank Math)
+**Freeze merge:** `51be1f0aa771261c3d7e44d2ea891da7bb9ffcd1`
 **Depends on:** AI Multilingual **v1.3.0**; TIQ Complete; OTL Complete; TSC Parent Frozen; **TSC.0 COMPLETE**; **TSC.1 COMPLETE**; `Migrator::TARGET` **7**
 **Related:** [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md); [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md); ADR-0021; ADR-0017
 
@@ -14,7 +15,7 @@
 **Production implementation status:** **NOT STARTED.**
 **TSC.3–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step after this plan is Architecture Frozen on `main`:** Begin authorized **TSC.2 implementation** from frozen main via a dedicated feature branch only when an implementation task is opened. Do **not** start TSC.3+. Do **not** bump version/TARGET, tag, release, or deploy as part of planning closure.
+**Exact next step:** Begin authorized **TSC.2 implementation** from frozen main via a dedicated feature branch only when an implementation task is opened. Execute TSC2.0→TSC2.7 per this plan. Do **not** start TSC.3+. Do **not** bump version/TARGET, tag, release, or deploy as part of planning closure.
 
 ---
 

@@ -19,7 +19,7 @@
 **Production implementation status:** **COMPLETE.**
 **TSC.2–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Do not start TSC.2 until a separate planning freeze is authorized. Do not bump version/TARGET, tag, release, or deploy as part of TSC.1 closure.
+**Exact next step:** Begin authorized **TSC.2 implementation** from frozen main via a dedicated feature branch only when an implementation task is opened. Do **not** start TSC.3+. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.1 closure.
 
 ---
 

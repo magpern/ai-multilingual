@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.1 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** Begin definitive **TSC.2** milestone planning when authorized. **Do not** implement TSC.2 until its plan is frozen. **TSC.0–TSC.1 Complete.** **TIQ Complete.** **OTL Complete.** **v1.3.0 released** (tag `v1.3.0`). Runtime `Migrator::TARGET` **7**. TSC production architecture is **site-neutral**.
+**Current next decision:** Begin authorized **TSC.2 implementation** from the frozen plan when an implementation task is opened. **TSC.2 Architecture Frozen** — [`plans/TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md`](plans/TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md). **Do not** start TSC.3+ until TSC.2 completes. **TSC.0–TSC.1 Complete.** **TIQ Complete.** **OTL Complete.** **v1.3.0 released** (tag `v1.3.0`). Runtime `Migrator::TARGET` **7**. TSC production architecture is **site-neutral**.
 
 ---
 
@@ -44,7 +44,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **TSC — Translation Surface Coverage** | Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). **TSC.0–TSC.1 Complete** — [`TSC0`](plans/TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md), [`TSC1`](plans/TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md). Ladder **TSC.2–TSC.6** not started. |
+| 1 | **TSC — Translation Surface Coverage** | Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). **TSC.0–TSC.1 Complete** — [`TSC0`](plans/TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md), [`TSC1`](plans/TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md). **TSC.2 Architecture Frozen** — [`TSC2`](plans/TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md) (implementation not started). Ladder **TSC.3–TSC.6** not started. |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
 **Released:** AI Multilingual **v1.3.0** (tag `v1.3.0`). Prior: **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. `Migrator::TARGET` is **7**.
@@ -139,11 +139,11 @@ Authoritative parent: [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLE
 
 Ladder: **OTL.0 → OTL.1–OTL.6** (all Complete). Orchestration/presentation over frozen TIQ services. Public/SaaS neutrality is a hard invariant.
 
-### Translation Surface Coverage (TSC) — TSC.0–TSC.1 Complete
+### Translation Surface Coverage (TSC) — TSC.0–TSC.1 Complete; TSC.2 Architecture Frozen
 
 Authoritative parent: [TSC_PARENT_IMPLEMENTATION_PLAN.md](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md).
 
-Ladder: **TSC.0 → TSC.1 → TSC.2 → TSC.3 → TSC.4 → TSC.5 → TSC.6**. Site-neutral surface coverage around the existing Store. **STATE A / TARGET 7.** **TSC.0–TSC.1 Complete** on `main`. **TSC.2–TSC.6** not started. Next: definitive **TSC.2** milestone planning.
+Ladder: **TSC.0 → TSC.1 → TSC.2 → TSC.3 → TSC.4 → TSC.5 → TSC.6**. Site-neutral surface coverage around the existing Store. **STATE A / TARGET 7.** **TSC.0–TSC.1 Complete** on `main`. **TSC.2 Architecture Frozen** (implementation not started). **TSC.3–TSC.6** not started. Next: authorized **TSC.2 implementation**.
 
 ### Historical Program C — Translator experience
 
@@ -181,6 +181,7 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 | **TSC program (TSC.0–TSC.6) architecture** | [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`) |
 | **TSC.0 Internal Surface Capability Foundation** | [`plans/TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md`](plans/TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) (**Complete** on `main`) |
 | **TSC.1 First-Class Taxonomy Terms** | [`plans/TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md`](plans/TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md) (**Complete** on `main`) |
+| **TSC.2 Registered Meta Translation Surfaces** | [`plans/TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md`](plans/TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation not started) |
 | **OTL.0 Foundations milestone plan** | [`plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md`](plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md) |
 | **TQ.0 milestone plan** | [`plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md`](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) |
 | **TI.1 milestone plan** | [`plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md`](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md) |

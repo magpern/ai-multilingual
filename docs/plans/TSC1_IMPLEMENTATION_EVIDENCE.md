@@ -110,4 +110,4 @@ Deferred/unsupported plan items (archive title, breadcrumbs, attribute labels, w
 
 ## Next after merge/closure
 
-Do not start TSC.2 until a separate planning freeze.
+Do not start TSC.3+ until TSC.2 completes. **TSC.2 Architecture Frozen** — implementation not started.

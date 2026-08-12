@@ -54,4 +54,4 @@ Review defects fixed before merge:
 
 ## Exact next step
 
-Do not start TSC.2 until a separate planning freeze is authorized. Do not bump version/TARGET, tag, release, or deploy as part of TSC.1 closure.
+Do not start TSC.3+ until TSC.2 completes. Do not bump version/TARGET, tag, release, or deploy as part of TSC.1 closure. **TSC.2 Architecture Frozen** on `main` — implementation not started.

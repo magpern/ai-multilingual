@@ -1,6 +1,6 @@
 # Translation Surface Coverage (TSC) — Parent Program Architecture Plan
 
-**Status:** **Architecture Frozen** on `main` — **TSC.0–TSC.1 COMPLETE**; TSC.2–TSC.6 **NOT STARTED**
+**Status:** **Architecture Frozen** on `main` — **TSC.0–TSC.1 COMPLETE**; **TSC.2 Architecture Frozen** (implementation NOT STARTED); TSC.3–TSC.6 **NOT STARTED**
 **Program:** Translation Surface Coverage (TSC)
 **Plan freeze:** Canonical program architecture for milestones **TSC.0–TSC.6**; surface discovery/extraction/persistence/resolution contracts around the existing Store; public/SaaS site neutrality; Deferred/Unsupported boundaries
 **External review:** **FREEZE** · **STATE A** · **TARGET 7**
@@ -19,7 +19,7 @@
 
 **Production implementation status:** **TSC.0–TSC.1 COMPLETE**; TSC.2–TSC.6 **NOT STARTED.**
 
-**Next:** **TSC.1 Complete** — [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md). Next planning candidate: **TSC.2**. Do not implement TSC.2 until its plan is frozen on `main`.
+**Next:** **TSC.2 Architecture Frozen** — [TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md](TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md). Begin TSC.2 implementation only when authorized. Do **not** start TSC.3+ until TSC.2 completes. Do not implement TSC.3 until its plan is frozen on `main`.
 
 ---
 
