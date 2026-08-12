@@ -669,7 +669,7 @@ final class PublicationService {
 		int $user_id,
 		string $surface
 	): array {
-		/** @var PublicationDecision $decision */
+		/** Decision returned from the locked publish path. @var PublicationDecision $decision */
 		$decision = $result['decision'];
 		$by       = (int) ( $result['_published_by'] ?? ( $for_automatic ? 0 : ( $user_id > 0 ? $user_id : (int) get_current_user_id() ) ) );
 		$current  = (string) ( $result['_old_status'] ?? Store::PUBLISH_UNPUBLISHED );
