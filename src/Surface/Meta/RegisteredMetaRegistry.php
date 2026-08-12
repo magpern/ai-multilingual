@@ -22,27 +22,49 @@ final class RegisteredMetaRegistry {
 	private const NAMESPACE_PATTERN = '/^[a-z0-9_-]+$/';
 
 	/**
-	 * @var array<string, RegisteredMetaDefinition> keyed by source_type\0meta_key
+	 * Definitions keyed by source_type\0meta_key.
+	 *
+	 * @var array<string, RegisteredMetaDefinition>
 	 */
 	private array $by_meta = array();
 
 	/**
-	 * @var array<string, RegisteredMetaDefinition> keyed by source_type\0native_segment_key
+	 * Definitions keyed by source_type\0native_segment_key.
+	 *
+	 * @var array<string, RegisteredMetaDefinition>
 	 */
 	private array $by_native_segment = array();
 
 	/**
-	 * @var array<string, string> source_type\0native_segment_key => mode (collision guard)
+	 * Segment mode collision guard (source_type\0native_segment_key => mode).
+	 *
+	 * @var array<string, string>
 	 */
 	private array $segment_modes = array();
 
+	/**
+	 * Plugin identity helper for external_p segment keys.
+	 *
+	 * @var PluginIdentity
+	 */
 	private PluginIdentity $identity;
 
 	/**
-	 * @param PluginIdentity|null $identity Optional identity builder for retain keys.
+	 * Optional Store for host-emitted external_p retain lookup.
+	 *
+	 * @var Store|null
 	 */
-	public function __construct( ?PluginIdentity $identity = null ) {
+	private ?Store $store;
+
+	/**
+	 * Construct the catalog.
+	 *
+	 * @param PluginIdentity|null $identity Optional identity builder for retain keys.
+	 * @param Store|null          $store    Optional Store for host-emitted retain keys.
+	 */
+	public function __construct( ?PluginIdentity $identity = null, ?Store $store = null ) {
 		$this->identity = $identity ?? new PluginIdentity();
+		$this->store    = $store;
 	}
 
 	/**
@@ -256,6 +278,8 @@ final class RegisteredMetaRegistry {
 	}
 
 	/**
+	 * Validate a definition before registration.
+	 *
 	 * @param RegisteredMetaDefinition $definition Definition.
 	 * @throws InvalidArgumentException On invalid fields.
 	 */
@@ -280,11 +304,7 @@ final class RegisteredMetaRegistry {
 			if ( strlen( $seg ) > Contract::MAX_SEGMENT_KEY_LENGTH ) {
 				throw new InvalidArgumentException( 'Native segment key exceeds Store limit.' );
 			}
-			if ( preg_match( '/:[0-9]{2,}:/', $seg ) || preg_match( '/:[0-9]+$/', $seg ) ) {
-				// Reject obvious numeric object/site id components after namespace.
-				// Meta keys themselves may contain digits; only colon-bounded integers.
-			}
-			// Forbid embedding site/object IDs as path components beyond meta_key token.
+			// Native identity is exactly three colon-separated tokens: m, namespace, meta_key.
 			$parts = explode( ':', $seg );
 			if ( count( $parts ) !== 3 ) {
 				throw new InvalidArgumentException( 'Native segment key must be m:{namespace}:{meta_key}.' );
@@ -303,8 +323,6 @@ final class RegisteredMetaRegistry {
 	 * @return list<string>
 	 */
 	private function existing_inactive_external_family_keys( string $source_type, int $source_id ): array {
-		global $wpdb;
-
 		$inactive_namespaces = array();
 		foreach ( $this->for_source_type( $source_type ) as $definition ) {
 			if ( RegisteredMetaDefinition::MODE_EXTERNAL_P !== $definition->segment_key_mode ) {
@@ -315,31 +333,16 @@ final class RegisteredMetaRegistry {
 			}
 			$inactive_namespaces[ $definition->namespace ] = true;
 		}
-		if ( array() === $inactive_namespaces || $source_id <= 0 || ! isset( $wpdb ) ) {
+		if ( array() === $inactive_namespaces || $source_id <= 0 || null === $this->store ) {
 			return array();
 		}
-
-		$table = method_exists( \AIMultilingual\Database\Schema::class, 'translations' )
-			? \AIMultilingual\Database\Schema::translations()
-			: '';
-		if ( '' === $table ) {
-			return array();
-		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$rows = $wpdb->get_col(
-			$wpdb->prepare(
-				'SELECT DISTINCT segment_key FROM ' . $table . ' WHERE source_type = %s AND source_id = %d AND segment_key LIKE %s', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				$source_type,
-				$source_id,
-				'p:%'
-			)
-		);
 
 		$out = array();
-		foreach ( (array) $rows as $segment_key ) {
-			$segment_key = (string) $segment_key;
-			$parsed      = $this->identity->parse( $segment_key );
+		foreach ( $this->store->distinct_segment_keys_for_source( $source_type, $source_id ) as $segment_key ) {
+			if ( ! str_starts_with( $segment_key, Contract::SEGMENT_KEY_PREFIX . ':' ) ) {
+				continue;
+			}
+			$parsed = $this->identity->parse( $segment_key );
 			if ( ! is_array( $parsed ) ) {
 				continue;
 			}

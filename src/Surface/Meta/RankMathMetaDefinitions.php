@@ -23,17 +23,24 @@ final class RankMathMetaDefinitions {
 	/**
 	 * Exact six admitted SEO text meta keys (sole literal source of truth).
 	 *
+	 * @var list<string>
+	 */
+	public const SEO_META_KEYS = array(
+		RankMathIntegration::META_TITLE,
+		RankMathIntegration::META_DESCRIPTION,
+		RankMathIntegration::META_FACEBOOK_TITLE,
+		RankMathIntegration::META_FACEBOOK_DESCRIPTION,
+		RankMathIntegration::META_TWITTER_TITLE,
+		RankMathIntegration::META_TWITTER_DESCRIPTION,
+	);
+
+	/**
+	 * Exact six admitted SEO text meta keys (sole literal source of truth).
+	 *
 	 * @return list<string>
 	 */
 	public static function seo_meta_keys(): array {
-		return array(
-			RankMathIntegration::META_TITLE,
-			RankMathIntegration::META_DESCRIPTION,
-			RankMathIntegration::META_FACEBOOK_TITLE,
-			RankMathIntegration::META_FACEBOOK_DESCRIPTION,
-			RankMathIntegration::META_TWITTER_TITLE,
-			RankMathIntegration::META_TWITTER_DESCRIPTION,
-		);
+		return self::SEO_META_KEYS;
 	}
 
 	/**
@@ -43,12 +50,12 @@ final class RankMathMetaDefinitions {
 	 */
 	public static function field_tokens_by_meta_key(): array {
 		return array(
-			RankMathIntegration::META_TITLE               => RankMathIntegration::FIELD_TITLE,
-			RankMathIntegration::META_DESCRIPTION         => RankMathIntegration::FIELD_DESCRIPTION,
-			RankMathIntegration::META_FACEBOOK_TITLE      => RankMathIntegration::FIELD_FACEBOOK_TITLE,
+			RankMathIntegration::META_TITLE                => RankMathIntegration::FIELD_TITLE,
+			RankMathIntegration::META_DESCRIPTION          => RankMathIntegration::FIELD_DESCRIPTION,
+			RankMathIntegration::META_FACEBOOK_TITLE       => RankMathIntegration::FIELD_FACEBOOK_TITLE,
 			RankMathIntegration::META_FACEBOOK_DESCRIPTION => RankMathIntegration::FIELD_FACEBOOK_DESCRIPTION,
-			RankMathIntegration::META_TWITTER_TITLE       => RankMathIntegration::FIELD_TWITTER_TITLE,
-			RankMathIntegration::META_TWITTER_DESCRIPTION => RankMathIntegration::FIELD_TWITTER_DESCRIPTION,
+			RankMathIntegration::META_TWITTER_TITLE        => RankMathIntegration::FIELD_TWITTER_TITLE,
+			RankMathIntegration::META_TWITTER_DESCRIPTION  => RankMathIntegration::FIELD_TWITTER_DESCRIPTION,
 		);
 	}
 

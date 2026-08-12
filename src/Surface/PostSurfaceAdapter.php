@@ -26,25 +26,18 @@ use WP_Post;
 final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
-	 * Rank Math SEO text metas — derived from RankMathMetaDefinitions (sole authority).
+	 * Rank Math SEO text metas — BC alias of RankMathMetaDefinitions (sole authority).
 	 *
 	 * @var list<string>
 	 */
-	public const RANK_MATH_SEO_META_KEYS = array(
-		RankMathIntegration::META_TITLE,
-		RankMathIntegration::META_DESCRIPTION,
-		RankMathIntegration::META_FACEBOOK_TITLE,
-		RankMathIntegration::META_FACEBOOK_DESCRIPTION,
-		RankMathIntegration::META_TWITTER_TITLE,
-		RankMathIntegration::META_TWITTER_DESCRIPTION,
-	);
+	public const RANK_MATH_SEO_META_KEYS = RankMathMetaDefinitions::SEO_META_KEYS;
 
 	/**
 	 * Builds the post surface adapter.
 	 *
-	 * @param Settings|null                 $settings      Optional settings for activation facts.
-	 * @param Extractor|null                $extractor     Source extractor (required in production).
-	 * @param RegisteredMetaRegistry|null   $meta_registry Optional registered-meta catalog.
+	 * @param Settings|null               $settings      Optional settings for activation facts.
+	 * @param Extractor|null              $extractor     Source extractor (required in production).
+	 * @param RegisteredMetaRegistry|null $meta_registry Optional registered-meta catalog.
 	 */
 	public function __construct(
 		private ?Settings $settings = null,

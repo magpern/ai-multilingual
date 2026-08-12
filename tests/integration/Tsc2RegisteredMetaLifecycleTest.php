@@ -176,6 +176,174 @@ final class Tsc2RegisteredMetaLifecycleTest extends AimlTestCase {
 		$segments = $extractor->extract( $term_id );
 		$this->assertArrayHasKey( 'name', $segments );
 		$this->assertArrayHasKey( 'm:aiml_tsc2:_aiml_tsc2_blurb', $segments );
-		$this->assertCount( 2, $segments );
+		$this->assertSame( 'News', (string) ( $segments['name']['source_text'] ?? '' ) );
+		$this->assertSame( 'Category blurb', (string) ( $segments['m:aiml_tsc2:_aiml_tsc2_blurb']['source_text'] ?? '' ) );
+		// Native name/description plus optional registered m: — no duplicate segment keys.
+		$this->assertSame( count( $segments ), count( array_unique( array_keys( $segments ) ) ) );
+		foreach ( array_keys( $segments ) as $key ) {
+			$this->assertStringStartsNotWith( 'p:rankmath', (string) $key );
+		}
+	}
+
+	public function test_rank_math_inactive_retain_keys_preserve_external_p_rows(): void {
+		$language = $this->add_language();
+		$post_id  = self::factory()->post->create( array( 'post_type' => 'post' ) );
+		$lang     = (int) $language->language_id;
+
+		$identity = new \AIMultilingual\Integration\Identity\PluginIdentity();
+		$seg_key  = $identity->build( 'rankmath', 'post', (string) $post_id, 'title' );
+
+		$this->store->save_translation(
+			array(
+				'source_type'     => Store::SOURCE_POST,
+				'source_id'       => $post_id,
+				'source_subtype'  => 'post',
+				'language_id'     => $lang,
+				'field_key'       => 'title',
+				'segment_key'     => $seg_key,
+				'source_text'     => 'SEO Title',
+				'text_format'     => Store::FORMAT_PLAIN,
+				'translated_text' => 'SEO Titel',
+				'status'          => Store::STATUS_MANUALLY_EDITED,
+			)
+		);
+
+		$registry = new RegisteredMetaRegistry( $identity );
+		$registry->register(
+			new RegisteredMetaDefinition(
+				namespace: 'rankmath',
+				source_type: Store::SOURCE_POST,
+				meta_key: 'rank_math_title',
+				segment_key_mode: RegisteredMetaDefinition::MODE_EXTERNAL_P,
+				label: 'Rank Math title',
+				provider_allowed: true,
+				activation: static fn (): bool => false,
+				external_field_token: 'title',
+			)
+		);
+
+		$retain = $registry->retain_segment_keys( Store::SOURCE_POST, $post_id );
+		$this->assertContains( $seg_key, $retain );
+
+		$before = $this->store->get( Store::SOURCE_POST, $post_id, $lang, $seg_key );
+		$this->assertNotNull( $before );
+		$updated_at = (string) $before->updated_at;
+
+		$this->store->sync_source( Store::SOURCE_POST, $post_id, 'post', array(), $retain );
+
+		$after = $this->store->get( Store::SOURCE_POST, $post_id, $lang, $seg_key );
+		$this->assertNotNull( $after );
+		$this->assertSame( Store::STATUS_MANUALLY_EDITED, (string) $after->status );
+		$this->assertNotSame( 'orphaned', (string) $after->error_code );
+		$this->assertSame( $updated_at, (string) $after->updated_at );
+	}
+
+	public function test_rank_math_active_empty_extract_orphans_without_retain(): void {
+		$language = $this->add_language();
+		$post_id  = self::factory()->post->create( array( 'post_type' => 'post' ) );
+		$lang     = (int) $language->language_id;
+
+		$identity = new \AIMultilingual\Integration\Identity\PluginIdentity();
+		$seg_key  = $identity->build( 'rankmath', 'post', (string) $post_id, 'title' );
+
+		$this->store->save_translation(
+			array(
+				'source_type'     => Store::SOURCE_POST,
+				'source_id'       => $post_id,
+				'source_subtype'  => 'post',
+				'language_id'     => $lang,
+				'field_key'       => 'title',
+				'segment_key'     => $seg_key,
+				'source_text'     => 'SEO Title',
+				'text_format'     => Store::FORMAT_PLAIN,
+				'translated_text' => 'SEO Titel',
+				'status'          => Store::STATUS_MANUALLY_EDITED,
+			)
+		);
+
+		// Active definition → not retained → CASE A orphan when missing from extract.
+		$this->store->sync_source( Store::SOURCE_POST, $post_id, 'post', array(), array() );
+
+		$row = $this->store->get( Store::SOURCE_POST, $post_id, $lang, $seg_key );
+		$this->assertNotNull( $row );
+		$this->assertSame( Store::STATUS_IGNORED, (string) $row->status );
+		$this->assertSame( 'orphaned', (string) $row->error_code );
+	}
+
+	public function test_provider_disallowed_segment_skips_without_calling_provider(): void {
+		$registry = new RegisteredMetaRegistry();
+		$registry->register(
+			new RegisteredMetaDefinition(
+				namespace: 'demo',
+				source_type: Store::SOURCE_POST,
+				meta_key: 'note',
+				segment_key_mode: RegisteredMetaDefinition::MODE_NATIVE_M,
+				label: 'Note',
+				provider_allowed: false,
+			)
+		);
+
+		$settings  = new \AIMultilingual\Settings();
+		$adapters  = new \AIMultilingual\Block\AdapterRegistry();
+		$blocks    = new \AIMultilingual\Block\BlockRegistry( $adapters );
+		$extractor = new \AIMultilingual\Translation\Extractor(
+			$settings,
+			new \AIMultilingual\Translation\BlockExtractor(
+				$adapters,
+				$blocks,
+				new \AIMultilingual\Block\BlockExtractionLogger()
+			)
+		);
+		$assembler = new \AIMultilingual\Workspace\SegmentAssembler( $extractor, $this->store, $blocks, null, null, $registry );
+		$glossary  = new \AIMultilingual\Glossary\GlossaryService(
+			new \AIMultilingual\Glossary\GlossaryRepository(),
+			new \AIMultilingual\Glossary\GlossaryNormalizer(),
+			new \AIMultilingual\Glossary\GlossaryMatcher( new \AIMultilingual\Glossary\GlossaryNormalizer() )
+		);
+
+		$provider_calls = 0;
+		$provider       = new ScriptedAIProvider(
+			array(
+				static function () use ( &$provider_calls ) {
+					++$provider_calls;
+					return new \WP_Error( 'should_not_run', 'provider must not be called' );
+				},
+			)
+		);
+		$translation = new \AIMultilingual\Workspace\TranslationService(
+			$this->store,
+			$assembler,
+			$this->languages,
+			$provider,
+			null,
+			null,
+			$glossary
+		);
+		$processor = new \AIMultilingual\Jobs\BackgroundTranslationItemProcessor(
+			$this->store,
+			$translation,
+			$glossary,
+			$assembler,
+			null,
+			null,
+			$registry
+		);
+
+		$job  = (object) array(
+			'language_id' => 1,
+			'job_type'    => 'translate',
+			'source_type' => Store::SOURCE_POST,
+			'source_id'   => 1,
+		);
+		$item = (object) array(
+			'segment_key'               => 'm:demo:note',
+			'source_hash_captured'      => '',
+			'translation_hash_captured' => '',
+		);
+
+		$result = $processor->process( $job, $item, null, true );
+		$this->assertSame( \AIMultilingual\Jobs\ItemStatuses::SKIPPED_CONFLICT, $result->status );
+		$this->assertSame( 0, $provider_calls );
+		$this->assertStringContainsString( 'not provider-admitted', $result->skip_reason );
 	}
 }

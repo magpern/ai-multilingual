@@ -42,11 +42,11 @@ final class Extractor {
 	/**
 	 * Builds the extractor.
 	 *
-	 * @param Settings|null                 $settings               Plugin settings.
-	 * @param BlockExtractor|null           $block_extractor        Block segment extractor.
-	 * @param ElementorExtractor|null       $elementor_extractor    Elementor segment extractor.
-	 * @param IntegrationRegistry|null      $integration_registry   Integration API v1 registry.
-	 * @param RegisteredMetaExtractor|null  $registered_meta        Optional registered-meta extractor.
+	 * @param Settings|null                $settings               Plugin settings.
+	 * @param BlockExtractor|null          $block_extractor        Block segment extractor.
+	 * @param ElementorExtractor|null      $elementor_extractor    Elementor segment extractor.
+	 * @param IntegrationRegistry|null     $integration_registry   Integration API v1 registry.
+	 * @param RegisteredMetaExtractor|null $registered_meta        Optional registered-meta extractor.
 	 */
 	public function __construct(
 		private ?Settings $settings = null,

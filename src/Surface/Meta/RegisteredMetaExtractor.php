@@ -21,6 +21,8 @@ use AIMultilingual\Translation\Store;
 final class RegisteredMetaExtractor {
 
 	/**
+	 * Construct the native meta extractor.
+	 *
 	 * @param RegisteredMetaRegistry $registry Catalog.
 	 * @param RegisteredMetaReader   $reader   Keyed reader.
 	 * @param SurfaceRegistry|null   $surfaces Optional surfaces for admission checks.
@@ -78,6 +80,8 @@ final class RegisteredMetaExtractor {
 	}
 
 	/**
+	 * Build native_m segment units for one admitted owner.
+	 *
 	 * @param string $source_type Source type.
 	 * @param int    $source_id   Owner id.
 	 * @param string $subtype     Subtype.
@@ -102,6 +106,7 @@ final class RegisteredMetaExtractor {
 				'surface'       => 'registered_meta',
 				'meta'          => array(
 					'namespace'   => $definition->namespace,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- segment meta payload, not a DB query.
 					'meta_key'    => $definition->meta_key,
 					'field_label' => $definition->label,
 				),
@@ -111,6 +116,8 @@ final class RegisteredMetaExtractor {
 	}
 
 	/**
+	 * Whether the owning surface admits this source id.
+	 *
 	 * @param string $source_type Source type.
 	 * @param int    $source_id   Owner id.
 	 */

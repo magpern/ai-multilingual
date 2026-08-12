@@ -26,22 +26,25 @@ final class RegisteredMetaDefinition {
 	public const OVERLAY_REFERENCE_PREFIX   = 'reference_adapter:';
 
 	/**
-	 * @param string                $namespace                 Code-owned namespace.
-	 * @param string                $source_type               post|term.
-	 * @param string                $meta_key                  Exact WP meta key.
-	 * @param string                $segment_key_mode          native_m|external_p.
-	 * @param string                $label                     OTL label.
-	 * @param list<string>|null     $admitted_subtypes         Null = all Surface-admitted subtypes.
-	 * @param bool                  $extract_store_capable     May extract/store.
-	 * @param bool                  $provider_allowed          May send to AI provider (default false).
-	 * @param bool                  $overlay_capable           May overlay when eligible.
-	 * @param string                $overlay_resolver_ownership Ownership token.
-	 * @param callable():bool|null  $activation                Null = always active.
-	 * @param string                $value_type                Scalar only in TSC.2.
-	 * @param string                $text_format               Store format.
-	 * @param string|null           $external_field_token      For external_p Rank Math field token.
+	 * Construct a field-definition entry.
+	 *
+	 * @param string               $namespace                 Code-owned namespace.
+	 * @param string               $source_type               post|term.
+	 * @param string               $meta_key                  Exact WP meta key.
+	 * @param string               $segment_key_mode          native_m|external_p.
+	 * @param string               $label                     OTL label.
+	 * @param list<string>|null    $admitted_subtypes         Null = all Surface-admitted subtypes.
+	 * @param bool                 $extract_store_capable     May extract/store.
+	 * @param bool                 $provider_allowed          May send to AI provider (default false).
+	 * @param bool                 $overlay_capable           May overlay when eligible.
+	 * @param string               $overlay_resolver_ownership Ownership token.
+	 * @param callable():bool|null $activation                Null = always active.
+	 * @param string               $value_type                Scalar only in TSC.2.
+	 * @param string               $text_format               Store format.
+	 * @param string|null          $external_field_token      For external_p Rank Math field token.
 	 */
 	public function __construct(
+		// phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- domain term.
 		public readonly string $namespace,
 		public readonly string $source_type,
 		public readonly string $meta_key,

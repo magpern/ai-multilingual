@@ -71,9 +71,9 @@ use AIMultilingual\Glossary\GlossaryRepository;
 use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Integration\FluentForms\FluentFormsIntegration;
 use AIMultilingual\Integration\RankMath\RankMathIntegration;
-		use AIMultilingual\Integration\WooCommerce\WooCommerceIntegration;
-		use AIMultilingual\Integration\WooCommerce\OrderTransactionalLanguage;
-		use AIMultilingual\Integration\WooCommerce\CustomerEmailBridge;
+use AIMultilingual\Integration\WooCommerce\WooCommerceIntegration;
+use AIMultilingual\Integration\WooCommerce\OrderTransactionalLanguage;
+use AIMultilingual\Integration\WooCommerce\CustomerEmailBridge;
 use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationDiagnostics;
 use AIMultilingual\Integration\IntegrationFrontendBridge;
@@ -300,7 +300,7 @@ final class Plugin {
 			20
 		);
 
-		$meta_registry           = new RegisteredMetaRegistry( $plugin_identity );
+		$meta_registry = new RegisteredMetaRegistry( $plugin_identity, $store );
 		RankMathMetaDefinitions::register_into( $meta_registry );
 		$registered_meta_reader  = new RegisteredMetaReader();
 		$registered_meta_extract = new RegisteredMetaExtractor( $meta_registry, $registered_meta_reader );

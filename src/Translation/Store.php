@@ -1420,17 +1420,53 @@ final class Store {
 	}
 
 	/**
+	 * Distinct segment keys currently stored for a source object.
+	 *
+	 * Used by TSC.2 CASE B retain computation for host-emitted external_p rows.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source object id.
+	 * @return list<string>
+	 */
+	public function distinct_segment_keys_for_source( string $source_type, int $source_id ): array {
+		global $wpdb;
+
+		if ( $source_id <= 0 ) {
+			return array();
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows = $wpdb->get_col(
+			$wpdb->prepare(
+				'SELECT DISTINCT segment_key FROM ' . Schema::translations() // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				. ' WHERE source_type = %s AND source_id = %d',
+				$source_type,
+				$source_id
+			)
+		);
+
+		$out = array();
+		foreach ( (array) $rows as $key ) {
+			$key = (string) $key;
+			if ( '' !== $key ) {
+				$out[] = $key;
+			}
+		}
+		return $out;
+	}
+
+	/**
 	 * Reconciles stored segments against the current source content.
 	 *
 	 * Runs for every language when the canonical object changes. Translated
 	 * text and workflow status are never touched here (invariant I6): a source
 	 * edit flags work for review, it does not discard it.
 	 *
-	 * @param string                      $source_type          Source type.
-	 * @param int                         $source_id            Source object id.
-	 * @param string                      $source_subtype       Post type or taxonomy.
-	 * @param array<string, array<mixed>> $segments             Extracted source segments keyed by segment key.
-	 * @param list<string>                $retain_segment_keys  CASE B: missing keys to leave genuinely untouched.
+	 * @param string                      $source_type         Source type.
+	 * @param int                         $source_id           Source object id.
+	 * @param string                      $source_subtype      Post type or taxonomy.
+	 * @param array<string, array<mixed>> $segments            Extracted source segments keyed by segment key.
+	 * @param array                       $retain_segment_keys CASE B: missing keys to leave genuinely untouched (list of segment_key strings).
 	 */
 	public function sync_source( string $source_type, int $source_id, string $source_subtype, array $segments, array $retain_segment_keys = array() ): void {
 		global $wpdb;

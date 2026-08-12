@@ -330,7 +330,7 @@ final class SegmentAssembler {
 				'ownership_class' => (string) ( $extracted['ownership_class'] ?? '' ),
 			);
 		} elseif ( 'registered_meta' === $surface ) {
-			$meta = is_array( $extracted['meta'] ?? null ) ? (array) $extracted['meta'] : array();
+			$meta            = is_array( $extracted['meta'] ?? null ) ? (array) $extracted['meta'] : array();
 			$meta['surface'] = 'registered_meta';
 		}
 

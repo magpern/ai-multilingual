@@ -51,9 +51,9 @@ final class RequestLocalInvalidationCoordinator {
 	/**
 	 * Builds the coordinator.
 	 *
-	 * @param Store                        $store         Segment store.
-	 * @param SurfaceRegistry              $registry      Surface registry owning per-type facts and extraction.
-	 * @param RegisteredMetaRegistry|null  $meta_registry Optional registered-meta catalog for CASE B retain keys.
+	 * @param Store                       $store         Segment store.
+	 * @param SurfaceRegistry             $registry      Surface registry owning per-type facts and extraction.
+	 * @param RegisteredMetaRegistry|null $meta_registry Optional registered-meta catalog for CASE B retain keys.
 	 */
 	public function __construct(
 		private Store $store,

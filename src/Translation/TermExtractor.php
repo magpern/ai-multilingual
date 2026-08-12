@@ -32,6 +32,8 @@ final class TermExtractor {
 	public const FIELD_DESCRIPTION = 'description';
 
 	/**
+	 * Construct the term extractor.
+	 *
 	 * @param RegisteredMetaExtractor|null $registered_meta Optional registered-meta extractor.
 	 */
 	public function __construct(

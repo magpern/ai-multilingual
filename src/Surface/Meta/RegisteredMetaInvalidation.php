@@ -20,6 +20,8 @@ use AIMultilingual\Translation\Store;
 final class RegisteredMetaInvalidation {
 
 	/**
+	 * Construct invalidation helper.
+	 *
 	 * @param RegisteredMetaRegistry $registry Catalog.
 	 */
 	public function __construct(

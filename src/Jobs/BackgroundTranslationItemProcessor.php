@@ -69,12 +69,13 @@ final class BackgroundTranslationItemProcessor {
 	/**
 	 * Builds the processor.
 	 *
-	 * @param Store                                 $store        Segment store.
-	 * @param TranslationService                    $translation  Translation boundary.
-	 * @param GlossaryService                       $glossary     Glossary service.
-	 * @param SegmentAssembler                      $assembler    Segment assembler.
-	 * @param BackgroundTranslationRetryPolicy|null $retry_policy Retry policy.
-	 * @param SurfaceRegistry|null                  $surfaces     Surface registry.
+	 * @param Store                                                    $store        Segment store.
+	 * @param TranslationService                                       $translation  Translation boundary.
+	 * @param GlossaryService                                          $glossary     Glossary service.
+	 * @param SegmentAssembler                                         $assembler     Segment assembler.
+	 * @param BackgroundTranslationRetryPolicy|null                    $retry_policy  Retry policy.
+	 * @param SurfaceRegistry|null                                     $surfaces      Surface registry.
+	 * @param \AIMultilingual\Surface\Meta\RegisteredMetaRegistry|null $meta_registry Optional registered-meta catalog.
 	 */
 	public function __construct(
 		Store $store,
