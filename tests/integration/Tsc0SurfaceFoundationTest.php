@@ -45,8 +45,11 @@ final class Tsc0SurfaceFoundationTest extends AimlTestCase {
 	public function test_rank_math_n_meta_updates_coalesce_to_one_sync(): void {
 		$post = $this->create_page( 'Rank Math Coalesce', '<p>Body</p>' );
 
-		$coordinator = new RequestLocalInvalidationCoordinator( $this->store, $this->extractor );
-		$adapter     = new PostSurfaceAdapter( new Settings( array() ) );
+		$registry = new SurfaceRegistry();
+		$adapter  = new PostSurfaceAdapter( new Settings( array() ), $this->extractor );
+		$registry->register( $adapter );
+
+		$coordinator = new RequestLocalInvalidationCoordinator( $this->store, $registry );
 		$adapter->register_invalidation_events( $coordinator );
 
 		foreach ( PostSurfaceAdapter::RANK_MATH_SEO_META_KEYS as $index => $meta_key ) {

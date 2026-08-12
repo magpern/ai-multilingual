@@ -10,9 +10,7 @@ declare(strict_types=1);
 namespace AIMultilingual\Surface;
 
 use AIMultilingual\Block\BlockIdentityMigration;
-use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
-use WP_Post;
 
 /**
  * Mutation hooks mark identities dirty only. Shutdown is the sole flush authority.
@@ -52,12 +50,12 @@ final class RequestLocalInvalidationCoordinator {
 	/**
 	 * Builds the coordinator.
 	 *
-	 * @param Store     $store     Segment store.
-	 * @param Extractor $extractor Source extractor.
+	 * @param Store           $store    Segment store.
+	 * @param SurfaceRegistry $registry Surface registry owning per-type facts and extraction.
 	 */
 	public function __construct(
 		private Store $store,
-		private Extractor $extractor
+		private SurfaceRegistry $registry
 	) {
 	}
 
@@ -158,32 +156,32 @@ final class RequestLocalInvalidationCoordinator {
 	/**
 	 * Syncs one identity from final readable state.
 	 *
+	 * Which extractor answers is the surface's business, not the coordinator's:
+	 * a source type nobody registered is a source type this plugin does not
+	 * claim, and syncing it would orphan rows it does not understand.
+	 *
 	 * @param string $source_type Source type.
 	 * @param int    $source_id   Source id.
 	 */
 	private function sync_identity( string $source_type, int $source_id ): void {
-		if ( Store::SOURCE_POST !== $source_type ) {
+		$surface = $this->registry->for( $source_type );
+
+		if ( null === $surface ) {
 			return;
 		}
 
-		$post = get_post( $source_id );
-		if ( ! $post instanceof WP_Post ) {
-			// Object gone: orphan any existing rows with empty segment set.
-			$this->store->sync_source( Store::SOURCE_POST, $source_id, '', array() );
+		if ( ! $surface->exists( $source_id ) ) {
+			// Object gone: orphan any existing rows with an empty segment set.
+			$this->store->sync_source( $source_type, $source_id, '', array() );
 			++$this->sync_count;
 			return;
 		}
 
-		if ( wp_is_post_revision( $post ) || wp_is_post_autosave( $post ) ) {
-			return;
-		}
-
-		$segments = $this->extractor->extract( $post );
 		$this->store->sync_source(
-			Store::SOURCE_POST,
+			$source_type,
 			$source_id,
-			(string) $post->post_type,
-			$segments
+			$surface->source_subtype( $source_id ),
+			$surface->extract_segments( $source_id )
 		);
 		++$this->sync_count;
 	}

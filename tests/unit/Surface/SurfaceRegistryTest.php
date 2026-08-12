@@ -99,6 +99,10 @@ final class SurfaceRegistryTest extends TestCase {
 				return false;
 			}
 
+			public function extract_segments( int $source_id ): array {
+				return array();
+			}
+
 			public function register_invalidation_events( RequestLocalInvalidationCoordinator $coordinator ): void {
 			}
 		};
