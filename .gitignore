@@ -15,3 +15,8 @@ spike/s5/corpus/browser-validation/auth-cookies.json
 /docs/plans/f9-artifacts/
 /docs/plans/f9-failure-evidence/
 tests/quality/baselines/_staging*/
+
+# Local Playwright packages (non-CI)
+acceptance/*/node_modules/
+acceptance/*/artifacts/
+acceptance/*/package-lock.json
