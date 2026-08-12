@@ -442,3 +442,22 @@ if ( ! function_exists( 'wc_get_page_id' ) ) {
 		return (int) ( $GLOBALS['aiml_unit_wc_pages'][ (string) $page ] ?? 0 );
 	}
 }
+
+if ( ! function_exists( 'current_time' ) ) {
+	/**
+	 * @param string    $type Type (mysql / timestamp).
+	 * @param int|bool  $gmt  GMT flag.
+	 */
+	function current_time( $type, $gmt = 0 ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return 'mysql' === $type ? '2026-08-12 12:00:00' : time();
+	}
+}
+
+if ( ! function_exists( 'get_current_user_id' ) ) {
+	/**
+	 * Current user id stub.
+	 */
+	function get_current_user_id(): int {
+		return (int) ( $GLOBALS['aiml_unit_current_user_id'] ?? 0 );
+	}
+}
