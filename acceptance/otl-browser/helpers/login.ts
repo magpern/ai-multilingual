@@ -1,5 +1,5 @@
 /**
- * WordPress admin cookie login for OTL.4 smoke tests.
+ * WordPress admin cookie login for OTL lifecycle smoke tests.
  */
 import fs from 'fs';
 import { Page } from '@playwright/test';

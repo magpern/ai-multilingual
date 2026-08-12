@@ -557,5 +557,75 @@ final class PluginGuardTest extends AimlTestCase {
 				);
 			}
 		}
+
+		$workspace_root = $this->root() . '/assets/translator-workspace/src';
+		$this->assertDirectoryExists( $workspace_root );
+		$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $workspace_root ) );
+		foreach ( $iterator as $file ) {
+			if ( ! $file->isFile() ) {
+				continue;
+			}
+			$ext = $file->getExtension();
+			if ( 'ts' !== $ext && 'tsx' !== $ext ) {
+				continue;
+			}
+			$path = str_replace( $this->root() . '/', '', $file->getPathname() );
+			$code = (string) file_get_contents( $file->getPathname() );
+			foreach ( $forbidden as $needle ) {
+				$this->assertStringNotContainsString(
+					$needle,
+					$code,
+					$path . ' must not embed site-specific product behavior (' . $needle . ').'
+				);
+			}
+		}
+	}
+
+	/**
+	 * OTL.6 architecture forbids — ConfirmDialog, session memory, no Jobs→Ops enrichment.
+	 */
+	public function test_otl6_operator_lifecycle_boundaries(): void {
+		$confirm = $this->root() . '/assets/translator-workspace/src/components/ConfirmDialog.tsx';
+		$this->assertFileExists( $confirm );
+
+		$panel = (string) file_get_contents(
+			$this->root() . '/assets/translator-workspace/src/components/OperationsPanel.tsx'
+		);
+		$this->assertStringNotContainsString(
+			'window.confirm',
+			$panel,
+			'Operations consequential confirms must use ConfirmDialog, not window.confirm.'
+		);
+
+		$session_path = $this->root() . '/assets/translator-workspace/src/utils/operations-session.ts';
+		$this->assertFileExists( $session_path );
+		$session = (string) file_get_contents( $session_path );
+		$this->assertDoesNotMatchRegularExpression(
+			'/\blocalStorage\s*\./',
+			$session,
+			'operations-session must not call localStorage APIs.'
+		);
+		$this->assertDoesNotMatchRegularExpression(
+			'/\bsessionStorage\s*\./',
+			$session,
+			'operations-session must not call sessionStorage APIs.'
+		);
+
+		// Jobs→Ops enrichment remains Deferred (A3 / OP15): serializers must not emit translation_id.
+		foreach ( array(
+			'src/Jobs/JobsViewModel.php',
+			'src/Jobs/JobItemViewModel.php',
+			'src/Jobs/JobsViewModelSerializer.php',
+		) as $rel ) {
+			$code = (string) file_get_contents( $this->root() . '/' . $rel );
+			$this->assertStringNotContainsString(
+				'translation_id',
+				$code,
+				$rel . ' must not enrich Jobs payloads with translation_id for Ops reverse nav.'
+			);
+		}
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
 	}
 }

@@ -57,6 +57,7 @@ export interface ReviewQueueItem extends ReviewMetadata {
 	source_text: string;
 	translated_text: string;
 	status: string;
+	translation_id: number;
 }
 
 export interface ReviewQueueResponse {

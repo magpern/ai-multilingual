@@ -44,7 +44,8 @@ final class ReviewQueueItemSerializer {
 			null === $reviewed_at ? null : (string) $reviewed_at,
 			(string) ( $row->rejection_reason ?? '' ),
 			null === $rejected_by ? null : (int) $rejected_by,
-			null === $rejected_at ? null : (string) $rejected_at
+			null === $rejected_at ? null : (string) $rejected_at,
+			(int) ( $row->translation_id ?? 0 )
 		);
 	}
 

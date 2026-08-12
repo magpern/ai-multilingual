@@ -1,9 +1,9 @@
 {
-  "name": "aiml-otl4-browser",
+  "name": "aiml-otl-browser",
   "private": true,
   "scripts": {
     "test": "playwright test",
-    "test:smoke": "playwright test --project=otl4-smoke"
+    "test:smoke": "playwright test --project=otl-smoke"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0"

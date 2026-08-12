@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { Button, Notice, Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+
+import type { ConfirmRequest } from '../hooks/useConfirmDialog';
 
 import {
 	WorkspaceConflictError,
@@ -37,6 +39,14 @@ import {
 	isDetailDirty,
 } from '../utils/detail-dirty';
 import {
+	bulkOutcomeLabel,
+	publishStatusLabel,
+} from '../utils/operations-labels';
+import {
+	peekOperationsSession,
+	type OperationsNavSnapshot,
+} from '../utils/operations-session';
+import {
 	ATTENTION_REASON_IDS,
 	EMPTY_ATTENTION_COUNTS,
 	attentionFilterOptions,
@@ -69,6 +79,10 @@ interface OperationsPanelProps {
 	onOpenInTranslate: ( postId: number, languageCode: string ) => void;
 	onOpenInReview: ( languageCode: string, postId?: number ) => void;
 	onOpenJobs?: ( jobId?: number | null, itemId?: number | null ) => void;
+	requestConfirm: ( request: ConfirmRequest ) => Promise< boolean >;
+	onRegisterDirtyGuard: ( guard: ( () => boolean ) | null ) => void;
+	onRegisterNavSnapshot: ( getter: ( () => OperationsNavSnapshot ) | null ) => void;
+	onRequestLeaveOperations: () => Promise< boolean >;
 }
 
 const PER_PAGE = 20;
@@ -89,8 +103,28 @@ export default function OperationsPanel( {
 	onOpenInTranslate,
 	onOpenInReview,
 	onOpenJobs,
+	requestConfirm,
+	onRegisterDirtyGuard,
+	onRegisterNavSnapshot,
+	onRequestLeaveOperations,
 }: OperationsPanelProps ) {
-	const initial = readOperationsUrlState();
+	const urlInitial = readOperationsUrlState();
+	const sessionInitial = peekOperationsSession();
+	const initial = sessionInitial
+		? {
+				language: sessionInitial.language,
+				attention: sessionInitial.attention,
+				invalidReservedAttention: false,
+				pageNum: sessionInitial.pageNum,
+				status: sessionInitial.status,
+				reviewStatus: sessionInitial.reviewStatus,
+				publishStatus: sessionInitial.publishStatus,
+				isStale: sessionInitial.isStale,
+				sourceType: sessionInitial.sourceType,
+				sourceId: sessionInitial.sourceId,
+				translationId: sessionInitial.translationId,
+		  }
+		: urlInitial;
 	const defaultLanguage =
 		initial.language ||
 		( languages[ 0 ] ? String( languages[ 0 ].code ) : '' );
@@ -121,6 +155,7 @@ export default function OperationsPanel( {
 	const [ inspectorId, setInspectorId ] = useState< number | null >(
 		initial.translationId
 	);
+	const detailOpenerRef = useRef< HTMLElement | null >( null );
 	const [ detail, setDetail ] = useState< OperationsDetailResponse | null >(
 		null
 	);
@@ -168,6 +203,54 @@ export default function OperationsPanel( {
 	);
 	const dirtyBlocks = dirtyBlocksBulk( dirty, inspectorId, selectedIds );
 
+	const buildNavSnapshot = useCallback( (): OperationsNavSnapshot => {
+		return {
+			language: languageCode,
+			attention,
+			pageNum: page,
+			status,
+			reviewStatus,
+			publishStatus,
+			isStale,
+			sourceType,
+			sourceId,
+			translationId: inspectorId,
+		};
+	}, [
+		languageCode,
+		attention,
+		page,
+		status,
+		reviewStatus,
+		publishStatus,
+		isStale,
+		sourceType,
+		sourceId,
+		inspectorId,
+	] );
+
+	useEffect( () => {
+		onRegisterDirtyGuard( () => dirty );
+		return () => onRegisterDirtyGuard( null );
+	}, [ dirty, onRegisterDirtyGuard ] );
+
+	useEffect( () => {
+		onRegisterNavSnapshot( () => buildNavSnapshot() );
+		return () => onRegisterNavSnapshot( null );
+	}, [ buildNavSnapshot, onRegisterNavSnapshot ] );
+
+	const admitDirtyDiscard = useCallback( async (): Promise< boolean > => {
+		if ( ! dirty ) {
+			return true;
+		}
+		return requestConfirm( {
+			title: __( 'Unsaved changes', 'ai-multilingual' ),
+			message: dirtyLeaveConfirmMessage(),
+			confirmLabel: __( 'Discard and continue', 'ai-multilingual' ),
+			isDestructive: true,
+		} );
+	}, [ dirty, requestConfirm ] );
+
 	useEffect( () => {
 		setSelectedIds( clearSelection() );
 		setBulkResult( null );
@@ -207,7 +290,13 @@ export default function OperationsPanel( {
 			);
 			return;
 		}
-		if ( ! window.confirm( confirmLines.join( '\n\n' ) ) ) {
+		const confirmed = await requestConfirm( {
+			title: __( 'Confirm bulk action', 'ai-multilingual' ),
+			message: confirmLines.join( '\n\n' ),
+			confirmLabel: __( 'Continue', 'ai-multilingual' ),
+			isDestructive: 'unpublish' === action || 'enqueue_retranslate' === action,
+		} );
+		if ( ! confirmed ) {
 			return;
 		}
 
@@ -426,12 +515,16 @@ export default function OperationsPanel( {
 		};
 	}, [ dirty ] );
 
-	const requestCloseInspector = useCallback( () => {
-		if ( dirty && ! window.confirm( dirtyLeaveConfirmMessage() ) ) {
+	const requestCloseInspector = useCallback( async () => {
+		if ( ! ( await admitDirtyDiscard() ) ) {
 			return;
 		}
 		setInspectorId( null );
-	}, [ dirty ] );
+		const opener = detailOpenerRef.current;
+		if ( opener && typeof opener.focus === 'function' ) {
+			opener.focus();
+		}
+	}, [ admitDirtyDiscard ] );
 
 	const load = useCallback( async () => {
 		if ( ! languageCode ) {
@@ -572,13 +665,14 @@ export default function OperationsPanel( {
 		setStatusMessage( __( 'Changes discarded.', 'ai-multilingual' ) );
 	};
 
-	const handleRefreshDetail = () => {
-		if ( null !== inspectorId ) {
-			if ( dirty && ! window.confirm( dirtyLeaveConfirmMessage() ) ) {
-				return;
-			}
-			loadDetail( inspectorId );
+	const handleRefreshDetail = async () => {
+		if ( null === inspectorId ) {
+			return;
 		}
+		if ( ! ( await admitDirtyDiscard() ) ) {
+			return;
+		}
+		loadDetail( inspectorId );
 	};
 
 	/**
@@ -619,10 +713,33 @@ export default function OperationsPanel( {
 	}, [ inspectorId ] );
 
 	const handleOpenJobs = useCallback(
-		( jobId?: number | null, itemId?: number | null ) => {
+		async ( jobId?: number | null, itemId?: number | null ) => {
+			if ( ! ( await onRequestLeaveOperations() ) ) {
+				return;
+			}
 			onOpenJobs?.( jobId, itemId );
 		},
-		[ onOpenJobs ]
+		[ onOpenJobs, onRequestLeaveOperations ]
+	);
+
+	const handleOpenInTranslateGuarded = useCallback(
+		async ( postId: number, languageCode: string ) => {
+			if ( ! ( await onRequestLeaveOperations() ) ) {
+				return;
+			}
+			onOpenInTranslate( postId, languageCode );
+		},
+		[ onOpenInTranslate, onRequestLeaveOperations ]
+	);
+
+	const handleOpenInReviewGuarded = useCallback(
+		async ( languageCode: string, postId?: number ) => {
+			if ( ! ( await onRequestLeaveOperations() ) ) {
+				return;
+			}
+			onOpenInReview( languageCode, postId );
+		},
+		[ onOpenInReview, onRequestLeaveOperations ]
 	);
 
 	const runReviewMutation = async (
@@ -714,6 +831,18 @@ export default function OperationsPanel( {
 			return;
 		}
 
+		const confirmed = await requestConfirm( {
+			title: __( 'Publish translation', 'ai-multilingual' ),
+			message: __(
+				'Publish this translation? Approval is not the same as publication. The server revalidates publication rules when you confirm.',
+				'ai-multilingual'
+			),
+			confirmLabel: __( 'Publish', 'ai-multilingual' ),
+		} );
+		if ( ! confirmed ) {
+			return;
+		}
+
 		setSaving( true );
 		setLastOperationResult( null );
 		setStatusMessage( __( 'Publishing…', 'ai-multilingual' ) );
@@ -765,14 +894,16 @@ export default function OperationsPanel( {
 			return;
 		}
 
-		if (
-			! window.confirm(
-				__(
-					'Unpublish this translation? It will no longer satisfy a gate that requires published status.',
-					'ai-multilingual'
-				)
-			)
-		) {
+		const confirmed = await requestConfirm( {
+			title: __( 'Unpublish translation', 'ai-multilingual' ),
+			message: __(
+				'Unpublish this translation? It will no longer satisfy a gate that requires published status.',
+				'ai-multilingual'
+			),
+			confirmLabel: __( 'Unpublish', 'ai-multilingual' ),
+			isDestructive: true,
+		} );
+		if ( ! confirmed ) {
 			return;
 		}
 
@@ -860,7 +991,13 @@ export default function OperationsPanel( {
 			__( 'Continue with retranslate?', 'ai-multilingual' )
 		);
 
-		if ( ! window.confirm( disclosure.join( '\n\n' ) ) ) {
+		const confirmed = await requestConfirm( {
+			title: __( 'Retranslate', 'ai-multilingual' ),
+			message: disclosure.join( '\n\n' ),
+			confirmLabel: __( 'Retranslate', 'ai-multilingual' ),
+			isDestructive: true,
+		} );
+		if ( ! confirmed ) {
 			return;
 		}
 
@@ -1140,8 +1277,12 @@ export default function OperationsPanel( {
 					<ul>
 						{ bulkResult.items.map( ( item ) => (
 							<li key={ item.translation_id }>
-								#{ item.translation_id }: { item.outcome }
+								#{ item.translation_id }: { ' ' }
+								{ bulkOutcomeLabel( item.outcome ) }
 								{ item.message ? ` — ${ item.message }` : '' }
+								{ item.reason_codes && item.reason_codes.length > 0
+									? ` (${ item.reason_codes.join( ', ' ) })`
+									: '' }
 							</li>
 						) ) }
 					</ul>
@@ -1151,8 +1292,34 @@ export default function OperationsPanel( {
 							<ul>
 								{ bulkResult.operations.map( ( op ) => (
 									<li key={ op.operation_key }>
-										{ op.operation_key }: { op.outcome }
-										{ op.job_id ? ` (job ${ op.job_id })` : '' }
+										{ op.operation_key }: { ' ' }
+										{ bulkOutcomeLabel( op.outcome ) }
+										{ op.job_id ? (
+											<>
+												{ ' ' }
+												(
+												<Button
+													variant="link"
+													onClick={ async () => {
+														if (
+															! (
+																await onRequestLeaveOperations()
+															)
+														) {
+															return;
+														}
+														onOpenJobs?.( op.job_id, null );
+													} }
+												>
+													{ sprintf(
+														/* translators: %d: job id */
+														__( 'Open job #%d', 'ai-multilingual' ),
+														op.job_id
+													) }
+												</Button>
+												)
+											</>
+										) : null }
 									</li>
 								) ) }
 							</ul>
@@ -1174,15 +1341,25 @@ export default function OperationsPanel( {
 								/>
 							</th>
 							<th scope="col">{ __( 'Source', 'ai-multilingual' ) }</th>
-							<th scope="col">{ __( 'Source preview', 'ai-multilingual' ) }</th>
-							<th scope="col">{ __( 'Target preview', 'ai-multilingual' ) }</th>
-							<th scope="col">{ __( 'Language', 'ai-multilingual' ) }</th>
+							<th scope="col" className="aiml-operations-col--preview">
+								{ __( 'Source preview', 'ai-multilingual' ) }
+							</th>
+							<th scope="col" className="aiml-operations-col--preview">
+								{ __( 'Target preview', 'ai-multilingual' ) }
+							</th>
+							<th scope="col" className="aiml-operations-col--secondary">
+								{ __( 'Language', 'ai-multilingual' ) }
+							</th>
 							<th scope="col">{ __( 'Status', 'ai-multilingual' ) }</th>
 							<th scope="col">{ __( 'Review', 'ai-multilingual' ) }</th>
 							<th scope="col">{ __( 'Publish', 'ai-multilingual' ) }</th>
-							<th scope="col">{ __( 'Stale', 'ai-multilingual' ) }</th>
+							<th scope="col" className="aiml-operations-col--secondary">
+								{ __( 'Stale', 'ai-multilingual' ) }
+							</th>
 							<th scope="col">{ __( 'Attention', 'ai-multilingual' ) }</th>
-							<th scope="col">{ __( 'Updated', 'ai-multilingual' ) }</th>
+							<th scope="col" className="aiml-operations-col--tertiary">
+								{ __( 'Updated', 'ai-multilingual' ) }
+							</th>
 							<th scope="col">{ __( 'Actions', 'ai-multilingual' ) }</th>
 						</tr>
 					</thead>
@@ -1225,13 +1402,15 @@ export default function OperationsPanel( {
 								<td>
 									{ item.source_type } #{ item.source_id }
 								</td>
-								<td className="aiml-operations-preview">
+								<td className="aiml-operations-preview aiml-operations-col--preview">
 									{ item.source_preview }
 								</td>
-								<td className="aiml-operations-preview">
+								<td className="aiml-operations-preview aiml-operations-col--preview">
 									{ item.target_preview }
 								</td>
-								<td>{ item.language_code }</td>
+								<td className="aiml-operations-col--secondary">
+									{ item.language_code }
+								</td>
 								<td>
 									<span className="aiml-operations-axis">
 										{ item.status }
@@ -1244,10 +1423,10 @@ export default function OperationsPanel( {
 								</td>
 								<td>
 									<span className="aiml-operations-axis">
-										{ item.publish_status }
+										{ publishStatusLabel( item.publish_status ) }
 									</span>
 								</td>
-								<td>
+								<td className="aiml-operations-col--secondary">
 									{ item.is_stale
 										? __( 'Yes', 'ai-multilingual' )
 										: __( 'No', 'ai-multilingual' ) }
@@ -1263,20 +1442,20 @@ export default function OperationsPanel( {
 										) ) }
 									</ul>
 								</td>
-								<td>{ item.updated_at }</td>
+								<td className="aiml-operations-col--tertiary">
+									{ item.updated_at }
+								</td>
 								<td className="aiml-operations-actions">
 									<Button
 										variant="secondary"
-										onClick={ () => {
-											if (
-												dirty &&
-												inspectorId !== item.translation_id &&
-												! window.confirm(
-													dirtyLeaveConfirmMessage()
-												)
-											) {
-												return;
+										onClick={ async ( event ) => {
+											if ( inspectorId !== item.translation_id ) {
+												if ( ! ( await admitDirtyDiscard() ) ) {
+													return;
+												}
 											}
+											detailOpenerRef.current =
+												event.currentTarget as HTMLElement;
 											setInspectorId( item.translation_id );
 										} }
 									>
@@ -1287,12 +1466,19 @@ export default function OperationsPanel( {
 										item.source_id > 0 && (
 											<Button
 												variant="link"
-												onClick={ () =>
+												onClick={ async () => {
+													if (
+														! (
+															await onRequestLeaveOperations()
+														)
+													) {
+														return;
+													}
 													onOpenInTranslate(
 														item.source_id,
 														item.language_code
-													)
-												}
+													);
+												} }
 											>
 												{ __(
 													'Open in Translate',
@@ -1303,14 +1489,21 @@ export default function OperationsPanel( {
 									{ canReview && (
 										<Button
 											variant="link"
-											onClick={ () =>
+											onClick={ async () => {
+												if (
+													! (
+														await onRequestLeaveOperations()
+													)
+												) {
+													return;
+												}
 												onOpenInReview(
 													item.language_code,
 													'post' === item.source_type
 														? item.source_id
 														: undefined
-												)
-											}
+												);
+											} }
 										>
 											{ __(
 												'Open in Review',
@@ -1389,8 +1582,8 @@ export default function OperationsPanel( {
 					loading={ detailLoading }
 					error={ detailError }
 					onClose={ requestCloseInspector }
-					onOpenInTranslate={ onOpenInTranslate }
-					onOpenInReview={ onOpenInReview }
+					onOpenInTranslate={ handleOpenInTranslateGuarded }
+					onOpenInReview={ handleOpenInReviewGuarded }
 					canTranslate={ canTranslate }
 					canReview={ canReview }
 					draftText={ draftText }
