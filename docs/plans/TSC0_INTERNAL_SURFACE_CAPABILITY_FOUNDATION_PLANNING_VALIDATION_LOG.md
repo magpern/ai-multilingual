@@ -20,7 +20,7 @@
 | Planning CI (feature branch) | run `31600598772` — phpcs / unit / integration / quality / build **SUCCESS** |
 | Freeze merge | `3532a490cd09487876d5bf09c0eec10ba8566bea` (`merge: freeze TSC.0 Internal Surface Capability Foundation plan`) |
 | Fresh main CI (freeze merge) | run `31600740268` — phpcs / unit / integration / quality / build **SUCCESS** |
-| Closure commit | *(this commit)* |
+| Closure commit | `320e15d3bdf420c1fa1f8a4cc01243a7a3e12798` |
 | Post-closure CI | *(pending)* |
 | Plugin version | **1.3.0** (unchanged) |
 | TARGET | **7** (unchanged) |
