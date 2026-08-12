@@ -15,19 +15,23 @@ use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationSecurity;
 use AIMultilingual\Integration\PluginIntegrationInterface;
 use AIMultilingual\Integration\TranslationUnitDescriptor;
+use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
  * Record-owned WooCommerce bridge for A.7a–A.7d Supported surfaces.
  *
- * Product: attribute names (P5) and variation attribute names (P7).
+ * Product: local/custom attribute names (P5) and variation attribute names (P7).
+ * Global attribute taxonomy labels (TSC.3): p:woocommerce:attribute:{attribute_id}:label on shop host.
+ * Taxonomy-backed product P5/P7 are no longer emitted (compatibility retain only).
  * Catalog: product_cat / product_tag name + description (C3–C6) on shop page host.
  * Archive chrome: catalog orderby / orderedby labels (B1–B2) on shop page technical anchor.
  * Customer journey: checkout field labels + place order (CJ3); account menu + endpoint titles (CJ4);
  * thank-you text + order totals labels (CJ6). CJ1/CJ2/CJ5 remain Deferred.
  * Customer emails (A.7d): subject + heading for CE1–CE6/CE9–CE10 on checkout technical host.
  * CE7/CE8, body gettext, global footer remain Deferred. Title/excerpt/content remain on Extractor/Renderer.
+ * Email subject/heading stale: PARTIAL (TSC.3 allowlisted option observers).
  */
 final class WooCommerceIntegration implements PluginIntegrationInterface {
 
@@ -195,6 +199,9 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	 * @param (callable(): array<string, string>)|null                                                   $account_menu_provider    Test CJ4.1 menu.
 	 * @param (callable(): array<string, string>)|null                                                   $order_totals_labels_provider Test CJ6.2 labels.
 	 * @param (callable(): array<string, array{subject:string,heading:string}>)|null                     $email_chrome_provider Test A.7d email chrome.
+	 * @param Store|null                                                                                 $store                  Optional Store for TSC.3 shop-hosted overlay.
+	 * @param LanguageContext|null                                                                       $language_context       Optional language context for overlay.
+	 * @param (callable(): list<array{attribute_id:int,label:string}>)|null                              $global_attributes_provider Test global attrs.
 	 */
 	public function __construct(
 		private PluginIdentity $identity,
@@ -214,16 +221,42 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		private $account_menu_provider = null,
 		private $order_totals_labels_provider = null,
 		private $email_chrome_provider = null,
+		private ?Store $store = null,
+		private ?LanguageContext $language_context = null,
+		private $global_attributes_provider = null,
 	) {
 	}
 
 	/**
 	 * Convenience factory for production wiring.
 	 *
-	 * @param PluginIdentity $identity Serializer.
+	 * @param PluginIdentity       $identity Serializer.
+	 * @param Store|null           $store    Store for overlay resolve.
+	 * @param LanguageContext|null $context  Language context.
 	 */
-	public static function create_default( PluginIdentity $identity ): self {
-		return new self( $identity );
+	public static function create_default( PluginIdentity $identity, ?Store $store = null, ?LanguageContext $context = null ): self {
+		return new self(
+			$identity,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			$store,
+			$context,
+			null
+		);
 	}
 
 	/**
@@ -284,6 +317,9 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		}
 
 		if ( $this->is_shop_page( $post ) ) {
+			foreach ( $this->extract_global_attribute_label_units() as $unit ) {
+				$this->append_unique( $units, $seen, $unit );
+			}
 			foreach ( $this->extract_catalog_term_units() as $unit ) {
 				$this->append_unique( $units, $seen, $unit );
 			}
@@ -500,35 +536,165 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	 * Overlay attribute / variation attribute labels (P5 / P7).
+	 * Overlay attribute labels — TSC.3 exact global vs local algorithm.
 	 *
 	 * @param mixed                       $label    Source label.
 	 * @param mixed                       $name     Attribute name/slug.
 	 * @param mixed                       $product  Optional WC product.
-	 * @param callable(string): (?string) $resolve  Resolver.
+	 * @param callable(string): (?string) $resolve  Bridge resolver (product/local host).
 	 * @return mixed
 	 */
 	private function overlay_attribute_label( $label, $name, $product, callable $resolve ) {
 		if ( ! is_string( $label ) || ! is_string( $name ) || '' === $name ) {
 			return $label;
 		}
-		$product_id = 0;
-		if ( is_object( $product ) && method_exists( $product, 'get_id' ) ) {
-			$product_id = (int) $product->get_id();
+		if ( $this->is_non_visitor_term_overlay_context() ) {
+			return $label;
 		}
-		if ( $product_id <= 0 && function_exists( 'get_the_ID' ) ) {
-			$product_id = (int) get_the_ID();
+		if ( null !== $this->language_context && $this->language_context->is_default() ) {
+			return $label;
 		}
+
+		$product_id = $this->resolve_product_id_for_overlay( $product );
+
+		if ( $this->name_is_global_product_attribute( $name ) ) {
+			$attribute_id = $this->resolve_global_attribute_id( $name );
+			if ( $attribute_id > 0 ) {
+				$canonical = $this->resolve_canonical_attribute_label( $attribute_id );
+				if ( is_string( $canonical ) && '' !== $canonical ) {
+					return $canonical;
+				}
+			}
+			if ( $product_id > 0 ) {
+				$compat = $this->resolve_product_attribute_keys( $product_id, $name, $product, $resolve );
+				if ( is_string( $compat ) && '' !== $compat ) {
+					return $compat;
+				}
+			}
+
+			return $label;
+		}
+
 		if ( $product_id <= 0 ) {
 			return $label;
 		}
 
+		$local = $this->resolve_product_attribute_keys( $product_id, $name, $product, $resolve );
+
+		return is_string( $local ) && '' !== $local ? $local : $label;
+	}
+
+	/**
+	 * Resolve product id from overlay args.
+	 *
+	 * @param mixed $product Product object or null.
+	 */
+	private function resolve_product_id_for_overlay( $product ): int {
+		$product_id = 0;
+		if ( is_object( $product ) && method_exists( $product, 'get_id' ) ) {
+			$product_id = (int) $product->get_id();
+			if ( method_exists( $product, 'is_type' ) && method_exists( $product, 'get_parent_id' )
+				&& $product->is_type( 'variation' ) ) {
+				$parent = (int) $product->get_parent_id();
+				if ( $parent > 0 ) {
+					$product_id = $parent;
+				}
+			}
+		}
+		if ( $product_id <= 0 && function_exists( 'get_the_ID' ) ) {
+			$product_id = (int) get_the_ID();
+		}
+
+		return $product_id;
+	}
+
+	/**
+	 * Whether $name is a Woo global product attribute taxonomy.
+	 *
+	 * @param string $name Attribute name.
+	 */
+	private function name_is_global_product_attribute( string $name ): bool {
+		if ( function_exists( 'taxonomy_is_product_attribute' ) && taxonomy_is_product_attribute( $name ) ) {
+			return true;
+		}
+
+		return AttributeLabelIdentity::slug_is_global_product_attribute( $name );
+	}
+
+	/**
+	 * Resolve Woo attribute_id for a global attribute name.
+	 *
+	 * @param string $name Attribute name / taxonomy.
+	 */
+	private function resolve_global_attribute_id( string $name ): int {
+		if ( function_exists( 'wc_attribute_taxonomy_id_by_name' ) ) {
+			$id = (int) wc_attribute_taxonomy_id_by_name( $name );
+			if ( $id > 0 ) {
+				return $id;
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Resolve canonical shop-hosted attribute-label translation.
+	 *
+	 * @param int $attribute_id Woo attribute_id.
+	 */
+	private function resolve_canonical_attribute_label( int $attribute_id ): ?string {
+		if ( null === $this->store || null === $this->language_context || $attribute_id <= 0 ) {
+			return null;
+		}
+		$language = $this->language_context->current();
+		if ( null === $language || ! empty( $language->is_default ) ) {
+			return null;
+		}
+		$language_id = (int) $language->language_id;
+		try {
+			$key = AttributeLabelIdentity::canonical_key( $this->identity, $attribute_id );
+		} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+			return null;
+		}
+
+		$host_ids = array( $this->resolved_shop_page_id() );
+		$prev     = WooCommerceInvalidation::previous_shop_host_id();
+		if ( $prev > 0 ) {
+			$host_ids[] = $prev;
+		}
+
+		foreach ( $host_ids as $host_id ) {
+			if ( $host_id <= 0 ) {
+				continue;
+			}
+			$row = $this->store->get( Store::SOURCE_POST, $host_id, $language_id, $key );
+			if ( null === $row || ! Store::is_publicly_overlay_eligible( $row ) ) {
+				continue;
+			}
+			$plain = IntegrationSecurity::sanitize_plain( (string) ( $row->translated_text ?? '' ) );
+			if ( '' !== $plain ) {
+				return $plain;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Product-hosted P5/P7 resolution (local authority or global compatibility).
+	 *
+	 * @param int                         $product_id Product id.
+	 * @param string                      $name       Attribute name.
+	 * @param mixed                       $product    Product object.
+	 * @param callable(string): (?string) $resolve    Resolver.
+	 */
+	private function resolve_product_attribute_keys( int $product_id, string $name, $product, callable $resolve ): ?string {
 		$slug = $this->normalize_token( $name );
 		if ( '' === $slug ) {
 			$slug = $this->normalize_token( sanitize_title( $name ) );
 		}
 		if ( '' === $slug ) {
-			return $label;
+			return null;
 		}
 
 		$is_variation = $this->product_attribute_is_variation( $product, $name, $slug );
@@ -554,7 +720,7 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 			}
 		}
 
-		return $label;
+		return null;
 	}
 
 	/**
@@ -783,6 +949,10 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	private function extract_product_attribute_units( int $product_id ): array {
 		$units = array();
 		foreach ( $this->read_product_attributes( $product_id ) as $attr ) {
+			// TSC.3: taxonomy-backed global attributes are not emitted on the product host.
+			if ( ! empty( $attr['is_taxonomy'] ) ) {
+				continue;
+			}
 			$slug  = $this->normalize_token( $attr['slug'] );
 			$label = IntegrationSecurity::sanitize_plain( $attr['label'] );
 			if ( '' === $slug || '' === $label ) {
@@ -842,6 +1012,42 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 				);
 			}
 		}
+		return $units;
+	}
+
+	/**
+	 * Extract TSC.3 canonical global attribute taxonomy labels for the shop host.
+	 *
+	 * @return list<TranslationUnitDescriptor>
+	 */
+	private function extract_global_attribute_label_units(): array {
+		$units = array();
+		foreach ( $this->read_global_attribute_definitions() as $attr ) {
+			$attribute_id = (int) ( $attr['attribute_id'] ?? 0 );
+			$label        = IntegrationSecurity::sanitize_plain( (string) ( $attr['label'] ?? '' ) );
+			if ( $attribute_id <= 0 || '' === $label ) {
+				continue;
+			}
+			try {
+				$key = AttributeLabelIdentity::canonical_key( $this->identity, $attribute_id );
+			} catch ( \InvalidArgumentException $e ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				continue;
+			}
+			$units[] = new TranslationUnitDescriptor(
+				$key,
+				$label,
+				Store::source_hash( $label, Store::FORMAT_PLAIN ),
+				Store::FORMAT_PLAIN,
+				Contract::OWNERSHIP_RECORD,
+				AttributeLabelIdentity::OWNER_ATTRIBUTE,
+				(string) $attribute_id,
+				AttributeLabelIdentity::FIELD_LABEL,
+				'Global attribute label',
+				self::ID,
+				'Attribute #' . $attribute_id
+			);
+		}
+
 		return $units;
 	}
 
@@ -1015,11 +1221,27 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	 * Read product attributes via WooCommerce API or test provider.
 	 *
 	 * @param int $product_id Product ID.
-	 * @return list<array{slug:string,label:string,variation:bool}>
+	 * @return list<array{slug:string,label:string,variation:bool,is_taxonomy:bool}>
 	 */
 	private function read_product_attributes( int $product_id ): array {
 		if ( null !== $this->attributes_provider ) {
-			return ( $this->attributes_provider )( $product_id );
+			$provided = ( $this->attributes_provider )( $product_id );
+			$out      = array();
+			foreach ( (array) $provided as $attr ) {
+				if ( ! is_array( $attr ) ) {
+					continue;
+				}
+				$slug  = (string) ( $attr['slug'] ?? '' );
+				$out[] = array(
+					'slug'        => $slug,
+					'label'       => (string) ( $attr['label'] ?? '' ),
+					'variation'   => ! empty( $attr['variation'] ),
+					'is_taxonomy' => array_key_exists( 'is_taxonomy', $attr )
+						? (bool) $attr['is_taxonomy']
+						: AttributeLabelIdentity::slug_is_global_product_attribute( $slug ),
+				);
+			}
+			return $out;
 		}
 		if ( ! function_exists( 'wc_get_product' ) ) {
 			return array();
@@ -1032,8 +1254,9 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 		foreach ( $product->get_attributes() as $key => $attribute ) {
 			$slug = is_string( $key ) ? $key : '';
 			if ( is_object( $attribute ) && method_exists( $attribute, 'get_name' ) ) {
-				$name = (string) $attribute->get_name();
-				if ( method_exists( $attribute, 'is_taxonomy' ) && $attribute->is_taxonomy() ) {
+				$name        = (string) $attribute->get_name();
+				$is_taxonomy = method_exists( $attribute, 'is_taxonomy' ) && $attribute->is_taxonomy();
+				if ( $is_taxonomy ) {
 					$slug = $name;
 				} elseif ( '' === $slug ) {
 					$slug = sanitize_title( $name );
@@ -1043,12 +1266,48 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 					: $name;
 				$variation = method_exists( $attribute, 'get_variation' ) && $attribute->get_variation();
 				$out[]     = array(
-					'slug'      => $slug,
-					'label'     => $label,
-					'variation' => (bool) $variation,
+					'slug'        => $slug,
+					'label'       => $label,
+					'variation'   => (bool) $variation,
+					'is_taxonomy' => (bool) $is_taxonomy,
 				);
 			}
 		}
+		return $out;
+	}
+
+	/**
+	 * Read Woo global attribute definitions (attribute_id + label).
+	 *
+	 * @return list<array{attribute_id:int,label:string}>
+	 */
+	private function read_global_attribute_definitions(): array {
+		if ( null !== $this->global_attributes_provider ) {
+			$provided = ( $this->global_attributes_provider )();
+			return is_array( $provided ) ? $provided : array();
+		}
+		if ( ! function_exists( 'wc_get_attribute_taxonomies' ) ) {
+			return array();
+		}
+		$out = array();
+		foreach ( (array) wc_get_attribute_taxonomies() as $tax ) {
+			if ( ! is_object( $tax ) ) {
+				continue;
+			}
+			$id = (int) ( $tax->attribute_id ?? 0 );
+			if ( $id <= 0 ) {
+				continue;
+			}
+			$label = (string) ( $tax->attribute_label ?? '' );
+			if ( '' === $label ) {
+				$label = (string) ( $tax->attribute_name ?? '' );
+			}
+			$out[] = array(
+				'attribute_id' => $id,
+				'label'        => $label,
+			);
+		}
+
 		return $out;
 	}
 

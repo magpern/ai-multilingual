@@ -183,6 +183,16 @@ final class RequestLocalInvalidationCoordinator {
 		$retain = null !== $this->meta_registry
 			? $this->meta_registry->retain_segment_keys( $source_type, $source_id )
 			: array();
+		if ( Store::SOURCE_POST === $source_type && $source_id > 0 ) {
+			$retain = array_values(
+				array_unique(
+					array_merge(
+						$retain,
+						\AIMultilingual\Integration\WooCommerce\AttributeLabelIdentity::retain_taxonomy_compat_keys( $this->store, $source_id )
+					)
+				)
+			);
+		}
 
 		$this->store->sync_source(
 			$source_type,

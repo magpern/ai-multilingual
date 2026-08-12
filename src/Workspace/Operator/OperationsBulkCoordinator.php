@@ -17,6 +17,7 @@ use AIMultilingual\Surface\SurfaceCapabilityNames;
 use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Workspace\Operator\AllowedActionsResolver;
 use AIMultilingual\Workspace\WorkspaceService;
 use WP_Error;
 use WP_Post;
@@ -544,6 +545,14 @@ final class OperationsBulkCoordinator {
 			return new WP_Error(
 				'aiml_capability_denied',
 				__( 'You do not have permission to mutate translations.', 'ai-multilingual' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		if ( AllowedActionsResolver::denies_row_write( $row ) ) {
+			return new WP_Error(
+				'aiml_segment_write_denied',
+				__( 'This translation segment is not independently writable.', 'ai-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}

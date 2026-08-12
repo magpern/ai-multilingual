@@ -12,6 +12,8 @@ namespace AIMultilingual\Workspace\Operator;
 use AIMultilingual\Plugin;
 use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Jobs\JobsOperationAdmission;
+use AIMultilingual\Integration\IntegrationSegmentAuthorityRegistry;
+use AIMultilingual\Integration\WooCommerce\AttributeLabelIdentity;
 use AIMultilingual\Surface\SurfaceCapabilityNames;
 use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Publication\PublicationDecision;
@@ -50,6 +52,13 @@ final class AllowedActionsResolver {
 	private static ?SurfaceRegistry $surfaces = null;
 
 	/**
+	 * Optional integration segment authority registry (TSC.3 facts).
+	 *
+	 * @var IntegrationSegmentAuthorityRegistry|null
+	 */
+	private static ?IntegrationSegmentAuthorityRegistry $segment_authorities = null;
+
+	/**
 	 * Wires the surface registry for OTL list/detail admission facts.
 	 *
 	 * @param SurfaceRegistry|null $surfaces Registry or null to clear.
@@ -59,11 +68,44 @@ final class AllowedActionsResolver {
 	}
 
 	/**
+	 * Wires integration segment authority facts (TSC.3).
+	 *
+	 * @param IntegrationSegmentAuthorityRegistry|null $authorities Registry or null to clear.
+	 */
+	public static function set_segment_authority_registry( ?IntegrationSegmentAuthorityRegistry $authorities ): void {
+		self::$segment_authorities = $authorities;
+	}
+
+	/**
+	 * Whether mutations targeting this row are denied (compat / non-authority).
+	 *
+	 * @param object $row Store row.
+	 */
+	public static function denies_row_write( object $row ): bool {
+		$key = (string) ( $row->segment_key ?? '' );
+		if ( AttributeLabelIdentity::is_taxonomy_compat_product_key( $key ) ) {
+			return true;
+		}
+		if ( null === self::$segment_authorities ) {
+			return false;
+		}
+		$authority = self::$segment_authorities->for_row( $row );
+		if ( null === $authority ) {
+			return false;
+		}
+
+		return ! $authority->user_can_edit( get_current_user_id(), $row );
+	}
+
+	/**
 	 * Whether the row's source_type supports mutate via registry (or legacy post).
 	 *
 	 * @param object $row Store row.
 	 */
 	private function source_supports_mutate( object $row ): bool {
+		if ( self::denies_row_write( $row ) ) {
+			return false;
+		}
 		$source_type = (string) ( $row->source_type ?? '' );
 		if ( null !== self::$surfaces ) {
 			return self::$surfaces->supports( $source_type, SurfaceCapabilityNames::MUTATE );
@@ -447,7 +489,18 @@ final class AllowedActionsResolver {
 		$can_translate = user_can( $user_id, Plugin::CAPABILITY );
 		$can_review    = user_can( $user_id, ReviewCapabilities::REVIEW_TRANSLATIONS );
 		$can_edit      = true;
-		if ( $post instanceof WP_Post ) {
+		if ( null !== $row && null !== self::$segment_authorities ) {
+			$authority = self::$segment_authorities->for_row( $row );
+			if ( null !== $authority ) {
+				$can_edit = $authority->user_can_edit( $user_id, $row );
+			} elseif ( AttributeLabelIdentity::is_taxonomy_compat_product_key( (string) ( $row->segment_key ?? '' ) ) ) {
+				$can_edit = false;
+			} elseif ( $post instanceof WP_Post ) {
+				$can_edit = user_can( $user_id, 'edit_post', (int) $post->ID );
+			} else {
+				$can_edit = self::can_edit_non_post_source( $user_id, $row );
+			}
+		} elseif ( $post instanceof WP_Post ) {
 			$can_edit = user_can( $user_id, 'edit_post', (int) $post->ID );
 		} elseif ( null !== $row ) {
 			$can_edit = self::can_edit_non_post_source( $user_id, $row );

@@ -544,6 +544,8 @@ final class WorkspaceService {
 			throw new \InvalidArgumentException( 'This segment is not editable.' );
 		}
 
+		$this->assert_writable_segment_key( $segment_key, (int) $post->ID, $language_id );
+
 		if ( null === $expected_translation_hash ) {
 			throw new \InvalidArgumentException( 'expected_translation_hash is required.' );
 		}
@@ -1640,6 +1642,26 @@ final class WorkspaceService {
 	private function assert_supported_post( WP_Post $post ): void {
 		if ( ! in_array( $post->post_type, self::SUPPORTED_POST_TYPES, true ) ) {
 			throw new \InvalidArgumentException( 'This post type is not supported in the workspace.' );
+		}
+	}
+
+	/**
+	 * Execution-time write denial for TSC.3 compatibility / authority rows.
+	 *
+	 * @param string $segment_key Segment key.
+	 * @param int    $source_id   Host source id.
+	 * @param int    $language_id Language id.
+	 * @throws \InvalidArgumentException When the row is non-writable authority.
+	 */
+	private function assert_writable_segment_key( string $segment_key, int $source_id, int $language_id ): void {
+		$row = (object) array(
+			'source_type' => Store::SOURCE_POST,
+			'source_id'   => $source_id,
+			'language_id' => $language_id,
+			'segment_key' => $segment_key,
+		);
+		if ( \AIMultilingual\Workspace\Operator\AllowedActionsResolver::denies_row_write( $row ) ) {
+			throw new \InvalidArgumentException( 'This translation segment is read-only compatibility or requires Woo attribute authority.' );
 		}
 	}
 
