@@ -21,8 +21,8 @@
 | Planning CI (feature branch) | run `31615465586` — phpcs / unit / integration / quality / build **SUCCESS** |
 | Freeze merge | `1fcf8d2e3088b09174526643e13a2d8ccf5cb2d4` (`merge: freeze TSC.1 First-Class Taxonomy Terms plan`) |
 | Fresh main CI (freeze merge) | run `31615645190` — phpcs / unit / integration / quality / build **SUCCESS** |
-| Closure commit | _(this commit)_ |
-| Post-closure CI | _(pending follow-up)_ |
+| Closure commit | `8c0466be71467c31dab90795fbd5f4fe047b068b` |
+| Post-closure CI | run `31616066241` — phpcs / unit / integration / quality / build **SUCCESS** (tip `8c0466be7`) |
 | Plugin version | **1.3.0** (unchanged) |
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (STATE A) |
