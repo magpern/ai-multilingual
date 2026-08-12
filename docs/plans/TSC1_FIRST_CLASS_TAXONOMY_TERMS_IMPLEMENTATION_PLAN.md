@@ -1,21 +1,25 @@
 # TSC.1 — First-Class Taxonomy Terms Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
+**Status:** **COMPLETE** on `main` — merge `4d21536f07f414f84a8b30501e25d5995aff11ff`
 **Milestone:** TSC.1 First-Class Taxonomy Terms
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`)
 **External review:** **FREEZE** (eight amendments incorporated) · **STATE A** · **TARGET 7**
 **Independent planning review:** **PASS** — [TSC1_PLANNING_VALIDATION_LOG.md](TSC1_PLANNING_VALIDATION_LOG.md)
-**ADR:** [0021-first-class-taxonomy-term-identity-and-lazy-adoption.md](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md) (**Accepted** with this freeze)
+**Independent implementation review:** **PASS** — [TSC1_VALIDATION_LOG.md](TSC1_VALIDATION_LOG.md)
+**ADR:** [0021-first-class-taxonomy-term-identity-and-lazy-adoption.md](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md) (**Accepted**)
 **Freeze merge:** `1fcf8d2e3088b09174526643e13a2d8ccf5cb2d4`
+**Implementation merge:** `4d21536f07f414f84a8b30501e25d5995aff11ff`
+**Validation log:** [TSC1_VALIDATION_LOG.md](TSC1_VALIDATION_LOG.md)
+**Evidence:** [TSC1_IMPLEMENTATION_EVIDENCE.md](TSC1_IMPLEMENTATION_EVIDENCE.md)
 **Depends on:** AI Multilingual **v1.3.0**; TIQ Complete; OTL Complete; TSC Parent Frozen; **TSC.0 COMPLETE**; `Migrator::TARGET` **7**
 **Related:** ADR-0001 overlay; ADR-0005 Store; ADR-0007 hashes; ADR-0015 Review; ADR-0017 Integration; ADR-0020 Publication; [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md)
 
-**This document is the authoritative implementation specification for TSC.1.** Do not implement from Cursor plans or chat summaries.
+**This document is the authoritative implementation specification for TSC.1.** Work packages TSC1.0–TSC1.8 are **COMPLETE**.
 
-**Production implementation status:** **NOT STARTED.**
+**Production implementation status:** **COMPLETE.**
 **TSC.2–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Open `feature/tsc1-first-class-taxonomy-terms` and execute TSC1.0→TSC1.8 per this plan when an implementation task is authorized. Do not bump version/TARGET, tag, release, or deploy as part of planning closure.
+**Exact next step:** Do not start TSC.2 until a separate planning freeze is authorized. Do not bump version/TARGET, tag, release, or deploy as part of TSC.1 closure.
 
 ---
 

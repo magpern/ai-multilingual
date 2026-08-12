@@ -6,7 +6,7 @@
 
 **Post-v1.1 program:** Translation Intelligence & Quality — [TIQ_PARENT_IMPLEMENTATION_PLAN.md](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). **v1.2.0 released**.
 
-**Post-v1.2.0 / v1.3.0 programs:** Operator Translation Lifecycle — [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**OTL program COMPLETE**; OTL.0–OTL.6). Translation Surface Coverage — [TSC_PARENT_IMPLEMENTATION_PLAN.md](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; TSC.0–TSC.6; implementation not started; STATE A / TARGET 7). Historical Program C remains catalog history; OTL is authoritative for overlapping operator-lifecycle scope.
+**Post-v1.2.0 / v1.3.0 programs:** Operator Translation Lifecycle — [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**OTL program COMPLETE**; OTL.0–OTL.6). Translation Surface Coverage — [TSC_PARENT_IMPLEMENTATION_PLAN.md](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; **TSC.0–TSC.1 COMPLETE**; TSC.2–TSC.6 not started; STATE A / TARGET 7). Historical Program C remains catalog history; OTL is authoritative for overlapping operator-lifecycle scope.
 
 **Release status:** AI Multilingual **v1.2.0** released (tag `v1.2.0` → `b67fc296e2b2170dea84228b1acda502e518f07a`). **A.SEO** Complete. **TIQ** Complete. `Migrator::TARGET` **7**.
 

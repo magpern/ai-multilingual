@@ -14,7 +14,7 @@
 
 **Post-v1.2.0 Operator Translation Lifecycle:** After **v1.2.0** / TIQ completion, operator lifecycle work is governed by [`OTL_PARENT_IMPLEMENTATION_PLAN.md`](OTL_PARENT_IMPLEMENTATION_PLAN.md) (milestones **OTL.0–OTL.6**; **Complete** in **v1.3.0**). Historical Program C IDs (C.1–C.7) below remain in the catalog for roadmap history; **where they overlap operator translation lifecycle concerns, OTL supersedes them**. Program C must not be independently resumed in parallel with OTL.
 
-**Post-v1.3.0 Translation Surface Coverage:** Generic site-neutral coverage work is governed by [`TSC_PARENT_IMPLEMENTATION_PLAN.md`](TSC_PARENT_IMPLEMENTATION_PLAN.md) (milestones **TSC.0–TSC.6**; **STATE A / TARGET 7**). **TSC.0 COMPLETE.** **TSC.1 Architecture Frozen** ([plan](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md); [ADR-0021](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md)); TSC.1–TSC.6 production implementation **not started**. Historical Program A Deferred/Partial surfaces remain catalogued; they reopen only through the frozen TSC matrix and milestone plans — not by resurrecting superseded lifecycle programs.
+**Post-v1.3.0 Translation Surface Coverage:** Generic site-neutral coverage work is governed by [`TSC_PARENT_IMPLEMENTATION_PLAN.md`](TSC_PARENT_IMPLEMENTATION_PLAN.md) (milestones **TSC.0–TSC.6**; **STATE A / TARGET 7**). **TSC.0–TSC.1 COMPLETE.** TSC.2–TSC.6 production implementation **not started**. Historical Program A Deferred/Partial surfaces remain catalogued; they reopen only through the frozen TSC matrix and milestone plans — not by resurrecting superseded lifecycle programs.
 
 ---
 
@@ -59,7 +59,7 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **Translation Surface Coverage (TSC)** — [parent plan](TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; **STATE A / TARGET 7**; ladder TSC.0–TSC.6). **TSC.0 COMPLETE.** **TSC.1 Architecture Frozen** (implementation not started). Next implementation candidate: **TSC.1**. Site-neutral; no Biopentra-specific production architecture.
+- **Translation Surface Coverage (TSC)** — [parent plan](TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**; **STATE A / TARGET 7**; ladder TSC.0–TSC.6). **TSC.0–TSC.1 COMPLETE.** TSC.2–TSC.6 not started. Next planning candidate: **TSC.2**. Site-neutral; no Biopentra-specific production architecture.
 - **Operator Translation Lifecycle (OTL)** — [parent plan](OTL_PARENT_IMPLEMENTATION_PLAN.md) (**OTL program COMPLETE** on `main`; OTL.0–OTL.6). Shipped in **v1.3.0** (tag `v1.3.0`).
 - **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). Shipped in **v1.2.0**.
 - Remaining Program A options (not TSC default): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision or admission through the TSC matrix
@@ -528,6 +528,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health marked complete/merged/tagged `a-seof-seo-diagnostics-complete` (Supported SF1–SF14; Partially Supported SF15); A.SEO family Complete; Next advances outside A.SEO (no subsequent production milestone started) (no structural change). |
 | v1.0 (editorial) | 2026-08-12 | TSC parent Architecture Frozen (planning) linked — [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md); STATE A / TARGET 7; TERM_ID; lazy adoption; honest stale matrix; ladder TSC.0–TSC.6; implementation not started; Next = TSC.0 milestone planning only (no structural change to historical Program A/B/C tables). |
 | v1.0 (editorial) | 2026-08-12 | TSC.1 First-Class Taxonomy Terms Architecture Frozen — [plan](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md); [ADR-0021](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md); [validation log](TSC1_PLANNING_VALIDATION_LOG.md); STATE A / TARGET 7; implementation not started; Next = TSC.1 implementation when authorized (no structural change). |
+| v1.0 (editorial) | 2026-08-12 | TSC.1 First-Class Taxonomy Terms **COMPLETE** on `main` — merge `4d21536f07f414f84a8b30501e25d5995aff11ff`; [validation log](TSC1_VALIDATION_LOG.md); TARGET 7 / v1.3.0 unchanged; Next = TSC.2 planning only (no structural change). |
 
 ---
 

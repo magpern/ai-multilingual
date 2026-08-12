@@ -1,9 +1,11 @@
 # TSC.1 Implementation Evidence
 
 **Milestone:** TSC.1 — First-Class Taxonomy Terms  
-**Branch:** `feature/tsc1-first-class-taxonomy-terms`  
+**Status:** **COMPLETE** on `main` (merge `4d21536f07f414f84a8b30501e25d5995aff11ff`)  
+**Branch:** `feature/tsc1-first-class-taxonomy-terms` (merged)  
 **Frozen plan:** [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md)  
 **Baseline:** [TSC1_IMPLEMENTATION_BASELINE.md](TSC1_IMPLEMENTATION_BASELINE.md)  
+**Validation:** [TSC1_VALIDATION_LOG.md](TSC1_VALIDATION_LOG.md)  
 **ADR:** [0021-first-class-taxonomy-term-identity-and-lazy-adoption.md](../adr/0021-first-class-taxonomy-term-identity-and-lazy-adoption.md) (**Accepted**)  
 **Version:** 1.3.0  
 **TARGET:** 7 (STATE A — no migration)  

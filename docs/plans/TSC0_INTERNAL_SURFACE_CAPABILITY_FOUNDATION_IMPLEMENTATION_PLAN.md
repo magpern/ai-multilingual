@@ -17,9 +17,9 @@
 **This document is the authoritative implementation specification for TSC.0.** Work packages TSC0.0–TSC0.7 are **COMPLETE**.
 
 **Production implementation status:** **COMPLETE.**
-**TSC.1–TSC.6 implementation status:** TSC.1 **Architecture Frozen** (implementation NOT STARTED); TSC.2–TSC.6 **NOT STARTED.**
+**TSC.1–TSC.6 implementation status:** TSC.1 **COMPLETE**; TSC.2–TSC.6 **NOT STARTED.**
 
-**Exact next step:** TSC.1 planning is frozen on `main`. Begin authorized **TSC.1 implementation** via `feature/tsc1-first-class-taxonomy-terms` only when an implementation task is opened.
+**Exact next step:** Do not start TSC.2 until a separate planning freeze is authorized.
 
 ---
 
