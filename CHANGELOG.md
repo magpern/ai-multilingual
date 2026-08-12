@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-08-12
+
+### Operator Translation Lifecycle
+
+- OTL.0–OTL.6 Complete: Operations list/attention, unified detail edit/review, publication + stale/retranslate workflow, Jobs integration, bounded bulk operations, and final lifecycle polish.
+- Shared ConfirmDialog and centralized async dirty-leave admission; session-only Operations context restore; Review→Operations and bulk→Jobs navigation.
+- Bounded bulk publish / unpublish / enqueue_retranslate (max 50) via OperationsBulkCoordinator → TI.7 / TI.6.
+- Authoritative local Playwright suite `acceptance/otl-browser/`; historical otl1–otl5 archives retained.
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **7** (no migration).
+- Integration API v1 unchanged; TIQ authorities (Store, review, QA, assessment, Jobs, PublicationService) unchanged.
+- Safe publication defaults unchanged: gate OFF, mode `manual`.
+
+### Notes
+
+- Production package is `ai-multilingual-1.3.0.zip` from `bin/build-zip.sh` / GitHub Actions on `v*` tags.
+- TSC is not part of this release.
+- See [docs/releases/v1.3.0.md](docs/releases/v1.3.0.md) and [docs/releases/V1_3_0_RELEASE_SCOPE.md](docs/releases/V1_3_0_RELEASE_SCOPE.md).
+
 ## [1.2.0] — 2026-08-11
 
 ### Translation quality and safety
