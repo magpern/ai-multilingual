@@ -1,9 +1,10 @@
 # TSC.3 Implementation Evidence
 
-**Status:** Implementation complete on feature branch — pending independent review / merge  
-**Branch:** `feature/tsc3-woocommerce-extended-translation-surfaces`  
+**Status:** **COMPLETE** on `main` — merge `d7a7545d2b64ee188058ada8acfed8fefd5b1dea`  
+**Branch (merged):** `feature/tsc3-woocommerce-extended-translation-surfaces`  
 **Authoritative plan:** [TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md](TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md)  
-**Baseline:** [TSC3_IMPLEMENTATION_BASELINE.md](TSC3_IMPLEMENTATION_BASELINE.md)
+**Baseline:** [TSC3_IMPLEMENTATION_BASELINE.md](TSC3_IMPLEMENTATION_BASELINE.md)  
+**Validation log:** [TSC3_VALIDATION_LOG.md](TSC3_VALIDATION_LOG.md)
 
 ## Work packages
 
@@ -16,7 +17,7 @@
 | TSC3.4 | COMPLETE | `IntegrationSegmentAuthority` + `WooAttributeLabelAuthority`; OTL/Jobs/Publication facts |
 | TSC3.5 | COMPLETE | Allowlisted email settings → checkout dirty; disposition remains PARTIAL |
 | TSC3.6 | COMPLETE | Writer deny; PluginGuard; retain; no dual-write |
-| TSC3.7 | COMPLETE | This evidence pack + tests |
+| TSC3.7 | COMPLETE | This evidence pack + tests + validation log |
 
 ## Primary implementation files
 
@@ -46,25 +47,26 @@
 | Integration lifecycle | `tests/integration/Tsc3AttributeLabelLifecycleTest.php` |
 | PluginGuard | `tests/integration/PluginGuardTest.php` (`assert_tsc3_invariants`) |
 
-## Validation commands (feature branch)
+## Validation commands / results
 
 ```text
 docker run --rm -v "$PWD":/app -w /app php:8.1-cli ./vendor/bin/phpunit -c phpunit.xml.dist
 → OK (871 tests, 2 skipped)
-```
 
-Integration + PHPCS + quality + build run in CI on the feature PR.
+Feature CI: https://github.com/magpern/ai-multilingual/actions/runs/31644425107 — SUCCESS
+Fresh main CI: https://github.com/magpern/ai-multilingual/actions/runs/31644551374 — SUCCESS
+```
 
 ## WC1–WC40 / AC1–AC38
 
-All Supported/Partial requirements implemented per frozen plan. Email stale remains **PARTIAL** (invoice paid + refunded full/partial keys uncovered). Local attribute values remain Deferred.
+All Supported/Partial requirements implemented per frozen plan. Email stale remains **PARTIAL** (invoice paid + refunded full/partial keys uncovered). Local attribute values remain Deferred. Variation machine identity never translated.
 
 ## Known limitations / debt
 
 - Compatibility taxonomy P5/P7 retained read-only (no auto-adoption)
 - B1/B2 and checkout email host reassignment remain historical debt
 - Email PARTIAL gaps unchanged by design
-- Bounded browser smoke deferred to local/non-CI unless environment available
+- Bounded browser smoke remains local/non-CI
 
 ## Freeze reminders
 

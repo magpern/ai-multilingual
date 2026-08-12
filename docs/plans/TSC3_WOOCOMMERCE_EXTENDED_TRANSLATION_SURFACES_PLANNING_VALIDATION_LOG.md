@@ -1,6 +1,6 @@
 # TSC.3 WooCommerce Extended Translation Surfaces — Planning Freeze Validation Log
 
-**Status:** **TSC.3 Architecture Frozen** on `main` — production implementation **NOT STARTED**
+**Status:** **TSC.3 Architecture Frozen** (planning) — production implementation **COMPLETE** on `main` (see [TSC3_VALIDATION_LOG.md](TSC3_VALIDATION_LOG.md))
 **Authoritative plan:** [TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md](TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md)
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md)
 **ADR:** **None**
@@ -18,10 +18,10 @@
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (**STATE A**) |
 | New ADR | **None** |
-| Production implementation | **NOT STARTED** |
+| Production implementation | **COMPLETE** — merge `d7a7545d2b64ee188058ada8acfed8fefd5b1dea` |
 | TSC.4–TSC.6 | **NOT STARTED** |
 | Tag | No new tag; existing `v1.3.0` unchanged |
-| Feature branch | None active for TSC.3 implementation |
+| Feature branch | Merged / deleted |
 
 ## External amendments incorporated
 

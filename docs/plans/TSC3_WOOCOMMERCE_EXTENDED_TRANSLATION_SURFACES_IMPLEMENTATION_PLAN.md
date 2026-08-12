@@ -1,23 +1,26 @@
 # TSC.3 — WooCommerce Extended Translation Surfaces Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
+**Status:** **COMPLETE** on `main` — merge `d7a7545d2b64ee188058ada8acfed8fefd5b1dea`
 **Milestone:** TSC.3 WooCommerce Extended Translation Surfaces
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`) §20
 **External review:** **FREEZE** (five amendments incorporated; re-review **PASS**) · **STATE A** · **TARGET 7**
 **Independent planning review:** **PASS** — [TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_PLANNING_VALIDATION_LOG.md](TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_PLANNING_VALIDATION_LOG.md)
+**Independent implementation review:** **PASS** — [TSC3_VALIDATION_LOG.md](TSC3_VALIDATION_LOG.md)
 **ADR:** **None** (application of ADR-0001 overlay + ADR-0017 `p:` technical-host pattern + ADR-0021 `pa_*` value boundary; IntegrationSegmentAuthority is facts/mechanics only)
+**Freeze merge:** `924d383850aecb65e4589f2cf3d49b3398d74f6f`
+**Implementation merge:** `d7a7545d2b64ee188058ada8acfed8fefd5b1dea`
 **Depends on:** AI Multilingual **v1.3.0**; TIQ Complete; OTL Complete; TSC Parent Frozen; **TSC.0–TSC.2 COMPLETE**; `Migrator::TARGET` **7**
 **Related:** [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md); [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md); [TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md](TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md); ADR-0021; ADR-0017; ADR-0018; ADR-0001
 **Planning baseline:** `main` @ `02cac23c4b3292a50804d74c892e97ac4a729868`
 **Email subject/heading stale:** **PARTIAL** (frozen)
 **Schema:** **STATE A** / TARGET **7** — no migration
 
-**This document is the authoritative implementation specification for TSC.3.** Work packages TSC3.0–TSC3.7 are **NOT STARTED**.
+**This document is the authoritative implementation specification for TSC.3.** Work packages TSC3.0–TSC3.7 are **COMPLETE**.
 
-**Production implementation status:** **NOT STARTED.**
+**Production implementation status:** **COMPLETE.**
 **TSC.4–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Implement TSC.3 from this frozen plan on branch `feature/tsc3-woocommerce-extended-translation-surfaces`, then independent implementation review, review-fix loop, merge, fresh main CI, and milestone closure. Do **not** bump version/TARGET, tag, release, or deploy as part of planning freeze.
+**Exact next step:** Plan/implement **TSC.4** only when separately authorized. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.3 closure.
 
 **Prior review history:** `TSC.3 EXTERNAL REVIEW: AMEND` → five amendments → `TSC.3 EXTERNAL RE-REVIEW: PASS — FREEZE`
 

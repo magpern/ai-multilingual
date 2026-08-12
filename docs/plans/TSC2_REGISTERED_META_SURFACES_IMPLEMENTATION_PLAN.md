@@ -15,9 +15,10 @@
 **This document is the authoritative implementation specification for TSC.2.** Work packages TSC2.0–TSC2.7 are **COMPLETE**.
 
 **Production implementation status:** **COMPLETE.**
-**TSC.3–TSC.6 implementation status:** **NOT STARTED.**
+**TSC.3 implementation status:** **COMPLETE** — [TSC3_VALIDATION_LOG.md](TSC3_VALIDATION_LOG.md).  
+**TSC.4–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Implement **TSC.3** from [TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md](TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md) when authorized. Do **not** start TSC.4+. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.2 closure.
+**Exact next step:** Plan/implement **TSC.4** only when separately authorized. Do **not** bump version/TARGET, tag, release, or deploy as part of prior milestone closures.
 
 ---
 
