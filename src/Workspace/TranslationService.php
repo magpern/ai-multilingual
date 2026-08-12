@@ -537,6 +537,11 @@ final class TranslationService {
 		$format      = (string) ( $current['text_format'] ?? Store::FORMAT_PLAIN );
 		$existing    = (string) ( $current['translated_text'] ?? '' );
 
+		$meta_provider_block = $this->registered_meta_provider_block( Store::SOURCE_POST, $segment_key );
+		if ( $meta_provider_block instanceof WP_Error ) {
+			return $meta_provider_block;
+		}
+
 		$batch = new TranslationBatch(
 			(string) $source->locale,
 			(string) $target->locale,
