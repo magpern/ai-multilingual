@@ -10,7 +10,7 @@
 | Planning baseline main HEAD | `a2445f8141a2addd798225d5f224022387b6994c` |
 | Planning branch | `docs/tsc-parent-planning-freeze` |
 | Materialization commit | `f9dc7af5f1614f19f3fd221237357e9d8eaf7e73` |
-| Final reviewed planning HEAD | `f9dc7af5f1614f19f3fd221237357e9d8eaf7e73` |
+| Final reviewed planning HEAD | `2ef0c05f4948e8e1d0a099d3e5879edeaca175b8` |
 | External freeze review | **FREEZE** · **STATE A** · **TARGET 7** |
 | Independent planning review | **PASS** |
 | Review fixes | None |
