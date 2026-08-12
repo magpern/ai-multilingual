@@ -22,7 +22,7 @@
 | Planning CI (feature branch) | run `31637288451` — phpcs / unit / integration / quality / build **SUCCESS** |
 | Freeze merge | `51be1f0aa771261c3d7e44d2ea891da7bb9ffcd1` (`merge: freeze TSC.2 Registered Meta Translation Surfaces plan`) |
 | Fresh main CI (freeze merge) | run `31637462656` — phpcs / unit / integration / quality / build **SUCCESS** |
-| Closure commit | *(this commit)* |
+| Closure commit | `d0646054fa4acaebba188cb3460c730b7555603d` |
 | Plugin version | **1.3.0** (unchanged) |
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (STATE A) |
