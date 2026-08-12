@@ -216,7 +216,7 @@ Parent-frozen rules:
 
 1. **Authoritative identity for NEW native term-content rows:** `(source_type=term, source_id=term_id, source_subtype=taxonomy, language_id, segment_key)` with native keys such as `name` / `description` (exact literals = TSC.1).
 2. **Find existing hosted Woo row:** `(post, shop_page_id, language_id, p:woocommerce:{tax}:{term_id}:name|description)` where `shop_page_id` comes from `wc_get_page_id('shop')` at lookup time.
-3. **On first authoritative touch:** copy **all applicable lifecycle axes** to the authoritative identity; retire the hosted row (`ignored` / `orphaned` or equivalent); **never dual-write thereafter**.
+3. **On first authoritative touch:** copy **all applicable lifecycle axes** to the authoritative identity; retire the hosted row as `status=ignored` with `error_code` cleared (**not** `orphaned` — orphan remains missing-extract/delete semantics per ADR-0021); **never dual-write thereafter**.
 4. **Physical coexistence:** temporary only (hosted readable until adopted).
 5. **Reads:** prefer authoritative first-class identity; hosted identity is **fallback/read-alias only**; read-alias never writes.
 6. **Rank Math term SEO:** may use the same lazy-adoption *pattern* to move host to `source_type=term` while **keeping** `p:rankmath:…` keys; ordering vs native name/desc is TSC.1 sequencing.
