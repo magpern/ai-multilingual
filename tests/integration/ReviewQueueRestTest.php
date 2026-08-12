@@ -54,6 +54,8 @@ final class ReviewQueueRestTest extends AimlTestCase {
 		$this->assertCount( 1, $data['items'] );
 		$this->assertSame( $pending, (int) $data['items'][0]['post_id'] );
 		$this->assertSame( Store::REVIEW_PENDING, $data['items'][0]['review_status'] );
+		$this->assertArrayHasKey( 'translation_id', $data['items'][0] );
+		$this->assertGreaterThan( 0, (int) $data['items'][0]['translation_id'] );
 	}
 
 	public function test_queue_filters_by_review_status(): void {

@@ -32,6 +32,7 @@ interface ReviewQueuePanelProps {
 	languages: LanguageOption[];
 	canTranslate: boolean;
 	onOpenInEditor: ( postId: number, languageCode: string ) => void;
+	onOpenInOperations?: ( translationId: number, languageCode: string ) => void;
 	initialLanguageCode?: string;
 	initialPostId?: string;
 }
@@ -50,6 +51,7 @@ export default function ReviewQueuePanel( {
 	languages,
 	canTranslate,
 	onOpenInEditor,
+	onOpenInOperations,
 	initialLanguageCode = '',
 	initialPostId = '',
 }: ReviewQueuePanelProps ) {
@@ -369,6 +371,7 @@ export default function ReviewQueuePanel( {
 									openDialog( [ target ], 'reject' )
 								}
 								onOpenInEditor={ onOpenInEditor }
+								onOpenInOperations={ onOpenInOperations }
 							/>
 						) ) }
 					</tbody>

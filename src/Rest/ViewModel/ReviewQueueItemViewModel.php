@@ -34,6 +34,7 @@ final class ReviewQueueItemViewModel {
 	 * @param string      $rejection_reason            Active rejection reason.
 	 * @param int|null    $rejected_by                 Rejecting reviewer id.
 	 * @param string|null $rejected_at                 Rejection timestamp.
+	 * @param int         $translation_id              Store translation PK (OTL.6 additive).
 	 */
 	public function __construct(
 		public readonly string $source_type,
@@ -52,7 +53,8 @@ final class ReviewQueueItemViewModel {
 		public readonly ?string $reviewed_at,
 		public readonly string $rejection_reason,
 		public readonly ?int $rejected_by,
-		public readonly ?string $rejected_at
+		public readonly ?string $rejected_at,
+		public readonly int $translation_id = 0
 	) {
 	}
 
@@ -80,6 +82,7 @@ final class ReviewQueueItemViewModel {
 			'rejection_reason'           => $this->rejection_reason,
 			'rejected_by'                => $this->rejected_by,
 			'rejected_at'                => $this->rejected_at,
+			'translation_id'             => $this->translation_id,
 		);
 	}
 }

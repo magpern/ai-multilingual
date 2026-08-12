@@ -17,6 +17,7 @@ interface ReviewQueueRowProps {
 	onApprove: ( item: ReviewQueueItem ) => void;
 	onReject: ( item: ReviewQueueItem ) => void;
 	onOpenInEditor: ( postId: number, languageCode: string ) => void;
+	onOpenInOperations?: ( translationId: number, languageCode: string ) => void;
 }
 
 export default function ReviewQueueRow( {
@@ -29,6 +30,7 @@ export default function ReviewQueueRow( {
 	onApprove,
 	onReject,
 	onOpenInEditor,
+	onOpenInOperations,
 }: ReviewQueueRowProps ) {
 	const key = queueItemKey( item );
 	const languageCode = languageCodeForId( languages, item.language_id );
@@ -79,6 +81,19 @@ export default function ReviewQueueRow( {
 						}
 					>
 						{ __( 'Open in editor', 'ai-multilingual' ) }
+					</Button>
+				) }
+				{ onOpenInOperations && item.translation_id > 0 && (
+					<Button
+						variant="link"
+						onClick={ () =>
+							onOpenInOperations(
+								item.translation_id,
+								languageCode
+							)
+						}
+					>
+						{ __( 'Open in Operations', 'ai-multilingual' ) }
 					</Button>
 				) }
 			</td>

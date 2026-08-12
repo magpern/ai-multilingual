@@ -31,6 +31,7 @@ function queueItem( overrides: Partial< ReviewQueueItem > = {} ): ReviewQueueIte
 		rejection_reason: '',
 		rejected_by: null,
 		rejected_at: null,
+		translation_id: 1001,
 		...overrides,
 	};
 }
