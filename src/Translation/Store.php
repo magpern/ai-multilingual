@@ -1426,12 +1426,13 @@ final class Store {
 	 * text and workflow status are never touched here (invariant I6): a source
 	 * edit flags work for review, it does not discard it.
 	 *
-	 * @param string                      $source_type    Source type.
-	 * @param int                         $source_id      Source object id.
-	 * @param string                      $source_subtype Post type or taxonomy.
-	 * @param array<string, array<mixed>> $segments      Extracted source segments keyed by segment key.
+	 * @param string                      $source_type          Source type.
+	 * @param int                         $source_id            Source object id.
+	 * @param string                      $source_subtype       Post type or taxonomy.
+	 * @param array<string, array<mixed>> $segments             Extracted source segments keyed by segment key.
+	 * @param list<string>                $retain_segment_keys  CASE B: missing keys to leave genuinely untouched.
 	 */
-	public function sync_source( string $source_type, int $source_id, string $source_subtype, array $segments ): void {
+	public function sync_source( string $source_type, int $source_id, string $source_subtype, array $segments, array $retain_segment_keys = array() ): void {
 		global $wpdb;
 
 		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -1447,6 +1448,7 @@ final class Store {
 			return;
 		}
 
+		$retain  = array_fill_keys( array_map( 'strval', $retain_segment_keys ), true );
 		$now     = current_time( 'mysql', true );
 		$touched = array();
 
@@ -1454,6 +1456,12 @@ final class Store {
 			$key = (string) $row->segment_key;
 
 			if ( ! isset( $segments[ $key ] ) ) {
+				// CASE B: inactive registered definition — leave the row genuinely
+				// untouched (no status/error_code/updated_at/source mutation).
+				if ( isset( $retain[ $key ] ) ) {
+					continue;
+				}
+
 				// The segment no longer exists in the source. Mark it rather
 				// than delete it, so reverting the source restores the work.
 				if ( self::STATUS_IGNORED !== $row->status ) {
