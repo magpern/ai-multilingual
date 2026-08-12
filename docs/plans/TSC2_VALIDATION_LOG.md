@@ -30,7 +30,8 @@
 | TSC2.0–TSC2.7 | **COMPLETE** |
 | RM1–RM34 | PASS (Deferred/Unsupported not over-claimed) |
 | AC1–AC32 | PASS (Deferred/Unsupported not over-claimed) |
-| TSC.3–TSC.6 | **NOT STARTED** |
+| TSC.3 | **Architecture Frozen** (implementation NOT STARTED) |
+| TSC.4–TSC.6 | **NOT STARTED** |
 
 ## Local / CI validation
 
@@ -55,4 +56,4 @@ Review defects fixed before merge:
 
 ## Exact next step
 
-Definitive **TSC.3 planning**, only when separately authorized. Do **not** start TSC.3 implementation. Do not bump version/TARGET, tag, release, or deploy as part of TSC.2 closure.
+Definitive **TSC.3 implementation** from [TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md](TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md) when authorized. Do **not** start TSC.4+. Do not bump version/TARGET, tag, release, or deploy as part of TSC.2 closure.

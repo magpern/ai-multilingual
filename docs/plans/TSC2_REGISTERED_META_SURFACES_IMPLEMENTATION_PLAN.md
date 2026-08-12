@@ -17,7 +17,7 @@
 **Production implementation status:** **COMPLETE.**
 **TSC.3–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Begin definitive **TSC.3 planning** only when separately authorized. Do **not** start TSC.3 implementation. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.2 closure.
+**Exact next step:** Implement **TSC.3** from [TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md](TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md) when authorized. Do **not** start TSC.4+. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.2 closure.
 
 ---
 
