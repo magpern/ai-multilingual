@@ -628,4 +628,55 @@ final class PluginGuardTest extends AimlTestCase {
 		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
 		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
 	}
+
+	/**
+	 * TSC.0 structural neutrality: Fluent hardcoded host/form IDs and public CPT filter.
+	 *
+	 * Scoped to Fluent Forms production sources for FORM_ID / CONTACT_PAGE_ID / 3410
+	 * remnants — not a generic suspicious-integer ban across the tree.
+	 */
+	public function test_tsc0_fluent_neutrality_and_no_public_cpt_admission_filter(): void {
+		$fluent_root = $this->root() . '/src/Integration/FluentForms';
+		$this->assertDirectoryExists( $fluent_root );
+
+		$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $fluent_root ) );
+		foreach ( $iterator as $file ) {
+			if ( ! $file->isFile() || 'php' !== $file->getExtension() ) {
+				continue;
+			}
+			$path = str_replace( $this->root() . '/', '', $file->getPathname() );
+			$code = (string) file_get_contents( $file->getPathname() );
+
+			$this->assertDoesNotMatchRegularExpression(
+				'/\bconst\s+FORM_ID\b/',
+				$code,
+				$path . ' must not reintroduce a behavioral FORM_ID constant.'
+			);
+			$this->assertDoesNotMatchRegularExpression(
+				'/\bFORM_ID\s*=\s*5\b/',
+				$code,
+				$path . ' must not hardcode FORM_ID = 5.'
+			);
+			$this->assertDoesNotMatchRegularExpression(
+				'/\bconst\s+CONTACT_PAGE_ID\b/',
+				$code,
+				$path . ' must not reintroduce CONTACT_PAGE_ID.'
+			);
+			$this->assertDoesNotMatchRegularExpression(
+				'/\bCONTACT_PAGE_ID\s*=\s*3410\b/',
+				$code,
+				$path . ' must not hardcode CONTACT_PAGE_ID = 3410.'
+			);
+			$this->assertDoesNotMatchRegularExpression(
+				'/\b3410\b/',
+				$code,
+				$path . ' must not embed contact-page id 3410 behavioral remnants.'
+			);
+		}
+
+		$this->assert_absent(
+			array( 'aiml_admitted_post_types' ),
+			'TSC.0 forbids a public CPT admission filter (aiml_admitted_post_types).'
+		);
+	}
 }
