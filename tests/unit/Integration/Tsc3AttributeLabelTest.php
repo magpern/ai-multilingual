@@ -72,8 +72,8 @@ final class Tsc3AttributeLabelTest extends TestCase {
 				),
 			)
 		);
-		$units = $integration->extract_for_post( $this->fake_post( 5, 'product' ) );
-		$keys  = array_map( static fn( $u ) => $u->segment_key, $units );
+		$units       = $integration->extract_for_post( $this->fake_post( 5, 'product' ) );
+		$keys        = array_map( static fn( $u ) => $u->segment_key, $units );
 		$this->assertSame( array( 'p:woocommerce:product:5:attribute_name:material' ), $keys );
 	}
 
@@ -105,8 +105,8 @@ final class Tsc3AttributeLabelTest extends TestCase {
 				),
 			)
 		);
-		$units = $integration->extract_for_post( $this->fake_post( 100, 'page' ) );
-		$keys  = array_map( static fn( $u ) => $u->segment_key, $units );
+		$units       = $integration->extract_for_post( $this->fake_post( 100, 'page' ) );
+		$keys        = array_map( static fn( $u ) => $u->segment_key, $units );
 		$this->assertContains( 'p:woocommerce:attribute:7:label', $keys );
 	}
 
@@ -154,7 +154,7 @@ final class Tsc3AttributeLabelTest extends TestCase {
 				return 5;
 			}
 		};
-		$out = apply_filters( WooCommerceIntegration::HOOK_ATTRIBUTE_LABEL, 'Material', 'material', $product );
+		$out     = apply_filters( WooCommerceIntegration::HOOK_ATTRIBUTE_LABEL, 'Material', 'material', $product );
 		unset( $GLOBALS['aiml_force_is_admin'] );
 		$this->assertSame( 'Material', $out );
 	}
