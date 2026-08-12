@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Jobs;
 
+use AIMultilingual\Surface\SurfaceCapabilityNames;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\SegmentAssembler;
 use WP_Error;
@@ -97,6 +99,13 @@ final class BackgroundTranslationJobService {
 	private ?BackgroundTranslationDiagnostics $diagnostics;
 
 	/**
+	 * Surface registry for source-type admission facts (TSC.0).
+	 *
+	 * @var SurfaceRegistry|null
+	 */
+	private ?SurfaceRegistry $surfaces;
+
+	/**
 	 * Builds the job service.
 	 *
 	 * @param BackgroundTranslationJobRepository|null        $jobs                Job repository.
@@ -110,6 +119,7 @@ final class BackgroundTranslationJobService {
 	 * @param BackgroundTranslationJobProviderValidator|null $provider_validator  Provider validator.
 	 * @param BackgroundTranslationJobAuditLogger|null       $audit               Audit logger.
 	 * @param BackgroundTranslationDiagnostics|null          $diagnostics         Diagnostics.
+	 * @param SurfaceRegistry|null                           $surfaces            Surface registry.
 	 */
 	public function __construct(
 		?BackgroundTranslationJobRepository $jobs = null,
@@ -122,7 +132,8 @@ final class BackgroundTranslationJobService {
 		?BackgroundTranslationBudgetPolicy $budget = null,
 		?BackgroundTranslationJobProviderValidator $provider_validator = null,
 		?BackgroundTranslationJobAuditLogger $audit = null,
-		?BackgroundTranslationDiagnostics $diagnostics = null
+		?BackgroundTranslationDiagnostics $diagnostics = null,
+		?SurfaceRegistry $surfaces = null
 	) {
 		$this->jobs               = $jobs ?? new BackgroundTranslationJobRepository();
 		$this->items              = $items ?? new BackgroundTranslationItemRepository();
@@ -135,6 +146,7 @@ final class BackgroundTranslationJobService {
 		$this->provider_validator = $provider_validator;
 		$this->audit              = $audit;
 		$this->diagnostics        = $diagnostics;
+		$this->surfaces           = $surfaces;
 	}
 
 	/**
@@ -709,6 +721,19 @@ final class BackgroundTranslationJobService {
 
 		if ( empty( $args['source_type'] ) || empty( $args['source_id'] ) || empty( $args['language_id'] ) ) {
 			return new WP_Error( 'invalid_job_scope', 'Job requires source_type, source_id, and language_id.' );
+		}
+
+		$source_type = (string) $args['source_type'];
+		$source_id   = (int) $args['source_id'];
+
+		if ( null !== $this->surfaces ) {
+			$surface = $this->surfaces->for( $source_type );
+			if ( null === $surface || ! $surface->supports( SurfaceCapabilityNames::JOBS ) ) {
+				return new WP_Error( 'unregistered_source_type', 'Job source_type is not registered for Jobs work.' );
+			}
+			if ( ! $surface->exists( $source_id ) ) {
+				return new WP_Error( 'source_not_found', 'Job source object does not exist.' );
+			}
 		}
 
 		if ( JobTypes::TRANSLATE_SELECTED === $job_type ) {

@@ -11,6 +11,7 @@ namespace AIMultilingual\Admin;
 
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
+use AIMultilingual\Surface\AdmittedPostTypes;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use WP_Error;
@@ -40,7 +41,7 @@ final class Editor {
 	/**
 	 * Post types the editor offers in Milestone 1.
 	 */
-	private const POST_TYPES = array( 'page', 'post' );
+	private const POST_TYPES = AdmittedPostTypes::LEGACY_ADMIN_EDIT_TYPES;
 
 	/**
 	 * Language configuration.

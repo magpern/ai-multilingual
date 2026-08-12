@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Rollout;
 
+use AIMultilingual\Surface\AdmittedPostTypes;
+
 /**
  * Immutable rollout policy configuration (current schema only).
  */
@@ -21,7 +23,7 @@ final class RolloutConfiguration {
 	 *
 	 * @var list<string>
 	 */
-	public const APPROVED_POST_TYPES = array( 'post', 'page', 'product' );
+	public const APPROVED_POST_TYPES = AdmittedPostTypes::ROLLOUT_TYPES;
 
 	/**
 	 * Stages that require a non-empty post allowlist when rollout render is on

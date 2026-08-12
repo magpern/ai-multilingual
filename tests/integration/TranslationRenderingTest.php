@@ -188,6 +188,8 @@ final class TranslationRenderingTest extends AimlTestCase {
 				'post_title' => 'About Our Company',
 			)
 		);
+		// TSC.0: invalidation coalesces until shutdown flush (final-state sync).
+		do_action( 'aiml_flush_surface_invalidations' );
 
 		$stale = $this->store->get( Store::SOURCE_POST, (int) $post->ID, (int) $swedish->language_id, Extractor::FIELD_TITLE );
 
@@ -213,6 +215,7 @@ final class TranslationRenderingTest extends AimlTestCase {
 				'post_title' => 'About Our Company',
 			)
 		);
+		do_action( 'aiml_flush_surface_invalidations' );
 
 		$this->register_renderer();
 		$this->context->set_current( $swedish );
@@ -232,6 +235,7 @@ final class TranslationRenderingTest extends AimlTestCase {
 				'post_title' => '  About   Us  ',
 			)
 		);
+		do_action( 'aiml_flush_surface_invalidations' );
 
 		$segment = $this->store->get( Store::SOURCE_POST, (int) $post->ID, (int) $swedish->language_id, Extractor::FIELD_TITLE );
 

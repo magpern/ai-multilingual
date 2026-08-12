@@ -1,6 +1,8 @@
 <?php
 /**
- * Unit tests for Fluent Forms Contact Form #5 integration.
+ * Unit tests for Fluent Forms host-local embed discovery integration.
+ *
+ * Fixture form id 5 is test-local only (not a production FORM_ID constant).
  *
  * @package AIMultilingual
  */
@@ -23,6 +25,11 @@ use WP_Post;
  * @covers \AIMultilingual\Integration\FluentForms\FluentFormsIntegration
  */
 final class FluentFormsIntegrationTest extends TestCase {
+
+	/**
+	 * Fixture form id used by sample fields / identity keys in this suite.
+	 */
+	private const FIXTURE_FORM_ID = 5;
 
 	public function test_identity_keys_match_frozen_contract(): void {
 		$identity = new PluginIdentity();
@@ -201,18 +208,23 @@ final class FluentFormsIntegrationTest extends TestCase {
 
 	/**
 	 * @param array<string, mixed> $fields   Form fields.
-	 * @param bool                 $embedded Whether embed detector returns true.
+	 * @param bool                 $embedded Whether host-local discovery yields the fixture form.
 	 */
 	private function make_integration( array $fields, bool $embedded = true ): FluentFormsIntegration {
-		$reader = new class( $fields ) implements FluentFormDefinitionReader {
+		$fixture_id = self::FIXTURE_FORM_ID;
+		$reader     = new class( $fields, $fixture_id ) implements FluentFormDefinitionReader {
 			/**
-			 * @param array<string, mixed> $fields Fields.
+			 * @param array<string, mixed> $fields     Fields.
+			 * @param int                  $fixture_id Fixture form id.
 			 */
-			public function __construct( private array $fields ) {
+			public function __construct(
+				private array $fields,
+				private int $fixture_id
+			) {
 			}
 
 			public function get_decoded_fields( int $form_id ): ?array {
-				return 5 === $form_id ? $this->fields : null;
+				return $this->fixture_id === $form_id ? $this->fields : null;
 			}
 		};
 
@@ -225,7 +237,7 @@ final class FluentFormsIntegrationTest extends TestCase {
 			'6.2.9',
 			false,
 			true,
-			$embedded
+			$embedded ? array( self::FIXTURE_FORM_ID ) : array()
 		);
 	}
 

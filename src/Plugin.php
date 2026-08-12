@@ -78,6 +78,10 @@ use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationDiagnostics;
 use AIMultilingual\Integration\IntegrationFrontendBridge;
 use AIMultilingual\Integration\IntegrationRegistry;
+use AIMultilingual\Surface\PostSurfaceAdapter;
+use AIMultilingual\Surface\RequestLocalInvalidationCoordinator;
+use AIMultilingual\Surface\SurfaceRegistry;
+use AIMultilingual\Workspace\Operator\AllowedActionsResolver;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
@@ -362,14 +366,23 @@ final class Plugin {
 		$assessment_assembler = new AssessmentAssembler();
 		$publication_policy   = new PublicationPolicy();
 		$publication_audit    = new PublicationAuditLogger();
-		$publication          = new PublicationService(
+		$surface_registry     = new SurfaceRegistry();
+		$post_surface         = new PostSurfaceAdapter( $this->settings );
+		$surface_registry->register( $post_surface );
+		$invalidation_coordinator = new RequestLocalInvalidationCoordinator( $store, $extractor );
+		$post_surface->register_invalidation_events( $invalidation_coordinator );
+		$invalidation_coordinator->ensure_shutdown_hook();
+		AllowedActionsResolver::set_surface_registry( $surface_registry );
+
+		$publication        = new PublicationService(
 			$store,
 			$assessment_assembler,
 			$publication_policy,
 			$publication_audit,
-			$this->settings
+			$this->settings,
+			$surface_registry
 		);
-		$translation          = new TranslationService(
+		$translation        = new TranslationService(
 			$store,
 			$assembler,
 			$languages,
@@ -382,15 +395,15 @@ final class Plugin {
 			$tm_service,
 			$publication
 		);
-		$preview              = new PreviewService( $languages, $context, $router );
-		$suggestion_service   = new TranslationSuggestionService(
+		$preview            = new PreviewService( $languages, $context, $router );
+		$suggestion_service = new TranslationSuggestionService(
 			array(
 				new TranslationMemorySuggestionProvider( $tm_service ),
 				new GlossarySuggestionProvider( $glossary_service ),
 				new AISuggestionProvider( $translation ),
 			)
 		);
-		$qa_engine            = new QAEngine(
+		$qa_engine          = new QAEngine(
 			null,
 			! empty( $this->settings->get()['qa_block_on_error'] )
 		);
@@ -439,14 +452,16 @@ final class Plugin {
 			$job_budget,
 			$job_provider,
 			$job_audit,
-			$job_diagnostics
+			$job_diagnostics,
+			$surface_registry
 		);
 		$job_processor   = new BackgroundTranslationItemProcessor(
 			$store,
 			$translation,
 			$glossary_service,
 			$assembler,
-			$job_retry
+			$job_retry,
+			$surface_registry
 		);
 		$job_worker      = new BackgroundTranslationWorker(
 			$job_processor,
@@ -516,7 +531,8 @@ final class Plugin {
 		( new ReviewEditInvalidationAuditBridge() )->register();
 		( new PublicationEditInvalidationAuditBridge( $publication_audit ) )->register();
 
-		$this->register_stale_detection( $extractor, $store );
+		// Stale invalidation is owned by RequestLocalInvalidationCoordinator
+		// (save_post + Rank Math meta mark dirty; shutdown flush). Do not sync here.
 
 		$seo_diagnostics = new SeoDiagnosticsService(
 			$relationships,
@@ -610,49 +626,5 @@ final class Plugin {
 				$role->add_cap( self::CAPABILITY );
 			}
 		}
-	}
-
-	/**
-	 * Flags translations whose source has changed.
-	 *
-	 * Lives here rather than in its own class because it is the one line of
-	 * glue between extraction and storage: re-extract the source, hand it to
-	 * the store, and let the store decide what changed. Translated text and
-	 * workflow status are never touched (invariant I6) — an edit to the English
-	 * copy marks the Swedish for review, it does not discard it.
-	 *
-	 * @param Extractor $extractor Source extractor.
-	 * @param Store     $store     Segment store.
-	 */
-	private function register_stale_detection( Extractor $extractor, Store $store ): void {
-		add_action(
-			'save_post',
-			static function ( $post_id, $post ) use ( $extractor, $store ) {
-				if ( BlockIdentityMigration::is_active() ) {
-					return;
-				}
-
-				if ( ! $post instanceof WP_Post ) {
-					return;
-				}
-
-				if ( wp_is_post_revision( $post ) || wp_is_post_autosave( $post ) ) {
-					return;
-				}
-
-				if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-					return;
-				}
-
-				$store->sync_source(
-					Store::SOURCE_POST,
-					(int) $post_id,
-					(string) $post->post_type,
-					$extractor->extract( $post )
-				);
-			},
-			20,
-			2
-		);
 	}
 }

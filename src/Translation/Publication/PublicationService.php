@@ -10,6 +10,8 @@ declare( strict_types=1 );
 namespace AIMultilingual\Translation\Publication;
 
 use AIMultilingual\Settings;
+use AIMultilingual\Surface\SurfaceCapabilityNames;
+use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\AI\FieldSemantic;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Store;
@@ -29,6 +31,7 @@ final class PublicationService {
 	 * @param PublicationPolicy      $policy     Pure eligibility policy.
 	 * @param PublicationAuditLogger $audit      Bounded audit logger.
 	 * @param Settings|null          $settings   Plugin settings.
+	 * @param SurfaceRegistry|null   $surfaces   Optional surface registry for visibility facts.
 	 */
 	public function __construct(
 		private Store $store,
@@ -36,6 +39,7 @@ final class PublicationService {
 		private PublicationPolicy $policy,
 		private PublicationAuditLogger $audit,
 		private ?Settings $settings = null,
+		private ?SurfaceRegistry $surfaces = null,
 	) {
 		$this->settings = $settings ?? new Settings();
 	}
@@ -460,17 +464,32 @@ final class PublicationService {
 	}
 
 	/**
-	 * Whether the source object is publicly visible.
+	 * Whether the source object is publicly visible (visibility fact).
+	 *
+	 * Delegates to SurfaceCapability when registered. TI.7 publication policy
+	 * remains owned by PublicationPolicy — this method never answers can_publish.
 	 *
 	 * @param string $source_type Source type.
 	 * @param int    $source_id   Source id.
 	 */
 	public function is_source_public( string $source_type, int $source_id ): bool {
-		if ( Store::SOURCE_POST !== $source_type || $source_id <= 0 ) {
+		if ( $source_id <= 0 ) {
 			return false;
 		}
 
-		if ( ! function_exists( 'get_post' ) ) {
+		if ( null !== $this->surfaces ) {
+			$surface = $this->surfaces->for( $source_type );
+			if ( null === $surface ) {
+				return false;
+			}
+			if ( ! $surface->supports( SurfaceCapabilityNames::PUBLISH_INPUTS ) ) {
+				return false;
+			}
+			return $surface->is_visitor_public( $source_id );
+		}
+
+		// Legacy fallback when registry is not wired (unit tests).
+		if ( Store::SOURCE_POST !== $source_type || ! function_exists( 'get_post' ) ) {
 			return false;
 		}
 
@@ -483,11 +502,6 @@ final class PublicationService {
 			return false;
 		}
 
-		if ( 'publish' === $post->post_status ) {
-			return true;
-		}
-
-		// Private / draft / pending are not public visitor content.
-		return false;
+		return 'publish' === $post->post_status;
 	}
 }

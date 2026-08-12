@@ -227,3 +227,77 @@ if ( ! function_exists( 'has_filter' ) ) {
 		return false;
 	}
 }
+
+if ( ! isset( $GLOBALS['aiml_unit_posts'] ) ) {
+	$GLOBALS['aiml_unit_posts'] = array();
+}
+
+if ( ! function_exists( 'get_post' ) ) {
+	/**
+	 * @param int|WP_Post|null $post Post id or object.
+	 * @return WP_Post|null
+	 */
+	function get_post( $post = null ) {
+		if ( $post instanceof WP_Post ) {
+			return $post;
+		}
+		$id = (int) $post;
+		if ( $id <= 0 ) {
+			return null;
+		}
+		$found = $GLOBALS['aiml_unit_posts'][ $id ] ?? null;
+		return $found instanceof WP_Post ? $found : null;
+	}
+}
+
+if ( ! function_exists( 'wp_is_post_revision' ) ) {
+	/**
+	 * @param int|WP_Post $post Post.
+	 * @return int|false
+	 */
+	function wp_is_post_revision( $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return false;
+	}
+}
+
+if ( ! function_exists( 'wp_is_post_autosave' ) ) {
+	/**
+	 * @param int|WP_Post $post Post.
+	 * @return int|false
+	 */
+	function wp_is_post_autosave( $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return false;
+	}
+}
+
+if ( ! function_exists( 'user_can' ) ) {
+	/**
+	 * @param int    $user_id User id.
+	 * @param string $cap     Capability.
+	 * @param mixed  ...$args Extra args.
+	 */
+	function user_can( $user_id, $cap, ...$args ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return ! empty( $GLOBALS['aiml_unit_user_can'][ (int) $user_id ][ (string) $cap ] );
+	}
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+	/**
+	 * @param string $cap Capability.
+	 * @param mixed  ...$args Extra args.
+	 */
+	function current_user_can( $cap, ...$args ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+		return ! empty( $GLOBALS['aiml_unit_current_user_can'][ (string) $cap ] );
+	}
+}
+
+if ( ! function_exists( 'get_option' ) ) {
+	/**
+	 * @param string $option         Option name.
+	 * @param mixed  $default_value  Default.
+	 * @return mixed
+	 */
+	function get_option( $option, $default_value = false ) {
+		return $GLOBALS['aiml_unit_options'][ (string) $option ] ?? $default_value;
+	}
+}
