@@ -724,7 +724,6 @@ final class WooCommerceIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
-	/**
 	 * Overlay term archive titles (C3 / C5).
 	 *
 	 * @param mixed                       $title   Source title.
