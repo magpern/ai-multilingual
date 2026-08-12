@@ -190,90 +190,92 @@ final class PublicationService {
 		array $scaffolding_markers = array(),
 		?bool $markers_applicable = null
 	) {
+		$term_ref = $this->term_ref( $source_type, $source_id, $language_id, $segment_key );
+		if ( null !== $term_ref ) {
+			[ $source_type, $source_id, $segment_key ] = $this->authoritative_address( $term_ref, $source_type, $source_id, $segment_key );
+
+			// Axis writes must re-resolve under Store lock so a concurrent adopt
+			// cannot land publication metadata on a retired hosted row.
+			$result = $this->store->mutate_under_term_compat_authority(
+				$term_ref->to_store_ref(),
+				function (
+					string $type,
+					int $id,
+					int $language,
+					string $key,
+					object $row
+				) use (
+					$for_automatic,
+					$expected_status,
+					$scaffolding_markers,
+					$markers_applicable,
+					$user_id,
+					$surface
+				) {
+					return $this->publish_authoritative_row(
+						$type,
+						$id,
+						$language,
+						$key,
+						$row,
+						$for_automatic,
+						$expected_status,
+						$scaffolding_markers,
+						$markers_applicable,
+						$user_id,
+						$surface
+					);
+				}
+			);
+
+			if ( $result instanceof WP_Error || ! is_array( $result ) || ( $result['status'] ?? '' ) !== 'published' ) {
+				return $result;
+			}
+
+			return $this->finalize_published_result(
+				$result,
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				$for_automatic,
+				$user_id,
+				$surface
+			);
+		}
+
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
 			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
 		}
 
-		$decision = $this->evaluate_publish_attempt(
-			$row,
-			$for_automatic,
-			$expected_status,
-			$scaffolding_markers,
-			$markers_applicable,
-			$user_id,
-			$surface
-		);
-		if ( $decision instanceof WP_Error || is_array( $decision ) ) {
-			return $decision;
-		}
-
-		// ADR-0020: re-read and re-evaluate immediately before mutation so a
-		// concurrent edit / visibility / review change cannot apply a stale decision.
-		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
-		if ( null === $row ) {
-			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
-		}
-
-		$decision = $this->evaluate_publish_attempt(
-			$row,
-			$for_automatic,
-			$expected_status,
-			$scaffolding_markers,
-			$markers_applicable,
-			$user_id,
-			$surface
-		);
-		if ( $decision instanceof WP_Error || is_array( $decision ) ) {
-			return $decision;
-		}
-
-		$current = (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED );
-		$now     = function_exists( 'current_time' ) ? current_time( 'mysql', true ) : gmdate( 'Y-m-d H:i:s' );
-		$by      = $for_automatic ? 0 : ( $user_id > 0 ? $user_id : (int) get_current_user_id() );
-
-		$updated = $this->store->update_publish_metadata(
+		$result = $this->publish_authoritative_row(
 			$source_type,
 			$source_id,
 			$language_id,
 			$segment_key,
-			array(
-				'publish_status' => Store::PUBLISH_PUBLISHED,
-				'published_at'   => $now,
-				'published_by'   => $by,
-			)
+			$row,
+			$for_automatic,
+			$expected_status,
+			$scaffolding_markers,
+			$markers_applicable,
+			$user_id,
+			$surface
 		);
 
-		if ( $updated instanceof WP_Error ) {
-			return $updated;
+		if ( $result instanceof WP_Error || ! is_array( $result ) || ( $result['status'] ?? '' ) !== 'published' ) {
+			return $result;
 		}
 
-		$event = $for_automatic ? PublicationAuditEvents::AUTO : PublicationAuditEvents::MANUAL;
-		$this->audit->log(
-			$event,
-			array(
-				'source_type'        => $source_type,
-				'source_id'          => $source_id,
-				'segment_key'        => $segment_key,
-				'language_id'        => $language_id,
-				'old_publish_status' => $current,
-				'new_publish_status' => Store::PUBLISH_PUBLISHED,
-				'policy_version'     => $decision->policy_version,
-				'assessment_version' => $decision->assessment_version,
-				'overall_category'   => $decision->overall_category,
-				'reason_codes'       => array( PublicationReasonCodes::PUBLISHED ),
-				'mode'               => $decision->mode,
-				'actor_kind'         => $for_automatic ? 'system' : 'user',
-				'user_id'            => $by,
-				'source_surface'     => $surface,
-			)
-		);
-
-		return array(
-			'status'         => 'published',
-			'publish_status' => Store::PUBLISH_PUBLISHED,
-			'decision'       => $decision->to_array(),
-			'reason_codes'   => array( PublicationReasonCodes::PUBLISHED ),
+		return $this->finalize_published_result(
+			$result,
+			$source_type,
+			$source_id,
+			$language_id,
+			$segment_key,
+			$for_automatic,
+			$user_id,
+			$surface
 		);
 	}
 
@@ -365,54 +367,39 @@ final class PublicationService {
 		string $segment_key,
 		int $user_id = 0
 	) {
+		$term_ref = $this->term_ref( $source_type, $source_id, $language_id, $segment_key );
+		if ( null !== $term_ref ) {
+			[ $source_type, $source_id, $segment_key ] = $this->authoritative_address( $term_ref, $source_type, $source_id, $segment_key );
+
+			$result = $this->store->mutate_under_term_compat_authority(
+				$term_ref->to_store_ref(),
+				fn ( string $type, int $id, int $language, string $key, object $row ) => $this->unpublish_authoritative_row(
+					$type,
+					$id,
+					$language,
+					$key,
+					$row
+				)
+			);
+
+			if ( $result instanceof WP_Error || ! is_array( $result ) || ( $result['status'] ?? '' ) !== 'unpublished' ) {
+				return $result;
+			}
+
+			return $this->finalize_unpublished_result( $result, $source_type, $source_id, $language_id, $segment_key, $user_id );
+		}
+
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
 			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
 		}
 
-		$current = (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED );
-		if ( Store::PUBLISH_UNPUBLISHED === $current ) {
-			return array(
-				'status'         => 'noop',
-				'publish_status' => Store::PUBLISH_UNPUBLISHED,
-				'reason_codes'   => array( PublicationReasonCodes::UNPUBLISHED ),
-			);
+		$result = $this->unpublish_authoritative_row( $source_type, $source_id, $language_id, $segment_key, $row );
+		if ( $result instanceof WP_Error || ! is_array( $result ) || ( $result['status'] ?? '' ) !== 'unpublished' ) {
+			return $result;
 		}
 
-		$updated = $this->store->update_publish_metadata(
-			$source_type,
-			$source_id,
-			$language_id,
-			$segment_key,
-			Store::publish_clear_fields()
-		);
-
-		if ( $updated instanceof WP_Error ) {
-			return $updated;
-		}
-
-		$by = $user_id > 0 ? $user_id : (int) get_current_user_id();
-		$this->audit->log(
-			PublicationAuditEvents::UNPUBLISH_MANUAL,
-			array(
-				'source_type'        => $source_type,
-				'source_id'          => $source_id,
-				'segment_key'        => $segment_key,
-				'language_id'        => $language_id,
-				'old_publish_status' => $current,
-				'new_publish_status' => Store::PUBLISH_UNPUBLISHED,
-				'reason_codes'       => array( PublicationReasonCodes::UNPUBLISHED ),
-				'actor_kind'         => 'user',
-				'user_id'            => $by,
-				'source_surface'     => 'manual',
-			)
-		);
-
-		return array(
-			'status'         => 'unpublished',
-			'publish_status' => Store::PUBLISH_UNPUBLISHED,
-			'reason_codes'   => array( PublicationReasonCodes::UNPUBLISHED ),
-		);
+		return $this->finalize_unpublished_result( $result, $source_type, $source_id, $language_id, $segment_key, $user_id );
 	}
 
 	/**
@@ -470,6 +457,295 @@ final class PublicationService {
 		$mode = (string) ( $all['auto_publication_mode'] ?? PublicationMode::MANUAL );
 
 		return PublicationMode::is_valid( $mode ) ? $mode : PublicationMode::MANUAL;
+	}
+
+	/**
+	 * Term reference for an axis address, or null when it is not a term field.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source object id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Segment key.
+	 */
+	private function term_ref(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key
+	): ?TermCompatRef {
+		if ( null === $this->terms ) {
+			return null;
+		}
+
+		return $this->terms->ref_for_store_address( $source_type, $source_id, $segment_key, $language_id );
+	}
+
+	/**
+	 * Address of the row that currently holds authority for a term field.
+	 *
+	 * Remap before read / audit so eligibility and events describe the row the
+	 * transition will land on — not only at persist time under the Store lock.
+	 *
+	 * @param TermCompatRef $ref         Term reference.
+	 * @param string        $source_type Requested source type.
+	 * @param int           $source_id   Requested source id.
+	 * @param string        $segment_key Requested segment key.
+	 * @return array{0: string, 1: int, 2: string}
+	 */
+	private function authoritative_address( TermCompatRef $ref, string $source_type, int $source_id, string $segment_key ): array {
+		$resolved = null !== $this->terms
+			? $this->terms->resolve( $ref->term_id, $ref->taxonomy, $ref->logical_field, $ref->language_id )
+			: null;
+
+		if ( null === $resolved ) {
+			return array( $source_type, $source_id, $segment_key );
+		}
+
+		return array(
+			(string) $resolved['source_type'],
+			(int) $resolved['source_id'],
+			(string) $resolved['segment_key'],
+		);
+	}
+
+	/**
+	 * ADR-0020 double-evaluate then mutate publish metadata on one identity.
+	 *
+	 * @param string             $source_type         Source type.
+	 * @param int                $source_id           Source id.
+	 * @param int                $language_id         Language id.
+	 * @param string             $segment_key         Segment key.
+	 * @param object             $row                 Fresh (or locked) store row.
+	 * @param bool               $for_automatic       Automatic path.
+	 * @param string|null        $expected_status     Optional optimistic publish_status.
+	 * @param array<int, string> $scaffolding_markers Optional markers.
+	 * @param bool|null          $markers_applicable  Marker applicability.
+	 * @param int                $user_id             Acting user.
+	 * @param string             $surface             Audit surface.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	private function publish_authoritative_row(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		object $row,
+		bool $for_automatic,
+		?string $expected_status,
+		array $scaffolding_markers,
+		?bool $markers_applicable,
+		int $user_id,
+		string $surface
+	) {
+		$decision = $this->evaluate_publish_attempt(
+			$row,
+			$for_automatic,
+			$expected_status,
+			$scaffolding_markers,
+			$markers_applicable,
+			$user_id,
+			$surface
+		);
+		if ( $decision instanceof WP_Error || is_array( $decision ) ) {
+			return $decision;
+		}
+
+		// ADR-0020: re-read and re-evaluate immediately before mutation so a
+		// concurrent edit / visibility / review change cannot apply a stale decision.
+		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
+		if ( null === $row ) {
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+		}
+
+		$decision = $this->evaluate_publish_attempt(
+			$row,
+			$for_automatic,
+			$expected_status,
+			$scaffolding_markers,
+			$markers_applicable,
+			$user_id,
+			$surface
+		);
+		if ( $decision instanceof WP_Error || is_array( $decision ) ) {
+			return $decision;
+		}
+
+		$current = (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED );
+		$now     = function_exists( 'current_time' ) ? current_time( 'mysql', true ) : gmdate( 'Y-m-d H:i:s' );
+		$by      = $for_automatic ? 0 : ( $user_id > 0 ? $user_id : (int) get_current_user_id() );
+
+		$updated = $this->store->update_publish_metadata(
+			$source_type,
+			$source_id,
+			$language_id,
+			$segment_key,
+			array(
+				'publish_status' => Store::PUBLISH_PUBLISHED,
+				'published_at'   => $now,
+				'published_by'   => $by,
+			)
+		);
+
+		if ( $updated instanceof WP_Error ) {
+			return $updated;
+		}
+
+		return array(
+			'status'         => 'published',
+			'publish_status' => Store::PUBLISH_PUBLISHED,
+			'decision'       => $decision,
+			'reason_codes'   => array( PublicationReasonCodes::PUBLISHED ),
+			'_old_status'    => $current,
+			'_published_by'  => $by,
+		);
+	}
+
+	/**
+	 * Clears publish metadata on one identity (caller supplies the authoritative row).
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Segment key.
+	 * @param object $row         Fresh (or locked) store row.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	private function unpublish_authoritative_row(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		object $row
+	) {
+		$current = (string) ( $row->publish_status ?? Store::PUBLISH_UNPUBLISHED );
+		if ( Store::PUBLISH_UNPUBLISHED === $current ) {
+			return array(
+				'status'         => 'noop',
+				'publish_status' => Store::PUBLISH_UNPUBLISHED,
+				'reason_codes'   => array( PublicationReasonCodes::UNPUBLISHED ),
+			);
+		}
+
+		$updated = $this->store->update_publish_metadata(
+			$source_type,
+			$source_id,
+			$language_id,
+			$segment_key,
+			Store::publish_clear_fields()
+		);
+
+		if ( $updated instanceof WP_Error ) {
+			return $updated;
+		}
+
+		return array(
+			'status'         => 'unpublished',
+			'publish_status' => Store::PUBLISH_UNPUBLISHED,
+			'reason_codes'   => array( PublicationReasonCodes::UNPUBLISHED ),
+			'_old_status'    => $current,
+		);
+	}
+
+	/**
+	 * Audits a successful publish and returns the public result shape.
+	 *
+	 * @param array<string, mixed> $result        Internal published payload.
+	 * @param string               $source_type   Audit source type.
+	 * @param int                  $source_id     Audit source id.
+	 * @param int                  $language_id   Language id.
+	 * @param string               $segment_key   Audit segment key.
+	 * @param bool                 $for_automatic Automatic path.
+	 * @param int                  $user_id       Acting user.
+	 * @param string               $surface       Audit surface.
+	 * @return array<string, mixed>
+	 */
+	private function finalize_published_result(
+		array $result,
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		bool $for_automatic,
+		int $user_id,
+		string $surface
+	): array {
+		/** @var PublicationDecision $decision */
+		$decision = $result['decision'];
+		$by       = (int) ( $result['_published_by'] ?? ( $for_automatic ? 0 : ( $user_id > 0 ? $user_id : (int) get_current_user_id() ) ) );
+		$current  = (string) ( $result['_old_status'] ?? Store::PUBLISH_UNPUBLISHED );
+
+		$event = $for_automatic ? PublicationAuditEvents::AUTO : PublicationAuditEvents::MANUAL;
+		$this->audit->log(
+			$event,
+			array(
+				'source_type'        => $source_type,
+				'source_id'          => $source_id,
+				'segment_key'        => $segment_key,
+				'language_id'        => $language_id,
+				'old_publish_status' => $current,
+				'new_publish_status' => Store::PUBLISH_PUBLISHED,
+				'policy_version'     => $decision->policy_version,
+				'assessment_version' => $decision->assessment_version,
+				'overall_category'   => $decision->overall_category,
+				'reason_codes'       => array( PublicationReasonCodes::PUBLISHED ),
+				'mode'               => $decision->mode,
+				'actor_kind'         => $for_automatic ? 'system' : 'user',
+				'user_id'            => $by,
+				'source_surface'     => $surface,
+			)
+		);
+
+		return array(
+			'status'         => 'published',
+			'publish_status' => Store::PUBLISH_PUBLISHED,
+			'decision'       => $decision->to_array(),
+			'reason_codes'   => array( PublicationReasonCodes::PUBLISHED ),
+		);
+	}
+
+	/**
+	 * Audits a successful unpublish and returns the public result shape.
+	 *
+	 * @param array<string, mixed> $result      Internal unpublished payload.
+	 * @param string               $source_type Audit source type.
+	 * @param int                  $source_id   Audit source id.
+	 * @param int                  $language_id Language id.
+	 * @param string               $segment_key Audit segment key.
+	 * @param int                  $user_id     Acting user.
+	 * @return array<string, mixed>
+	 */
+	private function finalize_unpublished_result(
+		array $result,
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		int $user_id
+	): array {
+		$by      = $user_id > 0 ? $user_id : (int) get_current_user_id();
+		$current = (string) ( $result['_old_status'] ?? Store::PUBLISH_PUBLISHED );
+
+		$this->audit->log(
+			PublicationAuditEvents::UNPUBLISH_MANUAL,
+			array(
+				'source_type'        => $source_type,
+				'source_id'          => $source_id,
+				'segment_key'        => $segment_key,
+				'language_id'        => $language_id,
+				'old_publish_status' => $current,
+				'new_publish_status' => Store::PUBLISH_UNPUBLISHED,
+				'reason_codes'       => array( PublicationReasonCodes::UNPUBLISHED ),
+				'actor_kind'         => 'user',
+				'user_id'            => $by,
+				'source_surface'     => 'manual',
+			)
+		);
+
+		return array(
+			'status'         => 'unpublished',
+			'publish_status' => Store::PUBLISH_UNPUBLISHED,
+			'reason_codes'   => array( PublicationReasonCodes::UNPUBLISHED ),
+		);
 	}
 
 	/**

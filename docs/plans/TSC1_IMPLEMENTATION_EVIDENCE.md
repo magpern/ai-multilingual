@@ -52,10 +52,10 @@
 | TT23 | PASS | TermSurfaceAdapter visibility facts |
 | TT24 | PASS | Jobs/OTL edit_term authorization |
 | TT25 | PASS | OTL inspect via TermSurfaceAdapter capabilities |
-| TT26 | PASS | TranslationService / Review / Publication wiring |
+| TT26 | PASS | TranslationService / Review / Publication wiring (`TermTranslationResolver`) |
 | TT27 | PASS | Jobs term processor + adopt-before-persist |
 | TT28 | PASS | Existing hash concurrency retained |
-| TT29 | PASS | Publication on authoritative row |
+| TT29 | PASS | Publication on authoritative row (`Tsc1PublicationAuthorityTest`) |
 | TT30 | PASS | TermVisitorOverlay seam table only |
 | TT31 | PASS | PluginGuard bans get_term hooks |
 | TT32 | PASS | AdmittedTaxonomies pa_* |
@@ -63,9 +63,9 @@
 | TT34 | PASS | No all-term scan; registry O(1) |
 | TT35 | PASS | edit_term / capability paths |
 | TT36 | PASS | ADR-0021 Accepted; TARGET 7 |
-| TT37 | PASS | mutate remaps to native; integration |
-| TT38 | PASS | Authority revalidation under lock |
-| TT39 | PASS | Adopt under same lock as axis |
+| TT37 | PASS | mutate remaps to native; `PublicationService` + `Tsc1PublicationAuthorityTest` / `Tsc1TermAdoptionIntegrationTest` |
+| TT38 | PASS | Authority revalidation under lock (`mutate_under_term_compat_authority` in Review + Publication) |
+| TT39 | PASS | Adopt under same lock as axis; publication axis uses Store term authority |
 | TT40 | PASS | No second publication/policy engine |
 
 ## AC1–AC58
@@ -75,7 +75,7 @@
 | AC1–AC12 | PASS | Store adopt + race unit tests |
 | AC13–AC17 | PASS | Lifecycle preservation + ignored retirement |
 | AC18–AC20 | PASS | Content / Jobs / retranslate adopt paths |
-| AC21–AC31 | PASS | Axis-only + authority lock + race tests (unit/integration subset) |
+| AC21–AC31 | PASS | Axis-only + authority lock; AC22/AC26–AC31: `PublicationService` `term_ref`/`authoritative_address` + `mutate_under_term_compat_authority` on publish/unpublish; `Tsc1PublicationAuthorityTest` |
 | AC32 | PASS | WP_Error rollback tests |
 | AC33–AC36 | PASS | Resolver + PluginGuard alias ban |
 | AC37–AC42 | PASS | TermVisitorOverlay + FE guards |
