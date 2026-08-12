@@ -275,6 +275,46 @@ final class Tsc2RegisteredMetaLifecycleTest extends AimlTestCase {
 		$this->assertSame( 'orphaned', (string) $row->error_code );
 	}
 
+	public function test_rank_math_disabled_filter_retains_external_p_rows(): void {
+		$language = $this->add_language();
+		$post_id  = self::factory()->post->create( array( 'post_type' => 'post' ) );
+		$lang     = (int) $language->language_id;
+
+		$identity = new \AIMultilingual\Integration\Identity\PluginIdentity();
+		$seg_key  = $identity->build( 'rankmath', 'post', (string) $post_id, 'title' );
+
+		$this->store->save_translation(
+			array(
+				'source_type'     => Store::SOURCE_POST,
+				'source_id'       => $post_id,
+				'source_subtype'  => 'post',
+				'language_id'     => $lang,
+				'field_key'       => 'title',
+				'segment_key'     => $seg_key,
+				'source_text'     => 'SEO Title',
+				'text_format'     => Store::FORMAT_PLAIN,
+				'translated_text' => 'SEO Titel',
+				'status'          => Store::STATUS_MANUALLY_EDITED,
+			)
+		);
+
+		add_filter( 'aiml_rankmath_integration_disabled', '__return_true' );
+		$registry = new RegisteredMetaRegistry( $identity, $this->store );
+		\AIMultilingual\Surface\Meta\RankMathMetaDefinitions::register_into( $registry );
+		$retain = $registry->retain_segment_keys( Store::SOURCE_POST, $post_id );
+		$this->assertContains( $seg_key, $retain );
+
+		$before = $this->store->get( Store::SOURCE_POST, $post_id, $lang, $seg_key );
+		$this->assertNotNull( $before );
+		$updated_at = (string) $before->updated_at;
+		$this->store->sync_source( Store::SOURCE_POST, $post_id, 'post', array(), $retain );
+		$after = $this->store->get( Store::SOURCE_POST, $post_id, $lang, $seg_key );
+		$this->assertNotNull( $after );
+		$this->assertSame( Store::STATUS_MANUALLY_EDITED, (string) $after->status );
+		$this->assertSame( $updated_at, (string) $after->updated_at );
+		remove_filter( 'aiml_rankmath_integration_disabled', '__return_true' );
+	}
+
 	public function test_provider_disallowed_segment_skips_without_calling_provider(): void {
 		$registry = new RegisteredMetaRegistry();
 		$registry->register(

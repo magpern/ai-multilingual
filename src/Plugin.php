@@ -301,7 +301,10 @@ final class Plugin {
 		);
 
 		$meta_registry = new RegisteredMetaRegistry( $plugin_identity, $store );
-		RankMathMetaDefinitions::register_into( $meta_registry );
+		RankMathMetaDefinitions::register_into(
+			$meta_registry,
+			static fn (): bool => $rank_math_integration->allows_extract_operation()
+		);
 		$registered_meta_reader  = new RegisteredMetaReader();
 		$registered_meta_extract = new RegisteredMetaExtractor( $meta_registry, $registered_meta_reader );
 
@@ -435,7 +438,8 @@ final class Plugin {
 			$tm_lookup,
 			$tm_service,
 			$publication,
-			$term_adoption
+			$term_adoption,
+			$meta_registry
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$suggestion_service = new TranslationSuggestionService(

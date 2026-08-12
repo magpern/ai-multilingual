@@ -10,18 +10,18 @@
 |---|---|---|
 | TSC2.0 | Done | Inventory characterization via Rank Math + native fixture paths |
 | TSC2.1 | Done | `src/Surface/Meta/*` Definition/Registry/Reader; RankMathMetaDefinitions |
-| TSC2.2 | Done | Post adapter catalog invalidation; Extractor merge; Rank Math Reader-ready |
+| TSC2.2 | Done | Post adapter catalog invalidation; Extractor merge; Rank Math Integration retains `p:` extract/overlay (catalog owns six-key + activation) |
 | TSC2.3 | Done | Term adapter catalog invalidation; TermExtractor merge; retain_keys; Jobs surface extract |
-| TSC2.4 | Done | SegmentAssembler labels/meta; provider_allowed Jobs gating; TI.7 unchanged |
-| TSC2.5 | Done | NativeMetaReferenceAdapter fixture; Rank Math Integration unchanged |
-| TSC2.6 | Done | PluginGuard TSC.2 bans; unit registry/security; O(R) no ceiling test |
+| TSC2.4 | Done | SegmentAssembler labels/meta; provider_allowed in Jobs + TranslationService; TI.7 unchanged |
+| TSC2.5 | Done | NativeMetaReferenceAdapter fixture; Rank Math Integration extract/overlay/sitemap unchanged |
+| TSC2.6 | Done | PluginGuard TSC.2 bans; Woo economic key reject; unit registry/security; O(R) no ceiling test |
 | TSC2.7 | Done | This evidence + baseline |
 
 ## RM1–RM34
 
 | IDs | Result |
 |---|---|
-| RM1–RM6, RM8–RM26, RM28–RM30, RM33 | **Supported** via catalog + Store retain + Jobs skip + PluginGuard |
+| RM1–RM6, RM8–RM26, RM28–RM30, RM33 | **Supported** via catalog + Store retain + Jobs/TranslationService provider gate + PluginGuard |
 | RM7 | **Deferred** (structured paths) |
 | RM27, RM31–RM32 | **Unsupported** (forbidden / TSC.4–5) |
 | RM34 | **Deferred** (TSC.3+/TSC.6) |
@@ -36,17 +36,25 @@ Covered by unit `RegisteredMetaRegistryTest`, integration `Tsc2RegisteredMetaLif
 |---|---|
 | Catalog | `src/Surface/Meta/RegisteredMetaRegistry.php` |
 | Rank Math keys | `src/Surface/Meta/RankMathMetaDefinitions.php` |
+| Rank Math activation | `RankMathIntegration::allows_extract_operation()` / `probe_allows_operation()` |
 | Retain keys | `Store::sync_source(…, $retain_segment_keys)` |
 | Native extract | `RegisteredMetaExtractor` → Extractor / TermExtractor |
-| Provider gate | `BackgroundTranslationItemProcessor` |
+| Provider gate | `BackgroundTranslationItemProcessor` + `TranslationService` |
 | Reference overlay | `tests/Fixtures/RegisteredMeta/NativeMetaReferenceAdapter.php` |
 
 ## Limitations / debt
 
-- Rank Math still owns extract/overlay (intentional partial reuse).
+- Rank Math Integration still owns extract/overlay/literal/sitemap (intentional); catalog owns the six-key list + activation aligned with extract eligibility.
 - Host-emitted Rank Math retain uses Store∩family query when definitions inactive.
 - No production native `m:` fields beyond test fixtures (honest product value).
+- `RegisteredMetaInvalidation` helper exists; adapters register hooks directly.
 - Browser suite not required.
+
+## Independent review repairs
+
+- Rank Math catalog activation mirrors Integration extract eligibility (not merely class/constant presence).
+- `provider_allowed` enforced in `TranslationService` (sync/batch) in addition to Jobs ItemProcessor.
+- Woo economic meta keys rejected at registry bootstrap; PluginGuard AC30 coverage.
 
 ## Schema / TARGET / ADR
 

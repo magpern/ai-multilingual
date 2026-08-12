@@ -22,6 +22,27 @@ final class RegisteredMetaRegistry {
 	private const NAMESPACE_PATTERN = '/^[a-z0-9_-]+$/';
 
 	/**
+	 * WooCommerce economic meta keys that must never be registered (TSC.2 AC30).
+	 *
+	 * @var list<string>
+	 */
+	private const FORBIDDEN_ECONOMIC_META_KEYS = array(
+		'_price',
+		'_regular_price',
+		'_sale_price',
+		'_sale_price_dates_from',
+		'_sale_price_dates_to',
+		'_stock',
+		'_stock_status',
+		'_manage_stock',
+		'_sku',
+		'_product_id',
+		'_variation_id',
+		'_tax_class',
+		'_tax_status',
+	);
+
+	/**
 	 * Definitions keyed by source_type\0meta_key.
 	 *
 	 * @var array<string, RegisteredMetaDefinition>
@@ -292,6 +313,9 @@ final class RegisteredMetaRegistry {
 		}
 		if ( '' === $definition->meta_key || str_contains( $definition->meta_key, '*' ) || str_contains( $definition->meta_key, '%' ) ) {
 			throw new InvalidArgumentException( 'Registered meta_key must be exact (no wildcards).' );
+		}
+		if ( in_array( $definition->meta_key, self::FORBIDDEN_ECONOMIC_META_KEYS, true ) ) {
+			throw new InvalidArgumentException( 'WooCommerce economic meta keys cannot be registered for translation.' );
 		}
 		if ( RegisteredMetaDefinition::VALUE_SCALAR !== $definition->value_type ) {
 			throw new InvalidArgumentException( 'TSC.2 supports scalar_string only.' );

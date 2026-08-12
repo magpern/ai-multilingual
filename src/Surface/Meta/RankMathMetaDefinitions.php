@@ -62,10 +62,11 @@ final class RankMathMetaDefinitions {
 	/**
 	 * Register Rank Math definitions for post and term into the catalog.
 	 *
-	 * @param RegisteredMetaRegistry $registry Catalog.
+	 * @param RegisteredMetaRegistry $registry   Catalog.
+	 * @param callable|null          $activation Optional activation; defaults to Integration extract eligibility.
 	 */
-	public static function register_into( RegisteredMetaRegistry $registry ): void {
-		$activation = static fn (): bool => defined( 'RANK_MATH_VERSION' ) || class_exists( '\\RankMath', false );
+	public static function register_into( RegisteredMetaRegistry $registry, ?callable $activation = null ): void {
+		$activation = $activation ?? static fn (): bool => RankMathIntegration::probe_allows_operation();
 
 		$labels = array(
 			RankMathIntegration::META_TITLE                => 'Rank Math title',

@@ -857,10 +857,22 @@ final class PluginGuardTest extends AimlTestCase {
 		}
 
 		$rank_defs = (string) file_get_contents( $this->root() . '/src/Surface/Meta/RankMathMetaDefinitions.php' );
+		$this->assertStringContainsString( 'SEO_META_KEYS', $rank_defs );
 		$this->assertStringContainsString( 'seo_meta_keys', $rank_defs );
 		$post_adapter = (string) file_get_contents( $this->root() . '/src/Surface/PostSurfaceAdapter.php' );
 		$this->assertStringContainsString( 'RankMathMetaDefinitions', $post_adapter );
 		$this->assertStringContainsString( 'meta_registry', $post_adapter );
+		$registry = (string) file_get_contents( $this->root() . '/src/Surface/Meta/RegisteredMetaRegistry.php' );
+		$this->assertStringContainsString( 'FORBIDDEN_ECONOMIC_META_KEYS', $registry );
+		$this->assertStringContainsString( '_price', $registry );
+		$this->assertStringContainsString( '_sku', $registry );
+		foreach ( array( '_price', '_stock', '_sku' ) as $economic ) {
+			$this->assertStringNotContainsString(
+				"meta_key: '" . $economic . "'",
+				$rank_defs,
+				'Rank Math catalog must not register Woo economic keys.'
+			);
+		}
 
 		// AC35 / TT17 — TermTranslationResolver is read-only (no public write/lock/adopt).
 		$reflection = new \ReflectionClass( \AIMultilingual\Translation\TermTranslationResolver::class );

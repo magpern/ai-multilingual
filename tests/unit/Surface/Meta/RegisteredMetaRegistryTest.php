@@ -186,4 +186,24 @@ final class RegisteredMetaRegistryTest extends TestCase {
 		$this->assertFalse( method_exists( $registry, 'user_can_edit_source' ) );
 		$this->assertFalse( method_exists( $registry, 'is_visitor_public' ) );
 	}
+
+	public function test_woo_economic_meta_keys_are_rejected(): void {
+		$registry = new RegisteredMetaRegistry();
+		foreach ( array( '_price', '_stock', '_sku', '_regular_price' ) as $key ) {
+			try {
+				$registry->register(
+					new RegisteredMetaDefinition(
+						namespace: 'woo',
+						source_type: Store::SOURCE_POST,
+						meta_key: $key,
+						segment_key_mode: RegisteredMetaDefinition::MODE_NATIVE_M,
+						label: 'Forbidden',
+					)
+				);
+				$this->fail( 'Expected rejection for ' . $key );
+			} catch ( \InvalidArgumentException $e ) {
+				$this->assertStringContainsString( 'economic', $e->getMessage() );
+			}
+		}
+	}
 }

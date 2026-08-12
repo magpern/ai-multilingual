@@ -162,18 +162,19 @@ final class TranslationService {
 	/**
 	 * Builds the collaborator.
 	 *
-	 * @param Store                          $store            Segment store.
-	 * @param SegmentAssembler               $assembler        Segment assembler.
-	 * @param Languages                      $languages        Language registry.
-	 * @param AIProviderInterface            $provider         AI provider boundary.
-	 * @param PromptProfileRegistry|null     $profiles         Prompt profiles.
-	 * @param ResponseValidator|null         $validator        Response validator.
-	 * @param GlossaryService|null           $glossary         Glossary service for fragments.
-	 * @param TranslationContextBuilder|null $context_builder Context builder.
-	 * @param TMGenerationLookup|null        $tm_lookup        Generation-path TM lookup.
-	 * @param TranslationMemoryService|null  $tm_memory        TM memory for usage.
-	 * @param PublicationService|null        $publication      Optional TI.7 publication service.
-	 * @param TermAdoptionService|null       $term_adoption    Optional TSC.1 term adoption service.
+	 * @param Store                                                    $store            Segment store.
+	 * @param SegmentAssembler                                         $assembler        Segment assembler.
+	 * @param Languages                                                $languages        Language registry.
+	 * @param AIProviderInterface                                      $provider         AI provider boundary.
+	 * @param PromptProfileRegistry|null                               $profiles         Prompt profiles.
+	 * @param ResponseValidator|null                                   $validator        Response validator.
+	 * @param GlossaryService|null                                     $glossary         Glossary service for fragments.
+	 * @param TranslationContextBuilder|null                           $context_builder Context builder.
+	 * @param TMGenerationLookup|null                                  $tm_lookup        Generation-path TM lookup.
+	 * @param TranslationMemoryService|null                            $tm_memory        TM memory for usage.
+	 * @param PublicationService|null                                  $publication      Optional TI.7 publication service.
+	 * @param TermAdoptionService|null                                 $term_adoption    Optional TSC.1 term adoption service.
+	 * @param \AIMultilingual\Surface\Meta\RegisteredMetaRegistry|null $meta_registry Optional TSC.2 catalog for provider_allowed.
 	 */
 	public function __construct(
 		Store $store,
@@ -187,7 +188,8 @@ final class TranslationService {
 		?TMGenerationLookup $tm_lookup = null,
 		?TranslationMemoryService $tm_memory = null,
 		?PublicationService $publication = null,
-		?TermAdoptionService $term_adoption = null
+		?TermAdoptionService $term_adoption = null,
+		private ?\AIMultilingual\Surface\Meta\RegisteredMetaRegistry $meta_registry = null,
 	) {
 		$this->store           = $store;
 		$this->assembler       = $assembler;
@@ -409,6 +411,11 @@ final class TranslationService {
 					'provider_requests'     => 0,
 				)
 			);
+		}
+
+		$meta_provider_block = $this->registered_meta_provider_block( Store::SOURCE_POST, $segment_key );
+		if ( $meta_provider_block instanceof WP_Error ) {
+			return $meta_provider_block;
 		}
 
 		$built_context = $this->context_builder->build_for_post(
@@ -759,6 +766,11 @@ final class TranslationService {
 			);
 		}
 
+		$meta_provider_block = $this->registered_meta_provider_block( Store::SOURCE_TERM, $segment_key );
+		if ( $meta_provider_block instanceof WP_Error ) {
+			return $meta_provider_block;
+		}
+
 		$translated = $this->request_provider_translation(
 			$source_text,
 			$format,
@@ -1032,6 +1044,39 @@ final class TranslationService {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Block AI provider calls for registered-meta segments that are not provider-admitted (TSC.2).
+	 *
+	 * @param string $source_type Source type.
+	 * @param string $segment_key Segment key.
+	 * @return WP_Error|null
+	 */
+	private function registered_meta_provider_block( string $source_type, string $segment_key ): ?WP_Error {
+		if ( null === $this->meta_registry ) {
+			return null;
+		}
+		$fact = $this->meta_registry->provider_allowed_for_segment( $source_type, $segment_key );
+		if ( false !== $fact ) {
+			return null;
+		}
+		$this->last_attempt_usage = array(
+			'provider_requests' => 0,
+			'input_tokens'      => 0,
+			'output_tokens'     => 0,
+			'usage_known'       => true,
+			'tm_outcome_code'   => null !== $this->last_tm_outcome ? $this->last_tm_outcome->code : '',
+		);
+		return new WP_Error(
+			'aiml_registered_meta_provider_denied',
+			__( 'This registered meta segment is not admitted for AI provider generation.', 'ai-multilingual' ),
+			array(
+				'status'                => 422,
+				'provider_request_made' => false,
+				'provider_requests'     => 0,
+			)
+		);
 	}
 
 	/**
