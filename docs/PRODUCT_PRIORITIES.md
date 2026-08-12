@@ -5,7 +5,7 @@
 **Scope:** Implementation priority and product strategy only
 **Does not change:** Architecture, ADRs, schemas, APIs, or historical roadmap milestone IDs
 
-Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
+Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation not started). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
 **Current next decision:** Begin definitive **TSC.0** milestone planning from the frozen TSC parent. **Do not** start TSC.0 implementation until the TSC.0 milestone plan is frozen on `main`. **TIQ Complete.** **OTL Complete.** **v1.3.0 released** (tag `v1.3.0`). Runtime `Migrator::TARGET` **7**. TSC production architecture is **site-neutral** (no Biopentra-specific domain model).
 
@@ -44,7 +44,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **TSC — Translation Surface Coverage** | Site-neutral surface discovery/extraction/persistence/resolution around the existing Store. Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**). Ladder **TSC.0–TSC.6**. **Implementation not started.** Next planning candidate: **TSC.0**. |
+| 1 | **TSC — Translation Surface Coverage** | Site-neutral surface discovery/extraction/persistence/resolution around the existing Store. Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`). Ladder **TSC.0–TSC.6**. **Implementation not started.** Next planning candidate: **TSC.0**. |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
 **Released:** AI Multilingual **v1.3.0** (tag `v1.3.0`). Prior: **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. `Migrator::TARGET` is **7**.
@@ -178,7 +178,7 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 | Long-term programs, milestone IDs, freezes, architecture boundaries | [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) |
 | **TIQ program (TQ.0–TI.7) architecture** | [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**) |
 | **OTL program (OTL.0–OTL.6) architecture** | [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**) |
-| **TSC program (TSC.0–TSC.6) architecture** | [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started) |
+| **TSC program (TSC.0–TSC.6) architecture** | [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation not started) |
 | **OTL.0 Foundations milestone plan** | [`plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md`](plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md) |
 | **TQ.0 milestone plan** | [`plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md`](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) |
 | **TI.1 milestone plan** | [`plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md`](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md) |

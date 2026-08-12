@@ -1,13 +1,15 @@
 # Translation Surface Coverage (TSC) — Parent Program Architecture Plan
 
-**Status:** **Architecture Frozen (planning)** — TSC implementation **has not started**
+**Status:** **Architecture Frozen** on `main` — TSC implementation **has not started**
 **Program:** Translation Surface Coverage (TSC)
 **Plan freeze:** Canonical program architecture for milestones **TSC.0–TSC.6**; surface discovery/extraction/persistence/resolution contracts around the existing Store; public/SaaS site neutrality; Deferred/Unsupported boundaries
 **External review:** **FREEZE** · **STATE A** · **TARGET 7**
+**Independent planning review:** **PASS** ([TSC_PARENT_PLANNING_VALIDATION_LOG.md](TSC_PARENT_PLANNING_VALIDATION_LOG.md))
 **ADR assessment:** **No ADR created during this parent freeze.** TSC.1 planning **must** create/review an ADR covering `SOURCE_TERM` / TERM_ID / subtype / lazy adoption / read-alias / single-writer / lifecycle-axis preservation / term visibility facts / visitor-only overlay policy (see §15).
 **Roadmap parent:** [POST_V1_PLATFORM_ROADMAP.md](POST_V1_PLATFORM_ROADMAP.md) — Program A coverage themes and historical Deferred surfaces remain catalogued; **generic post-v1.3.0 surface-coverage work is governed by this TSC parent**. Do not resurrect superseded Program C lifecycle items (OTL owns those).
 **Implementation priority:** [PRODUCT_PRIORITIES.md](../PRODUCT_PRIORITIES.md)
-**Planning branch:** `docs/tsc-parent-planning-freeze`
+**Planning branch:** `docs/tsc-parent-planning-freeze` (merged)
+**Freeze merge:** `main` @ `8c93d505a2afc7d9ebc14a29a44d9d3ceb98e41b` (`merge: freeze Translation Surface Coverage parent architecture`)
 **Depends on:** AI Multilingual **v1.3.0** released; **TIQ Complete** (TQ.0–TI.7); **OTL Complete** (OTL.0–OTL.6); `Migrator::TARGET` **7**; Integration API v1 unchanged
 **Related:** [adr/0001-translation-overlay-not-duplication.md](../adr/0001-translation-overlay-not-duplication.md); [adr/0005-segment-centric-storage.md](../adr/0005-segment-centric-storage.md); [adr/0007-hash-semantics.md](../adr/0007-hash-semantics.md); [adr/0013-gutenberg-segment-identity.md](../adr/0013-gutenberg-segment-identity.md); [adr/0016-elementor-identity-and-ownership.md](../adr/0016-elementor-identity-and-ownership.md); [adr/0017-plugin-integration-framework-ownership-and-identity.md](../adr/0017-plugin-integration-framework-ownership-and-identity.md); [adr/0015-review-workflow-and-tm-approval-policy.md](../adr/0015-review-workflow-and-tm-approval-policy.md); [adr/0020-controlled-auto-publication-and-frontend-gate.md](../adr/0020-controlled-auto-publication-and-frontend-gate.md); [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md); [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md); [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md)
 
@@ -560,7 +562,7 @@ Halt and escalate rather than paper over:
 
 ## 25. Exact next action
 
-This parent is Architecture Frozen on `main` when the planning-freeze merge and closure complete.
+This parent is **Architecture Frozen** on `main` (freeze merge `8c93d505a2afc7d9ebc14a29a44d9d3ceb98e41b`).
 
 **Exact next step:** Begin the definitive **TSC.0 Internal Surface Capability Foundation** milestone planning process from the frozen TSC parent `main` baseline.
 
