@@ -19,7 +19,7 @@
 
 **Production implementation status:** **TSC NOT STARTED.**
 
-**Next:** **TSC.0** milestone plan — [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; implementation not started). Begin implementation only via authorized `feature/tsc0-*`. Do not start TSC.1.
+**Next:** **TSC.0 Complete** — [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md). Next planning candidate: **TSC.1**. Do not implement TSC.1 until its plan is frozen on `main`.
 
 ---
 
@@ -564,9 +564,9 @@ Halt and escalate rather than paper over:
 
 This parent is **Architecture Frozen** on `main` (freeze merge `8c93d505a2afc7d9ebc14a29a44d9d3ceb98e41b`).
 
-**Exact next step:** Implement **TSC.0** only from the frozen milestone plan [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) via authorized `feature/tsc0-*` when an implementation task is opened.
+**Exact next step:** Begin definitive **TSC.1** milestone planning when authorized. Do not implement TSC.1 until its plan is frozen on `main`.
 
-Do **not** start TSC.1. Do **not** author the TSC.1 ADR in the TSC.0 wave (default: ADR waits for TSC.1 planning).
+Do **not** author the TSC.1 ADR until TSC.1 planning (default).
 
 ---
 

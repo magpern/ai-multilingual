@@ -1,22 +1,25 @@
 # TSC.0 — Internal Surface Capability Foundation Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
+**Status:** **COMPLETE** on `main` — merge `6ee696cff87070c23201e9bb9447067e72af7248`
 **Milestone:** TSC.0 Internal Surface Capability Foundation
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`)
 **External review:** **FREEZE** (amended architecture) · **STATE A** · **TARGET 7**
 **Independent planning review:** **PASS**
+**Independent implementation review:** **PASS**
 **ADR:** **None** for TSC.0 (term ADR remains TSC.1)
 **Freeze merge:** `3532a490cd09487876d5bf09c0eec10ba8566bea`
-**Validation log:** [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_PLANNING_VALIDATION_LOG.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_PLANNING_VALIDATION_LOG.md)
+**Implementation merge:** `6ee696cff87070c23201e9bb9447067e72af7248`
+**Validation log:** [TSC0_VALIDATION_LOG.md](TSC0_VALIDATION_LOG.md)
+**Evidence:** [TSC0_IMPLEMENTATION_EVIDENCE.md](TSC0_IMPLEMENTATION_EVIDENCE.md)
 **Depends on:** AI Multilingual **v1.3.0**; TIQ Complete; OTL Complete; TSC Parent Frozen; `Migrator::TARGET` **7**
 **Related:** ADR-0001 overlay; ADR-0005 Store; ADR-0007 hashes; ADR-0017 Integration API; ADR-0015 Review; ADR-0020 Publication; [OTL_PARENT_IMPLEMENTATION_PLAN.md](OTL_PARENT_IMPLEMENTATION_PLAN.md); [TIQ_PARENT_IMPLEMENTATION_PLAN.md](TIQ_PARENT_IMPLEMENTATION_PLAN.md)
 
-**This document is the authoritative implementation specification for TSC.0.** Work packages TSC0.0–TSC0.7 are planned here; they are **not** implemented by this freeze.
+**This document is the authoritative implementation specification for TSC.0.** Work packages TSC0.0–TSC0.7 are **COMPLETE**.
 
-**Production implementation status:** **NOT STARTED.**
+**Production implementation status:** **COMPLETE.**
 **TSC.1–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Create `feature/tsc0-*` only when an authorized implementation task begins from this frozen main baseline. Do not start TSC.1.
+**Exact next step:** Begin definitive **TSC.1** milestone planning only when authorized. Do not implement TSC.1 until its plan is frozen on `main`.
 
 ---
 
