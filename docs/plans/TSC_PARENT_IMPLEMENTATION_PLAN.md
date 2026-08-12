@@ -19,7 +19,7 @@
 
 **Production implementation status:** **TSC NOT STARTED.**
 
-**Next:** Begin the definitive **TSC.0 Internal Surface Capability Foundation** milestone planning process from this frozen parent baseline. TSC.0 implementation must not begin until its own milestone plan is externally reviewed, materialized, independently reviewed, and frozen on `main`.
+**Next:** **TSC.0** milestone plan — [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started). Do not start TSC.0 implementation until that plan is frozen on `main` (this freeze). Do not start TSC.1.
 
 ---
 
@@ -564,11 +564,9 @@ Halt and escalate rather than paper over:
 
 This parent is **Architecture Frozen** on `main` (freeze merge `8c93d505a2afc7d9ebc14a29a44d9d3ceb98e41b`).
 
-**Exact next step:** Begin the definitive **TSC.0 Internal Surface Capability Foundation** milestone planning process from the frozen TSC parent `main` baseline.
+**Exact next step:** Implement **TSC.0** only from the frozen milestone plan [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md) via authorized `feature/tsc0-*` when an implementation task is opened.
 
-Do **not** create `feature/tsc0-*` or implement TSC.0 until the TSC.0 milestone plan has been externally reviewed, materialized, independently reviewed, and frozen on `main`.
-
-Do **not** author the TSC.1 ADR in the TSC.0 planning wave unless TSC.0 planning proves an unavoidable cross-cutting need (default: ADR waits for TSC.1 planning).
+Do **not** start TSC.1. Do **not** author the TSC.1 ADR in the TSC.0 wave (default: ADR waits for TSC.1 planning).
 
 ---
 
