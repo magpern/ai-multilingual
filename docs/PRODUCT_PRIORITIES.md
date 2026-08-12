@@ -1,25 +1,27 @@
 # Product Priorities — AI Multilingual
 
 **Status:** Canonical product-direction document
-**Date:** 2026-08-11
+**Date:** 2026-08-12
 **Scope:** Implementation priority and product strategy only
 **Does not change:** Architecture, ADRs, schemas, APIs, or historical roadmap milestone IDs
 
-Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Post-v1.2.0 Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
+Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** Make an explicit **post-OTL** roadmap decision from the closed OTL main baseline. **OTL program COMPLETE** (OTL.0–OTL.6). Do not start TSC implicitly — TSC remains a separate site-neutral candidate. OTL parent Complete ([`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md)). **v1.2.0 released** (tag `v1.2.0`). **TQ.0–TI.7 Complete**. **TIQ Complete.** Runtime `Migrator::TARGET` **7**.
+**Current next decision:** Begin definitive **TSC.0** milestone planning from the frozen TSC parent. **Do not** start TSC.0 implementation until the TSC.0 milestone plan is frozen on `main`. **TIQ Complete.** **OTL Complete.** **v1.3.0 released** (tag `v1.3.0`). Runtime `Migrator::TARGET` **7**. TSC production architecture is **site-neutral** (no Biopentra-specific domain model).
 
 ---
 
 ## 1. Product strategy
 
-### Principle 1 — Multilingual webshop first
+### Principle 1 — Visitor-facing multilingual commerce first
 
-The primary objective is a **completely multilingual Biopentra webshop**.
+The primary objective is a **completely multilingual WordPress/WooCommerce storefront experience** for a generic, publicly releasable / SaaS-capable product.
 
-Platform breadth is secondary.
+Platform breadth is secondary to visitor-facing coverage quality.
 
 Whenever priorities conflict, prefer completing visitor-facing translation over adding new platform capabilities.
+
+Historical note: early product sequencing used the Biopentra webshop as the motivating test site. That does **not** authorize Biopentra-specific production architecture. **TSC is site-neutral.**
 
 ### Principle 2 — Finish the customer experience before ecosystem expansion
 
@@ -28,7 +30,7 @@ Remaining priority order (highest first):
 1. WooCommerce visitor experience
 2. WordPress visitor chrome
 3. SEO
-4. Production integrations required by Biopentra
+4. Production integrations required by real deployments (generic adapters only)
 5. Translator UX
 6. Operational tooling
 7. Translation intelligence
@@ -38,15 +40,16 @@ Remaining priority order (highest first):
 
 ## 2. Current implementation priority
 
-### Active next program (post-v1.2.0)
+### Active next program (post-v1.3.0)
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **OTL — Operator Translation Lifecycle** | Coherent operator workflow over TIQ services. Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). **OTL program COMPLETE** (OTL.0–OTL.6). Final polish: [`plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md`](plans/OTL6_FINAL_OPERATOR_LIFECYCLE_POLISH_IMPLEMENTATION_PLAN.md). |
+| 1 | **TSC — Translation Surface Coverage** | Site-neutral surface discovery/extraction/persistence/resolution around the existing Store. Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**). Ladder **TSC.0–TSC.6**. **Implementation not started.** Next planning candidate: **TSC.0**. |
+| — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
-**Released:** AI Multilingual **v1.2.0** (tag `v1.2.0`). **v1.1.0** remains the prior intentional release. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. `Migrator::TARGET` is **7**.
+**Released:** AI Multilingual **v1.3.0** (tag `v1.3.0`). Prior: **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. `Migrator::TARGET` is **7**.
 
-Visitor-facing Program A waves below remain listed for historical priority context and are **not** reopened by TIQ. Coverage-Deferred surfaces stay Deferred unless a separate product decision reopens them.
+Visitor-facing Program A waves below remain listed for historical priority context. Coverage-Deferred surfaces stay Deferred unless admitted through the frozen TSC matrix / milestone plans. TSC must remain generic and site-neutral — Biopentra may be used as a test site, never as the production-domain model.
 
 ### Historical Program A priority (complete)
 
@@ -104,13 +107,13 @@ A.SEO was completed as waves A.SEOa–A.SEOf under [ASEO_PARENT_IMPLEMENTATION_P
 
 The goal is **not** to support every plugin.
 
-Only implement integrations that Biopentra actually requires. All other integrations need a concrete business justification.
+Only implement integrations with a concrete product justification and a deterministic overlay/identity seam. Prefer generic Integration API adapters over site-specific hardcoding.
 
 | Priority | Integration | Notes |
 |---|---|---|
-| High | Fluent Forms | Complete (A.8 first production bridge) |
-| High | Age Gate | Required for Biopentra |
-| Later (possible) | CookieYes | Only if justified |
+| High | Fluent Forms | Complete (A.8 first production bridge); **TSC.0 must remediate hardcoded form/page IDs** (neutrality) or disable/limit that path |
+| High | Age Gate | Candidate for a later generic options/shared-definition adapter (Deferred under TSC until ADR/host model) |
+| Later (possible) | CookieYes | Only if justified with an overlay-safe seam |
 
 ---
 
@@ -134,7 +137,13 @@ This superseded the earlier product-direction preference that Program C and Prog
 
 Authoritative parent: [OTL_PARENT_IMPLEMENTATION_PLAN.md](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md).
 
-Ladder: **OTL.0 → OTL.1–OTL.6** (all Complete). Orchestration/presentation over frozen TIQ services. Public/SaaS neutrality is a hard invariant. Future generic coverage work is **Translation Surface Coverage (TSC)** — separate from OTL; not started.
+Ladder: **OTL.0 → OTL.1–OTL.6** (all Complete). Orchestration/presentation over frozen TIQ services. Public/SaaS neutrality is a hard invariant.
+
+### Translation Surface Coverage (TSC) — Architecture Frozen (planning)
+
+Authoritative parent: [TSC_PARENT_IMPLEMENTATION_PLAN.md](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md).
+
+Ladder: **TSC.0 → TSC.1 → TSC.2 → TSC.3 → TSC.4 → TSC.5 → TSC.6**. Site-neutral surface coverage around the existing Store. **STATE A / TARGET 7.** Implementation **not started.** Next: definitive **TSC.0** milestone planning.
 
 ### Historical Program C — Translator experience
 
@@ -168,7 +177,8 @@ Do **not** expand SDKs, marketplaces, certification, or ecosystem tooling unless
 |---|---|
 | Long-term programs, milestone IDs, freezes, architecture boundaries | [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) |
 | **TIQ program (TQ.0–TI.7) architecture** | [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**) |
-| **OTL program (OTL.0–OTL.6) architecture** | [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) |
+| **OTL program (OTL.0–OTL.6) architecture** | [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**) |
+| **TSC program (TSC.0–TSC.6) architecture** | [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; implementation not started) |
 | **OTL.0 Foundations milestone plan** | [`plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md`](plans/OTL0_FOUNDATIONS_IMPLEMENTATION_PLAN.md) |
 | **TQ.0 milestone plan** | [`plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md`](plans/TQ0_TRANSLATION_QUALITY_BASELINE_IMPLEMENTATION_PLAN.md) |
 | **TI.1 milestone plan** | [`plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md`](plans/TI1_PERSIST_PATH_STRUCTURAL_SAFETY_IMPLEMENTATION_PLAN.md) |

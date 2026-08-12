@@ -12,7 +12,9 @@
 
 **Post-v1.1 Translation Intelligence & Quality:** After AI Multilingual **v1.1.0** and A.SEO completion, intelligence/quality work is governed by [`TIQ_PARENT_IMPLEMENTATION_PLAN.md`](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (milestones **TQ.0–TI.7**; **Complete**). Historical Program B IDs (B.1–B.8) below remain in the catalog; **do not** treat early B.1 as the post-v1.1 default next step.
 
-**Post-v1.2.0 Operator Translation Lifecycle:** After **v1.2.0** / TIQ completion, operator lifecycle work is governed by [`OTL_PARENT_IMPLEMENTATION_PLAN.md`](OTL_PARENT_IMPLEMENTATION_PLAN.md) (milestones **OTL.0–OTL.6**). Historical Program C IDs (C.1–C.7) below remain in the catalog for roadmap history; **where they overlap operator translation lifecycle concerns, OTL supersedes them as the active authoritative program. Program C must not be independently resumed in parallel with OTL.** Future generic coverage work is **Translation Surface Coverage (TSC)** — separate from OTL; not planned in this freeze.
+**Post-v1.2.0 Operator Translation Lifecycle:** After **v1.2.0** / TIQ completion, operator lifecycle work is governed by [`OTL_PARENT_IMPLEMENTATION_PLAN.md`](OTL_PARENT_IMPLEMENTATION_PLAN.md) (milestones **OTL.0–OTL.6**; **Complete** in **v1.3.0**). Historical Program C IDs (C.1–C.7) below remain in the catalog for roadmap history; **where they overlap operator translation lifecycle concerns, OTL supersedes them**. Program C must not be independently resumed in parallel with OTL.
+
+**Post-v1.3.0 Translation Surface Coverage:** Generic site-neutral coverage work is governed by [`TSC_PARENT_IMPLEMENTATION_PLAN.md`](TSC_PARENT_IMPLEMENTATION_PLAN.md) (milestones **TSC.0–TSC.6**; **Architecture Frozen (planning)**; implementation not started; **STATE A / TARGET 7**). Historical Program A Deferred/Partial surfaces remain catalogued; they reopen only through the frozen TSC matrix and milestone plans — not by resurrecting superseded lifecycle programs.
 
 ---
 
@@ -57,9 +59,10 @@ Navigation aid only. Does not replace the detailed programs below.
 
 ### NEXT
 
-- **Operator Translation Lifecycle (OTL)** — [parent plan](OTL_PARENT_IMPLEMENTATION_PLAN.md) (**OTL program COMPLETE** on `main`; freeze merge `9a31176f0147d726b251315259cd6d6ca84ea432`; OTL.0–OTL.6). **OTL.0–OTL.6 Complete** on `main` (OTL.6 merge `d302c9640cb4f9d950400af1fcbb5fe4ae1ce39f`). TSC not started. `Migrator::TARGET` **7**; tag `v1.2.0` released.
+- **Translation Surface Coverage (TSC)** — [parent plan](TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen (planning)**; **STATE A / TARGET 7**; ladder TSC.0–TSC.6). **Implementation not started.** Next planning candidate: **TSC.0**. Site-neutral; no Biopentra-specific production architecture.
+- **Operator Translation Lifecycle (OTL)** — [parent plan](OTL_PARENT_IMPLEMENTATION_PLAN.md) (**OTL program COMPLETE** on `main`; OTL.0–OTL.6). Shipped in **v1.3.0** (tag `v1.3.0`).
 - **Translation Intelligence & Quality (TIQ)** — [parent plan](TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**COMPLETE** on `main`; TQ.0–TI.7). Shipped in **v1.2.0**.
-- Remaining Program A options (not OTL): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision; later generic **Translation Surface Coverage (TSC)** remains separate from OTL
+- Remaining Program A options (not TSC default): further **A.8** bridges / A.6 Deferred chrome / Age Gate — only by separate product decision or admission through the TSC matrix
 - Later (not default next): historical **B.1** additional providers (Deferred under TIQ until measurement shows need); historical **C.1–C.3** catalog items superseded for operator-lifecycle scope by OTL; **D.1** unified health/diagnostics
 
 ### LATER
@@ -523,6 +526,7 @@ Day-to-day bugfixes, security patches, and v1.0.x maintenance under P1.3 do not 
 | v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health plan freeze merged to `main` (**Architecture Frozen (planning)**; Supported SF1–SF14; Partially Supported SF15; implementation authorized, not started; no tag) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health implementation complete on `feature/aseof-seo-diagnostics` (Supported SF1–SF14; Partially Supported SF15; validation PASS; review-ready; not merged/tagged; recommended tag `a-seof-seo-diagnostics-complete`) (no structural change). |
 | v1.0 (editorial) | 2026-08-09 | A.SEOf SEO Diagnostics / Validation / Health marked complete/merged/tagged `a-seof-seo-diagnostics-complete` (Supported SF1–SF14; Partially Supported SF15); A.SEO family Complete; Next advances outside A.SEO (no subsequent production milestone started) (no structural change). |
+| v1.0 (editorial) | 2026-08-12 | TSC parent Architecture Frozen (planning) linked — [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md); STATE A / TARGET 7; TERM_ID; lazy adoption; honest stale matrix; ladder TSC.0–TSC.6; implementation not started; Next = TSC.0 milestone planning only (no structural change to historical Program A/B/C tables). |
 
 ---
 
