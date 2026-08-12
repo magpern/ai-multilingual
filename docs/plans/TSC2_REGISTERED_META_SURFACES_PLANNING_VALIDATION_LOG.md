@@ -13,7 +13,7 @@
 | Baseline drift | None; `main` == `origin/main` at branch creation; version **1.3.0**; TARGET **7** |
 | Planning branch | `docs/tsc2-registered-meta-surfaces-planning-freeze` |
 | Plan source | Externally reviewed amended Cursor plan · verdict **TSC.2 PLAN REVIEW: FREEZE** (ten amendments) |
-| Materialization commit | *(filled after commit)* |
+| Materialization commit | `f7169cd53fe89afdc3c5846da905e2b3d0e99013` |
 | Final reviewed planning HEAD | *(filled after independent review)* |
 | External freeze review | **FREEZE** · STATE A · TARGET 7 |
 | Independent planning review | *(pending)* |
@@ -94,7 +94,40 @@
 
 ## Independent planning review
 
-*(Filled in Phase 3.)*
+**Verdict:** `TSC.2 PLANNING FREEZE REVIEW: PASS`
+
+Independent review of the materialized repository plan (not a rubber-stamp of the earlier external FREEZE). Falsified against current Store / Surface / Rank Math / Jobs / field_key conventions on baseline `2d51bd2de…`.
+
+### Checklist
+
+| ID | Challenge | Result |
+|---|---|---|
+| 1 | RegisteredMetaRegistry accidentally a second Surface registry? | **PASS** — authority capped to field catalog; SurfaceCapability owns admission/auth/publicness |
+| 2 | retain_segment_keys preserve inactive rows without corrupting CASE A/C? | **PASS** — missing∩retain = skip orphan; missing∉retain = orphan; present in segments = normal sync |
+| 3 | CASE B rows genuinely untouched (not partial mutate)? | **PASS** — freeze requires no status/error_code/updated_at/source-hash mutation on retain path |
+| 4 | Inactive Rank Math → retained `p:` identities deterministic? | **PASS** after tighten-up — PluginIdentity rebuild for direct keys + existing Store∩rankmath family for host-emitted term SEO |
+| 5 | Permanent code-definition removal honest? | **PASS** — CASE C; code deletion is retirement signal; no durable table |
+| 6 | provider_allowed consumed by TI.6 without second Jobs policy engine? | **PASS** — fact only; ItemProcessor-style skip analogous to allow_provider=false |
+| 7 | Provider-disallowed coexist with eligible siblings in one job? | **PASS** — segment-level skip; AC14 |
+| 8 | Term Jobs preserves TSC.1 adoption/authority? | **PASS** — RM21 eight regressions; Rank Math term stays adopt/host |
+| 9 | Rank Math key ownership single-source? | **PASS** — definition module owns six keys; adapters derive; drift tests |
+| 10 | `_meta` field_key consistent with Store/TM/semantic? | **PASS** — family bucket parallel `_plugin`/`_elementor`; identity on segment_key |
+| 11 | `m:` collision/rename deterministic? | **PASS** — bootstrap reject; no silent rename/mode-switch |
+| 12 | Production frontend avoids generic meta interception? | **PASS** — Integration overlays + reference adapters only; no filter:{hook} engine |
+| 13 | STATE A needs no schema/TARGET change? | **PASS** — optional sync_source arg only |
+| 14 | Product claims broader than delivery? | **PASS** — honest Rank Math + architecture proof; AC32 |
+
+### Defects found
+
+One non-blocking documentation gap: CASE B retain computation for Rank Math originally under-specified host-emitted `p:rankmath:term:*` rows on shop/`page_for_posts`. Clarified retain formula (PluginIdentity ∪ Store∩family). CASE B “untouched” semantics made explicit (no orphan-branch column writes).
+
+### Fixes applied (docs branch)
+
+1. §14 retain_keys computation table for `native_m` vs `external_p` (including host-emitted Rank Math term SEO).  
+2. Explicit “genuinely untouched” / no orphan-branch mutations for CASE B.  
+3. Independent review status set to **PASS** on plan header.
+
+No production code changes. STATE A remains valid — no redesign.
 
 ## Planning closure
 

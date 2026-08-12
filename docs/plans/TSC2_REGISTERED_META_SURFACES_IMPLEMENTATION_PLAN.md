@@ -4,7 +4,7 @@
 **Milestone:** TSC.2 Registered Meta Translation Surfaces
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`) §16 / TS18
 **External review:** **FREEZE** (ten amendments incorporated) · **STATE A** · **TARGET 7**
-**Independent planning review:** See [TSC2_REGISTERED_META_SURFACES_PLANNING_VALIDATION_LOG.md](TSC2_REGISTERED_META_SURFACES_PLANNING_VALIDATION_LOG.md)
+**Independent planning review:** **PASS** — [TSC2_REGISTERED_META_SURFACES_PLANNING_VALIDATION_LOG.md](TSC2_REGISTERED_META_SURFACES_PLANNING_VALIDATION_LOG.md)
 **ADR:** **None** (direct application of parent §16 + ADR-0001/0005/0007 + TSC.0 Surface spine; ADR-0017 Integration `p:` retained for Rank Math)
 **Depends on:** AI Multilingual **v1.3.0**; TIQ Complete; OTL Complete; TSC Parent Frozen; **TSC.0 COMPLETE**; **TSC.1 COMPLETE**; `Migrator::TARGET` **7**
 **Related:** [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md); [TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md](TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md); ADR-0021; ADR-0017
@@ -276,10 +276,18 @@ Store::sync_source($type, $id, $subtype, $segments, $retain_segment_keys = [])
 
 Semantics:
 
-- key ∉ segments **and** key ∈ retain_keys → **leave row untouched** (no status/error_code/`updated_at` orphan mutation)
+- key ∉ segments **and** key ∈ retain_keys → **leave row genuinely untouched** by the orphaning phase (no `status`, `error_code`, `updated_at`, source-hash, or other column mutations from sync’s missing-key branch)
 - key ∉ segments **and** key ∉ retain_keys → orphan (CASE A or CASE C)
+- keys present in `$segments` continue through normal hash/stale sync (retain set does not suppress updates for actively extracted units)
 
-Inactive Rank Math definitions remain in the **code catalog** with `activation=false`, so retain keys are computable deterministically via `PluginIdentity` for that `source_id` (and `m:…` for native) without a DB registration table.
+**Computing `retain_keys` (no durable registration table):**
+
+| Mode | Computation |
+|---|---|
+| `native_m` inactive | Deterministic `m:{namespace}:{meta_key}` (no object id in key) |
+| `external_p` inactive (Rank Math) | Union of (1) deterministic `PluginIdentity` rebuilds for direct `post:{id}` / `term:{id}` field keys belonging to the inactive definition, and (2) existing Store `segment_key`s for this `(source_type, source_id)` that parse as the inactive Rank Math identity family (covers shop / `page_for_posts` **host-emitted** `p:rankmath:term:{term_id}:*` rows without re-deriving host mapping incorrectly) |
+
+Inactive Rank Math definitions remain in the **code catalog** with `activation=false`. Retain computation must not invent new Store rows — it only protects existing ones from false orphaning.
 
 ### CASE C — definition permanently removed from code
 
