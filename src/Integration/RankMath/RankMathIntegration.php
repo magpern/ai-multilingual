@@ -1072,6 +1072,53 @@ final class RankMathIntegration implements PluginIntegrationInterface {
 	}
 
 	/**
+	 * Whether Rank Math extract/sync may emit SEO units (TSC.2 catalog activation).
+	 *
+	 * Mirrors {@see get_compatibility()} / {@see CompatibilityStatus::allows_operation()}
+	 * without requiring a fully wired Integration instance.
+	 */
+	public static function probe_allows_operation(): bool {
+		/**
+		 * Disable the Rank Math AIML integration.
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param bool $disabled Whether disabled.
+		 */
+		if ( (bool) apply_filters( 'aiml_rankmath_integration_disabled', false ) ) {
+			return false;
+		}
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$plugins = function_exists( 'get_plugins' ) ? get_plugins() : array();
+		if ( ! isset( $plugins[ self::PLUGIN_BASENAME ] ) ) {
+			return false;
+		}
+		$active = function_exists( 'is_plugin_active' )
+			? is_plugin_active( self::PLUGIN_BASENAME )
+			: class_exists( '\RankMath\Helper', false );
+		if ( ! $active ) {
+			return false;
+		}
+		$version = (string) ( $plugins[ self::PLUGIN_BASENAME ]['Version'] ?? ( defined( 'RANK_MATH_VERSION' ) ? RANK_MATH_VERSION : '0.0.0' ) );
+		if ( version_compare( $version, self::MIN_VERSION, '<' ) ) {
+			return false;
+		}
+		$hooks = class_exists( '\RankMath\Paper\Paper', false )
+			|| class_exists( '\RankMath\Helper', false )
+			|| $active;
+		return $hooks;
+	}
+
+	/**
+	 * Instance-backed extract eligibility for catalog activation wiring.
+	 */
+	public function allows_extract_operation(): bool {
+		return $this->get_compatibility()->allows_operation();
+	}
+
+	/**
 	 * Whether Rank Math plugin files are installed.
 	 */
 	private function is_installed(): bool {

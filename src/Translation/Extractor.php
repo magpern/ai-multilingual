@@ -13,6 +13,7 @@ use AIMultilingual\Elementor\Contract as ElementorContract;
 use AIMultilingual\Elementor\ElementorExtractor;
 use AIMultilingual\Integration\IntegrationRegistry;
 use AIMultilingual\Settings;
+use AIMultilingual\Surface\Meta\RegisteredMetaExtractor;
 use WP_Post;
 
 /**
@@ -41,16 +42,18 @@ final class Extractor {
 	/**
 	 * Builds the extractor.
 	 *
-	 * @param Settings|null            $settings             Plugin settings.
-	 * @param BlockExtractor|null      $block_extractor      Block segment extractor.
-	 * @param ElementorExtractor|null  $elementor_extractor  Elementor segment extractor.
-	 * @param IntegrationRegistry|null $integration_registry Integration API v1 registry.
+	 * @param Settings|null                $settings               Plugin settings.
+	 * @param BlockExtractor|null          $block_extractor        Block segment extractor.
+	 * @param ElementorExtractor|null      $elementor_extractor    Elementor segment extractor.
+	 * @param IntegrationRegistry|null     $integration_registry   Integration API v1 registry.
+	 * @param RegisteredMetaExtractor|null $registered_meta        Optional registered-meta extractor.
 	 */
 	public function __construct(
 		private ?Settings $settings = null,
 		private ?BlockExtractor $block_extractor = null,
 		private ?ElementorExtractor $elementor_extractor = null,
 		private ?IntegrationRegistry $integration_registry = null,
+		private ?RegisteredMetaExtractor $registered_meta = null,
 	) {
 	}
 
@@ -232,6 +235,12 @@ final class Extractor {
 			$order = 2000;
 			foreach ( $this->integration_registry->extract_for_post( $post ) as $unit ) {
 				$segments[ $unit->segment_key ] = $unit->to_segment_array( $order++ );
+			}
+		}
+
+		if ( null !== $this->registered_meta ) {
+			foreach ( $this->registered_meta->extract_for_post( (int) $post->ID ) as $key => $unit ) {
+				$segments[ $key ] = $unit;
 			}
 		}
 

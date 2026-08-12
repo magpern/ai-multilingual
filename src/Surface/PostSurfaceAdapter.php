@@ -11,12 +11,14 @@ namespace AIMultilingual\Surface;
 
 use AIMultilingual\Integration\RankMath\RankMathIntegration;
 use AIMultilingual\Settings;
+use AIMultilingual\Surface\Meta\RankMathMetaDefinitions;
+use AIMultilingual\Surface\Meta\RegisteredMetaRegistry;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
- * Answers post facts and registers save_post + Rank Math meta dirty marks.
+ * Answers post facts and registers save_post + registered-meta dirty marks.
  *
  * Does not own Extractor / SegmentAssembler / Store policy. Sync is performed
  * only by the request-local coordinator shutdown flush.
@@ -24,29 +26,33 @@ use WP_Post;
 final class PostSurfaceAdapter implements SurfaceCapability {
 
 	/**
-	 * Rank Math SEO text metas allowlisted for stale observation.
+	 * Rank Math SEO text metas — BC alias of RankMathMetaDefinitions (sole authority).
 	 *
 	 * @var list<string>
 	 */
-	public const RANK_MATH_SEO_META_KEYS = array(
-		RankMathIntegration::META_TITLE,
-		RankMathIntegration::META_DESCRIPTION,
-		RankMathIntegration::META_FACEBOOK_TITLE,
-		RankMathIntegration::META_FACEBOOK_DESCRIPTION,
-		RankMathIntegration::META_TWITTER_TITLE,
-		RankMathIntegration::META_TWITTER_DESCRIPTION,
-	);
+	public const RANK_MATH_SEO_META_KEYS = RankMathMetaDefinitions::SEO_META_KEYS;
 
 	/**
 	 * Builds the post surface adapter.
 	 *
-	 * @param Settings|null  $settings  Optional settings for activation facts.
-	 * @param Extractor|null $extractor Source extractor (required in production).
+	 * @param Settings|null               $settings      Optional settings for activation facts.
+	 * @param Extractor|null              $extractor     Source extractor (required in production).
+	 * @param RegisteredMetaRegistry|null $meta_registry Optional registered-meta catalog.
 	 */
 	public function __construct(
 		private ?Settings $settings = null,
-		private ?Extractor $extractor = null
+		private ?Extractor $extractor = null,
+		private ?RegisteredMetaRegistry $meta_registry = null,
 	) {
+	}
+
+	/**
+	 * Catalog-derived Rank Math SEO meta keys (must match RANK_MATH_SEO_META_KEYS).
+	 *
+	 * @return list<string>
+	 */
+	public static function rank_math_seo_meta_keys(): array {
+		return RankMathMetaDefinitions::seo_meta_keys();
 	}
 
 	/**
@@ -208,7 +214,13 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 
 		$meta_callback = static function ( $meta_id, $object_id, $meta_key ) use ( $coordinator, $adapter ): void {
 			unset( $meta_id );
-			if ( ! is_string( $meta_key ) || ! in_array( $meta_key, self::RANK_MATH_SEO_META_KEYS, true ) ) {
+			if ( ! is_string( $meta_key ) ) {
+				return;
+			}
+			$allow = null !== $adapter->meta_registry
+				? $adapter->meta_registry->has( Store::SOURCE_POST, $meta_key )
+				: in_array( $meta_key, self::rank_math_seo_meta_keys(), true );
+			if ( ! $allow ) {
 				return;
 			}
 			$object_id = (int) $object_id;

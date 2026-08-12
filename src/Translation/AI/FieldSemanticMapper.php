@@ -88,6 +88,10 @@ final class FieldSemanticMapper {
 			}
 		}
 
+		if ( str_starts_with( $segment_key, 'm:' ) ) {
+			return FieldSemantic::GENERIC;
+		}
+
 		if ( '' !== $block_name ) {
 			if ( str_contains( $block_name, 'heading' ) ) {
 				return FieldSemantic::HEADING;

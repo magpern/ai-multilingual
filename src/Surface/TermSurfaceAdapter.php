@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace AIMultilingual\Surface;
 
+use AIMultilingual\Surface\Meta\RankMathMetaDefinitions;
+use AIMultilingual\Surface\Meta\RegisteredMetaRegistry;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Translation\TermExtractor;
 use WP_Term;
@@ -23,9 +25,7 @@ use WP_Term;
 final class TermSurfaceAdapter implements SurfaceCapability {
 
 	/**
-	 * Rank Math term SEO metas allowlisted for stale observation.
-	 *
-	 * Same allowlist as posts: the fields are the same, only the object is not.
+	 * Rank Math term SEO metas — derived from RankMathMetaDefinitions.
 	 *
 	 * @var list<string>
 	 */
@@ -34,11 +34,22 @@ final class TermSurfaceAdapter implements SurfaceCapability {
 	/**
 	 * Builds the term surface adapter.
 	 *
-	 * @param TermExtractor|null $extractor Native term field extractor.
+	 * @param TermExtractor|null          $extractor     Native term field extractor.
+	 * @param RegisteredMetaRegistry|null $meta_registry Optional registered-meta catalog.
 	 */
 	public function __construct(
-		private ?TermExtractor $extractor = null
+		private ?TermExtractor $extractor = null,
+		private ?RegisteredMetaRegistry $meta_registry = null,
 	) {
+	}
+
+	/**
+	 * Catalog-derived Rank Math SEO meta keys.
+	 *
+	 * @return list<string>
+	 */
+	public static function rank_math_seo_meta_keys(): array {
+		return RankMathMetaDefinitions::seo_meta_keys();
 	}
 
 	/**
@@ -187,7 +198,14 @@ final class TermSurfaceAdapter implements SurfaceCapability {
 		$meta_callback = static function ( $meta_id, $object_id, $meta_key ) use ( $coordinator, $adapter ): void {
 			unset( $meta_id );
 
-			if ( ! is_string( $meta_key ) || ! in_array( $meta_key, self::RANK_MATH_SEO_META_KEYS, true ) ) {
+			if ( ! is_string( $meta_key ) ) {
+				return;
+			}
+
+			$allow = null !== $adapter->meta_registry
+				? $adapter->meta_registry->has( Store::SOURCE_TERM, $meta_key )
+				: in_array( $meta_key, self::rank_math_seo_meta_keys(), true );
+			if ( ! $allow ) {
 				return;
 			}
 

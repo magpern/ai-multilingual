@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace AIMultilingual\Surface;
 
 use AIMultilingual\Block\BlockIdentityMigration;
+use AIMultilingual\Surface\Meta\RegisteredMetaRegistry;
 use AIMultilingual\Translation\Store;
 
 /**
@@ -50,12 +51,14 @@ final class RequestLocalInvalidationCoordinator {
 	/**
 	 * Builds the coordinator.
 	 *
-	 * @param Store           $store    Segment store.
-	 * @param SurfaceRegistry $registry Surface registry owning per-type facts and extraction.
+	 * @param Store                       $store         Segment store.
+	 * @param SurfaceRegistry             $registry      Surface registry owning per-type facts and extraction.
+	 * @param RegisteredMetaRegistry|null $meta_registry Optional registered-meta catalog for CASE B retain keys.
 	 */
 	public function __construct(
 		private Store $store,
-		private SurfaceRegistry $registry
+		private SurfaceRegistry $registry,
+		private ?RegisteredMetaRegistry $meta_registry = null,
 	) {
 	}
 
@@ -177,11 +180,16 @@ final class RequestLocalInvalidationCoordinator {
 			return;
 		}
 
+		$retain = null !== $this->meta_registry
+			? $this->meta_registry->retain_segment_keys( $source_type, $source_id )
+			: array();
+
 		$this->store->sync_source(
 			$source_type,
 			$source_id,
 			$surface->source_subtype( $source_id ),
-			$surface->extract_segments( $source_id )
+			$surface->extract_segments( $source_id ),
+			$retain
 		);
 		++$this->sync_count;
 	}

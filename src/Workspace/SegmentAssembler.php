@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Workspace;
 
 use AIMultilingual\Block\BlockRegistry;
+use AIMultilingual\Surface\Meta\RegisteredMetaRegistry;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Translation\TermExtractor;
@@ -57,6 +58,13 @@ final class SegmentAssembler {
 	private ?TermTranslationResolver $term_resolver;
 
 	/**
+	 * Optional registered-meta catalog for CASE B retain keys.
+	 *
+	 * @var RegisteredMetaRegistry|null
+	 */
+	private ?RegisteredMetaRegistry $meta_registry;
+
+	/**
 	 * Builds the collaborator.
 	 *
 	 * @param Extractor                    $extractor      Source extractor.
@@ -64,19 +72,22 @@ final class SegmentAssembler {
 	 * @param BlockRegistry                $block_registry Block allowlist policy.
 	 * @param TermExtractor|null           $term_extractor Term field extractor.
 	 * @param TermTranslationResolver|null $term_resolver  Term address resolver.
+	 * @param RegisteredMetaRegistry|null  $meta_registry  Registered-meta catalog.
 	 */
 	public function __construct(
 		Extractor $extractor,
 		Store $store,
 		BlockRegistry $block_registry,
 		?TermExtractor $term_extractor = null,
-		?TermTranslationResolver $term_resolver = null
+		?TermTranslationResolver $term_resolver = null,
+		?RegisteredMetaRegistry $meta_registry = null,
 	) {
 		$this->extractor      = $extractor;
 		$this->store          = $store;
 		$this->block_registry = $block_registry;
 		$this->term_extractor = $term_extractor;
 		$this->term_resolver  = $term_resolver;
+		$this->meta_registry  = $meta_registry;
 	}
 
 	/**
@@ -93,7 +104,8 @@ final class SegmentAssembler {
 			Store::SOURCE_POST,
 			(int) $post->ID,
 			(string) $post->post_type,
-			$extracted
+			$extracted,
+			$this->retain_keys( Store::SOURCE_POST, (int) $post->ID )
 		);
 
 		$stored = $this->store->load_object( Store::SOURCE_POST, (int) $post->ID, $language_id );
@@ -129,7 +141,13 @@ final class SegmentAssembler {
 
 		$extracted = $this->term_extractor->extract( $term_id );
 
-		$this->store->sync_source( Store::SOURCE_TERM, $term_id, $taxonomy, $extracted );
+		$this->store->sync_source(
+			Store::SOURCE_TERM,
+			$term_id,
+			$taxonomy,
+			$extracted,
+			$this->retain_keys( Store::SOURCE_TERM, $term_id )
+		);
 
 		$stored = $this->store->load_object( Store::SOURCE_TERM, $term_id, $language_id );
 
@@ -286,7 +304,7 @@ final class SegmentAssembler {
 		}
 
 		$can_edit = '' === $block_name || $this->block_registry->is_supported( $block_name );
-		if ( 'elementor' === $surface || 'plugin_integration' === $surface ) {
+		if ( 'elementor' === $surface || 'plugin_integration' === $surface || 'registered_meta' === $surface ) {
 			$can_edit = true;
 		}
 
@@ -311,6 +329,9 @@ final class SegmentAssembler {
 				'parent_context'  => (string) ( $extracted['parent_context'] ?? '' ),
 				'ownership_class' => (string) ( $extracted['ownership_class'] ?? '' ),
 			);
+		} elseif ( 'registered_meta' === $surface ) {
+			$meta            = is_array( $extracted['meta'] ?? null ) ? (array) $extracted['meta'] : array();
+			$meta['surface'] = 'registered_meta';
 		}
 
 		return array(
@@ -342,5 +363,19 @@ final class SegmentAssembler {
 			'published_at'               => $published_at,
 			'published_by'               => $published_by,
 		);
+	}
+
+	/**
+	 * CASE B retain keys for inactive registered-meta definitions.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Owner id.
+	 * @return list<string>
+	 */
+	private function retain_keys( string $source_type, int $source_id ): array {
+		if ( null === $this->meta_registry ) {
+			return array();
+		}
+		return $this->meta_registry->retain_segment_keys( $source_type, $source_id );
 	}
 }

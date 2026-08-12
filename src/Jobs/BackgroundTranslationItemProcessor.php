@@ -69,12 +69,13 @@ final class BackgroundTranslationItemProcessor {
 	/**
 	 * Builds the processor.
 	 *
-	 * @param Store                                 $store        Segment store.
-	 * @param TranslationService                    $translation  Translation boundary.
-	 * @param GlossaryService                       $glossary     Glossary service.
-	 * @param SegmentAssembler                      $assembler    Segment assembler.
-	 * @param BackgroundTranslationRetryPolicy|null $retry_policy Retry policy.
-	 * @param SurfaceRegistry|null                  $surfaces     Surface registry.
+	 * @param Store                                                    $store        Segment store.
+	 * @param TranslationService                                       $translation  Translation boundary.
+	 * @param GlossaryService                                          $glossary     Glossary service.
+	 * @param SegmentAssembler                                         $assembler     Segment assembler.
+	 * @param BackgroundTranslationRetryPolicy|null                    $retry_policy  Retry policy.
+	 * @param SurfaceRegistry|null                                     $surfaces      Surface registry.
+	 * @param \AIMultilingual\Surface\Meta\RegisteredMetaRegistry|null $meta_registry Optional registered-meta catalog.
 	 */
 	public function __construct(
 		Store $store,
@@ -82,7 +83,8 @@ final class BackgroundTranslationItemProcessor {
 		GlossaryService $glossary,
 		SegmentAssembler $assembler,
 		?BackgroundTranslationRetryPolicy $retry_policy = null,
-		?SurfaceRegistry $surfaces = null
+		?SurfaceRegistry $surfaces = null,
+		private ?\AIMultilingual\Surface\Meta\RegisteredMetaRegistry $meta_registry = null,
 	) {
 		$this->store        = $store;
 		$this->translation  = $translation;
@@ -121,6 +123,13 @@ final class BackgroundTranslationItemProcessor {
 			$error_code = (string) ( $row->error_code ?? '' );
 			if ( Store::STATUS_IGNORED === $status || 'orphaned' === $error_code ) {
 				return ItemResult::skipped_conflict( 'Authoritative Store state is ignored/orphaned; not provider-processed.' );
+			}
+		}
+
+		if ( null !== $this->meta_registry ) {
+			$provider_fact = $this->meta_registry->provider_allowed_for_segment( $source_type, $segment_key );
+			if ( false === $provider_fact ) {
+				return ItemResult::skipped_conflict( 'Registered meta segment is not provider-admitted.' );
 			}
 		}
 

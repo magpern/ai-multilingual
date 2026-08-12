@@ -71,14 +71,18 @@ use AIMultilingual\Glossary\GlossaryRepository;
 use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Integration\FluentForms\FluentFormsIntegration;
 use AIMultilingual\Integration\RankMath\RankMathIntegration;
-		use AIMultilingual\Integration\WooCommerce\WooCommerceIntegration;
-		use AIMultilingual\Integration\WooCommerce\OrderTransactionalLanguage;
-		use AIMultilingual\Integration\WooCommerce\CustomerEmailBridge;
+use AIMultilingual\Integration\WooCommerce\WooCommerceIntegration;
+use AIMultilingual\Integration\WooCommerce\OrderTransactionalLanguage;
+use AIMultilingual\Integration\WooCommerce\CustomerEmailBridge;
 use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationDiagnostics;
 use AIMultilingual\Integration\IntegrationFrontendBridge;
 use AIMultilingual\Integration\IntegrationRegistry;
 use AIMultilingual\Integration\TermVisitorOverlay;
+use AIMultilingual\Surface\Meta\RankMathMetaDefinitions;
+use AIMultilingual\Surface\Meta\RegisteredMetaExtractor;
+use AIMultilingual\Surface\Meta\RegisteredMetaReader;
+use AIMultilingual\Surface\Meta\RegisteredMetaRegistry;
 use AIMultilingual\Surface\PostSurfaceAdapter;
 use AIMultilingual\Surface\RequestLocalInvalidationCoordinator;
 use AIMultilingual\Surface\SurfaceRegistry;
@@ -296,7 +300,15 @@ final class Plugin {
 			20
 		);
 
-		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor, $integration_registry );
+		$meta_registry = new RegisteredMetaRegistry( $plugin_identity, $store );
+		RankMathMetaDefinitions::register_into(
+			$meta_registry,
+			static fn (): bool => $rank_math_integration->allows_extract_operation()
+		);
+		$registered_meta_reader  = new RegisteredMetaReader();
+		$registered_meta_extract = new RegisteredMetaExtractor( $meta_registry, $registered_meta_reader );
+
+		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor, $integration_registry, $registered_meta_extract );
 		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
 		$config_repo         = new RolloutConfigurationRepository();
 		$rollout_bridge      = new RolloutRenderGateBridge(
@@ -341,7 +353,7 @@ final class Plugin {
 		) )->register();
 		( new ElementorCacheInvalidation( $elementor_detector, $elementor_compatibility, $settings, $context ) )->register();
 
-		$term_extractor = new TermExtractor();
+		$term_extractor = new TermExtractor( $registered_meta_extract );
 		$term_resolver  = new TermTranslationResolver( $store );
 		$term_adoption  = new TermAdoptionService( $store, $term_extractor, $term_resolver );
 
@@ -372,7 +384,7 @@ final class Plugin {
 			6
 		);
 
-		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry, $term_extractor, $term_resolver );
+		$assembler         = new SegmentAssembler( $extractor, $store, $block_registry, $term_extractor, $term_resolver, $meta_registry );
 		$status_calculator = new TranslationStatusCalculator( $store );
 		$vault             = new CredentialVault();
 		$profiles          = new PromptProfileRegistry();
@@ -395,11 +407,11 @@ final class Plugin {
 		$publication_policy   = new PublicationPolicy();
 		$publication_audit    = new PublicationAuditLogger();
 		$surface_registry     = new SurfaceRegistry();
-		$post_surface         = new PostSurfaceAdapter( $this->settings, $extractor );
-		$term_surface         = new TermSurfaceAdapter( $term_extractor );
+		$post_surface         = new PostSurfaceAdapter( $this->settings, $extractor, $meta_registry );
+		$term_surface         = new TermSurfaceAdapter( $term_extractor, $meta_registry );
 		$surface_registry->register( $post_surface );
 		$surface_registry->register( $term_surface );
-		$invalidation_coordinator = new RequestLocalInvalidationCoordinator( $store, $surface_registry );
+		$invalidation_coordinator = new RequestLocalInvalidationCoordinator( $store, $surface_registry, $meta_registry );
 		$post_surface->register_invalidation_events( $invalidation_coordinator );
 		$term_surface->register_invalidation_events( $invalidation_coordinator );
 		$invalidation_coordinator->ensure_shutdown_hook();
@@ -426,7 +438,8 @@ final class Plugin {
 			$tm_lookup,
 			$tm_service,
 			$publication,
-			$term_adoption
+			$term_adoption,
+			$meta_registry
 		);
 		$preview            = new PreviewService( $languages, $context, $router );
 		$suggestion_service = new TranslationSuggestionService(
@@ -496,7 +509,8 @@ final class Plugin {
 			$glossary_service,
 			$assembler,
 			$job_retry,
-			$surface_registry
+			$surface_registry,
+			$meta_registry
 		);
 		$job_worker      = new BackgroundTranslationWorker(
 			$job_processor,

@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Translation;
 
 use AIMultilingual\Surface\AdmittedTaxonomies;
+use AIMultilingual\Surface\Meta\RegisteredMetaExtractor;
 use WP_Term;
 
 /**
@@ -20,7 +21,7 @@ use WP_Term;
  * routing decision rather than a content one and belongs to its own milestone.
  *
  * Empty fields are skipped so an untouched description never shows up as
- * outstanding translation work.
+ * outstanding translation work. TSC.2 may merge native registered `m:` meta.
  */
 final class TermExtractor {
 
@@ -30,6 +31,15 @@ final class TermExtractor {
 	public const FIELD_NAME        = 'name';
 	public const FIELD_DESCRIPTION = 'description';
 
+	/**
+	 * Construct the term extractor.
+	 *
+	 * @param RegisteredMetaExtractor|null $registered_meta Optional registered-meta extractor.
+	 */
+	public function __construct(
+		private ?RegisteredMetaExtractor $registered_meta = null,
+	) {
+	}
 	/**
 	 * Native fields in display order.
 	 *
@@ -78,6 +88,12 @@ final class TermExtractor {
 				'segment_order' => $spec['order'],
 				'segment_kind'  => Store::KIND_FIELD,
 			);
+		}
+
+		if ( null !== $this->registered_meta ) {
+			foreach ( $this->registered_meta->extract_for_term( $term_id, (string) $term->taxonomy ) as $key => $unit ) {
+				$segments[ $key ] = $unit;
+			}
 		}
 
 		return $segments;
