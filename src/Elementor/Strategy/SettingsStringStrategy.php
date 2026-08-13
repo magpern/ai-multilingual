@@ -113,9 +113,16 @@ final class SettingsStringStrategy implements ElementorControlStrategy {
 				continue;
 			}
 
-			$settings[ $control_key ] = ElementorSanitize::apply(
+			$sanitize = (string) ( $entry['sanitization'] ?? ElementorControlRegistry::SANITIZE_PLAIN );
+			$source   = isset( $settings[ $control_key ] ) && is_string( $settings[ $control_key ] )
+				? $settings[ $control_key ]
+				: '';
+
+			$settings[ $control_key ] = ElementorStructuralApply::apply(
+				$source,
 				$translated,
-				(string) ( $entry['sanitization'] ?? ElementorControlRegistry::SANITIZE_PLAIN )
+				$sanitize,
+				$diagnostics
 			);
 			$diagnostics?->inc( 'overlay_applied' );
 		}

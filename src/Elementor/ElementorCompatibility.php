@@ -89,6 +89,10 @@ final class ElementorCompatibility {
 	 * Whether Elementor overlays may run (available + supported).
 	 */
 	public function overlays_allowed(): bool {
+		if ( array_key_exists( 'aiml_test_elementor_overlays_allowed', $GLOBALS ) ) {
+			return (bool) $GLOBALS['aiml_test_elementor_overlays_allowed'];
+		}
+
 		return self::STATUS_AVAILABLE === $this->status();
 	}
 

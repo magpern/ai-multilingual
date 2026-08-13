@@ -212,6 +212,48 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 			2
 		);
 
+		add_action(
+			'elementor/document/after_save',
+			static function ( $document ) use ( $coordinator, $adapter ): void {
+				if ( ! is_object( $document ) || ! method_exists( $document, 'get_main_id' ) ) {
+					return;
+				}
+
+				$post_id = (int) $document->get_main_id();
+				if ( $post_id <= 0 ) {
+					return;
+				}
+
+				if ( function_exists( 'wp_is_post_revision' ) && wp_is_post_revision( $post_id ) ) {
+					$coordinator->clear_dirty( Store::SOURCE_POST, $post_id );
+					return;
+				}
+
+				if ( function_exists( 'wp_is_post_autosave' ) && wp_is_post_autosave( $post_id ) ) {
+					$coordinator->clear_dirty( Store::SOURCE_POST, $post_id );
+					return;
+				}
+
+				if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+					$coordinator->clear_dirty( Store::SOURCE_POST, $post_id );
+					return;
+				}
+
+				if ( ! $adapter->exists( $post_id ) ) {
+					return;
+				}
+
+				$subtype = $adapter->source_subtype( $post_id );
+				if ( ! $adapter->is_admitted_post_type( $subtype ) ) {
+					return;
+				}
+
+				$coordinator->mark_dirty( Store::SOURCE_POST, $post_id );
+			},
+			20,
+			1
+		);
+
 		$meta_callback = static function ( $meta_id, $object_id, $meta_key ) use ( $coordinator, $adapter ): void {
 			unset( $meta_id );
 			if ( ! is_string( $meta_key ) ) {

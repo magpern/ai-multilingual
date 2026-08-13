@@ -35,6 +35,7 @@ final class ElementorDiagnostics {
 		'source_fallback'             => 0,
 		'identity_error'              => 0,
 		'cache_isolation_failure'     => 0,
+		'structural_rejected'         => 0,
 	);
 
 	/**
