@@ -64,7 +64,7 @@ final class Tsc5CacheLanguageTest extends AimlTestCase {
 	}
 
 	public function test_element_cache_ttl_disabled_when_overlay_enabled(): void {
-		$settings = new Settings(
+		$settings     = new Settings(
 			array(
 				'elementor_extraction_enabled'         => true,
 				'elementor_frontend_rendering_enabled' => true,

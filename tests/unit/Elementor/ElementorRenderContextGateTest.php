@@ -30,13 +30,13 @@ final class ElementorRenderContextGateTest extends TestCase {
 
 	public function test_edit_mode_denied(): void {
 		$GLOBALS['aiml_test_elementor_edit_mode'] = true;
-		$gate = new ElementorRenderContextGate();
+		$gate                                     = new ElementorRenderContextGate();
 		$this->assertFalse( $gate->overlay_allowed() );
 	}
 
 	public function test_preview_mode_denied(): void {
 		$GLOBALS['aiml_test_elementor_preview_mode'] = true;
-		$gate = new ElementorRenderContextGate();
+		$gate                                        = new ElementorRenderContextGate();
 		$this->assertFalse( $gate->overlay_allowed() );
 	}
 }

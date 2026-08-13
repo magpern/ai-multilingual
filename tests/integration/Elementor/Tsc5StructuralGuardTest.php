@@ -101,7 +101,7 @@ final class Tsc5StructuralGuardTest extends TestCase {
 				'settings'   => array( 'title' => 'Canonical' ),
 			),
 		);
-		$units = array(
+		$units   = array(
 			new ElementorTranslationUnit(
 				'e:d:1:hd1:title',
 				1,

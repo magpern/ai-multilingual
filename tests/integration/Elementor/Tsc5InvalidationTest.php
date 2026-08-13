@@ -77,8 +77,8 @@ final class Tsc5InvalidationTest extends AimlTestCase {
 
 	public function test_after_save_and_shutdown_read_final_elementor_data(): void {
 		[ $post_id, $coordinator ] = $this->wire_coordinator();
-		$sv                         = $this->add_language();
-		$key                        = 'e:d:' . $post_id . ':hd1:title';
+		$sv                        = $this->add_language();
+		$key                       = 'e:d:' . $post_id . ':hd1:title';
 
 		$this->store->save_translation(
 			array(
@@ -135,7 +135,7 @@ final class Tsc5InvalidationTest extends AimlTestCase {
 
 	public function test_duplicate_dirty_marks_coalesce_to_one_sync(): void {
 		[ $post_id, $coordinator ] = $this->wire_coordinator();
-		$post                       = get_post( $post_id );
+		$post                      = get_post( $post_id );
 
 		do_action( 'save_post', $post_id, $post, true );
 		$document = new class( $post_id ) {
