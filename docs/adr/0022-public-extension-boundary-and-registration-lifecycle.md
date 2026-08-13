@@ -21,7 +21,7 @@
 - CPT/taxonomy public admission deferred — slug-only filters would bypass `SurfaceCapability` facts
 - Elementor public registration deferred — third-party Elementor fields remain Integration-only or internal until a future ADR
 
-**Implementation gate:** **Open for TSC.6 implementation** on branch `feature/tsc6-public-extension-seo-stabilization` per the frozen TSC.6 plan. This ADR does **not** authorize schema changes, TARGET bump, release/tag, Yoast implementation, Site Health UI, CPT/taxonomy admission filters, or public Elementor widget registration.
+**Implementation gate:** **CLOSED — TSC.6 COMPLETE** on `main` @ merge `059c957b8eed0604082e3a899a6e2d2f94e8819a`. Evidence: [TSC6_IMPLEMENTATION_EVIDENCE.md](../plans/TSC6_IMPLEMENTATION_EVIDENCE.md). This ADR does **not** authorize schema changes, TARGET bump, release/tag, Yoast implementation, Site Health UI, CPT/taxonomy admission filters, or public Elementor widget registration without separate authorization.
 
 **Evidence / plan base:**
 

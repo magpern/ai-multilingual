@@ -1,9 +1,11 @@
 # TSC.6 Implementation Evidence
 
-**Status:** **COMPLETE** (pending merge to `main`)  
-**Branch:** `feature/tsc6-public-extension-seo-stabilization`  
-**Feature HEAD (reviewed):** `95bc1695ffc0971e33a2e0e84551f46fcb1e1ded`  
-**Baseline main SHA:** `df40c00e81395fef857db40748f5e75380b51899`  
+**Status:** **COMPLETE** on `main` @ `059c957b8eed0604082e3a899a6e2d2f94e8819a`  
+**Branch:** `feature/tsc6-public-extension-seo-stabilization` (merged)  
+**Feature HEAD (reviewed):** `310c29dc2`  
+**Merge SHA:** `059c957b8eed0604082e3a899a6e2d2f94e8819a`  
+**Fresh main CI:** PASS — https://github.com/magpern/ai-multilingual/actions/runs/31744508888  
+**Closure SHA:** (this commit on `main`)  
 **Frozen plan:** [TSC6_PUBLIC_EXTENSION_SEO_STABILIZATION_IMPLEMENTATION_PLAN.md](TSC6_PUBLIC_EXTENSION_SEO_STABILIZATION_IMPLEMENTATION_PLAN.md) @ `df40c00e81395fef857db40748f5e75380b51899`  
 **ADR-0022:** [0022-public-extension-boundary-and-registration-lifecycle.md](../adr/0022-public-extension-boundary-and-registration-lifecycle.md) — **Accepted**  
 **PR:** https://github.com/magpern/ai-multilingual/pull/32

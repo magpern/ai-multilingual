@@ -1,6 +1,6 @@
 # TSC.6 Public Extension / SEO Stabilization — Planning Freeze Validation Log
 
-**Status:** **TSC.6 Architecture Frozen** (planning) — production implementation **NOT STARTED**
+**Status:** **TSC.6 COMPLETE** — **TSC PROGRAM COMPLETE — TSC.0–TSC.6**
 **Authoritative plan:** [TSC6_PUBLIC_EXTENSION_SEO_STABILIZATION_IMPLEMENTATION_PLAN.md](TSC6_PUBLIC_EXTENSION_SEO_STABILIZATION_IMPLEMENTATION_PLAN.md)
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md)
 **ADR:** [0022-public-extension-boundary-and-registration-lifecycle.md](../adr/0022-public-extension-boundary-and-registration-lifecycle.md) — **Required / materialized**
@@ -18,8 +18,8 @@
 | TARGET | **7** (unchanged) |
 | Schema / migration | None (**STATE A**) |
 | New ADR | **0022** — Public Extension Boundary and Registration Lifecycle |
-| Production implementation | **NOT STARTED** |
-| TSC program | TSC.0–TSC.5 **COMPLETE**; TSC.6 **NOT STARTED** (program not complete) |
+| Production implementation | **COMPLETE** @ merge `059c957b8eed0604082e3a899a6e2d2f94e8819a` |
+| TSC program | **TSC PROGRAM COMPLETE — TSC.0–TSC.6** |
 | Tag | No new tag; existing `v1.3.0` unchanged |
 
 ## External amendments incorporated
@@ -110,8 +110,16 @@
 
 ## Exact next step
 
-Implement TSC.6 from the frozen `main` baseline using branch `feature/tsc6-public-extension-seo-stabilization` when separately authorized, followed by independent implementation review, review-fix loop, merge, fresh main CI, and TSC program closure.
+**TSC.6 IMPLEMENTATION REVIEW: PASS**
+
+**TSC.6 Public Extension / SEO Stabilization COMPLETE**
+
+**TSC PROGRAM COMPLETE — TSC.0–TSC.6**
+
+Recommend **v1.4.0** release as separate authorized task. Evidence: [TSC6_IMPLEMENTATION_EVIDENCE.md](TSC6_IMPLEMENTATION_EVIDENCE.md).
 
 **TSC.6 PLANNING FREEZE: COMPLETE**
 
 **TSC.6 Architecture Frozen**
+
+**TSC.6 IMPLEMENTATION: COMPLETE**

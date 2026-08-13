@@ -1,6 +1,6 @@
 # TSC.6 — Public Extension / SEO Stabilization Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
+**Status:** **COMPLETE** on `main` @ `059c957b8eed0604082e3a899a6e2d2f94e8819a`
 **Milestone:** TSC.6 Public Extension / SEO Stabilization
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`) §20, TS23
 **External review:** **FREEZE** (seven amendments A1–A7 incorporated) · **STATE A** · **TARGET 7**
@@ -11,12 +11,12 @@
 **Related:** [INTEGRATION_API_V1.md](../INTEGRATION_API_V1.md); ADR-0017; ADR-0013; ADR-0016; ADR-0021; ADR-0020; [TSC5 plan](TSC5_ELEMENTOR_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md)
 **Schema:** **STATE A** / TARGET **7** — no migration
 
-**This document is the authoritative implementation specification for TSC.6.** Work packages TSC6.0–TSC6.7 are **NOT STARTED**.
+**This document is the authoritative implementation specification for TSC.6.** Work packages TSC6.0–TSC6.7 are **COMPLETE**.
 
-**Production implementation status:** **NOT STARTED.**
-**TSC program status:** TSC.0–TSC.5 **COMPLETE**; TSC.6 **NOT STARTED** (program not complete until TSC.6 implementation closure).
+**Production implementation status:** **COMPLETE** — `TSC.6 IMPLEMENTATION REVIEW: PASS`
+**TSC program status:** **TSC PROGRAM COMPLETE — TSC.0–TSC.6**
 
-**Exact next step:** Implement TSC.6 from this frozen `main` baseline using branch `feature/tsc6-public-extension-seo-stabilization` when separately authorized. Do **not** bump version/TARGET, tag, release, or deploy as part of this planning freeze.
+**Exact next step:** Recommend **v1.4.0** release as a separate authorized task. Do **not** bump version/TARGET, tag, release, or deploy without separate authorization.
 
 **Prior review history:** Initial proposal → external review **AMEND** → seven refinements (A1–A7) → revalidation **PASS** → **TSC.6 PLAN REVIEW: FREEZE**
 
@@ -633,6 +633,8 @@ Runtime admin field UI · public Store mutation · public provider invocation ·
 
 ## 31. Final verdict
 
-**`TSC.6 PLAN REVIEW: FREEZE`**
+**`TSC.6 IMPLEMENTATION REVIEW: PASS`**
 
-**TSC.6 Architecture Frozen** — implementation **NOT STARTED**.
+**TSC.6 Public Extension / SEO Stabilization COMPLETE**
+
+**TSC PROGRAM COMPLETE — TSC.0–TSC.6**

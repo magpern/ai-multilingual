@@ -1,6 +1,6 @@
 # Translation Surface Coverage (TSC) — Parent Program Architecture Plan
 
-**Status:** **Architecture Frozen** on `main` — **TSC.0–TSC.3 COMPLETE**; TSC.4–TSC.6 **NOT STARTED**
+**Status:** **Architecture Frozen** on `main` — **TSC PROGRAM COMPLETE — TSC.0–TSC.6**
 **Program:** Translation Surface Coverage (TSC)
 **Plan freeze:** Canonical program architecture for milestones **TSC.0–TSC.6**; surface discovery/extraction/persistence/resolution contracts around the existing Store; public/SaaS site neutrality; Deferred/Unsupported boundaries
 **External review:** **FREEZE** · **STATE A** · **TARGET 7**
@@ -17,9 +17,9 @@
 
 **This plan is the program architecture contract for TSC (TSC.0–TSC.6).** Do not implement production code under TSC until the relevant milestone plan is Architecture Frozen on `main`. Each milestone receives its own definitive planning freeze before implementation. This document freezes program boundaries, identities, coexistence rules, stale honesty, gates, and Deferred items — not detailed TSC.0 work packages.
 
-**Production implementation status:** **TSC.0–TSC.3 COMPLETE**; TSC.4–TSC.6 **NOT STARTED.**
+**Production implementation status:** **TSC PROGRAM COMPLETE — TSC.0–TSC.6** ([TSC6 evidence](TSC6_IMPLEMENTATION_EVIDENCE.md) @ merge `059c957b8`).
 
-**Next:** Plan/implement **TSC.4** only when separately authorized. Do **not** start TSC.4 until authorized.
+**Next:** Recommend **v1.4.0** release (Extension API v1) as separate authorized task. Do **not** bump version/TARGET, tag, release, or deploy without separate authorization.
 
 ---
 

@@ -1,7 +1,7 @@
 # TSC.6 Implementation Baseline
 
 **Branch:** `feature/tsc6-public-extension-seo-stabilization`
-**Status:** Implementation **IN PROGRESS**
+**Status:** **COMPLETE**
 
 ## Freeze anchors
 
@@ -59,4 +59,4 @@
 
 ## Exact next step
 
-Implement TSC6.0–TSC6.7 on this branch per the frozen plan and ADR-0022.
+TSC.6 implementation **COMPLETE**. TSC program **COMPLETE** — TSC.0–TSC.6. Recommend **v1.4.0** release as separate authorized task (Extension API v1; no release in this milestone).
