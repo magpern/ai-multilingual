@@ -39,6 +39,8 @@ final class VisitorTranslationResolver {
 	);
 
 	/**
+	 * Builds the public visitor translation resolver.
+	 *
 	 * @param Store                  $store                Segment store (internal).
 	 * @param Languages              $languages            Language catalog.
 	 * @param LanguageContext        $context              Request language state.
@@ -140,6 +142,8 @@ final class VisitorTranslationResolver {
 	}
 
 	/**
+	 * Validates resolver source segment reference shape and prefix.
+	 *
 	 * @param SourceSegmentReference $source Source reference.
 	 */
 	private function validate_source_reference( SourceSegmentReference $source ): bool {
@@ -161,6 +165,8 @@ final class VisitorTranslationResolver {
 	}
 
 	/**
+	 * Whether the language row matches the current default language.
+	 *
 	 * @param object $language_row Language row.
 	 */
 	private function is_default_language( object $language_row ): bool {
@@ -172,6 +178,8 @@ final class VisitorTranslationResolver {
 	}
 
 	/**
+	 * Whether the referenced source object exists and is admitted.
+	 *
 	 * @param SourceSegmentReference $source Source reference.
 	 */
 	private function source_exists_and_admitted( SourceSegmentReference $source ): bool {
@@ -192,6 +200,8 @@ final class VisitorTranslationResolver {
 	}
 
 	/**
+	 * Whether the segment family is active for overlay resolution.
+	 *
 	 * @param SourceSegmentReference $source Source reference.
 	 */
 	private function segment_family_active( SourceSegmentReference $source ): bool {

@@ -19,15 +19,37 @@ use AIMultilingual\Translation\Store;
  */
 final class ExtensionServices {
 
+	/**
+	 * Request-local invalidation coordinator binding.
+	 *
+	 * @var RequestLocalInvalidationCoordinator|null
+	 */
 	private static ?RequestLocalInvalidationCoordinator $coordinator = null;
 
+	/**
+	 * Public visitor translation resolver binding.
+	 *
+	 * @var VisitorTranslationResolver|null
+	 */
 	private static ?VisitorTranslationResolver $resolver = null;
 
+	/**
+	 * Public extension registrar binding.
+	 *
+	 * @var ExtensionRegistrar|null
+	 */
 	private static ?ExtensionRegistrar $registrar = null;
 
+	/**
+	 * Extension diagnostics sink binding.
+	 *
+	 * @var ExtensionDiagnostics|null
+	 */
 	private static ?ExtensionDiagnostics $diagnostics = null;
 
 	/**
+	 * Binds request-scoped public extension services.
+	 *
 	 * @param RequestLocalInvalidationCoordinator $coordinator Invalidation coordinator.
 	 * @param VisitorTranslationResolver          $resolver    Public resolver.
 	 * @param ExtensionRegistrar                  $registrar   Public registrar.
@@ -45,14 +67,23 @@ final class ExtensionServices {
 		self::$diagnostics = $diagnostics;
 	}
 
+	/**
+	 * Returns the bound public visitor resolver, if any.
+	 */
 	public static function resolver(): ?VisitorTranslationResolver {
 		return self::$resolver;
 	}
 
+	/**
+	 * Returns the bound public extension registrar, if any.
+	 */
 	public static function registrar(): ?ExtensionRegistrar {
 		return self::$registrar;
 	}
 
+	/**
+	 * Returns the bound extension diagnostics sink, if any.
+	 */
 	public static function diagnostics(): ?ExtensionDiagnostics {
 		return self::$diagnostics;
 	}
@@ -82,6 +113,8 @@ final class ExtensionServices {
 	}
 
 	/**
+	 * Checks whether a source object is admitted for invalidation.
+	 *
 	 * @param string $source_type Source type.
 	 * @param int    $source_id   Source id.
 	 */

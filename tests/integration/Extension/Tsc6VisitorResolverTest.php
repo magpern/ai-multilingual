@@ -1,13 +1,13 @@
 <?php
 /**
- * Unit tests for VisitorTranslationResolver (TSC.6).
+ * Integration tests for VisitorTranslationResolver (TSC.6).
  *
  * @package AIMultilingual
  */
 
 declare( strict_types=1 );
 
-namespace AIMultilingual\Tests\Unit\Extension;
+namespace AIMultilingual\Tests\Integration\Extension;
 
 use AIMultilingual\Extension\ExtensionDiagnostics;
 use AIMultilingual\Extension\LanguageReference;
@@ -15,7 +15,6 @@ use AIMultilingual\Extension\SourceSegmentReference;
 use AIMultilingual\Extension\VisitorTranslationResolver;
 use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationRegistry;
-use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Surface\Meta\RegisteredMetaDefinition;
 use AIMultilingual\Surface\Meta\RegisteredMetaRegistry;
@@ -23,9 +22,9 @@ use AIMultilingual\Tests\Integration\AimlTestCase;
 use AIMultilingual\Translation\Store;
 
 /**
- * @covers \AIMultilingual\Extension\VisitorTranslationResolver
+ * @coversNothing
  */
-final class VisitorTranslationResolverTest extends AimlTestCase {
+final class Tsc6VisitorResolverTest extends AimlTestCase {
 
 	private VisitorTranslationResolver $resolver;
 

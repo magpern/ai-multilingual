@@ -15,6 +15,8 @@ namespace AIMultilingual\Extension;
 final class LanguageReference {
 
 	/**
+	 * Captures a target language by stable URL code.
+	 *
 	 * @param string $code Language URL code (e.g. sv, pt-br).
 	 */
 	public function __construct(

@@ -15,13 +15,22 @@ namespace AIMultilingual\Extension;
 final class ExtensionRegistry {
 
 	/**
+	 * Registered extension records keyed by extension id.
+	 *
 	 * @var array<string, ExtensionRecord>
 	 */
 	private array $extensions = array();
 
+	/**
+	 * Whether late registration is rejected.
+	 *
+	 * @var bool
+	 */
 	private bool $sealed = false;
 
 	/**
+	 * Adds one extension record to the catalog.
+	 *
 	 * @param ExtensionManifest $manifest Extension manifest.
 	 * @throws \InvalidArgumentException On duplicate id.
 	 */
@@ -32,13 +41,15 @@ final class ExtensionRegistry {
 			throw new \InvalidArgumentException( 'Duplicate extension ID.' );
 		}
 
-		$record = new ExtensionRecord( $manifest );
+		$record                                      = new ExtensionRecord( $manifest );
 		$this->extensions[ $manifest->extension_id ] = $record;
 
 		return $record;
 	}
 
 	/**
+	 * Returns one extension record by id.
+	 *
 	 * @param string $extension_id Extension id.
 	 */
 	public function get( string $extension_id ): ?ExtensionRecord {
@@ -46,21 +57,31 @@ final class ExtensionRegistry {
 	}
 
 	/**
+	 * Returns all registered extension records.
+	 *
 	 * @return list<ExtensionRecord>
 	 */
 	public function all(): array {
 		return array_values( $this->extensions );
 	}
 
+	/**
+	 * Seals the catalog against further registration.
+	 */
 	public function seal(): void {
 		$this->sealed = true;
 	}
 
+	/**
+	 * Whether the catalog is sealed.
+	 */
 	public function is_sealed(): bool {
 		return $this->sealed;
 	}
 
 	/**
+	 * Asserts registration is still open.
+	 *
 	 * @throws \LogicException When registries are sealed.
 	 */
 	public function assert_open(): void {

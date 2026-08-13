@@ -18,6 +18,8 @@ use AIMultilingual\Translation\Store;
 final class ExtensionMetaBridge {
 
 	/**
+	 * Converts a public meta definition to the internal catalog shape.
+	 *
 	 * @param ExtensionMetaDefinition $definition Public definition.
 	 * @param bool                    $active     Cached activation result.
 	 */
@@ -42,6 +44,8 @@ final class ExtensionMetaBridge {
 	}
 
 	/**
+	 * Normalizes declared text format to Store constants.
+	 *
 	 * @param string $format Declared text format.
 	 */
 	private static function normalize_format( string $format ): string {

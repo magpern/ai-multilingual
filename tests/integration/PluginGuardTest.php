@@ -905,7 +905,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertFileExists( $this->root() . '/docs/adr/0022-public-extension-boundary-and-registration-lifecycle.md' );
 
 		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
-		$this->assertStringContainsString( "do_action( ExtensionContract::HOOK_REGISTER", $plugin );
+		$this->assertStringContainsString( 'do_action( ExtensionContract::HOOK_REGISTER', $plugin );
 		$this->assertStringContainsString( '$extension_registrar->seal()', $plugin );
 		$this->assertStringContainsString( 'ExtensionCli::register', $plugin );
 

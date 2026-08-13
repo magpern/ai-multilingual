@@ -17,6 +17,8 @@ use AIMultilingual\Extension\Block\ExtensionBlockAdapter;
 final class RegisteredExtension {
 
 	/**
+	 * Creates a nested registration handle for one extension record.
+	 *
 	 * @param ExtensionRegistrar $registrar    Parent registrar.
 	 * @param ExtensionRecord    $record       Extension record.
 	 */

@@ -15,6 +15,8 @@ namespace AIMultilingual\Extension;
 final class PendingExtensionMeta {
 
 	/**
+	 * Wraps one pending meta registration until seal completes.
+	 *
 	 * @param ExtensionMetaDefinition $definition Meta definition.
 	 * @param bool                    $active     Activation result after seal.
 	 */

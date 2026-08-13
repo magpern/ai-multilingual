@@ -15,6 +15,8 @@ namespace AIMultilingual\Extension;
 final class ResolvedTranslation {
 
 	/**
+	 * Holds one eligible visitor translation lookup result.
+	 *
 	 * @param string $text      Translated text.
 	 * @param string $format    plain|html.
 	 * @param bool   $available Whether translation is non-empty and overlay-eligible.

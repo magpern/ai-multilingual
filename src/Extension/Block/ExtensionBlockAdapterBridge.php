@@ -23,6 +23,8 @@ use AIMultilingual\Translation\Store;
 final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 
 	/**
+	 * Wraps one public block adapter for internal registration.
+	 *
 	 * @param ExtensionBlockAdapter $adapter Public adapter.
 	 */
 	public function __construct(
@@ -39,6 +41,8 @@ final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @param array<string, mixed> $block Parsed block from {@see parse_blocks()}.
 	 */
 	public function is_translatable_instance( array $block ): bool {
 		return $this->adapter->is_translatable_instance( $block );
@@ -53,6 +57,8 @@ final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @param array<string, mixed> $block Parsed block from {@see parse_blocks()}.
 	 */
 	public function extract_fields( array $block ): array {
 		$fields = array();
@@ -61,7 +67,7 @@ final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 			if ( null === $source || '' === trim( $source ) ) {
 				continue;
 			}
-			$format = $this->normalize_format( $this->adapter->get_text_format( $field_id ) );
+			$format   = $this->normalize_format( $this->adapter->get_text_format( $field_id ) );
 			$fields[] = new TranslatableField( $field_id, $source, $format );
 		}
 		return $fields;
@@ -69,6 +75,10 @@ final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @param array<string, mixed> $block           Parsed block from {@see parse_blocks()}.
+	 * @param string               $field_id        Field identifier.
+	 * @param string               $translated_text Translated field value.
 	 */
 	public function apply_translation( array $block, string $field_id, string $translated_text ): array {
 		return $this->adapter->apply_field( $block, $field_id, $translated_text );
@@ -76,6 +86,8 @@ final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @param array<string, mixed> $block Parsed block from {@see parse_blocks()}.
 	 */
 	public function validate_block_structure( array $block ): ValidationResult {
 		if ( ! $this->adapter->is_translatable_instance( $block ) ) {
@@ -92,6 +104,9 @@ final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 
 	/**
 	 * {@inheritDoc}
+	 *
+	 * @param string $uuid     Block UUID.
+	 * @param string $field_id Field identifier.
 	 */
 	public function get_segment_key( string $uuid, string $field_id ): string {
 		return SegmentKey::build( $uuid, $field_id );
@@ -105,6 +120,8 @@ final class ExtensionBlockAdapterBridge implements TranslatableBlockAdapter {
 	}
 
 	/**
+	 * Normalizes declared text format to Store constants.
+	 *
 	 * @param string $format Declared format.
 	 */
 	private function normalize_format( string $format ): string {

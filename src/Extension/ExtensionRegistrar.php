@@ -16,6 +16,7 @@ use AIMultilingual\Extension\Block\ExtensionBlockAdapterBridge;
 use AIMultilingual\Surface\Meta\RegisteredMetaRegistry;
 use AIMultilingual\Translation\Store;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * Root registrar: extension ownership, nested registrations, registry sealing.
@@ -23,10 +24,12 @@ use InvalidArgumentException;
 final class ExtensionRegistrar {
 
 	/**
-	 * @param RegisteredMetaRegistry $meta_registry   Internal meta catalog.
+	 * Builds the public extension registrar.
+	 *
+	 * @param RegisteredMetaRegistry $meta_registry    Internal meta catalog.
 	 * @param AdapterRegistry        $adapter_registry Internal block adapter catalog.
-	 * @param ExtensionRegistry      $registry        Extension catalog.
-	 * @param ExtensionDiagnostics   $diagnostics     Diagnostics sink.
+	 * @param ExtensionRegistry      $registry         Extension catalog.
+	 * @param ExtensionDiagnostics   $diagnostics      Diagnostics sink.
 	 */
 	public function __construct(
 		private RegisteredMetaRegistry $meta_registry,
@@ -57,6 +60,8 @@ final class ExtensionRegistrar {
 	}
 
 	/**
+	 * Registers pending meta for an extension record.
+	 *
 	 * @param ExtensionRecord         $record     Extension record.
 	 * @param ExtensionMetaDefinition $definition Meta definition.
 	 * @throws InvalidArgumentException Tier A validation failure.
@@ -83,6 +88,8 @@ final class ExtensionRegistrar {
 	}
 
 	/**
+	 * Registers a public block adapter for an extension record.
+	 *
 	 * @param ExtensionRecord       $record  Extension record.
 	 * @param ExtensionBlockAdapter $adapter Block adapter.
 	 * @throws InvalidArgumentException Tier A validation failure.
@@ -119,6 +126,9 @@ final class ExtensionRegistrar {
 		$this->registry->seal();
 	}
 
+	/**
+	 * Whether extension registries are sealed for this request.
+	 */
 	public function is_sealed(): bool {
 		return $this->registry->is_sealed();
 	}
@@ -131,6 +141,8 @@ final class ExtensionRegistrar {
 	}
 
 	/**
+	 * Validates an extension manifest.
+	 *
 	 * @param ExtensionManifest $manifest Manifest.
 	 * @throws InvalidArgumentException On invalid manifest.
 	 */
@@ -157,6 +169,8 @@ final class ExtensionRegistrar {
 	}
 
 	/**
+	 * Validates a public meta definition before pending registration.
+	 *
 	 * @param ExtensionRecord         $record     Extension record.
 	 * @param ExtensionMetaDefinition $definition Definition.
 	 * @throws InvalidArgumentException On invalid definition.
@@ -170,9 +184,6 @@ final class ExtensionRegistrar {
 		if ( '' === $definition->meta_key || str_contains( $definition->meta_key, '*' ) || str_contains( $definition->meta_key, '%' ) ) {
 			throw new InvalidArgumentException( 'Meta key must be exact (no wildcards).' );
 		}
-		if ( str_starts_with( $definition->meta_key, '_' ) && str_starts_with( $definition->meta_key, '_wc_' ) ) {
-			// Economic keys caught by internal registry; allow explicit rejection early.
-		}
 		if ( ! in_array( $definition->text_format, array( 'plain', 'html' ), true ) ) {
 			throw new InvalidArgumentException( 'Meta text_format must be plain or html.' );
 		}
@@ -180,12 +191,10 @@ final class ExtensionRegistrar {
 			throw new InvalidArgumentException( 'Meta activation must be callable when provided.' );
 		}
 
-		// Fail fast if internal registry would reject (Tier A — no partial registration).
 		$probe = ExtensionMetaBridge::to_internal( $definition, true );
 		if ( $this->meta_registry->has( $definition->source_type, $definition->meta_key ) ) {
 			throw new InvalidArgumentException( 'Duplicate registered meta key for source type.' );
 		}
-		// Touch validation via register attempt in finalize; probe native key collision.
 		$native = $probe->native_segment_key();
 		unset( $probe );
 		if ( str_starts_with( $native, 'm:rankmath:' ) || str_starts_with( $native, 'm:woocommerce:' ) ) {
@@ -194,6 +203,8 @@ final class ExtensionRegistrar {
 	}
 
 	/**
+	 * Validates a public block adapter before registration.
+	 *
 	 * @param ExtensionBlockAdapter $adapter Adapter.
 	 * @throws InvalidArgumentException On invalid adapter.
 	 */
@@ -207,10 +218,10 @@ final class ExtensionRegistrar {
 				throw new InvalidArgumentException( 'Block name cannot be empty.' );
 			}
 			if ( in_array( $block_name, BlockRegistry::SUPPORTED_BLOCKS, true ) ) {
-				throw new InvalidArgumentException( 'Core block collision: ' . $block_name );
+				throw new InvalidArgumentException( 'Core block collision.' );
 			}
 			if ( in_array( $block_name, BlockRegistry::DYNAMIC_BLOCK_NAMES, true ) ) {
-				throw new InvalidArgumentException( 'Dynamic block registration forbidden: ' . $block_name );
+				throw new InvalidArgumentException( 'Dynamic block registration forbidden.' );
 			}
 		}
 		$fields = $adapter->get_supported_fields();
@@ -220,13 +231,15 @@ final class ExtensionRegistrar {
 	}
 
 	/**
+	 * Finalizes one extension record at seal time.
+	 *
 	 * @param ExtensionRecord $record Extension record.
 	 */
 	private function finalize_extension( ExtensionRecord $record ): void {
 		$extension_active = true;
 
 		foreach ( $record->pending_meta as $pending ) {
-			$active = $this->evaluate_activation( $pending->definition->activation, $record->manifest->extension_id );
+			$active          = $this->evaluate_activation( $pending->definition->activation, $record->manifest->extension_id );
 			$pending->active = $active;
 			if ( ! $active ) {
 				$extension_active = false;
@@ -260,7 +273,8 @@ final class ExtensionRegistrar {
 		}
 		try {
 			return (bool) $activation();
-		} catch ( \Throwable ) {
+		} catch ( Throwable $throwable ) {
+			unset( $throwable );
 			$this->diagnostics->increment( ExtensionDiagnostics::COUNTER_CALLBACK_FAILURE );
 			$this->diagnostics->record_failure( 'Activation callback failed for extension: ' . $extension_id );
 			return false;
@@ -268,26 +282,30 @@ final class ExtensionRegistrar {
 	}
 
 	/**
-	 * @param ExtensionRecord $record    Extension record.
-	 * @param string          $namespace Namespace token.
+	 * Ensures a namespace token is owned by the extension manifest.
+	 *
+	 * @param ExtensionRecord $record         Extension record.
+	 * @param string          $namespace_token Namespace token.
 	 * @throws InvalidArgumentException When namespace not owned.
 	 */
-	private function assert_namespace_ownership( ExtensionRecord $record, string $namespace ): void {
-		$this->assert_namespace_token( $namespace );
-		if ( ! in_array( $namespace, $record->manifest->owned_namespaces, true ) ) {
+	private function assert_namespace_ownership( ExtensionRecord $record, string $namespace_token ): void {
+		$this->assert_namespace_token( $namespace_token );
+		if ( ! in_array( $namespace_token, $record->manifest->owned_namespaces, true ) ) {
 			throw new InvalidArgumentException( 'Namespace not owned by extension manifest.' );
 		}
 	}
 
 	/**
-	 * @param string $namespace Namespace token.
+	 * Validates a namespace token shape.
+	 *
+	 * @param string $namespace_token Namespace token.
 	 * @throws InvalidArgumentException On invalid namespace.
 	 */
-	private function assert_namespace_token( string $namespace ): void {
-		if ( '' === $namespace || strlen( $namespace ) > Contract::MAX_NAMESPACE_LENGTH ) {
+	private function assert_namespace_token( string $namespace_token ): void {
+		if ( '' === $namespace_token || strlen( $namespace_token ) > Contract::MAX_NAMESPACE_LENGTH ) {
 			throw new InvalidArgumentException( 'Invalid namespace length.' );
 		}
-		if ( 1 !== preg_match( Contract::NAMESPACE_PATTERN, $namespace ) ) {
+		if ( 1 !== preg_match( Contract::NAMESPACE_PATTERN, $namespace_token ) ) {
 			throw new InvalidArgumentException( 'Invalid namespace format.' );
 		}
 	}

@@ -52,6 +52,8 @@ final class ExtensionCli {
 	}
 
 	/**
+	 * Lists registered extensions as a WP-CLI table.
+	 *
 	 * @param ExtensionRegistrar   $registrar   Registrar.
 	 * @param ExtensionDiagnostics $diagnostics Diagnostics.
 	 */
@@ -79,6 +81,8 @@ final class ExtensionCli {
 	}
 
 	/**
+	 * Prints JSON status for one extension id.
+	 *
 	 * @param ExtensionRegistrar   $registrar   Registrar.
 	 * @param ExtensionDiagnostics $diagnostics Diagnostics.
 	 * @param array<int, string>   $args        Positional args.
@@ -95,15 +99,15 @@ final class ExtensionCli {
 		}
 
 		$payload = array(
-			'extension_id'      => $record->manifest->extension_id,
-			'version'           => $record->manifest->version,
-			'active'            => $record->active ? 'yes' : 'no',
-			'owned_namespaces'  => implode( ',', $record->manifest->owned_namespaces ),
-			'meta_count'        => $record->meta_count,
-			'block_count'       => $record->block_count,
-			'provider_allowed'  => $record->provider_allowed_count,
-			'provider_denied'   => $record->provider_denied_count,
-			'last_failure'      => $diagnostics->last_failure() ?? '',
+			'extension_id'          => $record->manifest->extension_id,
+			'version'               => $record->manifest->version,
+			'active'                => $record->active ? 'yes' : 'no',
+			'owned_namespaces'      => implode( ',', $record->manifest->owned_namespaces ),
+			'meta_count'            => $record->meta_count,
+			'block_count'           => $record->block_count,
+			'provider_allowed'      => $record->provider_allowed_count,
+			'provider_denied'       => $record->provider_denied_count,
+			'last_failure'          => $diagnostics->last_failure() ?? '',
 			'registration_counters' => $diagnostics->counters(),
 		);
 
@@ -111,6 +115,8 @@ final class ExtensionCli {
 	}
 
 	/**
+	 * Builds one summary row for extension list output.
+	 *
 	 * @param ExtensionRecord $record Extension record.
 	 * @return array<string, int|string>
 	 */

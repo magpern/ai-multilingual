@@ -29,13 +29,22 @@ final class ExtensionDiagnostics {
 	public const COUNTER_CALLBACK_FAILURE = 'callback_failure';
 
 	/**
+	 * Named registration and resolver counters.
+	 *
 	 * @var array<string, int>
 	 */
 	private array $counters = array();
 
+	/**
+	 * Last bounded registration failure reason.
+	 *
+	 * @var string|null
+	 */
 	private ?string $last_failure = null;
 
 	/**
+	 * Increments one named counter.
+	 *
 	 * @param string $counter Counter name.
 	 */
 	public function increment( string $counter ): void {
@@ -43,6 +52,8 @@ final class ExtensionDiagnostics {
 	}
 
 	/**
+	 * Records one bounded registration failure reason.
+	 *
 	 * @param string $reason Bounded failure reason.
 	 */
 	public function record_failure( string $reason ): void {
@@ -50,21 +61,34 @@ final class ExtensionDiagnostics {
 		$this->increment( self::COUNTER_REGISTRATION_REJECTED );
 	}
 
+	/**
+	 * Returns the last bounded registration failure reason.
+	 */
 	public function last_failure(): ?string {
 		return $this->last_failure;
 	}
 
 	/**
+	 * Returns all named counters.
+	 *
 	 * @return array<string, int>
 	 */
 	public function counters(): array {
 		return $this->counters;
 	}
 
+	/**
+	 * Returns one named counter value.
+	 *
+	 * @param string $name Counter name.
+	 */
 	public function counter( string $name ): int {
 		return $this->counters[ $name ] ?? 0;
 	}
 
+	/**
+	 * Resets counters and last failure (tests).
+	 */
 	public function reset_for_tests(): void {
 		$this->counters     = array();
 		$this->last_failure = null;

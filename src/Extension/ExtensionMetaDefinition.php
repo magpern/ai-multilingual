@@ -15,6 +15,8 @@ namespace AIMultilingual\Extension;
 final class ExtensionMetaDefinition {
 
 	/**
+	 * Declares one exact-key meta field for an extension.
+	 *
 	 * @param string               $namespace         Vendor-owned m: namespace (must be in manifest owned_namespaces).
 	 * @param string               $source_type       post|term.
 	 * @param string               $meta_key          Exact WordPress meta key.
@@ -25,6 +27,7 @@ final class ExtensionMetaDefinition {
 	 * @param callable():bool|null $activation          Optional activation predicate.
 	 */
 	public function __construct(
+		// phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.namespaceFound -- domain term.
 		public readonly string $namespace,
 		public readonly string $source_type,
 		public readonly string $meta_key,

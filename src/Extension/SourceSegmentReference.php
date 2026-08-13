@@ -15,6 +15,8 @@ namespace AIMultilingual\Extension;
 final class SourceSegmentReference {
 
 	/**
+	 * Captures complete source segment lookup identity.
+	 *
 	 * @param string $source_type Source type (post|term).
 	 * @param int    $source_id   Source object id.
 	 * @param string $segment_key Segment key (m:, p:, or b: family).
