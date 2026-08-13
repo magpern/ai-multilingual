@@ -890,6 +890,54 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$this->assert_tsc3_invariants();
 		$this->assert_tsc4_invariants();
+		$this->assert_tsc5_invariants();
+	}
+
+	/**
+	 * TSC.5 Elementor coverage expansion architecture guards.
+	 */
+	private function assert_tsc5_invariants(): void {
+		$adapter = (string) file_get_contents( $this->root() . '/src/Surface/PostSurfaceAdapter.php' );
+		$this->assertStringContainsString( 'elementor/document/after_save', $adapter );
+		$this->assertStringNotContainsString( 'elementor/document/before_save', $adapter );
+		$this->assertStringNotContainsString( '_elementor_data', $adapter );
+
+		$this->assertFileExists( $this->root() . '/src/Translation/Safety/StructuralAttributeGuard.php' );
+
+		$block_guard = (string) file_get_contents( $this->root() . '/src/Block/BlockStructuralAttributeGuard.php' );
+		$this->assertStringContainsString( 'StructuralAttributeGuard', $block_guard );
+
+		$bridge = (string) file_get_contents( $this->root() . '/src/Elementor/ElementorFrontendBridge.php' );
+		$this->assertStringContainsString( 'ElementorRenderContextGate', $bridge );
+		$this->assertStringNotContainsString( 'wp_update_post', $bridge );
+
+		$registry = (string) file_get_contents( $this->root() . '/src/Elementor/ElementorControlRegistry.php' );
+		foreach ( array( 'heading', 'text-editor', 'button', 'accordion', 'toggle', 'image', 'icon-list', 'call-to-action' ) as $widget ) {
+			$this->assertStringContainsString( "'" . $widget . "'", $registry );
+		}
+		$this->assertStringNotContainsString( "'testimonial'", $registry );
+		$this->assertStringNotContainsString( "'icon-box'", $registry );
+
+		$settings = (string) file_get_contents( $this->root() . '/src/Settings.php' );
+		$this->assertStringContainsString( "'elementor_extraction_enabled'         => false", $settings );
+		$this->assertStringContainsString( "'elementor_frontend_rendering_enabled' => false", $settings );
+
+		$store = (string) file_get_contents( $this->root() . '/src/Translation/Store.php' );
+		$this->assertStringNotContainsString( 'SOURCE_ELEMENTOR', $store );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+
+		foreach ( $this->sources() as $path => $code ) {
+			if ( ! str_starts_with( $path, 'src/Elementor/' ) && ! str_starts_with( $path, 'src/Translation/' ) ) {
+				continue;
+			}
+			$this->assertStringNotContainsString(
+				'register_elementor_widget',
+				$code,
+				'TSC.6 public registration must not leak into TSC.5: ' . $path
+			);
+		}
 	}
 
 	/**

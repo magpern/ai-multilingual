@@ -185,9 +185,16 @@ final class RepeaterFieldStrategy implements ElementorControlStrategy {
 				continue;
 			}
 
-			$row[ $control_key ] = ElementorSanitize::apply(
+			$sanitize     = (string) ( $entry['sanitization'] ?? ElementorControlRegistry::SANITIZE_PLAIN );
+			$source_value = isset( $row[ $control_key ] ) && is_string( $row[ $control_key ] )
+				? $row[ $control_key ]
+				: '';
+
+			$row[ $control_key ] = ElementorStructuralApply::apply(
+				$source_value,
 				$translated,
-				(string) ( $entry['sanitization'] ?? ElementorControlRegistry::SANITIZE_PLAIN )
+				$sanitize,
+				$diagnostics
 			);
 			$diagnostics?->inc( 'overlay_applied' );
 		}

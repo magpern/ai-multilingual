@@ -22,14 +22,15 @@ final class ElementorFrontendBridge {
 	/**
 	 * Builds the frontend bridge.
 	 *
-	 * @param Settings                  $settings      Plugin settings.
-	 * @param LanguageContext           $language      Request language.
-	 * @param ElementorCompatibility    $compatibility Compatibility boundary.
-	 * @param ElementorDocumentDetector $detector      Document detector.
-	 * @param ElementorExtractor        $extractor     Unit extractor.
-	 * @param ElementorOverlayResolver  $resolver      Store resolver.
-	 * @param ElementorOverlayApplier   $applier       Tree applier.
-	 * @param ElementorDiagnostics|null $diagnostics   Optional diagnostics.
+	 * @param Settings                        $settings      Plugin settings.
+	 * @param LanguageContext                 $language      Request language.
+	 * @param ElementorCompatibility          $compatibility Compatibility boundary.
+	 * @param ElementorDocumentDetector       $detector      Document detector.
+	 * @param ElementorExtractor              $extractor     Unit extractor.
+	 * @param ElementorOverlayResolver        $resolver      Store resolver.
+	 * @param ElementorOverlayApplier         $applier       Tree applier.
+	 * @param ElementorDiagnostics|null       $diagnostics   Optional diagnostics.
+	 * @param ElementorRenderContextGate|null $context_gate  Optional context gate.
 	 */
 	public function __construct(
 		private Settings $settings,
@@ -39,8 +40,11 @@ final class ElementorFrontendBridge {
 		private ElementorExtractor $extractor,
 		private ElementorOverlayResolver $resolver,
 		private ElementorOverlayApplier $applier,
-		private ?ElementorDiagnostics $diagnostics = null
-	) {}
+		private ?ElementorDiagnostics $diagnostics = null,
+		private ?ElementorRenderContextGate $context_gate = null
+	) {
+		$this->context_gate = $context_gate ?? new ElementorRenderContextGate();
+	}
 
 	/**
 	 * Register frontend hooks when Elementor overlays are enabled.
@@ -67,15 +71,15 @@ final class ElementorFrontendBridge {
 			return $data;
 		}
 
-		if ( function_exists( 'is_admin' ) && is_admin() && ! ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) ) {
-			return $data;
-		}
-
 		if ( ! $this->settings->elementor_frontend_rendering_enabled() ) {
 			return $data;
 		}
 
 		if ( ! $this->compatibility->overlays_allowed() ) {
+			return $data;
+		}
+
+		if ( ! $this->context_gate->overlay_allowed() ) {
 			return $data;
 		}
 
