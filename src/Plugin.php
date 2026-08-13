@@ -61,7 +61,6 @@ use AIMultilingual\Elementor\ElementorIdentity;
 use AIMultilingual\Elementor\ElementorOverlayApplier;
 use AIMultilingual\Elementor\ElementorOverlayResolver;
 use AIMultilingual\Extension\Cli\ExtensionCli;
-use AIMultilingual\Extension\Contract as ExtensionContract;
 use AIMultilingual\Extension\ExtensionDiagnostics;
 use AIMultilingual\Extension\ExtensionRegistrar;
 use AIMultilingual\Extension\ExtensionRegistry;
@@ -292,7 +291,7 @@ final class Plugin {
 		 *
 		 * @param ExtensionRegistrar $extension_registrar Public registrar.
 		 */
-		do_action( ExtensionContract::HOOK_REGISTER, $extension_registrar );
+		do_action( 'aiml_register_extensions', $extension_registrar );
 		$extension_registrar->seal();
 
 		/**

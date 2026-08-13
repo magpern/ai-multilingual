@@ -44,7 +44,7 @@ final class Tsc6PerformanceRegressionTest extends TestCase {
 					new ExtensionMetaDefinition(
 						namespace: $ns,
 						source_type: Store::SOURCE_POST,
-						meta_key: '_meta_' . $j,
+						meta_key: '_meta_' . $i . '_' . $j,
 						label: 'Field ' . $j,
 					)
 				);

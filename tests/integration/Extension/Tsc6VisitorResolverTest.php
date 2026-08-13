@@ -26,7 +26,7 @@ use AIMultilingual\Translation\Store;
  */
 final class Tsc6VisitorResolverTest extends AimlTestCase {
 
-	private VisitorTranslationResolver $resolver;
+	private VisitorTranslationResolver $visitor_resolver;
 
 	private RegisteredMetaRegistry $meta_registry;
 
@@ -44,7 +44,7 @@ final class Tsc6VisitorResolverTest extends AimlTestCase {
 			)
 		);
 
-		$this->resolver = new VisitorTranslationResolver(
+		$this->visitor_resolver = new VisitorTranslationResolver(
 			$this->store,
 			$this->languages,
 			$this->context,
@@ -61,7 +61,7 @@ final class Tsc6VisitorResolverTest extends AimlTestCase {
 		$this->context->set_default( $default );
 		$this->context->set_current( $default );
 
-		$result = $this->resolver->resolve(
+		$result = $this->visitor_resolver->resolve(
 			new SourceSegmentReference( Store::SOURCE_POST, 0, 'm:demo:_demo_field' ),
 			new LanguageReference( 'sv' )
 		);
@@ -109,7 +109,7 @@ final class Tsc6VisitorResolverTest extends AimlTestCase {
 			)
 		);
 
-		$result = $this->resolver->resolve(
+		$result = $this->visitor_resolver->resolve(
 			new SourceSegmentReference( Store::SOURCE_POST, $post_id, $key ),
 			new LanguageReference( 'sv' )
 		);
