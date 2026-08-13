@@ -1,6 +1,6 @@
 # TSC.4 Implementation Baseline
 
-**Status:** Implementation baseline recorded — production coding authorized from this branch  
+**Status:** Implementation baseline recorded — TSC.4 **COMPLETE** on `main`  
 **Branch:** `feature/tsc4-gutenberg-coverage-expansion`  
 **Authoritative plan:** [TSC4_GUTENBERG_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md](TSC4_GUTENBERG_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md)  
 **Planning validation:** [TSC4_GUTENBERG_COVERAGE_EXPANSION_PLANNING_VALIDATION_LOG.md](TSC4_GUTENBERG_COVERAGE_EXPANSION_PLANNING_VALIDATION_LOG.md)
