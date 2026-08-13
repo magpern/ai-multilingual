@@ -17,6 +17,7 @@ final class BlockRenderLogger {
 	public const EVENT_BLOCK_RENDERED      = 'block_rendered';
 	public const EVENT_TRANSLATION_MISSING = 'translation_missing';
 	public const EVENT_UNSUPPORTED_BLOCK   = 'unsupported_block';
+	public const EVENT_STRUCTURAL_REJECTED = 'structural_rejected';
 
 	/**
 	 * Logs a structured render event.

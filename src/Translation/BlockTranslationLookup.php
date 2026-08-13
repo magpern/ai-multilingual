@@ -71,7 +71,7 @@ final class BlockTranslationLookup {
 			}
 
 			$parsed = SegmentKey::parse( $segment_key );
-			if ( null === $parsed || Contract::FIELD_CONTENT !== $parsed['field'] ) {
+			if ( null === $parsed || ! Contract::is_supported_field( $parsed['field'] ) ) {
 				++$rejected;
 				continue;
 			}
