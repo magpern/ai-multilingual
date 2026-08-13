@@ -213,6 +213,19 @@ CLI: `wp aiml jobs {list\|show\|run\|pause\|resume\|cancel\|retry-failed\|cleanu
 
 See [INTEGRATION_API_V1.md](INTEGRATION_API_V1.md).
 
+## Extension API v1 — `src/Extension/`
+
+| Hook / function | Priority | Purpose |
+|---|---|---|
+| `aiml_register_extensions` | default | Receives `ExtensionRegistrar`; root extension ownership + nested meta/block registration; registries seal after hook |
+| `aiml_mark_source_dirty( $source_type, $source_id )` | — | Request-local invalidation mark only; no immediate sync |
+| WP-CLI `aiml extensions list` | — | Read-only extension diagnostics |
+| WP-CLI `aiml extensions status <extension_id>` | — | Read-only extension status |
+
+Rank Math visitor overlays remain on Integration API v1 output hooks and official Rank Math filter seams (`rank_math/frontend/*`, Open Graph, sitemap). Extension API v1 does not replace Rank Math `p:rankmath:*` identities.
+
+See [EXTENSION_API_V1.md](EXTENSION_API_V1.md) and ADR-0022.
+
 ## Workspace translation + suggestions — `src/Workspace/`
 
 F10+F11 route automatic **persist** translation through `TranslationService` →

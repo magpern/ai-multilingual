@@ -60,6 +60,12 @@ use AIMultilingual\Elementor\ElementorFrontendBridge;
 use AIMultilingual\Elementor\ElementorIdentity;
 use AIMultilingual\Elementor\ElementorOverlayApplier;
 use AIMultilingual\Elementor\ElementorOverlayResolver;
+use AIMultilingual\Extension\Cli\ExtensionCli;
+use AIMultilingual\Extension\ExtensionDiagnostics;
+use AIMultilingual\Extension\ExtensionRegistrar;
+use AIMultilingual\Extension\ExtensionRegistry;
+use AIMultilingual\Extension\ExtensionServices;
+use AIMultilingual\Extension\VisitorTranslationResolver;
 use AIMultilingual\Frontend\Switcher;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsService;
 use AIMultilingual\Seo\DocumentSeoHead;
@@ -266,6 +272,28 @@ final class Plugin {
 		$integration_registry->register( $rank_math_integration );
 		// A.SEOe: Rank Math serves sitemaps on parse_query (before `wp`).
 		$rank_math_integration->register_sitemap_hooks();
+
+		$meta_registry         = new RegisteredMetaRegistry( $plugin_identity, $store );
+		$extension_diagnostics = new ExtensionDiagnostics();
+		$extension_registry    = new ExtensionRegistry();
+		$extension_registrar   = new ExtensionRegistrar(
+			$meta_registry,
+			$adapter_registry,
+			$extension_registry,
+			$extension_diagnostics
+		);
+		/**
+		 * Register Extension API v1 extensions (meta, block adapters).
+		 *
+		 * Registries seal after this hook; late registration is rejected.
+		 *
+		 * @since 1.3.0
+		 *
+		 * @param ExtensionRegistrar $extension_registrar Public registrar.
+		 */
+		do_action( 'aiml_register_extensions', $extension_registrar );
+		$extension_registrar->seal();
+
 		/**
 		 * Register typed Integration API v1 integrations.
 		 *
@@ -300,7 +328,6 @@ final class Plugin {
 			20
 		);
 
-		$meta_registry = new RegisteredMetaRegistry( $plugin_identity, $store );
 		RankMathMetaDefinitions::register_into(
 			$meta_registry,
 			static fn (): bool => $rank_math_integration->allows_extract_operation()
@@ -412,6 +439,21 @@ final class Plugin {
 		$surface_registry->register( $post_surface );
 		$surface_registry->register( $term_surface );
 		$invalidation_coordinator = new RequestLocalInvalidationCoordinator( $store, $surface_registry, $meta_registry );
+		$visitor_resolver         = new VisitorTranslationResolver(
+			$store,
+			$languages,
+			$context,
+			$meta_registry,
+			$integration_registry,
+			$plugin_identity,
+			$extension_diagnostics
+		);
+		ExtensionServices::bind(
+			$invalidation_coordinator,
+			$visitor_resolver,
+			$extension_registrar,
+			$extension_diagnostics
+		);
 		$post_surface->register_invalidation_events( $invalidation_coordinator );
 		$term_surface->register_invalidation_events( $invalidation_coordinator );
 		$invalidation_coordinator->ensure_shutdown_hook();
@@ -642,6 +684,7 @@ final class Plugin {
 			);
 
 			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics, $publication );
+			ExtensionCli::register( $extension_registrar, $extension_diagnostics );
 			RolloutCli::register();
 			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases, $job_concurrency );
 		}

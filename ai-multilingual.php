@@ -43,6 +43,11 @@ if ( is_readable( $aiml_autoload ) ) {
 	require_once $aiml_autoload;
 }
 
+$aiml_extension_functions = __DIR__ . '/src/Extension/functions.php';
+if ( is_readable( $aiml_extension_functions ) ) {
+	require_once $aiml_extension_functions;
+}
+
 /*
  * Declare compatibility with WooCommerce features we are structurally safe
  * against. Order data is only ever touched through WooCommerce CRUD (invariant

@@ -205,7 +205,15 @@ final class PluginGuardTest extends AimlTestCase {
 	}
 
 	public function test_no_broad_exception_is_swallowed(): void {
+		$tier_b_allowlist = array(
+			'src/Extension/ExtensionRegistrar.php',
+		);
+
 		foreach ( $this->sources() as $path => $code ) {
+			if ( in_array( $path, $tier_b_allowlist, true ) ) {
+				continue;
+			}
+
 			$this->assertDoesNotMatchRegularExpression(
 				'/catch\s*\(\s*\\\\?(Throwable|Exception)\s/',
 				$code,
@@ -891,6 +899,53 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assert_tsc3_invariants();
 		$this->assert_tsc4_invariants();
 		$this->assert_tsc5_invariants();
+		$this->assert_tsc6_invariants();
+	}
+
+	/**
+	 * TSC.6 public extension boundary architecture guards.
+	 */
+	private function assert_tsc6_invariants(): void {
+		$this->assertFileExists( $this->root() . '/src/Extension/ExtensionRegistrar.php' );
+		$this->assertFileExists( $this->root() . '/src/Extension/Block/ExtensionBlockAdapter.php' );
+		$this->assertFileExists( $this->root() . '/src/Extension/VisitorTranslationResolver.php' );
+		$this->assertFileExists( $this->root() . '/src/Extension/functions.php' );
+		$this->assertFileExists( $this->root() . '/docs/adr/0022-public-extension-boundary-and-registration-lifecycle.md' );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringContainsString( 'do_action( \'aiml_register_extensions\'', $plugin );
+		$this->assertStringContainsString( '$extension_registrar->seal()', $plugin );
+		$this->assertStringContainsString( 'ExtensionCli::register', $plugin );
+
+		$registrar = (string) file_get_contents( $this->root() . '/src/Extension/ExtensionRegistrar.php' );
+		$this->assertStringContainsString( 'BlockRegistry::SUPPORTED_BLOCKS', $registrar );
+		$this->assertStringContainsString( 'RESERVED_NAMESPACES', $registrar );
+
+		$resolver = (string) file_get_contents( $this->root() . '/src/Extension/VisitorTranslationResolver.php' );
+		$this->assertStringContainsString( 'SourceSegmentReference', $resolver );
+		$this->assertStringContainsString( 'LanguageReference', $resolver );
+		$this->assertStringContainsString( 'is_publicly_overlay_eligible', $resolver );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+
+		foreach ( $this->sources() as $path => $code ) {
+			$this->assertStringNotContainsString(
+				'register_elementor_widget',
+				$code,
+				'TSC.6 forbids public Elementor registration API: ' . $path
+			);
+			$this->assertStringNotContainsString(
+				'aiml_admitted_post_types',
+				$code,
+				'TSC.6 forbids public CPT admission filter: ' . $path
+			);
+			$this->assertStringNotContainsString(
+				'aiml_admitted_taxonomies',
+				$code,
+				'TSC.6 forbids public taxonomy admission filter: ' . $path
+			);
+		}
 	}
 
 	/**

@@ -30,7 +30,10 @@ require_once $aiml_tests_dir . '/includes/functions.php';
 
 tests_add_filter(
 	'muplugins_loaded',
-	function () {
+	function () use ( $aiml_root ) {
+		require_once $aiml_root . '/tests/Fixtures/ReferenceExtension/ReferenceExtensionBootstrap.php';
+		\AIMultilingual\Tests\Fixtures\ReferenceExtension\ReferenceExtensionBootstrap::register_hooks();
+
 		require WP_PLUGIN_DIR . '/woocommerce/woocommerce.php';
 		require WP_PLUGIN_DIR . '/ai-multilingual/ai-multilingual.php';
 

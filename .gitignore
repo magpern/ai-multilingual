@@ -20,3 +20,4 @@ tests/quality/baselines/_staging*/
 acceptance/*/node_modules/
 acceptance/*/artifacts/
 acceptance/*/package-lock.json
+composer.phar
