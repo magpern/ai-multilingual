@@ -11,6 +11,7 @@ namespace AIMultilingual\Translation;
 
 use AIMultilingual\Block\AdapterRegistry;
 use AIMultilingual\Block\BlockRenderLogger;
+use AIMultilingual\Block\BlockStructuralAttributeGuard;
 use AIMultilingual\Block\BlockTreeWalker;
 use AIMultilingual\Block\Contract;
 use AIMultilingual\Block\SegmentKey;
@@ -115,13 +116,25 @@ final class BlockRenderer {
 						continue;
 					}
 
-					$before_html = (string) ( $block['innerHTML'] ?? '' );
-					$block       = $adapter->apply_translation( $block, $field_id, $translated );
+					$before_html    = (string) ( $block['innerHTML'] ?? '' );
+					$before_content = is_array( $block['innerContent'] ?? null )
+						? array_values( $block['innerContent'] )
+						: null;
 
-					if ( (string) ( $block['innerHTML'] ?? '' ) !== $before_html ) {
-						$changed = true;
+					$block      = $adapter->apply_translation( $block, $field_id, $translated );
+					$after_html = (string) ( $block['innerHTML'] ?? '' );
+
+					if ( $after_html === $before_html ) {
+						continue;
+					}
+
+					if ( ! BlockStructuralAttributeGuard::preserves_structure( $before_html, $after_html ) ) {
+						$block['innerHTML'] = $before_html;
+						if ( is_array( $before_content ) ) {
+							$block['innerContent'] = $before_content;
+						}
 						$this->record_event(
-							BlockRenderLogger::EVENT_BLOCK_RENDERED,
+							BlockRenderLogger::EVENT_STRUCTURAL_REJECTED,
 							array(
 								'block_name'  => $name,
 								'field'       => $field_id,
@@ -129,7 +142,19 @@ final class BlockRenderer {
 							),
 							$events
 						);
+						continue;
 					}
+
+					$changed = true;
+					$this->record_event(
+						BlockRenderLogger::EVENT_BLOCK_RENDERED,
+						array(
+							'block_name'  => $name,
+							'field'       => $field_id,
+							'segment_key' => $segment_key,
+						),
+						$events
+					);
 				}
 			}
 		);

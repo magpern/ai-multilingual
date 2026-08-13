@@ -889,6 +889,75 @@ final class PluginGuardTest extends AimlTestCase {
 		}
 
 		$this->assert_tsc3_invariants();
+		$this->assert_tsc4_invariants();
+	}
+
+	/**
+	 * TSC.4 Gutenberg coverage expansion architecture guards.
+	 */
+	private function assert_tsc4_invariants(): void {
+		$lookup = (string) file_get_contents( $this->root() . '/src/Translation/BlockTranslationLookup.php' );
+		$this->assertStringContainsString( 'Contract::is_supported_field', $lookup );
+		$this->assertStringNotContainsString( 'Contract::FIELD_CONTENT !== $parsed', $lookup );
+
+		$renderer = (string) file_get_contents( $this->root() . '/src/Translation/BlockRenderer.php' );
+		$this->assertStringContainsString( 'BlockStructuralAttributeGuard', $renderer );
+		$this->assertStringContainsString( 'EVENT_STRUCTURAL_REJECTED', $renderer );
+
+		$this->assertFileExists( $this->root() . '/src/Block/BlockStructuralAttributeGuard.php' );
+
+		$settings = (string) file_get_contents( $this->root() . '/src/Settings.php' );
+		$this->assertStringContainsString( "'block_attr_registration_enabled'      => false", $settings );
+		$this->assertStringContainsString( "'block_uuid_injection_enabled'         => false", $settings );
+		$this->assertStringContainsString( "'block_extraction_enabled'             => false", $settings );
+		$this->assertStringContainsString( "'block_frontend_rendering_enabled'     => false", $settings );
+
+		$registry = (string) file_get_contents( $this->root() . '/src/Block/BlockRegistry.php' );
+		$this->assertStringNotContainsString( "'core/html'", $registry );
+		$this->assertStringNotContainsString( "'core/shortcode'", $registry );
+		$this->assertStringNotContainsString( "'core/embed'", $registry );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+
+		foreach ( $this->sources() as $path => $code ) {
+			if ( str_contains( $path, 'Cli.php' ) ) {
+				continue;
+			}
+			$this->assertDoesNotMatchRegularExpression(
+				"/add_filter\\(\\s*['\"]render_block['\"]/",
+				$code,
+				$path . ' must not register render_block.'
+			);
+			$this->assertDoesNotMatchRegularExpression(
+				"/add_filter\\(\\s*['\"]pre_render_block['\"]/",
+				$code,
+				$path . ' must not register pre_render_block.'
+			);
+		}
+
+		$render_files = array(
+			'src/Translation/BlockFrontendRenderer.php',
+			'src/Translation/BlockRenderer.php',
+			'src/Translation/BlockTranslationLookup.php',
+			'src/Translation/BlockTranslationSanitizer.php',
+		);
+		foreach ( $render_files as $path ) {
+			$code = (string) file_get_contents( $this->root() . '/' . $path );
+			$this->assertStringNotContainsString( 'wp_update_post', $code, $path . ' must not write canonical content.' );
+		}
+
+		$sources = $this->sources();
+		foreach ( $sources as $path => $code ) {
+			if ( ! str_starts_with( $path, 'src/Integration/Elementor/' ) ) {
+				continue;
+			}
+			$this->assertStringNotContainsString(
+				'register_elementor',
+				$code,
+				'TSC.4 must not implement Elementor (TSC.5).'
+			);
+		}
 	}
 
 	/**

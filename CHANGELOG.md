@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### TSC.4 Gutenberg Coverage Expansion
+
+- Fix `BlockTranslationLookup` to load all six grammar-valid block fields (`content`, `citation`, `summary`, `caption`, `fileName`, `downloadButtonText`) for frontend rendering.
+- Add fail-closed `BlockStructuralAttributeGuard` after adapter apply to reject translated fragments that mutate `href`, `class`, `id`, `target`, `rel`, or `data-*` attributes.
+- Characterization tests for gallery/media-text/cover/buttons recursion; malformed block/field pair authority; sync_source per-segment stale granularity; PluginGuard TSC.4 invariants.
+- Bounded local browser smoke documented in `acceptance/tsc4-browser/README.md` (non-CI).
+- Version **1.3.0** unchanged; `Migrator::TARGET` **7** unchanged; no schema migration.
+
 ## [1.3.0] — 2026-08-12
 
 ### Operator Translation Lifecycle
