@@ -3,7 +3,8 @@
 Public extension surface for visitor-facing third-party plugin integrations.
 
 **ADR:** [0017-plugin-integration-framework-ownership-and-identity.md](adr/0017-plugin-integration-framework-ownership-and-identity.md)  
-**Plan:** [A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md](plans/A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md)
+**Plan:** [A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md](plans/A1_PLUGIN_INTEGRATION_FRAMEWORK_IMPLEMENTATION_PLAN.md)  
+**Related:** [Extension API v1](EXTENSION_API_V1.md) — separate hook (`aiml_register_extensions`) for registered meta, block adapters, and resolver; Integration API v1 remains authoritative for `p:` integrations.
 
 ## Register
 
