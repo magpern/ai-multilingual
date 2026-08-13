@@ -12,6 +12,7 @@ namespace AIMultilingual\Tests\Integration\Extension;
 use AIMultilingual\Extension\ExtensionServices;
 use AIMultilingual\Extension\LanguageReference;
 use AIMultilingual\Extension\SourceSegmentReference;
+use AIMultilingual\Extension\VisitorTranslationResolver;
 use AIMultilingual\Surface\Meta\RegisteredMetaDefinition;
 use AIMultilingual\Surface\RequestLocalInvalidationCoordinator;
 use AIMultilingual\Tests\Fixtures\ReferenceExtension\ReferenceExtensionBootstrap;
@@ -45,8 +46,6 @@ final class Tsc6PublicExtensionTest extends AimlTestCase {
 		$default = $this->languages->default();
 		$this->assertNotNull( $default );
 		$target = $this->add_language( 'sv' );
-		$this->context->set_default( $default );
-		$this->context->set_current( $target );
 
 		$post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
 		update_post_meta( $post_id, ReferenceExtensionBootstrap::META_KEY, 'Source subtitle' );
@@ -71,11 +70,30 @@ final class Tsc6PublicExtensionTest extends AimlTestCase {
 		$resolver = ExtensionServices::resolver();
 		$this->assertNotNull( $resolver );
 
+		$context = $this->plugin_language_context( $resolver );
+		$context->set_default( $default );
+		$context->set_current( $target );
+
 		$result = $resolver->resolve(
 			new SourceSegmentReference( Store::SOURCE_POST, $post_id, $key ),
 			new LanguageReference( 'sv' )
 		);
 		$this->assertNotNull( $result );
 		$this->assertSame( 'Källa', $result->text );
+	}
+
+	/**
+	 * Returns the LanguageContext bound to the plugin-resolved visitor resolver.
+	 *
+	 * @param VisitorTranslationResolver $resolver Plugin-bound resolver.
+	 */
+	private function plugin_language_context( VisitorTranslationResolver $resolver ): \AIMultilingual\Language\LanguageContext {
+		$property = new \ReflectionProperty( VisitorTranslationResolver::class, 'context' );
+		$property->setAccessible( true );
+
+		/** @var \AIMultilingual\Language\LanguageContext $context */
+		$context = $property->getValue( $resolver );
+
+		return $context;
 	}
 }

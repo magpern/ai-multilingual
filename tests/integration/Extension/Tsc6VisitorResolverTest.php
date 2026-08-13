@@ -75,7 +75,7 @@ final class Tsc6VisitorResolverTest extends AimlTestCase {
 		$this->context->set_current( $default );
 
 		$post_id = self::factory()->post->create();
-		$result  = $this->resolver->resolve(
+		$result  = $this->visitor_resolver->resolve(
 			new SourceSegmentReference( Store::SOURCE_POST, $post_id, 'm:demo:_demo_field' ),
 			new LanguageReference( (string) $default->code )
 		);

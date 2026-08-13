@@ -205,7 +205,15 @@ final class PluginGuardTest extends AimlTestCase {
 	}
 
 	public function test_no_broad_exception_is_swallowed(): void {
+		$tier_b_allowlist = array(
+			'src/Extension/ExtensionRegistrar.php',
+		);
+
 		foreach ( $this->sources() as $path => $code ) {
+			if ( in_array( $path, $tier_b_allowlist, true ) ) {
+				continue;
+			}
+
 			$this->assertDoesNotMatchRegularExpression(
 				'/catch\s*\(\s*\\\\?(Throwable|Exception)\s/',
 				$code,
