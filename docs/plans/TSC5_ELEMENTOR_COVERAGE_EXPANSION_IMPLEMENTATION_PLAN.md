@@ -1,6 +1,6 @@
 # TSC.5 — Elementor Coverage Expansion Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
+**Status:** **COMPLETE** on `main` — production implementation merged @ `5cbfedaf670d8d090a03a8f248bc4ceb978debd6`
 **Milestone:** TSC.5 Elementor Coverage Expansion
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`) §20
 **External review:** **FREEZE** (four amendments A1–A4 incorporated) · **STATE A** · **TARGET 7**
@@ -11,12 +11,12 @@
 **Related:** [TSC4_GUTENBERG_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md](TSC4_GUTENBERG_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md); [A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md](A2_ELEMENTOR_FOUNDATION_IMPLEMENTATION_PLAN.md); [A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md](A3_ELEMENTOR_WIDGET_COVERAGE_IMPLEMENTATION_PLAN.md); ADR-0016; ADR-0013; ADR-0001; ADR-0011; ADR-0015; ADR-0020
 **Schema:** **STATE A** / TARGET **7** — no migration
 
-**This document is the authoritative implementation specification for TSC.5.** Work packages TSC5.0–TSC5.6 are **NOT STARTED**.
+**This document is the authoritative implementation specification for TSC.5.** Work packages TSC5.0–TSC5.6 are **COMPLETE** (see [TSC5_IMPLEMENTATION_EVIDENCE.md](TSC5_IMPLEMENTATION_EVIDENCE.md)).
 
-**Production implementation status:** **NOT STARTED.**
+**Production implementation status:** **COMPLETE.**
 **TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Implement TSC.5 from frozen `main` via branch `feature/tsc5-elementor-coverage-expansion` only when an implementation task is opened. Do **not** start TSC.6+. Do **not** bump version/TARGET, tag, release, or deploy as part of this planning freeze.
+**Exact next step:** TSC.5 is complete. Do **not** start TSC.6+ until separately authorized. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.5 closure.
 
 **Prior review history:** Initial proposal → external review **AMEND** → four refinements (A1–A4) → revalidation **PASS** → **TSC.5 PLAN REVIEW: FREEZE**
 

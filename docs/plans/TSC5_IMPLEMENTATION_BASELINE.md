@@ -1,6 +1,6 @@
 # TSC.5 Implementation Baseline
 
-**Status:** Implementation baseline recorded — TSC.5 **NOT STARTED** at baseline commit  
+**Status:** Implementation baseline recorded — TSC.5 **COMPLETE** on `main`  
 **Branch:** `feature/tsc5-elementor-coverage-expansion`  
 **Authoritative plan:** [TSC5_ELEMENTOR_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md](TSC5_ELEMENTOR_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md)  
 **Planning validation:** [TSC5_ELEMENTOR_COVERAGE_EXPANSION_PLANNING_VALIDATION_LOG.md](TSC5_ELEMENTOR_COVERAGE_EXPANSION_PLANNING_VALIDATION_LOG.md)

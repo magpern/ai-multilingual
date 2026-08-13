@@ -1,6 +1,6 @@
 # TSC.5 Implementation Evidence
 
-**Status:** **COMPLETE** on feature branch pending merge  
+**Status:** **COMPLETE** on `main` @ `5cbfedaf670d8d090a03a8f248bc4ceb978debd6`  
 **Branch:** `feature/tsc5-elementor-coverage-expansion`  
 **Baseline:** `499750bd06f5a958087af3ce1a72c0e6974a8a77`  
 **Authoritative plan:** [TSC5_ELEMENTOR_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md](TSC5_ELEMENTOR_COVERAGE_EXPANSION_IMPLEMENTATION_PLAN.md)
