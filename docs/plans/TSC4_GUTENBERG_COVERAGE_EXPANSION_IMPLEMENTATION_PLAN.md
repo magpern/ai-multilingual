@@ -1,6 +1,6 @@
 # TSC.4 — Gutenberg Coverage Expansion Implementation Plan
 
-**Status:** **Architecture Frozen** on `main` — production implementation **NOT STARTED**
+**Status:** **COMPLETE** on `main` — production implementation merged @ `c4a1e465f1d49a9c59f18083816e3f4ca92dc397`
 **Milestone:** TSC.4 Gutenberg Coverage Expansion
 **Parent:** [TSC_PARENT_IMPLEMENTATION_PLAN.md](TSC_PARENT_IMPLEMENTATION_PLAN.md) (Architecture Frozen on `main`) §20
 **External review:** **FREEZE** (four amendments incorporated; revalidation **PASS**) · **STATE A** · **TARGET 7**
@@ -11,12 +11,12 @@
 **Related:** [TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md](TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md); [TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md](TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md); [TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md](TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md); ADR-0013; ADR-0001; ADR-0006; ADR-0007; ADR-0011; ADR-0015; ADR-0020
 **Schema:** **STATE A** / TARGET **7** — no migration
 
-**This document is the authoritative implementation specification for TSC.4.** Work packages TSC4.0–TSC4.4 are **NOT STARTED**.
+**This document is the authoritative implementation specification for TSC.4.** Work packages TSC4.0–TSC4.4 are **COMPLETE** (see [TSC4_IMPLEMENTATION_EVIDENCE.md](TSC4_IMPLEMENTATION_EVIDENCE.md)).
 
-**Production implementation status:** **NOT STARTED.**
+**Production implementation status:** **COMPLETE.**
 **TSC.5–TSC.6 implementation status:** **NOT STARTED.**
 
-**Exact next step:** Implement TSC.4 from frozen `main` via branch `feature/tsc4-gutenberg-coverage-expansion` only when an implementation task is opened. Do **not** start TSC.5+. Do **not** bump version/TARGET, tag, release, or deploy as part of this planning freeze.
+**Exact next step:** TSC.4 is complete. Do **not** start TSC.5+ until separately authorized. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.4 closure.
 
 **Prior review history:** External review round 1 → four amendments (A1–A4) → **TSC.4 PLAN REVIEW: FREEZE**
 
@@ -320,4 +320,4 @@ No STATE B triggers: no new table; TARGET 7; no second Store; no global HTML tra
 
 ## 22. Exact next step
 
-Implement TSC.4 from this frozen plan via `feature/tsc4-gutenberg-coverage-expansion` when authorized. Do **not** start TSC.5+. Do **not** bump version/TARGET, tag, release, or deploy as part of planning freeze.
+Implement TSC.4 from this frozen plan via `feature/tsc4-gutenberg-coverage-expansion` when authorized. Do **not** start TSC.5+ until separately authorized. Do **not** bump version/TARGET, tag, release, or deploy as part of TSC.4 closure.
