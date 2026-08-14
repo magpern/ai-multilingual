@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Multilingual layer for WordPress: canonical content with segment translations ap
 
 == Description ==
 
-AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.3.0 completes the Operator Translation Lifecycle (OTL.0–OTL.6) on the Translation Intelligence & Quality (TQ.0–TI.7) foundation: Operations list and attention, unified detail edit/review, publication and stale/retranslate workflow, Jobs integration, bounded bulk operations, and final lifecycle polish.
+AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.4.0 completes the Translation Surface Coverage program (TSC.0–TSC.6) on the v1.3.0 foundation, introducing Extension API v1 for third-party registered meta and custom block adapters. TIQ (TQ.0–TI.7) and OTL (OTL.0–OTL.6) remain complete.
 
 == Installation ==
 
@@ -23,6 +23,11 @@ AI Multilingual stores one canonical object per content item and applies languag
 5. Publication gate and auto-publication mode default off/manual — enable only after reviewing release notes.
 
 == Changelog ==
+
+= 1.4.0 =
+* Translation Surface Coverage (TSC.0–TSC.6) Complete: internal surface capabilities, taxonomy terms, registered meta, WooCommerce extended surfaces, Gutenberg expansion, Elementor expansion, and public Extension API v1.
+* Extension API v1: aiml_register_extensions, public meta/block registration, VisitorTranslationResolver, aiml_mark_source_dirty(), WP-CLI extension diagnostics.
+* Schema target remains 7 (no migration). Safe publication defaults unchanged (gate off; mode manual). Gutenberg/Elementor flags remain off by default.
 
 = 1.3.0 =
 * Operator Translation Lifecycle (OTL.0–OTL.6): Operations list/attention, unified detail edit/review, publication + stale/retranslate, Jobs integration, bounded bulk operations, lifecycle polish.
