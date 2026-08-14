@@ -23,13 +23,16 @@ final class Schema {
 	/**
 	 * Unprefixed table names.
 	 */
-	public const LANGUAGES     = 'aiml_languages';
-	public const TRANSLATIONS  = 'aiml_translations';
-	public const TM            = 'aiml_tm';
-	public const METRICS_DAILY = 'aiml_metrics_daily';
-	public const GLOSSARY      = 'aiml_glossary';
-	public const JOBS          = 'aiml_jobs';
-	public const JOB_ITEMS     = 'aiml_job_items';
+	public const LANGUAGES             = 'aiml_languages';
+	public const TRANSLATIONS          = 'aiml_translations';
+	public const TM                    = 'aiml_tm';
+	public const METRICS_DAILY         = 'aiml_metrics_daily';
+	public const GLOSSARY              = 'aiml_glossary';
+	public const JOBS                  = 'aiml_jobs';
+	public const JOB_ITEMS             = 'aiml_job_items';
+	public const SLUG_ROUTES           = 'aiml_slug_routes';
+	public const ROUTE_HISTORY         = 'aiml_route_history';
+	public const SLUG_REINDEX_FRONTIER = 'aiml_slug_reindex_frontier';
 
 	/**
 	 * Option holding the monotonic glossary lexicon version (ADR-0014).
@@ -97,6 +100,27 @@ final class Schema {
 	}
 
 	/**
+	 * Fully qualified `aiml_slug_routes` table name.
+	 */
+	public static function slug_routes(): string {
+		return self::table( self::SLUG_ROUTES );
+	}
+
+	/**
+	 * Fully qualified `aiml_route_history` table name.
+	 */
+	public static function route_history(): string {
+		return self::table( self::ROUTE_HISTORY );
+	}
+
+	/**
+	 * Fully qualified `aiml_slug_reindex_frontier` table name.
+	 */
+	public static function slug_reindex_frontier(): string {
+		return self::table( self::SLUG_REINDEX_FRONTIER );
+	}
+
+	/**
 	 * Every table this plugin owns, in drop-safe order.
 	 *
 	 * @return string[]
@@ -105,6 +129,9 @@ final class Schema {
 		return array(
 			self::job_items(),
 			self::jobs(),
+			self::slug_reindex_frontier(),
+			self::route_history(),
+			self::slug_routes(),
 			self::translations(),
 			self::tm(),
 			self::metrics_daily(),
@@ -200,6 +227,7 @@ final class Schema {
 			published_by     BIGINT UNSIGNED   NULL,
 			error_code       VARCHAR(32)       NOT NULL DEFAULT '',
 			error_message    VARCHAR(500)      NOT NULL DEFAULT '',
+			slug_origin      VARCHAR(16)       NOT NULL DEFAULT '',
 			created_at       DATETIME          NOT NULL,
 			updated_at       DATETIME          NOT NULL,
 			PRIMARY KEY (translation_id),
@@ -442,6 +470,73 @@ final class Schema {
 			PRIMARY KEY (item_id),
 			UNIQUE KEY job_segment (job_id, segment_key),
 			KEY job_status (job_id, status),
+			KEY status_updated (status, updated_at)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for localized URL route registry (ADR-0023 / MSEO.0).
+	 */
+	public static function create_slug_routes(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::slug_routes() . " (
+			route_id            BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
+			language_id         SMALLINT UNSIGNED NOT NULL,
+			source_type         VARCHAR(20)       NOT NULL,
+			source_id           BIGINT UNSIGNED   NOT NULL,
+			source_subtype      VARCHAR(64)       NOT NULL DEFAULT '',
+			source_path         VARCHAR(2048)     NOT NULL,
+			source_path_hash    BINARY(32)        NOT NULL,
+			localized_path      VARCHAR(2048)     NOT NULL,
+			localized_path_hash BINARY(32)        NOT NULL,
+			localized_slug      VARCHAR(191)      NOT NULL DEFAULT '',
+			route_namespace     VARCHAR(64)       NOT NULL DEFAULT '',
+			slug_origin         VARCHAR(16)       NOT NULL DEFAULT 'generated',
+			route_status        VARCHAR(16)       NOT NULL DEFAULT 'inactive',
+			activated_at        DATETIME          NULL,
+			created_at          DATETIME          NOT NULL,
+			updated_at          DATETIME          NOT NULL,
+			PRIMARY KEY (route_id),
+			UNIQUE KEY object_language (source_type, source_id, language_id),
+			UNIQUE KEY localized_identity (language_id, localized_path_hash),
+			UNIQUE KEY source_identity (language_id, source_path_hash),
+			KEY route_status_lang (route_status, language_id)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for localized path history (source-identity only; ADR-0023).
+	 */
+	public static function create_route_history(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::route_history() . " (
+			history_id           BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
+			language_id          SMALLINT UNSIGNED NOT NULL,
+			historical_path      VARCHAR(2048)     NOT NULL,
+			historical_path_hash BINARY(32)        NOT NULL,
+			source_type          VARCHAR(20)       NOT NULL,
+			source_id            BIGINT UNSIGNED   NOT NULL,
+			source_subtype       VARCHAR(64)       NOT NULL DEFAULT '',
+			created_at           DATETIME          NOT NULL,
+			PRIMARY KEY (history_id),
+			UNIQUE KEY history_identity (language_id, historical_path_hash),
+			KEY source_lang_history (source_type, source_id, language_id)
+		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
+	}
+
+	/**
+	 * DDL for bounded hierarchy reindex frontier checkpoints (MSEO.3 contract).
+	 */
+	public static function create_slug_reindex_frontier(): string {
+		return 'CREATE TABLE IF NOT EXISTS ' . self::slug_reindex_frontier() . " (
+			frontier_id          BIGINT UNSIGNED   NOT NULL AUTO_INCREMENT,
+			parent_source_type   VARCHAR(20)       NOT NULL,
+			parent_source_id     BIGINT UNSIGNED   NOT NULL,
+			checkpoint_json      LONGTEXT          NULL,
+			generation           INT UNSIGNED      NOT NULL DEFAULT 1,
+			status               VARCHAR(16)       NOT NULL DEFAULT 'pending',
+			created_at           DATETIME          NOT NULL,
+			updated_at           DATETIME          NOT NULL,
+			PRIMARY KEY (frontier_id),
+			UNIQUE KEY parent_frontier (parent_source_type, parent_source_id),
 			KEY status_updated (status, updated_at)
 		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC " . self::charset_collate();
 	}

@@ -146,6 +146,14 @@ final class Settings {
 			 * installing TI.7 must never begin auto-publication.
 			 */
 			'auto_publication_mode'                => 'manual',
+
+			/*
+			 * MSEO / ADR-0023: localized URL activation state machine.
+			 * Default off — MSEO.0 exposes no administrator enable UI.
+			 */
+			'localized_urls_state'                 => 'off',
+			'localized_urls_activation_checkpoint' => null,
+			'localized_urls_activation_error'      => '',
 		);
 	}
 
@@ -188,6 +196,25 @@ final class Settings {
 			$mode                           = strtolower( trim( (string) $raw['auto_publication_mode'] ) );
 			$allowed_modes                  = array( 'manual', 'approved_only', 'controlled_auto' );
 			$clean['auto_publication_mode'] = in_array( $mode, $allowed_modes, true ) ? $mode : 'manual';
+		}
+
+		if ( array_key_exists( 'localized_urls_state', $raw ) ) {
+			$state                         = strtolower( trim( (string) $raw['localized_urls_state'] ) );
+			$allowed                       = array( 'off', 'activating', 'on', 'failed' );
+			$clean['localized_urls_state'] = in_array( $state, $allowed, true ) ? $state : 'off';
+		}
+
+		if ( array_key_exists( 'localized_urls_activation_checkpoint', $raw ) ) {
+			$checkpoint = $raw['localized_urls_activation_checkpoint'];
+			if ( null === $checkpoint || '' === $checkpoint ) {
+				$clean['localized_urls_activation_checkpoint'] = null;
+			} else {
+				$clean['localized_urls_activation_checkpoint'] = substr( (string) $checkpoint, 0, 4096 );
+			}
+		}
+
+		if ( array_key_exists( 'localized_urls_activation_error', $raw ) ) {
+			$clean['localized_urls_activation_error'] = substr( (string) $raw['localized_urls_activation_error'], 0, 500 );
 		}
 
 		if ( array_key_exists( 'ai_model', $raw ) ) {
@@ -415,5 +442,19 @@ final class Settings {
 	 */
 	public function elementor_frontend_rendering_enabled(): bool {
 		return (bool) $this->get()['elementor_frontend_rendering_enabled'];
+	}
+
+	/**
+	 * Localized URL activation state (ADR-0023).
+	 */
+	public function localized_urls_state(): string {
+		return (string) ( $this->get()['localized_urls_state'] ?? 'off' );
+	}
+
+	/**
+	 * Whether localized URL generation is enabled for public surfaces.
+	 */
+	public function is_localized_url_generation_enabled(): bool {
+		return 'on' === $this->localized_urls_state();
 	}
 }

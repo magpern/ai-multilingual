@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Tests\Integration;
 
+use AIMultilingual\Database\Migrator;
 use AIMultilingual\Plugin;
 
 /**
@@ -126,6 +127,9 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Rollout/Metrics/RolloutMetricsRepository.php',
 			'src/Jobs/BackgroundTranslationJobRepository.php',
 			'src/Jobs/BackgroundTranslationItemRepository.php',
+			'src/Routing/SlugRouteRepository.php',
+			'src/Routing/RouteHistoryRepository.php',
+			'src/Routing/ReindexFrontierRepository.php',
 		);
 
 		foreach ( $this->sources() as $path => $code ) {
@@ -383,8 +387,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'OperatorTranslation', $integration );
 		$this->assertStringNotContainsString( '/workspace/operations', $integration );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
+		// OTL.0 shipped at TARGET 7 (historical); schema advances at MSEO.0 only.
 	}
 
 	/**
@@ -433,8 +436,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'DEFERRED_MILESTONE', $slice );
 		$this->assertStringContainsString( 'null )', $slice );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
+		// OTL.2 shipped at TARGET 7 (historical).
 
 		$integration = '';
 		$iterator    = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $this->root() . '/src/Integration' ) );
@@ -492,8 +494,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertFileDoesNotExist( $this->root() . '/src/Workspace/OtlJobsPolicy.php' );
 		$this->assertFileDoesNotExist( $this->root() . '/src/Jobs/OtlJobsEngine.php' );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/TARGET\s*=\s*7/', $migrator );
+		// OTL.4 shipped at TARGET 7 (historical).
 	}
 
 	/**
@@ -547,8 +548,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'operations/bulk', $integration );
 		$this->assertStringNotContainsString( 'OperationsBulkCoordinator', $integration );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
+		// OTL.5 shipped at TARGET 7 (historical).
 	}
 
 	/**
@@ -633,8 +633,7 @@ final class PluginGuardTest extends AimlTestCase {
 			);
 		}
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const TARGET = 7;/', $migrator );
+		// OTL.6 shipped at TARGET 7 (historical).
 	}
 
 	/**
@@ -695,7 +694,7 @@ final class PluginGuardTest extends AimlTestCase {
 	 * TARGET stays 7; no opportunistic TSC.2+ Store source types; resolver read-only.
 	 */
 	public function test_tsc1_term_identity_invariants(): void {
-		// AC1 / AC54 — SOURCE_TERM + schema TARGET unchanged.
+		// AC1 / AC54 — SOURCE_TERM introduced at TSC.1 (STATE A; shipped at TARGET 7).
 		$store = (string) file_get_contents( $this->root() . '/src/Translation/Store.php' );
 		$this->assertMatchesRegularExpression(
 			"/const\s+SOURCE_TERM\s*=\s*'term'\s*;/",
@@ -704,11 +703,8 @@ final class PluginGuardTest extends AimlTestCase {
 		);
 
 		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression(
-			'/const TARGET = 7;/',
-			$migrator,
-			'TSC.1 is STATE A; Migrator::TARGET must remain 7 (AC54).'
-		);
+		$this->assertStringContainsString( 'step_8_mseo_localized_url_foundation', $migrator );
+		$this->assertSame( 8, Migrator::TARGET );
 
 		// AC36 — sole hosted-key builder; no duplicate alias implementation.
 		$alias_builders = array();
@@ -926,8 +922,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'LanguageReference', $resolver );
 		$this->assertStringContainsString( 'is_publicly_overlay_eligible', $resolver );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+		// TSC.6 shipped at TARGET 7 (historical); MSEO.0 advances to TARGET 8.
 
 		foreach ( $this->sources() as $path => $code ) {
 			$this->assertStringNotContainsString(
@@ -980,8 +975,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$store = (string) file_get_contents( $this->root() . '/src/Translation/Store.php' );
 		$this->assertStringNotContainsString( 'SOURCE_ELEMENTOR', $store );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+		// TSC.5 shipped at TARGET 7 (historical).
 
 		foreach ( $this->sources() as $path => $code ) {
 			if ( ! str_starts_with( $path, 'src/Elementor/' ) && ! str_starts_with( $path, 'src/Translation/' ) ) {
@@ -1020,8 +1014,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( "'core/shortcode'", $registry );
 		$this->assertStringNotContainsString( "'core/embed'", $registry );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+		// TSC.4 shipped at TARGET 7 (historical).
 
 		foreach ( $this->sources() as $path => $code ) {
 			if ( str_contains( $path, 'Cli.php' ) ) {
@@ -1094,11 +1087,37 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'denies_row_write', $otl );
 		$this->assertStringContainsString( 'set_segment_authority_registry', $otl );
 
-		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
-		$this->assertMatchesRegularExpression( '/const\s+TARGET\s*=\s*7\s*;/', $migrator );
+		// TSC.3 shipped at TARGET 7 (historical).
 
 		// No public registration API leakage / no SOURCE_META.
 		$this->assertStringNotContainsString( 'SOURCE_META', $identity );
 		$this->assertStringNotContainsString( 'register_translatable_attribute', $woo );
+	}
+
+	/**
+	 * MSEO.0 inert foundation structural guards.
+	 */
+	public function test_mseo0_inert_foundation_boundaries(): void {
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertSame( 8, Migrator::TARGET );
+		$this->assertStringContainsString( 'step_8_mseo_localized_url_foundation', $migrator );
+
+		$this->assertFileExists( $this->root() . '/src/Routing/PathHash.php' );
+		$this->assertFileExists( $this->root() . '/src/Routing/PathCanonicalizer.php' );
+		$this->assertFileExists( $this->root() . '/src/Routing/EffectiveUrlService.php' );
+
+		$path_hash = (string) file_get_contents( $this->root() . '/src/Routing/PathHash.php' );
+		$this->assertStringContainsString( "hash( 'sha256'", $path_hash );
+
+		$canonicalizer = (string) file_get_contents( $this->root() . '/src/Routing/PathCanonicalizer.php' );
+		$this->assertStringNotContainsString( 'sanitize_title', $canonicalizer );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringNotContainsString( 'EffectiveUrlService', $plugin );
+
+		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
+
+		$settings_page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
+		$this->assertStringNotContainsString( 'localized_urls_state', $settings_page );
 	}
 }

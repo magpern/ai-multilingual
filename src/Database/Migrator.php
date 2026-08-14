@@ -35,7 +35,7 @@ final class Migrator {
 	/**
 	 * Schema version this build expects.
 	 */
-	public const TARGET = 7;
+	public const TARGET = 8;
 
 	/**
 	 * Applies any migration steps newer than the recorded version.
@@ -89,6 +89,7 @@ final class Migrator {
 			5 => array( $this, 'step_5_review_workflow' ),
 			6 => array( $this, 'step_6_background_jobs' ),
 			7 => array( $this, 'step_7_publication_axis' ),
+			8 => array( $this, 'step_8_mseo_localized_url_foundation' ),
 		);
 	}
 
@@ -265,5 +266,30 @@ final class Migrator {
 			  AND status NOT IN ('ignored', 'missing')"
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * Step 8 — Localized URL foundation tables (ADR-0023 / MSEO.0).
+	 *
+	 * Creates route, history, and reindex frontier tables. Adds slug_origin to
+	 * the Store. No data backfill; foundation only — zero public URL change.
+	 */
+	private function step_8_mseo_localized_url_foundation(): void {
+		global $wpdb;
+
+		$wpdb->query( Schema::create_slug_routes() );           // phpcs:ignore WordPress.DB.PreparedSQL
+		$wpdb->query( Schema::create_route_history() );         // phpcs:ignore WordPress.DB.PreparedSQL
+		$wpdb->query( Schema::create_slug_reindex_frontier() ); // phpcs:ignore WordPress.DB.PreparedSQL
+
+		$table         = Schema::translations();
+		$escaped_table = str_replace( '`', '``', $table );
+
+		if ( ! Schema::column_exists( $table, 'slug_origin' ) ) {
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- additive DDL; identifiers from Schema only.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				"ALTER TABLE `{$escaped_table}` ADD COLUMN `slug_origin` VARCHAR(16) NOT NULL DEFAULT ''"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
 	}
 }

@@ -20,14 +20,22 @@ use ReflectionClass;
 final class AseobDeferredGuardTest extends AimlTestCase {
 
 	public function test_target_remains_six(): void {
-		$this->assertSame( 7, Migrator::TARGET );
+		$this->assertSame( Migrator::TARGET, 8 );
 	}
 
-	public function test_no_url_history_or_relationship_tables(): void {
+	public function test_mseo_foundation_tables_exist_without_aseob_deferred_emitters(): void {
+		global $wpdb;
+
+		$this->assertSame(
+			Schema::slug_routes(),
+			$wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', Schema::slug_routes() ) )
+		);
+
 		foreach ( Schema::all_tables() as $table ) {
 			$this->assertDoesNotMatchRegularExpression(
-				'/slug|redirect_history|url_history|hreflang_graph|seo_relationship/i',
-				(string) $table
+				'/redirect_history|url_history|hreflang_graph|seo_relationship/i',
+				(string) $table,
+				'A.SEOb deferred tables must not exist; MSEO foundation slug tables are allowed.'
 			);
 		}
 	}
