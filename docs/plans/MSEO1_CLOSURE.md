@@ -19,7 +19,7 @@
 | Final reviewed feature HEAD | `f4ec6da8b8c495b81b250270215e2b0d6425d610` |
 | Merge SHA | `15f3b4587941cdd9fad1124d9a3f59c972dcd379` |
 | Closure SHA | `ba01a9ce0bfded638be4544517f203150154c0ff` |
-| Final main HEAD | `ba01a9ce0bfded638be4544517f203150154c0ff` |
+| Final main HEAD | `2b685cd1031f9866d25dc75d8c5f09f3a566695a` |
 
 ## Architecture
 
