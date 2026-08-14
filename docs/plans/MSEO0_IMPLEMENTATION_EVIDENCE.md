@@ -1,11 +1,14 @@
 # MSEO.0 Implementation Evidence
 
-**Branch:** `feature/mseo0-localized-url-foundation`  
+**Branch:** `feature/mseo0-localized-url-foundation` (merged)  
 **Baseline:** `074a02b2834703415d49e59e5d3dfa454c3004dd` (frozen main)  
 **Implementation baseline:** `47a419173` (`docs/plans/MSEO0_IMPLEMENTATION_BASELINE.md`)  
+**Merge SHA:** `3cf544b43f876d8b6fffb66f996dd47fea5a698e`  
+**Closure:** [MSEO0_CLOSURE.md](MSEO0_CLOSURE.md)  
 **ADR:** [0023-localized-url-overlay-architecture.md](../adr/0023-localized-url-overlay-architecture.md) (**Accepted**)  
 **STATE:** B · **TARGET:** 7 → **8** · **Version:** 1.4.0 (unchanged)  
-**Review:** **MSEO.0 IMPLEMENTATION REVIEW: PASS**
+**Review:** **MSEO.0 IMPLEMENTATION REVIEW: PASS**  
+**Status:** **MSEO.0 Localized URL Foundation COMPLETE**
 
 ## R1–R7 refinements
 
@@ -78,7 +81,7 @@
 
 | Gate | Result |
 |---|---|
-| PHPCS | PASS (warnings only on PreparedSQL annotations in repositories) |
+| PHPCS | PASS (0 errors, 0 warnings) |
 | Unit | **928** tests, **3005** assertions, 2 skipped |
 | Integration | **802** tests, **32360** assertions, 2 skipped |
 | Quality baseline | PASS (60 cases) |
