@@ -61,6 +61,9 @@
 - `aiml_db_version = 7`; plugin active.
 - Block + Elementor extraction/render flags **already ON** (not defaults).
 - Publication mode: **manual**; segment publication gate: **off**.
+- **Strategy F rollout** (`aiml_rollout_config`): `rollout_render_enabled=true`, `general_rollout_enabled=false`, `allowed_post_ids=[6321, 6419]`, `rollout_stage=2` (F12 limited-rollout state from prior acceptance; not plugin defaults).
+
+**Ops note (Gutenberg frontend acceptance):** Before classifying missing block overlays as defects on dev, verify Strategy F rollout state / post allowlist. With allowlist-only mode, non-allowlisted posts intentionally render source block content even when translations are published.
 
 ### Procedure
 
@@ -81,7 +84,7 @@
 | wp-admin loads | PASS (implicit via REST/CLI) |
 | Fatal errors from AIML | None observed |
 
-**Ops note:** Revert compose mounts to git checkout when daily dev on source is preferred.
+**Ops note:** Compose mounts restored to git checkout `/opt/biopentra/dev/ai-multilingual` after dogfood (2026-08-14). Acceptance ZIP/evidence retained at `/opt/biopentra/dev/aiml-acceptance/`.
 
 ---
 
@@ -171,9 +174,9 @@ Bulk retry-failed not tested (Deferred by product).
 - WP-CLI requires `--user=1` for job commands
 - Jobs→Operations reverse link not tested (Partial/Deferred)
 
-### 7.7 Gutenberg — PASS (fixtures); FOLLOW-UP (dogfood page)
+### 7.7 Gutenberg — PASS
 
-**Post 6419** (`/sv/a4-nested-gutenberg-fixture/`):
+**Post 6419** (`/sv/a4-nested-gutenberg-fixture/`) — allowlisted for Strategy F rollout:
 
 - Published non-stale blocks render SV overlay (e.g. `A4 Detaljer Stycke Mål`, `A4 Citat Stycke Mål`)
 - Stale published block shows source text (honest)
@@ -181,10 +184,13 @@ Bulk retry-failed not tested (Deferred by product).
 - Structural attributes/UUIDs preserved in `post_content`
 - Canonical EN `post_content` not mutated
 
-**Post 6456** (new dogfood page):
+**Post 6456** (new dogfood page) — **not** on rollout allowlist; initial observation misread as defect (see §8 D-01):
 
-- Title overlay **PASS** after publish
-- Block body overlay **FAIL** after publish (`publish_status=published`, segment eligible in DB) — frontend still shows EN source paragraph. **Follow-up candidate** (theme/render path); fixture 6419 proves supported path works.
+- Translate Missing job #21 + publish: store row valid (`published`, non-stale), segment identity correct, `BlockTranslationLookup` returns translation in isolation
+- Title overlay **PASS** after publish (title path does not use rollout gate)
+- Block body showed EN source on SV frontend — **expected** under F12 allowlist-only rollout (`post_not_allowlisted`); denial occurs in `RolloutRenderGateBridge` **before** `BlockTranslationLookup` on the frontend path
+- Cache ruled out (deny precedes render cache; cache-bust unchanged)
+- Fixture 6419 vs 6456 contrast explained by allowlist membership, not render-path regression
 
 ### 7.8 Elementor — PASS
 
@@ -250,10 +256,27 @@ Full registrar/invalidation smoke with a live extension not run (no extension de
 
 | ID | Description | Classification | Blocking |
 |----|-------------|----------------|----------|
-| D-01 | Post 6456 published block translation not overlaying on SV frontend while fixture 6419 overlays work | **Investigate** — possible theme/render-path edge case | No |
+| D-01 | Post 6456 block body showed EN on SV despite published translation row | **Environment / configuration** — Strategy F limited-rollout allowlist excluded post 6456 (`allowed_post_ids=[6321,6419]`, `general_rollout_enabled=false`). Rollout policy denied frontend block render (`post_not_allowlisted`) before lookup. **Not an AIML Supported-contract defect.** | No |
 | — | Job #20 retranslate stale skipped_conflict | Expected limitation / operator friction | No |
 
 No Supported-contract blocking defects confirmed on primary fixtures.
+
+### D-01 post-investigation summary (2026-08-14)
+
+| Evidence | Result |
+|----------|--------|
+| Post 6419 rollout policy | **allowed** |
+| Post 6456 rollout policy | **denied** (`post_not_allowlisted`) |
+| `allowed_post_ids` | `[6321, 6419]` |
+| `general_rollout_enabled` | `false` |
+| Store row (6456 block) | published, non-stale, valid identity |
+| `Store::is_publicly_overlay_eligible()` | **true** in isolation |
+| `BlockTranslationLookup` | **success** — correct segment key and SV text |
+| Frontend denial point | `RolloutRenderGateBridge` (before lookup) |
+| Title overlay on 6456 | Works — separate path without rollout gate |
+| Cache | Ruled out |
+| Reproducibility | Any new non-allowlisted Gutenberg page behaves the same |
+| Code fix / v1.4.1 | **Not required** |
 
 ---
 
@@ -297,9 +320,10 @@ No Supported-contract blocking defects confirmed on primary fixtures.
 
 ## 13. Proposed 1.4.x follow-up (not authorized)
 
-1. Investigate D-01 block overlay on simple/new pages vs established fixtures
-2. Operator UX: document CLI `--user=1` requirement; consider block-level publication CLI ergonomics
-3. Optional: clearer UI messaging when retranslate stale yields `skipped_conflict`
+1. Operator UX: document CLI `--user=1` requirement; consider block-level publication CLI ergonomics
+2. Optional: clearer UI messaging when retranslate stale yields `skipped_conflict`
+
+(No code fix warranted for D-01 — rollout configuration issue on dev.)
 
 ---
 
@@ -313,9 +337,9 @@ No Supported-contract blocking defects confirmed on primary fixtures.
 
 ## 15. Dogfood verdict
 
-**READY WITH MINOR FOLLOW-UP**
+**READY WITH MINOR OPERATOR/UX FOLLOW-UP — NO MAJOR PROGRAM YET**
 
-Core Supported surfaces validated on real dev content: lifecycle, Jobs whole-object translation, stale detection, Gutenberg/Elementor fixtures, terms, Woo title surface, Rank Math diagnostics, Extension API inventory, bulk publish. One non-blocking follow-up on new-page Gutenberg overlay; operator friction items documented for 1.4.x polish.
+Core Supported surfaces validated on real dev content: lifecycle, Jobs whole-object translation, stale detection, Gutenberg/Elementor fixtures, terms, Woo title surface, Rank Math diagnostics, Extension API inventory, bulk publish. D-01 (6456 block overlay) was a dev rollout allowlist configuration issue, not a product defect. Operator friction items documented for optional 1.4.x polish; no blocking defects.
 
 ---
 
