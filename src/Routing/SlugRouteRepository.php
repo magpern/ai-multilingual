@@ -45,17 +45,15 @@ final class SlugRouteRepository {
 			);
 		}
 
-		$table = Schema::slug_routes();
-
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- UNHEX binding for BINARY(32) hashes.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$ok = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"INSERT INTO {$table}
+				'INSERT INTO ' . Schema::slug_routes() . '
 				(language_id, source_type, source_id, source_subtype,
 				 source_path, source_path_hash, localized_path, localized_path_hash,
 				 localized_slug, route_namespace, slug_origin, route_status, activated_at,
 				 created_at, updated_at)
-				VALUES (%d, %s, %d, %s, %s, UNHEX(%s), %s, UNHEX(%s), %s, %s, %s, %s, %s, %s, %s)",
+				VALUES (%d, %s, %d, %s, %s, UNHEX(%s), %s, UNHEX(%s), %s, %s, %s, %s, %s, %s, %s)',
 				$record->language_id,
 				$record->source_type,
 				$record->source_id,
@@ -92,20 +90,24 @@ final class SlugRouteRepository {
 	public function find_by_object( string $source_type, int $source_id, int $language_id ): ?object {
 		global $wpdb;
 
-		$table = Schema::slug_routes();
-
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
+				'SELECT * FROM ' . Schema::slug_routes() . '
 				WHERE source_type = %s AND source_id = %d AND language_id = %d
-				LIMIT 1",
+				LIMIT 1',
 				$source_type,
 				$source_id,
 				$language_id
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
-		return $row ?: null;
+		if ( ! $row ) {
+			return null;
+		}
+
+		return $row;
 	}
 
 	/**
@@ -152,6 +154,8 @@ final class SlugRouteRepository {
 	}
 
 	/**
+	 * Updates an existing route row.
+	 *
 	 * @param int         $route_id        Route id.
 	 * @param RouteRecord $record          Record.
 	 * @param string      $source_path     Source path string.
@@ -172,12 +176,10 @@ final class SlugRouteRepository {
 	) {
 		global $wpdb;
 
-		$table = Schema::slug_routes();
-
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- UNHEX binding for BINARY(32) hashes.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$ok = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"UPDATE {$table}
+				'UPDATE ' . Schema::slug_routes() . '
 				SET source_subtype = %s,
 					source_path = %s,
 					source_path_hash = UNHEX(%s),
@@ -189,7 +191,7 @@ final class SlugRouteRepository {
 					route_status = %s,
 					activated_at = %s,
 					updated_at = %s
-				WHERE route_id = %d",
+				WHERE route_id = %d',
 				$record->source_subtype,
 				$source_path,
 				$source_hash->hex(),
@@ -229,15 +231,14 @@ final class SlugRouteRepository {
 	): ?object {
 		global $wpdb;
 
-		$hash  = PathHash::from_canonical( $path );
-		$table = Schema::slug_routes();
+		$hash = PathHash::from_canonical( $path );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- trusted column names from method args only.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier and trusted column names only.
 		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
-				WHERE language_id = %d AND {$hash_column} = UNHEX(%s)
-				LIMIT 1",
+				'SELECT * FROM ' . Schema::slug_routes() . '
+				WHERE language_id = %d AND ' . $hash_column . ' = UNHEX(%s)
+				LIMIT 1',
 				$language_id,
 				$hash->hex()
 			)

@@ -178,15 +178,23 @@ final class MseoSchemaTest extends AimlTestCase {
 			Schema::slug_routes(),
 		) as $table ) {
 			$escaped = str_replace( '`', '``', $table );
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$wpdb->query( "DROP TABLE IF EXISTS `{$escaped}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- DDL against Schema table names only.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				"DROP TABLE IF EXISTS `{$escaped}`"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
 
 		$translations = Schema::translations();
 		if ( Schema::column_exists( $translations, 'slug_origin' ) ) {
 			$escaped = str_replace( '`', '``', $translations );
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-			$wpdb->query( "ALTER TABLE `{$escaped}` DROP COLUMN `slug_origin`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- DDL against Schema table names only.
+			$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				"ALTER TABLE `{$escaped}` DROP COLUMN `slug_origin`"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
 	}
 }

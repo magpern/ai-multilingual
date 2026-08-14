@@ -84,18 +84,22 @@ final class ReindexFrontierRepository {
 	public function find_by_parent( string $parent_source_type, int $parent_source_id ): ?object {
 		global $wpdb;
 
-		$table = Schema::slug_reindex_frontier();
-
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
+				'SELECT * FROM ' . Schema::slug_reindex_frontier() . '
 				WHERE parent_source_type = %s AND parent_source_id = %d
-				LIMIT 1",
+				LIMIT 1',
 				$parent_source_type,
 				$parent_source_id
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
-		return $row ?: null;
+		if ( ! $row ) {
+			return null;
+		}
+
+		return $row;
 	}
 }

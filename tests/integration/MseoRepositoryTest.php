@@ -76,15 +76,15 @@ final class MseoRepositoryTest extends AimlTestCase {
 		$table    = \AIMultilingual\Database\Schema::slug_routes();
 		$now      = current_time( 'mysql', true );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- corruption fixture; Schema table name only.
 		$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"INSERT INTO {$table}
+				'INSERT INTO ' . $table . '
 				(language_id, source_type, source_id, source_subtype,
 				 source_path, source_path_hash, localized_path, localized_path_hash,
 				 localized_slug, route_namespace, slug_origin, route_status, activated_at,
 				 created_at, updated_at)
-				VALUES (%d, %s, %d, %s, %s, UNHEX(%s), %s, UNHEX(%s), %s, %s, %s, %s, NULL, %s, %s)",
+				VALUES (%d, %s, %d, %s, %s, UNHEX(%s), %s, UNHEX(%s), %s, %s, %s, %s, NULL, %s, %s)',
 				(int) $language->language_id,
 				Store::SOURCE_POST,
 				88002,

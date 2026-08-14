@@ -14,13 +14,44 @@ namespace AIMultilingual\Routing;
  */
 final class FrontierRecord {
 
+	/**
+	 * Parent source type.
+	 *
+	 * @var string
+	 */
 	public string $parent_source_type;
+
+	/**
+	 * Parent source id.
+	 *
+	 * @var int
+	 */
 	public int $parent_source_id;
+
+	/**
+	 * Bounded checkpoint JSON.
+	 *
+	 * @var string|null
+	 */
 	public ?string $checkpoint_json;
+
+	/**
+	 * Coalescing generation counter.
+	 *
+	 * @var int
+	 */
 	public int $generation;
+
+	/**
+	 * Frontier status (pending|running|failed|completed).
+	 *
+	 * @var string
+	 */
 	public string $status;
 
 	/**
+	 * Builds a frontier checkpoint record.
+	 *
 	 * @param string      $parent_source_type Parent source type.
 	 * @param int         $parent_source_id   Parent source id.
 	 * @param string|null $checkpoint_json    Bounded checkpoint JSON.

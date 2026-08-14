@@ -18,10 +18,14 @@ final class PathHash {
 
 	/**
 	 * Raw 32-byte digest.
+	 *
+	 * @var string
 	 */
 	private string $raw;
 
 	/**
+	 * Private constructor — use factory methods.
+	 *
 	 * @param string $raw Exactly 32 raw bytes.
 	 */
 	private function __construct( string $raw ) {
@@ -30,6 +34,9 @@ final class PathHash {
 
 	/**
 	 * Derives a path hash from a canonical path.
+	 *
+	 * @param CanonicalPath $path Canonical path.
+	 * @throws InvalidPathException When hashing fails.
 	 */
 	public static function from_canonical( CanonicalPath $path ): self {
 		$raw = hash( 'sha256', $path->to_string(), true );
@@ -42,6 +49,9 @@ final class PathHash {
 
 	/**
 	 * Reconstructs from lowercase hex (64 characters).
+	 *
+	 * @param string $hex Lowercase hex digest.
+	 * @throws InvalidPathException When hex is invalid.
 	 */
 	public static function from_hex( string $hex ): self {
 		$hex = strtolower( trim( $hex ) );
@@ -72,6 +82,8 @@ final class PathHash {
 	}
 
 	/**
+	 * Compares two path hashes in constant time.
+	 *
 	 * @param PathHash $other Other hash.
 	 */
 	public function equals( PathHash $other ): bool {

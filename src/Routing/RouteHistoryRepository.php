@@ -26,18 +26,17 @@ final class RouteHistoryRepository {
 	public function insert( HistoryRecord $record ) {
 		global $wpdb;
 
-		$hash  = PathHash::from_canonical( $record->historical_path );
-		$path  = $record->historical_path->to_string();
-		$now   = current_time( 'mysql', true );
-		$table = Schema::route_history();
+		$hash = PathHash::from_canonical( $record->historical_path );
+		$path = $record->historical_path->to_string();
+		$now  = current_time( 'mysql', true );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- UNHEX binding for BINARY(32) hash.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$ok = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"INSERT INTO {$table}
+				'INSERT INTO ' . Schema::route_history() . '
 				(language_id, historical_path, historical_path_hash,
 				 source_type, source_id, source_subtype, created_at)
-				VALUES (%d, %s, UNHEX(%s), %s, %d, %s, %s)",
+				VALUES (%d, %s, UNHEX(%s), %s, %d, %s, %s)',
 				$record->language_id,
 				$path,
 				$hash->hex(),
@@ -65,18 +64,19 @@ final class RouteHistoryRepository {
 	public function find_by_historical_path( int $language_id, CanonicalPath $path ): ?object {
 		global $wpdb;
 
-		$hash  = PathHash::from_canonical( $path );
-		$table = Schema::route_history();
+		$hash = PathHash::from_canonical( $path );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
+				'SELECT * FROM ' . Schema::route_history() . '
 				WHERE language_id = %d AND historical_path_hash = UNHEX(%s)
-				LIMIT 1",
+				LIMIT 1',
 				$language_id,
 				$hash->hex()
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( null === $row ) {
 			return null;
@@ -102,16 +102,15 @@ final class RouteHistoryRepository {
 	public function find_by_source( string $source_type, int $source_id, int $language_id, int $limit = 5 ): array {
 		global $wpdb;
 
-		$table = Schema::route_history();
 		$limit = max( 1, min( 100, $limit ) );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- limit is bounded int.
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$table}
+				'SELECT * FROM ' . Schema::route_history() . '
 				WHERE source_type = %s AND source_id = %d AND language_id = %d
 				ORDER BY history_id DESC
-				LIMIT %d",
+				LIMIT %d',
 				$source_type,
 				$source_id,
 				$language_id,
@@ -134,15 +133,14 @@ final class RouteHistoryRepository {
 	public function delete_oldest_beyond( string $source_type, int $source_id, int $language_id, int $max_rows ): int {
 		global $wpdb;
 
-		$table    = Schema::route_history();
 		$max_rows = max( 0, $max_rows );
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
 		$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT history_id FROM {$table}
+				'SELECT history_id FROM ' . Schema::route_history() . '
 				WHERE source_type = %s AND source_id = %d AND language_id = %d
-				ORDER BY history_id DESC",
+				ORDER BY history_id DESC',
 				$source_type,
 				$source_id,
 				$language_id
@@ -162,7 +160,7 @@ final class RouteHistoryRepository {
 		$deleted = 0;
 		foreach ( $to_delete as $history_id ) {
 			$result = $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-				$table,
+				Schema::route_history(),
 				array( 'history_id' => (int) $history_id ),
 				array( '%d' )
 			);

@@ -199,8 +199,8 @@ final class Settings {
 		}
 
 		if ( array_key_exists( 'localized_urls_state', $raw ) ) {
-			$state   = strtolower( trim( (string) $raw['localized_urls_state'] ) );
-			$allowed = array( 'off', 'activating', 'on', 'failed' );
+			$state                         = strtolower( trim( (string) $raw['localized_urls_state'] ) );
+			$allowed                       = array( 'off', 'activating', 'on', 'failed' );
 			$clean['localized_urls_state'] = in_array( $state, $allowed, true ) ? $state : 'off';
 		}
 

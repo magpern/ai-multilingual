@@ -16,10 +16,14 @@ final class CanonicalPath {
 
 	/**
 	 * Normalized path with exactly one leading slash.
+	 *
+	 * @var string
 	 */
 	private string $path;
 
 	/**
+	 * Constructs a canonical path value object.
+	 *
 	 * @param string $path Canonical path value.
 	 */
 	public function __construct( string $path ) {
@@ -27,13 +31,15 @@ final class CanonicalPath {
 	}
 
 	/**
-	 * Canonical path string.
+	 * Returns the canonical path string.
 	 */
 	public function to_string(): string {
 		return $this->path;
 	}
 
 	/**
+	 * Compares two canonical paths for equality.
+	 *
 	 * @param CanonicalPath $other Other path.
 	 */
 	public function equals( CanonicalPath $other ): bool {

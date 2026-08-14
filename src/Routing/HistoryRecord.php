@@ -14,13 +14,44 @@ namespace AIMultilingual\Routing;
  */
 final class HistoryRecord {
 
+	/**
+	 * Language id.
+	 *
+	 * @var int
+	 */
 	public int $language_id;
+
+	/**
+	 * Canonical historical path.
+	 *
+	 * @var CanonicalPath
+	 */
 	public CanonicalPath $historical_path;
+
+	/**
+	 * Store source type.
+	 *
+	 * @var string
+	 */
 	public string $source_type;
+
+	/**
+	 * Source object id.
+	 *
+	 * @var int
+	 */
 	public int $source_id;
+
+	/**
+	 * Source subtype.
+	 *
+	 * @var string
+	 */
 	public string $source_subtype;
 
 	/**
+	 * Builds a history write record.
+	 *
 	 * @param int           $language_id     Language id.
 	 * @param CanonicalPath $historical_path Canonical historical path.
 	 * @param string        $source_type     Store source type.

@@ -60,6 +60,9 @@ final class PathCanonicalizer {
 
 	/**
 	 * Decodes percent-encoding and rejects malformed sequences.
+	 *
+	 * @param string $path Path segment under validation.
+	 * @throws InvalidPathException When percent-encoding is malformed.
 	 */
 	private function decode_and_validate_percent_encoding( string $path ): string {
 		if ( ! preg_match_all( '/%[0-9A-Fa-f]{0,2}/', $path, $matches, PREG_OFFSET_CAPTURE ) ) {
@@ -83,6 +86,8 @@ final class PathCanonicalizer {
 
 	/**
 	 * Uppercase hex digits in percent-encoded sequences for determinism.
+	 *
+	 * @param string $path Decoded path.
 	 */
 	private function normalize_percent_sequences( string $path ): string {
 		return (string) preg_replace_callback(
@@ -94,6 +99,9 @@ final class PathCanonicalizer {
 
 	/**
 	 * Rejects encoded forward slashes in path segments.
+	 *
+	 * @param string $path Raw path.
+	 * @throws InvalidPathException When an encoded slash is present.
 	 */
 	private function reject_encoded_slashes( string $path ): string {
 		if ( preg_match( '/%2F/i', $path ) ) {
@@ -105,6 +113,8 @@ final class PathCanonicalizer {
 
 	/**
 	 * Collapses duplicate slashes (preserves leading slash semantics).
+	 *
+	 * @param string $path Path with normalized encoding.
 	 */
 	private function collapse_slashes( string $path ): string {
 		$path = (string) preg_replace( '#/{2,}#', '/', $path );
@@ -114,6 +124,8 @@ final class PathCanonicalizer {
 
 	/**
 	 * Ensures exactly one leading slash.
+	 *
+	 * @param string $path Path without guaranteed leading slash.
 	 */
 	private function ensure_leading_slash( string $path ): string {
 		$path = ltrim( $path, '/' );
@@ -124,6 +136,8 @@ final class PathCanonicalizer {
 	/**
 	 * WordPress-compatible trailing slash: preserve if input had trailing slash
 	 * on non-root paths; root stays '/'.
+	 *
+	 * @param string $path Path with leading slash.
 	 */
 	private function apply_trailing_slash_policy( string $path ): string {
 		if ( '/' === $path ) {
@@ -131,6 +145,8 @@ final class PathCanonicalizer {
 		}
 
 		// Deterministic policy: no trailing slash except root (WP-compatible).
-		return rtrim( $path, '/' ) ?: '/';
+		$trimmed = rtrim( $path, '/' );
+
+		return '' === $trimmed ? '/' : $trimmed;
 	}
 }

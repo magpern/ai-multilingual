@@ -23,15 +23,15 @@ final class Schema {
 	/**
 	 * Unprefixed table names.
 	 */
-	public const LANGUAGES     = 'aiml_languages';
-	public const TRANSLATIONS  = 'aiml_translations';
-	public const TM            = 'aiml_tm';
-	public const METRICS_DAILY = 'aiml_metrics_daily';
-	public const GLOSSARY      = 'aiml_glossary';
-	public const JOBS          = 'aiml_jobs';
-	public const JOB_ITEMS     = 'aiml_job_items';
-	public const SLUG_ROUTES   = 'aiml_slug_routes';
-	public const ROUTE_HISTORY = 'aiml_route_history';
+	public const LANGUAGES             = 'aiml_languages';
+	public const TRANSLATIONS          = 'aiml_translations';
+	public const TM                    = 'aiml_tm';
+	public const METRICS_DAILY         = 'aiml_metrics_daily';
+	public const GLOSSARY              = 'aiml_glossary';
+	public const JOBS                  = 'aiml_jobs';
+	public const JOB_ITEMS             = 'aiml_job_items';
+	public const SLUG_ROUTES           = 'aiml_slug_routes';
+	public const ROUTE_HISTORY         = 'aiml_route_history';
 	public const SLUG_REINDEX_FRONTIER = 'aiml_slug_reindex_frontier';
 
 	/**

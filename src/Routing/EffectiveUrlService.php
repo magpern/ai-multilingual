@@ -19,9 +19,15 @@ use AIMultilingual\Settings;
  */
 final class EffectiveUrlService {
 
+	/** Plugin settings accessor.
+	 *
+	 * @var Settings
+	 */
 	private Settings $settings;
 
 	/**
+	 * Builds the inert effective URL service.
+	 *
 	 * @param Settings $settings Plugin settings.
 	 */
 	public function __construct( Settings $settings ) {
