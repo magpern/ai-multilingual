@@ -568,6 +568,29 @@ final class Plugin {
 				$route_publication->purge_for_source( (int) $post_id );
 			}
 		);
+		add_action(
+			'post_updated',
+			static function ( $post_id, $post_after, $post_before ) use ( $route_publication, $slug_routes ): void {
+				if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+					return;
+				}
+				if ( ! $post_after instanceof \WP_Post || ! $post_before instanceof \WP_Post ) {
+					return;
+				}
+				if (
+					(string) $post_after->post_name === (string) $post_before->post_name
+					&& (int) $post_after->post_parent === (int) $post_before->post_parent
+				) {
+					return;
+				}
+
+				foreach ( $slug_routes->list_language_ids_for_source( Store::SOURCE_POST, (int) $post_id ) as $language_id ) {
+					$route_publication->refresh_source_path( $post_after, (int) $language_id );
+				}
+			},
+			20,
+			3
+		);
 
 		$job_repo        = new BackgroundTranslationJobRepository();
 		$item_repo       = new BackgroundTranslationItemRepository();

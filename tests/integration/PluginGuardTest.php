@@ -1144,6 +1144,7 @@ final class PluginGuardTest extends AimlTestCase {
 			|| false !== strpos( $publication, 'reject_format_slug' ),
 			'PublicationService must fail-closed for standalone FORMAT_SLUG publish.'
 		);
+		$this->assertStringContainsString( 'publish_under_route_authority', $publication );
 
 		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
 		$this->assertStringNotContainsString( 'EffectiveUrlService', $plugin );
@@ -1152,6 +1153,13 @@ final class PluginGuardTest extends AimlTestCase {
 			$plugin,
 			'Plugin must not wire EffectiveUrl into Router.'
 		);
+		$this->assertStringContainsString( 'refresh_source_path', $plugin );
+		$this->assertStringContainsString( 'deactivate_for_source', $plugin );
+		$this->assertStringContainsString( 'purge_for_source', $plugin );
+
+		$rest = (string) file_get_contents( $this->root() . '/src/Rest/WorkspaceController.php' );
+		$this->assertStringContainsString( 'slug/publish-route', $rest );
+		$this->assertStringContainsString( 'clear_slug_candidate', $rest );
 
 		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
 		$this->assertFileDoesNotExist( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
@@ -1161,5 +1169,9 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
 		$this->assertStringNotContainsString( 'step_9_', $migrator );
+
+		$route_pub = (string) file_get_contents( $this->root() . '/src/Routing/RoutePublicationService.php' );
+		$this->assertStringContainsString( 'publish_under_route_authority', $route_pub );
+		$this->assertStringContainsString( 'collision_adjusted', $route_pub );
 	}
 }

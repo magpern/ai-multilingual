@@ -457,4 +457,180 @@ final class Mseo1SlugLifecycleTest extends AimlTestCase {
 		$this->assertInstanceOf( \WP_Post::class, $fresh );
 		$this->assertSame( $before, (string) $fresh->post_name );
 	}
+
+	public function test_manual_collision_returns_409_candidate_unchanged(): void {
+		$post     = $this->create_page( 'About Us' );
+		$other    = $this->create_page( 'Other Page' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$this->seed_translated_title( $post, $language, 'Om Oss' );
+
+		$this->routes->save(
+			new RouteRecord(
+				(int) $language->language_id,
+				Store::SOURCE_POST,
+				(int) $other->ID,
+				'page',
+				$this->paths->canonicalize( '/' . $other->post_name ),
+				$this->paths->canonicalize( '/handgjord' ),
+				'handgjord',
+				'',
+				'manual',
+				'active',
+				current_time( 'mysql', true )
+			)
+		);
+
+		$manual = $this->candidates->save_manual( $post, (int) $language->language_id, 'handgjord' );
+		$this->assertIsObject( $manual );
+
+		$result = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'aiml_slug_route_collision', $result->get_error_code() );
+		$this->assertSame( 409, (int) ( $result->get_error_data()['status'] ?? 0 ) );
+
+		$row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id, Extractor::FIELD_SLUG );
+		$this->assertNotNull( $row );
+		$this->assertSame( 'handgjord', (string) $row->translated_text );
+		$this->assertSame( Store::PUBLISH_UNPUBLISHED, (string) $row->publish_status );
+		$this->assertNull( $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id ) );
+	}
+
+	public function test_foreign_history_reservation_blocks_publish(): void {
+		$post     = $this->create_page( 'About Us' );
+		$other    = $this->create_page( 'Other Page' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$this->seed_translated_title( $post, $language, 'Om Oss' );
+
+		$inserted = $this->history->insert(
+			new \AIMultilingual\Routing\HistoryRecord(
+				(int) $language->language_id,
+				$this->paths->canonicalize( '/reserverad' ),
+				Store::SOURCE_POST,
+				(int) $other->ID,
+				'page'
+			)
+		);
+		$this->assertIsObject( $inserted );
+
+		$manual = $this->candidates->save_manual( $post, (int) $language->language_id, 'reserverad' );
+		$this->assertIsObject( $manual );
+
+		$result = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'aiml_slug_history_collision', $result->get_error_code() );
+		$this->assertSame( 409, (int) ( $result->get_error_data()['status'] ?? 0 ) );
+	}
+
+	public function test_refresh_source_path_updates_source_keeps_leaf(): void {
+		$post     = $this->create_page( 'About Us' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$this->seed_translated_title( $post, $language, 'Om Oss' );
+
+		$generated = $this->candidates->generate( $post, (int) $language->language_id );
+		$this->assertIsObject( $generated );
+		$published = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
+		$this->assertIsArray( $published );
+
+		$route_before = $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id );
+		$this->assertNotNull( $route_before );
+		$leaf_before = (string) $route_before->localized_slug;
+		$path_before = (string) $route_before->localized_path;
+
+		wp_update_post(
+			array(
+				'ID'        => (int) $post->ID,
+				'post_name' => 'about-us-renamed',
+			)
+		);
+		$post = get_post( (int) $post->ID );
+		$this->assertInstanceOf( \WP_Post::class, $post );
+
+		$refreshed = $this->route_publication->refresh_source_path( $post, (int) $language->language_id );
+		$this->assertIsObject( $refreshed );
+
+		$route = $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id );
+		$this->assertNotNull( $route );
+		$this->assertSame( $leaf_before, (string) $route->localized_slug );
+		$this->assertSame( $path_before, (string) $route->localized_path );
+		$this->assertStringContainsString( 'about-us-renamed', (string) $route->source_path );
+		$this->assertSame( 0, count( $this->history->find_by_source( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id, 20 ) ) );
+	}
+
+	public function test_trash_deactivates_untrash_does_not_reactivate(): void {
+		$post     = $this->create_page( 'About Us' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$this->seed_translated_title( $post, $language, 'Om Oss' );
+
+		$generated = $this->candidates->generate( $post, (int) $language->language_id );
+		$this->assertIsObject( $generated );
+		$published = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
+		$this->assertIsArray( $published );
+
+		$this->route_publication->deactivate_for_source( (int) $post->ID );
+		$route = $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id );
+		$this->assertNotNull( $route );
+		$this->assertSame( 'inactive', (string) $route->route_status );
+
+		$view = $this->route_publication->sync_view( $post, (int) $language->language_id );
+		$this->assertSame( 'inconsistent', $view['route_sync_state'] );
+
+		// Untrash must not silently reactivate — status stays inactive until explicit re-publish.
+		$this->assertSame( 'inactive', (string) $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id )->route_status );
+	}
+
+	public function test_purge_removes_routes_and_history(): void {
+		$post     = $this->create_page( 'About Us' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$this->seed_translated_title( $post, $language, 'Om Oss' );
+
+		foreach ( array( 'alpha', 'beta' ) as $leaf ) {
+			$saved = $this->candidates->save_manual( $post, (int) $language->language_id, $leaf );
+			$this->assertIsObject( $saved );
+			$result = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
+			$this->assertIsArray( $result );
+		}
+
+		$this->assertNotEmpty( $this->history->find_by_source( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id, 20 ) );
+
+		$this->route_publication->purge_for_source( (int) $post->ID );
+		$this->assertNull( $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id ) );
+		$this->assertSame( array(), $this->history->find_by_source( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id, 20 ) );
+	}
+
+	public function test_clear_candidate_resets_origin_route_intact(): void {
+		$post     = $this->create_page( 'About Us' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$this->seed_translated_title( $post, $language, 'Om Oss' );
+
+		$generated = $this->candidates->generate( $post, (int) $language->language_id );
+		$this->assertIsObject( $generated );
+		$leaf      = (string) $generated->translated_text;
+		$published = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
+		$this->assertIsArray( $published );
+
+		$cleared = $this->candidates->clear( $post, (int) $language->language_id );
+		$this->assertIsObject( $cleared );
+		$this->assertSame( '', (string) $cleared->slug_origin );
+		$this->assertSame( Store::STATUS_MISSING, (string) $cleared->status );
+
+		$route = $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, (int) $language->language_id );
+		$this->assertNotNull( $route );
+		$this->assertSame( $leaf, (string) $route->localized_slug );
+		$this->assertSame( 'active', (string) $route->route_status );
+	}
+
+	public function test_is_discoverable_always_false(): void {
+		$post        = $this->create_page( 'About Us' );
+		$language    = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$eligibility = new ObjectLanguagePublicEligibility( $this->store, $this->languages, new RoutingCapabilityRegistry() );
+		$this->assertFalse( $eligibility->is_discoverable( $post, (int) $language->language_id ) );
+	}
+
+	public function test_manual_sanitize_drift_rejected(): void {
+		$post     = $this->create_page( 'About Us' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$rejected = $this->candidates->save_manual( $post, (int) $language->language_id, 'Hello World!' );
+		$this->assertInstanceOf( \WP_Error::class, $rejected );
+		$this->assertSame( 'aiml_slug_sanitize_drift', $rejected->get_error_code() );
+	}
 }

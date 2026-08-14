@@ -500,6 +500,22 @@ final class WorkspaceController {
 						),
 					),
 				),
+				array(
+					'methods'             => 'DELETE',
+					'callback'            => array( $this, 'clear_slug_candidate' ),
+					'permission_callback' => array( $this, 'can_edit_post' ),
+					'args'                => array(
+						'post_id'  => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+						'language' => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+					),
+				),
 			)
 		);
 
@@ -1260,6 +1276,26 @@ final class WorkspaceController {
 		$params    = $this->body_params( $request );
 		$candidate = (string) ( $params['slug_candidate'] ?? $params['translated_text'] ?? '' );
 		$result    = $this->workspace->save_slug_candidate( $post, (int) $language->language_id, $candidate );
+
+		return $result instanceof WP_Error ? $result : $this->respond( $result );
+	}
+
+	/**
+	 * Clears the slug candidate (MSEO.1).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function clear_slug_candidate( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+		$result = $this->workspace->clear_slug_candidate( $post, (int) $language->language_id );
 
 		return $result instanceof WP_Error ? $result : $this->respond( $result );
 	}

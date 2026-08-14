@@ -180,6 +180,34 @@ final class SlugRouteRepository {
 	}
 
 	/**
+	 * Language ids that have a prepared route for the source object.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @return array<int, int>
+	 */
+	public function list_language_ids_for_source( string $source_type, int $source_id ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
+		$rows = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT language_id FROM ' . Schema::slug_routes() . '
+				WHERE source_type = %s AND source_id = %d',
+				$source_type,
+				$source_id
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		return array_map( 'intval', $rows );
+	}
+
+	/**
 	 * Deletes all routes for a source object.
 	 *
 	 * @param string $source_type Source type.
