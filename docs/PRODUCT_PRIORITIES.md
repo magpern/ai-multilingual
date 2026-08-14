@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.3 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** Choose the next post-TSC program from the released **v1.4.0** baseline when separately authorized. **TSC PROGRAM COMPLETE — TSC.0–TSC.6.** **TIQ Complete.** **OTL Complete.** **v1.4.0 released** (tag `v1.4.0`). Runtime `Migrator::TARGET` **7**. TSC production architecture is **site-neutral**.
+**Current next decision:** **MSEO** (Multilingual SEO & Localized URLs) is **Architecture Frozen** — [MSEO parent plan](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md), [ADR-0023](adr/0023-localized-url-overlay-architecture.md). Implementation authorized for **MSEO.0** (inert foundation) when explicitly opened; localized URL enable UI gated to **MSEO.2**. **TSC PROGRAM COMPLETE — TSC.0–TSC.6.** **TIQ Complete.** **OTL Complete.** **v1.4.0 released** (tag `v1.4.0`). Runtime `Migrator::TARGET` **7** (TARGET **8** at MSEO.0). TSC production architecture is **site-neutral**.
 
 ---
 
@@ -40,11 +40,12 @@ Remaining priority order (highest first):
 
 ## 2. Current implementation priority
 
-### Active next program (post-v1.3.0)
+### Active next program (post-v1.4.0)
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **TSC — Translation Surface Coverage** | Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). **TSC.0–TSC.3 Complete** — [`TSC0`](plans/TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md), [`TSC1`](plans/TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md), [`TSC2`](plans/TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md), [`TSC3`](plans/TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md). Ladder **TSC.4–TSC.6** not started. |
+| 1 | **MSEO — Multilingual SEO & Localized URLs** | Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**). [ADR-0023](adr/0023-localized-url-overlay-architecture.md). Ladder **MSEO.0–MSEO.5**; [MSEO.0 plan](plans/MSEO0_LOCALIZED_URL_FOUNDATION_IMPLEMENTATION_PLAN.md). Default OFF; no public URL change until MSEO.2. |
+| — | **TSC — Translation Surface Coverage** | **COMPLETE** (TSC.0–TSC.6). Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
 **Release status:** AI Multilingual **v1.4.0** released (tag `v1.4.0` → `ee49cc906babfd34b67fd0998f1eb7553a03358f`). Prior: **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE — TSC.0–TSC.6**. Runtime `Migrator::TARGET` **7**.
