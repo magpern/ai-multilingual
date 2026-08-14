@@ -11,6 +11,8 @@ namespace AIMultilingual\Workspace;
 
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
+use AIMultilingual\Routing\RoutePublicationService;
+use AIMultilingual\Routing\SlugCandidateService;
 use AIMultilingual\Surface\AdmittedPostTypes;
 use AIMultilingual\Translation\AI\FieldSemanticMapper;
 use AIMultilingual\Translation\Assessment\AssessmentAssembler;
@@ -169,6 +171,20 @@ final class WorkspaceService {
 	private ?PublicationService $publication;
 
 	/**
+	 * Optional MSEO.1 slug candidate service.
+	 *
+	 * @var SlugCandidateService|null
+	 */
+	private ?SlugCandidateService $slug_candidates;
+
+	/**
+	 * Optional MSEO.1 route publication service.
+	 *
+	 * @var RoutePublicationService|null
+	 */
+	private ?RoutePublicationService $route_publication;
+
+	/**
 	 * Lazy OTL.0 operator assembler.
 	 *
 	 * @var OperatorTranslationAssembler|null
@@ -202,6 +218,8 @@ final class WorkspaceService {
 	 * @param PublicationService|null        $publication         Optional TI.7 publication service.
 	 * @param SurfaceRegistry|null           $surfaces            Optional surface registry (TSC.0).
 	 * @param TermAdoptionService|null       $term_adoption       Optional TSC.1 term adoption service.
+	 * @param SlugCandidateService|null      $slug_candidates     Optional MSEO.1 slug candidate service.
+	 * @param RoutePublicationService|null   $route_publication   Optional MSEO.1 route publication service.
 	 */
 	public function __construct(
 		SegmentAssembler $assembler,
@@ -220,7 +238,9 @@ final class WorkspaceService {
 		?FieldSemanticMapper $field_semantic_mapper = null,
 		?PublicationService $publication = null,
 		?SurfaceRegistry $surfaces = null,
-		?TermAdoptionService $term_adoption = null
+		?TermAdoptionService $term_adoption = null,
+		?SlugCandidateService $slug_candidates = null,
+		?RoutePublicationService $route_publication = null
 	) {
 		$this->assembler             = $assembler;
 		$this->status_calculator     = $status_calculator;
@@ -238,6 +258,8 @@ final class WorkspaceService {
 		$this->field_semantic_mapper = $field_semantic_mapper ?? new FieldSemanticMapper();
 		$this->publication           = $publication;
 		$this->term_adoption         = $term_adoption;
+		$this->slug_candidates       = $slug_candidates;
+		$this->route_publication     = $route_publication;
 		$this->batch                 = new BatchOperationCoordinator( $this, $translation );
 		$this->review_batch          = new ReviewBatchCoordinator( $this );
 		$this->operations_bulk       = new OperationsBulkCoordinator( $this, $store, $publication, null, $surfaces );
@@ -955,6 +977,100 @@ final class WorkspaceService {
 		$segment['publication_result'] = $result;
 
 		return $segment;
+	}
+
+	/**
+	 * Generates a localized slug candidate (MSEO.1).
+	 *
+	 * @param WP_Post $post        Post.
+	 * @param int     $language_id Language id.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function generate_slug_candidate( WP_Post $post, int $language_id ) {
+		$this->assert_supported_post( $post );
+		if ( null === $this->slug_candidates || null === $this->route_publication ) {
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+		}
+		$row = $this->slug_candidates->generate( $post, $language_id );
+		if ( $row instanceof WP_Error ) {
+			return $row;
+		}
+
+		return $this->route_publication->sync_view( $post, $language_id );
+	}
+
+	/**
+	 * Saves a manual slug candidate (MSEO.1).
+	 *
+	 * @param WP_Post $post        Post.
+	 * @param int     $language_id Language id.
+	 * @param string  $candidate   Candidate leaf.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function save_slug_candidate( WP_Post $post, int $language_id, string $candidate ) {
+		$this->assert_supported_post( $post );
+		if ( null === $this->slug_candidates || null === $this->route_publication ) {
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+		}
+		$row = $this->slug_candidates->save_manual( $post, $language_id, $candidate );
+		if ( $row instanceof WP_Error ) {
+			return $row;
+		}
+
+		return $this->route_publication->sync_view( $post, $language_id );
+	}
+
+	/**
+	 * Clears the slug candidate (MSEO.1).
+	 *
+	 * @param WP_Post $post        Post.
+	 * @param int     $language_id Language id.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function clear_slug_candidate( WP_Post $post, int $language_id ) {
+		$this->assert_supported_post( $post );
+		if ( null === $this->slug_candidates || null === $this->route_publication ) {
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+		}
+		$row = $this->slug_candidates->clear( $post, $language_id );
+		if ( $row instanceof WP_Error ) {
+			return $row;
+		}
+
+		return $this->route_publication->sync_view( $post, $language_id );
+	}
+
+	/**
+	 * Publishes the prepared route for a slug candidate (MSEO.1).
+	 *
+	 * @param WP_Post $post        Post.
+	 * @param int     $language_id Language id.
+	 * @param int     $user_id     User id.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function publish_prepared_route( WP_Post $post, int $language_id, int $user_id = 0 ) {
+		$this->assert_supported_post( $post );
+		if ( null === $this->route_publication ) {
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+		}
+
+		return $this->route_publication->publish_route( $post, $language_id, $user_id );
+	}
+
+	/**
+	 * Slug/route sync view model (MSEO.1).
+	 *
+	 * @param WP_Post $post        Post.
+	 * @param int     $language_id Language id.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function slug_route_view( WP_Post $post, int $language_id ) {
+		$this->assert_supported_post( $post );
+		if ( null === $this->route_publication ) {
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+		}
+
+		return $this->route_publication->sync_view( $post, $language_id );
 	}
 
 	/**

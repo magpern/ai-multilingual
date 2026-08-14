@@ -445,6 +445,87 @@ final class WorkspaceController {
 
 		register_rest_route(
 			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/slug/generate',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'generate_slug_candidate' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => array(
+					'post_id'  => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'language' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/slug',
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( $this, 'get_slug_route_view' ),
+					'permission_callback' => array( $this, 'can_edit_post' ),
+					'args'                => array(
+						'post_id'  => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+						'language' => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+					),
+				),
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'save_slug_candidate' ),
+					'permission_callback' => array( $this, 'can_edit_post' ),
+					'args'                => array(
+						'post_id'  => array(
+							'type'              => 'integer',
+							'required'          => true,
+							'sanitize_callback' => 'absint',
+						),
+						'language' => array(
+							'type'     => 'string',
+							'required' => true,
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/' . self::REST_BASE . '/(?P<post_id>\d+)/slug/publish-route',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'publish_prepared_route' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+				'args'                => array(
+					'post_id'  => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'language' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
 			'/' . self::REST_BASE . '/(?P<post_id>\d+)/segments/(?P<segment_key>.+)/unpublish',
 			array(
 				'methods'             => 'POST',
@@ -1119,6 +1200,88 @@ final class WorkspaceController {
 		}
 
 		return $this->respond( $payload );
+	}
+
+	/**
+	 * Returns slug/route sync view (MSEO.1).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_slug_route_view( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+		$result = $this->workspace->slug_route_view( $post, (int) $language->language_id );
+
+		return $result instanceof WP_Error ? $result : $this->respond( $result );
+	}
+
+	/**
+	 * Generates a slug candidate (MSEO.1).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function generate_slug_candidate( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+		$result = $this->workspace->generate_slug_candidate( $post, (int) $language->language_id );
+
+		return $result instanceof WP_Error ? $result : $this->respond( $result );
+	}
+
+	/**
+	 * Saves a manual slug candidate (MSEO.1).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function save_slug_candidate( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+		$params    = $this->body_params( $request );
+		$candidate = (string) ( $params['slug_candidate'] ?? $params['translated_text'] ?? '' );
+		$result    = $this->workspace->save_slug_candidate( $post, (int) $language->language_id, $candidate );
+
+		return $result instanceof WP_Error ? $result : $this->respond( $result );
+	}
+
+	/**
+	 * Publishes the prepared route (MSEO.1).
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function publish_prepared_route( WP_REST_Request $request ) {
+		$post = $this->resolve_post( $request );
+		if ( $post instanceof WP_Error ) {
+			return $post;
+		}
+		$language = $this->resolve_language_param( $request );
+		if ( $language instanceof WP_Error ) {
+			return $language;
+		}
+		$result = $this->workspace->publish_prepared_route( $post, (int) $language->language_id, get_current_user_id() );
+
+		return $result instanceof WP_Error ? $result : $this->respond( $result );
 	}
 
 	/**

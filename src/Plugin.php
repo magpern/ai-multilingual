@@ -468,7 +468,7 @@ final class Plugin {
 		AllowedActionsResolver::set_surface_registry( $surface_registry );
 		AllowedActionsResolver::set_segment_authority_registry( $segment_authority_registry );
 
-		$publication        = new PublicationService(
+		$publication = new PublicationService(
 			$store,
 			$assessment_assembler,
 			$publication_policy,
@@ -478,6 +478,33 @@ final class Plugin {
 			$term_resolver,
 			$segment_authority_registry
 		);
+
+		$path_canonicalizer   = new \AIMultilingual\Routing\PathCanonicalizer();
+		$slug_routes          = new \AIMultilingual\Routing\SlugRouteRepository();
+		$route_history        = new \AIMultilingual\Routing\RouteHistoryRepository();
+		$routing_capabilities = new \AIMultilingual\Routing\RoutingCapabilityRegistry();
+		$collision_checker    = new \AIMultilingual\Routing\CanonicalPathCollisionChecker(
+			$slug_routes,
+			$route_history,
+			$path_canonicalizer
+		);
+		$slug_eligibility     = new \AIMultilingual\Routing\ObjectLanguagePublicEligibility(
+			$store,
+			$languages,
+			$routing_capabilities
+		);
+		$slug_candidates      = new \AIMultilingual\Routing\SlugCandidateService( $store );
+		$route_publication    = new \AIMultilingual\Routing\RoutePublicationService(
+			$store,
+			$publication,
+			$slug_routes,
+			$route_history,
+			$path_canonicalizer,
+			$collision_checker,
+			$slug_eligibility,
+			$routing_capabilities
+		);
+
 		$translation        = new TranslationService(
 			$store,
 			$assembler,
@@ -524,7 +551,22 @@ final class Plugin {
 			null,
 			$publication,
 			$surface_registry,
-			$term_adoption
+			$term_adoption,
+			$slug_candidates,
+			$route_publication
+		);
+
+		add_action(
+			'wp_trash_post',
+			static function ( $post_id ) use ( $route_publication ): void {
+				$route_publication->deactivate_for_source( (int) $post_id );
+			}
+		);
+		add_action(
+			'before_delete_post',
+			static function ( $post_id ) use ( $route_publication ): void {
+				$route_publication->purge_for_source( (int) $post_id );
+			}
 		);
 
 		$job_repo        = new BackgroundTranslationJobRepository();

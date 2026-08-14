@@ -11,6 +11,7 @@ namespace AIMultilingual\Jobs;
 
 use AIMultilingual\Surface\SurfaceCapabilityNames;
 use AIMultilingual\Surface\SurfaceRegistry;
+use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\SegmentAssembler;
 use WP_Error;
@@ -845,6 +846,12 @@ final class BackgroundTranslationJobService {
 
 		foreach ( $segments as $segment ) {
 			if ( empty( $segment['can_edit'] ) ) {
+				continue;
+			}
+
+			if ( Store::FORMAT_SLUG === (string) ( $segment['text_format'] ?? '' )
+			|| Extractor::FIELD_SLUG === (string) ( $segment['segment_key'] ?? '' )
+			|| Extractor::FIELD_SLUG === (string) ( $segment['field_key'] ?? '' ) ) {
 				continue;
 			}
 

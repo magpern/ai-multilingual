@@ -13,6 +13,7 @@ use AIMultilingual\Glossary\GlossaryService;
 use AIMultilingual\Surface\SurfaceCapabilityNames;
 use AIMultilingual\Surface\SurfaceRegistry;
 use AIMultilingual\Translation\AI\ProviderResult;
+use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use AIMultilingual\Workspace\SegmentAssembler;
 use AIMultilingual\Workspace\TranslationService;
@@ -131,6 +132,13 @@ final class BackgroundTranslationItemProcessor {
 			if ( false === $provider_fact ) {
 				return ItemResult::skipped_conflict( 'Registered meta segment is not provider-admitted.' );
 			}
+		}
+
+		if ( null !== $row && Store::FORMAT_SLUG === (string) ( $row->text_format ?? '' ) ) {
+			return ItemResult::skipped_conflict( 'FORMAT_SLUG segments are not provider-admitted.' );
+		}
+		if ( Extractor::FIELD_SLUG === $segment_key ) {
+			return ItemResult::skipped_conflict( 'Slug candidates are not provider-admitted.' );
 		}
 
 		if ( Store::SOURCE_TERM === $source_type ) {
