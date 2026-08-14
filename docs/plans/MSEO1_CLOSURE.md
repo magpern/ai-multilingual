@@ -18,8 +18,8 @@
 | Review-fix SHA | `f4ec6da8b8c495b81b250270215e2b0d6425d610` |
 | Final reviewed feature HEAD | `f4ec6da8b8c495b81b250270215e2b0d6425d610` |
 | Merge SHA | `15f3b4587941cdd9fad1124d9a3f59c972dcd379` |
-| Closure SHA | _(this commit)_ |
-| Final main HEAD | _(this commit)_ |
+| Closure SHA | `ba01a9ce0bfded638be4544517f203150154c0ff` |
+| Final main HEAD | `ba01a9ce0bfded638be4544517f203150154c0ff` |
 
 ## Architecture
 
