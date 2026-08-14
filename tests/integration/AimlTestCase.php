@@ -15,6 +15,7 @@ use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Seo\LanguageRelationshipService;
+use AIMultilingual\Routing\EffectiveUrlService;
 use AIMultilingual\Routing\ObjectLanguagePublicEligibility;
 use AIMultilingual\Routing\PathCanonicalizer;
 use AIMultilingual\Routing\RouteHistoryRepository;

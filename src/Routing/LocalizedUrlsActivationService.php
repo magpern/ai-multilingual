@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Routing;
 
+use AIMultilingual\Jobs\SlugRouteActivationJob;
 use AIMultilingual\Settings;
 
 /**

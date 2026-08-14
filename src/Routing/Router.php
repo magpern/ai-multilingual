@@ -289,6 +289,8 @@ final class Router {
 					$this->build_prefixed_url( $language, $target, $query ),
 					302
 				);
+
+				return true;
 			}
 
 			$source_path = (string) ( $route->source_path ?? $unprefixed );
@@ -336,6 +338,8 @@ final class Router {
 				$this->build_prefixed_url( $language, $effective, $query ),
 				301
 			);
+
+			return true;
 		}
 
 		$source_path = $this->source_path_for_object(
@@ -347,6 +351,8 @@ final class Router {
 			$this->build_prefixed_url( $language, $source_path, $query ),
 			302
 		);
+
+		return true;
 	}
 
 	/**
@@ -650,8 +656,14 @@ final class Router {
 	 * @param int    $status   HTTP status code.
 	 */
 	private function redirect_and_exit( string $location, int $status ): void {
-		wp_safe_redirect( $location, $status, 'AIML' );
-		exit;
+		$sent = wp_safe_redirect( $location, $status, 'AIML' );
+		// When a `wp_redirect` filter cancels the redirect (integration tests),
+		// do not terminate the PHP process.
+		if ( false === $sent ) {
+			return;
+		}
+
+		exit; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTTP redirect terminal.
 	}
 
 	/**
