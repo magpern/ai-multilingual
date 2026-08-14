@@ -7,13 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### TSC.4 Gutenberg Coverage Expansion
+## [1.4.0] — 2026-08-14
 
-- Fix `BlockTranslationLookup` to load all six grammar-valid block fields (`content`, `citation`, `summary`, `caption`, `fileName`, `downloadButtonText`) for frontend rendering.
-- Add fail-closed `BlockStructuralAttributeGuard` after adapter apply to reject translated fragments that mutate `href`, `class`, `id`, `target`, `rel`, or `data-*` attributes.
-- Characterization tests for gallery/media-text/cover/buttons recursion; malformed block/field pair authority; sync_source per-segment stale granularity; PluginGuard TSC.4 invariants.
-- Bounded local browser smoke documented in `acceptance/tsc4-browser/README.md` (non-CI).
-- Version **1.3.0** unchanged; `Migrator::TARGET` **7** unchanged; no schema migration.
+### Translation Surface Coverage (TSC.0–TSC.6)
+
+- **TSC.0** Internal surface capability foundation: `SurfaceRegistry` / `SurfaceCapability`, request-local invalidation coordination, admitted surface ownership.
+- **TSC.1** First-class taxonomy terms: native term identity, lazy hosted adoption, term edit/review/publication, visitor term overlays, Rank Math term coexistence.
+- **TSC.2** Registered meta translation surfaces: exact-key catalog, provider admission, Rank Math ownership, post/term registered meta lifecycle.
+- **TSC.3** WooCommerce extended translation surfaces: global attribute labels, single-writer authority, shop-host rehome, variation safety, Woo email stale improvements.
+- **TSC.4** Gutenberg coverage expansion: broader supported block field rendering, structural-attribute safety, block-field authority hardening, stale granularity.
+- **TSC.5** Elementor coverage expansion: authoritative `after_save` invalidation, shared structural safety, editor/preview context isolation, eight supported widget families hardened.
+- **TSC.6** Public Extension / SEO stabilization: Extension API v1, public meta/block registration, `VisitorTranslationResolver`, `aiml_mark_source_dirty()`, WP-CLI extension diagnostics, Rank Math regression, ADR-0022.
+
+### Extension API v1
+
+- `aiml_register_extensions` hook with root extension ownership and registry sealing.
+- Public exact-key meta registration (`ExtensionMetaDefinition`; `provider_allowed` default false).
+- Public custom block adapter contract (`ExtensionBlockAdapter`).
+- Read-only visitor resolver with complete source identity and language code.
+- Public invalidation helper and bounded WP-CLI diagnostics.
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **7** (no migration).
+- Integration API v1 unchanged; TIQ and OTL programs remain complete.
+- Safe publication defaults unchanged: gate OFF, mode `manual`.
+- Gutenberg/Elementor feature flags remain OFF by default.
+
+### Notes
+
+- Production package is `ai-multilingual-1.4.0.zip` from `bin/build-zip.sh` / GitHub Actions on `v*` tags.
+- See [docs/releases/v1.4.0.md](docs/releases/v1.4.0.md) and [docs/releases/V1_4_0_RELEASE_SCOPE.md](docs/releases/V1_4_0_RELEASE_SCOPE.md).
 
 ## [1.3.0] — 2026-08-12
 
