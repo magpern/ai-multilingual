@@ -1,12 +1,14 @@
 # AI Multilingual v1.4.0 — Release Scope Audit
 
-**Status:** **IN PREPARATION**
+**Status:** **CLOSED / RELEASED**
 **Date:** 2026-08-14
-**Preparation branch:** `release/v1.4.0-preparation`
+**Preparation branch:** `release/v1.4.0-preparation` (PR #33)
 **Baseline main HEAD:** `505b818117bd830611f004ffe4bd16ac275d5286`
+**Merge / tag target:** `ee49cc906babfd34b67fd0998f1eb7553a03358f`
 **Previous intentional release:** `v1.3.0` @ `c88ba30681439d9e7113a20d7ebc03c942dd240d`
 **Schema:** Migrator `TARGET = 7` (**unchanged** — no migration in this release)
 **Decision:** **RELEASE VERSION DECISION: 1.4.0**
+**Published:** tag `v1.4.0` + GitHub Release (workflow `31781195588`); published ZIP audit PASS
 
 ## Version decision rationale
 

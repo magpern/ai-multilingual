@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.3 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** Plan/implement **TSC.4** only when separately authorized. **Do not** start TSC.4 until authorized. **TSC.0–TSC.3 Complete.** **TIQ Complete.** **OTL Complete.** **v1.3.0 released** (tag `v1.3.0`). Runtime `Migrator::TARGET` **7**. TSC production architecture is **site-neutral**.
+**Current next decision:** Choose the next post-TSC program from the released **v1.4.0** baseline when separately authorized. **TSC PROGRAM COMPLETE — TSC.0–TSC.6.** **TIQ Complete.** **OTL Complete.** **v1.4.0 released** (tag `v1.4.0`). Runtime `Migrator::TARGET` **7**. TSC production architecture is **site-neutral**.
 
 ---
 
@@ -47,7 +47,7 @@ Remaining priority order (highest first):
 | 1 | **TSC — Translation Surface Coverage** | Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). **TSC.0–TSC.3 Complete** — [`TSC0`](plans/TSC0_INTERNAL_SURFACE_CAPABILITY_FOUNDATION_IMPLEMENTATION_PLAN.md), [`TSC1`](plans/TSC1_FIRST_CLASS_TAXONOMY_TERMS_IMPLEMENTATION_PLAN.md), [`TSC2`](plans/TSC2_REGISTERED_META_SURFACES_IMPLEMENTATION_PLAN.md), [`TSC3`](plans/TSC3_WOOCOMMERCE_EXTENDED_TRANSLATION_SURFACES_IMPLEMENTATION_PLAN.md). Ladder **TSC.4–TSC.6** not started. |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
-**Released:** AI Multilingual **v1.3.0** (tag `v1.3.0`). Prior: **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. `Migrator::TARGET` is **7**.
+**Release status:** AI Multilingual **v1.4.0** released (tag `v1.4.0` → `ee49cc906babfd34b67fd0998f1eb7553a03358f`). Prior: **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE — TSC.0–TSC.6**. Runtime `Migrator::TARGET` **7**.
 
 Visitor-facing Program A waves below remain listed for historical priority context. Coverage-Deferred surfaces stay Deferred unless admitted through the frozen TSC matrix / milestone plans. TSC must remain generic and site-neutral — Biopentra may be used as a test site, never as the production-domain model.
 
