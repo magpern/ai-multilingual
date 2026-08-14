@@ -1116,10 +1116,20 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'is_discoverable', $eligibility );
 		$this->assertStringContainsString( 'is_localized_url_generation_enabled', $eligibility );
 
-		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
+		$this->assertTrue( class_exists( 'AIMultilingual\\Jobs\\SlugRouteActivationJob' ) );
+		$this->assertFileExists( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
+
+		$activation_job = (string) file_get_contents( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
+		$activation_verifier = (string) file_get_contents( $this->root() . '/src/Routing/SlugRouteActivationVerifier.php' );
+		foreach ( array( $activation_job, $activation_verifier ) as $source ) {
+			$this->assertStringNotContainsString( 'RoutePublicationService', $source );
+			$this->assertStringNotContainsString( 'publish_route', $source );
+			$this->assertStringNotContainsString( 'SlugCandidateService', $source );
+		}
 
 		$settings_page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
-		$this->assertStringNotContainsString( 'localized_urls_state', $settings_page );
+		$this->assertStringContainsString( 'render_localized_urls_settings', $settings_page );
+		$this->assertStringContainsString( 'Localized URLs', $settings_page );
 	}
 
 	/**
@@ -1140,10 +1150,8 @@ final class PluginGuardTest extends AimlTestCase {
 		$canonicalizer = (string) file_get_contents( $this->root() . '/src/Routing/PathCanonicalizer.php' );
 		$this->assertStringNotContainsString( 'sanitize_title', $canonicalizer );
 
-		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
-
 		$settings_page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
-		$this->assertStringNotContainsString( 'localized_urls_state', $settings_page );
+		$this->assertStringContainsString( 'render_localized_urls_settings', $settings_page );
 	}
 
 	/**
@@ -1181,11 +1189,11 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'slug/publish-route', $rest );
 		$this->assertStringContainsString( 'clear_slug_candidate', $rest );
 
-		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
-		$this->assertFileDoesNotExist( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
+		$this->assertTrue( class_exists( 'AIMultilingual\\Jobs\\SlugRouteActivationJob' ) );
+		$this->assertFileExists( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
 
 		$settings_page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
-		$this->assertStringNotContainsString( 'localized_urls_state', $settings_page );
+		$this->assertStringContainsString( 'render_localized_urls_settings', $settings_page );
 
 		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
 		$this->assertStringNotContainsString( 'step_9_', $migrator );

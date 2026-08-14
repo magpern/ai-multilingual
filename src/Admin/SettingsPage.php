@@ -11,6 +11,7 @@ namespace AIMultilingual\Admin;
 
 use AIMultilingual\Block\FeatureFlags;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Routing\LocalizedUrlsActivationService;
 use AIMultilingual\Settings;
 use AIMultilingual\Translation\AI\CredentialVault;
 use AIMultilingual\Translation\Publication\PublicationMode;
@@ -77,16 +78,30 @@ final class SettingsPage {
 	private CredentialVault $vault;
 
 	/**
+	 * Localized URL activation control.
+	 *
+	 * @var LocalizedUrlsActivationService|null
+	 */
+	private ?LocalizedUrlsActivationService $localized_urls;
+
+	/**
 	 * Builds the settings and language screens.
 	 *
-	 * @param Settings             $settings  Plugin settings.
-	 * @param Languages            $languages Language configuration.
-	 * @param CredentialVault|null $vault     Credential vault.
+	 * @param Settings                          $settings       Plugin settings.
+	 * @param Languages                         $languages      Language configuration.
+	 * @param CredentialVault|null              $vault          Credential vault.
+	 * @param LocalizedUrlsActivationService|null $localized_urls Localized URL activation.
 	 */
-	public function __construct( Settings $settings, Languages $languages, ?CredentialVault $vault = null ) {
-		$this->settings  = $settings;
-		$this->languages = $languages;
-		$this->vault     = $vault ?? new CredentialVault();
+	public function __construct(
+		Settings $settings,
+		Languages $languages,
+		?CredentialVault $vault = null,
+		?LocalizedUrlsActivationService $localized_urls = null
+	) {
+		$this->settings       = $settings;
+		$this->languages      = $languages;
+		$this->vault          = $vault ?? new CredentialVault();
+		$this->localized_urls = $localized_urls;
 	}
 
 	/**
@@ -99,6 +114,9 @@ final class SettingsPage {
 
 		add_action( 'admin_post_aiml_save_language', array( $this, 'handle_save_language' ) );
 		add_action( 'admin_post_aiml_delete_language', array( $this, 'handle_delete_language' ) );
+		add_action( 'admin_post_aiml_localized_urls_enable', array( $this, 'handle_localized_urls_enable' ) );
+		add_action( 'admin_post_aiml_localized_urls_disable', array( $this, 'handle_localized_urls_disable' ) );
+		add_action( 'admin_post_aiml_localized_urls_retry', array( $this, 'handle_localized_urls_retry' ) );
 	}
 
 	/**
@@ -183,6 +201,11 @@ final class SettingsPage {
 		Settings::emit_flag_change_audit( $previous, $clean, 'admin_settings' );
 
 		$this->handle_strategy_f_submission( $raw, $clean, $previous );
+
+		// Localized URL state machine is controlled via dedicated admin-post actions only.
+		$clean['localized_urls_state']                 = $previous['localized_urls_state'] ?? 'off';
+		$clean['localized_urls_activation_checkpoint'] = $previous['localized_urls_activation_checkpoint'] ?? null;
+		$clean['localized_urls_activation_error']      = $previous['localized_urls_activation_error'] ?? '';
 
 		return $clean;
 	}
@@ -312,6 +335,7 @@ final class SettingsPage {
 
 		echo '<div class="wrap">';
 		echo '<h1>' . esc_html__( 'AI Multilingual Settings', 'ai-multilingual' ) . '</h1>';
+		$this->render_notice();
 		echo '<form method="post" action="' . esc_url( admin_url( 'options.php' ) ) . '">';
 
 		settings_fields( self::OPTION_GROUP );
@@ -349,6 +373,10 @@ final class SettingsPage {
 		echo '</tbody></table>';
 
 		$this->render_strategy_f_settings( $current );
+
+		if ( null !== $this->localized_urls ) {
+			$this->render_localized_urls_settings( $current );
+		}
 
 		$this->render_ai_provider_settings( $current );
 
@@ -442,6 +470,48 @@ final class SettingsPage {
 		check_admin_referer( 'aiml_delete_language_' . $language_id );
 
 		$this->redirect_with_result( $this->languages->delete( $language_id ), self::MENU_SLUG );
+	}
+
+	/**
+	 * Enables localized public URLs (activating → verification job).
+	 */
+	public function handle_localized_urls_enable(): void {
+		if ( null === $this->localized_urls || ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'ai-multilingual' ) );
+		}
+
+		check_admin_referer( 'aiml_localized_urls_enable' );
+
+		$this->localized_urls->request_enable();
+		$this->redirect_localized_urls_settings();
+	}
+
+	/**
+	 * Disables localized public URLs.
+	 */
+	public function handle_localized_urls_disable(): void {
+		if ( null === $this->localized_urls || ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'ai-multilingual' ) );
+		}
+
+		check_admin_referer( 'aiml_localized_urls_disable' );
+
+		$this->localized_urls->request_disable();
+		$this->redirect_localized_urls_settings();
+	}
+
+	/**
+	 * Retries activation after failure.
+	 */
+	public function handle_localized_urls_retry(): void {
+		if ( null === $this->localized_urls || ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'ai-multilingual' ) );
+		}
+
+		check_admin_referer( 'aiml_localized_urls_retry' );
+
+		$this->localized_urls->request_retry();
+		$this->redirect_localized_urls_settings();
 	}
 
 	// -- Rendering helpers --
@@ -664,6 +734,147 @@ final class SettingsPage {
 		$this->render_publication_confirmation_script();
 
 		$this->render_strategy_f_confirmation_script();
+	}
+
+	/**
+	 * Renders localized URL activation controls (MSEO.2.5).
+	 *
+	 * @param array<string, mixed> $current Saved settings.
+	 */
+	private function render_localized_urls_settings( array $current ): void {
+		$state = (string) ( $current['localized_urls_state'] ?? LocalizedUrlsActivationService::STATE_OFF );
+		$error = (string) ( $current['localized_urls_activation_error'] ?? '' );
+
+		echo '<h2>' . esc_html__( 'Localized URLs', 'ai-multilingual' ) . '</h2>';
+		echo '<p class="description">' . esc_html__(
+			'Enabling verifies prepared active routes in the background before public localized URLs are advertised. Disabling is immediate.',
+			'ai-multilingual'
+		) . '</p>';
+
+		echo '<div class="aiml-localized-urls-diagnostics" style="margin:1.5em 0;padding:1em;border:1px solid #ccd0d4;background:#fff;">';
+		echo '<p><strong>' . esc_html__( 'State:', 'ai-multilingual' ) . '</strong> ';
+		echo esc_html( $this->localized_urls_state_label( $state ) ) . '</p>';
+
+		if ( LocalizedUrlsActivationService::STATE_FAILED === $state && '' !== $error ) {
+			printf(
+				'<p><strong>%1$s</strong> %2$s</p>',
+				esc_html__( 'Error:', 'ai-multilingual' ),
+				esc_html( $error )
+			);
+		}
+
+		echo '<p class="description">' . esc_html__(
+			'While Activating, inbound localized paths are recognized but visitors are redirected to source-slug URLs until verification completes.',
+			'ai-multilingual'
+		) . '</p>';
+		echo '</div>';
+
+		if ( in_array( $state, array( LocalizedUrlsActivationService::STATE_OFF, LocalizedUrlsActivationService::STATE_FAILED ), true ) ) {
+			$enable_label = LocalizedUrlsActivationService::STATE_FAILED === $state
+				? __( 'Retry activation', 'ai-multilingual' )
+				: __( 'Enable localized URLs', 'ai-multilingual' );
+			$enable_action = LocalizedUrlsActivationService::STATE_FAILED === $state
+				? 'aiml_localized_urls_retry'
+				: 'aiml_localized_urls_enable';
+			$enable_nonce  = LocalizedUrlsActivationService::STATE_FAILED === $state
+				? 'aiml_localized_urls_retry'
+				: 'aiml_localized_urls_enable';
+
+			printf(
+				'<p><a class="button button-primary" href="%1$s" data-aiml-localized-urls-enable="1">%2$s</a></p>',
+				esc_url(
+					wp_nonce_url(
+						add_query_arg( 'action', $enable_action, admin_url( 'admin-post.php' ) ),
+						$enable_nonce
+					)
+				),
+				esc_html( $enable_label )
+			);
+		}
+
+		if ( in_array(
+			$state,
+			array(
+				LocalizedUrlsActivationService::STATE_ON,
+				LocalizedUrlsActivationService::STATE_ACTIVATING,
+				LocalizedUrlsActivationService::STATE_FAILED,
+			),
+			true
+		) ) {
+			printf(
+				'<p><a class="button" href="%1$s">%2$s</a></p>',
+				esc_url(
+					wp_nonce_url(
+						add_query_arg( 'action', 'aiml_localized_urls_disable', admin_url( 'admin-post.php' ) ),
+						'aiml_localized_urls_disable'
+					)
+				),
+				esc_html__( 'Disable localized URLs', 'ai-multilingual' )
+			);
+		}
+
+		$this->render_localized_urls_confirmation_script();
+
+		echo '<hr />';
+	}
+
+	/**
+	 * Human-readable localized URL activation state.
+	 *
+	 * @param string $state Persisted state.
+	 */
+	private function localized_urls_state_label( string $state ): string {
+		switch ( $state ) {
+			case LocalizedUrlsActivationService::STATE_ON:
+				return __( 'On', 'ai-multilingual' );
+			case LocalizedUrlsActivationService::STATE_ACTIVATING:
+				return __( 'Activating', 'ai-multilingual' );
+			case LocalizedUrlsActivationService::STATE_FAILED:
+				return __( 'Failed', 'ai-multilingual' );
+			default:
+				return __( 'Off', 'ai-multilingual' );
+		}
+	}
+
+	/**
+	 * Confirmation prompt before enabling localized URLs.
+	 */
+	private function render_localized_urls_confirmation_script(): void {
+		$message = __(
+			'Enabling localized URLs starts a background verification of all prepared active routes. Visitors may see source-slug URLs until activation completes. Continue?',
+			'ai-multilingual'
+		);
+
+		printf(
+			'<script>
+			(function () {
+				var link = document.querySelector("[data-aiml-localized-urls-enable]");
+				if (!link) { return; }
+				link.addEventListener("click", function (event) {
+					if (!window.confirm(%1$s)) {
+						event.preventDefault();
+					}
+				});
+			}());
+			</script>',
+			wp_json_encode( $message )
+		);
+	}
+
+	/**
+	 * Redirects back to the settings screen after localized URL actions.
+	 */
+	private function redirect_localized_urls_settings(): void {
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'         => self::SETTINGS_SLUG,
+					'aiml_updated' => '1',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
 	}
 
 	/**

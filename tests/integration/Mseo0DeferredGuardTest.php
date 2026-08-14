@@ -1,6 +1,6 @@
 <?php
 /**
- * MSEO.0 deferred structural guards (updated for MSEO.2 wiring).
+ * MSEO.0 deferred structural guards (updated for MSEO.2 activation).
  *
  * @package AIMultilingual
  */
@@ -16,7 +16,7 @@ use AIMultilingual\Routing\PathHash;
 use AIMultilingual\Settings;
 
 /**
- * Proves MSEO foundation boundaries — activation job and settings UI remain deferred.
+ * Proves MSEO foundation boundaries with MSEO.2 activation wired.
  */
 final class Mseo0DeferredGuardTest extends AimlTestCase {
 
@@ -35,13 +35,14 @@ final class Mseo0DeferredGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'sha1(', $source );
 	}
 
-	public function test_no_slug_route_activation_job_class(): void {
-		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
+	public function test_slug_route_activation_job_class_exists(): void {
+		$this->assertTrue( class_exists( 'AIMultilingual\\Jobs\\SlugRouteActivationJob' ) );
 	}
 
 	public function test_effective_url_service_wired_in_plugin(): void {
 		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
 		$this->assertStringContainsString( 'EffectiveUrlService', $plugin );
+		$this->assertStringContainsString( 'SlugRouteActivationJob', $plugin );
 	}
 
 	public function test_router_has_mseo_inbound_recognition(): void {
@@ -64,10 +65,10 @@ final class Mseo0DeferredGuardTest extends AimlTestCase {
 		}
 	}
 
-	public function test_no_localized_url_settings_page_control(): void {
+	public function test_localized_url_settings_page_control_present(): void {
 		$page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
-		$this->assertStringNotContainsString( 'localized_urls_state', $page );
-		$this->assertStringNotContainsString( 'localized url', strtolower( $page ) );
+		$this->assertStringContainsString( 'render_localized_urls_settings', $page );
+		$this->assertStringContainsString( 'Localized URLs', $page );
 	}
 
 	public function test_mseo_tables_exist_and_router_recognizes_routes(): void {
@@ -88,5 +89,12 @@ final class Mseo0DeferredGuardTest extends AimlTestCase {
 		$params = $ref->getConstructor()->getParameters();
 		$this->assertGreaterThanOrEqual( 4, count( $params ) );
 		$this->assertSame( Settings::class, $params[0]->getType()->getName() );
+	}
+
+	public function test_activation_job_is_verification_only(): void {
+		$job = (string) file_get_contents( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
+		$this->assertStringContainsString( 'aiml_localized_urls_activation_tick', $job );
+		$this->assertStringNotContainsString( 'RoutePublicationService', $job );
+		$this->assertStringNotContainsString( 'publish_route', $job );
 	}
 }

@@ -29,6 +29,7 @@ use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Jobs\JobsCli;
 use AIMultilingual\Jobs\JobsController;
 use AIMultilingual\Jobs\JobsViewModelSerializer;
+use AIMultilingual\Jobs\SlugRouteActivationJob;
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
@@ -117,9 +118,11 @@ use AIMultilingual\Rollout\Cache\RolloutCacheInvalidationHooks;
 use AIMultilingual\Rollout\Cache\RolloutRenderCacheBridge;
 use AIMultilingual\Rollout\Metrics\RolloutMetricsCollector;
 use AIMultilingual\Routing\EffectiveUrlService;
+use AIMultilingual\Routing\LocalizedUrlsActivationService;
 use AIMultilingual\Routing\PathCanonicalizer;
 use AIMultilingual\Routing\RouteHistoryRepository;
 use AIMultilingual\Routing\RoutingCapabilityRegistry;
+use AIMultilingual\Routing\SlugRouteActivationVerifier;
 use AIMultilingual\Routing\SlugRouteRepository;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\AI\CredentialVault;
@@ -535,6 +538,23 @@ final class Plugin {
 			$routing_capabilities
 		);
 
+		$localized_urls_activation = new LocalizedUrlsActivationService( $this->settings );
+		$slug_route_activation     = new SlugRouteActivationJob(
+			$this->settings,
+			$slug_routes,
+			new SlugRouteActivationVerifier(
+				$languages,
+				$routing_capabilities,
+				$path_canonicalizer,
+				$slug_routes,
+				$route_history,
+				$collision_checker
+			),
+			$localized_urls_activation
+		);
+		$localized_urls_activation->bind_job( $slug_route_activation );
+		$slug_route_activation->register_hooks();
+
 		$translation        = new TranslationService(
 			$store,
 			$assembler,
@@ -738,7 +758,7 @@ final class Plugin {
 		);
 
 		if ( is_admin() ) {
-			( new SettingsPage( $settings, $languages, $vault ) )->register();
+			( new SettingsPage( $settings, $languages, $vault, $localized_urls_activation ) )->register();
 			( new RolloutAdminPage() )->register();
 			( new SeoDiagnosticsAdminPage( $seo_diagnostics ) )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
@@ -778,7 +798,7 @@ final class Plugin {
 				new BlockIdentityAnalyzer( $block_registry )
 			);
 
-			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics, $publication );
+			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics, $publication, $localized_urls_activation, $slug_route_activation );
 			ExtensionCli::register( $extension_registrar, $extension_diagnostics );
 			RolloutCli::register();
 			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases, $job_concurrency );

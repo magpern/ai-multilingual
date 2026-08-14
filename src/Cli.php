@@ -17,6 +17,9 @@ use AIMultilingual\Block\BlockMetricsAggregator;
 use AIMultilingual\Block\BlockMetricsSnapshot;
 use AIMultilingual\Block\BlockMigrationOptions;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Routing\LocalizedUrlsActivationService;
+use AIMultilingual\Jobs\SlugRouteActivationJob;
+use AIMultilingual\Settings;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsCheck;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsOptions;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsService;
@@ -53,8 +56,10 @@ final class Cli {
 	 * @param BlockIdentityMigration  $migration Block identity migration service.
 	 * @param BlockHealthService      $health    Block health diagnostics service.
 	 * @param BlockMetricsAggregator  $metrics     Request-scoped metrics aggregator.
-	 * @param SeoDiagnosticsService   $seo         SEO diagnostics core (A.SEOf).
-	 * @param PublicationService|null $publication Optional TI.7 publication service.
+	 * @param SeoDiagnosticsService              $seo         SEO diagnostics core (A.SEOf).
+	 * @param PublicationService|null            $publication Optional TI.7 publication service.
+	 * @param LocalizedUrlsActivationService|null $localized_urls Optional localized URL activation.
+	 * @param SlugRouteActivationJob|null        $activation_job Optional activation job diagnostics.
 	 */
 	public static function register(
 		Languages $languages,
@@ -65,6 +70,8 @@ final class Cli {
 		BlockMetricsAggregator $metrics,
 		SeoDiagnosticsService $seo,
 		?PublicationService $publication = null,
+		?LocalizedUrlsActivationService $localized_urls = null,
+		?SlugRouteActivationJob $activation_job = null,
 	): void {
 		if ( ! class_exists( WP_CLI::class ) ) {
 			return;
@@ -194,6 +201,18 @@ final class Cli {
 				array(
 					'shortdesc' => 'Prints publish_status metadata for one field.',
 					'synopsis'  => self::translation_synopsis(),
+				)
+			);
+		}
+
+		if ( null !== $localized_urls && null !== $activation_job ) {
+			WP_CLI::add_command(
+				'aiml localized-urls status',
+				static function () use ( $localized_urls, $activation_job ): void {
+					self::localized_urls_status( $localized_urls, $activation_job );
+				},
+				array(
+					'shortdesc' => 'Prints localized URL activation state and frontier diagnostics.',
 				)
 			);
 		}
@@ -1029,6 +1048,31 @@ final class Cli {
 		}
 
 		WP_CLI::print_value( wp_json_encode( $result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) );
+	}
+
+	/**
+	 * Prints localized URL activation diagnostics.
+	 *
+	 * @param LocalizedUrlsActivationService $activation Activation service.
+	 * @param SlugRouteActivationJob         $job          Activation job.
+	 */
+	private static function localized_urls_status(
+		LocalizedUrlsActivationService $activation,
+		SlugRouteActivationJob $job
+	): void {
+		$settings = new Settings();
+
+		WP_CLI::print_value(
+			wp_json_encode(
+				array(
+					'state'              => $settings->localized_urls_state(),
+					'checkpoint_route_id' => $activation->checkpoint_route_id(),
+					'error'              => $settings->localized_urls_activation_error(),
+					'active_route_count' => $job->count_active_routes(),
+				),
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+			)
+		);
 	}
 
 	/**
