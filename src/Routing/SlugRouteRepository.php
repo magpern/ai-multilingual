@@ -154,6 +154,110 @@ final class SlugRouteRepository {
 	}
 
 	/**
+	 * Locks the current route row for an object/language (FOR UPDATE).
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @param int    $language_id Language id.
+	 */
+	public function lock_by_object( string $source_type, int $source_id, int $language_id ): ?object {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
+		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::slug_routes() . '
+				WHERE source_type = %s AND source_id = %d AND language_id = %d
+				LIMIT 1 FOR UPDATE',
+				$source_type,
+				$source_id,
+				$language_id
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		return null === $row ? null : $row;
+	}
+
+	/**
+	 * Language ids that have a prepared route for the source object.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @return array<int, int>
+	 */
+	public function list_language_ids_for_source( string $source_type, int $source_id ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
+		$rows = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT language_id FROM ' . Schema::slug_routes() . '
+				WHERE source_type = %s AND source_id = %d',
+				$source_type,
+				$source_id
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		return array_map( 'intval', $rows );
+	}
+
+	/**
+	 * Deletes all routes for a source object.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 */
+	public function delete_by_source( string $source_type, int $source_id ): int {
+		global $wpdb;
+
+		$result = $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::slug_routes(),
+			array(
+				'source_type' => $source_type,
+				'source_id'   => $source_id,
+			),
+			array( '%s', '%d' )
+		);
+
+		return false === $result ? 0 : (int) $result;
+	}
+
+	/**
+	 * Sets route_status for an object/language.
+	 *
+	 * @param string $source_type  Source type.
+	 * @param int    $source_id    Source id.
+	 * @param int    $language_id  Language id.
+	 * @param string $route_status New status.
+	 */
+	public function set_status( string $source_type, int $source_id, int $language_id, string $route_status ): bool {
+		global $wpdb;
+
+		$ok = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::slug_routes(),
+			array(
+				'route_status' => $route_status,
+				'updated_at'   => current_time( 'mysql', true ),
+			),
+			array(
+				'source_type' => $source_type,
+				'source_id'   => $source_id,
+				'language_id' => $language_id,
+			),
+			array( '%s', '%s' ),
+			array( '%s', '%d', '%d' )
+		);
+
+		return false !== $ok;
+	}
+
+	/**
 	 * Updates an existing route row.
 	 *
 	 * @param int         $route_id        Route id.

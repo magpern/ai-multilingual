@@ -171,4 +171,46 @@ final class RouteHistoryRepository {
 
 		return $deleted;
 	}
+
+	/**
+	 * Deletes a history row by id (same-object path reuse).
+	 *
+	 * @param int $history_id History PK.
+	 */
+	public function delete_by_id( int $history_id ): bool {
+		global $wpdb;
+
+		if ( $history_id <= 0 ) {
+			return false;
+		}
+
+		$result = $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::route_history(),
+			array( 'history_id' => $history_id ),
+			array( '%d' )
+		);
+
+		return false !== $result;
+	}
+
+	/**
+	 * Deletes all history for a source object (permanent delete).
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 */
+	public function delete_by_source( string $source_type, int $source_id ): int {
+		global $wpdb;
+
+		$result = $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::route_history(),
+			array(
+				'source_type' => $source_type,
+				'source_id'   => $source_id,
+			),
+			array( '%s', '%d' )
+		);
+
+		return false === $result ? 0 : (int) $result;
+	}
 }

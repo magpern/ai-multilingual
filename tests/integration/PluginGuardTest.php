@@ -130,6 +130,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Routing/SlugRouteRepository.php',
 			'src/Routing/RouteHistoryRepository.php',
 			'src/Routing/ReindexFrontierRepository.php',
+			'src/Routing/RoutePublicationService.php',
 		);
 
 		foreach ( $this->sources() as $path => $code ) {
@@ -1119,5 +1120,58 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$settings_page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
 		$this->assertStringNotContainsString( 'localized_urls_state', $settings_page );
+	}
+
+	/**
+	 * MSEO.1 lifecycle boundaries — TARGET 8, prepared routes, no public routing.
+	 */
+	public function test_mseo1_lifecycle_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+
+		foreach ( array(
+			\AIMultilingual\Routing\SlugCandidateService::class,
+			\AIMultilingual\Routing\RoutePublicationService::class,
+			\AIMultilingual\Routing\CanonicalPathCollisionChecker::class,
+			\AIMultilingual\Routing\ObjectLanguagePublicEligibility::class,
+			\AIMultilingual\Routing\RoutingCapabilityRegistry::class,
+		) as $class ) {
+			$this->assertTrue( class_exists( $class ), $class . ' must exist for MSEO.1' );
+		}
+
+		$publication = (string) file_get_contents( $this->root() . '/src/Translation/Publication/PublicationService.php' );
+		$this->assertTrue(
+			false !== strpos( $publication, 'aiml_slug_publish_requires_route' )
+			|| false !== strpos( $publication, 'reject_format_slug' ),
+			'PublicationService must fail-closed for standalone FORMAT_SLUG publish.'
+		);
+		$this->assertStringContainsString( 'publish_under_route_authority', $publication );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringNotContainsString( 'EffectiveUrlService', $plugin );
+		$this->assertDoesNotMatchRegularExpression(
+			'/new\s+Router\s*\([^;]*EffectiveUrl/s',
+			$plugin,
+			'Plugin must not wire EffectiveUrl into Router.'
+		);
+		$this->assertStringContainsString( 'refresh_source_path', $plugin );
+		$this->assertStringContainsString( 'deactivate_for_source', $plugin );
+		$this->assertStringContainsString( 'purge_for_source', $plugin );
+
+		$rest = (string) file_get_contents( $this->root() . '/src/Rest/WorkspaceController.php' );
+		$this->assertStringContainsString( 'slug/publish-route', $rest );
+		$this->assertStringContainsString( 'clear_slug_candidate', $rest );
+
+		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
+		$this->assertFileDoesNotExist( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
+
+		$settings_page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
+		$this->assertStringNotContainsString( 'localized_urls_state', $settings_page );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertStringNotContainsString( 'step_9_', $migrator );
+
+		$route_pub = (string) file_get_contents( $this->root() . '/src/Routing/RoutePublicationService.php' );
+		$this->assertStringContainsString( 'publish_under_route_authority', $route_pub );
+		$this->assertStringContainsString( 'collision_adjusted', $route_pub );
 	}
 }

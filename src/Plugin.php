@@ -468,7 +468,7 @@ final class Plugin {
 		AllowedActionsResolver::set_surface_registry( $surface_registry );
 		AllowedActionsResolver::set_segment_authority_registry( $segment_authority_registry );
 
-		$publication        = new PublicationService(
+		$publication = new PublicationService(
 			$store,
 			$assessment_assembler,
 			$publication_policy,
@@ -478,6 +478,33 @@ final class Plugin {
 			$term_resolver,
 			$segment_authority_registry
 		);
+
+		$path_canonicalizer   = new \AIMultilingual\Routing\PathCanonicalizer();
+		$slug_routes          = new \AIMultilingual\Routing\SlugRouteRepository();
+		$route_history        = new \AIMultilingual\Routing\RouteHistoryRepository();
+		$routing_capabilities = new \AIMultilingual\Routing\RoutingCapabilityRegistry();
+		$collision_checker    = new \AIMultilingual\Routing\CanonicalPathCollisionChecker(
+			$slug_routes,
+			$route_history,
+			$path_canonicalizer
+		);
+		$slug_eligibility     = new \AIMultilingual\Routing\ObjectLanguagePublicEligibility(
+			$store,
+			$languages,
+			$routing_capabilities
+		);
+		$slug_candidates      = new \AIMultilingual\Routing\SlugCandidateService( $store );
+		$route_publication    = new \AIMultilingual\Routing\RoutePublicationService(
+			$store,
+			$publication,
+			$slug_routes,
+			$route_history,
+			$path_canonicalizer,
+			$collision_checker,
+			$slug_eligibility,
+			$routing_capabilities
+		);
+
 		$translation        = new TranslationService(
 			$store,
 			$assembler,
@@ -524,7 +551,45 @@ final class Plugin {
 			null,
 			$publication,
 			$surface_registry,
-			$term_adoption
+			$term_adoption,
+			$slug_candidates,
+			$route_publication
+		);
+
+		add_action(
+			'wp_trash_post',
+			static function ( $post_id ) use ( $route_publication ): void {
+				$route_publication->deactivate_for_source( (int) $post_id );
+			}
+		);
+		add_action(
+			'before_delete_post',
+			static function ( $post_id ) use ( $route_publication ): void {
+				$route_publication->purge_for_source( (int) $post_id );
+			}
+		);
+		add_action(
+			'post_updated',
+			static function ( $post_id, $post_after, $post_before ) use ( $route_publication, $slug_routes ): void {
+				if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
+					return;
+				}
+				if ( ! $post_after instanceof \WP_Post || ! $post_before instanceof \WP_Post ) {
+					return;
+				}
+				if (
+					(string) $post_after->post_name === (string) $post_before->post_name
+					&& (int) $post_after->post_parent === (int) $post_before->post_parent
+				) {
+					return;
+				}
+
+				foreach ( $slug_routes->list_language_ids_for_source( Store::SOURCE_POST, (int) $post_id ) as $language_id ) {
+					$route_publication->refresh_source_path( $post_after, (int) $language_id );
+				}
+			},
+			20,
+			3
 		);
 
 		$job_repo        = new BackgroundTranslationJobRepository();

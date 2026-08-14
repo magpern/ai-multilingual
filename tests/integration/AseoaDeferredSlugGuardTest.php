@@ -71,13 +71,29 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'find_by_localized_path', $router_source );
 	}
 
-	public function test_extractor_does_not_emit_post_name(): void {
+	public function test_extractor_emits_post_name_as_format_slug(): void {
+		// MSEO.1 admits post_name as an editorial slug candidate segment.
+		// Public routing / rewrite / canonical post_name mutation remain deferred.
 		$post     = $this->create_page( 'About Us' );
 		$segments = $this->extractor->extract( $post );
-		$this->assertArrayNotHasKey( 'post_name', $segments );
-		foreach ( array_keys( $segments ) as $key ) {
-			$this->assertStringNotContainsString( 'post_name', (string) $key );
-		}
+		$this->assertArrayHasKey( Extractor::FIELD_SLUG, $segments );
+		$this->assertSame( Store::FORMAT_SLUG, $segments[ Extractor::FIELD_SLUG ]['text_format'] );
+		$this->assertSame( (string) $post->post_name, $segments[ Extractor::FIELD_SLUG ]['source_text'] );
+	}
+
+	public function test_slug_candidate_does_not_mutate_canonical_post_name(): void {
+		$post   = $this->create_page( 'About Us' );
+		$before = (string) $post->post_name;
+		$sv     = $this->add_language();
+
+		$this->translate( $post, $sv, Extractor::FIELD_TITLE, 'Om Oss' );
+		$candidates = new \AIMultilingual\Routing\SlugCandidateService( $this->store );
+		$row        = $candidates->generate( $post, (int) $sv->language_id );
+		$this->assertIsObject( $row );
+
+		$fresh = get_post( (int) $post->ID );
+		$this->assertInstanceOf( \WP_Post::class, $fresh );
+		$this->assertSame( $before, (string) $fresh->post_name );
 	}
 
 	public function test_router_register_adds_no_rewrite_rules_and_no_add_rewrite_hooks(): void {
@@ -118,14 +134,17 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 		}
 	}
 
-	public function test_format_slug_constant_does_not_imply_end_to_end_support(): void {
+	public function test_format_slug_constant_exists_without_auto_candidate(): void {
 		$this->assertSame( 'slug', Store::FORMAT_SLUG );
-		// No Store rows with format slug for a fresh page.
+		// Fresh pages do not auto-create FORMAT_SLUG Store rows; generate is explicit.
 		$post = $this->create_page();
 		$sv   = $this->add_language();
 		$map  = $this->store->load_object( Store::SOURCE_POST, (int) $post->ID, (int) $sv->language_id );
 		foreach ( $map as $row ) {
 			$this->assertNotSame( Store::FORMAT_SLUG, (string) ( $row->text_format ?? '' ) );
 		}
+		$this->assertNull(
+			$this->store->get( Store::SOURCE_POST, (int) $post->ID, (int) $sv->language_id, Extractor::FIELD_SLUG )
+		);
 	}
 }

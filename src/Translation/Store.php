@@ -1212,6 +1212,13 @@ final class Store {
 			$data = array_merge( $data, self::publish_clear_fields() );
 		}
 
+		// A1: generic saves never accept slug_origin from callers; preserve existing.
+		if ( null !== $existing ) {
+			$data['slug_origin'] = (string) ( $existing->slug_origin ?? '' );
+		} else {
+			$data['slug_origin'] = '';
+		}
+
 		$this->upsert( $data, $now );
 		$this->invalidate( $source_type, $source_id, $language_id );
 
@@ -1271,6 +1278,221 @@ final class Store {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Persists a FORMAT_SLUG candidate and its slug_origin atomically (MSEO.1 A1).
+	 *
+	 * Sole Store writer for candidate slug_origin. Generic save_translation preserves origin.
+	 *
+	 * @param array<string, mixed> $args Same as save_translation plus required slug_origin.
+	 * @return true|WP_Error
+	 */
+	public function save_slug_candidate( array $args ) {
+		$origin = (string) ( $args['slug_origin'] ?? '' );
+		if ( ! in_array( $origin, array( '', 'generated', 'manual' ), true ) ) {
+			return new WP_Error( 'aiml_invalid_slug_origin', __( 'Invalid slug origin.', 'ai-multilingual' ) );
+		}
+
+		$args['text_format'] = self::FORMAT_SLUG;
+		$args['field_key']   = (string) ( $args['field_key'] ?? 'post_name' );
+		$args['segment_key'] = (string) ( $args['segment_key'] ?? $args['field_key'] );
+
+		$source_type = (string) ( $args['source_type'] ?? self::SOURCE_POST );
+		$source_id   = (int) ( $args['source_id'] ?? 0 );
+		$language_id = (int) ( $args['language_id'] ?? 0 );
+		$field_key   = (string) $args['field_key'];
+		$segment_key = (string) $args['segment_key'];
+
+		if ( $source_id <= 0 || $language_id <= 0 || '' === $field_key ) {
+			return new WP_Error( 'aiml_invalid_segment', __( 'Incomplete segment reference.', 'ai-multilingual' ) );
+		}
+
+		$status = (string) ( $args['status'] ?? self::STATUS_MANUALLY_EDITED );
+		if ( ! in_array( $status, self::statuses(), true ) ) {
+			$status = self::STATUS_MANUALLY_EDITED;
+		}
+
+		$source_text     = (string) ( $args['source_text'] ?? '' );
+		$translated_text = (string) ( $args['translated_text'] ?? '' );
+		if ( '' === trim( $translated_text ) ) {
+			$status          = self::STATUS_MISSING;
+			$translated_text = '';
+			$origin          = '';
+		}
+
+		$now              = current_time( 'mysql', true );
+		$translation_hash = self::translation_hash( $translated_text );
+		$existing         = $this->get( $source_type, $source_id, $language_id, $segment_key );
+		$prior_hash       = null === $existing ? '' : (string) ( $existing->translation_hash ?? '' );
+		$text_changed     = null === $existing || $prior_hash !== $translation_hash;
+
+		$data = array(
+			'source_type'      => $source_type,
+			'source_id'        => $source_id,
+			'source_subtype'   => (string) ( $args['source_subtype'] ?? '' ),
+			'language_id'      => $language_id,
+			'field_key'        => $field_key,
+			'segment_key'      => $segment_key,
+			'segment_hash'     => self::segment_hash( $field_key, $segment_key ),
+			'segment_kind'     => (string) ( $args['segment_kind'] ?? self::KIND_FIELD ),
+			'segment_order'    => (int) ( $args['segment_order'] ?? 1 ),
+			'text_format'      => self::FORMAT_SLUG,
+			'source_text'      => $source_text,
+			'source_hash'      => self::source_hash( $source_text, self::FORMAT_SLUG ),
+			'norm_version'     => self::NORM_VERSION,
+			'translated_text'  => $translated_text,
+			'translation_hash' => $translation_hash,
+			'status'           => $status,
+			'is_stale'         => 0,
+			'translated_by'    => (int) ( $args['translated_by'] ?? get_current_user_id() ),
+			'updated_at'       => $now,
+			'slug_origin'      => $origin,
+		);
+
+		if ( $text_changed ) {
+			$data = array_merge( $data, self::review_clear_fields(), self::publish_clear_fields() );
+		} elseif ( null !== $existing ) {
+			$data['publish_status'] = (string) ( $existing->publish_status ?? self::PUBLISH_UNPUBLISHED );
+			$data['published_at']   = $existing->published_at ?? null;
+			$data['published_by']   = null !== ( $existing->published_by ?? null ) && '' !== (string) $existing->published_by
+				? (int) $existing->published_by
+				: null;
+		} else {
+			$data = array_merge( $data, self::publish_clear_fields() );
+		}
+
+		$this->upsert( $data, $now );
+		$this->invalidate( $source_type, $source_id, $language_id );
+
+		if ( $text_changed && null !== $existing && function_exists( 'do_action' ) ) {
+			/**
+			 * Fires when a material slug-candidate edit clears prior review state.
+			 *
+			 * @since 1.4.0
+			 *
+			 * @param string $source_type Source type.
+			 * @param int    $source_id   Source object ID.
+			 * @param int    $language_id Language ID.
+			 * @param string $segment_key Segment key.
+			 * @param string $old_review  Previous review_status.
+			 */
+			\do_action(
+				'aiml_review_invalidated_by_edit',
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				(string) ( $existing->review_status ?? self::REVIEW_NOT_SUBMITTED )
+			);
+			/**
+			 * Fires when a material slug-candidate edit clears prior publication.
+			 *
+			 * @since 1.4.0
+			 *
+			 * @param string $source_type Source type.
+			 * @param int    $source_id   Source object ID.
+			 * @param int    $language_id Language ID.
+			 * @param string $segment_key Segment key.
+			 * @param string $old_publish Previous publish_status.
+			 */
+			\do_action(
+				'aiml_publication_invalidated_by_edit',
+				$source_type,
+				$source_id,
+				$language_id,
+				$segment_key,
+				(string) ( $existing->publish_status ?? self::PUBLISH_UNPUBLISHED )
+			);
+		}
+
+		if ( function_exists( 'do_action' ) ) {
+			/**
+			 * Fires after a slug candidate segment is saved.
+			 *
+			 * @since 1.4.0
+			 *
+			 * @param string $source_type Source type.
+			 * @param int    $source_id   Source object ID.
+			 * @param int    $language_id Language ID.
+			 */
+			\do_action( 'aiml_translation_saved', $source_type, $source_id, $language_id );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Runs a callback under a nested-safe Store transaction with a locked segment row.
+	 *
+	 * @param string   $source_type Source type.
+	 * @param int      $source_id   Source id.
+	 * @param int      $language_id Language id.
+	 * @param string   $segment_key Segment key.
+	 * @param callable $callback    Receives (?object $locked_row).
+	 * @return mixed|WP_Error
+	 */
+	public function with_locked_segment( string $source_type, int $source_id, int $language_id, string $segment_key, callable $callback ) {
+		$boundary  = $this->begin_term_compat_boundary();
+		$committed = false;
+
+		try {
+			$row    = $this->lock_row_by_identity( $source_type, $source_id, $language_id, self::segment_hash( $segment_key, $segment_key ) );
+			$result = $callback( $row );
+
+			if ( $result instanceof WP_Error ) {
+				return $result;
+			}
+
+			$this->commit_term_compat_boundary( $boundary );
+			$committed = true;
+
+			return $result;
+		} finally {
+			if ( ! $committed ) {
+				$this->rollback_term_compat_boundary( $boundary );
+			}
+		}
+	}
+
+	/**
+	 * Opens a nested-safe transaction boundary for route publication (MSEO.1).
+	 *
+	 * @return array{mode: string, name: string}
+	 */
+	public function begin_route_boundary(): array {
+		return $this->begin_term_compat_boundary();
+	}
+
+	/**
+	 * Commits a route publication boundary.
+	 *
+	 * @param array{mode: string, name: string} $boundary Boundary.
+	 */
+	public function commit_route_boundary( array $boundary ): void {
+		$this->commit_term_compat_boundary( $boundary );
+	}
+
+	/**
+	 * Rolls back a route publication boundary.
+	 *
+	 * @param array{mode: string, name: string} $boundary Boundary.
+	 */
+	public function rollback_route_boundary( array $boundary ): void {
+		$this->rollback_term_compat_boundary( $boundary );
+	}
+
+	/**
+	 * Locks a translation row by identity for update.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @param int    $language_id Language id.
+	 * @param string $field_key   Field key.
+	 * @param string $segment_key Segment key.
+	 */
+	public function lock_segment_for_update( string $source_type, int $source_id, int $language_id, string $field_key, string $segment_key ): ?object {
+		return $this->lock_row_by_identity( $source_type, $source_id, $language_id, self::segment_hash( $field_key, $segment_key ) );
 	}
 
 	/**
@@ -2385,6 +2607,7 @@ final class Store {
 		$row->published_by               = null !== ( $row->published_by ?? null ) && '' !== (string) $row->published_by
 			? (int) $row->published_by
 			: null;
+		$row->slug_origin                = (string) ( $row->slug_origin ?? '' );
 
 		return $row;
 	}

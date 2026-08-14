@@ -144,6 +144,7 @@
 		<exclude-pattern>*src/Routing/SlugRouteRepository.php</exclude-pattern>
 		<exclude-pattern>*src/Routing/RouteHistoryRepository.php</exclude-pattern>
 		<exclude-pattern>*src/Routing/ReindexFrontierRepository.php</exclude-pattern>
+		<exclude-pattern>*src/Routing/RoutePublicationService.php</exclude-pattern>
 		<exclude-pattern>*/tests/*</exclude-pattern>
 	</rule>
 	<!-- TQ.0 quality harness runs network-free CLI without WP_Filesystem loaded. -->

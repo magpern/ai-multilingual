@@ -63,6 +63,7 @@ final class Extractor {
 	public const FIELD_TITLE   = 'post_title';
 	public const FIELD_EXCERPT = 'post_excerpt';
 	public const FIELD_CONTENT = 'post_content';
+	public const FIELD_SLUG    = 'post_name';
 
 	/**
 	 * Reasons a body cannot be translated in this milestone.
@@ -83,15 +84,20 @@ final class Extractor {
 				'format'    => Store::FORMAT_PLAIN,
 				'order'     => 0,
 			),
+			self::FIELD_SLUG    => array(
+				'label_key' => 'slug',
+				'format'    => Store::FORMAT_SLUG,
+				'order'     => 1,
+			),
 			self::FIELD_EXCERPT => array(
 				'label_key' => 'excerpt',
 				'format'    => Store::FORMAT_PLAIN,
-				'order'     => 1,
+				'order'     => 2,
 			),
 			self::FIELD_CONTENT => array(
 				'label_key' => 'content',
 				'format'    => Store::FORMAT_HTML,
-				'order'     => 2,
+				'order'     => 3,
 			),
 		);
 	}
@@ -104,6 +110,7 @@ final class Extractor {
 	public static function field_key( string $name ): ?string {
 		$map = array(
 			'title'   => self::FIELD_TITLE,
+			'slug'    => self::FIELD_SLUG,
 			'excerpt' => self::FIELD_EXCERPT,
 			'content' => self::FIELD_CONTENT,
 		);

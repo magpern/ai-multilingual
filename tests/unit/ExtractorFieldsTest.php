@@ -19,17 +19,18 @@ use PHPUnit\Framework\TestCase;
  */
 final class ExtractorFieldsTest extends TestCase {
 
-	public function test_milestone_one_exposes_three_fields(): void {
+	public function test_milestone_fields_include_slug(): void {
 		$this->assertSame(
-			array( 'post_title', 'post_excerpt', 'post_content' ),
+			array( 'post_title', 'post_name', 'post_excerpt', 'post_content' ),
 			array_keys( Extractor::fields() )
 		);
 	}
 
-	public function test_body_is_html_and_the_rest_are_plain(): void {
+	public function test_body_is_html_and_slug_is_slug_format(): void {
 		$fields = Extractor::fields();
 
 		$this->assertSame( Store::FORMAT_PLAIN, $fields[ Extractor::FIELD_TITLE ]['format'] );
+		$this->assertSame( Store::FORMAT_SLUG, $fields[ Extractor::FIELD_SLUG ]['format'] );
 		$this->assertSame( Store::FORMAT_PLAIN, $fields[ Extractor::FIELD_EXCERPT ]['format'] );
 		$this->assertSame( Store::FORMAT_HTML, $fields[ Extractor::FIELD_CONTENT ]['format'] );
 	}
@@ -38,8 +39,9 @@ final class ExtractorFieldsTest extends TestCase {
 		$fields = Extractor::fields();
 
 		$this->assertSame( 0, $fields[ Extractor::FIELD_TITLE ]['order'] );
-		$this->assertSame( 1, $fields[ Extractor::FIELD_EXCERPT ]['order'] );
-		$this->assertSame( 2, $fields[ Extractor::FIELD_CONTENT ]['order'] );
+		$this->assertSame( 1, $fields[ Extractor::FIELD_SLUG ]['order'] );
+		$this->assertSame( 2, $fields[ Extractor::FIELD_EXCERPT ]['order'] );
+		$this->assertSame( 3, $fields[ Extractor::FIELD_CONTENT ]['order'] );
 	}
 
 	/**
@@ -58,12 +60,13 @@ final class ExtractorFieldsTest extends TestCase {
 	public function provide_field_names(): array {
 		return array(
 			'title'       => array( 'title', 'post_title' ),
+			'slug'        => array( 'slug', 'post_name' ),
 			'excerpt'     => array( 'excerpt', 'post_excerpt' ),
 			'content'     => array( 'content', 'post_content' ),
 			'uppercase'   => array( 'TITLE', 'post_title' ),
 			'padded'      => array( '  content  ', 'post_content' ),
 			'storage key' => array( 'post_title', null ),
-			'unknown'     => array( 'slug', null ),
+			'unknown'     => array( 'unknown', null ),
 			'empty'       => array( '', null ),
 		);
 	}
@@ -73,8 +76,4 @@ final class ExtractorFieldsTest extends TestCase {
 		$this->assertNotSame( Extractor::BODY_OK, Extractor::BODY_ELEMENTOR );
 		$this->assertNotSame( Extractor::BODY_BLOCKS, Extractor::BODY_ELEMENTOR );
 	}
-
-	// Body classification and its refusal notices need real posts and the
-	// translation functions, so they live in the integration suite
-	// (ExtractorBodyGuardTest).
 }

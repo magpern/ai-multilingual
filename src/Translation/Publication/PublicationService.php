@@ -27,6 +27,61 @@ use WP_Post;
 final class PublicationService {
 
 	/**
+	 * Publishes a FORMAT_SLUG candidate while RoutePublicationService holds the route transaction (B3).
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @param int    $language_id Language id.
+	 * @param string $segment_key Segment key.
+	 * @param object $row         Locked candidate row.
+	 * @param int    $user_id     Acting user.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function publish_under_route_authority(
+		string $source_type,
+		int $source_id,
+		int $language_id,
+		string $segment_key,
+		object $row,
+		int $user_id = 0
+	) {
+		if ( Store::FORMAT_SLUG !== (string) ( $row->text_format ?? '' ) ) {
+			return new WP_Error( 'aiml_slug_not_slug_format', __( 'Under-route publication requires FORMAT_SLUG.', 'ai-multilingual' ) );
+		}
+
+		return $this->publish_authoritative_row(
+			$source_type,
+			$source_id,
+			$language_id,
+			$segment_key,
+			$row,
+			false,
+			null,
+			array(),
+			null,
+			$user_id,
+			'route_publication'
+		);
+	}
+
+	/**
+	 * FORMAT_SLUG may only become published via RoutePublicationService (B1).
+	 *
+	 * @param object $row Segment row.
+	 * @return true|WP_Error
+	 */
+	private function reject_format_slug_standalone( object $row ) {
+		if ( Store::FORMAT_SLUG === (string) ( $row->text_format ?? '' ) ) {
+			return new WP_Error(
+				'aiml_slug_publish_requires_route',
+				__( 'Localized slug candidates must be published via Publish prepared route.', 'ai-multilingual' )
+			);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Builds the publication service.
 	 *
 	 * @param Store                                    $store      Translation store.
@@ -215,6 +270,11 @@ final class PublicationService {
 					$user_id,
 					$surface
 				) {
+					$blocked = $this->reject_format_slug_standalone( $row );
+					if ( $blocked instanceof WP_Error ) {
+						return $blocked;
+					}
+
 					return $this->publish_authoritative_row(
 						$type,
 						$id,
@@ -250,6 +310,11 @@ final class PublicationService {
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
 			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+		}
+
+		$blocked = $this->reject_format_slug_standalone( $row );
+		if ( $blocked instanceof WP_Error ) {
+			return $blocked;
 		}
 
 		$result = $this->publish_authoritative_row(
