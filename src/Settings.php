@@ -457,4 +457,24 @@ final class Settings {
 	public function is_localized_url_generation_enabled(): bool {
 		return 'on' === $this->localized_urls_state();
 	}
+
+	/**
+	 * Activation job checkpoint cursor (JSON), or null when unset.
+	 */
+	public function localized_urls_activation_checkpoint(): ?string {
+		$value = $this->get()['localized_urls_activation_checkpoint'] ?? null;
+
+		if ( null === $value || '' === $value ) {
+			return null;
+		}
+
+		return (string) $value;
+	}
+
+	/**
+	 * Last activation failure message, or empty when none.
+	 */
+	public function localized_urls_activation_error(): string {
+		return (string) ( $this->get()['localized_urls_activation_error'] ?? '' );
+	}
 }

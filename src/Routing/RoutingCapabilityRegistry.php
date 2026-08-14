@@ -50,7 +50,9 @@ final class RoutingCapabilityRegistry {
 		}
 
 		if ( 'product' === $type ) {
-			return self::PRODUCT_PLAIN_PERMALINK;
+			return $this->is_plain_product_permalink()
+				? self::PRODUCT_PLAIN_PERMALINK
+				: self::PRODUCT_CATEGORY_PERMALINK;
 		}
 
 		if ( 'post' === $type || ! is_post_type_hierarchical( $type ) ) {
@@ -65,5 +67,26 @@ final class RoutingCapabilityRegistry {
 	 */
 	public function supports_term(): bool {
 		return false;
+	}
+
+	/**
+	 * Whether WooCommerce product permalinks omit the category base placeholder.
+	 */
+	public function is_plain_product_permalink(): bool {
+		if ( function_exists( 'wc_get_permalink_structure' ) ) {
+			$structure = wc_get_permalink_structure();
+			if ( is_object( $structure ) && isset( $structure->product_base ) ) {
+				return ! str_contains( (string) $structure->product_base, '%product_cat%' );
+			}
+		}
+
+		$permalinks = get_option( 'woocommerce_permalink_structure', array() );
+		if ( ! is_array( $permalinks ) ) {
+			return true;
+		}
+
+		$base = (string) ( $permalinks['product_base'] ?? '' );
+
+		return '' === $base || ! str_contains( $base, '%product_cat%' );
 	}
 }

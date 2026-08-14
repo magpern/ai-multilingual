@@ -11,13 +11,16 @@ namespace AIMultilingual\Seo;
 
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Routing\EffectiveUrlService;
+use AIMultilingual\Routing\ObjectLanguagePublicEligibility;
+use AIMultilingual\Settings;
+use WP_Post;
 
 /**
  * Read-only language relationship graph for a document/request.
  *
  * Downstream SEO waves consume this contract unchanged.
- * Depends only on A.SEOa URL rules, Languages, and LanguageContext — never on
- * later SEO-wave implementations.
+ * MSEO.2 localizes URLs via EffectiveUrl when discoverable (or for canonical stability).
  */
 final class LanguageRelationshipService {
 
@@ -36,47 +39,99 @@ final class LanguageRelationshipService {
 	private LanguageContext $context;
 
 	/**
+	 * Effective URL authority.
+	 *
+	 * @var EffectiveUrlService
+	 */
+	private EffectiveUrlService $effective_url;
+
+	/**
+	 * Shared SEO discoverability authority.
+	 *
+	 * @var ObjectLanguagePublicEligibility
+	 */
+	private ObjectLanguagePublicEligibility $eligibility;
+
+	/**
+	 * Plugin settings.
+	 *
+	 * @var Settings
+	 */
+	private Settings $settings;
+
+	/**
 	 * Builds the relationship service.
 	 *
-	 * @param Languages       $languages Language registry.
-	 * @param LanguageContext $context   Request language state.
+	 * @param Languages                       $languages     Language registry.
+	 * @param LanguageContext                 $context       Request language state.
+	 * @param EffectiveUrlService             $effective_url Effective URL authority.
+	 * @param ObjectLanguagePublicEligibility $eligibility   Discoverability authority.
+	 * @param Settings                        $settings      Plugin settings.
 	 */
-	public function __construct( Languages $languages, LanguageContext $context ) {
-		$this->languages = $languages;
-		$this->context   = $context;
+	public function __construct(
+		Languages $languages,
+		LanguageContext $context,
+		EffectiveUrlService $effective_url,
+		ObjectLanguagePublicEligibility $eligibility,
+		Settings $settings
+	) {
+		$this->languages     = $languages;
+		$this->context       = $context;
+		$this->effective_url = $effective_url;
+		$this->eligibility   = $eligibility;
+		$this->settings      = $settings;
 	}
 
 	/**
 	 * Builds the public SEO relationship set for the current request.
 	 *
-	 * Preview languages are excluded (ADR-0008 / SB9).
+	 * Preview languages are excluded (ADR-0008 / SB9). Localized alternates
+	 * are emitted only when is_discoverable; otherwise SA7 source-slug URLs
+	 * remain (A.SEOb). Active routes without a discoverable bundle are omitted
+	 * from hreflang/sitemap (MSEO.2 §22).
 	 *
 	 * @return list<LanguageRelationship>
 	 */
 	public function for_public_request(): array {
-		return $this->for_path( $this->current_unprefixed_path(), false );
+		return $this->for_path( $this->current_unprefixed_path(), false, true );
 	}
 
 	/**
 	 * Builds relationships for an unprefixed site-relative path.
 	 *
-	 * @param string $unprefixed_path Path after Router strip (leading slash).
-	 * @param bool   $include_preview When true, include preview languages (capability surfaces only).
+	 * @param string $unprefixed_path   Path after Router strip (leading slash).
+	 * @param bool   $include_preview   When true, include preview languages (capability surfaces only).
+	 * @param bool   $seo_advertisement When true, apply hreflang/sitemap omit rules for !discoverable active routes.
 	 * @return list<LanguageRelationship>
 	 */
-	public function for_path( string $unprefixed_path, bool $include_preview = false ): array {
+	public function for_path( string $unprefixed_path, bool $include_preview = false, bool $seo_advertisement = false ): array {
 		$path       = $this->normalize_path( $unprefixed_path );
 		$current    = $this->context->current();
 		$current_id = null === $current ? 0 : (int) $current->language_id;
+		$post       = $this->resolve_post_for_path( $path );
+
+		if ( $seo_advertisement && $post instanceof WP_Post && ! $this->is_source_publicly_viewable( $post ) ) {
+			return array();
+		}
 
 		$out = array();
 		foreach ( $this->languages->routable( $include_preview ) as $language ) {
+			$language_id  = (int) $language->language_id;
+			$discoverable = $post instanceof WP_Post && $this->eligibility->is_discoverable( $post, $language_id );
+
+			if ( $seo_advertisement && $this->settings->is_localized_url_generation_enabled() && $post instanceof WP_Post && ! $discoverable ) {
+				// Active prepared route without discoverable bundle: omit from SEO graph.
+				if ( $this->eligibility->has_active_route( $post, $language_id ) ) {
+					continue;
+				}
+			}
+
 			$out[] = new LanguageRelationship(
 				(string) $language->code,
 				str_replace( '_', '-', (string) $language->locale ),
-				$this->url_for_language( $language, $path ),
+				$this->url_for_language( $language, $path, $post, $discoverable ),
 				! empty( $language->is_default ),
-				(int) $language->language_id === $current_id
+				$language_id === $current_id
 			);
 		}
 
@@ -84,25 +139,32 @@ final class LanguageRelationshipService {
 	}
 
 	/**
-	 * Absolute SA7 URL for one language and unprefixed path.
+	 * Absolute URL for one language and unprefixed path.
 	 *
-	 * @param object $language Language row.
-	 * @param string $path     Unprefixed path.
+	 * @param object       $language            Language row.
+	 * @param string       $path                Unprefixed path.
+	 * @param WP_Post|null $post                Source post when known.
+	 * @param bool         $use_localized_path  When true, EffectiveUrl may localize.
 	 */
-	public function url_for_language( object $language, string $path ): string {
+	public function url_for_language( object $language, string $path, ?WP_Post $post = null, bool $use_localized_path = true ): string {
 		$path = $this->normalize_path( $path );
 		$home = $this->raw_home();
 
+		$effective_path = $path;
+		if ( $use_localized_path && $this->settings->is_localized_url_generation_enabled() ) {
+			$effective_path = $this->effective_url->unprefixed_effective_path( $path, (int) $language->language_id );
+		}
+
 		if ( ! empty( $language->is_default ) ) {
-			return $home . ltrim( $path, '/' );
+			return $home . ltrim( $effective_path, '/' );
 		}
 
 		$code = (string) $language->code;
-		if ( '/' === $path ) {
+		if ( '/' === $effective_path ) {
 			return $home . $code . '/';
 		}
 
-		return $home . $code . $path;
+		return $home . $code . $effective_path;
 	}
 
 	/**
@@ -153,6 +215,21 @@ final class LanguageRelationshipService {
 	}
 
 	/**
+	 * Canonical URL for the current request (may localize when ON even if !discoverable).
+	 */
+	public function current_canonical_url(): ?string {
+		$current = $this->context->current();
+		if ( null === $current ) {
+			return null;
+		}
+
+		$path = $this->current_unprefixed_path();
+		$post = $this->resolve_post_for_path( $path );
+
+		return $this->url_for_language( $current, $path, $post, true );
+	}
+
+	/**
 	 * Normalizes a site-relative path to a leading-slash form.
 	 *
 	 * @param string $path Raw path.
@@ -168,5 +245,37 @@ final class LanguageRelationshipService {
 	 */
 	private function raw_home(): string {
 		return trailingslashit( (string) get_option( 'home' ) );
+	}
+
+	/**
+	 * Resolves a canonical post from an unprefixed path when possible.
+	 *
+	 * Uses unfiltered home URL so localized home_url admission cannot break
+	 * source object resolution (MSEO.2 SB11).
+	 *
+	 * @param string $path Unprefixed site path.
+	 */
+	private function resolve_post_for_path( string $path ): ?WP_Post {
+		if ( '/' === $path ) {
+			return null;
+		}
+
+		$post_id = url_to_postid( $this->raw_home() . ltrim( $path, '/' ) );
+		if ( $post_id <= 0 ) {
+			return null;
+		}
+
+		$post = get_post( $post_id );
+
+		return $post instanceof WP_Post ? $post : null;
+	}
+
+	/**
+	 * Whether the source object may appear in public SEO advertisements.
+	 *
+	 * @param WP_Post $post Source post.
+	 */
+	private function is_source_publicly_viewable( WP_Post $post ): bool {
+		return in_array( (string) $post->post_status, array( 'publish', 'private' ), true );
 	}
 }

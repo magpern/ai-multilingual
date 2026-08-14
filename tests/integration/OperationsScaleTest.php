@@ -217,7 +217,7 @@ final class OperationsScaleTest extends AimlTestCase {
 		$preview     = new PreviewService(
 			$this->languages,
 			$this->context,
-			new Router( $this->languages, $this->resolver, $this->context )
+			$this->make_router()
 		);
 
 		return new OperatorTranslationAssembler(

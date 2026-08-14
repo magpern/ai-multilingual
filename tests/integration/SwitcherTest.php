@@ -27,7 +27,7 @@ final class SwitcherTest extends AimlTestCase {
 	 * @param array<string, mixed> $settings Settings overrides.
 	 */
 	private function switcher( array $settings = array() ): Switcher {
-		$relationships = new LanguageRelationshipService( $this->languages, $this->context );
+		$relationships = $this->make_relationships();
 
 		return new Switcher( new Settings( $settings ), $this->languages, $this->context, $relationships );
 	}

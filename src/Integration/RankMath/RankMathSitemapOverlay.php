@@ -147,7 +147,7 @@ final class RankMathSitemapOverlay {
 			return $output;
 		}
 
-		$relationships = $this->relationships->for_path( $path, false );
+		$relationships = $this->relationships->for_path( $path, false, true );
 		if ( count( $relationships ) < 2 ) {
 			return $output;
 		}

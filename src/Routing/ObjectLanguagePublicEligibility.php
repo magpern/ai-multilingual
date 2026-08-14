@@ -1,6 +1,6 @@
 <?php
 /**
- * Object/language public eligibility for prepared routes (MSEO.1).
+ * Object/language public eligibility for prepared routes (MSEO.1 + MSEO.2).
  *
  * @package AIMultilingual
  */
@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Routing;
 
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Settings;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Store;
 use WP_Error;
@@ -23,14 +24,18 @@ final class ObjectLanguagePublicEligibility {
 	/**
 	 * Constructs the service.
 	 *
-	 * @param Store                     $store      Store.
-	 * @param Languages                 $languages  Languages.
+	 * @param Store                     $store        Store.
+	 * @param Languages                 $languages    Languages.
 	 * @param RoutingCapabilityRegistry $capabilities Capabilities.
+	 * @param Settings                  $settings     Plugin settings.
+	 * @param SlugRouteRepository       $routes       Route repository.
 	 */
 	public function __construct(
 		private Store $store,
 		private Languages $languages,
-		private RoutingCapabilityRegistry $capabilities
+		private RoutingCapabilityRegistry $capabilities,
+		private Settings $settings,
+		private SlugRouteRepository $routes
 	) {
 	}
 
@@ -69,15 +74,47 @@ final class ObjectLanguagePublicEligibility {
 	}
 
 	/**
-	 * Discoverability is false while public routing is off (MSEO.1).
+	 * Whether a language version is SEO-discoverable with a localized public URL.
 	 *
-	 * @param WP_Post $post        Unused.
-	 * @param int     $language_id Unused.
+	 * @param WP_Post $post        Source post.
+	 * @param int     $language_id Language id.
 	 */
 	public function is_discoverable( WP_Post $post, int $language_id ): bool {
-		unset( $post, $language_id );
+		if ( ! $this->settings->is_localized_url_generation_enabled() ) {
+			return false;
+		}
 
-		return false;
+		$lang = $this->languages->find( $language_id );
+		if ( null === $lang || Languages::STATUS_PUBLISHED !== (string) ( $lang->status ?? '' ) ) {
+			return false;
+		}
+
+		if ( ! in_array( (string) $post->post_status, array( 'publish', 'private' ), true ) ) {
+			return false;
+		}
+
+		if ( ! $this->capabilities->supports_post( $post ) ) {
+			return false;
+		}
+
+		$route = $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, $language_id );
+		if ( null === $route || 'active' !== (string) ( $route->route_status ?? '' ) ) {
+			return false;
+		}
+
+		return $this->has_overlay_bundle( (int) $post->ID, $language_id );
+	}
+
+	/**
+	 * Whether an active prepared route exists for the object/language.
+	 *
+	 * @param WP_Post $post        Source post.
+	 * @param int     $language_id Language id.
+	 */
+	public function has_active_route( WP_Post $post, int $language_id ): bool {
+		$route = $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, $language_id );
+
+		return null !== $route && 'active' === (string) ( $route->route_status ?? '' );
 	}
 
 	/**

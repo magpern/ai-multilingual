@@ -13,6 +13,8 @@ use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
+use AIMultilingual\Settings;
+use AIMultilingual\Translation\Store;
 
 /**
  * Resolves the request language from the URL and keeps generated URLs in that
@@ -23,22 +25,7 @@ use AIMultilingual\Plugin;
  * plugin's — then matches unchanged, with no per-language rule duplication and
  * nothing to flush (ADR-0002).
  *
- * Timing is not arbitrary. Resolution runs on `plugins_loaded` at priority 999:
- * late enough that every plugin has loaded, early enough that the `locale`
- * filter is in place before `load_default_textdomain()` runs, and before
- * `WP::parse_request()` reads `REQUEST_URI`.
- *
- * Outbound, `home_url` gains the prefix — but only after routing has finished.
- * `WP::parse_request()` calls `home_url()` itself and strips that path from the
- * request URI with an unanchored `|^path|i` pattern. With the filter live
- * during routing, a Swedish request for a page whose slug merely starts with
- * the language code would have those characters eaten: `/svenska-sidan/` would
- * be truncated to `enska-sidan/` and 404. Attaching on `parse_request` — which
- * fires at the very end of `WP::parse_request()` — avoids that entirely.
- *
- * Milestone 1 sets no cookie. The URL is the only authority, so front-end
- * responses carry no `Set-Cookie` header and stay cacheable at the edge
- * (ADR-0002). Cookie-based propagation arrives with the Store API work.
+ * MSEO.2 adds localized path recognition, substitution, and outbound admission.
  */
 final class Router {
 
@@ -64,6 +51,48 @@ final class Router {
 	private LanguageContext $context;
 
 	/**
+	 * Effective URL authority.
+	 *
+	 * @var EffectiveUrlService
+	 */
+	private EffectiveUrlService $effective_url;
+
+	/**
+	 * Plugin settings.
+	 *
+	 * @var Settings
+	 */
+	private Settings $settings;
+
+	/**
+	 * Path canonicalizer.
+	 *
+	 * @var PathCanonicalizer
+	 */
+	private PathCanonicalizer $paths;
+
+	/**
+	 * Route repository.
+	 *
+	 * @var SlugRouteRepository
+	 */
+	private SlugRouteRepository $routes;
+
+	/**
+	 * Route history repository.
+	 *
+	 * @var RouteHistoryRepository
+	 */
+	private RouteHistoryRepository $history;
+
+	/**
+	 * Request-local route recognition context (B1/B6).
+	 *
+	 * @var RouteRecognitionContext
+	 */
+	private RouteRecognitionContext $recognition;
+
+	/**
 	 * Request URI as it arrived, before the prefix was removed.
 	 *
 	 * @var string
@@ -85,16 +114,50 @@ final class Router {
 	private ?string $home_path = null;
 
 	/**
+	 * Unprefixed path after language strip (before AIML substitution).
+	 *
+	 * @var string
+	 */
+	private string $request_unprefixed_path = '/';
+
+	/**
+	 * Original query string without leading ?.
+	 *
+	 * @var string
+	 */
+	private string $request_query = '';
+
+	/**
 	 * Builds the router.
 	 *
-	 * @param Languages        $languages Language configuration.
-	 * @param LanguageResolver $resolver  Pure resolver.
-	 * @param LanguageContext  $context   Request language state.
+	 * @param Languages              $languages     Language configuration.
+	 * @param LanguageResolver       $resolver      Pure resolver.
+	 * @param LanguageContext        $context       Request language state.
+	 * @param EffectiveUrlService    $effective_url Effective URL authority.
+	 * @param Settings               $settings      Plugin settings.
+	 * @param PathCanonicalizer      $paths         Path canonicalizer.
+	 * @param SlugRouteRepository    $routes        Route repository.
+	 * @param RouteHistoryRepository $history       History repository.
 	 */
-	public function __construct( Languages $languages, LanguageResolver $resolver, LanguageContext $context ) {
-		$this->languages = $languages;
-		$this->resolver  = $resolver;
-		$this->context   = $context;
+	public function __construct(
+		Languages $languages,
+		LanguageResolver $resolver,
+		LanguageContext $context,
+		EffectiveUrlService $effective_url,
+		Settings $settings,
+		PathCanonicalizer $paths,
+		SlugRouteRepository $routes,
+		RouteHistoryRepository $history
+	) {
+		$this->languages     = $languages;
+		$this->resolver      = $resolver;
+		$this->context       = $context;
+		$this->effective_url = $effective_url;
+		$this->settings      = $settings;
+		$this->paths         = $paths;
+		$this->routes        = $routes;
+		$this->history       = $history;
+		$this->recognition   = RouteRecognitionContext::none();
 	}
 
 	/**
@@ -105,9 +168,17 @@ final class Router {
 	}
 
 	/**
+	 * Request-local route recognition context for the current request.
+	 */
+	public function recognition_context(): RouteRecognitionContext {
+		return $this->recognition;
+	}
+
+	/**
 	 * Resolves the request language and strips the prefix from REQUEST_URI.
 	 */
 	public function resolve(): void {
+		$this->recognition = RouteRecognitionContext::none();
 		$this->context->set_default( $this->languages->default() );
 
 		if ( ! $this->should_route() ) {
@@ -120,6 +191,8 @@ final class Router {
 
 		$path  = (string) wp_parse_url( (string) $uri, PHP_URL_PATH );
 		$query = (string) wp_parse_url( (string) $uri, PHP_URL_QUERY );
+
+		$this->request_query = $query;
 
 		$resolved = $this->resolver->resolve(
 			$this->strip_home_path( $path ),
@@ -135,7 +208,34 @@ final class Router {
 
 		$this->prefixed = true;
 
-		$rebuilt = $this->home_path() . ltrim( $resolved['path'], '/' );
+		$unprefixed = '/' . ltrim( (string) $resolved['path'], '/' );
+		if ( '' === $unprefixed ) {
+			$unprefixed = '/';
+		}
+		$this->request_unprefixed_path = $unprefixed;
+
+		$language = $this->context->current();
+		if ( null === $language ) {
+			return;
+		}
+
+		if ( $this->recognize_localized_request( $language, $unprefixed, $path, $query ) ) {
+			return;
+		}
+
+		$this->recognition = new RouteRecognitionContext(
+			RouteRecognitionContext::KIND_SOURCE_PATH,
+			$path,
+			$unprefixed,
+			(int) $language->language_id,
+			null,
+			null,
+			null,
+			null,
+			'' !== $query ? $query : null
+		);
+
+		$rebuilt = $this->home_path() . ltrim( $unprefixed, '/' );
 		$rebuilt = '/' . ltrim( $rebuilt, '/' );
 
 		if ( '' !== $query ) {
@@ -148,10 +248,111 @@ final class Router {
 		add_filter( 'language_attributes', array( $this, 'filter_language_attributes' ) );
 		add_filter( 'redirect_canonical', array( $this, 'filter_redirect_canonical' ) );
 
-		// Deferred deliberately: see the class docblock. Attaching this before
-		// WP::parse_request() has read home_url() would corrupt any slug
-		// beginning with the language code.
 		add_action( 'parse_request', array( $this, 'enable_url_prefixing' ), 0 );
+	}
+
+	/**
+	 * Attempts localized/history recognition; returns true when inbound handling finished.
+	 *
+	 * @param object $language   Current language row.
+	 * @param string $unprefixed Unprefixed path after language strip.
+	 * @param string $prefixed   Original prefixed path component.
+	 * @param string $query      Query string without ?.
+	 */
+	private function recognize_localized_request( object $language, string $unprefixed, string $prefixed, string $query ): bool {
+		try {
+			$canonical = $this->paths->canonicalize( $unprefixed );
+		} catch ( InvalidPathException $e ) {
+			unset( $e );
+
+			return false;
+		}
+
+		$language_id = (int) $language->language_id;
+		$route       = $this->routes->find_active_by_localized_path( $language_id, $canonical );
+		if ( null !== $route ) {
+			$this->recognition = new RouteRecognitionContext(
+				RouteRecognitionContext::KIND_CURRENT_LOCALIZED,
+				$prefixed,
+				$unprefixed,
+				$language_id,
+				(string) ( $route->source_type ?? '' ),
+				(int) ( $route->source_id ?? 0 ),
+				(int) ( $route->route_id ?? 0 ),
+				null,
+				'' !== $query ? $query : null
+			);
+
+			if ( ! $this->settings->is_localized_url_generation_enabled() ) {
+				$target = (string) ( $route->source_path ?? $unprefixed );
+				$this->redirect_and_exit(
+					$this->build_prefixed_url( $language, $target, $query ),
+					302
+				);
+
+				return true;
+			}
+
+			$source_path = (string) ( $route->source_path ?? $unprefixed );
+			$rebuilt     = $this->home_path() . ltrim( $source_path, '/' );
+			$rebuilt     = '/' . ltrim( $rebuilt, '/' );
+			if ( '' !== $query ) {
+				$rebuilt .= '?' . $query;
+			}
+
+			$_SERVER['REQUEST_URI'] = $rebuilt;
+
+			add_filter( 'locale', array( $this, 'filter_locale' ) );
+			add_filter( 'language_attributes', array( $this, 'filter_language_attributes' ) );
+			add_filter( 'redirect_canonical', array( $this, 'filter_redirect_canonical' ) );
+			add_action( 'parse_request', array( $this, 'enable_url_prefixing' ), 0 );
+
+			return true;
+		}
+
+		$hist = $this->history->find_by_historical_path( $language_id, $canonical );
+		if ( null === $hist ) {
+			return false;
+		}
+
+		$this->recognition = new RouteRecognitionContext(
+			RouteRecognitionContext::KIND_HISTORICAL_LOCALIZED,
+			$prefixed,
+			$unprefixed,
+			$language_id,
+			(string) ( $hist->source_type ?? '' ),
+			(int) ( $hist->source_id ?? 0 ),
+			null,
+			(int) ( $hist->history_id ?? 0 ),
+			'' !== $query ? $query : null
+		);
+
+		if ( $this->settings->is_localized_url_generation_enabled() ) {
+			$source_path = $this->source_path_for_object(
+				(string) ( $hist->source_type ?? '' ),
+				(int) ( $hist->source_id ?? 0 ),
+				$language_id
+			);
+			$effective   = $this->effective_url->unprefixed_effective_path( $source_path, $language_id );
+			$this->redirect_and_exit(
+				$this->build_prefixed_url( $language, $effective, $query ),
+				301
+			);
+
+			return true;
+		}
+
+		$source_path = $this->source_path_for_object(
+			(string) ( $hist->source_type ?? '' ),
+			(int) ( $hist->source_id ?? 0 ),
+			$language_id
+		);
+		$this->redirect_and_exit(
+			$this->build_prefixed_url( $language, $source_path, $query ),
+			302
+		);
+
+		return true;
 	}
 
 	/**
@@ -200,16 +401,30 @@ final class Router {
 	}
 
 	/**
-	 * Language-preserving redirect_canonical policy (A.SEOb).
-	 *
-	 * Prefixed requests must never be redirected to an unprefixed equivalent
-	 * (that strips the language and can loop). Same-language corrections that
-	 * retain the active language prefix remain allowed.
+	 * Language-preserving redirect_canonical policy (A.SEOb + MSEO.2 B2/B3).
 	 *
 	 * @param string|false $redirect_url URL core wants to redirect to.
 	 * @return string|false
 	 */
 	public function filter_redirect_canonical( $redirect_url ) {
+		if ( RouteRecognitionContext::KIND_CURRENT_LOCALIZED === $this->recognition->kind() ) {
+			return false;
+		}
+
+		if (
+			RouteRecognitionContext::KIND_SOURCE_PATH === $this->recognition->kind()
+			&& $this->prefixed
+			&& $this->settings->is_localized_url_generation_enabled()
+		) {
+			$language = $this->context->current();
+			if ( null !== $language && empty( $language->is_default ) ) {
+				$localized = $this->maybe_localized_redirect_target( $language, $this->request_unprefixed_path, $this->request_query );
+				if ( null !== $localized ) {
+					return $localized;
+				}
+			}
+		}
+
 		if ( ! $this->prefixed ) {
 			return $redirect_url;
 		}
@@ -249,10 +464,6 @@ final class Router {
 	/**
 	 * Injects the language prefix into generated home URLs.
 	 *
-	 * The path argument WordPress also passes is deliberately not accepted: the
-	 * prefix is inserted by rewriting the finished URL, so the already-joined
-	 * result is the only input needed.
-	 *
 	 * @param string $url Fully qualified URL.
 	 */
 	public function filter_home_url( $url ) {
@@ -274,8 +485,6 @@ final class Router {
 		$code     = (string) $language->code;
 		$home     = $this->home_path();
 
-		// The REST API is not language-prefixed; it takes an explicit language
-		// argument instead, so that its routes stay stable.
 		$rest_prefix = function_exists( 'rest_get_url_prefix' ) ? rest_get_url_prefix() : 'wp-json';
 		if ( '' !== $rest_prefix && false !== strpos( $url_path, '/' . $rest_prefix ) ) {
 			return $url;
@@ -287,15 +496,71 @@ final class Router {
 
 		$relative = $this->strip_home_path( $url_path );
 
-		// Already prefixed (a caller passed a path that includes it).
 		if ( '/' . $code === $relative || 0 === strpos( $relative, '/' . $code . '/' ) ) {
 			return $url;
 		}
 
-		$prefixed = $home . $code . ( '/' === $relative ? '/' : $relative );
+		if ( $this->should_deny_home_url_localization( $relative, $parts ) ) {
+			$prefixed = $home . $code . ( '/' === $relative ? '/' : $relative );
+		} else {
+			$path_for_url = $this->admit_localized_path( $relative, (int) $language->language_id );
+			$prefixed     = $home . $code . ( '/' === $path_for_url ? '/' : $path_for_url );
+		}
+
 		$prefixed = '/' . ltrim( $prefixed, '/' );
 
 		$rebuilt = ( isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '//' ) . $parts['host'];
+
+		if ( isset( $parts['port'] ) ) {
+			$rebuilt .= ':' . $parts['port'];
+		}
+
+		$rebuilt .= $prefixed;
+
+		if ( isset( $parts['query'] ) ) {
+			$rebuilt .= '?' . $parts['query'];
+		}
+
+		if ( isset( $parts['fragment'] ) ) {
+			$rebuilt .= '#' . $parts['fragment'];
+		}
+
+		return $rebuilt;
+	}
+
+	/**
+	 * Prefixes a same-site URL with the current language without EffectiveUrl localization.
+	 *
+	 * Used by PreviewService so preview forever remains source-slug (M2AC28).
+	 *
+	 * @param string $url Fully qualified URL.
+	 */
+	public function prefix_url_without_localization( string $url ): string {
+		if ( ! $this->context->is_translated() ) {
+			return $url;
+		}
+
+		$language = $this->context->current();
+		if ( null === $language ) {
+			return $url;
+		}
+
+		$parts = wp_parse_url( $url );
+		if ( ! is_array( $parts ) || ! isset( $parts['host'] ) ) {
+			return $url;
+		}
+
+		$url_path = isset( $parts['path'] ) ? (string) $parts['path'] : '/';
+		$code     = (string) $language->code;
+		$home     = $this->home_path();
+		$relative = $this->strip_home_path( $url_path );
+
+		if ( '/' . $code === $relative || 0 === strpos( $relative, '/' . $code . '/' ) ) {
+			return $url;
+		}
+
+		$prefixed = '/' . ltrim( $home . $code . ( '/' === $relative ? '/' : $relative ), '/' );
+		$rebuilt  = ( isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '//' ) . $parts['host'];
 
 		if ( isset( $parts['port'] ) ) {
 			$rebuilt .= ':' . $parts['port'];
@@ -332,11 +597,6 @@ final class Router {
 
 	/**
 	 * Whether language resolution applies to this request.
-	 *
-	 * Admin screens, the REST API, AJAX, cron, WP-CLI, XML-RPC and the login
-	 * screen all keep the site's own language: they are not visitor-facing
-	 * rendering, and giving them a front-end language context would leak it
-	 * into places that must stay canonical.
 	 */
 	private function should_route(): bool {
 		if ( is_admin() ) {
@@ -382,8 +642,6 @@ final class Router {
 	 */
 	private function home_path(): string {
 		if ( null === $this->home_path ) {
-			// The raw option, not home_url(), so this stays correct even once
-			// the prefixing filter is live.
 			$path = (string) wp_parse_url( (string) get_option( 'home' ), PHP_URL_PATH );
 			$path = trim( $path, '/' );
 
@@ -414,5 +672,180 @@ final class Router {
 		}
 
 		return '' === $normalized ? '/' : $normalized;
+	}
+
+	/**
+	 * Builds an absolute prefixed URL for one language path.
+	 *
+	 * @param object $language Language row.
+	 * @param string $path     Unprefixed path.
+	 * @param string $query    Query string without ?.
+	 */
+	private function build_prefixed_url( object $language, string $path, string $query = '' ): string {
+		$home = trailingslashit( (string) get_option( 'home' ) );
+		$code = (string) $language->code;
+
+		if ( ! empty( $language->is_default ) ) {
+			$url = $home . ltrim( $path, '/' );
+		} elseif ( '/' === $path ) {
+			$url = $home . $code . '/';
+		} else {
+			$url = $home . $code . $path;
+		}
+
+		if ( '' !== $query ) {
+			$url .= '?' . $query;
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Issues a safe redirect and terminates the request.
+	 *
+	 * @param string $location Target URL.
+	 * @param int    $status   HTTP status code.
+	 */
+	private function redirect_and_exit( string $location, int $status ): void {
+		$sent = wp_safe_redirect( $location, $status, 'AIML' );
+		// When a `wp_redirect` filter cancels the redirect (integration tests),
+		// do not terminate the PHP process.
+		if ( false === $sent ) {
+			return;
+		}
+
+		exit; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTTP redirect terminal.
+	}
+
+	/**
+	 * Resolves source path for a stored object identity.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @param int    $language_id Language id.
+	 */
+	private function source_path_for_object( string $source_type, int $source_id, int $language_id ): string {
+		if ( Store::SOURCE_POST === $source_type && $source_id > 0 ) {
+			$route = $this->routes->find_by_object( $source_type, $source_id, $language_id );
+			if ( null !== $route && '' !== (string) ( $route->source_path ?? '' ) ) {
+				return (string) $route->source_path;
+			}
+
+			$post = get_post( $source_id );
+			if ( $post instanceof \WP_Post ) {
+				return '/' . ltrim( (string) get_page_uri( $post ), '/' );
+			}
+		}
+
+		return '/';
+	}
+
+	/**
+	 * Returns a localized redirect target when SOURCE_PATH should 301.
+	 *
+	 * @param object $language       Current language.
+	 * @param string $unprefixed     Request unprefixed path.
+	 * @param string $query          Query string without ?.
+	 */
+	private function maybe_localized_redirect_target( object $language, string $unprefixed, string $query ): ?string {
+		try {
+			$canonical = $this->paths->canonicalize( $unprefixed );
+		} catch ( InvalidPathException $e ) {
+			unset( $e );
+
+			return null;
+		}
+
+		$language_id = (int) $language->language_id;
+		$route       = $this->routes->find_active_by_source_path( $language_id, $canonical );
+		if ( null === $route ) {
+			return null;
+		}
+
+		$source_path = (string) ( $route->source_path ?? $unprefixed );
+		$effective   = $this->effective_url->unprefixed_effective_path( $source_path, $language_id );
+		if ( $effective === $unprefixed ) {
+			return null;
+		}
+
+		return $this->build_prefixed_url( $language, $effective, $query );
+	}
+
+	/**
+	 * Whether home_url localization must be denied for this relative path.
+	 *
+	 * @param string               $relative Site-relative path.
+	 * @param array<string, mixed> $parts    Parsed URL parts.
+	 */
+	private function should_deny_home_url_localization( string $relative, array $parts ): bool {
+		if ( '/' === $relative ) {
+			return true;
+		}
+
+		if ( false !== strpos( $relative, '/wp-content/uploads/' ) ) {
+			return true;
+		}
+
+		if ( isset( $parts['query'] ) && is_string( $parts['query'] ) ) {
+			if ( false !== strpos( $parts['query'], 'add-to-cart=' ) ) {
+				return true;
+			}
+		}
+
+		$deny_fragments = array(
+			'/feed',
+			'/comments/feed',
+			'/cart',
+			'/checkout',
+			'/my-account',
+			'/wp-cron.php',
+			'/wp-admin/admin-ajax.php',
+		);
+
+		foreach ( $deny_fragments as $fragment ) {
+			if ( false !== strpos( $relative, $fragment ) ) {
+				return true;
+			}
+		}
+
+		if ( preg_match( '#/page/\d+/?$#', $relative ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Applies outbound localization admission for an unprefixed path.
+	 *
+	 * @param string $relative    Site-relative unprefixed path.
+	 * @param int    $language_id Current language id.
+	 */
+	private function admit_localized_path( string $relative, int $language_id ): string {
+		if ( ! $this->settings->is_localized_url_generation_enabled() ) {
+			return $relative;
+		}
+
+		try {
+			$canonical = $this->paths->canonicalize( $relative );
+		} catch ( InvalidPathException $e ) {
+			unset( $e );
+
+			return $relative;
+		}
+
+		$as_localized = $this->routes->find_active_by_localized_path( $language_id, $canonical );
+		if ( null !== $as_localized ) {
+			return $relative;
+		}
+
+		$route = $this->routes->find_active_by_source_path( $language_id, $canonical );
+		if ( null === $route ) {
+			return $relative;
+		}
+
+		$source_path = (string) ( $route->source_path ?? $relative );
+
+		return $this->effective_url->unprefixed_effective_path( $source_path, $language_id );
 	}
 }

@@ -52,7 +52,7 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 		}
 	}
 
-	public function test_mseo_foundation_tables_exist_without_routing_activation(): void {
+	public function test_mseo_foundation_tables_exist_and_router_owns_active_path_recognition(): void {
 		global $wpdb;
 
 		$this->assertSame(
@@ -67,8 +67,11 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 		$router_source = (string) file_get_contents(
 			dirname( __DIR__, 2 ) . '/src/Routing/Router.php'
 		);
-		$this->assertStringNotContainsString( 'SlugRouteRepository', $router_source );
-		$this->assertStringNotContainsString( 'find_by_localized_path', $router_source );
+		// MSEO.2 activates recognition via active SlugRouteRepository lookups (not rewrite rules).
+		$this->assertStringContainsString( 'SlugRouteRepository', $router_source );
+		$this->assertStringContainsString( 'find_active_by_localized_path', $router_source );
+		$this->assertStringNotContainsString( 'add_rewrite_rule', $router_source );
+		$this->assertStringNotContainsString( 'flush_rewrite_rules', $router_source );
 	}
 
 	public function test_extractor_emits_post_name_as_format_slug(): void {
@@ -97,7 +100,7 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 	}
 
 	public function test_router_register_adds_no_rewrite_rules_and_no_add_rewrite_hooks(): void {
-		$router = new Router( $this->languages, $this->resolver, $this->context );
+		$router = $this->make_router();
 		$router->register();
 
 		global $wp_filter;

@@ -14,7 +14,15 @@ use AIMultilingual\Database\Migrator;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\LanguageResolver;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Seo\LanguageRelationshipService;
+use AIMultilingual\Routing\EffectiveUrlService;
+use AIMultilingual\Routing\ObjectLanguagePublicEligibility;
+use AIMultilingual\Routing\PathCanonicalizer;
+use AIMultilingual\Routing\RouteHistoryRepository;
+use AIMultilingual\Routing\RoutingCapabilityRegistry;
+use AIMultilingual\Routing\SlugRouteRepository;
 use AIMultilingual\Routing\Router;
+use AIMultilingual\Settings;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Renderer;
 use AIMultilingual\Translation\Store;
@@ -172,6 +180,57 @@ abstract class AimlTestCase extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Builds a production-shaped SB11 service for integration tests.
+	 */
+	protected function make_relationships( ?Settings $settings = null ): LanguageRelationshipService {
+		$settings = $settings ?? new Settings();
+
+		$paths        = new PathCanonicalizer();
+		$routes       = new SlugRouteRepository();
+		$capabilities = new RoutingCapabilityRegistry();
+		$effective    = new EffectiveUrlService( $settings, $routes, $capabilities, $paths, $this->languages );
+		$eligibility  = new ObjectLanguagePublicEligibility(
+			$this->store,
+			$this->languages,
+			$capabilities,
+			$settings,
+			$routes
+		);
+
+		return new LanguageRelationshipService(
+			$this->languages,
+			$this->context,
+			$effective,
+			$eligibility,
+			$settings
+		);
+	}
+
+	/**
+	 * Builds a production-shaped Router for integration tests.
+	 */
+	protected function make_router( ?Settings $settings = null ): Router {
+		$settings = $settings ?? new Settings();
+
+		$paths        = new PathCanonicalizer();
+		$routes       = new SlugRouteRepository();
+		$history      = new RouteHistoryRepository();
+		$capabilities = new RoutingCapabilityRegistry();
+		$effective    = new EffectiveUrlService( $settings, $routes, $capabilities, $paths, $this->languages );
+
+		return new Router(
+			$this->languages,
+			$this->resolver,
+			$this->context,
+			$effective,
+			$settings,
+			$paths,
+			$routes,
+			$history
+		);
+	}
+
+	/**
 	 * Runs the router against a URI the way a real request would.
 	 *
 	 * Mirrors production ordering: the router resolves on plugins_loaded, well
@@ -179,10 +238,10 @@ abstract class AimlTestCase extends WP_UnitTestCase {
 	 *
 	 * @param string $uri Request URI including any language prefix.
 	 */
-	protected function route( string $uri ): Router {
+	protected function route( string $uri, ?Settings $settings = null ): Router {
 		$_SERVER['REQUEST_URI'] = $uri;
 
-		$router = new Router( $this->languages, $this->resolver, $this->context );
+		$router = $this->make_router( $settings );
 		$router->resolve();
 
 		return $router;

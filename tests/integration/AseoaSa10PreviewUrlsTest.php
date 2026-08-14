@@ -39,7 +39,7 @@ final class AseoaSa10PreviewUrlsTest extends AimlTestCase {
 		$service = new PreviewService(
 			$this->languages,
 			$this->context,
-			new \AIMultilingual\Routing\Router( $this->languages, $this->resolver, $this->context )
+			$this->make_router()
 		);
 
 		$url = $service->preview_url( $post, 'sv' );
@@ -55,7 +55,7 @@ final class AseoaSa10PreviewUrlsTest extends AimlTestCase {
 		$service = new PreviewService(
 			$this->languages,
 			$this->context,
-			new \AIMultilingual\Routing\Router( $this->languages, $this->resolver, $this->context )
+			$this->make_router()
 		);
 
 		$url = $service->preview_url( $post, 'en' );
@@ -70,7 +70,7 @@ final class AseoaSa10PreviewUrlsTest extends AimlTestCase {
 		$service = new PreviewService(
 			$this->languages,
 			$this->context,
-			new \AIMultilingual\Routing\Router( $this->languages, $this->resolver, $this->context )
+			$this->make_router()
 		);
 
 		$result = $service->preview_url( $post, 'xx' );
@@ -135,7 +135,7 @@ final class AseoaSa10PreviewUrlsTest extends AimlTestCase {
 	public function test_preview_url_does_not_leak_translated_context_after_call(): void {
 		$this->add_language();
 		$post    = $this->create_page();
-		$router  = new \AIMultilingual\Routing\Router( $this->languages, $this->resolver, $this->context );
+		$router  = $this->make_router();
 		$service = new PreviewService( $this->languages, $this->context, $router );
 
 		$before_default = $this->context->is_default();

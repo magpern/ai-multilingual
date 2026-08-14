@@ -84,16 +84,11 @@ final class PreviewService {
 			return $permalink;
 		}
 
+		// Preview forever uses source-slug URLs (ADR-0023 / M2AC28) — prefix only.
 		return (string) $this->context->with(
 			$language,
 			function () use ( $permalink ): string {
-				add_filter( 'home_url', array( $this->router, 'filter_home_url' ), 10, 1 );
-
-				try {
-					return (string) $this->router->filter_home_url( $permalink );
-				} finally {
-					remove_filter( 'home_url', array( $this->router, 'filter_home_url' ), 10 );
-				}
+				return $this->router->prefix_url_without_localization( $permalink );
 			}
 		);
 	}

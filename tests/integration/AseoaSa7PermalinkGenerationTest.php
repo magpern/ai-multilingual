@@ -77,7 +77,7 @@ final class AseoaSa7PermalinkGenerationTest extends AimlTestCase {
 		$swedish = $this->languages->find_by_code( 'sv' );
 		$this->assertNotNull( $swedish );
 
-		$router = new Router( $this->languages, $this->resolver, $this->context );
+		$router = $this->make_router();
 		$this->context->set_default( $this->languages->default() );
 		$this->context->set_current( $swedish );
 
@@ -93,7 +93,7 @@ final class AseoaSa7PermalinkGenerationTest extends AimlTestCase {
 		$swedish = $this->languages->find_by_code( 'sv' );
 		$this->assertNotNull( $swedish );
 
-		$router = new Router( $this->languages, $this->resolver, $this->context );
+		$router = $this->make_router();
 		$this->context->set_default( $this->languages->default() );
 		$this->context->set_current( $swedish );
 
@@ -159,7 +159,7 @@ final class AseoaSa7PermalinkGenerationTest extends AimlTestCase {
 		$swedish = $this->languages->find_by_code( 'sv' );
 		$this->assertNotNull( $swedish );
 
-		$router = new Router( $this->languages, $this->resolver, $this->context );
+		$router = $this->make_router();
 		$this->context->set_default( $this->languages->default() );
 		$this->context->set_current( $swedish );
 
@@ -190,7 +190,7 @@ final class AseoaSa7PermalinkGenerationTest extends AimlTestCase {
 
 	public function test_router_registers_no_rewrite_rules(): void {
 		$before = $GLOBALS['wp_rewrite']->rules ?? array();
-		$router = new Router( $this->languages, new LanguageResolver(), new LanguageContext() );
+		$router = $this->make_router();
 		$router->register();
 		do_action( 'plugins_loaded' );
 		$after = $GLOBALS['wp_rewrite']->rules ?? array();

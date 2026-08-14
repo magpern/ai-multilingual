@@ -121,6 +121,21 @@ final class SlugRouteRepository {
 	}
 
 	/**
+	 * Finds an **active** route by localized canonical path.
+	 *
+	 * @param int           $language_id Language id.
+	 * @param CanonicalPath $path        Canonical localized path.
+	 */
+	public function find_active_by_localized_path( int $language_id, CanonicalPath $path ): ?object {
+		$row = $this->find_by_localized_path( $language_id, $path );
+		if ( null === $row || 'active' !== (string) ( $row->route_status ?? '' ) ) {
+			return null;
+		}
+
+		return $row;
+	}
+
+	/**
 	 * Finds a route by source canonical path.
 	 *
 	 * @param int           $language_id Language id.
@@ -128,6 +143,21 @@ final class SlugRouteRepository {
 	 */
 	public function find_by_source_path( int $language_id, CanonicalPath $path ): ?object {
 		return $this->find_by_path_hash_column( $language_id, $path, 'source_path_hash', 'source_path' );
+	}
+
+	/**
+	 * Finds an **active** route by source canonical path.
+	 *
+	 * @param int           $language_id Language id.
+	 * @param CanonicalPath $path        Canonical source path.
+	 */
+	public function find_active_by_source_path( int $language_id, CanonicalPath $path ): ?object {
+		$row = $this->find_by_source_path( $language_id, $path );
+		if ( null === $row || 'active' !== (string) ( $row->route_status ?? '' ) ) {
+			return null;
+		}
+
+		return $row;
 	}
 
 	/**
@@ -177,6 +207,57 @@ final class SlugRouteRepository {
 		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		return null === $row ? null : $row;
+	}
+
+	/**
+	 * Lists active routes after a route-id cursor (activation frontier).
+	 *
+	 * @param int $after_route_id Last processed route id (exclusive lower bound).
+	 * @param int $limit          Maximum rows.
+	 * @return list<object>
+	 */
+	public function list_active_routes_after( int $after_route_id, int $limit ): array {
+		global $wpdb;
+
+		$limit = max( 1, min( 500, $limit ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::slug_routes() . '
+				WHERE route_status = %s AND route_id > %d
+				ORDER BY route_id ASC
+				LIMIT %d',
+				'active',
+				max( 0, $after_route_id ),
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Counts active prepared routes.
+	 */
+	public function count_active_routes(): int {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
+		$count = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM ' . Schema::slug_routes() . ' WHERE route_status = %s',
+				'active'
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		return max( 0, (int) $count );
 	}
 
 	/**

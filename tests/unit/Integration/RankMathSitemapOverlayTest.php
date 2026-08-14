@@ -15,7 +15,13 @@ use AIMultilingual\Integration\RankMath\RankMathIntegration;
 use AIMultilingual\Integration\RankMath\RankMathSitemapOverlay;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\Languages;
+use AIMultilingual\Routing\EffectiveUrlService;
+use AIMultilingual\Routing\ObjectLanguagePublicEligibility;
+use AIMultilingual\Routing\PathCanonicalizer;
+use AIMultilingual\Routing\RoutingCapabilityRegistry;
+use AIMultilingual\Routing\SlugRouteRepository;
 use AIMultilingual\Seo\LanguageRelationshipService;
+use AIMultilingual\Settings;
 use AIMultilingual\Translation\Store;
 use PHPUnit\Framework\TestCase;
 
@@ -96,11 +102,22 @@ final class RankMathSitemapOverlayTest extends TestCase {
 	}
 
 	private function make_integration(): RankMathIntegration {
+		$settings     = new Settings();
+		$cache        = new Cache();
+		$languages    = new Languages( $cache );
+		$context      = new LanguageContext();
+		$store        = new Store( $cache );
+		$paths        = new PathCanonicalizer();
+		$routes       = new SlugRouteRepository();
+		$capabilities = new RoutingCapabilityRegistry();
+		$effective    = new EffectiveUrlService( $settings, $routes, $capabilities, $paths, $languages );
+		$eligibility  = new ObjectLanguagePublicEligibility( $store, $languages, $capabilities, $settings, $routes );
+
 		return new RankMathIntegration(
 			new PluginIdentity(),
-			new Store( new Cache() ),
-			new LanguageContext(),
-			new LanguageRelationshipService( new Languages( new Cache() ), new LanguageContext() ),
+			$store,
+			$context,
+			new LanguageRelationshipService( $languages, $context, $effective, $eligibility, $settings ),
 			true,
 			true,
 			'1.0.275',
