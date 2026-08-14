@@ -22,8 +22,8 @@ use ReflectionClass;
  */
 final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 
-	public function test_target_remains_six(): void {
-		$this->assertSame( 7, Migrator::TARGET );
+	public function test_target_is_eight(): void {
+		$this->assertSame( 8, Migrator::TARGET );
 	}
 
 	public function test_term_identity_exists_without_slug_translation(): void {
@@ -52,15 +52,23 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 		}
 	}
 
-	public function test_schema_has_no_slugs_or_redirect_history_table(): void {
-		$tables = Schema::all_tables();
-		foreach ( $tables as $table ) {
-			$this->assertDoesNotMatchRegularExpression(
-				'/slug|redirect_history|url_history/i',
-				(string) $table,
-				'No URL-history / slug registry table under TARGET 7'
-			);
-		}
+	public function test_mseo_foundation_tables_exist_without_routing_activation(): void {
+		global $wpdb;
+
+		$this->assertSame(
+			Schema::slug_routes(),
+			$wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', Schema::slug_routes() ) )
+		);
+		$this->assertSame(
+			Schema::route_history(),
+			$wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', Schema::route_history() ) )
+		);
+
+		$router_source = (string) file_get_contents(
+			dirname( __DIR__, 2 ) . '/src/Routing/Router.php'
+		);
+		$this->assertStringNotContainsString( 'SlugRouteRepository', $router_source );
+		$this->assertStringNotContainsString( 'find_by_localized_path', $router_source );
 	}
 
 	public function test_extractor_does_not_emit_post_name(): void {

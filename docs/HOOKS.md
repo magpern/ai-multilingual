@@ -242,3 +242,10 @@ persist must never write TM; eligible human / AI-accepted / import saves are the
 only write-back origins. **Amended by ADR-0015** (Review Workflow): when Review
 Workflow is enabled, new-content write-back fires on review **approval**, not
 on save — see `F11_FROZEN_API.md` §7.
+
+## MSEO localized URLs (deferred)
+
+MSEO.0 lands schema and inert foundation only. **No MSEO routing hooks are
+registered yet.** Inbound localized-path substitution, outbound
+`EffectiveUrlService` integration, and the private `aiml_effective_url` filter
+are gated to **MSEO.2+**. See [ADR-0023](adr/0023-localized-url-overlay-architecture.md).

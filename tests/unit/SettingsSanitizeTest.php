@@ -33,6 +33,9 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertFalse( $defaults['block_frontend_rendering_enabled'] );
 		$this->assertFalse( $defaults['elementor_extraction_enabled'] );
 		$this->assertFalse( $defaults['elementor_frontend_rendering_enabled'] );
+		$this->assertSame( 'off', $defaults['localized_urls_state'] );
+		$this->assertNull( $defaults['localized_urls_activation_checkpoint'] );
+		$this->assertSame( '', $defaults['localized_urls_activation_error'] );
 		$this->assertSame( Settings::SCHEMA_VERSION, $defaults['schema_version'] );
 	}
 
@@ -152,5 +155,21 @@ final class SettingsSanitizeTest extends TestCase {
 		$this->assertTrue( $settings->switcher_show_native_name() );
 		$this->assertFalse( $settings->block_attr_registration_enabled() );
 		$this->assertFalse( $settings->block_uuid_injection_enabled() );
+	}
+
+	public function test_localized_urls_state_sanitization(): void {
+		$clean = Settings::sanitize( array( 'localized_urls_state' => 'on' ) );
+		$this->assertSame( 'on', $clean['localized_urls_state'] );
+
+		$invalid = Settings::sanitize( array( 'localized_urls_state' => 'bogus' ) );
+		$this->assertSame( 'off', $invalid['localized_urls_state'] );
+	}
+
+	public function test_is_localized_url_generation_enabled_only_when_on(): void {
+		$off = new Settings( array( 'localized_urls_state' => 'off' ) );
+		$this->assertFalse( $off->is_localized_url_generation_enabled() );
+
+		$on = new Settings( array( 'localized_urls_state' => 'on' ) );
+		$this->assertTrue( $on->is_localized_url_generation_enabled() );
 	}
 }
