@@ -97,7 +97,7 @@ final class AseoaDeferredSlugGuardTest extends AimlTestCase {
 	}
 
 	public function test_router_register_adds_no_rewrite_rules_and_no_add_rewrite_hooks(): void {
-		$router = new Router( $this->languages, $this->resolver, $this->context );
+		$router = $this->make_router();
 		$router->register();
 
 		global $wp_filter;

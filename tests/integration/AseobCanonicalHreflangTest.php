@@ -24,7 +24,7 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 		$this->add_language( 'de', 'de_DE', Languages::STATUS_PREVIEW );
 
 		$this->route( '/sv/about/' );
-		$svc   = new LanguageRelationshipService( $this->languages, $this->context );
+		$svc   = $this->make_relationships();
 		$rels  = $svc->for_public_request();
 		$codes = array_map(
 			static function ( $r ) {
@@ -57,7 +57,7 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 		$this->add_language();
 		$this->route( '/sv/hello/' );
 
-		$svc  = new LanguageRelationshipService( $this->languages, $this->context );
+		$svc  = $this->make_relationships();
 		$head = new DocumentSeoHead( $svc );
 		$head->register();
 
@@ -69,7 +69,7 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 		$this->add_language();
 		$this->route( '/sv/hello/' );
 
-		$svc      = new LanguageRelationshipService( $this->languages, $this->context );
+		$svc      = $this->make_relationships();
 		$head     = new DocumentSeoHead( $svc );
 		$external = 'https://example.com/other-canonical/';
 
@@ -80,7 +80,7 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 		$this->add_language();
 		$this->route( '/sv/page/' );
 
-		$svc  = new LanguageRelationshipService( $this->languages, $this->context );
+		$svc  = $this->make_relationships();
 		$head = new DocumentSeoHead( $svc );
 
 		ob_start();
@@ -100,7 +100,7 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 
 	public function test_redirect_canonical_blocks_language_strip_but_allows_same_prefix(): void {
 		$this->add_language();
-		$router = new Router( $this->languages, $this->resolver, $this->context );
+		$router = $this->make_router();
 		$router->register();
 		$this->route( '/sv/about/' );
 
@@ -120,7 +120,7 @@ final class AseobCanonicalHreflangTest extends AimlTestCase {
 	}
 
 	public function test_rank_math_canonical_filter_hook_registered(): void {
-		$svc  = new LanguageRelationshipService( $this->languages, $this->context );
+		$svc  = $this->make_relationships();
 		$head = new DocumentSeoHead( $svc );
 		$head->register();
 

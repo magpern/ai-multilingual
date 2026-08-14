@@ -1,6 +1,6 @@
 <?php
 /**
- * MSEO.0 deferred structural guards.
+ * MSEO.0 deferred structural guards (updated for MSEO.2 wiring).
  *
  * @package AIMultilingual
  */
@@ -16,7 +16,7 @@ use AIMultilingual\Routing\PathHash;
 use AIMultilingual\Settings;
 
 /**
- * Proves MSEO.0 inert boundary — foundation only, no public URL activation.
+ * Proves MSEO foundation boundaries — activation job and settings UI remain deferred.
  */
 final class Mseo0DeferredGuardTest extends AimlTestCase {
 
@@ -30,7 +30,6 @@ final class Mseo0DeferredGuardTest extends AimlTestCase {
 
 	public function test_path_hash_uses_sha256(): void {
 		$ref    = new \ReflectionClass( PathHash::class );
-		$method = $ref->getMethod( 'from_canonical' );
 		$source = (string) file_get_contents( $ref->getFileName() );
 		$this->assertStringContainsString( "hash( 'sha256'", $source );
 		$this->assertStringNotContainsString( 'sha1(', $source );
@@ -40,16 +39,16 @@ final class Mseo0DeferredGuardTest extends AimlTestCase {
 		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
 	}
 
-	public function test_effective_url_service_not_wired_to_home_url(): void {
+	public function test_effective_url_service_wired_in_plugin(): void {
 		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
-		$this->assertStringNotContainsString( 'EffectiveUrlService', $plugin );
+		$this->assertStringContainsString( 'EffectiveUrlService', $plugin );
 	}
 
-	public function test_router_has_no_mseo_inbound_substitution(): void {
+	public function test_router_has_mseo_inbound_recognition(): void {
 		$router = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
-		$this->assertStringNotContainsString( 'SlugRouteRepository', $router );
-		$this->assertStringNotContainsString( 'PathCanonicalizer', $router );
-		$this->assertStringNotContainsString( 'localized_path', $router );
+		$this->assertStringContainsString( 'SlugRouteRepository', $router );
+		$this->assertStringContainsString( 'PathCanonicalizer', $router );
+		$this->assertStringContainsString( 'RouteRecognitionContext', $router );
 	}
 
 	public function test_no_provider_calls_in_routing_namespace(): void {
@@ -71,7 +70,7 @@ final class Mseo0DeferredGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'localized url', strtolower( $page ) );
 	}
 
-	public function test_mseo_tables_exist_but_routing_remains_deferred(): void {
+	public function test_mseo_tables_exist_and_router_recognizes_routes(): void {
 		global $wpdb;
 
 		$this->assertSame(
@@ -80,14 +79,14 @@ final class Mseo0DeferredGuardTest extends AimlTestCase {
 		);
 
 		$router_source = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
-		$this->assertStringNotContainsString( 'EffectiveUrlService', $router_source );
-		$this->assertStringNotContainsString( 'find_by_localized_path', $router_source );
+		$this->assertStringContainsString( 'EffectiveUrlService', $router_source );
+		$this->assertStringContainsString( 'find_active_by_localized_path', $router_source );
 	}
 
-	public function test_effective_url_service_constructor_is_settings_only(): void {
+	public function test_effective_url_service_constructor_includes_route_dependencies(): void {
 		$ref    = new \ReflectionClass( EffectiveUrlService::class );
 		$params = $ref->getConstructor()->getParameters();
-		$this->assertCount( 1, $params );
+		$this->assertGreaterThanOrEqual( 4, count( $params ) );
 		$this->assertSame( Settings::class, $params[0]->getType()->getName() );
 	}
 }

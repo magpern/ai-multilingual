@@ -58,7 +58,7 @@ final class AseofSeoDiagnosticsTest extends AimlTestCase {
 		$this->add_language( 'sv', 'sv_SE', Languages::STATUS_PUBLISHED );
 		$this->add_language( 'de', 'de_DE', Languages::STATUS_PREVIEW );
 
-		$rels  = ( new LanguageRelationshipService( $this->languages, $this->context ) )->for_path( '/', false );
+		$rels  = ( $this->make_relationships() )->for_path( '/', false );
 		$codes = array_map( static fn( $r ) => $r->language_code, $rels );
 		$this->assertNotContains( 'de', $codes );
 
@@ -87,7 +87,7 @@ final class AseofSeoDiagnosticsTest extends AimlTestCase {
 			new PluginIdentity(),
 			new Store( new Cache() ),
 			new LanguageContext(),
-			new LanguageRelationshipService( $this->languages, $this->context ),
+			$this->make_relationships(),
 			true,
 			false,
 			'1.0.275',
@@ -95,7 +95,7 @@ final class AseofSeoDiagnosticsTest extends AimlTestCase {
 			true
 		);
 		$service     = new SeoDiagnosticsService(
-			new LanguageRelationshipService( $this->languages, $this->context ),
+			$this->make_relationships(),
 			$this->languages,
 			$integration
 		);
@@ -131,7 +131,7 @@ final class AseofSeoDiagnosticsTest extends AimlTestCase {
 
 	private function make_service(): SeoDiagnosticsService {
 		return new SeoDiagnosticsService(
-			new LanguageRelationshipService( $this->languages, $this->context ),
+			$this->make_relationships(),
 			$this->languages,
 			null
 		);

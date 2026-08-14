@@ -1096,6 +1096,33 @@ final class PluginGuardTest extends AimlTestCase {
 	}
 
 	/**
+	 * MSEO.2 public routing structural guards.
+	 */
+	public function test_mseo2_public_routing_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+		$this->assertFileExists( $this->root() . '/src/Routing/RouteRecognitionContext.php' );
+
+		$router = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
+		$this->assertStringContainsString( 'RouteRecognitionContext', $router );
+		$this->assertStringContainsString( 'KIND_CURRENT_LOCALIZED', $router );
+		$this->assertStringContainsString( 'KIND_SOURCE_PATH', $router );
+		$this->assertStringContainsString( 'find_active_by_localized_path', $router );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringContainsString( 'EffectiveUrlService', $plugin );
+		$this->assertStringContainsString( 'new Router(', $plugin );
+
+		$eligibility = (string) file_get_contents( $this->root() . '/src/Routing/ObjectLanguagePublicEligibility.php' );
+		$this->assertStringContainsString( 'is_discoverable', $eligibility );
+		$this->assertStringContainsString( 'is_localized_url_generation_enabled', $eligibility );
+
+		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
+
+		$settings_page = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
+		$this->assertStringNotContainsString( 'localized_urls_state', $settings_page );
+	}
+
+	/**
 	 * MSEO.0 inert foundation structural guards.
 	 */
 	public function test_mseo0_inert_foundation_boundaries(): void {
@@ -1112,9 +1139,6 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$canonicalizer = (string) file_get_contents( $this->root() . '/src/Routing/PathCanonicalizer.php' );
 		$this->assertStringNotContainsString( 'sanitize_title', $canonicalizer );
-
-		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
-		$this->assertStringNotContainsString( 'EffectiveUrlService', $plugin );
 
 		$this->assertFalse( class_exists( 'AIMultilingual\\Routing\\SlugRouteActivationJob' ) );
 
@@ -1147,12 +1171,8 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'publish_under_route_authority', $publication );
 
 		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
-		$this->assertStringNotContainsString( 'EffectiveUrlService', $plugin );
-		$this->assertDoesNotMatchRegularExpression(
-			'/new\s+Router\s*\([^;]*EffectiveUrl/s',
-			$plugin,
-			'Plugin must not wire EffectiveUrl into Router.'
-		);
+		$this->assertStringContainsString( 'EffectiveUrlService', $plugin );
+		$this->assertStringContainsString( 'RouteRecognitionContext', (string) file_get_contents( $this->root() . '/src/Routing/Router.php' ) );
 		$this->assertStringContainsString( 'refresh_source_path', $plugin );
 		$this->assertStringContainsString( 'deactivate_for_source', $plugin );
 		$this->assertStringContainsString( 'purge_for_source', $plugin );

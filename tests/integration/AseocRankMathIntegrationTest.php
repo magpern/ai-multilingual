@@ -217,7 +217,7 @@ final class AseocRankMathIntegrationTest extends AimlTestCase {
 	}
 
 	public function test_sb11_injected_unchanged(): void {
-		$svc         = new LanguageRelationshipService( $this->languages, $this->context );
+		$svc         = $this->make_relationships();
 		$integration = new RankMathIntegration(
 			new PluginIdentity(),
 			$this->store,
@@ -281,7 +281,7 @@ final class AseocRankMathIntegrationTest extends AimlTestCase {
 			$identity ?? new PluginIdentity(),
 			$this->store,
 			$this->context,
-			new LanguageRelationshipService( $this->languages, $this->context ),
+			$this->make_relationships(),
 			true,
 			true,
 			'1.0.275',

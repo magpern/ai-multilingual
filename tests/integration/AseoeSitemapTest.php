@@ -140,7 +140,7 @@ final class AseoeSitemapTest extends AimlTestCase {
 			new PluginIdentity(),
 			$this->store,
 			$this->context,
-			new LanguageRelationshipService( $this->languages, $this->context ),
+			$this->make_relationships(),
 			true,
 			false,
 			'1.0.275',
@@ -167,7 +167,7 @@ final class AseoeSitemapTest extends AimlTestCase {
 
 	private function make_overlay(): RankMathSitemapOverlay {
 		return new RankMathSitemapOverlay(
-			new LanguageRelationshipService( $this->languages, $this->context )
+			$this->make_relationships()
 		);
 	}
 }

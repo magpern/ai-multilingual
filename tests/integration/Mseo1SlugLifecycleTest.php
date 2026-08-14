@@ -85,7 +85,7 @@ final class Mseo1SlugLifecycleTest extends AimlTestCase {
 	private function make_route_publication(): RoutePublicationService {
 		$capabilities = new RoutingCapabilityRegistry();
 		$collisions   = new CanonicalPathCollisionChecker( $this->routes, $this->history, $this->paths );
-		$eligibility  = new ObjectLanguagePublicEligibility( $this->store, $this->languages, $capabilities );
+		$eligibility  = new ObjectLanguagePublicEligibility( $this->store, $this->languages, $capabilities, new Settings(), $this->routes );
 
 		return new RoutePublicationService(
 			$this->store,
@@ -619,11 +619,35 @@ final class Mseo1SlugLifecycleTest extends AimlTestCase {
 		$this->assertSame( 'active', (string) $route->route_status );
 	}
 
-	public function test_is_discoverable_always_false(): void {
-		$post        = $this->create_page( 'About Us' );
-		$language    = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
-		$eligibility = new ObjectLanguagePublicEligibility( $this->store, $this->languages, new RoutingCapabilityRegistry() );
+	public function test_is_discoverable_requires_state_on_and_active_route(): void {
+		$post     = $this->create_page( 'About Us' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$this->seed_translated_title( $post, $language, 'Om Oss' );
+
+		$settings = new Settings( array( 'localized_urls_state' => 'off' ) );
+		$eligibility = new ObjectLanguagePublicEligibility(
+			$this->store,
+			$this->languages,
+			new RoutingCapabilityRegistry(),
+			$settings,
+			$this->routes
+		);
 		$this->assertFalse( $eligibility->is_discoverable( $post, (int) $language->language_id ) );
+
+		$generated = $this->candidates->generate( $post, (int) $language->language_id );
+		$this->assertIsObject( $generated );
+		$result = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
+		$this->assertIsArray( $result );
+
+		$settings_on = new Settings( array( 'localized_urls_state' => 'on' ) );
+		$eligibility_on = new ObjectLanguagePublicEligibility(
+			$this->store,
+			$this->languages,
+			new RoutingCapabilityRegistry(),
+			$settings_on,
+			$this->routes
+		);
+		$this->assertTrue( $eligibility_on->is_discoverable( $post, (int) $language->language_id ) );
 	}
 
 	public function test_manual_sanitize_drift_rejected(): void {

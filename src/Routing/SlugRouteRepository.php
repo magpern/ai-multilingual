@@ -121,6 +121,21 @@ final class SlugRouteRepository {
 	}
 
 	/**
+	 * Finds an **active** route by localized canonical path.
+	 *
+	 * @param int           $language_id Language id.
+	 * @param CanonicalPath $path        Canonical localized path.
+	 */
+	public function find_active_by_localized_path( int $language_id, CanonicalPath $path ): ?object {
+		$row = $this->find_by_localized_path( $language_id, $path );
+		if ( null === $row || 'active' !== (string) ( $row->route_status ?? '' ) ) {
+			return null;
+		}
+
+		return $row;
+	}
+
+	/**
 	 * Finds a route by source canonical path.
 	 *
 	 * @param int           $language_id Language id.
@@ -128,6 +143,21 @@ final class SlugRouteRepository {
 	 */
 	public function find_by_source_path( int $language_id, CanonicalPath $path ): ?object {
 		return $this->find_by_path_hash_column( $language_id, $path, 'source_path_hash', 'source_path' );
+	}
+
+	/**
+	 * Finds an **active** route by source canonical path.
+	 *
+	 * @param int           $language_id Language id.
+	 * @param CanonicalPath $path        Canonical source path.
+	 */
+	public function find_active_by_source_path( int $language_id, CanonicalPath $path ): ?object {
+		$row = $this->find_by_source_path( $language_id, $path );
+		if ( null === $row || 'active' !== (string) ( $row->route_status ?? '' ) ) {
+			return null;
+		}
+
+		return $row;
 	}
 
 	/**

@@ -116,6 +116,11 @@ use AIMultilingual\Rollout\Cache\RenderCacheService;
 use AIMultilingual\Rollout\Cache\RolloutCacheInvalidationHooks;
 use AIMultilingual\Rollout\Cache\RolloutRenderCacheBridge;
 use AIMultilingual\Rollout\Metrics\RolloutMetricsCollector;
+use AIMultilingual\Routing\EffectiveUrlService;
+use AIMultilingual\Routing\PathCanonicalizer;
+use AIMultilingual\Routing\RouteHistoryRepository;
+use AIMultilingual\Routing\RoutingCapabilityRegistry;
+use AIMultilingual\Routing\SlugRouteRepository;
 use AIMultilingual\Routing\Router;
 use AIMultilingual\Translation\AI\CredentialVault;
 use AIMultilingual\Translation\AI\NullAIProvider;
@@ -258,7 +263,32 @@ final class Plugin {
 		$integration_registry    = new IntegrationRegistry( $integration_diagnostics );
 		$plugin_identity         = new PluginIdentity( $integration_diagnostics );
 		$woo_integration         = WooCommerceIntegration::create_default( $plugin_identity, $store, $context );
-		$relationships           = new LanguageRelationshipService( $languages, $context );
+
+		$path_canonicalizer   = new PathCanonicalizer();
+		$slug_routes          = new SlugRouteRepository();
+		$route_history        = new RouteHistoryRepository();
+		$routing_capabilities = new RoutingCapabilityRegistry();
+		$effective_url        = new EffectiveUrlService(
+			$settings,
+			$slug_routes,
+			$routing_capabilities,
+			$path_canonicalizer,
+			$languages
+		);
+		$slug_eligibility     = new \AIMultilingual\Routing\ObjectLanguagePublicEligibility(
+			$store,
+			$languages,
+			$routing_capabilities,
+			$settings,
+			$slug_routes
+		);
+		$relationships        = new LanguageRelationshipService(
+			$languages,
+			$context,
+			$effective_url,
+			$slug_eligibility,
+			$settings
+		);
 		$integration_registry->register(
 			FluentFormsIntegration::create_default( $plugin_identity )
 		);
@@ -360,7 +390,16 @@ final class Plugin {
 			$render_cache_bridge
 		);
 
-		$router = new Router( $languages, $resolver, $context );
+		$router = new Router(
+			$languages,
+			$resolver,
+			$context,
+			$effective_url,
+			$settings,
+			$path_canonicalizer,
+			$slug_routes,
+			$route_history
+		);
 		$router->register();
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
 		( new DocumentSeoHead( $relationships ) )->register();
@@ -479,21 +518,12 @@ final class Plugin {
 			$segment_authority_registry
 		);
 
-		$path_canonicalizer   = new \AIMultilingual\Routing\PathCanonicalizer();
-		$slug_routes          = new \AIMultilingual\Routing\SlugRouteRepository();
-		$route_history        = new \AIMultilingual\Routing\RouteHistoryRepository();
-		$routing_capabilities = new \AIMultilingual\Routing\RoutingCapabilityRegistry();
-		$collision_checker    = new \AIMultilingual\Routing\CanonicalPathCollisionChecker(
+		$collision_checker = new \AIMultilingual\Routing\CanonicalPathCollisionChecker(
 			$slug_routes,
 			$route_history,
 			$path_canonicalizer
 		);
-		$slug_eligibility     = new \AIMultilingual\Routing\ObjectLanguagePublicEligibility(
-			$store,
-			$languages,
-			$routing_capabilities
-		);
-		$slug_candidates      = new \AIMultilingual\Routing\SlugCandidateService( $store );
+		$slug_candidates   = new \AIMultilingual\Routing\SlugCandidateService( $store );
 		$route_publication    = new \AIMultilingual\Routing\RoutePublicationService(
 			$store,
 			$publication,

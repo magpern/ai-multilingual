@@ -107,16 +107,21 @@ final class DocumentSeoHead {
 	 * @param string $existing Candidate canonical.
 	 */
 	private function resolve_canonical( string $existing ): string {
-		$current = $this->relationships->current_public();
+		$current = $this->relationships->current_canonical_url();
 		if ( null === $current ) {
-			return $existing;
+			$public = $this->relationships->current_public();
+			if ( null === $public ) {
+				return $existing;
+			}
+
+			$current = $public->url;
 		}
 
 		if ( '' !== $existing && $this->is_external_absolute( $existing ) ) {
 			return $existing;
 		}
 
-		return $current->url;
+		return $current;
 	}
 
 	/**
