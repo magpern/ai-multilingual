@@ -22,6 +22,7 @@ use AIMultilingual\Routing\RoutingCapabilityRegistry;
 use AIMultilingual\Routing\SlugRouteRepository;
 use AIMultilingual\Seo\LanguageRelationshipService;
 use AIMultilingual\Settings;
+use AIMultilingual\Translation\Store;
 use PHPUnit\Framework\TestCase;
 
 /**

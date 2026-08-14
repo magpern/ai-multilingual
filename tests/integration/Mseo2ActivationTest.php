@@ -55,9 +55,9 @@ final class Mseo2ActivationTest extends AimlTestCase {
 		);
 		update_option( Settings::OPTION, $this->settings->get() );
 
-		$this->routes     = new SlugRouteRepository();
-		$this->paths      = new PathCanonicalizer();
-		$this->candidates = new SlugCandidateService( $this->store );
+		$this->routes            = new SlugRouteRepository();
+		$this->paths             = new PathCanonicalizer();
+		$this->candidates        = new SlugCandidateService( $this->store );
 		$this->route_publication = $this->make_route_publication();
 		$this->activation        = new LocalizedUrlsActivationService( $this->settings );
 		$this->job               = new SlugRouteActivationJob(
@@ -123,11 +123,13 @@ final class Mseo2ActivationTest extends AimlTestCase {
 	private function snapshot_routes(): array {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- table name from Schema::slug_routes().
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$rows = $wpdb->get_results(
 			'SELECT route_id, route_status, source_path, localized_path, slug_origin FROM ' . Schema::slug_routes(),
 			ARRAY_A
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		return is_array( $rows ) ? $rows : array();
 	}
@@ -155,8 +157,8 @@ final class Mseo2ActivationTest extends AimlTestCase {
 		$post     = get_post( $child_id );
 		$this->assertInstanceOf( \WP_Post::class, $post );
 
-		$language = $this->add_language( 'no', 'nb_NO', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
-		$source   = $this->paths->canonicalize( '/' . (string) $post->post_name );
+		$language  = $this->add_language( 'no', 'nb_NO', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$source    = $this->paths->canonicalize( '/' . (string) $post->post_name );
 		$localized = $this->paths->canonicalize( '/barn-side' );
 
 		$this->routes->save(
@@ -209,6 +211,7 @@ final class Mseo2ActivationTest extends AimlTestCase {
 		$route_id = (int) ( $before[0]['route_id'] ?? 0 );
 		$this->assertGreaterThan( 0, $route_id );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- table name from Schema::slug_routes().
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->query(
 			$wpdb->prepare(
@@ -217,6 +220,7 @@ final class Mseo2ActivationTest extends AimlTestCase {
 				$route_id
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		$this->activation->request_enable();
 		$this->job->tick();
@@ -237,8 +241,8 @@ final class Mseo2ActivationTest extends AimlTestCase {
 	}
 
 	public function test_activation_job_does_not_reference_route_publication_or_candidates(): void {
-		$root = dirname( __DIR__, 2 );
-		$job  = (string) file_get_contents( $root . '/src/Jobs/SlugRouteActivationJob.php' );
+		$root     = dirname( __DIR__, 2 );
+		$job      = (string) file_get_contents( $root . '/src/Jobs/SlugRouteActivationJob.php' );
 		$verifier = (string) file_get_contents( $root . '/src/Routing/SlugRouteActivationVerifier.php' );
 
 		foreach ( array( $job, $verifier ) as $source ) {
@@ -258,6 +262,7 @@ final class Mseo2ActivationTest extends AimlTestCase {
 		$hash_hex = PathHash::from_canonical( $path_a )->hex();
 		$now      = current_time( 'mysql', true );
 
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- table name from Schema::slug_routes().
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->query(
 			$wpdb->prepare(
@@ -284,11 +289,66 @@ final class Mseo2ActivationTest extends AimlTestCase {
 				$now
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		$this->activation->request_enable();
 		$this->job->tick();
 
 		$this->settings->reload();
 		$this->assertSame( LocalizedUrlsActivationService::STATE_FAILED, $this->settings->localized_urls_state() );
+	}
+
+	public function test_skipped_not_public_does_not_fail_activation(): void {
+		$post     = $this->create_page( 'Draft Public Skip' );
+		$language = $this->add_language( 'nb', 'nb_NO', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+
+		wp_update_post(
+			array(
+				'ID'          => (int) $post->ID,
+				'post_status' => 'draft',
+			)
+		);
+
+		$this->routes->save(
+			new RouteRecord(
+				(int) $language->language_id,
+				Store::SOURCE_POST,
+				(int) $post->ID,
+				'page',
+				$this->paths->canonicalize( '/' . $post->post_name ),
+				$this->paths->canonicalize( '/utkast-skip' ),
+				'utkast-skip',
+				'',
+				'manual',
+				'active',
+				current_time( 'mysql', true )
+			)
+		);
+
+		$this->activation->request_enable();
+		$this->job->tick();
+
+		$this->settings->reload();
+		$this->assertSame( LocalizedUrlsActivationService::STATE_ON, $this->settings->localized_urls_state() );
+	}
+
+	public function test_system_error_constant_is_blocking(): void {
+		$this->assertTrue(
+			\AIMultilingual\Routing\SlugRouteActivationOutcome::is_blocking(
+				\AIMultilingual\Routing\SlugRouteActivationOutcome::SYSTEM_ERROR
+			)
+		);
+	}
+
+	public function test_activation_does_not_complete_before_frontier_drained(): void {
+		$this->seed_published_active_route();
+
+		$this->activation->request_enable();
+		$this->settings->reload();
+		$this->assertSame( LocalizedUrlsActivationService::STATE_ACTIVATING, $this->settings->localized_urls_state() );
+
+		$rows = $this->routes->list_active_routes_after( 0, 1 );
+		$this->assertNotEmpty( $rows );
+		$this->assertSame( LocalizedUrlsActivationService::STATE_ACTIVATING, $this->settings->localized_urls_state() );
 	}
 }

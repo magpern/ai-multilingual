@@ -527,7 +527,7 @@ final class Plugin {
 			$path_canonicalizer
 		);
 		$slug_candidates   = new \AIMultilingual\Routing\SlugCandidateService( $store );
-		$route_publication    = new \AIMultilingual\Routing\RoutePublicationService(
+		$route_publication = new \AIMultilingual\Routing\RoutePublicationService(
 			$store,
 			$publication,
 			$slug_routes,

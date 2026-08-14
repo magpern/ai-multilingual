@@ -50,16 +50,16 @@ final class Cli {
 	/**
 	 * Registers the commands.
 	 *
-	 * @param Languages               $languages Language configuration.
-	 * @param Store                   $store     Segment store.
-	 * @param Extractor               $extractor Source extractor.
-	 * @param BlockIdentityMigration  $migration Block identity migration service.
-	 * @param BlockHealthService      $health    Block health diagnostics service.
-	 * @param BlockMetricsAggregator  $metrics     Request-scoped metrics aggregator.
-	 * @param SeoDiagnosticsService              $seo         SEO diagnostics core (A.SEOf).
-	 * @param PublicationService|null            $publication Optional TI.7 publication service.
+	 * @param Languages                           $languages Language configuration.
+	 * @param Store                               $store     Segment store.
+	 * @param Extractor                           $extractor Source extractor.
+	 * @param BlockIdentityMigration              $migration Block identity migration service.
+	 * @param BlockHealthService                  $health    Block health diagnostics service.
+	 * @param BlockMetricsAggregator              $metrics     Request-scoped metrics aggregator.
+	 * @param SeoDiagnosticsService               $seo         SEO diagnostics core (A.SEOf).
+	 * @param PublicationService|null             $publication Optional TI.7 publication service.
 	 * @param LocalizedUrlsActivationService|null $localized_urls Optional localized URL activation.
-	 * @param SlugRouteActivationJob|null        $activation_job Optional activation job diagnostics.
+	 * @param SlugRouteActivationJob|null         $activation_job Optional activation job diagnostics.
 	 */
 	public static function register(
 		Languages $languages,
@@ -1065,10 +1065,10 @@ final class Cli {
 		WP_CLI::print_value(
 			wp_json_encode(
 				array(
-					'state'              => $settings->localized_urls_state(),
+					'state'               => $settings->localized_urls_state(),
 					'checkpoint_route_id' => $activation->checkpoint_route_id(),
-					'error'              => $settings->localized_urls_activation_error(),
-					'active_route_count' => $job->count_active_routes(),
+					'error'               => $settings->localized_urls_activation_error(),
+					'active_route_count'  => $job->count_active_routes(),
 				),
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 			)

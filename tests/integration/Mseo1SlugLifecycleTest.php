@@ -624,7 +624,7 @@ final class Mseo1SlugLifecycleTest extends AimlTestCase {
 		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
 		$this->seed_translated_title( $post, $language, 'Om Oss' );
 
-		$settings = new Settings( array( 'localized_urls_state' => 'off' ) );
+		$settings    = new Settings( array( 'localized_urls_state' => 'off' ) );
 		$eligibility = new ObjectLanguagePublicEligibility(
 			$this->store,
 			$this->languages,
@@ -639,7 +639,7 @@ final class Mseo1SlugLifecycleTest extends AimlTestCase {
 		$result = $this->route_publication->publish_route( $post, (int) $language->language_id, 1 );
 		$this->assertIsArray( $result );
 
-		$settings_on = new Settings( array( 'localized_urls_state' => 'on' ) );
+		$settings_on    = new Settings( array( 'localized_urls_state' => 'on' ) );
 		$eligibility_on = new ObjectLanguagePublicEligibility(
 			$this->store,
 			$this->languages,

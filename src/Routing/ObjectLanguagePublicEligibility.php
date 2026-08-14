@@ -106,6 +106,18 @@ final class ObjectLanguagePublicEligibility {
 	}
 
 	/**
+	 * Whether an active prepared route exists for the object/language.
+	 *
+	 * @param WP_Post $post        Source post.
+	 * @param int     $language_id Language id.
+	 */
+	public function has_active_route( WP_Post $post, int $language_id ): bool {
+		$route = $this->routes->find_by_object( Store::SOURCE_POST, (int) $post->ID, $language_id );
+
+		return null !== $route && 'active' === (string) ( $route->route_status ?? '' );
+	}
+
+	/**
 	 * Helper.
 	 *
 	 * @param int $source_id   Post id.

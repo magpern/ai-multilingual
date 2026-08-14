@@ -1119,7 +1119,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertTrue( class_exists( 'AIMultilingual\\Jobs\\SlugRouteActivationJob' ) );
 		$this->assertFileExists( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
 
-		$activation_job = (string) file_get_contents( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
+		$activation_job      = (string) file_get_contents( $this->root() . '/src/Jobs/SlugRouteActivationJob.php' );
 		$activation_verifier = (string) file_get_contents( $this->root() . '/src/Routing/SlugRouteActivationVerifier.php' );
 		foreach ( array( $activation_job, $activation_verifier ) as $source ) {
 			$this->assertStringNotContainsString( 'RoutePublicationService', $source );

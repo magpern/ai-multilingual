@@ -302,4 +302,164 @@ final class Mseo2PublicRoutingTest extends AimlTestCase {
 
 		$this->assertFalse( $registry->is_plain_product_permalink() );
 	}
+
+	public function test_current_localized_activating_and_failed_emit_one_302(): void {
+		$fixture = $this->seed_active_route( 'on' );
+
+		foreach ( array( 'activating', 'failed' ) as $state ) {
+			$this->settings = new Settings(
+				array_merge(
+					$this->settings->get(),
+					array( 'localized_urls_state' => $state )
+				)
+			);
+			update_option( Settings::OPTION, $this->settings->get() );
+
+			$redirect = $this->capture_redirect(
+				function () use ( $fixture ): void {
+					$this->route( '/sv' . $fixture['localized'], $this->settings );
+				}
+			);
+			$this->assertSame( 302, $redirect['status'], $state );
+			$this->assertStringContainsString( '/sv' . $fixture['source'], (string) $redirect['location'], $state );
+		}
+	}
+
+	public function test_history_off_emits_one_302_to_source_slug(): void {
+		$fixture = $this->seed_active_route( 'off' );
+		$paths   = new \AIMultilingual\Routing\PathCanonicalizer();
+		$history = new \AIMultilingual\Routing\RouteHistoryRepository();
+
+		$history->insert(
+			new HistoryRecord(
+				(int) $fixture['language']->language_id,
+				$paths->canonicalize( '/old-leaf' ),
+				Store::SOURCE_POST,
+				(int) $fixture['post']->ID,
+				'page'
+			)
+		);
+
+		$redirect = $this->capture_redirect(
+			function (): void {
+				$this->route( '/sv/old-leaf/', $this->settings );
+			}
+		);
+
+		$this->assertSame( 302, $redirect['status'] );
+		$this->assertStringContainsString( '/sv' . $fixture['source'], (string) $redirect['location'] );
+	}
+
+	public function test_home_url_admission_negatives_and_anti_recursion(): void {
+		$fixture = $this->seed_active_route( 'on' );
+		$router  = $this->route( '/sv' . $fixture['localized'], $this->settings );
+
+		$negatives = array(
+			home_url( '/wp-admin/' ),
+			home_url( '/wp-login.php' ),
+			home_url( '/wp-json/wp/v2/posts' ),
+			home_url( '/wp-content/uploads/x.jpg' ),
+			home_url( '/feed/' ),
+			home_url( '/?s=hello' ),
+			home_url( '/page/2/' ),
+			home_url( '/cart/' ),
+			home_url( '/checkout/' ),
+			home_url( '/my-account/' ),
+			home_url( '/shop/?add-to-cart=1' ),
+			home_url( '/unknown-plugin-path/' ),
+		);
+
+		foreach ( $negatives as $url ) {
+			$out = $router->filter_home_url( $url );
+			$this->assertStringNotContainsString( $fixture['localized'], $out, $url );
+		}
+
+		$already = home_url( '/sv' . $fixture['localized'] );
+		$this->assertSame( $already, $router->filter_home_url( $already ) );
+
+		$source    = home_url( $fixture['source'] );
+		$localized = $router->filter_home_url( $source );
+		$this->assertStringContainsString( '/sv' . $fixture['localized'], $localized );
+	}
+
+	public function test_recognition_context_unchanged_by_home_url(): void {
+		$fixture = $this->seed_active_route( 'on' );
+		$router  = $this->route( '/sv' . $fixture['localized'], $this->settings );
+		$before  = $router->recognition_context()->kind();
+
+		$router->filter_home_url( home_url( $fixture['source'] ) );
+
+		$this->assertSame( $before, $router->recognition_context()->kind() );
+		$this->assertSame( RouteRecognitionContext::KIND_CURRENT_LOCALIZED, $before );
+	}
+
+	public function test_hreflang_off_still_emits_sa7_public_set(): void {
+		$fixture = $this->seed_active_route( 'off' );
+		$this->route( '/sv' . $fixture['source'], $this->settings );
+		$svc   = $this->make_relationships();
+		$rels  = $svc->for_public_request();
+		$codes = array_map(
+			static function ( $r ) {
+				return $r->language_code;
+			},
+			$rels
+		);
+
+		$this->assertContains( 'en', $codes );
+		$this->assertContains( 'sv', $codes );
+		foreach ( $rels as $rel ) {
+			if ( 'sv' === $rel->language_code ) {
+				$this->assertStringContainsString( $fixture['source'], $rel->url );
+				$this->assertStringNotContainsString( $fixture['localized'], $rel->url );
+			}
+		}
+	}
+
+	public function test_hreflang_omits_active_route_without_bundle(): void {
+		$post     = $this->create_page( 'Bare Route' );
+		$language = $this->add_language( 'sv', 'sv_SE', \AIMultilingual\Language\Languages::STATUS_PUBLISHED );
+		$paths    = new \AIMultilingual\Routing\PathCanonicalizer();
+
+		$this->routes->save(
+			new RouteRecord(
+				(int) $language->language_id,
+				Store::SOURCE_POST,
+				(int) $post->ID,
+				'page',
+				$paths->canonicalize( '/' . $post->post_name ),
+				$paths->canonicalize( '/bara-route' ),
+				'bara-route',
+				'',
+				'manual',
+				'active',
+				current_time( 'mysql', true )
+			)
+		);
+
+		$this->route( '/' . $post->post_name . '/', $this->settings );
+		$svc   = $this->make_relationships();
+		$codes = array_map(
+			static function ( $r ) {
+				return $r->language_code;
+			},
+			$svc->for_public_request()
+		);
+
+		$this->assertContains( 'en', $codes );
+		$this->assertNotContains( 'sv', $codes );
+	}
+
+	public function test_preview_remains_source_slug_when_generation_on(): void {
+		$fixture = $this->seed_active_route( 'on' );
+		$preview = new \AIMultilingual\Workspace\PreviewService(
+			$this->languages,
+			$this->context,
+			$this->route( '/sv' . $fixture['localized'], $this->settings )
+		);
+
+		$url = $preview->preview_url( $fixture['post'], 'sv' );
+		$this->assertIsString( $url );
+		$this->assertStringContainsString( '/sv' . $fixture['source'], $url );
+		$this->assertStringNotContainsString( $fixture['localized'], $url );
+	}
 }

@@ -87,9 +87,9 @@ final class SettingsPage {
 	/**
 	 * Builds the settings and language screens.
 	 *
-	 * @param Settings                          $settings       Plugin settings.
-	 * @param Languages                         $languages      Language configuration.
-	 * @param CredentialVault|null              $vault          Credential vault.
+	 * @param Settings                            $settings       Plugin settings.
+	 * @param Languages                           $languages      Language configuration.
+	 * @param CredentialVault|null                $vault          Credential vault.
 	 * @param LocalizedUrlsActivationService|null $localized_urls Localized URL activation.
 	 */
 	public function __construct(
@@ -770,7 +770,7 @@ final class SettingsPage {
 		echo '</div>';
 
 		if ( in_array( $state, array( LocalizedUrlsActivationService::STATE_OFF, LocalizedUrlsActivationService::STATE_FAILED ), true ) ) {
-			$enable_label = LocalizedUrlsActivationService::STATE_FAILED === $state
+			$enable_label  = LocalizedUrlsActivationService::STATE_FAILED === $state
 				? __( 'Retry activation', 'ai-multilingual' )
 				: __( 'Enable localized URLs', 'ai-multilingual' );
 			$enable_action = LocalizedUrlsActivationService::STATE_FAILED === $state

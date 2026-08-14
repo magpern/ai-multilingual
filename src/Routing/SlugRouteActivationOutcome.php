@@ -19,6 +19,7 @@ final class SlugRouteActivationOutcome {
 	public const SKIPPED_NOT_PUBLIC  = 'skipped_not_public';
 	public const INVALID_DATA        = 'invalid_data';
 	public const CONFLICT            = 'conflict';
+	public const SYSTEM_ERROR        = 'system_error';
 
 	/**
 	 * Whether the outcome blocks global ON.
@@ -28,7 +29,7 @@ final class SlugRouteActivationOutcome {
 	public static function is_blocking( string $outcome ): bool {
 		return in_array(
 			$outcome,
-			array( self::INVALID_DATA, self::CONFLICT ),
+			array( self::INVALID_DATA, self::CONFLICT, self::SYSTEM_ERROR ),
 			true
 		);
 	}

@@ -132,6 +132,10 @@ final class SlugRouteActivationVerifier {
 	}
 
 	/**
+	 * Builds a classified activation result payload.
+	 *
+	 * @param string $outcome Outcome constant.
+	 * @param string $message Human-readable diagnostic.
 	 * @return array{outcome: string, message: string}
 	 */
 	private function result( string $outcome, string $message ): array {

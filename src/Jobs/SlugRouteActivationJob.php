@@ -87,13 +87,7 @@ final class SlugRouteActivationJob {
 			return;
 		}
 
-		try {
-			$this->process_batch();
-		} catch ( \Throwable $e ) {
-			$this->activation->fail_activation(
-				substr( 'Activation system error: ' . $e->getMessage(), 0, 500 )
-			);
-		}
+		$this->process_batch();
 	}
 
 	/**

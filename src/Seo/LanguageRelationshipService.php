@@ -62,11 +62,11 @@ final class LanguageRelationshipService {
 	/**
 	 * Builds the relationship service.
 	 *
-	 * @param Languages                         $languages     Language registry.
-	 * @param LanguageContext                   $context       Request language state.
-	 * @param EffectiveUrlService               $effective_url Effective URL authority.
-	 * @param ObjectLanguagePublicEligibility   $eligibility   Discoverability authority.
-	 * @param Settings                          $settings      Plugin settings.
+	 * @param Languages                       $languages     Language registry.
+	 * @param LanguageContext                 $context       Request language state.
+	 * @param EffectiveUrlService             $effective_url Effective URL authority.
+	 * @param ObjectLanguagePublicEligibility $eligibility   Discoverability authority.
+	 * @param Settings                        $settings      Plugin settings.
 	 */
 	public function __construct(
 		Languages $languages,
@@ -85,8 +85,10 @@ final class LanguageRelationshipService {
 	/**
 	 * Builds the public SEO relationship set for the current request.
 	 *
-	 * Preview languages are excluded (ADR-0008 / SB9). Only discoverable
-	 * localized alternates are advertised in hreflang/sitemap surfaces.
+	 * Preview languages are excluded (ADR-0008 / SB9). Localized alternates
+	 * are emitted only when is_discoverable; otherwise SA7 source-slug URLs
+	 * remain (A.SEOb). Active routes without a discoverable bundle are omitted
+	 * from hreflang/sitemap (MSEO.2 §22).
 	 *
 	 * @return list<LanguageRelationship>
 	 */
@@ -99,21 +101,27 @@ final class LanguageRelationshipService {
 	 *
 	 * @param string $unprefixed_path   Path after Router strip (leading slash).
 	 * @param bool   $include_preview   When true, include preview languages (capability surfaces only).
-	 * @param bool   $discoverable_only When true, omit languages that fail is_discoverable.
+	 * @param bool   $seo_advertisement When true, apply hreflang/sitemap omit rules for !discoverable active routes.
 	 * @return list<LanguageRelationship>
 	 */
-	public function for_path( string $unprefixed_path, bool $include_preview = false, bool $discoverable_only = false ): array {
+	public function for_path( string $unprefixed_path, bool $include_preview = false, bool $seo_advertisement = false ): array {
 		$path       = $this->normalize_path( $unprefixed_path );
 		$current    = $this->context->current();
 		$current_id = null === $current ? 0 : (int) $current->language_id;
 		$post       = $this->resolve_post_for_path( $path );
 
+		if ( $seo_advertisement && $post instanceof WP_Post && ! $this->is_source_publicly_viewable( $post ) ) {
+			return array();
+		}
+
 		$out = array();
 		foreach ( $this->languages->routable( $include_preview ) as $language ) {
-			$language_id = (int) $language->language_id;
+			$language_id  = (int) $language->language_id;
+			$discoverable = $post instanceof WP_Post && $this->eligibility->is_discoverable( $post, $language_id );
 
-			if ( $discoverable_only ) {
-				if ( ! $post instanceof WP_Post || ! $this->eligibility->is_discoverable( $post, $language_id ) ) {
+			if ( $seo_advertisement && $this->settings->is_localized_url_generation_enabled() && $post instanceof WP_Post && ! $discoverable ) {
+				// Active prepared route without discoverable bundle: omit from SEO graph.
+				if ( $this->eligibility->has_active_route( $post, $language_id ) ) {
 					continue;
 				}
 			}
@@ -121,12 +129,7 @@ final class LanguageRelationshipService {
 			$out[] = new LanguageRelationship(
 				(string) $language->code,
 				str_replace( '_', '-', (string) $language->locale ),
-				$this->url_for_language(
-					$language,
-					$path,
-					$post,
-					$discoverable_only || ( null !== $post && $this->eligibility->is_discoverable( $post, $language_id ) )
-				),
+				$this->url_for_language( $language, $path, $post, $discoverable ),
 				! empty( $language->is_default ),
 				$language_id === $current_id
 			);
@@ -247,6 +250,9 @@ final class LanguageRelationshipService {
 	/**
 	 * Resolves a canonical post from an unprefixed path when possible.
 	 *
+	 * Uses unfiltered home URL so localized home_url admission cannot break
+	 * source object resolution (MSEO.2 SB11).
+	 *
 	 * @param string $path Unprefixed site path.
 	 */
 	private function resolve_post_for_path( string $path ): ?WP_Post {
@@ -254,7 +260,7 @@ final class LanguageRelationshipService {
 			return null;
 		}
 
-		$post_id = url_to_postid( home_url( ltrim( $path, '/' ) ) );
+		$post_id = url_to_postid( $this->raw_home() . ltrim( $path, '/' ) );
 		if ( $post_id <= 0 ) {
 			return null;
 		}
@@ -262,5 +268,14 @@ final class LanguageRelationshipService {
 		$post = get_post( $post_id );
 
 		return $post instanceof WP_Post ? $post : null;
+	}
+
+	/**
+	 * Whether the source object may appear in public SEO advertisements.
+	 *
+	 * @param WP_Post $post Source post.
+	 */
+	private function is_source_publicly_viewable( WP_Post $post ): bool {
+		return in_array( (string) $post->post_status, array( 'publish', 'private' ), true );
 	}
 }

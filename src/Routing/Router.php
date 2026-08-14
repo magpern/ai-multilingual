@@ -130,14 +130,14 @@ final class Router {
 	/**
 	 * Builds the router.
 	 *
-	 * @param Languages               $languages     Language configuration.
-	 * @param LanguageResolver          $resolver      Pure resolver.
-	 * @param LanguageContext           $context       Request language state.
-	 * @param EffectiveUrlService       $effective_url Effective URL authority.
-	 * @param Settings                  $settings      Plugin settings.
-	 * @param PathCanonicalizer         $paths         Path canonicalizer.
-	 * @param SlugRouteRepository       $routes        Route repository.
-	 * @param RouteHistoryRepository    $history       History repository.
+	 * @param Languages              $languages     Language configuration.
+	 * @param LanguageResolver       $resolver      Pure resolver.
+	 * @param LanguageContext        $context       Request language state.
+	 * @param EffectiveUrlService    $effective_url Effective URL authority.
+	 * @param Settings               $settings      Plugin settings.
+	 * @param PathCanonicalizer      $paths         Path canonicalizer.
+	 * @param SlugRouteRepository    $routes        Route repository.
+	 * @param RouteHistoryRepository $history       History repository.
 	 */
 	public function __construct(
 		Languages $languages,
@@ -333,7 +333,7 @@ final class Router {
 				(int) ( $hist->source_id ?? 0 ),
 				$language_id
 			);
-			$effective = $this->effective_url->unprefixed_effective_path( $source_path, $language_id );
+			$effective   = $this->effective_url->unprefixed_effective_path( $source_path, $language_id );
 			$this->redirect_and_exit(
 				$this->build_prefixed_url( $language, $effective, $query ),
 				301
@@ -510,6 +510,57 @@ final class Router {
 		$prefixed = '/' . ltrim( $prefixed, '/' );
 
 		$rebuilt = ( isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '//' ) . $parts['host'];
+
+		if ( isset( $parts['port'] ) ) {
+			$rebuilt .= ':' . $parts['port'];
+		}
+
+		$rebuilt .= $prefixed;
+
+		if ( isset( $parts['query'] ) ) {
+			$rebuilt .= '?' . $parts['query'];
+		}
+
+		if ( isset( $parts['fragment'] ) ) {
+			$rebuilt .= '#' . $parts['fragment'];
+		}
+
+		return $rebuilt;
+	}
+
+	/**
+	 * Prefixes a same-site URL with the current language without EffectiveUrl localization.
+	 *
+	 * Used by PreviewService so preview forever remains source-slug (M2AC28).
+	 *
+	 * @param string $url Fully qualified URL.
+	 */
+	public function prefix_url_without_localization( string $url ): string {
+		if ( ! $this->context->is_translated() ) {
+			return $url;
+		}
+
+		$language = $this->context->current();
+		if ( null === $language ) {
+			return $url;
+		}
+
+		$parts = wp_parse_url( $url );
+		if ( ! is_array( $parts ) || ! isset( $parts['host'] ) ) {
+			return $url;
+		}
+
+		$url_path = isset( $parts['path'] ) ? (string) $parts['path'] : '/';
+		$code     = (string) $language->code;
+		$home     = $this->home_path();
+		$relative = $this->strip_home_path( $url_path );
+
+		if ( '/' . $code === $relative || 0 === strpos( $relative, '/' . $code . '/' ) ) {
+			return $url;
+		}
+
+		$prefixed = '/' . ltrim( $home . $code . ( '/' === $relative ? '/' : $relative ), '/' );
+		$rebuilt  = ( isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '//' ) . $parts['host'];
 
 		if ( isset( $parts['port'] ) ) {
 			$rebuilt .= ':' . $parts['port'];

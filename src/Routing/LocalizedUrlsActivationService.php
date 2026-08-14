@@ -167,6 +167,8 @@ final class LocalizedUrlsActivationService {
 	}
 
 	/**
+	 * Persists a settings patch and reloads.
+	 *
 	 * @param array<string, mixed> $patch Settings patch.
 	 */
 	private function persist( array $patch ): void {

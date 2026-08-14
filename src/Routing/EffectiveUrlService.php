@@ -29,11 +29,11 @@ final class EffectiveUrlService {
 	/**
 	 * Builds the effective URL service.
 	 *
-	 * @param Settings                    $settings     Plugin settings.
-	 * @param SlugRouteRepository         $routes       Route repository.
-	 * @param RoutingCapabilityRegistry   $capabilities Capability registry.
-	 * @param PathCanonicalizer           $paths        Path canonicalizer.
-	 * @param Languages                   $languages    Language registry.
+	 * @param Settings                  $settings     Plugin settings.
+	 * @param SlugRouteRepository       $routes       Route repository.
+	 * @param RoutingCapabilityRegistry $capabilities Capability registry.
+	 * @param PathCanonicalizer         $paths        Path canonicalizer.
+	 * @param Languages                 $languages    Language registry.
 	 */
 	public function __construct(
 		private Settings $settings,
@@ -51,11 +51,11 @@ final class EffectiveUrlService {
 	 * @param int    $language_id Target language id.
 	 */
 	public function unprefixed_effective_path( string $source_path, int $language_id ): string {
-		if ( $this->is_default_language( $language_id ) ) {
+		if ( ! $this->settings->is_localized_url_generation_enabled() ) {
 			return $source_path;
 		}
 
-		if ( ! $this->settings->is_localized_url_generation_enabled() ) {
+		if ( $this->is_default_language( $language_id ) ) {
 			return $source_path;
 		}
 

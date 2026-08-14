@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Tests\Unit\Routing;
 
+use AIMultilingual\Cache\Cache;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\EffectiveUrlService;
 use AIMultilingual\Routing\PathCanonicalizer;
@@ -47,7 +48,7 @@ final class EffectiveUrlServiceTest extends TestCase {
 			new SlugRouteRepository(),
 			new RoutingCapabilityRegistry(),
 			new PathCanonicalizer(),
-			new Languages()
+			new Languages( new Cache() )
 		);
 	}
 }

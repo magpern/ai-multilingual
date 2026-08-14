@@ -169,7 +169,7 @@ final class Otl4JobsLinkageTest extends AimlTestCase {
 		$preview     = new \AIMultilingual\Workspace\PreviewService(
 			$this->languages,
 			$this->context,
-			new \AIMultilingual\Routing\Router( $this->languages, $this->resolver, $this->context )
+			$this->make_router()
 		);
 		$assembler   = new \AIMultilingual\Workspace\Operator\OperatorTranslationAssembler(
 			$this->store,
