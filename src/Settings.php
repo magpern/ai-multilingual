@@ -156,6 +156,7 @@ final class Settings {
 			'localized_urls_activation_error'          => '',
 			'localized_urls_verified_capability_epoch' => 0,
 			'localized_urls_admitted_capabilities'     => array(),
+			'localized_urls_capability_checkpoint'     => null,
 		);
 	}
 
@@ -236,6 +237,15 @@ final class Settings {
 				}
 			}
 			$clean['localized_urls_admitted_capabilities'] = array_values( array_unique( $out ) );
+		}
+
+		if ( array_key_exists( 'localized_urls_capability_checkpoint', $raw ) ) {
+			$checkpoint = $raw['localized_urls_capability_checkpoint'];
+			if ( null === $checkpoint || '' === $checkpoint ) {
+				$clean['localized_urls_capability_checkpoint'] = null;
+			} else {
+				$clean['localized_urls_capability_checkpoint'] = substr( (string) $checkpoint, 0, 4096 );
+			}
 		}
 
 		if ( array_key_exists( 'ai_model', $raw ) ) {
@@ -526,5 +536,17 @@ final class Settings {
 		}
 
 		return array_values( array_unique( $out ) );
+	}
+
+	/**
+	 * Capability verification job checkpoint JSON, or null when unset.
+	 */
+	public function localized_urls_capability_checkpoint(): ?string {
+		$value = $this->get()['localized_urls_capability_checkpoint'] ?? null;
+		if ( null === $value || '' === $value ) {
+			return null;
+		}
+
+		return (string) $value;
 	}
 }

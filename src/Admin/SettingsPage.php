@@ -208,6 +208,7 @@ final class SettingsPage {
 		$clean['localized_urls_activation_error']          = $previous['localized_urls_activation_error'] ?? '';
 		$clean['localized_urls_verified_capability_epoch'] = $previous['localized_urls_verified_capability_epoch'] ?? 0;
 		$clean['localized_urls_admitted_capabilities']     = $previous['localized_urls_admitted_capabilities'] ?? array();
+		$clean['localized_urls_capability_checkpoint']     = $previous['localized_urls_capability_checkpoint'] ?? null;
 
 		return $clean;
 	}

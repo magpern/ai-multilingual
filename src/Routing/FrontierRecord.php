@@ -43,7 +43,11 @@ final class FrontierRecord {
 	public int $generation;
 
 	/**
-	 * Frontier status (pending|running|failed|completed).
+	 * Frontier status (pending|running|completed|degraded|failed).
+	 *
+	 * `degraded` means the DFS finished with unresolved path collisions:
+	 * conflicting children retain prior routes, candidates are untouched,
+	 * and the frontier must not be marked completed while conflicts remain.
 	 *
 	 * @var string
 	 */
@@ -56,7 +60,7 @@ final class FrontierRecord {
 	 * @param int         $parent_source_id   Parent source id.
 	 * @param string|null $checkpoint_json    Bounded checkpoint JSON.
 	 * @param int         $generation         Coalescing generation counter.
-	 * @param string      $status             pending|running|failed|completed.
+	 * @param string      $status             pending|running|failed|completed|degraded.
 	 */
 	public function __construct(
 		string $parent_source_type,

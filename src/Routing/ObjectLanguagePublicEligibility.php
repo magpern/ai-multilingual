@@ -188,6 +188,18 @@ final class ObjectLanguagePublicEligibility {
 	}
 
 	/**
+	 * Whether an active prepared route exists for the term/language.
+	 *
+	 * @param WP_Term $term        Source term.
+	 * @param int     $language_id Language id.
+	 */
+	public function has_active_term_route( WP_Term $term, int $language_id ): bool {
+		$route = $this->routes->find_by_object( Store::SOURCE_TERM, (int) $term->term_id, $language_id );
+
+		return null !== $route && 'active' === (string) ( $route->route_status ?? '' );
+	}
+
+	/**
 	 * Overlay bundle helper.
 	 *
 	 * @param string $source_type Source type.

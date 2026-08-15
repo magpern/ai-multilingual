@@ -102,4 +102,64 @@ final class ReindexFrontierRepository {
 
 		return $row;
 	}
+
+	/**
+	 * Oldest pending/running frontier for the worker.
+	 */
+	public function find_workable(): ?object {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
+		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			'SELECT * FROM ' . Schema::slug_reindex_frontier() . "
+			WHERE status IN ('pending','running')
+			ORDER BY updated_at ASC
+			LIMIT 1"
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+		return is_object( $row ) ? $row : null;
+	}
+
+	/**
+	 * Updates checkpoint/status without bumping generation (mid-tick resume).
+	 *
+	 * @param string      $parent_source_type Parent source type.
+	 * @param int         $parent_source_id   Parent source id.
+	 * @param int         $generation         Expected generation.
+	 * @param string|null $checkpoint_json    Checkpoint JSON.
+	 * @param string      $status             Frontier status.
+	 * @return true|WP_Error
+	 */
+	public function update_checkpoint(
+		string $parent_source_type,
+		int $parent_source_id,
+		int $generation,
+		?string $checkpoint_json,
+		string $status
+	) {
+		global $wpdb;
+
+		$ok = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::slug_reindex_frontier(),
+			array(
+				'checkpoint_json' => $checkpoint_json,
+				'status'          => $status,
+				'updated_at'      => current_time( 'mysql', true ),
+			),
+			array(
+				'parent_source_type' => $parent_source_type,
+				'parent_source_id'   => $parent_source_id,
+				'generation'         => $generation,
+			),
+			array( '%s', '%s', '%s' ),
+			array( '%s', '%d', '%d' )
+		);
+
+		if ( false === $ok ) {
+			return new WP_Error( 'frontier_update_failed', 'Failed to update reindex frontier checkpoint.' );
+		}
+
+		return true;
+	}
 }
