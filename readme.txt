@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Multilingual layer for WordPress: canonical content with segment translations ap
 
 == Description ==
 
-AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.5.0 ships the Multilingual SEO & Localized URLs program (MSEO.0–MSEO.5): optional administrator-controlled localized URL slugs with EffectiveUrl authority, hierarchy/term support, WooCommerce %product_cat% hardening, and SEO graph consistency. TSC, TIQ, and OTL remain complete.
+AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.5.1 is a patch corrective release for Localized URL correctness / SEO agreement under Localized URLs ON (Gate B findings). Version 1.5.0 shipped the Multilingual SEO & Localized URLs program (MSEO.0–MSEO.5). TSC, TIQ, and OTL remain complete.
 
 == Installation ==
 
@@ -24,6 +24,11 @@ AI Multilingual stores one canonical object per content item and applies languag
 6. Localized URLs default OFF; enable only after reviewing MSEO release notes and verifying routes.
 
 == Changelog ==
+
+= 1.5.1 =
+* Patch: restore Localized URL Supported contracts from Gate B — bounded term_link re-entry (localized GET completion), EffectiveUrl agreement for hreflang/og:url/switcher, Woo render health from the same correction family.
+* Schema target remains 8 (no migration). Existing routes/history remain compatible. No new URL capability, SEO architecture, or Program B.
+* Does not claim: translated rewrite bases, Woo endpoint names, variation routes, pretty layered-nav, Extension API 1.1, or taxonomy operator-completeness UI.
 
 = 1.5.0 =
 * Multilingual SEO & Localized URLs (MSEO.0–MSEO.5): optional localized URL slugs; PathCanonicalizer; EffectiveUrlService; candidate vs active routes; history; hierarchy/terms; Woo %product_cat% permalink hardening; SEO Model A; program PluginGuard/acceptance/release/dogfood closeout.

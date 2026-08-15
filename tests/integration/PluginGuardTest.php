@@ -1464,7 +1464,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertFileExists( $this->root() . '/docs/plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md' );
 
 		$version = (string) file_get_contents( $this->root() . '/ai-multilingual.php' );
-		$this->assertMatchesRegularExpression( '/Version:\\s*1\\.5\\.0/', $version );
-		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.5.0' )", $version );
+		$this->assertMatchesRegularExpression( '/Version:\\s*1\\.5\\.1/', $version );
+		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.5.1' )", $version );
 	}
 }
