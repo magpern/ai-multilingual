@@ -48,17 +48,20 @@
 | 41 | Merge SHA | `3ec082f7858d44af33ed95008e3c694c7fdb1570` |
 | 42 | Fresh main CI | GREEN — run `31899110520` |
 | 43 | Closure path | This document |
-| 44 | Final version | 1.5.0 |
-| 45 | Final TARGET | 8 |
-| 46 | Tag `v1.5.0` | Unmoved — `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5` |
-| 47 | v1.5.1 release-prep | **NOT STARTED** |
-| 48 | v1.5.1 release | **NOT PERFORMED** |
-| 49 | Deployment | **NOT PERFORMED** |
-| 50 | Production touch | **NONE** (`biopentra.eu` untouched) |
-| 51 | Program B | **NOT STARTED** (demoted) |
-| 52 | Remaining limitations | V151AC3/21/22 deferred; taxonomy publication GAP out of scope |
-| 53 | Architecture-expansion STOP | None triggered |
-| 54 | Exact next step | Separately authorize **v1.5.1 release preparation** |
+| 44 | Closure SHA | `cb97257b9a045242382cf5f10c8a084139956e89` |
+| 45 | Final main HEAD | `cb97257b9a045242382cf5f10c8a084139956e89` |
+| 46 | Final version | 1.5.0 |
+| 47 | Final TARGET | 8 |
+| 48 | clean / main==origin | YES |
+| 49 | Tag `v1.5.0` | Unmoved — `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5` |
+| 50 | v1.5.1 release-prep | **NOT STARTED** |
+| 51 | v1.5.1 release | **NOT PERFORMED** |
+| 52 | Deployment | **NOT PERFORMED** |
+| 53 | Production touch | **NONE** (`biopentra.eu` untouched) |
+| 54 | Program B | **NOT STARTED** (demoted) |
+| 55 | Remaining limitations | V151AC3/21/22 deferred; taxonomy publication GAP out of scope |
+| 56 | Architecture-expansion STOP | None triggered |
+| 57 | Exact next step | Separately authorize **v1.5.1 release preparation** |
 
 ## Verdict
 
