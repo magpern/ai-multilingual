@@ -1,122 +1,184 @@
-# P1 G4 / Rank Math Model A Characterization — Frozen Specification
+# P1 G4 / Rank Math Model A Characterization — Final Report
 
-**Status:** **FROZEN** (A1–A5) — characterization in progress  
-**Frozen:** 2026-08-15  
-**Baseline main:** `81e688f2652733c58d96a36116d9b1164194be2a`  
+**Status:** **COMPLETE**  
+**Date:** 2026-08-15  
+**Baseline / reconciled main:** `81e688f2652733c58d96a36116d9b1164194be2a`  
+**Freeze commit:** `052bc96f77e62edd2837dc8868f547d64d5ee384`  
 **Version:** **1.5.1** · **TARGET:** **8** · **Migration:** NONE  
 **P0:** COMPLETE  
-**Environment:** DEV read-only only (`https://dev.biopentra.eu`) · Production **FORBIDDEN**  
-**Product code:** **NO IMPLEMENTATION** · **NO RELEASE** · **NO DEPLOYMENT**
+**Verdict:** **NO SUPPORTED-CONTRACT DEFECT**  
+**G4b probe:** **EXPECTED OMIT** (`blog_public=0`)
 
 ---
 
-## 1. Purpose
+## 1. Repository identity
 
-Determine whether G4 (Rank Math sitemap / Model A) is:
-
-- **A** NO SUPPORTED-CONTRACT DEFECT  
-- **B** BOUNDED SUPPORTED-CONTRACT DEFECT  
-- **C** DOCUMENTATION / TEST GAP ONLY (or residual INCONCLUSIVE evidence)  
-- **D** ARCHITECTURE DECISION REQUIRED  
-
-Final freeze of CASE A requires the A1–A5 bounded G4b DEV probe.
+| Item | Value |
+|---|---|
+| Repository HEAD reviewed | `81e688f2652733c58d96a36116d9b1164194be2a` |
+| Version | 1.5.1 |
+| TARGET | 8 |
+| Tag `v1.5.1` | `6298df08b3b1456e4875ecdb860b71506d5ae313` (unchanged) |
+| P0 status | COMPLETE |
+| Production-code drift after P0 | None (docs-only after merge) |
 
 ---
 
-## 2. Frozen Model A contract (do not reopen)
-
-Authorities: ADR-0023 §17, MSEO parent §4.9, MSEO.2 §22, ASEOE.3, v1.5.1 notes.
+## 2. Frozen Model A contract
 
 | Surface | Contract |
 |---|---|
-| **G4a / primary `<loc>`** | Rank Math **default/source** language only. **EXPECTED CONTRACT** that localized `/sv/...` primary locs are absent. |
-| Localized primary locs | **NOT** part of Model A (forbidden redesign). |
-| Sitemap xhtml | AIML overlay on Rank Math-owned `<url>` when `blog_public`, ≥2 public languages, SB11 SEO set ≥2 (discoverability omit). |
+| Primary sitemap `<loc>` | Rank Math **default/source** only |
+| Localized primary locs | **Not** Model A |
+| Sitemap xhtml | AIML overlay when Rank Math emits `<url>` **and** `blog_public` **and** ≥2 public languages **and** SB11 SEO set ≥2 |
 | Canonical emission | Rank Math / WP |
 | Canonical value | AIML filters when invoked |
 | Hreflang | AIML / SB11 / EffectiveUrl |
 | x-default | Source/default absolute URL |
 
-### Ownership map
+### Ownership
 
 | Artifact | Owner |
 |---|---|
-| Sitemap index / type XML / primary `<loc>` | Rank Math |
-| `xhtml:link` + sitemap `x-default` | AIML `RankMathSitemapOverlay` → SB11 → EffectiveUrl |
+| Sitemap XML / primary `<loc>` | Rank Math |
+| `xhtml:link` / sitemap x-default | AIML `RankMathSitemapOverlay` → SB11 → EffectiveUrl |
 | Document hreflang | AIML `DocumentSeoHead` |
-| Canonical tag emission | Rank Math / WP |
-| Canonical value filter | AIML |
-| og:url reinforce | AIML via Rank Math hooks |
+| Canonical tag | Rank Math / WP (+ AIML value filter) |
 
-### Rank Math compatibility (relevant)
+### Compatibility matrix
 
 | Surface | Status |
 |---|---|
 | Meta text overlays | SUPPORTED |
 | Document hreflang | SUPPORTED |
 | Canonical value correction | SUPPORTED |
-| Canonical tag emission | PARTIAL (emitter-owned) |
+| Canonical tag emission | PARTIAL |
 | og:url / locale | SUPPORTED |
 | Primary loc localization | UNSUPPORTED (Model A) |
-| Sitemap xhtml | SUPPORTED (requires RM entry) |
+| Sitemap xhtml | SUPPORTED (requires RM entry + overlay gates) |
 | Competing providers / loc rewrite | UNSUPPORTED |
 
 ### Object-type matrix
 
-Same Model A for overlay types: `page`, `post`, `product`, `product_cat`, `product_tag`, `category`, `post_tag`, `author` — primary loc = Rank Math default; xhtml when entry + discoverable SB11 set.
+Same Model A for overlay types: page, post, product, product_cat, product_tag, category, post_tag, author.
 
 ---
 
-## 3. G4 questions
+## 3. DEV identity (read-only)
 
-| ID | Question | Pre-probe classification |
+| Check | Result |
+|---|---|
+| `siteurl` | `https://dev.biopentra.eu` |
+| `home` | `https://dev.biopentra.eu` |
+| HTTP home | 200 |
+| `blog_public` | **0** |
+| LU state | `on` |
+| Production touched | **0** |
+| DEV mutations | **0** |
+
+---
+
+## 4. Rank Math sitemap inspection (HTTP GET)
+
+| Endpoint | HTTP | Notes |
 |---|---|---|
-| **G4a** | Absence of localized primary `<loc>`? | **EXPECTED CONTRACT** |
-| **G4b** | For RM-included eligible object, is xhtml present with EffectiveUrl? | **PENDING LIVE PROBE** |
-| **G4c** | When xhtml emitted, identity = EffectiveUrl? | Expected YES (suite); confirm on probe if PASS |
+| `/sitemap_index.xml` | 200 | page, product, product_cat |
+| `/page-sitemap.xml` | 200 | **49** `<loc>`; **0** `xhtml:link`; **no** `xmlns:xhtml` |
+| `/product-sitemap.xml` | 200 | **0** `xhtml:link`; **no** `xmlns:xhtml` |
+| `/sv/...` primary locs | **0** | correct Model A |
 
-Canonical sparse-tag: **EXPECTED / OWNER ABSENT** unless probe proves Supported-contract failure.
+Gate B fixtures with active routes remain **absent** from page/product sitemaps (Rank Math inclusion ownership; unchanged PRODUCT GAP observation, not needed once a suitable included entry was found).
 
 ---
 
-## 4. A1–A5 amendment (authoritative)
+## 5. G4b controlled probe
 
-- One bounded **read-only** DEV G4b characterization  
-- No DEV mutation; no production access  
-- Model A frozen  
-- CASE A only after evidence  
-- Docs-only closure  
+### Selected existing `<loc>`
 
-### G4b decision rules
+`https://dev.biopentra.eu/a4-nested-gutenberg-fixture/`
 
-| Outcome | Rule |
+### AIML object identity
+
+| Field | Value |
 |---|---|
-| **PASS** | RM includes object; qualifying discoverable target exists; xhtml present; href == EffectiveUrl; x-default OK |
-| **EXPECTED OMIT** | RM includes object; target fails frozen discoverability → omission correct |
-| **DEFECT** | RM includes object; qualifying discoverable target exists; xhtml absent or wrong URL |
-| **INCONCLUSIVE** | No existing entry can satisfy conditions without mutation |
+| source_type | post |
+| post_type | page |
+| source_id | 6419 |
+| status | publish |
+| path | `/a4-nested-gutenberg-fixture/` |
 
-### CASE A freeze rule
+### Target-language / discoverability
 
-Freeze **NO SUPPORTED-CONTRACT DEFECT** only if G4a EXPECTED and G4b PASS or EXPECTED OMIT and no other Supported defect.
-
-DEFECT → **BOUNDED SUPPORTED-CONTRACT DEFECT FOUND** (boundary only; no fix).  
-INCONCLUSIVE → **NO SUPPORTED-CONTRACT DEFECT PROVEN** (retain gap; prefer not block P2).
-
----
-
-## 5. No-release policy
-
-`MILESTONE CLOSURE != RELEASE CLOSURE`. Version stays **1.5.1**. No tag/release/deploy.
-
----
-
-## 6. Probe / closure status
-
-| Step | Status |
+| Field | Value |
 |---|---|
-| Spec freeze | THIS DOCUMENT |
-| G4b DEV probe | PENDING |
-| Final verdict | PENDING |
-| ROADMAP / PRODUCT_PRIORITIES | PENDING |
-| Docs PR merge | PENDING |
+| Languages | `en` (default, published), `sv` (published) |
+| Active routes for 6419 | **0** |
+| Overlay emission gate | `should_emit_alternates()` requires `blog_public` → **false** |
+
+### Actual XML (bounded excerpt)
+
+```xml
+<url>
+  <loc>https://dev.biopentra.eu/a4-nested-gutenberg-fixture/</loc>
+  <lastmod>2026-08-07T18:59:17+00:00</lastmod>
+  <image:image>...</image:image>
+</url>
+```
+
+No `xhtml:link`. No site-wide `xmlns:xhtml`.
+
+### EffectiveUrl / x-default on this entry
+
+Not applicable for emission check: overlay correctly suppressed. Site-wide active routes exist (5 total, Gate B / dogfood objects) but are **not** Rank Math-included; they were not used as the probe subject.
+
+### G4b classification
+
+**EXPECTED OMIT**
+
+Rank Math includes the object. Frozen Model A / ASEOE honesty requires **no** xhtml enrichment when `blog_public=0` (`RankMathSitemapOverlay::should_emit_alternates`). Absence of xhtml on this included entry (and site-wide) is **correct**, not a defect.
+
+Secondary note: this particular object also has no active `sv` route, so even with `blog_public=1` it would not qualify for a discoverable localized alternate.
+
+---
+
+## 6. Classifications
+
+| ID | Classification |
+|---|---|
+| **G4a** | **EXPECTED CONTRACT** (no localized primary locs) |
+| **G4b** | **EXPECTED OMIT** (`blog_public=0`) |
+| **G4c** | Contract intact (suite + overlay path); live identity compare N/A under omit |
+| Canonical sparse-tag | **EXPECTED / OWNER ABSENT** (unchanged; AIML does not own emission) |
+
+---
+
+## 7. Automated coverage vs residual gaps
+
+| Covered | Gap |
+|---|---|
+| Model A single `<loc>` + xhtml when gates pass (`AseoeSitemapTest`) | Live `blog_public=1` + RM-included + discoverable object sample (optional later; **not** required to freeze CASE A after EXPECTED OMIT) |
+| V151 EffectiveUrl identity for SEO consumers | Gate B fixtures still absent from Rank Math inclusion (Rank Math ownership) |
+
+---
+
+## 8. Final verdict
+
+**P1 G4 CHARACTERIZATION: NO SUPPORTED-CONTRACT DEFECT**
+
+| Impact | Result |
+|---|---|
+| Schema | NONE |
+| TARGET | NONE (remains 8) |
+| Architecture | NONE — Model A not reopened |
+| Corrective boundary | N/A |
+| P2 disposition | **PROMOTE** as next planning candidate |
+| Release | **NOT AUTHORIZED** (`MILESTONE CLOSURE != RELEASE CLOSURE`) |
+| Implementation | **NONE** |
+| Production | **UNTOUCHED** |
+| DEV mutation | **0** |
+
+---
+
+## 9. Exact next task
+
+Separately authorize **P2 Jobs / stale operator literacy planning**.
