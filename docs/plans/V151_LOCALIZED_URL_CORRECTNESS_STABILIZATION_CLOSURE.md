@@ -48,8 +48,8 @@
 | 41 | Merge SHA | `3ec082f7858d44af33ed95008e3c694c7fdb1570` |
 | 42 | Fresh main CI | GREEN — run `31899110520` |
 | 43 | Closure path | This document |
-| 44 | Closure SHA | `cb97257b9a045242382cf5f10c8a084139956e89` |
-| 45 | Final main HEAD | `cb97257b9a045242382cf5f10c8a084139956e89` |
+| 44 | Closure SHA | `043ad7b68c757b02f49d3354e78b3458b9151586` |
+| 45 | Final main HEAD | `043ad7b68c757b02f49d3354e78b3458b9151586` |
 | 46 | Final version | 1.5.0 |
 | 47 | Final TARGET | 8 |
 | 48 | clean / main==origin | YES |
