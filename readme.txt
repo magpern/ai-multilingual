@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,17 +12,23 @@ Multilingual layer for WordPress: canonical content with segment translations ap
 
 == Description ==
 
-AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.4.0 completes the Translation Surface Coverage program (TSC.0–TSC.6) on the v1.3.0 foundation, introducing Extension API v1 for third-party registered meta and custom block adapters. TIQ (TQ.0–TI.7) and OTL (OTL.0–OTL.6) remain complete.
+AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.5.0 ships the Multilingual SEO & Localized URLs program (MSEO.0–MSEO.5): optional administrator-controlled localized URL slugs with EffectiveUrl authority, hierarchy/term support, WooCommerce %product_cat% hardening, and SEO graph consistency. TSC, TIQ, and OTL remain complete.
 
 == Installation ==
 
 1. Upload the `ai-multilingual` folder to `/wp-content/plugins/`.
 2. Activate the plugin through the Plugins screen.
-3. Confirm database schema version 7 (option `aiml_db_version`).
+3. Confirm database schema version 8 (option `aiml_db_version`).
 4. Configure languages, providers, and rollout in the AI Multilingual admin screens.
 5. Publication gate and auto-publication mode default off/manual — enable only after reviewing release notes.
+6. Localized URLs default OFF; enable only after reviewing MSEO release notes and verifying routes.
 
 == Changelog ==
+
+= 1.5.0 =
+* Multilingual SEO & Localized URLs (MSEO.0–MSEO.5): optional localized URL slugs; PathCanonicalizer; EffectiveUrlService; candidate vs active routes; history; hierarchy/terms; Woo %product_cat% permalink hardening; SEO Model A; program PluginGuard/acceptance/release/dogfood closeout.
+* Schema target remains 8 (no migration in this release). Localized URLs default off. Preview remains source-slug. Translated rewrite bases and Woo endpoint names remain Deferred.
+* Does not claim: provider-generated slugs, rewrite-rule ownership, competing sitemaps, distinct variation routes, or fuzzy URL matching.
 
 = 1.4.0 =
 * Translation Surface Coverage (TSC.0–TSC.6) Complete: internal surface capabilities, taxonomy terms, registered meta, WooCommerce extended surfaces, Gutenberg expansion, Elementor expansion, and public Extension API v1.
