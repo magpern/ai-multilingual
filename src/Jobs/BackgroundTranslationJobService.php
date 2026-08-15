@@ -782,7 +782,19 @@ final class BackgroundTranslationJobService {
 			return $keys;
 		}
 
-		if ( in_array( $job_type, array( JobTypes::TRANSLATE_MISSING, JobTypes::RETRANSLATE_STALE ), true ) ) {
+		// translate_missing + bulk_translate (no keys): resolve missing segments.
+		// retranslate_stale (no keys): resolve stale segments.
+		// bulk_translate matches Workspace multi-post create (posts[] without segment_keys)
+		// and shares missing-only overwrite policy with translate_missing (allows_retranslate false).
+		if ( in_array(
+			$job_type,
+			array(
+				JobTypes::TRANSLATE_MISSING,
+				JobTypes::RETRANSLATE_STALE,
+				JobTypes::BULK_TRANSLATE,
+			),
+			true
+		) ) {
 			return $this->resolve_segments_from_store( $args, $job_type );
 		}
 
@@ -825,7 +837,7 @@ final class BackgroundTranslationJobService {
 				$text   = null === $row ? '' : trim( (string) ( $row->translated_text ?? '' ) );
 				$stale  = null !== $row && ! empty( $row->is_stale );
 
-				if ( JobTypes::TRANSLATE_MISSING === $job_type && ( Store::STATUS_MISSING === $status || '' === $text ) ) {
+				if ( $this->job_type_resolves_missing( $job_type ) && ( Store::STATUS_MISSING === $status || '' === $text ) ) {
 					$keys[] = $segment_key;
 				}
 				if ( JobTypes::RETRANSLATE_STALE === $job_type && $stale ) {
@@ -860,7 +872,7 @@ final class BackgroundTranslationJobService {
 				continue;
 			}
 
-			if ( JobTypes::TRANSLATE_MISSING === $job_type && $this->is_missing_segment( $segment ) ) {
+			if ( $this->job_type_resolves_missing( $job_type ) && $this->is_missing_segment( $segment ) ) {
 				$keys[] = $segment_key;
 				continue;
 			}
@@ -871,6 +883,24 @@ final class BackgroundTranslationJobService {
 		}
 
 		return $keys;
+	}
+
+	/**
+	 * Whether create-time empty segment_keys auto-resolve uses missing-segment eligibility.
+	 *
+	 * Bulk_translate shares missing-only semantics with translate_missing (P2 A1).
+	 *
+	 * @param string $job_type Job type code.
+	 */
+	private function job_type_resolves_missing( string $job_type ): bool {
+		return in_array(
+			$job_type,
+			array(
+				JobTypes::TRANSLATE_MISSING,
+				JobTypes::BULK_TRANSLATE,
+			),
+			true
+		);
 	}
 
 	/**

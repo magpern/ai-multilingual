@@ -10,7 +10,7 @@
 
 **Post-v1.4.0 program:** Multilingual SEO & Localized URLs — [MSEO_PARENT_IMPLEMENTATION_PLAN.md](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md); [ADR-0023](adr/0023-localized-url-overlay-architecture.md); **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5** ([MSEO5 closure](plans/MSEO5_CLOSURE.md); [MSEO5 plan](plans/MSEO5_PROGRAM_HARDENING_ACCEPTANCE_RELEASE_DOGFOOD_IMPLEMENTATION_PLAN.md)). **No formal MSEO.6.** STATE B / `Migrator::TARGET` **8**.
 
-**Active post-v1.5.1 milestone:** **P1 G4 / Rank Math Model A Characterization** — [report](plans/P1_G4_RANK_MATH_MODEL_A_CHARACTERIZATION.md) — **COMPLETE** (**NO SUPPORTED-CONTRACT DEFECT**; G4b **EXPECTED OMIT** under `blog_public=0`). Version remains **1.5.1** — milestone closure ≠ release closure. **NO RELEASE AUTHORIZED**. **P2** Jobs/stale literacy **NOT STARTED** (next candidate). **P0** Localized URL Operator Completion **COMPLETE**.
+**Active post-v1.5.1 milestone:** **P2 Jobs / Stale Operator Literacy** — [plan](plans/P2_JOBS_STALE_OPERATOR_LITERACY_IMPLEMENTATION_PLAN.md) — **IN PROGRESS** (authorized implementation). Version remains **1.5.1** — milestone closure ≠ release closure. **NO RELEASE AUTHORIZED**. **P1** G4 / Rank Math Model A Characterization **COMPLETE**. **P0** Localized URL Operator Completion **COMPLETE**.
 
 **Prior corrective milestone:** **v1.5.1 Localized URL Correctness / SEO Stabilization** — [closure](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_CLOSURE.md); [release closure](releases/V1_5_1_RELEASE_CLOSURE.md); [DEV runtime re-acceptance](validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md) — **COMPLETE / V151AC22 PASS**. TARGET **8** / no migration.
 

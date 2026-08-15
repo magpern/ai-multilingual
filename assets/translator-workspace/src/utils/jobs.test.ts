@@ -7,6 +7,7 @@ import {
 	canResumeJob,
 	canRetryFailedJob,
 	canRunJob,
+	formatJobProgress,
 	groupJobsByBatch,
 	JOB_BOUNDS,
 	jobStatusLabel,
@@ -245,6 +246,41 @@ describe( 'jobs utils', () => {
 
 	it( 'labels job types and statuses', () => {
 		expect( jobTypeLabel( 'bulk_translate' ) ).toBeTruthy();
-		expect( jobStatusLabel( 'completed_with_errors' ) ).toBeTruthy();
+		expect( jobStatusLabel( 'completed_with_errors' ).toLowerCase() ).toContain(
+			'skip'
+		);
+		expect( jobStatusLabel( 'queued' ).toLowerCase() ).toContain( 'wait' );
+	} );
+
+	it( 'includes skipped and stale in progress when present', () => {
+		expect(
+			formatJobProgress(
+				job( {
+					completed_items: 2,
+					failed_items: 1,
+					skipped_items: 1,
+					stale_items: 1,
+					total_items: 5,
+				} )
+			)
+		).toMatch( /skipped\/stale/ );
+	} );
+
+	it( 'A3 capability denial: Run hidden when canRunJob false via operations', () => {
+		expect(
+			canRunJob(
+				job( {
+					status: 'queued',
+					operations: [
+						{
+							operation_id: 'run',
+							allowed: false,
+							reason_code: 'capability_denied',
+							mutation_scope: 'job',
+						},
+					],
+				} )
+			)
+		).toBe( false );
 	} );
 } );

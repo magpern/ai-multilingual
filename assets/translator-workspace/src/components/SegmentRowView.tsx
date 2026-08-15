@@ -2,6 +2,10 @@ import { Button, Notice, TextareaControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
 import type { SegmentRow } from '../types/segment-row';
+import {
+	publishStatusFromSegment,
+	staleOperatorCopy,
+} from '../utils/stale-copy';
 import { qaFromSegment, suggestionsFromSegment } from '../utils/meta';
 import { canDecideReview, canSubmitForReview } from '../utils/review-status';
 import { segmentStatusLabel } from '../utils/segment-status';
@@ -237,15 +241,24 @@ export default function SegmentRowView( {
 				</span>
 			</td>
 			<td>
-				{ server.is_stale ? (
-					<span className="aiml-workspace-stale-badge">
-						{ __( 'Stale — source changed', 'ai-multilingual' ) }
-					</span>
-				) : (
-					<span className="aiml-workspace-fresh-badge">
-						{ __( 'Current', 'ai-multilingual' ) }
-					</span>
-				) }
+				{ ( () => {
+					const staleCopy = staleOperatorCopy( {
+						isStale: server.is_stale,
+						publishStatus: publishStatusFromSegment( server ),
+					} );
+					return staleCopy ? (
+						<span
+							className="aiml-workspace-stale-badge"
+							title={ staleCopy.notice }
+						>
+							{ staleCopy.badge }
+						</span>
+					) : (
+						<span className="aiml-workspace-fresh-badge">
+							{ __( 'Current', 'ai-multilingual' ) }
+						</span>
+					);
+				} )() }
 			</td>
 			<td>
 				<div className="aiml-workspace-row-actions">

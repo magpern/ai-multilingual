@@ -4,6 +4,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import type { JobAction, TranslationJobDetail, TranslationJobSummary } from '../types/jobs';
 import type { LanguageOption } from '../types/view-models';
 import {
+	attentionJobItems,
+	jobItemNextActionHint,
+	jobItemStatusLabel,
+} from '../utils/job-item-literacy';
+import {
 	boundedItemError,
 	boundedJobError,
 	canCancelJob,
@@ -25,8 +30,14 @@ interface JobRowProps {
 	canCancel: boolean;
 	canRun: boolean;
 	busy: boolean;
+	focusedItemId?: number | null;
 	onToggleExpand: ( jobId: number ) => void;
 	onAction: ( jobId: number, action: JobAction ) => void;
+	onOpenOperations?: ( args: {
+		sourceType: string;
+		sourceId: number;
+		languageId: number;
+	} ) => void;
 }
 
 export default function JobRow( {
@@ -37,12 +48,18 @@ export default function JobRow( {
 	canCancel,
 	canRun,
 	busy,
+	focusedItemId = null,
 	onToggleExpand,
 	onAction,
+	onOpenOperations,
 }: JobRowProps ) {
 	const jobError = boundedJobError( job );
-	const failedItems =
-		detail?.items?.filter( ( item ) => boundedItemError( item ) ) ?? [];
+	const attentionItems = attentionJobItems( detail?.items );
+	const showRun = canRun && canRunJob( job );
+	const showRetry = canRun && canRetryFailedJob( job );
+	const showPause = canCancel && canPauseJob( job );
+	const showResume = canCancel && canResumeJob( job );
+	const showCancel = canCancel && canCancelJob( job );
 
 	return (
 		<>
@@ -69,7 +86,7 @@ export default function JobRow( {
 							? __( 'Hide details', 'ai-multilingual' )
 							: __( 'Details', 'ai-multilingual' ) }
 					</Button>
-					{ canCancel && canPauseJob( job ) && (
+					{ showPause && (
 						<Button
 							variant="secondary"
 							onClick={ () => onAction( job.job_id, 'pause' ) }
@@ -78,7 +95,7 @@ export default function JobRow( {
 							{ __( 'Pause', 'ai-multilingual' ) }
 						</Button>
 					) }
-					{ canCancel && canResumeJob( job ) && (
+					{ showResume && (
 						<Button
 							variant="secondary"
 							onClick={ () => onAction( job.job_id, 'resume' ) }
@@ -87,7 +104,7 @@ export default function JobRow( {
 							{ __( 'Resume', 'ai-multilingual' ) }
 						</Button>
 					) }
-					{ canCancel && canCancelJob( job ) && (
+					{ showCancel && (
 						<Button
 							variant="secondary"
 							isDestructive
@@ -97,7 +114,7 @@ export default function JobRow( {
 							{ __( 'Cancel', 'ai-multilingual' ) }
 						</Button>
 					) }
-					{ canRun && canRetryFailedJob( job ) && (
+					{ showRetry && (
 						<Button
 							variant="secondary"
 							onClick={ () => onAction( job.job_id, 'retry-failed' ) }
@@ -106,13 +123,13 @@ export default function JobRow( {
 							{ __( 'Retry failed', 'ai-multilingual' ) }
 						</Button>
 					) }
-					{ canRun && canRunJob( job ) && (
+					{ showRun && (
 						<Button
 							variant="primary"
 							onClick={ () => onAction( job.job_id, 'run' ) }
 							disabled={ busy }
 						>
-							{ __( 'Run', 'ai-multilingual' ) }
+							{ __( 'Run now', 'ai-multilingual' ) }
 						</Button>
 					) }
 				</td>
@@ -120,6 +137,42 @@ export default function JobRow( {
 			{ expanded && (
 				<tr className="aiml-jobs-row-detail">
 					<td colSpan={ 8 }>
+						{ 'queued' === job.status && showRun && (
+							<p className="aiml-jobs-run-cta" role="status">
+								{ __(
+									'This job is waiting. Use Run now to start processing (administrators only).',
+									'ai-multilingual'
+								) }
+							</p>
+						) }
+						{ 'queued' === job.status && ! canRun && (
+							<p className="aiml-jobs-run-cta" role="status">
+								{ __(
+									'This job is waiting for an administrator to run it.',
+									'ai-multilingual'
+								) }
+							</p>
+						) }
+						{ onOpenOperations && (
+							<p>
+								<Button
+									variant="link"
+									onClick={ () =>
+										onOpenOperations( {
+											sourceType: job.source_type,
+											sourceId: job.source_id,
+											languageId: job.language_id,
+										} )
+									}
+									disabled={ busy }
+								>
+									{ __(
+										'Open source in Operations',
+										'ai-multilingual'
+									) }
+								</Button>
+							</p>
+						) }
 						{ jobError && (
 							<div className="aiml-jobs-error">
 								<strong>{ __( 'Job error', 'ai-multilingual' ) }</strong>
@@ -128,23 +181,44 @@ export default function JobRow( {
 								</p>
 							</div>
 						) }
-						{ failedItems.length > 0 ? (
+						{ attentionItems.length > 0 ? (
 							<div className="aiml-jobs-item-errors">
 								<strong>
-									{ __( 'Failed item errors', 'ai-multilingual' ) }
+									{ __(
+										'Items needing attention',
+										'ai-multilingual'
+									) }
 								</strong>
 								<ul>
-									{ failedItems.map( ( item ) => {
+									{ attentionItems.map( ( item ) => {
 										const itemError = boundedItemError( item );
-										if ( ! itemError ) {
-											return null;
-										}
+										const hint = jobItemNextActionHint( item.status );
+										const focused =
+											null !== focusedItemId &&
+											focusedItemId === item.item_id;
 
 										return (
-											<li key={ item.item_id }>
+											<li
+												key={ item.item_id }
+												className={
+													focused
+														? 'aiml-jobs-item--focused'
+														: undefined
+												}
+											>
 												<code>{ item.segment_key }</code>
 												{ ': ' }
-												<code>{ itemError.code }</code> — { itemError.message }
+												<strong>
+													{ jobItemStatusLabel( item.status ) }
+												</strong>
+												{ itemError
+													? ` — ${ itemError.message }`
+													: '' }
+												{ hint ? (
+													<p className="aiml-jobs-item-hint">
+														{ hint }
+													</p>
+												) : null }
 											</li>
 										);
 									} ) }
@@ -154,7 +228,7 @@ export default function JobRow( {
 							<p className="aiml-jobs-detail-empty">
 								{ detail
 									? __(
-											'No bounded item errors for this job.',
+											'No failed, conflict, or source-moved items for this job.',
 											'ai-multilingual'
 									  )
 									: __(

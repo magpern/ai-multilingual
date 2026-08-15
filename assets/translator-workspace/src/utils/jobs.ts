@@ -53,7 +53,7 @@ export function jobTypeLabel( jobType: string ): string {
 export function jobStatusLabel( status: string ): string {
 	switch ( status ) {
 		case 'queued':
-			return __( 'Queued', 'ai-multilingual' );
+			return __( 'Waiting', 'ai-multilingual' );
 		case 'running':
 			return __( 'Running', 'ai-multilingual' );
 		case 'paused':
@@ -63,7 +63,7 @@ export function jobStatusLabel( status: string ): string {
 		case 'completed':
 			return __( 'Completed', 'ai-multilingual' );
 		case 'completed_with_errors':
-			return __( 'Completed with errors', 'ai-multilingual' );
+			return __( 'Completed with skips', 'ai-multilingual' );
 		case 'failed':
 			return __( 'Failed', 'ai-multilingual' );
 		case 'cancelled':
@@ -174,7 +174,7 @@ export function boundsHelpMessage( jobType: JobType ): string {
 			return sprintf(
 				/* translators: 1: max posts, 2: max items */
 				__(
-					'Up to %1$d posts per bulk request; each job may materialize up to %2$d items.',
+					'Up to %1$d posts per bulk request; missing segments are resolved automatically (no segment keys). Each job may materialize up to %2$d items. After create, use Run now (administrators) to start processing.',
 					'ai-multilingual'
 				),
 				JOB_BOUNDS.maxPostsPerBulk,
@@ -225,6 +225,21 @@ export function languageLabelForId(
 }
 
 export function formatJobProgress( job: TranslationJobSummary ): string {
+	const skipped = job.skipped_items + job.stale_items;
+	if ( skipped > 0 ) {
+		return sprintf(
+			/* translators: 1: completed, 2: failed, 3: skipped+stale, 4: total */
+			__(
+				'%1$d done · %2$d failed · %3$d skipped/stale · %4$d total',
+				'ai-multilingual'
+			),
+			job.completed_items,
+			job.failed_items,
+			skipped,
+			job.total_items
+		);
+	}
+
 	return sprintf(
 		/* translators: 1: completed, 2: failed, 3: total */
 		__( '%1$d done · %2$d failed · %3$d total', 'ai-multilingual' ),
@@ -235,6 +250,22 @@ export function formatJobProgress( job: TranslationJobSummary ): string {
 }
 
 export function formatBatchProgress( batch: BatchProgressSummary ): string {
+	const skipped = batch.skipped_items + batch.stale_items;
+	if ( skipped > 0 ) {
+		return sprintf(
+			/* translators: 1: job count, 2: completed, 3: failed, 4: skipped+stale, 5: total items */
+			__(
+				'%1$d jobs · %2$d done · %3$d failed · %4$d skipped/stale · %5$d items',
+				'ai-multilingual'
+			),
+			batch.job_count,
+			batch.completed_items,
+			batch.failed_items,
+			skipped,
+			batch.total_items
+		);
+	}
+
 	return sprintf(
 		/* translators: 1: job count, 2: completed, 3: failed, 4: total items */
 		__(
