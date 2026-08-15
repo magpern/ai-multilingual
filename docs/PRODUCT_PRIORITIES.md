@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.3 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **MSEO** (Multilingual SEO & Localized URLs) is **Architecture Frozen** — [MSEO parent plan](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md), [ADR-0023](adr/0023-localized-url-overlay-architecture.md). Implementation authorized for **MSEO.0** (inert foundation) when explicitly opened; localized URL enable UI gated to **MSEO.2**. **TSC PROGRAM COMPLETE — TSC.0–TSC.6.** **TIQ Complete.** **OTL Complete.** **v1.4.0 released** (tag `v1.4.0`). Runtime `Migrator::TARGET` **7** (TARGET **8** at MSEO.0). TSC production architecture is **site-neutral**.
+**Current next decision:** **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5** (released in **v1.5.0**). Choose the next post-MSEO program from Post-MSEO Deferred/Unsupported backlog or other product priorities; do not invent MSEO.6. **TSC / TIQ / OTL Complete.** Runtime `Migrator::TARGET` **8**.
 
 ---
 
@@ -44,11 +44,11 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **MSEO — Multilingual SEO & Localized URLs** | Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md). Ladder **MSEO.0–MSEO.5** (no formal MSEO.6). MSEO.0–4 **complete**; Gate A hardened; **v1.5.0 release preparation** — MSEO.5 / PROGRAM **not yet COMPLETE** until Gate D. STATE B / TARGET **8**. |
+| 1 | **MSEO — Multilingual SEO & Localized URLs** | **COMPLETE** (MSEO.0–MSEO.5). Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md). [MSEO5 closure](plans/MSEO5_CLOSURE.md). No formal MSEO.6. STATE B / TARGET **8**. Released in **v1.5.0**. |
 | — | **TSC — Translation Surface Coverage** | **COMPLETE** (TSC.0–TSC.6). Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
-**Release status:** AI Multilingual **v1.4.0** released (tag `v1.4.0` → `ee49cc906babfd34b67fd0998f1eb7553a03358f`). Prior: **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE — TSC.0–TSC.6**. Runtime `Migrator::TARGET` **8**.
+**Release status:** AI Multilingual **v1.5.0** released (tag `v1.5.0` → `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5`). Prior: **v1.4.0**, **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE**. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Runtime `Migrator::TARGET` **8**.
 
 Visitor-facing Program A waves below remain listed for historical priority context. Coverage-Deferred surfaces stay Deferred unless admitted through the frozen TSC matrix / milestone plans. TSC must remain generic and site-neutral — Biopentra may be used as a test site, never as the production-domain model.
 
