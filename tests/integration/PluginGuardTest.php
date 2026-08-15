@@ -1426,4 +1426,38 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertFileDoesNotExist( $this->root() . '/src/Routing/CompetingSitemapGenerator.php' );
 		$this->assertFileDoesNotExist( $this->root() . '/src/Routing/VariationRoutePublisher.php' );
 	}
+
+	/**
+	 * V1.5.1 corrective milestone architecture guards.
+	 */
+	public function test_v151_corrective_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertStringNotContainsString( 'step_9_', $migrator );
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$router = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
+		$this->assertStringContainsString( 'filtering_term_link', $router );
+		$this->assertStringContainsString( 'filter_term_link', $router );
+		$this->assertStringNotContainsString( 'add_rewrite_rule', $router );
+		$this->assertStringNotContainsString( 'CompetingUrlAuthority', $router );
+
+		$sb11 = (string) file_get_contents( $this->root() . '/src/Seo/LanguageRelationshipService.php' );
+		$this->assertStringContainsString( 'url_to_postid_unfiltered_home', $sb11 );
+		$this->assertStringContainsString( 'EffectiveUrlService', $sb11 );
+		$this->assertStringNotContainsString( 'CompetingSeoUrlAuthority', $sb11 );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringNotContainsString( 'ProgramB', $plugin );
+		$this->assertStringNotContainsString( 'VariationRoutePublisher', $plugin );
+
+		$this->assertFileExists( $this->root() . '/tests/integration/V151D1TermLinkRecursionTest.php' );
+		$this->assertFileExists( $this->root() . '/tests/integration/V151ModelAConsumerTest.php' );
+		$this->assertFileExists( $this->root() . '/docs/plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md' );
+
+		$version = (string) file_get_contents( $this->root() . '/ai-multilingual.php' );
+		$this->assertMatchesRegularExpression( '/Version:\\s*1\\.5\\.0/', $version );
+		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.5.0' )", $version );
+	}
 }
