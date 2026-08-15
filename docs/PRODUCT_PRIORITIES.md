@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.3 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **P0 Localized URL Operator Completion — plan FROZEN**, implementation in progress — [plan](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_IMPLEMENTATION_PLAN.md). Version remains **1.5.1** (no release boundary). **P1** G4 sitemap/Rank Math characterization and **P2** Jobs/stale literacy remain **NOT STARTED**. Historical Program B **REDEFINED** into bounded P0. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Runtime `Migrator::TARGET` **8**.
+**Current next decision:** **P0 Localized URL Operator Completion — COMPLETE** — [plan](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_IMPLEMENTATION_PLAN.md); [closure](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_CLOSURE.md). Version remains **1.5.1**. **NO RELEASE AUTHORIZED**. **P1** G4 sitemap/Rank Math characterization and **P2** Jobs/stale literacy remain **NOT STARTED**. Historical Program B **REDEFINED** into bounded P0. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Runtime `Migrator::TARGET` **8**.
 
 ---
 
@@ -44,7 +44,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 0 | **Localized URL Operator Completion (P0)** | **Plan FROZEN** — [plan](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_IMPLEMENTATION_PLAN.md). Implementation not yet complete. Version stays **1.5.1**. No release authorized by P0. Program B redefined into this bounded milestone. |
+| 0 | **Localized URL Operator Completion (P0)** | **COMPLETE** — [plan](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_IMPLEMENTATION_PLAN.md); [closure](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_CLOSURE.md). Version stays **1.5.1**. **NO RELEASE AUTHORIZED**. Next: separately authorize **P1** G4 characterization. |
 | 1 | **v1.5.1 Localized URL Correctness / SEO Stabilization** | **CORRECTIVE LIFECYCLE COMPLETE** — [closure](releases/V1_5_1_RELEASE_CLOSURE.md); [DEV re-acceptance](validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md). Tag `v1.5.1` → `6298df08b`. **V151AC22 PASS**. |
 | 1 | **MSEO — Multilingual SEO & Localized URLs** | **COMPLETE** (MSEO.0–MSEO.5). Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md). [MSEO5 closure](plans/MSEO5_CLOSURE.md). No formal MSEO.6. STATE B / TARGET **8**. Released in **v1.5.0**. |
 | — | **TSC — Translation Surface Coverage** | **COMPLETE** (TSC.0–TSC.6). Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). |
