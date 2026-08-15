@@ -44,11 +44,11 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **MSEO — Multilingual SEO & Localized URLs** | Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**). [ADR-0023](adr/0023-localized-url-overlay-architecture.md). Ladder **MSEO.0–MSEO.5**; [MSEO.0 plan](plans/MSEO0_LOCALIZED_URL_FOUNDATION_IMPLEMENTATION_PLAN.md). Default OFF; no public URL change until MSEO.2. |
+| 1 | **MSEO — Multilingual SEO & Localized URLs** | Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**). [ADR-0023](adr/0023-localized-url-overlay-architecture.md). Ladder **MSEO.0–MSEO.5**; MSEO.0–MSEO.4 **complete** ([MSEO4 closure](plans/MSEO4_CLOSURE.md)); **MSEO.5 NOT STARTED**. STATE B / TARGET **8**. |
 | — | **TSC — Translation Surface Coverage** | **COMPLETE** (TSC.0–TSC.6). Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
-**Release status:** AI Multilingual **v1.4.0** released (tag `v1.4.0` → `ee49cc906babfd34b67fd0998f1eb7553a03358f`). Prior: **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE — TSC.0–TSC.6**. Runtime `Migrator::TARGET` **7**.
+**Release status:** AI Multilingual **v1.4.0** released (tag `v1.4.0` → `ee49cc906babfd34b67fd0998f1eb7553a03358f`). Prior: **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ (TQ.0–TI.7)** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE — TSC.0–TSC.6**. Runtime `Migrator::TARGET` **8**.
 
 Visitor-facing Program A waves below remain listed for historical priority context. Coverage-Deferred surfaces stay Deferred unless admitted through the frozen TSC matrix / milestone plans. TSC must remain generic and site-neutral — Biopentra may be used as a test site, never as the production-domain model.
 
