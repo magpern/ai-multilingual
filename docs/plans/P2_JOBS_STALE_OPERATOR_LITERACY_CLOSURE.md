@@ -24,9 +24,11 @@
 | Merge SHA | `31fcf81452652a3372a9964159b898fdbb73f31d` |
 | Fresh main CI | SUCCESS (run `31906412689`) |
 | Closure path | `docs/plans/P2_JOBS_STALE_OPERATOR_LITERACY_CLOSURE.md` |
+| Closure SHA | `2009cdeefe74a617b1822511c94f80e899e26098` |
+| Final main HEAD | see follow-up record commit after this file |
 | Final version | **1.5.1** |
 | Final TARGET | **8** |
-| Tag `v1.5.1` | `6298df08b3b1456e4875ecdb860b71506d5ae313` (unchanged) |
+| Tag `v1.5.1` | peeled commit `6298df08b3b1456e4875ecdb860b71506d5ae313` (unchanged) |
 
 ## WP disposition
 
