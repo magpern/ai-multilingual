@@ -14,13 +14,16 @@ use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\EffectiveUrlService;
 use AIMultilingual\Routing\ObjectLanguagePublicEligibility;
 use AIMultilingual\Settings;
+use AIMultilingual\Surface\AdmittedTaxonomies;
 use WP_Post;
+use WP_Term;
 
 /**
  * Read-only language relationship graph for a document/request.
  *
  * Downstream SEO waves consume this contract unchanged.
  * MSEO.2 localizes URLs via EffectiveUrl when discoverable (or for canonical stability).
+ * MSEO.3 extends discoverability to admitted term archives.
  */
 final class LanguageRelationshipService {
 
@@ -109,6 +112,7 @@ final class LanguageRelationshipService {
 		$current    = $this->context->current();
 		$current_id = null === $current ? 0 : (int) $current->language_id;
 		$post       = $this->resolve_post_for_path( $path );
+		$term       = null === $post ? $this->resolve_term_for_path( $path ) : null;
 
 		if ( $seo_advertisement && $post instanceof WP_Post && ! $this->is_source_publicly_viewable( $post ) ) {
 			return array();
@@ -117,11 +121,18 @@ final class LanguageRelationshipService {
 		$out = array();
 		foreach ( $this->languages->routable( $include_preview ) as $language ) {
 			$language_id  = (int) $language->language_id;
-			$discoverable = $post instanceof WP_Post && $this->eligibility->is_discoverable( $post, $language_id );
+			$discoverable = false;
+			if ( $post instanceof WP_Post ) {
+				$discoverable = $this->eligibility->is_discoverable( $post, $language_id );
+			} elseif ( $term instanceof WP_Term ) {
+				$discoverable = $this->eligibility->is_term_discoverable( $term, $language_id );
+			}
 
-			if ( $seo_advertisement && $this->settings->is_localized_url_generation_enabled() && $post instanceof WP_Post && ! $discoverable ) {
-				// Active prepared route without discoverable bundle: omit from SEO graph.
-				if ( $this->eligibility->has_active_route( $post, $language_id ) ) {
+			if ( $seo_advertisement && $this->settings->is_localized_url_generation_enabled() ) {
+				if ( $post instanceof WP_Post && ! $discoverable && $this->eligibility->has_active_route( $post, $language_id ) ) {
+					continue;
+				}
+				if ( $term instanceof WP_Term && ! $discoverable && $this->eligibility->has_active_term_route( $term, $language_id ) ) {
 					continue;
 				}
 			}
@@ -268,6 +279,52 @@ final class LanguageRelationshipService {
 		$post = get_post( $post_id );
 
 		return $post instanceof WP_Post ? $post : null;
+	}
+
+	/**
+	 * Resolves a term archive from an unprefixed path when url_to_postid misses.
+	 *
+	 * @param string $path Unprefixed site path.
+	 */
+	private function resolve_term_for_path( string $path ): ?WP_Term {
+		if ( '/' === $path ) {
+			return null;
+		}
+
+		$parts = array_values( array_filter( explode( '/', trim( $path, '/' ) ) ) );
+		if ( array() === $parts ) {
+			return null;
+		}
+
+		$leaf = (string) end( $parts );
+		foreach ( AdmittedTaxonomies::all() as $taxonomy ) {
+			$term = get_term_by( 'slug', $leaf, $taxonomy );
+			if ( ! $term instanceof WP_Term ) {
+				continue;
+			}
+
+			$link = get_term_link( $term );
+			if ( $link instanceof \WP_Error ) {
+				continue;
+			}
+
+			$term_path = (string) wp_parse_url( (string) $link, PHP_URL_PATH );
+			$home      = (string) wp_parse_url( (string) get_option( 'home' ), PHP_URL_PATH );
+			$home      = trim( $home, '/' );
+			if ( '' !== $home ) {
+				$normalized = '/' . ltrim( $term_path, '/' );
+				if ( 0 === strpos( $normalized, '/' . $home ) ) {
+					$term_path = substr( $normalized, strlen( $home ) + 1 );
+				}
+			}
+			$term_path = '/' . ltrim( (string) $term_path, '/' );
+
+			if ( $this->normalize_path( $term_path ) === $this->normalize_path( $path ) ) {
+				return $term;
+			}
+		}
+
+		return null;
 	}
 
 	/**

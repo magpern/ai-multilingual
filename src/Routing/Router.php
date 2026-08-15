@@ -86,6 +86,13 @@ final class Router {
 	private RouteHistoryRepository $history;
 
 	/**
+	 * Hierarchy / term path authority.
+	 *
+	 * @var HierarchyPathBuilder|null
+	 */
+	private ?HierarchyPathBuilder $hierarchy;
+
+	/**
 	 * Request-local route recognition context (B1/B6).
 	 *
 	 * @var RouteRecognitionContext
@@ -130,14 +137,15 @@ final class Router {
 	/**
 	 * Builds the router.
 	 *
-	 * @param Languages              $languages     Language configuration.
-	 * @param LanguageResolver       $resolver      Pure resolver.
-	 * @param LanguageContext        $context       Request language state.
-	 * @param EffectiveUrlService    $effective_url Effective URL authority.
-	 * @param Settings               $settings      Plugin settings.
-	 * @param PathCanonicalizer      $paths         Path canonicalizer.
-	 * @param SlugRouteRepository    $routes        Route repository.
-	 * @param RouteHistoryRepository $history       History repository.
+	 * @param Languages               $languages     Language configuration.
+	 * @param LanguageResolver        $resolver      Pure resolver.
+	 * @param LanguageContext         $context       Request language state.
+	 * @param EffectiveUrlService     $effective_url Effective URL authority.
+	 * @param Settings                $settings      Plugin settings.
+	 * @param PathCanonicalizer       $paths         Path canonicalizer.
+	 * @param SlugRouteRepository     $routes        Route repository.
+	 * @param RouteHistoryRepository  $history       History repository.
+	 * @param HierarchyPathBuilder|null $hierarchy   Hierarchy path builder.
 	 */
 	public function __construct(
 		Languages $languages,
@@ -147,7 +155,8 @@ final class Router {
 		Settings $settings,
 		PathCanonicalizer $paths,
 		SlugRouteRepository $routes,
-		RouteHistoryRepository $history
+		RouteHistoryRepository $history,
+		?HierarchyPathBuilder $hierarchy = null
 	) {
 		$this->languages     = $languages;
 		$this->resolver      = $resolver;
@@ -157,6 +166,7 @@ final class Router {
 		$this->paths         = $paths;
 		$this->routes        = $routes;
 		$this->history       = $history;
+		$this->hierarchy     = $hierarchy;
 		$this->recognition   = RouteRecognitionContext::none();
 	}
 
@@ -360,6 +370,7 @@ final class Router {
 	 */
 	public function enable_url_prefixing(): void {
 		add_filter( 'home_url', array( $this, 'filter_home_url' ) );
+		add_filter( 'term_link', array( $this, 'filter_term_link' ), 10, 3 );
 	}
 
 	/**
@@ -580,6 +591,48 @@ final class Router {
 	}
 
 	/**
+	 * Localizes outbound term archive URLs when generation + admission allow.
+	 *
+	 * @param string  $url      Term link URL.
+	 * @param \WP_Term $term    Term.
+	 * @param string  $taxonomy Taxonomy slug.
+	 */
+	public function filter_term_link( $url, $term, $taxonomy ) {
+		if ( ! is_string( $url ) || ! $this->context->is_translated() ) {
+			return $url;
+		}
+
+		if ( ! $this->settings->is_localized_url_generation_enabled() ) {
+			return $url;
+		}
+
+		$language = $this->context->current();
+		if ( null === $language || ! empty( $language->is_default ) ) {
+			return $url;
+		}
+
+		if ( ! $term instanceof \WP_Term ) {
+			$term = get_term( (int) $term, (string) $taxonomy );
+		}
+		if ( ! $term instanceof \WP_Term || is_wp_error( $term ) ) {
+			return $url;
+		}
+
+		$source_path = $this->source_path_for_object( Store::SOURCE_TERM, (int) $term->term_id, (int) $language->language_id );
+		if ( '/' === $source_path ) {
+			return $url;
+		}
+
+		$effective = $this->effective_url->unprefixed_effective_path( $source_path, (int) $language->language_id );
+		if ( $effective === $source_path ) {
+			// Still prefix with language via home_url path rebuild.
+			return $this->build_prefixed_url( $language, $source_path );
+		}
+
+		return $this->build_prefixed_url( $language, $effective );
+	}
+
+	/**
 	 * The request URI exactly as it arrived, prefix included.
 	 */
 	public function original_uri(): string {
@@ -725,15 +778,45 @@ final class Router {
 	 * @param int    $language_id Language id.
 	 */
 	private function source_path_for_object( string $source_type, int $source_id, int $language_id ): string {
-		if ( Store::SOURCE_POST === $source_type && $source_id > 0 ) {
-			$route = $this->routes->find_by_object( $source_type, $source_id, $language_id );
-			if ( null !== $route && '' !== (string) ( $route->source_path ?? '' ) ) {
-				return (string) $route->source_path;
-			}
+		if ( $source_id <= 0 ) {
+			return '/';
+		}
 
+		$route = $this->routes->find_by_object( $source_type, $source_id, $language_id );
+		if ( null !== $route && '' !== (string) ( $route->source_path ?? '' ) ) {
+			return (string) $route->source_path;
+		}
+
+		if ( Store::SOURCE_POST === $source_type ) {
 			$post = get_post( $source_id );
 			if ( $post instanceof \WP_Post ) {
+				if ( null !== $this->hierarchy ) {
+					$path = $this->hierarchy->source_path_for_post( $post );
+					if ( ! $path instanceof \WP_Error ) {
+						return $path->to_string();
+					}
+				}
+
 				return '/' . ltrim( (string) get_page_uri( $post ), '/' );
+			}
+		}
+
+		if ( Store::SOURCE_TERM === $source_type ) {
+			$term = get_term( $source_id );
+			if ( $term instanceof \WP_Term && ! is_wp_error( $term ) ) {
+				if ( null !== $this->hierarchy ) {
+					$path = $this->hierarchy->source_path_for_term( $term );
+					if ( ! $path instanceof \WP_Error ) {
+						return $path->to_string();
+					}
+				}
+
+				$link = get_term_link( $term );
+				if ( is_string( $link ) && '' !== $link ) {
+					$path = (string) wp_parse_url( $link, PHP_URL_PATH );
+
+					return '/' . ltrim( $path, '/' );
+				}
 			}
 		}
 

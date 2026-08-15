@@ -30,6 +30,8 @@ use AIMultilingual\Jobs\JobsCli;
 use AIMultilingual\Jobs\JobsController;
 use AIMultilingual\Jobs\JobsViewModelSerializer;
 use AIMultilingual\Jobs\SlugRouteActivationJob;
+use AIMultilingual\Jobs\CapabilityVerificationJob;
+use AIMultilingual\Jobs\HierarchyReindexJob;
 use AIMultilingual\Admin\Editor;
 use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
@@ -118,9 +120,12 @@ use AIMultilingual\Rollout\Cache\RolloutCacheInvalidationHooks;
 use AIMultilingual\Rollout\Cache\RolloutRenderCacheBridge;
 use AIMultilingual\Rollout\Metrics\RolloutMetricsCollector;
 use AIMultilingual\Routing\EffectiveUrlService;
+use AIMultilingual\Routing\HierarchyPathBuilder;
 use AIMultilingual\Routing\LocalizedUrlsActivationService;
 use AIMultilingual\Routing\PathCanonicalizer;
+use AIMultilingual\Routing\ReindexFrontierRepository;
 use AIMultilingual\Routing\RouteHistoryRepository;
+use AIMultilingual\Routing\RoutingCapabilityAdmission;
 use AIMultilingual\Routing\RoutingCapabilityRegistry;
 use AIMultilingual\Routing\SlugRouteActivationVerifier;
 use AIMultilingual\Routing\SlugRouteRepository;
@@ -271,19 +276,23 @@ final class Plugin {
 		$slug_routes          = new SlugRouteRepository();
 		$route_history        = new RouteHistoryRepository();
 		$routing_capabilities = new RoutingCapabilityRegistry();
+		$routing_admission   = new RoutingCapabilityAdmission( $settings, $routing_capabilities );
+		$hierarchy_paths      = new HierarchyPathBuilder( $slug_routes, $path_canonicalizer );
 		$effective_url        = new EffectiveUrlService(
 			$settings,
 			$slug_routes,
 			$routing_capabilities,
 			$path_canonicalizer,
-			$languages
+			$languages,
+			$routing_admission
 		);
 		$slug_eligibility     = new \AIMultilingual\Routing\ObjectLanguagePublicEligibility(
 			$store,
 			$languages,
 			$routing_capabilities,
 			$settings,
-			$slug_routes
+			$slug_routes,
+			$routing_admission
 		);
 		$relationships        = new LanguageRelationshipService(
 			$languages,
@@ -401,7 +410,8 @@ final class Plugin {
 			$settings,
 			$path_canonicalizer,
 			$slug_routes,
-			$route_history
+			$route_history,
+			$hierarchy_paths
 		);
 		$router->register();
 		( new Renderer( $context, $store, $extractor, $block_frontend ) )->register();
@@ -535,7 +545,9 @@ final class Plugin {
 			$path_canonicalizer,
 			$collision_checker,
 			$slug_eligibility,
-			$routing_capabilities
+			$routing_capabilities,
+			$hierarchy_paths,
+			$routing_admission
 		);
 
 		$localized_urls_activation = new LocalizedUrlsActivationService( $this->settings );
@@ -554,6 +566,38 @@ final class Plugin {
 		);
 		$localized_urls_activation->bind_job( $slug_route_activation );
 		$slug_route_activation->register_hooks();
+
+		$capability_verification = new CapabilityVerificationJob(
+			$this->settings,
+			$routing_admission,
+			$routing_capabilities,
+			$hierarchy_paths,
+			$slug_routes
+		);
+		$capability_verification->register_hooks();
+		add_action(
+			'init',
+			static function () use ( $capability_verification ): void {
+				$capability_verification->maybe_enqueue();
+			},
+			20
+		);
+
+		$hierarchy_reindex = new HierarchyReindexJob(
+			new ReindexFrontierRepository(),
+			$route_publication,
+			$slug_routes
+		);
+		$hierarchy_reindex->register_hooks();
+
+		add_action(
+			'delete_term',
+			static function ( $term_id ) use ( $route_publication ): void {
+				$route_publication->purge_for_term( (int) $term_id );
+			},
+			10,
+			1
+		);
 
 		$translation        = new TranslationService(
 			$store,
