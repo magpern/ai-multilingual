@@ -273,13 +273,19 @@ final class Plugin {
 		$plugin_identity         = new PluginIdentity( $integration_diagnostics );
 		$woo_integration         = WooCommerceIntegration::create_default( $plugin_identity, $store, $context );
 
-		$path_canonicalizer   = new PathCanonicalizer();
-		$slug_routes          = new SlugRouteRepository();
-		$route_history        = new RouteHistoryRepository();
-		$routing_capabilities = new RoutingCapabilityRegistry();
-		$routing_admission    = new RoutingCapabilityAdmission( $settings, $routing_capabilities );
-		$hierarchy_paths      = new HierarchyPathBuilder( $slug_routes, $path_canonicalizer );
-		$effective_url        = new EffectiveUrlService(
+		$path_canonicalizer     = new PathCanonicalizer();
+		$slug_routes            = new SlugRouteRepository();
+		$route_history          = new RouteHistoryRepository();
+		$routing_capabilities   = new RoutingCapabilityRegistry();
+		$routing_admission      = new RoutingCapabilityAdmission( $settings, $routing_capabilities );
+		$hierarchy_paths        = new HierarchyPathBuilder( $slug_routes, $path_canonicalizer );
+		$woo_category_authority = new \AIMultilingual\Routing\WooProductCategoryAuthority();
+		$woo_product_paths      = new \AIMultilingual\Routing\WooProductPathBuilder(
+			$woo_category_authority,
+			$slug_routes,
+			$path_canonicalizer
+		);
+		$effective_url          = new EffectiveUrlService(
 			$settings,
 			$slug_routes,
 			$routing_capabilities,
@@ -287,7 +293,7 @@ final class Plugin {
 			$languages,
 			$routing_admission
 		);
-		$slug_eligibility     = new \AIMultilingual\Routing\ObjectLanguagePublicEligibility(
+		$slug_eligibility       = new \AIMultilingual\Routing\ObjectLanguagePublicEligibility(
 			$store,
 			$languages,
 			$routing_capabilities,
@@ -295,7 +301,7 @@ final class Plugin {
 			$slug_routes,
 			$routing_admission
 		);
-		$relationships        = new LanguageRelationshipService(
+		$relationships          = new LanguageRelationshipService(
 			$languages,
 			$context,
 			$effective_url,
@@ -548,7 +554,8 @@ final class Plugin {
 			$slug_eligibility,
 			$routing_capabilities,
 			$hierarchy_paths,
-			$routing_admission
+			$routing_admission,
+			$woo_product_paths
 		);
 
 		$localized_urls_activation = new LocalizedUrlsActivationService( $this->settings );
@@ -573,7 +580,8 @@ final class Plugin {
 			$routing_admission,
 			$routing_capabilities,
 			$hierarchy_paths,
-			$slug_routes
+			$slug_routes,
+			$woo_product_paths
 		);
 		$capability_verification->register_hooks();
 		add_action(
@@ -584,13 +592,23 @@ final class Plugin {
 			20
 		);
 
-		$hierarchy_reindex = new HierarchyReindexJob(
-			new ReindexFrontierRepository(),
+		$frontier_repository = new ReindexFrontierRepository();
+		$hierarchy_reindex   = new HierarchyReindexJob(
+			$frontier_repository,
 			$route_publication,
 			new HierarchyChildRepository(),
 			$slug_routes
 		);
 		$hierarchy_reindex->register_hooks();
+
+		$woo_product_reindex = new \AIMultilingual\Jobs\WooProductRouteReindexJob(
+			$frontier_repository,
+			$route_publication,
+			$slug_routes,
+			new \AIMultilingual\Routing\WooProductDependencyRepository(),
+			$this->settings
+		);
+		$woo_product_reindex->register_hooks();
 
 		add_action(
 			'aiml_hierarchy_reindex_root',
@@ -599,6 +617,47 @@ final class Plugin {
 			},
 			10,
 			2
+		);
+
+		add_action(
+			'aiml_woo_product_dep_root',
+			static function ( $term_id ) use ( $woo_product_reindex ): void {
+				$woo_product_reindex->enqueue_product_dep( (int) $term_id );
+			},
+			10,
+			1
+		);
+
+		add_action(
+			'set_object_terms',
+			static function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( $woo_product_reindex ): void {
+				unset( $terms, $tt_ids );
+				if ( 'product_cat' !== (string) $taxonomy ) {
+					return;
+				}
+				$post = get_post( (int) $object_id );
+				if ( ! $post instanceof \WP_Post || 'product' !== $post->post_type ) {
+					return;
+				}
+				$assigned = wp_get_post_terms( (int) $object_id, 'product_cat', array( 'fields' => 'ids' ) );
+				if ( ! is_array( $assigned ) ) {
+					return;
+				}
+				foreach ( $assigned as $term_id ) {
+					$woo_product_reindex->enqueue_product_dep( (int) $term_id );
+				}
+			},
+			20,
+			4
+		);
+
+		add_action(
+			'update_option_woocommerce_permalinks',
+			static function () use ( $woo_product_reindex ): void {
+				$woo_product_reindex->enqueue_woo_config();
+			},
+			20,
+			0
 		);
 
 		add_action(
@@ -632,12 +691,15 @@ final class Plugin {
 
 		add_action(
 			'edited_term',
-			static function ( $term_id, $tt_id, $taxonomy ) use ( $hierarchy_reindex, $routing_capabilities ): void {
+			static function ( $term_id, $tt_id, $taxonomy ) use ( $hierarchy_reindex, $routing_capabilities, $woo_product_reindex ): void {
 				unset( $tt_id );
 				if ( ! $routing_capabilities->supports_term_taxonomy( (string) $taxonomy ) ) {
 					return;
 				}
 				$hierarchy_reindex->enqueue_root( Store::SOURCE_TERM, (int) $term_id );
+				if ( 'product_cat' === (string) $taxonomy ) {
+					$woo_product_reindex->enqueue_product_dep( (int) $term_id );
+				}
 			},
 			20,
 			3

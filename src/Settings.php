@@ -157,6 +157,7 @@ final class Settings {
 			'localized_urls_verified_capability_epoch' => 0,
 			'localized_urls_admitted_capabilities'     => array(),
 			'localized_urls_capability_checkpoint'     => null,
+			'localized_urls_woo_product_fingerprint'   => '',
 		);
 	}
 
@@ -226,7 +227,7 @@ final class Settings {
 
 		if ( array_key_exists( 'localized_urls_admitted_capabilities', $raw ) ) {
 			$admitted = $raw['localized_urls_admitted_capabilities'];
-			$allowed  = array( 'term_archive', 'page_hierarchical' );
+			$allowed  = array( 'term_archive', 'page_hierarchical', 'product_category_permalink' );
 			$out      = array();
 			if ( is_array( $admitted ) ) {
 				foreach ( $admitted as $shape ) {
@@ -246,6 +247,11 @@ final class Settings {
 			} else {
 				$clean['localized_urls_capability_checkpoint'] = substr( (string) $checkpoint, 0, 4096 );
 			}
+		}
+
+		if ( array_key_exists( 'localized_urls_woo_product_fingerprint', $raw ) ) {
+			$fp = strtolower( preg_replace( '/[^a-f0-9]/', '', (string) $raw['localized_urls_woo_product_fingerprint'] ) ?? '' );
+			$clean['localized_urls_woo_product_fingerprint'] = substr( $fp, 0, 64 );
 		}
 
 		if ( array_key_exists( 'ai_model', $raw ) ) {
@@ -548,5 +554,12 @@ final class Settings {
 		}
 
 		return (string) $value;
+	}
+
+	/**
+	 * Admitted Woo product permalink fingerprint hash (MSEO.4), or empty.
+	 */
+	public function localized_urls_woo_product_fingerprint(): string {
+		return (string) ( $this->get()['localized_urls_woo_product_fingerprint'] ?? '' );
 	}
 }

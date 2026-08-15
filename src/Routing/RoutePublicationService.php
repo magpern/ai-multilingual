@@ -38,6 +38,7 @@ final class RoutePublicationService {
 	 * @param RoutingCapabilityRegistry       $capabilities  Capabilities.
 	 * @param HierarchyPathBuilder|null       $hierarchy     Hierarchy path authority.
 	 * @param RoutingCapabilityAdmission|null $admission     Public admission (optional).
+	 * @param WooProductPathBuilder|null      $woo_products  Woo %product_cat% path authority (MSEO.4).
 	 */
 	public function __construct(
 		private Store $store,
@@ -49,7 +50,8 @@ final class RoutePublicationService {
 		private ObjectLanguagePublicEligibility $eligibility,
 		private RoutingCapabilityRegistry $capabilities,
 		private ?HierarchyPathBuilder $hierarchy = null,
-		private ?RoutingCapabilityAdmission $admission = null
+		private ?RoutingCapabilityAdmission $admission = null,
+		private ?WooProductPathBuilder $woo_products = null
 	) {
 	}
 
@@ -444,7 +446,16 @@ final class RoutePublicationService {
 
 			$prior = (string) ( $current->localized_path ?? '' );
 			if ( $prior === $new_path->to_string() ) {
-				// Still refresh source_path if hierarchy moved.
+				$prior_source = (string) ( $current->source_path ?? '' );
+				if ( $prior_source === $source_path->to_string() ) {
+					// Strict no-op: unchanged effective + source path.
+					$this->store->commit_route_boundary( $boundary );
+					$committed = true;
+
+					return $current;
+				}
+
+				// Refresh source_path only when localized path is unchanged.
 				$saved = $this->routes->save(
 					new RouteRecord(
 						$language_id,
@@ -766,6 +777,13 @@ final class RoutePublicationService {
 	 * @return CanonicalPath|WP_Error
 	 */
 	private function source_path_for_post( WP_Post $post ) {
+		if ( 'product' === $post->post_type
+			&& null !== $this->woo_products
+			&& RoutingCapabilityRegistry::PRODUCT_CATEGORY_PERMALINK === $this->capabilities->capability_for_post( $post )
+		) {
+			return $this->woo_products->source_path( $post );
+		}
+
 		if ( null !== $this->hierarchy ) {
 			return $this->hierarchy->source_path_for_post( $post );
 		}
@@ -824,6 +842,26 @@ final class RoutePublicationService {
 	 * @return CanonicalPath|WP_Error
 	 */
 	private function localized_path_for_post( WP_Post $post, int $language_id, string $leaf ) {
+		if ( 'product' === $post->post_type
+			&& null !== $this->woo_products
+			&& RoutingCapabilityRegistry::PRODUCT_CATEGORY_PERMALINK === $this->capabilities->capability_for_post( $post )
+		) {
+			$built = $this->woo_products->localized_path( $post, $language_id, $leaf );
+			if ( $built instanceof WP_Error ) {
+				return $built;
+			}
+			$outcome = (string) ( $built['outcome'] ?? '' );
+			if ( WooProductPathBuilder::OUTCOME_SYNCHRONIZED !== $outcome || ! ( $built['path'] instanceof CanonicalPath ) ) {
+				return new WP_Error(
+					'aiml_woo_product_path_fallback',
+					sprintf( 'Product path not rematerializable (%s).', $outcome ),
+					array( 'outcome' => $outcome )
+				);
+			}
+
+			return $built['path'];
+		}
+
 		if ( null !== $this->hierarchy && ( (int) $post->post_parent > 0 || 'page' === $post->post_type ) ) {
 			return $this->hierarchy->localized_path_for_post( $post, $language_id, $leaf );
 		}
@@ -874,8 +912,12 @@ final class RoutePublicationService {
 		string $candidate_leaf,
 		string $slug_origin
 	) {
+		$woo_cat = 'product' === $post->post_type
+			&& null !== $this->woo_products
+			&& RoutingCapabilityRegistry::PRODUCT_CATEGORY_PERMALINK === $this->capabilities->capability_for_post( $post );
+
 		$hierarchical = (int) $post->post_parent > 0 && 'page' === $post->post_type && null !== $this->hierarchy;
-		if ( ! $hierarchical ) {
+		if ( ! $hierarchical && ! $woo_cat ) {
 			return $this->collisions->resolve_effective(
 				$source_path_str,
 				$candidate_leaf,
@@ -887,14 +929,19 @@ final class RoutePublicationService {
 		}
 
 		$attempt = $candidate_leaf;
-		$max     = 'manual' === $slug_origin ? 1 : CanonicalPathCollisionChecker::MAX_SUFFIX_ATTEMPTS;
+		// Category/config rematerialization must not auto-suffix; publish may suffix only for generated origin on hierarchy.
+		$max = $woo_cat
+			? 1
+			: ( 'manual' === $slug_origin ? 1 : CanonicalPathCollisionChecker::MAX_SUFFIX_ATTEMPTS );
 
 		for ( $i = 0; $i < $max; $i++ ) {
 			if ( $i > 0 ) {
 				$attempt = $candidate_leaf . '-' . ( $i + 1 );
 			}
 
-			$path = $this->hierarchy->localized_path_for_post( $post, $language_id, $attempt );
+			$path = $woo_cat
+				? $this->localized_path_for_post( $post, $language_id, $attempt )
+				: $this->hierarchy->localized_path_for_post( $post, $language_id, $attempt );
 			if ( $path instanceof WP_Error ) {
 				return $path;
 			}
@@ -912,7 +959,7 @@ final class RoutePublicationService {
 				);
 			}
 
-			if ( 'manual' === $slug_origin ) {
+			if ( 'manual' === $slug_origin || $woo_cat ) {
 				return $check;
 			}
 		}
@@ -1021,6 +1068,20 @@ final class RoutePublicationService {
 		 * @param int    $source_id   Source id.
 		 */
 		do_action( 'aiml_hierarchy_reindex_root', $source_type, $source_id );
+
+		if ( Store::SOURCE_TERM === $source_type ) {
+			$term = get_term( $source_id );
+			if ( $term instanceof WP_Term && ! is_wp_error( $term ) && 'product_cat' === (string) $term->taxonomy ) {
+				/**
+				 * Fires when product_cat routes may require dependent product rematerialization.
+				 *
+				 * @since 1.4.0
+				 *
+				 * @param int $term_id product_cat term id.
+				 */
+				do_action( 'aiml_woo_product_dep_root', $source_id );
+			}
+		}
 	}
 
 	/**

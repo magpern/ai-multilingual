@@ -295,7 +295,7 @@ final class HierarchyReindexJob {
 	 * Finds a pending/running frontier row.
 	 */
 	private function find_workable_frontier(): ?object {
-		return $this->frontiers->find_workable();
+		return $this->frontiers->find_workable( array( Store::SOURCE_POST, Store::SOURCE_TERM ) );
 	}
 
 	/**

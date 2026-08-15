@@ -303,6 +303,20 @@ final class Router {
 				return true;
 			}
 
+			// MSEO.4 A5: config-transition recognition — when generation is gated for this
+			// object, redirect once to EffectiveUrl (may be source) instead of mass-404.
+			if ( $this->should_redirect_current_localized_to_effective( $route, $language_id, $unprefixed ) ) {
+				$source_path = (string) ( $route->source_path ?? $unprefixed );
+				$effective   = $this->effective_url->unprefixed_effective_path( $source_path, $language_id );
+				$destination = $this->build_prefixed_url( $language, $effective, $query );
+				$recognized  = $this->build_prefixed_url( $language, $unprefixed, $query );
+				if ( ! $this->is_same_normalized_url( $recognized, $destination ) ) {
+					$this->redirect_and_exit( $destination, 301 );
+
+					return true;
+				}
+			}
+
 			$source_path = (string) ( $route->source_path ?? $unprefixed );
 			$rebuilt     = $this->home_path() . ltrim( $source_path, '/' );
 			$rebuilt     = '/' . ltrim( $rebuilt, '/' );
@@ -344,10 +358,25 @@ final class Router {
 				$language_id
 			);
 			$effective   = $this->effective_url->unprefixed_effective_path( $source_path, $language_id );
-			$this->redirect_and_exit(
-				$this->build_prefixed_url( $language, $effective, $query ),
-				301
-			);
+			$destination = $this->build_prefixed_url( $language, $effective, $query );
+			$recognized  = $this->build_prefixed_url( $language, $unprefixed, $query );
+			if ( ! $this->is_same_normalized_url( $recognized, $destination ) ) {
+				$this->redirect_and_exit( $destination, 301 );
+
+				return true;
+			}
+
+			// Self-redirect guard: treat as current and continue to source rewrite below.
+			$rebuilt = $this->home_path() . ltrim( $source_path, '/' );
+			$rebuilt = '/' . ltrim( $rebuilt, '/' );
+			if ( '' !== $query ) {
+				$rebuilt .= '?' . $query;
+			}
+			$_SERVER['REQUEST_URI'] = $rebuilt;
+			add_filter( 'locale', array( $this, 'filter_locale' ) );
+			add_filter( 'language_attributes', array( $this, 'filter_language_attributes' ) );
+			add_filter( 'redirect_canonical', array( $this, 'filter_redirect_canonical' ) );
+			add_action( 'parse_request', array( $this, 'enable_url_prefixing' ), 0 );
 
 			return true;
 		}
@@ -821,6 +850,51 @@ final class Router {
 		}
 
 		return '/';
+	}
+
+	/**
+	 * Whether CURRENT_LOCALIZED should redirect to EffectiveUrl (config gate).
+	 *
+	 * @param object $route       Active route row.
+	 * @param int    $language_id Language id.
+	 * @param string $unprefixed  Recognized unprefixed path.
+	 */
+	private function should_redirect_current_localized_to_effective( object $route, int $language_id, string $unprefixed ): bool {
+		unset( $unprefixed );
+		$source_type = (string) ( $route->source_type ?? '' );
+		$source_id   = (int) ( $route->source_id ?? 0 );
+		if ( Store::SOURCE_POST !== $source_type || $source_id <= 0 ) {
+			return false;
+		}
+
+		$post = get_post( $source_id );
+		if ( ! $post instanceof \WP_Post || 'product' !== $post->post_type ) {
+			return false;
+		}
+
+		$capabilities = new RoutingCapabilityRegistry();
+		if ( RoutingCapabilityRegistry::PRODUCT_CATEGORY_PERMALINK !== $capabilities->capability_for_post( $post ) ) {
+			return false;
+		}
+
+		$admission = new RoutingCapabilityAdmission( $this->settings, $capabilities );
+
+		return ! $admission->is_post_publicly_localizable( $post );
+	}
+
+	/**
+	 * Self-redirect guard: recognized path equals EffectiveUrl destination.
+	 *
+	 * @param string $a First URL.
+	 * @param string $b Second URL.
+	 */
+	private function is_same_normalized_url( string $a, string $b ): bool {
+		$na_raw = strtok( $a, '?' );
+		$nb_raw = strtok( $b, '?' );
+		$na     = untrailingslashit( strtolower( is_string( $na_raw ) ? $na_raw : $a ) );
+		$nb     = untrailingslashit( strtolower( is_string( $nb_raw ) ? $nb_raw : $b ) );
+
+		return $na === $nb;
 	}
 
 	/**

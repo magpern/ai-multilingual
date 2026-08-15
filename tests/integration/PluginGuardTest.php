@@ -98,6 +98,7 @@ final class PluginGuardTest extends AimlTestCase {
 	public function test_no_direct_writes_to_core_content_tables(): void {
 		$allowed_reads = array(
 			'src/Routing/HierarchyChildRepository.php',
+			'src/Routing/WooProductDependencyRepository.php',
 		);
 
 		foreach ( $this->sources() as $path => $code ) {
@@ -138,6 +139,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Routing/RouteHistoryRepository.php',
 			'src/Routing/ReindexFrontierRepository.php',
 			'src/Routing/HierarchyChildRepository.php',
+			'src/Routing/WooProductDependencyRepository.php',
 			'src/Routing/RoutePublicationService.php',
 		);
 
@@ -1264,5 +1266,70 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'filter_term_link', $router );
 		$this->assertStringContainsString( 'SOURCE_TERM', $router );
 		$this->assertStringNotContainsString( 'add_rewrite_rule', $router );
+	}
+
+	/**
+	 * MSEO.4 WooCommerce localized product permalink structural guards.
+	 */
+	public function test_mseo4_woo_product_permalink_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$this->assertFileExists( $this->root() . '/src/Routing/WooProductCategoryAuthority.php' );
+		$this->assertFileExists( $this->root() . '/src/Routing/WooProductPathBuilder.php' );
+		$this->assertFileExists( $this->root() . '/src/Routing/WooProductPermalinkFingerprint.php' );
+		$this->assertFileExists( $this->root() . '/src/Routing/WooProductDependencyRepository.php' );
+		$this->assertFileExists( $this->root() . '/src/Jobs/WooProductRouteReindexJob.php' );
+
+		$authority = (string) file_get_contents( $this->root() . '/src/Routing/WooProductCategoryAuthority.php' );
+		$this->assertStringContainsString( 'wc_product_post_type_link_product_cat', $authority );
+		$this->assertStringContainsString( 'finally', $authority );
+		$this->assertStringContainsString( 'remove_filter', $authority );
+		$this->assertStringContainsString( 'get_permalink', $authority );
+
+		$builder = (string) file_get_contents( $this->root() . '/src/Routing/WooProductPathBuilder.php' );
+		$this->assertStringContainsString( 'OUTCOME_SOURCE_FALLBACK_AUTHORITY_DISAGREE', $builder );
+		$this->assertStringContainsString( 'OUTCOME_SOURCE_FALLBACK_NONDETERMINISTIC', $builder );
+
+		$admission = (string) file_get_contents( $this->root() . '/src/Routing/RoutingCapabilityAdmission.php' );
+		$this->assertStringContainsString( 'CODE_CAPABILITY_EPOCH = 2', $admission );
+		$this->assertStringContainsString( 'SHAPE_PRODUCT_CATEGORY_PERMALINK', $admission );
+		$this->assertStringContainsString( 'localized_urls_woo_product_fingerprint', $admission );
+		$this->assertStringContainsString( 'hash_equals', $admission );
+
+		$job = (string) file_get_contents( $this->root() . '/src/Jobs/WooProductRouteReindexJob.php' );
+		$this->assertStringContainsString( 'MAX_PER_TICK = 100', $job );
+		$this->assertStringContainsString( "TYPE_PRODUCT_DEP = 'product_dep'", $job );
+		$this->assertStringContainsString( "TYPE_WOO_CONFIG = 'woo_product_config'", $job );
+		$this->assertStringContainsString( 'CONFIG_ROOT_ID = 1', $job );
+		$this->assertStringNotContainsString( 'product_dep / 0', $job );
+		$this->assertStringNotContainsString( 'TYPE_PRODUCT_DEP, 0', $job );
+
+		$frontier = (string) file_get_contents( $this->root() . '/src/Routing/ReindexFrontierRepository.php' );
+		$this->assertStringContainsString( 'parent_source_types', $frontier );
+
+		$hierarchy_job = (string) file_get_contents( $this->root() . '/src/Jobs/HierarchyReindexJob.php' );
+		$this->assertStringContainsString( 'SOURCE_POST', $hierarchy_job );
+		$this->assertStringContainsString( 'SOURCE_TERM', $hierarchy_job );
+		$this->assertStringNotContainsString( 'product_dep', $hierarchy_job );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringContainsString( 'WooProductPathBuilder', $plugin );
+		$this->assertStringContainsString( 'WooProductRouteReindexJob', $plugin );
+		$this->assertStringContainsString( 'aiml_woo_product_dep_root', $plugin );
+		$this->assertStringContainsString( 'update_option_woocommerce_permalinks', $plugin );
+
+		$router = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
+		$this->assertStringContainsString( 'should_redirect_current_localized_to_effective', $router );
+		$this->assertStringContainsString( 'is_same_normalized_url', $router );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertStringNotContainsString( 'step_9_', $migrator );
+		$this->assertSame( 8, Migrator::TARGET );
+
+		// MSEO.5 must remain absent.
+		$this->assertFileDoesNotExist( $this->root() . '/docs/plans/MSEO5_CLOSURE.md' );
+		$roadmap = (string) file_get_contents( $this->root() . '/docs/ROADMAP.md' );
+		$this->assertStringContainsString( 'MSEO.5', $roadmap );
+		$this->assertMatchesRegularExpression( '/MSEO\.5[^\n]*NOT STARTED/i', $roadmap );
 	}
 }
