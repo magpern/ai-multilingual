@@ -1223,6 +1223,27 @@ export default function App() {
 					canRun={ canRunJobs }
 					focusedJobId={ focusedJobId }
 					focusedItemId={ focusedJobItemId }
+					onOpenOperations={
+						canAccessOperations
+							? ( { sourceType, sourceId, languageId } ) => {
+									const language =
+										languages.find(
+											( candidate ) =>
+												candidate.language_id === languageId
+										)?.code ?? '';
+									clearOperationsSession();
+									writeOperationsUrlState( {
+										language,
+										attention: 'all',
+										pageNum: 1,
+										sourceType,
+										sourceId: String( sourceId ),
+										translationId: null,
+									} );
+									setViewMode( 'operations' );
+							  }
+							: undefined
+					}
 				/>
 			) }
 

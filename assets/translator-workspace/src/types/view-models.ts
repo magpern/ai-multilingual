@@ -43,6 +43,8 @@ export interface WorkspaceSegment extends ReviewMetadata {
 	translated_text: string;
 	status: string;
 	is_stale: boolean;
+	/** Present on assembled wire payloads; also mirrored under meta.publish_status. */
+	publish_status?: string;
 	text_format: string;
 	can_edit: boolean;
 	meta: WorkspaceSegmentMeta;

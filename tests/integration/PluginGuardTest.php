@@ -1508,4 +1508,48 @@ final class PluginGuardTest extends AimlTestCase {
 		$workspace = (string) file_get_contents( $this->root() . '/assets/translator-workspace/src/App.tsx' );
 		$this->assertStringContainsString( 'LocalizedSlugPanel', $workspace );
 	}
+
+	/**
+	 * P2 Jobs / stale operator literacy — TARGET 8, no new Job type, A1 via missing resolve.
+	 */
+	public function test_p2_jobs_stale_literacy_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$version = (string) file_get_contents( $this->root() . '/ai-multilingual.php' );
+		$this->assertMatchesRegularExpression( '/Version:\\s*1\\.5\\.1/', $version );
+
+		$service = (string) file_get_contents( $this->root() . '/src/Jobs/BackgroundTranslationJobService.php' );
+		$this->assertStringContainsString( 'job_type_resolves_missing', $service );
+		$this->assertStringContainsString( 'JobTypes::BULK_TRANSLATE', $service );
+		$this->assertStringNotContainsString( 'silent_overwrite', $service );
+
+		$types = (string) file_get_contents( $this->root() . '/src/Jobs/JobTypes.php' );
+		$this->assertStringContainsString( 'BULK_TRANSLATE', $types );
+		$this->assertSame(
+			4,
+			substr_count( $types, 'public const' ),
+			'P2 must not introduce a new JobTypes constant.'
+		);
+
+		$this->assertFileExists( $this->root() . '/docs/plans/P2_JOBS_STALE_OPERATOR_LITERACY_IMPLEMENTATION_PLAN.md' );
+		$this->assertFileExists( $this->root() . '/assets/translator-workspace/src/utils/stale-copy.ts' );
+		$this->assertFileExists( $this->root() . '/assets/translator-workspace/src/utils/job-item-literacy.ts' );
+
+		// Jobs→Ops reverse enrichment remains Deferred (no translation_id on Jobs serializers).
+		foreach ( array(
+			'src/Jobs/JobsViewModel.php',
+			'src/Jobs/JobItemViewModel.php',
+			'src/Jobs/JobsViewModelSerializer.php',
+		) as $rel ) {
+			$contents = (string) file_get_contents( $this->root() . '/' . $rel );
+			$this->assertStringNotContainsString(
+				'translation_id',
+				$contents,
+				$rel . ' must not enrich Jobs payloads with translation_id.'
+			);
+		}
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertStringNotContainsString( 'step_9_', $migrator );
+	}
 }

@@ -4,7 +4,26 @@ Operational guide for background translation jobs on Biopentra dev/production.
 Covers health checks, backlog, stuck leases, outages, budgets, lifecycle actions,
 retention cleanup, migration, rollback, and sign-off.
 
-**Related:** [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) §18, §22–23.
+**Related:** [BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md](../plans/BACKGROUND_TRANSLATION_JOBS_IMPLEMENTATION_PLAN.md) §18, §22–23; [P2 Jobs / Stale Operator Literacy](../plans/P2_JOBS_STALE_OPERATOR_LITERACY_IMPLEMENTATION_PLAN.md).
+
+---
+
+## 0. Operator literacy (P2)
+
+Ordinary Jobs create/monitor/recover is done from **Translator Workspace → Jobs** (and Operations for stale/conflict detail). CLI/REST remain diagnostics — not the normal merchant path.
+
+| Concept | Meaning |
+|---|---|
+| Waiting | Job `queued` — **Run now** (administrators only) starts Action Scheduler wake |
+| Completed with skips | Job finished with skipped/stale item buckets — expand Details |
+| Skipped — conflict protected | Item `skipped_conflict` — no silent overwrite; review/edit or confirmed Retranslate when admitted |
+| Source moved during job | Item `stale_source` — create a fresh job after source is stable |
+| Store stale (published) | Published translation remains visible until edit/retranslate |
+| Store stale (unpublished) | Not published — edit/retranslate before publishing |
+
+**Multi-post create:** Workspace **Bulk translate** posts `posts[]` without segment keys. The service resolves **missing** segments per post (same eligibility as `translate_missing`). No new Job type.
+
+**Caps:** Editors may create/manage/cancel; only administrators have `aiml_run_translation_jobs` (Run / Retry failed).
 
 ---
 

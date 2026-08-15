@@ -28,6 +28,8 @@ import {
 	jobStatusLabel,
 	jobTypeLabel,
 } from '../utils/jobs';
+import { jobItemNextActionHint, jobItemStatusLabel, jobsFailureCategoryLabel } from '../utils/job-item-literacy';
+import { staleOperatorCopy } from '../utils/stale-copy';
 import { attentionReasonLabel } from '../utils/operations-attention';
 import { reviewStatusLabel } from '../utils/review-status';
 import JobActionConfirmDialog from './JobActionConfirmDialog';
@@ -573,15 +575,14 @@ export default function OperationsInspector( {
 							role="alert"
 						>
 							<Notice status="warning" isDismissible={ false }>
-								{ 'published' === detail.publish_status
-									? __(
-											'This translation is stale because the source changed. It remains published until you edit or retranslate.',
-											'ai-multilingual'
-									  )
-									: __(
-											'This translation is stale because the source changed. Edit the target or retranslate before publishing.',
-											'ai-multilingual'
-									  ) }
+								{ staleOperatorCopy( {
+									isStale: true,
+									publishStatus: detail.publish_status,
+								} )?.notice ??
+									__(
+										'This translation is stale because the source changed.',
+										'ai-multilingual'
+									) }
 							</Notice>
 							{ publicationGate.retranslate && (
 								<div className="aiml-operations-inspector-stale-actions">
@@ -889,7 +890,7 @@ export default function OperationsInspector( {
 												) }
 											</dt>
 											<dd>
-												{ jobStatusLabel(
+												{ jobItemStatusLabel(
 													jobsAssociation.item.status
 												) }
 											</dd>
@@ -948,16 +949,33 @@ export default function OperationsInspector( {
 											role="status"
 										>
 											<strong>
-												{ __(
-													'Failure',
-													'ai-multilingual'
-												) }
+												{ failure.category
+													? jobsFailureCategoryLabel(
+															String( failure.category )
+													  )
+													: __(
+															'Failure',
+															'ai-multilingual'
+													  ) }
 											</strong>
 											{ ': ' }
 											{ failure.message }
 											{ failure.code
 												? ` (${ failure.code })`
 												: '' }
+										</p>
+									) }
+
+									{ jobItemNextActionHint(
+										jobsAssociation.item.status
+									) && (
+										<p
+											className="aiml-operations-inspector-note"
+											role="note"
+										>
+											{ jobItemNextActionHint(
+												jobsAssociation.item.status
+											) }
 										</p>
 									) }
 

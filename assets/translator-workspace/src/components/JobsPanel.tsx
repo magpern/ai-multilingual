@@ -36,6 +36,11 @@ interface JobsPanelProps {
 	canRun: boolean;
 	focusedJobId?: number | null;
 	focusedItemId?: number | null;
+	onOpenOperations?: ( args: {
+		sourceType: string;
+		sourceId: number;
+		languageId: number;
+	} ) => void;
 }
 
 interface PendingAction {
@@ -45,6 +50,12 @@ interface PendingAction {
 
 const PER_PAGE = 20;
 
+const ACTIVE_POLL_STATUSES = new Set( [
+	'queued',
+	'running',
+	'retry_wait',
+] );
+
 export default function JobsPanel( {
 	languages,
 	canManage,
@@ -52,6 +63,7 @@ export default function JobsPanel( {
 	canRun,
 	focusedJobId = null,
 	focusedItemId = null,
+	onOpenOperations,
 }: JobsPanelProps ) {
 	const [ statusFilter, setStatusFilter ] = useState< JobStatus | 'all' >(
 		'all'
@@ -149,6 +161,24 @@ export default function JobsPanel( {
 	useEffect( () => {
 		loadJobs();
 	}, [ loadJobs ] );
+
+	useEffect( () => {
+		const hasActive = jobs.some( ( job ) =>
+			ACTIVE_POLL_STATUSES.has( job.status )
+		);
+		if ( ! hasActive ) {
+			return;
+		}
+
+		const timer = window.setInterval( () => {
+			loadJobs();
+			loadHealth();
+		}, 8000 );
+
+		return () => {
+			window.clearInterval( timer );
+		};
+	}, [ jobs, loadJobs, loadHealth ] );
 
 	useEffect( () => {
 		if ( null === focusedJobId || focusedJobId <= 0 ) {
@@ -339,6 +369,11 @@ export default function JobsPanel( {
 											canCancel={ canCancel }
 											canRun={ canRun }
 											busy={ actionBusy }
+											focusedItemId={
+												expandedJobId === job.job_id
+													? focusedItemId
+													: null
+											}
 											onToggleExpand={ ( jobId ) =>
 												setExpandedJobId( ( current ) =>
 													current === jobId ? null : jobId
@@ -347,6 +382,7 @@ export default function JobsPanel( {
 											onAction={ ( jobId, action ) =>
 												setPendingAction( { jobId, action } )
 											}
+											onOpenOperations={ onOpenOperations }
 										/>
 									) ) }
 								</tbody>
@@ -400,7 +436,15 @@ export default function JobsPanel( {
 					onClose={ () => setCreateOpen( false ) }
 					onCreated={ () => {
 						setMessage(
-							__( 'Translation job created.', 'ai-multilingual' )
+							canRun
+								? __(
+										'Translation job created and waiting. Expand the job and use Run now to start processing.',
+										'ai-multilingual'
+								  )
+								: __(
+										'Translation job created and waiting. An administrator must use Run now to start processing.',
+										'ai-multilingual'
+								  )
 						);
 						loadJobs();
 						loadHealth();

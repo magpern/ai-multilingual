@@ -200,6 +200,43 @@ final class JobsRestTest extends AimlTestCase {
 		$this->assertSame( 403, $response->get_status() );
 	}
 
+	/**
+	 * P2 A1 — multi-post Workspace create without manual segment keys.
+	 */
+	public function test_bulk_create_without_segment_keys_resolves_missing(): void {
+		$language = $this->add_language();
+		$post_a   = $this->create_block_page( '550e8400-e29b-41d4-a716-4466554400aa' );
+		$post_b   = $this->create_block_page( '550e8400-e29b-41d4-a716-4466554400bb' );
+		wp_set_current_user( $this->create_translator() );
+
+		$request = new WP_REST_Request( 'POST', '/aiml/v1/jobs' );
+		$request->set_body_params(
+			array(
+				'language_id'    => (int) $language->language_id,
+				'prompt_profile' => 'default',
+				'prompt_version' => '1',
+				'posts'          => array(
+					array( 'source_id' => (int) $post_a->ID ),
+					array( 'source_id' => (int) $post_b->ID ),
+				),
+			)
+		);
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 201, $response->get_status(), wp_json_encode( $response->get_data() ) );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'batch_id', $data );
+		$this->assertNotEmpty( $data['batch_id'] );
+		$this->assertCount( 2, $data['jobs'] );
+
+		foreach ( $data['jobs'] as $job ) {
+			$this->assertSame( JobTypes::BULK_TRANSLATE, $job['job_type'] );
+			$this->assertGreaterThan( 0, (int) $job['total_items'] );
+			$this->assertArrayNotHasKey( 'prompt', $job );
+		}
+	}
+
 	public function test_get_job_requires_edit_post_on_source(): void {
 		$language = $this->add_language();
 		$owner    = (int) self::factory()->user->create( array( 'role' => 'author' ) );
