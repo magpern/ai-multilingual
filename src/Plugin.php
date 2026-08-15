@@ -604,7 +604,9 @@ final class Plugin {
 		$woo_product_reindex = new \AIMultilingual\Jobs\WooProductRouteReindexJob(
 			$frontier_repository,
 			$route_publication,
-			$slug_routes
+			$slug_routes,
+			new \AIMultilingual\Routing\WooProductDependencyRepository(),
+			$this->settings
 		);
 		$woo_product_reindex->register_hooks();
 

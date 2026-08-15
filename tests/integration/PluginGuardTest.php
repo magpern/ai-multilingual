@@ -98,6 +98,7 @@ final class PluginGuardTest extends AimlTestCase {
 	public function test_no_direct_writes_to_core_content_tables(): void {
 		$allowed_reads = array(
 			'src/Routing/HierarchyChildRepository.php',
+			'src/Routing/WooProductDependencyRepository.php',
 		);
 
 		foreach ( $this->sources() as $path => $code ) {
@@ -138,6 +139,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Routing/RouteHistoryRepository.php',
 			'src/Routing/ReindexFrontierRepository.php',
 			'src/Routing/HierarchyChildRepository.php',
+			'src/Routing/WooProductDependencyRepository.php',
 			'src/Routing/RoutePublicationService.php',
 		);
 
@@ -1275,6 +1277,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertFileExists( $this->root() . '/src/Routing/WooProductCategoryAuthority.php' );
 		$this->assertFileExists( $this->root() . '/src/Routing/WooProductPathBuilder.php' );
 		$this->assertFileExists( $this->root() . '/src/Routing/WooProductPermalinkFingerprint.php' );
+		$this->assertFileExists( $this->root() . '/src/Routing/WooProductDependencyRepository.php' );
 		$this->assertFileExists( $this->root() . '/src/Jobs/WooProductRouteReindexJob.php' );
 
 		$authority = (string) file_get_contents( $this->root() . '/src/Routing/WooProductCategoryAuthority.php' );

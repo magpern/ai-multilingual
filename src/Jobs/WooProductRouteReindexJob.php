@@ -13,7 +13,9 @@ use AIMultilingual\Routing\FrontierRecord;
 use AIMultilingual\Routing\ReindexFrontierRepository;
 use AIMultilingual\Routing\RoutePublicationService;
 use AIMultilingual\Routing\SlugRouteRepository;
+use AIMultilingual\Routing\WooProductDependencyRepository;
 use AIMultilingual\Routing\WooProductPermalinkFingerprint;
+use AIMultilingual\Settings;
 use AIMultilingual\Translation\Store;
 use WP_Error;
 
@@ -45,14 +47,18 @@ final class WooProductRouteReindexJob {
 	/**
 	 * Constructs the Woo product rematerialization job.
 	 *
-	 * @param ReindexFrontierRepository $frontiers   Frontier repository.
-	 * @param RoutePublicationService   $publication Rematerialization.
-	 * @param SlugRouteRepository       $routes      Routes.
+	 * @param ReindexFrontierRepository      $frontiers   Frontier repository.
+	 * @param RoutePublicationService        $publication Rematerialization.
+	 * @param SlugRouteRepository            $routes      Routes.
+	 * @param WooProductDependencyRepository $discovery   Product discovery.
+	 * @param Settings|null                  $settings    Settings (fingerprint refresh).
 	 */
 	public function __construct(
 		private ReindexFrontierRepository $frontiers,
 		private RoutePublicationService $publication,
-		private SlugRouteRepository $routes
+		private SlugRouteRepository $routes,
+		private WooProductDependencyRepository $discovery,
+		private ?Settings $settings = null
 	) {
 	}
 
@@ -99,9 +105,14 @@ final class WooProductRouteReindexJob {
 	/**
 	 * Enqueues global Woo product config rematerialization.
 	 *
+	 * Clears the admitted fingerprint immediately so generation fail-closes
+	 * until rematerialization completes successfully.
+	 *
 	 * @return object|WP_Error
 	 */
 	public function enqueue_woo_config() {
+		$this->invalidate_admitted_fingerprint();
+
 		$fingerprint = ( new WooProductPermalinkFingerprint() )->hash();
 		$checkpoint  = array(
 			'generation'        => 0,
@@ -198,14 +209,21 @@ final class WooProductRouteReindexJob {
 
 		while ( $processed < self::MAX_PER_TICK ) {
 			$ids = self::TYPE_PRODUCT_DEP === $parent_type
-				? $this->list_products_for_category_subtree( $parent_id, $last_id, 1 )
-				: $this->list_all_products_after( $last_id, 1 );
+				? $this->discovery->list_products_for_category_subtree( $parent_id, $last_id, 1 )
+				: $this->discovery->list_all_products_after( $last_id, 1 );
 
 			if ( array() === $ids ) {
 				$status = ( array() !== (array) ( $checkpoint['conflict_ids'] ?? array() ) || ! empty( $checkpoint['conflict_overflow'] ) )
 					? self::STATUS_DEGRADED
 					: self::STATUS_COMPLETED;
 				$this->persist( $parent_type, $parent_id, $checkpoint, $status, $generation );
+				if ( self::TYPE_WOO_CONFIG === $parent_type && self::STATUS_COMPLETED === $status ) {
+					$current_fp = ( new WooProductPermalinkFingerprint() )->hash();
+					$planned_fp = (string) ( $checkpoint['fingerprint'] ?? '' );
+					if ( '' !== $planned_fp && hash_equals( $planned_fp, $current_fp ) ) {
+						$this->commit_admitted_fingerprint( $current_fp );
+					}
+				}
 
 				return array(
 					'status'    => $status,
@@ -256,77 +274,38 @@ final class WooProductRouteReindexJob {
 	}
 
 	/**
-	 * Products assigned to term or its descendants, after cursor.
-	 *
-	 * @param int $term_id  Root category.
-	 * @param int $after_id Last product id.
-	 * @param int $limit    Bound.
-	 * @return list<int>
+	 * Clears admitted Woo fingerprint so generation fail-closes during transition.
 	 */
-	private function list_products_for_category_subtree( int $term_id, int $after_id, int $limit ): array {
-		global $wpdb;
-
-		$term_ids = array( $term_id );
-		$children = get_term_children( $term_id, 'product_cat' );
-		if ( is_array( $children ) ) {
-			foreach ( $children as $child ) {
-				$term_ids[] = (int) $child;
-			}
+	private function invalidate_admitted_fingerprint(): void {
+		if ( null === $this->settings ) {
+			return;
 		}
-		$term_ids = array_values( array_unique( array_filter( array_map( 'intval', $term_ids ) ) ) );
-		if ( array() === $term_ids ) {
-			return array();
-		}
-
-		$placeholders = implode( ',', array_fill( 0, count( $term_ids ), '%d' ) );
-		$params       = array_merge( $term_ids, array( $after_id, $limit ) );
-
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-		$sql = $wpdb->prepare(
-			"SELECT DISTINCT tr.object_id FROM {$wpdb->term_relationships} AS tr
-			INNER JOIN {$wpdb->term_taxonomy} AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-			INNER JOIN {$wpdb->posts} AS p ON p.ID = tr.object_id
-			WHERE tt.taxonomy = 'product_cat'
-			  AND tt.term_id IN ($placeholders)
-			  AND p.post_type = 'product'
-			  AND p.ID > %d
-			ORDER BY p.ID ASC
-			LIMIT %d",
-			...$params
+		$next = array_merge(
+			$this->settings->get(),
+			array( 'localized_urls_woo_product_fingerprint' => '' )
 		);
-		$ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		// phpcs:enable
-
-		return array_map( 'intval', is_array( $ids ) ? $ids : array() );
+		$this->settings->save( Settings::sanitize( $next ) );
+		$this->settings->reload();
 	}
 
 	/**
-	 * Lists product IDs after a cursor for global config rematerialization.
+	 * Persists the rematerialized config fingerprint after safe completion.
 	 *
-	 * @param int $after_id After product id.
-	 * @param int $limit    Bound.
-	 * @return list<int>
+	 * @param string $fingerprint Hash from checkpoint or current config.
 	 */
-	private function list_all_products_after( int $after_id, int $limit ): array {
-		global $wpdb;
-
-		$limit = max( 1, min( 50, $limit ) );
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare(
-				"SELECT ID FROM {$wpdb->posts}
-				WHERE post_type = 'product'
-				  AND post_status IN ('publish','private','draft')
-				  AND ID > %d
-				ORDER BY ID ASC
-				LIMIT %d",
-				$after_id,
-				$limit
-			)
+	private function commit_admitted_fingerprint( string $fingerprint ): void {
+		if ( null === $this->settings ) {
+			return;
+		}
+		if ( '' === $fingerprint ) {
+			$fingerprint = ( new WooProductPermalinkFingerprint() )->hash();
+		}
+		$next = array_merge(
+			$this->settings->get(),
+			array( 'localized_urls_woo_product_fingerprint' => $fingerprint )
 		);
-		// phpcs:enable
-
-		return array_map( 'intval', is_array( $ids ) ? $ids : array() );
+		$this->settings->save( Settings::sanitize( $next ) );
+		$this->settings->reload();
 	}
 
 	/**
