@@ -30,12 +30,12 @@ final class EffectiveUrlService {
 	/**
 	 * Builds the effective URL service.
 	 *
-	 * @param Settings                     $settings     Plugin settings.
-	 * @param SlugRouteRepository          $routes       Route repository.
-	 * @param RoutingCapabilityRegistry    $capabilities Capability registry.
-	 * @param PathCanonicalizer            $paths        Path canonicalizer.
-	 * @param Languages                    $languages    Language registry.
-	 * @param RoutingCapabilityAdmission   $admission     Public admission authority.
+	 * @param Settings                   $settings     Plugin settings.
+	 * @param SlugRouteRepository        $routes       Route repository.
+	 * @param RoutingCapabilityRegistry  $capabilities Capability registry.
+	 * @param PathCanonicalizer          $paths        Path canonicalizer.
+	 * @param Languages                  $languages    Language registry.
+	 * @param RoutingCapabilityAdmission $admission     Public admission authority.
 	 */
 	public function __construct(
 		private Settings $settings,

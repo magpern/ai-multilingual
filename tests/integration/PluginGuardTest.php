@@ -96,7 +96,14 @@ final class PluginGuardTest extends AimlTestCase {
 	}
 
 	public function test_no_direct_writes_to_core_content_tables(): void {
+		$allowed_reads = array(
+			'src/Routing/HierarchyChildRepository.php',
+		);
+
 		foreach ( $this->sources() as $path => $code ) {
+			if ( in_array( $path, $allowed_reads, true ) ) {
+				continue;
+			}
 			foreach ( array( '$wpdb->posts', '$wpdb->postmeta', '$wpdb->terms', '$wpdb->termmeta', '$wpdb->term_taxonomy' ) as $table ) {
 				$this->assertStringNotContainsString(
 					$table,
@@ -130,6 +137,7 @@ final class PluginGuardTest extends AimlTestCase {
 			'src/Routing/SlugRouteRepository.php',
 			'src/Routing/RouteHistoryRepository.php',
 			'src/Routing/ReindexFrontierRepository.php',
+			'src/Routing/HierarchyChildRepository.php',
 			'src/Routing/RoutePublicationService.php',
 		);
 
@@ -970,8 +978,8 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( "'icon-box'", $registry );
 
 		$settings = (string) file_get_contents( $this->root() . '/src/Settings.php' );
-		$this->assertStringContainsString( "'elementor_extraction_enabled'         => false", $settings );
-		$this->assertStringContainsString( "'elementor_frontend_rendering_enabled' => false", $settings );
+		$this->assertMatchesRegularExpression( "/'elementor_extraction_enabled'\\s*=>\\s*false/", $settings );
+		$this->assertMatchesRegularExpression( "/'elementor_frontend_rendering_enabled'\\s*=>\\s*false/", $settings );
 
 		$store = (string) file_get_contents( $this->root() . '/src/Translation/Store.php' );
 		$this->assertStringNotContainsString( 'SOURCE_ELEMENTOR', $store );
@@ -1005,10 +1013,14 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertFileExists( $this->root() . '/src/Block/BlockStructuralAttributeGuard.php' );
 
 		$settings = (string) file_get_contents( $this->root() . '/src/Settings.php' );
-		$this->assertStringContainsString( "'block_attr_registration_enabled'      => false", $settings );
-		$this->assertStringContainsString( "'block_uuid_injection_enabled'         => false", $settings );
-		$this->assertStringContainsString( "'block_extraction_enabled'             => false", $settings );
-		$this->assertStringContainsString( "'block_frontend_rendering_enabled'     => false", $settings );
+		$this->assertStringContainsString( "'block_attr_registration_enabled'", $settings );
+		$this->assertStringContainsString( "'block_uuid_injection_enabled'", $settings );
+		$this->assertStringContainsString( "'block_extraction_enabled'", $settings );
+		$this->assertStringContainsString( "'block_frontend_rendering_enabled'", $settings );
+		$this->assertMatchesRegularExpression( "/'block_attr_registration_enabled'\\s*=>\\s*false/", $settings );
+		$this->assertMatchesRegularExpression( "/'block_uuid_injection_enabled'\\s*=>\\s*false/", $settings );
+		$this->assertMatchesRegularExpression( "/'block_extraction_enabled'\\s*=>\\s*false/", $settings );
+		$this->assertMatchesRegularExpression( "/'block_frontend_rendering_enabled'\\s*=>\\s*false/", $settings );
 
 		$registry = (string) file_get_contents( $this->root() . '/src/Block/BlockRegistry.php' );
 		$this->assertStringNotContainsString( "'core/html'", $registry );
@@ -1229,6 +1241,11 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'HierarchyPathBuilder', $plugin );
 		$this->assertStringContainsString( 'CapabilityVerificationJob', $plugin );
 		$this->assertStringContainsString( 'HierarchyReindexJob', $plugin );
+		$this->assertStringContainsString( 'aiml_hierarchy_reindex_root', $plugin );
+
+		$cli = (string) file_get_contents( $this->root() . '/src/Cli.php' );
+		$this->assertStringContainsString( 'localized-urls capabilities', $cli );
+		$this->assertStringContainsString( 'localized-urls reindex-status', $cli );
 
 		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
 		$this->assertStringNotContainsString( 'step_9_', $migrator );

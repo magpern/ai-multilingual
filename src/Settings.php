@@ -66,18 +66,18 @@ final class Settings {
 	 */
 	public static function defaults(): array {
 		return array(
-			'schema_version'                       => self::SCHEMA_VERSION,
+			'schema_version'                           => self::SCHEMA_VERSION,
 
 			/*
 			 * Data retention on uninstall. Default off: translation work is
 			 * expensive to recreate and deleting it must be a deliberate act
 			 * (invariant I5).
 			 */
-			'remove_data_on_uninstall'             => false,
+			'remove_data_on_uninstall'                 => false,
 
 			// Language switcher presentation.
-			'switcher_show_native_name'            => true,
-			'switcher_hide_current'                => false,
+			'switcher_show_native_name'                => true,
+			'switcher_hide_current'                    => false,
 
 			/*
 			 * Strategy F (F1): block attribute registration.
@@ -87,7 +87,7 @@ final class Settings {
 			 * registration becomes a compatibility requirement — not a normal
 			 * post-rollout kill switch (see Strategy F plan §2.2).
 			 */
-			'block_attr_registration_enabled'      => false,
+			'block_attr_registration_enabled'          => false,
 
 			/*
 			 * Strategy F (F2): save-time UUID injection on canonical posts.
@@ -95,7 +95,7 @@ final class Settings {
 			 * Requires attribute registration. Default off so production
 			 * behavior is unchanged until deliberately enabled.
 			 */
-			'block_uuid_injection_enabled'         => false,
+			'block_uuid_injection_enabled'             => false,
 
 			/*
 			 * Strategy F (F4): block-level extraction for sync_source reconciliation.
@@ -103,7 +103,7 @@ final class Settings {
 			 * Requires attribute registration and UUID injection. Default off so
 			 * production behavior is unchanged until deliberately enabled.
 			 */
-			'block_extraction_enabled'             => false,
+			'block_extraction_enabled'                 => false,
 
 			/*
 			 * Strategy F (F6): gated frontend block rendering.
@@ -112,40 +112,40 @@ final class Settings {
 			 * extraction. Default off so production behavior is unchanged until
 			 * deliberately enabled.
 			 */
-			'block_frontend_rendering_enabled'     => false,
+			'block_frontend_rendering_enabled'         => false,
 
 			/*
 			 * A.2 Elementor Foundation: extraction of allowlisted widget controls.
 			 * Default off until deliberately enabled after validation.
 			 */
-			'elementor_extraction_enabled'         => false,
+			'elementor_extraction_enabled'             => false,
 
 			/*
 			 * A.2 Elementor Foundation: request-time frontend overlays.
 			 * Requires elementor_extraction_enabled. Default off.
 			 */
-			'elementor_frontend_rendering_enabled' => false,
+			'elementor_frontend_rendering_enabled'     => false,
 
 			/*
 			 * F11 AI provider configuration (server-side only; API key encrypted).
 			 */
-			'ai_enabled'                           => false,
-			'ai_provider'                          => '',
-			'ai_model'                             => '',
-			'ai_api_key_encrypted'                 => '',
-			'qa_block_on_error'                    => true,
+			'ai_enabled'                               => false,
+			'ai_provider'                              => '',
+			'ai_model'                                 => '',
+			'ai_api_key_encrypted'                     => '',
+			'qa_block_on_error'                        => true,
 
 			/*
 			 * TI.7 / ADR-0020: segment publication gate (rollout). Default off so
 			 * upgrades preserve pre-TI.7 overlay behavior until operators opt in.
 			 */
-			'segment_publication_gate_enabled'     => false,
+			'segment_publication_gate_enabled'         => false,
 
 			/*
 			 * TI.7 / ADR-0020: automatic publication mode. Default manual —
 			 * installing TI.7 must never begin auto-publication.
 			 */
-			'auto_publication_mode'                => 'manual',
+			'auto_publication_mode'                    => 'manual',
 
 			/*
 			 * MSEO / ADR-0023: localized URL activation state machine.

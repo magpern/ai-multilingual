@@ -116,7 +116,7 @@ final class HierarchyPathBuilder {
 			return $this->replace_leaf( $source, $own_leaf );
 		}
 
-		$segments = array();
+		$segments  = array();
 		$ancestors = array_reverse( get_post_ancestors( $post ) );
 		foreach ( $ancestors as $ancestor_id ) {
 			$ancestor = get_post( (int) $ancestor_id );
@@ -151,8 +151,8 @@ final class HierarchyPathBuilder {
 			return $source;
 		}
 
-		$source_str = $source->to_string();
-		$leaf       = sanitize_title( $own_leaf );
+		$source_str  = $source->to_string();
+		$leaf        = sanitize_title( $own_leaf );
 		$source_leaf = sanitize_title( (string) $term->slug );
 
 		// Replace trailing source leaf with localized leaf; keep base prefixes.
@@ -193,7 +193,7 @@ final class HierarchyPathBuilder {
 			if ( '' !== $slug ) {
 				return sanitize_title( $slug );
 			}
-			$loc = (string) ( $route->localized_path ?? '' );
+			$loc   = (string) ( $route->localized_path ?? '' );
 			$parts = array_values( array_filter( explode( '/', trim( $loc, '/' ) ) ) );
 			if ( array() !== $parts ) {
 				return sanitize_title( (string) end( $parts ) );
@@ -238,7 +238,7 @@ final class HierarchyPathBuilder {
 	 * @param string  $path        Path being built.
 	 */
 	private function substitute_term_ancestor_leaves( WP_Term $term, int $language_id, string $path ): string {
-		$taxonomy = (string) $term->taxonomy;
+		$taxonomy  = (string) $term->taxonomy;
 		$parent_id = (int) $term->parent;
 		while ( $parent_id > 0 ) {
 			$parent = get_term( $parent_id, $taxonomy );

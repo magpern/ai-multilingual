@@ -24,8 +24,8 @@ final class RoutingCapabilityAdmission {
 	 */
 	public const CODE_CAPABILITY_EPOCH = 1;
 
-	public const SHAPE_TERM_ARCHIVE       = 'term_archive';
-	public const SHAPE_PAGE_HIERARCHICAL  = 'page_hierarchical';
+	public const SHAPE_TERM_ARCHIVE      = 'term_archive';
+	public const SHAPE_PAGE_HIERARCHICAL = 'page_hierarchical';
 
 	/**
 	 * Shapes this code generation knows how to verify/admit.
@@ -98,8 +98,8 @@ final class RoutingCapabilityAdmission {
 	/**
 	 * Persists admission only after a complete successful verification pass.
 	 *
-	 * @param list<string> $shapes Shape ids to admit (union with existing).
-	 * @param int          $epoch  Verified capability epoch to set.
+	 * @param array<int, string> $shapes Shape ids to admit (union with existing).
+	 * @param int                $epoch  Verified capability epoch to set.
 	 */
 	public function commit_admission( array $shapes, int $epoch ): void {
 		$allowed  = self::CODE_SHAPES;

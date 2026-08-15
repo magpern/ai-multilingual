@@ -26,11 +26,11 @@ final class ObjectLanguagePublicEligibility {
 	/**
 	 * Constructs the service.
 	 *
-	 * @param Store                          $store        Store.
-	 * @param Languages                      $languages    Languages.
-	 * @param RoutingCapabilityRegistry      $capabilities Capabilities.
-	 * @param Settings                       $settings     Plugin settings.
-	 * @param SlugRouteRepository            $routes       Route repository.
+	 * @param Store                           $store        Store.
+	 * @param Languages                       $languages    Languages.
+	 * @param RoutingCapabilityRegistry       $capabilities Capabilities.
+	 * @param Settings                        $settings     Plugin settings.
+	 * @param SlugRouteRepository             $routes       Route repository.
 	 * @param RoutingCapabilityAdmission|null $admission    Public admission authority.
 	 */
 	public function __construct(
@@ -217,7 +217,7 @@ final class ObjectLanguagePublicEligibility {
 			if ( ! is_object( $row ) ) {
 				continue;
 			}
-			if ( $slug_key === (string) ( $row->segment_key ?? '' ) ) {
+			if ( (string) ( $row->segment_key ?? '' ) === $slug_key ) {
 				continue;
 			}
 			if ( Store::is_publicly_overlay_eligible( $row ) ) {

@@ -137,14 +137,14 @@ final class Router {
 	/**
 	 * Builds the router.
 	 *
-	 * @param Languages               $languages     Language configuration.
-	 * @param LanguageResolver        $resolver      Pure resolver.
-	 * @param LanguageContext         $context       Request language state.
-	 * @param EffectiveUrlService     $effective_url Effective URL authority.
-	 * @param Settings                $settings      Plugin settings.
-	 * @param PathCanonicalizer       $paths         Path canonicalizer.
-	 * @param SlugRouteRepository     $routes        Route repository.
-	 * @param RouteHistoryRepository  $history       History repository.
+	 * @param Languages                 $languages     Language configuration.
+	 * @param LanguageResolver          $resolver      Pure resolver.
+	 * @param LanguageContext           $context       Request language state.
+	 * @param EffectiveUrlService       $effective_url Effective URL authority.
+	 * @param Settings                  $settings      Plugin settings.
+	 * @param PathCanonicalizer         $paths         Path canonicalizer.
+	 * @param SlugRouteRepository       $routes        Route repository.
+	 * @param RouteHistoryRepository    $history       History repository.
 	 * @param HierarchyPathBuilder|null $hierarchy   Hierarchy path builder.
 	 */
 	public function __construct(
@@ -593,9 +593,9 @@ final class Router {
 	/**
 	 * Localizes outbound term archive URLs when generation + admission allow.
 	 *
-	 * @param string  $url      Term link URL.
+	 * @param string   $url      Term link URL.
 	 * @param \WP_Term $term    Term.
-	 * @param string  $taxonomy Taxonomy slug.
+	 * @param string   $taxonomy Taxonomy slug.
 	 */
 	public function filter_term_link( $url, $term, $taxonomy ) {
 		if ( ! is_string( $url ) || ! $this->context->is_translated() ) {

@@ -121,6 +121,7 @@ use AIMultilingual\Rollout\Cache\RolloutRenderCacheBridge;
 use AIMultilingual\Rollout\Metrics\RolloutMetricsCollector;
 use AIMultilingual\Routing\EffectiveUrlService;
 use AIMultilingual\Routing\HierarchyPathBuilder;
+use AIMultilingual\Routing\HierarchyChildRepository;
 use AIMultilingual\Routing\LocalizedUrlsActivationService;
 use AIMultilingual\Routing\PathCanonicalizer;
 use AIMultilingual\Routing\ReindexFrontierRepository;
@@ -276,7 +277,7 @@ final class Plugin {
 		$slug_routes          = new SlugRouteRepository();
 		$route_history        = new RouteHistoryRepository();
 		$routing_capabilities = new RoutingCapabilityRegistry();
-		$routing_admission   = new RoutingCapabilityAdmission( $settings, $routing_capabilities );
+		$routing_admission    = new RoutingCapabilityAdmission( $settings, $routing_capabilities );
 		$hierarchy_paths      = new HierarchyPathBuilder( $slug_routes, $path_canonicalizer );
 		$effective_url        = new EffectiveUrlService(
 			$settings,
@@ -586,9 +587,61 @@ final class Plugin {
 		$hierarchy_reindex = new HierarchyReindexJob(
 			new ReindexFrontierRepository(),
 			$route_publication,
+			new HierarchyChildRepository(),
 			$slug_routes
 		);
 		$hierarchy_reindex->register_hooks();
+
+		add_action(
+			'aiml_hierarchy_reindex_root',
+			static function ( $source_type, $source_id ) use ( $hierarchy_reindex ): void {
+				$hierarchy_reindex->enqueue_root( (string) $source_type, (int) $source_id );
+			},
+			10,
+			2
+		);
+
+		add_action(
+			'post_updated',
+			static function ( $post_id, $post_after, $post_before ) use ( $hierarchy_reindex ): void {
+				if ( ! $post_after instanceof \WP_Post || ! $post_before instanceof \WP_Post ) {
+					return;
+				}
+				if ( 'page' !== $post_after->post_type ) {
+					return;
+				}
+				$parent_changed = (int) $post_after->post_parent !== (int) $post_before->post_parent;
+				$name_changed   = (string) $post_after->post_name !== (string) $post_before->post_name;
+				if ( ! $parent_changed && ! $name_changed ) {
+					return;
+				}
+				$roots = array( (int) $post_after->ID );
+				if ( (int) $post_before->post_parent > 0 ) {
+					$roots[] = (int) $post_before->post_parent;
+				}
+				if ( (int) $post_after->post_parent > 0 ) {
+					$roots[] = (int) $post_after->post_parent;
+				}
+				foreach ( array_unique( $roots ) as $root_id ) {
+					$hierarchy_reindex->enqueue_root( Store::SOURCE_POST, (int) $root_id );
+				}
+			},
+			20,
+			3
+		);
+
+		add_action(
+			'edited_term',
+			static function ( $term_id, $tt_id, $taxonomy ) use ( $hierarchy_reindex, $routing_capabilities ): void {
+				unset( $tt_id );
+				if ( ! $routing_capabilities->supports_term_taxonomy( (string) $taxonomy ) ) {
+					return;
+				}
+				$hierarchy_reindex->enqueue_root( Store::SOURCE_TERM, (int) $term_id );
+			},
+			20,
+			3
+		);
 
 		add_action(
 			'delete_term',
@@ -842,7 +895,20 @@ final class Plugin {
 				new BlockIdentityAnalyzer( $block_registry )
 			);
 
-			Cli::register( $languages, $store, $extractor, $migration, $health, $metrics, $seo_diagnostics, $publication, $localized_urls_activation, $slug_route_activation );
+			Cli::register(
+				$languages,
+				$store,
+				$extractor,
+				$migration,
+				$health,
+				$metrics,
+				$seo_diagnostics,
+				$publication,
+				$localized_urls_activation,
+				$slug_route_activation,
+				$routing_admission,
+				new ReindexFrontierRepository()
+			);
 			ExtensionCli::register( $extension_registrar, $extension_diagnostics );
 			RolloutCli::register();
 			JobsCli::register( $job_service, $job_batches, $job_scheduler, $job_worker, $job_leases, $job_concurrency );

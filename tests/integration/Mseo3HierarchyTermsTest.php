@@ -16,6 +16,7 @@ use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\CanonicalPathCollisionChecker;
 use AIMultilingual\Routing\EffectiveUrlService;
 use AIMultilingual\Routing\HierarchyPathBuilder;
+use AIMultilingual\Routing\HierarchyChildRepository;
 use AIMultilingual\Routing\ObjectLanguagePublicEligibility;
 use AIMultilingual\Routing\PathCanonicalizer;
 use AIMultilingual\Routing\ReindexFrontierRepository;
@@ -66,13 +67,13 @@ final class Mseo3HierarchyTermsTest extends AimlTestCase {
 		);
 		update_option( Settings::OPTION, $this->settings->get() );
 
-		$this->routes       = new SlugRouteRepository();
-		$this->paths        = new PathCanonicalizer();
-		$this->capabilities = new RoutingCapabilityRegistry();
-		$this->admission    = new RoutingCapabilityAdmission( $this->settings, $this->capabilities );
-		$this->hierarchy    = new HierarchyPathBuilder( $this->routes, $this->paths );
-		$this->candidates   = new SlugCandidateService( $this->store );
-		$this->eligibility  = new ObjectLanguagePublicEligibility(
+		$this->routes            = new SlugRouteRepository();
+		$this->paths             = new PathCanonicalizer();
+		$this->capabilities      = new RoutingCapabilityRegistry();
+		$this->admission         = new RoutingCapabilityAdmission( $this->settings, $this->capabilities );
+		$this->hierarchy         = new HierarchyPathBuilder( $this->routes, $this->paths );
+		$this->candidates        = new SlugCandidateService( $this->store );
+		$this->eligibility       = new ObjectLanguagePublicEligibility(
 			$this->store,
 			$this->languages,
 			$this->capabilities,
@@ -186,7 +187,7 @@ final class Mseo3HierarchyTermsTest extends AimlTestCase {
 				'slug'     => 'news',
 			)
 		);
-		$term = get_term( $term_id, 'category' );
+		$term     = get_term( $term_id, 'category' );
 		$this->assertInstanceOf( \WP_Term::class, $term );
 
 		$this->store->save_translation(
@@ -250,9 +251,9 @@ final class Mseo3HierarchyTermsTest extends AimlTestCase {
 	}
 
 	public function test_frontier_dfs_bounded_and_degraded_on_collision(): void {
-		$parent = $this->create_page( 'Root' );
-		$child_a = $this->create_child_page( 'Child A', (int) $parent->ID );
-		$child_b = $this->create_child_page( 'Child B', (int) $parent->ID );
+		$parent     = $this->create_page( 'Root' );
+		$child_a    = $this->create_child_page( 'Child A', (int) $parent->ID );
+		$child_b    = $this->create_child_page( 'Child B', (int) $parent->ID );
 		$grandchild = $this->create_child_page( 'Grandchild', (int) $child_a->ID );
 
 		$language = $this->add_language( 'it', 'it_IT', Languages::STATUS_PUBLISHED );
@@ -271,13 +272,14 @@ final class Mseo3HierarchyTermsTest extends AimlTestCase {
 		$job = new HierarchyReindexJob(
 			new ReindexFrontierRepository(),
 			$this->route_publication,
+			new HierarchyChildRepository(),
 			$this->routes
 		);
 
 		$enqueued = $job->enqueue_root( Store::SOURCE_POST, (int) $parent->ID );
 		$this->assertIsObject( $enqueued );
 
-		$ticks = 0;
+		$ticks  = 0;
 		$status = 'running';
 		while ( $ticks < 20 && in_array( $status, array( 'pending', 'running' ), true ) ) {
 			$out    = $job->process_batch( Store::SOURCE_POST, (int) $parent->ID );
@@ -328,7 +330,7 @@ final class Mseo3HierarchyTermsTest extends AimlTestCase {
 			$this->routes
 		);
 
-		$guard = 0;
+		$guard  = 0;
 		$result = array( 'status' => 'continue' );
 		while ( $guard < 50 && 'admitted' !== ( $result['status'] ?? '' ) && 'failed' !== ( $result['status'] ?? '' ) ) {
 			$result = $job->process_batch();
@@ -345,6 +347,145 @@ final class Mseo3HierarchyTermsTest extends AimlTestCase {
 		$this->assertTrue( $this->admission->is_publicly_admitted( RoutingCapabilityAdmission::SHAPE_PAGE_HIERARCHICAL ) );
 	}
 
+	public function test_same_root_generation_supersedes_prior_frontier(): void {
+		$parent = $this->create_page( 'Gen Root' );
+		$this->create_child_page( 'Gen Child', (int) $parent->ID );
+
+		$job = new HierarchyReindexJob(
+			new ReindexFrontierRepository(),
+			$this->route_publication,
+			new HierarchyChildRepository(),
+			$this->routes
+		);
+
+		$first  = $job->enqueue_root( Store::SOURCE_POST, (int) $parent->ID );
+		$second = $job->enqueue_root( Store::SOURCE_POST, (int) $parent->ID );
+		$this->assertIsObject( $first );
+		$this->assertIsObject( $second );
+		$this->assertGreaterThan( (int) $first->generation, (int) $second->generation );
+
+		$row = ( new ReindexFrontierRepository() )->find_by_parent( Store::SOURCE_POST, (int) $parent->ID );
+		$this->assertNotNull( $row );
+		$this->assertSame( (int) $second->generation, (int) $row->generation );
+		$this->assertSame( HierarchyReindexJob::STATUS_PENDING, (string) $row->status );
+	}
+
+	public function test_term_source_path_respects_custom_category_base(): void {
+		$term_id = self::factory()->term->create(
+			array(
+				'taxonomy' => 'category',
+				'name'     => 'Sports',
+				'slug'     => 'sports',
+			)
+		);
+		$term    = get_term( $term_id, 'category' );
+		$this->assertInstanceOf( \WP_Term::class, $term );
+
+		// Prove source-path authority is get_term_link (custom base included in link).
+		add_filter(
+			'term_link',
+			static function () {
+				return home_url( '/topics/sports/' );
+			},
+			10,
+			0
+		);
+
+		$source = $this->hierarchy->source_path_for_term( $term );
+		$this->assertNotInstanceOf( \WP_Error::class, $source );
+		$path = $source->to_string();
+		$this->assertSame( '/topics/sports', $path );
+
+		remove_all_filters( 'term_link' );
+	}
+
+	public function test_rematerialize_does_not_mutate_slug_candidate(): void {
+		$language = $this->add_language( 'nl', 'nl_NL', Languages::STATUS_PUBLISHED );
+		$parent   = $this->create_page( 'Parents' );
+		$child    = $this->create_child_page( 'Kids', (int) $parent->ID );
+
+		$this->translate( $parent, $language, Extractor::FIELD_TITLE, 'Ouders' );
+		$this->candidates->generate( $parent, (int) $language->language_id );
+		$this->route_publication->publish_route( $parent, (int) $language->language_id );
+
+		$this->translate( $child, $language, Extractor::FIELD_TITLE, 'Kinderen' );
+		$this->candidates->generate( $child, (int) $language->language_id );
+		$this->route_publication->publish_route( $child, (int) $language->language_id );
+
+		$before = $this->store->get( Store::SOURCE_POST, (int) $child->ID, (int) $language->language_id, Extractor::FIELD_SLUG );
+		$this->assertIsObject( $before );
+		$before_text   = (string) $before->translated_text;
+		$before_origin = (string) $before->slug_origin;
+		$before_status = (string) $before->publish_status;
+
+		$remat = $this->route_publication->rematerialize_route(
+			Store::SOURCE_POST,
+			(int) $child->ID,
+			(int) $language->language_id
+		);
+		$this->assertNotInstanceOf( \WP_Error::class, $remat );
+
+		$after = $this->store->get( Store::SOURCE_POST, (int) $child->ID, (int) $language->language_id, Extractor::FIELD_SLUG );
+		$this->assertIsObject( $after );
+		$this->assertSame( $before_text, (string) $after->translated_text );
+		$this->assertSame( $before_origin, (string) $after->slug_origin );
+		$this->assertSame( $before_status, (string) $after->publish_status );
+	}
+
+	public function test_multi_tick_frontier_processes_bounded_batches(): void {
+		$parent = $this->create_page( 'Batch Root' );
+		for ( $i = 0; $i < HierarchyReindexJob::MAX_PER_TICK + 5; $i++ ) {
+			$this->create_child_page( 'Batch Child ' . $i, (int) $parent->ID );
+		}
+
+		$job = new HierarchyReindexJob(
+			new ReindexFrontierRepository(),
+			$this->route_publication,
+			new HierarchyChildRepository(),
+			$this->routes
+		);
+		$job->enqueue_root( Store::SOURCE_POST, (int) $parent->ID );
+
+		$first = $job->process_batch( Store::SOURCE_POST, (int) $parent->ID );
+		$this->assertSame( HierarchyReindexJob::STATUS_RUNNING, (string) ( $first['status'] ?? '' ) );
+		$this->assertSame( HierarchyReindexJob::MAX_PER_TICK, (int) ( $first['processed'] ?? 0 ) );
+
+		$row = ( new ReindexFrontierRepository() )->find_by_parent( Store::SOURCE_POST, (int) $parent->ID );
+		$this->assertNotNull( $row );
+		$checkpoint = json_decode( (string) ( $row->checkpoint_json ?? '' ), true );
+		$this->assertIsArray( $checkpoint );
+		$this->assertNotEmpty( $checkpoint['stack'] );
+		$this->assertLessThanOrEqual( HierarchyReindexJob::MAX_STACK_DEPTH, count( (array) $checkpoint['stack'] ) );
+
+		$second = $job->process_batch( Store::SOURCE_POST, (int) $parent->ID );
+		$this->assertGreaterThan( 0, (int) ( $second['processed'] ?? 0 ) );
+	}
+
+	public function test_publish_signals_hierarchy_reindex_action(): void {
+		$language = $this->add_language( 'pl', 'pl_PL', Languages::STATUS_PUBLISHED );
+		$parent   = $this->create_page( 'Signal Parent' );
+		$child    = $this->create_child_page( 'Signal Child', (int) $parent->ID );
+
+		$seen = array();
+		add_action(
+			'aiml_hierarchy_reindex_root',
+			static function ( $type, $id ) use ( &$seen ): void {
+				$seen[] = array( (string) $type, (int) $id );
+			},
+			10,
+			2
+		);
+
+		$this->translate( $parent, $language, Extractor::FIELD_TITLE, 'Sygnal Rodzic' );
+		$this->candidates->generate( $parent, (int) $language->language_id );
+		$this->route_publication->publish_route( $parent, (int) $language->language_id );
+
+		$this->assertNotEmpty( $seen );
+		$this->assertSame( Store::SOURCE_POST, $seen[0][0] );
+		$this->assertSame( (int) $parent->ID, $seen[0][1] );
+		unset( $child );
+	}
+
 	/**
 	 * Creates a child page under a parent.
 	 *
@@ -352,7 +493,7 @@ final class Mseo3HierarchyTermsTest extends AimlTestCase {
 	 * @param int    $parent_id Parent post id.
 	 */
 	private function create_child_page( string $title, int $parent_id ): \WP_Post {
-		$id = self::factory()->post->create(
+		$id   = self::factory()->post->create(
 			array(
 				'post_type'   => 'page',
 				'post_title'  => $title,

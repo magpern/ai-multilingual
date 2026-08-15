@@ -18,6 +18,9 @@ use AIMultilingual\Block\BlockMetricsSnapshot;
 use AIMultilingual\Block\BlockMigrationOptions;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\LocalizedUrlsActivationService;
+use AIMultilingual\Routing\ReindexFrontierRepository;
+use AIMultilingual\Routing\RoutingCapabilityAdmission;
+use AIMultilingual\Routing\RoutingCapabilityRegistry;
 use AIMultilingual\Jobs\SlugRouteActivationJob;
 use AIMultilingual\Settings;
 use AIMultilingual\Seo\Diagnostics\SeoDiagnosticsCheck;
@@ -60,6 +63,8 @@ final class Cli {
 	 * @param PublicationService|null             $publication Optional TI.7 publication service.
 	 * @param LocalizedUrlsActivationService|null $localized_urls Optional localized URL activation.
 	 * @param SlugRouteActivationJob|null         $activation_job Optional activation job diagnostics.
+	 * @param RoutingCapabilityAdmission|null     $admission Optional MSEO.3 admission authority.
+	 * @param ReindexFrontierRepository|null      $frontiers Optional frontier repository.
 	 */
 	public static function register(
 		Languages $languages,
@@ -72,6 +77,8 @@ final class Cli {
 		?PublicationService $publication = null,
 		?LocalizedUrlsActivationService $localized_urls = null,
 		?SlugRouteActivationJob $activation_job = null,
+		?RoutingCapabilityAdmission $admission = null,
+		?ReindexFrontierRepository $frontiers = null,
 	): void {
 		if ( ! class_exists( WP_CLI::class ) ) {
 			return;
@@ -208,11 +215,35 @@ final class Cli {
 		if ( null !== $localized_urls && null !== $activation_job ) {
 			WP_CLI::add_command(
 				'aiml localized-urls status',
-				static function () use ( $localized_urls, $activation_job ): void {
-					self::localized_urls_status( $localized_urls, $activation_job );
+				static function () use ( $localized_urls, $activation_job, $admission ): void {
+					self::localized_urls_status( $localized_urls, $activation_job, $admission );
 				},
 				array(
 					'shortdesc' => 'Prints localized URL activation state and frontier diagnostics.',
+				)
+			);
+		}
+
+		if ( null !== $admission ) {
+			WP_CLI::add_command(
+				'aiml localized-urls capabilities',
+				static function () use ( $admission ): void {
+					self::localized_urls_capabilities( $admission );
+				},
+				array(
+					'shortdesc' => 'Prints MSEO.3 implemented vs admitted routing capabilities.',
+				)
+			);
+		}
+
+		if ( null !== $frontiers ) {
+			WP_CLI::add_command(
+				'aiml localized-urls reindex-status',
+				static function () use ( $frontiers ): void {
+					self::localized_urls_reindex_status( $frontiers );
+				},
+				array(
+					'shortdesc' => 'Prints hierarchy reindex frontier status diagnostics.',
 				)
 			);
 		}
@@ -1053,22 +1084,99 @@ final class Cli {
 	/**
 	 * Prints localized URL activation diagnostics.
 	 *
-	 * @param LocalizedUrlsActivationService $activation Activation service.
-	 * @param SlugRouteActivationJob         $job          Activation job.
+	 * @param LocalizedUrlsActivationService  $activation Activation service.
+	 * @param SlugRouteActivationJob          $job        Activation job.
+	 * @param RoutingCapabilityAdmission|null $admission  Optional admission authority.
 	 */
 	private static function localized_urls_status(
 		LocalizedUrlsActivationService $activation,
-		SlugRouteActivationJob $job
+		SlugRouteActivationJob $job,
+		?RoutingCapabilityAdmission $admission = null
 	): void {
 		$settings = new Settings();
+
+		$payload = array(
+			'state'                     => $settings->localized_urls_state(),
+			'checkpoint_route_id'       => $activation->checkpoint_route_id(),
+			'error'                     => $settings->localized_urls_activation_error(),
+			'active_route_count'        => $job->count_active_routes(),
+			'code_capability_epoch'     => RoutingCapabilityAdmission::CODE_CAPABILITY_EPOCH,
+			'verified_capability_epoch' => $settings->localized_urls_verified_capability_epoch(),
+			'admitted_capabilities'     => $settings->localized_urls_admitted_capabilities(),
+		);
+
+		if ( null !== $admission ) {
+			$payload['term_archive_admitted']      = $admission->is_publicly_admitted( RoutingCapabilityAdmission::SHAPE_TERM_ARCHIVE );
+			$payload['page_hierarchical_admitted'] = $admission->is_publicly_admitted( RoutingCapabilityAdmission::SHAPE_PAGE_HIERARCHICAL );
+		}
+
+		WP_CLI::print_value(
+			wp_json_encode(
+				$payload,
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+			)
+		);
+	}
+
+	/**
+	 * Prints MSEO.3 capability admission diagnostics.
+	 *
+	 * @param RoutingCapabilityAdmission $admission Admission authority.
+	 */
+	private static function localized_urls_capabilities( RoutingCapabilityAdmission $admission ): void {
+		$settings = new Settings();
+		$registry = new RoutingCapabilityRegistry();
 
 		WP_CLI::print_value(
 			wp_json_encode(
 				array(
-					'state'               => $settings->localized_urls_state(),
-					'checkpoint_route_id' => $activation->checkpoint_route_id(),
-					'error'               => $settings->localized_urls_activation_error(),
-					'active_route_count'  => $job->count_active_routes(),
+					'code_capability_epoch'     => RoutingCapabilityAdmission::CODE_CAPABILITY_EPOCH,
+					'verified_capability_epoch' => $settings->localized_urls_verified_capability_epoch(),
+					'code_shapes'               => RoutingCapabilityAdmission::CODE_SHAPES,
+					'admitted_capabilities'     => $settings->localized_urls_admitted_capabilities(),
+					'term_archive'              => array(
+						'implemented' => $registry->supports_term_taxonomy( 'category' ),
+						'admitted'    => $admission->is_publicly_admitted( RoutingCapabilityAdmission::SHAPE_TERM_ARCHIVE ),
+					),
+					'page_hierarchical'         => array(
+						'implemented' => true,
+						'admitted'    => $admission->is_publicly_admitted( RoutingCapabilityAdmission::SHAPE_PAGE_HIERARCHICAL ),
+					),
+					'localized_urls_state'      => $settings->localized_urls_state(),
+				),
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+			)
+		);
+	}
+
+	/**
+	 * Prints hierarchy reindex frontier diagnostics.
+	 *
+	 * @param ReindexFrontierRepository $frontiers Frontier repository.
+	 */
+	private static function localized_urls_reindex_status( ReindexFrontierRepository $frontiers ): void {
+		$rows = $frontiers->list_recent( 20 );
+		$out  = array();
+
+		foreach ( $rows as $row ) {
+			$checkpoint = json_decode( (string) ( $row->checkpoint_json ?? '' ), true );
+			$out[]      = array(
+				'parent_source_type' => (string) ( $row->parent_source_type ?? '' ),
+				'parent_source_id'   => (int) ( $row->parent_source_id ?? 0 ),
+				'generation'         => (int) ( $row->generation ?? 0 ),
+				'status'             => (string) ( $row->status ?? '' ),
+				'processed_count'    => is_array( $checkpoint ) ? (int) ( $checkpoint['processed_count'] ?? 0 ) : 0,
+				'conflict_ids'       => is_array( $checkpoint ) ? ( $checkpoint['conflict_ids'] ?? array() ) : array(),
+				'conflict_overflow'  => is_array( $checkpoint ) ? (bool) ( $checkpoint['conflict_overflow'] ?? false ) : false,
+				'stack_depth'        => is_array( $checkpoint ) ? count( (array) ( $checkpoint['stack'] ?? array() ) ) : 0,
+				'updated_at'         => (string) ( $row->updated_at ?? '' ),
+			);
+		}
+
+		WP_CLI::print_value(
+			wp_json_encode(
+				array(
+					'frontiers' => $out,
 				),
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 			)

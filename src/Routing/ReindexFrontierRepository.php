@@ -122,6 +122,31 @@ final class ReindexFrontierRepository {
 	}
 
 	/**
+	 * Lists recent frontiers for operator diagnostics (bounded).
+	 *
+	 * @param int $limit Max rows.
+	 * @return list<object>
+	 */
+	public function list_recent( int $limit = 20 ): array {
+		global $wpdb;
+
+		$limit = max( 1, min( 100, $limit ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema table + bounded limit.
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT * FROM ' . Schema::slug_reindex_frontier() . '
+				ORDER BY updated_at DESC
+				LIMIT %d',
+				$limit
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		return is_array( $rows ) ? array_values( $rows ) : array();
+	}
+
+	/**
 	 * Updates checkpoint/status without bumping generation (mid-tick resume).
 	 *
 	 * @param string      $parent_source_type Parent source type.

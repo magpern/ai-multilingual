@@ -139,14 +139,20 @@ final class CapabilityVerificationJob {
 		} else {
 			$this->fail_pass( 'Unknown capability shape: ' . $shape );
 
-			return array( 'status' => 'failed', 'message' => 'Unknown shape' );
+			return array(
+				'status'  => 'failed',
+				'message' => 'Unknown shape',
+			);
 		}
 
 		if ( SlugRouteActivationOutcome::is_blocking( (string) ( $result['outcome'] ?? '' ) ) ) {
 			$message = (string) ( $result['message'] ?? 'Capability verification failed.' );
 			$this->fail_pass( $message );
 
-			return array( 'status' => 'failed', 'message' => $message );
+			return array(
+				'status'  => 'failed',
+				'message' => $message,
+			);
 		}
 
 		$next_cursor = (int) ( $result['next_cursor'] ?? $cursor );
@@ -178,7 +184,10 @@ final class CapabilityVerificationJob {
 			);
 			$this->enqueue_tick();
 
-			return array( 'status' => 'continue', 'shape' => $next_shape );
+			return array(
+				'status' => 'continue',
+				'shape'  => $next_shape,
+			);
 		}
 
 		$this->persist_checkpoint(
@@ -190,7 +199,11 @@ final class CapabilityVerificationJob {
 		);
 		$this->enqueue_tick();
 
-		return array( 'status' => 'continue', 'shape' => $shape, 'cursor' => $next_cursor );
+		return array(
+			'status' => 'continue',
+			'shape'  => $shape,
+			'cursor' => $next_cursor,
+		);
 	}
 
 	/**
@@ -446,7 +459,7 @@ final class CapabilityVerificationJob {
 			array(
 				'post_type'              => 'page',
 				'post_status'            => array( 'publish', 'private' ),
-				'posts_per_page'         => 200,
+				'posts_per_page'         => max( 1, min( 50, $limit * 4 ) ),
 				'orderby'                => 'ID',
 				'order'                  => 'ASC',
 				'post_parent__not_in'    => array( 0 ),
@@ -506,6 +519,8 @@ final class CapabilityVerificationJob {
 	}
 
 	/**
+	 * Reads the capability verification checkpoint from settings.
+	 *
 	 * @return array<string, mixed>
 	 */
 	private function read_checkpoint(): array {
@@ -528,6 +543,8 @@ final class CapabilityVerificationJob {
 	}
 
 	/**
+	 * Persists or clears the capability verification checkpoint.
+	 *
 	 * @param array<string, mixed>|null $checkpoint Checkpoint or null to clear.
 	 */
 	private function persist_checkpoint( ?array $checkpoint ): void {

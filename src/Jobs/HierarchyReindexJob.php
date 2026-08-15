@@ -10,12 +10,12 @@ declare( strict_types=1 );
 namespace AIMultilingual\Jobs;
 
 use AIMultilingual\Routing\FrontierRecord;
+use AIMultilingual\Routing\HierarchyChildRepository;
 use AIMultilingual\Routing\ReindexFrontierRepository;
 use AIMultilingual\Routing\RoutePublicationService;
 use AIMultilingual\Routing\SlugRouteRepository;
 use AIMultilingual\Translation\Store;
 use WP_Error;
-use WP_Post;
 
 /**
  * Rematerializes descendant prepared routes after ancestor path changes.
@@ -48,11 +48,13 @@ final class HierarchyReindexJob {
 	 *
 	 * @param ReindexFrontierRepository $frontiers   Frontier repository.
 	 * @param RoutePublicationService   $publication Route rematerialization.
+	 * @param HierarchyChildRepository  $children    Bounded child queries.
 	 * @param SlugRouteRepository       $routes      Route repository.
 	 */
 	public function __construct(
 		private ReindexFrontierRepository $frontiers,
 		private RoutePublicationService $publication,
+		private HierarchyChildRepository $children,
 		private SlugRouteRepository $routes
 	) {
 	}
@@ -80,17 +82,17 @@ final class HierarchyReindexJob {
 	 */
 	public function enqueue_root( string $parent_source_type, int $parent_source_id ) {
 		$checkpoint = array(
-			'generation'       => 0,
-			'stack'            => array(
+			'generation'        => 0,
+			'stack'             => array(
 				array(
 					'source_type'   => $parent_source_type,
 					'source_id'     => $parent_source_id,
 					'last_child_id' => 0,
 				),
 			),
-			'processed_count'  => 0,
-			'conflict_ids'     => array(),
-			'conflict_overflow'=> false,
+			'processed_count'   => 0,
+			'conflict_ids'      => array(),
+			'conflict_overflow' => false,
 		);
 
 		$row = $this->frontiers->upsert_checkpoint(
@@ -161,13 +163,19 @@ final class HierarchyReindexJob {
 		$checkpoint  = $this->decode_checkpoint( (string) ( $row->checkpoint_json ?? '' ), $parent_type, $parent_id, $generation );
 
 		if ( self::STATUS_FAILED === (string) ( $row->status ?? '' ) ) {
-			return array( 'status' => 'failed', 'parent_source_id' => $parent_id );
+			return array(
+				'status'           => 'failed',
+				'parent_source_id' => $parent_id,
+			);
 		}
 
 		if ( in_array( (string) ( $row->status ?? '' ), array( self::STATUS_COMPLETED, self::STATUS_DEGRADED ), true )
 			&& empty( $checkpoint['stack'] )
 		) {
-			return array( 'status' => (string) $row->status, 'parent_source_id' => $parent_id );
+			return array(
+				'status'           => (string) $row->status,
+				'parent_source_id' => $parent_id,
+			);
 		}
 
 		$checkpoint['generation'] = $generation;
@@ -190,7 +198,7 @@ final class HierarchyReindexJob {
 			$source_id   = (int) ( $frame['source_id'] ?? 0 );
 			$last_child  = (int) ( $frame['last_child_id'] ?? 0 );
 
-			$children = $this->direct_children_after( $source_type, $source_id, $last_child, self::MAX_DIRECT_CHILDREN );
+			$children = $this->children->direct_children_after( $source_type, $source_id, $last_child, self::MAX_DIRECT_CHILDREN );
 			if ( array() === $children ) {
 				array_pop( $checkpoint['stack'] );
 				continue;
@@ -232,10 +240,10 @@ final class HierarchyReindexJob {
 		}
 
 		return array(
-			'status'          => $status,
-			'processed'       => $processed,
-			'parent_source_id'=> $parent_id,
-			'conflicts'       => $checkpoint['conflict_ids'],
+			'status'           => $status,
+			'processed'        => $processed,
+			'parent_source_id' => $parent_id,
+			'conflicts'        => $checkpoint['conflict_ids'],
 		);
 	}
 
@@ -263,58 +271,8 @@ final class HierarchyReindexJob {
 	}
 
 	/**
-	 * Direct children after last_child_id (pages only for TARGET 8).
+	 * Records a bounded conflict id without mutating candidates.
 	 *
-	 * @param string $source_type Parent source type.
-	 * @param int    $source_id   Parent source id.
-	 * @param int    $after_id    Last child id.
-	 * @param int    $limit       Bound.
-	 * @return list<array{source_type: string, source_id: int}>
-	 */
-	private function direct_children_after( string $source_type, int $source_id, int $after_id, int $limit ): array {
-		if ( Store::SOURCE_POST !== $source_type ) {
-			return array();
-		}
-
-		$post = get_post( $source_id );
-		if ( ! $post instanceof WP_Post || 'page' !== $post->post_type ) {
-			return array();
-		}
-
-		$pages = get_pages(
-			array(
-				'parent'      => $source_id,
-				'sort_column' => 'ID',
-				'sort_order'  => 'ASC',
-				'post_status' => array( 'publish', 'private', 'draft' ),
-				'number'      => 0,
-			)
-		);
-		if ( ! is_array( $pages ) ) {
-			return array();
-		}
-
-		$out = array();
-		foreach ( $pages as $page ) {
-			if ( ! $page instanceof WP_Post ) {
-				continue;
-			}
-			if ( (int) $page->ID <= $after_id ) {
-				continue;
-			}
-			$out[] = array(
-				'source_type' => Store::SOURCE_POST,
-				'source_id'   => (int) $page->ID,
-			);
-			if ( count( $out ) >= $limit ) {
-				break;
-			}
-		}
-
-		return $out;
-	}
-
-	/**
 	 * @param array<string, mixed> $checkpoint Checkpoint.
 	 * @param int                  $source_id  Conflicting child id.
 	 */
@@ -341,6 +299,8 @@ final class HierarchyReindexJob {
 	}
 
 	/**
+	 * Persists frontier checkpoint without bumping generation.
+	 *
 	 * @param string               $parent_type Parent type.
 	 * @param int                  $parent_id   Parent id.
 	 * @param array<string, mixed> $checkpoint  Checkpoint.
@@ -364,6 +324,8 @@ final class HierarchyReindexJob {
 	}
 
 	/**
+	 * Decodes checkpoint JSON into a bounded DFS cursor.
+	 *
 	 * @param string $json        Checkpoint JSON.
 	 * @param string $parent_type Parent type.
 	 * @param int    $parent_id   Parent id.

@@ -28,16 +28,16 @@ final class RoutePublicationService {
 	/**
 	 * Constructs the service.
 	 *
-	 * @param Store                            $store         Store.
-	 * @param PublicationService               $publication   Publication service.
-	 * @param SlugRouteRepository              $routes        Routes.
-	 * @param RouteHistoryRepository           $history       History.
-	 * @param PathCanonicalizer                $paths         Paths.
-	 * @param CanonicalPathCollisionChecker    $collisions    Collisions.
-	 * @param ObjectLanguagePublicEligibility  $eligibility   Eligibility.
-	 * @param RoutingCapabilityRegistry        $capabilities  Capabilities.
-	 * @param HierarchyPathBuilder|null        $hierarchy     Hierarchy path authority.
-	 * @param RoutingCapabilityAdmission|null  $admission     Public admission (optional).
+	 * @param Store                           $store         Store.
+	 * @param PublicationService              $publication   Publication service.
+	 * @param SlugRouteRepository             $routes        Routes.
+	 * @param RouteHistoryRepository          $history       History.
+	 * @param PathCanonicalizer               $paths         Paths.
+	 * @param CanonicalPathCollisionChecker   $collisions    Collisions.
+	 * @param ObjectLanguagePublicEligibility $eligibility   Eligibility.
+	 * @param RoutingCapabilityRegistry       $capabilities  Capabilities.
+	 * @param HierarchyPathBuilder|null       $hierarchy     Hierarchy path authority.
+	 * @param RoutingCapabilityAdmission|null $admission     Public admission (optional).
 	 */
 	public function __construct(
 		private Store $store,
@@ -116,6 +116,8 @@ final class RoutePublicationService {
 
 				$this->store->commit_route_boundary( $boundary );
 				$committed = true;
+
+				$this->signal_hierarchy_reindex( Store::SOURCE_POST, (int) $post->ID, $post );
 
 				return $this->result_payload( $post, $language_id, true );
 			}
@@ -197,6 +199,8 @@ final class RoutePublicationService {
 
 			$this->store->commit_route_boundary( $boundary );
 			$committed = true;
+
+			$this->signal_hierarchy_reindex( Store::SOURCE_POST, (int) $post->ID, $post );
 
 			return $this->result_payload( $post, $language_id, false );
 		} finally {
@@ -360,6 +364,8 @@ final class RoutePublicationService {
 					$this->store->commit_route_boundary( $boundary );
 					$committed = true;
 
+					$this->signal_hierarchy_reindex( Store::SOURCE_TERM, (int) $term->term_id );
+
 					return $this->term_result_payload( $term, $language_id, false );
 				} finally {
 					if ( ! $committed ) {
@@ -397,7 +403,8 @@ final class RoutePublicationService {
 			$origin = (string) ( $current->slug_origin ?? 'generated' );
 			if ( '' === $leaf ) {
 				$parts = array_values( array_filter( explode( '/', trim( (string) ( $current->localized_path ?? '' ), '/' ) ) ) );
-				$leaf  = (string) ( end( $parts ) ?: '' );
+				$last  = end( $parts );
+				$leaf  = is_string( $last ) ? $last : '';
 			}
 			if ( '' === $leaf ) {
 				return new WP_Error( 'aiml_slug_empty_leaf', __( 'Active route has no localized leaf.', 'ai-multilingual' ) );
@@ -960,6 +967,60 @@ final class RoutePublicationService {
 		}
 
 		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'ai-multilingual' ), array( 'status' => 409 ) );
+	}
+
+	/**
+	 * Requests bounded descendant rematerialization after a hierarchical publish.
+	 *
+	 * @param string       $source_type Source type.
+	 * @param int          $source_id   Source id.
+	 * @param WP_Post|null $post        Post when known.
+	 */
+	private function signal_hierarchy_reindex( string $source_type, int $source_id, ?WP_Post $post = null ): void {
+		if ( Store::SOURCE_POST === $source_type && $post instanceof WP_Post ) {
+			if ( 'page' !== $post->post_type ) {
+				return;
+			}
+			$children = get_pages(
+				array(
+					'parent'      => (int) $post->ID,
+					'number'      => 1,
+					'post_status' => array( 'publish', 'private', 'draft' ),
+				)
+			);
+			if ( ! is_array( $children ) || array() === $children ) {
+				return;
+			}
+		}
+
+		if ( Store::SOURCE_TERM === $source_type ) {
+			$term = get_term( $source_id );
+			if ( ! $term instanceof WP_Term || is_wp_error( $term ) ) {
+				return;
+			}
+			$children = get_terms(
+				array(
+					'taxonomy'   => (string) $term->taxonomy,
+					'parent'     => $source_id,
+					'hide_empty' => false,
+					'number'     => 1,
+					'fields'     => 'ids',
+				)
+			);
+			if ( ! is_array( $children ) || array() === $children ) {
+				return;
+			}
+		}
+
+		/**
+		 * Fires after a prepared route change that may require descendant rematerialization.
+		 *
+		 * @since 1.4.0
+		 *
+		 * @param string $source_type Source type.
+		 * @param int    $source_id   Source id.
+		 */
+		do_action( 'aiml_hierarchy_reindex_root', $source_type, $source_id );
 	}
 
 	/**
