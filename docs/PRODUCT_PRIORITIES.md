@@ -44,7 +44,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 1 | **MSEO — Multilingual SEO & Localized URLs** | Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**). [ADR-0023](adr/0023-localized-url-overlay-architecture.md). Ladder **MSEO.0–MSEO.5**; MSEO.0–MSEO.4 **complete** ([MSEO4 closure](plans/MSEO4_CLOSURE.md)); **MSEO.5 NOT STARTED**. STATE B / TARGET **8**. |
+| 1 | **MSEO — Multilingual SEO & Localized URLs** | Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen**). [ADR-0023](adr/0023-localized-url-overlay-architecture.md). Ladder **MSEO.0–MSEO.5** (no formal MSEO.6); MSEO.0–MSEO.4 **complete** ([MSEO4 closure](plans/MSEO4_CLOSURE.md)); **MSEO.5 Architecture Frozen / planned** ([MSEO5 plan](plans/MSEO5_PROGRAM_HARDENING_ACCEPTANCE_RELEASE_DOGFOOD_IMPLEMENTATION_PLAN.md)) — **implementation not yet complete**. STATE B / TARGET **8**. |
 | — | **TSC — Translation Surface Coverage** | **COMPLETE** (TSC.0–TSC.6). Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
