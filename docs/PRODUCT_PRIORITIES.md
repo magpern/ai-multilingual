@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.3 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **v1.5.1 Localized URL Correctness / SEO Stabilization** is **Architecture Frozen** — [plan](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md). Corrective milestone after Gate B dogfood findings; not MSEO.6; Program B remains demoted. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5** (released in **v1.5.0**). Do not invent MSEO.6. **TSC / TIQ / OTL Complete.** Runtime `Migrator::TARGET` **8**.
+**Current next decision:** **v1.5.1 corrective implementation COMPLETE** — [closure](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_CLOSURE.md). Next separately authorized step: **v1.5.1 release preparation** (not started). Program B remains demoted. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5** (released in **v1.5.0**). Do not invent MSEO.6. **TSC / TIQ / OTL Complete.** Runtime `Migrator::TARGET` **8**.
 
 ---
 
@@ -44,7 +44,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 0 | **v1.5.1 Localized URL Correctness / SEO Stabilization** | **Architecture Frozen** — [`plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md`](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md). Corrective (Gate B D1/D2/D3). STATE A / TARGET **8**. Version remains **1.5.0** until release-prep. Program B demoted. |
+| 0 | **v1.5.1 Localized URL Correctness / SEO Stabilization** | **Corrective implementation COMPLETE** — [plan](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md); [closure](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_CLOSURE.md). Version remains **1.5.0** until release-prep. Release preparation NOT STARTED. Program B demoted. |
 | 1 | **MSEO — Multilingual SEO & Localized URLs** | **COMPLETE** (MSEO.0–MSEO.5). Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md). [MSEO5 closure](plans/MSEO5_CLOSURE.md). No formal MSEO.6. STATE B / TARGET **8**. Released in **v1.5.0**. |
 | — | **TSC — Translation Surface Coverage** | **COMPLETE** (TSC.0–TSC.6). Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
