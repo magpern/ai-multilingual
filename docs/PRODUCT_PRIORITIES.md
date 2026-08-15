@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.3 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **v1.5.1 tagged + GitHub Release published** — [closure](releases/V1_5_1_RELEASE_CLOSURE.md). Next separately authorized step: **published-artifact DEV re-acceptance** on `dev.biopentra.eu`. Program B remains demoted. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Do not invent MSEO.6. **TSC / TIQ / OTL Complete.** Runtime `Migrator::TARGET` **8**.
+**Current next decision:** **v1.5.1 corrective lifecycle COMPLETE** — [closure](releases/V1_5_1_RELEASE_CLOSURE.md); [DEV runtime re-acceptance](validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md) **PASS**. Next: **fresh post-v1.5.1 roadmap prioritization**. Program B remains demoted until that decision. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Do not invent MSEO.6. **TSC / TIQ / OTL Complete.** Runtime `Migrator::TARGET` **8**.
 
 ---
 
@@ -44,12 +44,12 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 0 | **v1.5.1 Localized URL Correctness / SEO Stabilization** | **Tagged + GitHub Release published** — [closure](releases/V1_5_1_RELEASE_CLOSURE.md); [notes](releases/v1.5.1.md). Version **1.5.1**. Tag `v1.5.1` → `6298df08b`. V151AC22: published artifact verified — **DEV re-acceptance pending**. Program B demoted. |
+| 0 | **v1.5.1 Localized URL Correctness / SEO Stabilization** | **CORRECTIVE LIFECYCLE COMPLETE** — [closure](releases/V1_5_1_RELEASE_CLOSURE.md); [DEV re-acceptance](validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md). Version **1.5.1**. Tag `v1.5.1` → `6298df08b`. **V151AC22 PASS**. Program B demoted pending prioritization. |
 | 1 | **MSEO — Multilingual SEO & Localized URLs** | **COMPLETE** (MSEO.0–MSEO.5). Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md). [MSEO5 closure](plans/MSEO5_CLOSURE.md). No formal MSEO.6. STATE B / TARGET **8**. Released in **v1.5.0**. |
 | — | **TSC — Translation Surface Coverage** | **COMPLETE** (TSC.0–TSC.6). Parent: [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md). |
 | — | **OTL — Operator Translation Lifecycle** | **COMPLETE** (OTL.0–OTL.6). Parent: [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md). |
 
-**Release status:** AI Multilingual **v1.5.1** tagged and GitHub Release published (DEV re-acceptance pending) — tag `v1.5.1` → `6298df08b3b1456e4875ecdb860b71506d5ae313`. Prior released: **v1.5.0** (tag `v1.5.0` → `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5`). Prior: **v1.4.0**, **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE**. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Runtime `Migrator::TARGET` **8**.
+**Release status:** AI Multilingual **v1.5.1** released and DEV runtime re-accepted — tag `v1.5.1` → `6298df08b3b1456e4875ecdb860b71506d5ae313`. Prior released: **v1.5.0** (tag `v1.5.0` → `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5`). Prior: **v1.4.0**, **v1.3.0**, **v1.2.0**, **v1.1.0**. **A.SEO** Complete. **TIQ** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE**. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Runtime `Migrator::TARGET` **8**.
 
 Visitor-facing Program A waves below remain listed for historical priority context. Coverage-Deferred surfaces stay Deferred unless admitted through the frozen TSC matrix / milestone plans. TSC must remain generic and site-neutral — Biopentra may be used as a test site, never as the production-domain model.
 

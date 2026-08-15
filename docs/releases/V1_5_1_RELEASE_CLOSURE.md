@@ -1,6 +1,6 @@
 # AI Multilingual v1.5.1 — Release Closure
 
-**Status:** **TAGGED / GITHUB RELEASE PUBLISHED** — published artifact independently verified; **DEV published-artifact re-acceptance NOT STARTED**  
+**Status:** **TAGGED / GITHUB RELEASE PUBLISHED** — published artifact independently verified; **DEV runtime re-acceptance PASS** ([V1_5_1_DEV_RUNTIME_REACCEPTANCE.md](../validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md))  
 **Version:** 1.5.1  
 **Schema TARGET:** **8** (unchanged)  
 **Migration:** **NONE**  
@@ -85,16 +85,17 @@ Independently downloaded from the GitHub Release (not the local release-prep ZIP
 | Criterion | Status |
 |---|---|
 | V151AC21 (release-prep ZIP / merge) | **PASS** |
-| V151AC22 (published ZIP + independent SHA-256 + DEV acceptance) | **PUBLISHED ARTIFACT VERIFIED — DEV RE-ACCEPTANCE PENDING** |
+| V151AC22 (published ZIP + independent SHA-256 + DEV acceptance) | **PASS** — published artifact verified + DEV runtime re-acceptance of corrective code ([V1_5_1_DEV_RUNTIME_REACCEPTANCE.md](../validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md)); no redundant ZIP install (DEV bind-mounts repo) |
 
 ## Deployment / programs
 
 | Item | Status |
 |---|---|
-| DEV `dev.biopentra.eu` deployment | **NOT PERFORMED** |
-| DEV published-artifact re-acceptance | **NOT STARTED** |
+| DEV `dev.biopentra.eu` deployment | **NOT PERFORMED** (not required; repo bind-mount) |
+| DEV runtime re-acceptance | **PASS** |
 | PRODUCTION `biopentra.eu` | **UNTOUCHED** |
 | Program B | **NOT STARTED** |
+| Corrective lifecycle | **COMPLETE** |
 
 ## Release notes
 
@@ -107,4 +108,4 @@ The tag **`v1.5.1` remains on `6298df08b3b1456e4875ecdb860b71506d5ae313`** and i
 
 ## Exact next step
 
-Separately authorize **v1.5.1 PUBLISHED-ARTIFACT DEV RE-ACCEPTANCE** using the exact verified GitHub Release asset (`SHA-256 6e88a679ddadec0ec371e28ab2209b008ba13a9511ac4832a5de82bd56d739c7`).
+**FRESH POST-v1.5.1 ROADMAP PRIORITIZATION** (do not auto-start Program B).
