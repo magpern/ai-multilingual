@@ -1,6 +1,6 @@
 # AI Multilingual v1.5.1 — Release Preparation Evidence
 
-**Status:** RELEASE PREPARATION COMPLETE · TAG NOT CREATED  
+**Status:** RELEASE PREPARATION COMPLETE · superseded for publication status by [V1_5_1_RELEASE_CLOSURE.md](V1_5_1_RELEASE_CLOSURE.md)  
 **Date:** 2026-08-15
 
 | # | Field | Value |
@@ -37,14 +37,14 @@
 | 30 | Fresh main CI | GREEN — run `31899786449` |
 | 31 | **V1.5.1 RELEASE-READY COMMIT** | **`6298df08b3b1456e4875ecdb860b71506d5ae313`** |
 | 32 | V151AC21 | **PASS** (release ZIP built/audited; merged) |
-| 33 | V151AC22 | **NOT STARTED** |
+| 33 | V151AC22 | See [V1_5_1_RELEASE_CLOSURE.md](V1_5_1_RELEASE_CLOSURE.md) — published artifact verified; DEV re-acceptance pending |
 | 34 | Tag `v1.5.0` | Unmoved — `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5` |
-| 35 | Tag `v1.5.1` | **NOT CREATED** |
-| 36 | GitHub Release | **NOT CREATED** |
-| 37 | Deployment | **NOT PERFORMED** |
+| 35 | Tag `v1.5.1` | **CREATED** on `6298df08b3b1456e4875ecdb860b71506d5ae313` — see closure |
+| 36 | GitHub Release | **CREATED** — https://github.com/magpern/ai-multilingual/releases/tag/v1.5.1 |
+| 37 | Deployment | **NOT PERFORMED** (publication task) |
 | 38 | Production | **UNTOUCHED** |
 | 39 | Program B | **NOT STARTED** |
-| 40 | Exact next step | Separately authorize annotated tag `v1.5.1` + GitHub Release |
+| 40 | Exact next step | Separately authorize published-artifact DEV re-acceptance |
 
 ## Tag semantics
 
