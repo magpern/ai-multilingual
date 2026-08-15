@@ -18,8 +18,8 @@ Ordinary Jobs create/monitor/recover is done from **Translator Workspace → Job
 | Completed with skips | Job finished with skipped/stale item buckets — expand Details |
 | Skipped — conflict protected | Item `skipped_conflict` — no silent overwrite; review/edit or confirmed Retranslate when admitted |
 | Source moved during job | Item `stale_source` — create a fresh job after source is stable |
-| Store stale (published) | Published translation remains visible until edit/retranslate |
-| Store stale (unpublished) | Not published — edit/retranslate before publishing |
+| Store stale (published) | Remains published until edit/retranslate; visitor display still depends on overlay/route eligibility |
+| Store stale (unpublished) | Currently unpublished — edit/retranslate before publishing; gate settings may still affect overlay |
 
 **Multi-post create:** Workspace **Bulk translate** posts `posts[]` without segment keys. The service resolves **missing** segments per post (same eligibility as `translate_missing`). No new Job type.
 

@@ -1,8 +1,9 @@
 /**
  * State-accurate stale operator copy (P2 A2).
  *
- * Derive messaging from publication/runtime state — do not claim a universal
- * source-fallback consequence when that is not the actual frontend outcome.
+ * Derive messaging from publication state. Do not invent absolute visitor /
+ * overlay outcomes — publication is necessary but not always sufficient, and
+ * with the gate off unpublished rows may still be overlay-eligible.
  */
 
 import { __ } from '@wordpress/i18n';
@@ -17,7 +18,7 @@ export interface StaleOperatorCopyArgs {
 export interface StaleOperatorCopy {
 	/** Short badge / chip text. */
 	badge: string;
-	/** Longer notice explaining why + frontend/publication consequence. */
+	/** Longer notice explaining why + publication consequence. */
 	notice: string;
 }
 
@@ -40,17 +41,17 @@ export function staleOperatorCopy(
 		return {
 			badge: __( 'Stale — still published', 'ai-multilingual' ),
 			notice: __(
-				'This translation is stale because the source changed. The published translation remains visible to visitors until you edit or retranslate.',
+				'This translation is stale because the source changed. It remains published until you edit or retranslate. Visitor display still depends on overlay and route eligibility.',
 				'ai-multilingual'
 			),
 		};
 	}
 
-	if ( 'unpublished' === publishStatus || '' === publishStatus ) {
+	if ( 'unpublished' === publishStatus ) {
 		return {
 			badge: __( 'Stale — not published', 'ai-multilingual' ),
 			notice: __(
-				'This translation is stale because the source changed. It is not published; edit the target or retranslate before publishing.',
+				'This translation is stale because the source changed. It is currently unpublished — edit or retranslate before publishing. Overlay eligibility may still depend on publication gate settings.',
 				'ai-multilingual'
 			),
 		};

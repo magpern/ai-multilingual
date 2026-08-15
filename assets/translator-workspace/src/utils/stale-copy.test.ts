@@ -17,14 +17,15 @@ describe( 'staleOperatorCopy', () => {
 		).toBeNull();
 	} );
 
-	it( 'explains published + stale without claiming source fallback', () => {
+	it( 'explains published + stale without absolute source-fallback claims', () => {
 		const copy = staleOperatorCopy( {
 			isStale: true,
 			publishStatus: 'published',
 		} );
 		expect( copy ).not.toBeNull();
 		expect( copy!.badge.toLowerCase() ).toContain( 'published' );
-		expect( copy!.notice.toLowerCase() ).toContain( 'remains' );
+		expect( copy!.notice.toLowerCase() ).toContain( 'remains published' );
+		expect( copy!.notice.toLowerCase() ).toContain( 'eligibility' );
 		expect( copy!.notice.toLowerCase() ).not.toContain( 'shows source' );
 	} );
 
@@ -36,6 +37,15 @@ describe( 'staleOperatorCopy', () => {
 		expect( copy ).not.toBeNull();
 		expect( copy!.badge.toLowerCase() ).toContain( 'not published' );
 		expect( copy!.notice.toLowerCase() ).toContain( 'before publishing' );
+	} );
+
+	it( 'uses neutral copy when publish_status is unknown', () => {
+		const copy = staleOperatorCopy( {
+			isStale: true,
+			publishStatus: '',
+		} );
+		expect( copy ).not.toBeNull();
+		expect( copy!.notice.toLowerCase() ).toContain( 'check publication' );
 	} );
 
 	it( 'reads publish_status from segment meta', () => {

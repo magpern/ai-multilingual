@@ -10,6 +10,8 @@
 
 ## Overall verdict: **PASS**
 
+(Independent review remediation: A2 copy softened to avoid absolute visitor claims; A4 exercised via Workspace REST authorities as administrator.)
+
 ## Journey results
 
 ### A — Create / Run / Monitor / Complete — **PASS**
