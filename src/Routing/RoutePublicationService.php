@@ -698,6 +698,64 @@ final class RoutePublicationService {
 	}
 
 	/**
+	 * Operator sync view for a term slug/route (P0 thin seam; mirrors {@see sync_view}).
+	 *
+	 * Does not change publication or collision semantics.
+	 *
+	 * @param WP_Term $term        Term.
+	 * @param int     $language_id Language id.
+	 * @return array<string, mixed>
+	 */
+	public function sync_term_view( WP_Term $term, int $language_id ): array {
+		$candidate = $this->store->get( Store::SOURCE_TERM, (int) $term->term_id, $language_id, TermExtractor::FIELD_SLUG );
+		$route     = $this->routes->find_by_object( Store::SOURCE_TERM, (int) $term->term_id, $language_id );
+
+		$cand_text  = is_object( $candidate ) ? trim( (string) ( $candidate->translated_text ?? '' ) ) : '';
+		$origin     = is_object( $candidate ) ? (string) ( $candidate->slug_origin ?? '' ) : '';
+		$pub        = is_object( $candidate ) ? (string) ( $candidate->publish_status ?? Store::PUBLISH_UNPUBLISHED ) : Store::PUBLISH_UNPUBLISHED;
+		$has_cand   = is_object( $candidate ) && '' !== $cand_text && Store::STATUS_MISSING !== (string) ( $candidate->status ?? '' );
+		$active     = null !== $route && 'active' === (string) ( $route->route_status ?? '' );
+		$route_slug = null !== $route ? (string) ( $route->localized_slug ?? '' ) : '';
+
+		if ( ! $has_cand && ! $active ) {
+			$sync = 'none';
+		} elseif ( Store::PUBLISH_PUBLISHED === $pub && $active ) {
+			$sync = 'synchronized';
+		} elseif ( Store::PUBLISH_PUBLISHED === $pub && ! $active ) {
+			$sync = 'inconsistent';
+		} elseif ( $has_cand && Store::PUBLISH_PUBLISHED !== $pub ) {
+			$sync = 'pending';
+		} else {
+			$sync = 'none';
+		}
+
+		$can_publish = true === $this->eligibility->is_term_route_publishable( $term, $language_id );
+		$blocked     = '';
+		if ( ! $can_publish ) {
+			$err     = $this->eligibility->is_term_route_publishable( $term, $language_id );
+			$blocked = $err instanceof WP_Error ? $err->get_error_message() : '';
+		}
+
+		return array(
+			'term_id'                          => (int) $term->term_id,
+			'taxonomy'                         => (string) $term->taxonomy,
+			'slug_candidate'                   => $cand_text,
+			'slug_origin'                      => $origin,
+			'slug_candidate_publish_status'    => $pub,
+			'active_route_slug'                => $route_slug,
+			'active_route_status'              => null !== $route ? (string) ( $route->route_status ?? '' ) : '',
+			'localized_path'                   => null !== $route ? (string) ( $route->localized_path ?? '' ) : '',
+			'route_prepared'                   => $active,
+			'route_sync_state'                 => $sync,
+			'collision_adjusted'               => 'synchronized' === $sync && $cand_text !== $route_slug && '' !== $route_slug,
+			'can_generate'                     => 'manual' !== $origin,
+			'can_edit_slug'                    => true,
+			'can_publish_route'                => $can_publish && $has_cand,
+			'route_publication_blocked_reason' => $blocked,
+		);
+	}
+
+	/**
 	 * Helper.
 	 *
 	 * @param int           $language_id Language id.

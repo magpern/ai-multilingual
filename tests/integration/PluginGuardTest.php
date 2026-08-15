@@ -191,6 +191,7 @@ final class PluginGuardTest extends AimlTestCase {
 				'src/Rest/WorkspaceController.php',
 				'src/Rest/ProviderController.php',
 				'src/Rest/GlossaryController.php',
+				'src/Rest/TermSlugController.php',
 				'src/Jobs/JobsController.php',
 			)
 		);
@@ -1466,5 +1467,45 @@ final class PluginGuardTest extends AimlTestCase {
 		$version = (string) file_get_contents( $this->root() . '/ai-multilingual.php' );
 		$this->assertMatchesRegularExpression( '/Version:\\s*1\\.5\\.1/', $version );
 		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.5.1' )", $version );
+	}
+
+	/**
+	 * P0 Localized URL Operator Completion architecture guards.
+	 */
+	public function test_p0_operator_completion_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertStringNotContainsString( 'step_9_', $migrator );
+
+		$version = (string) file_get_contents( $this->root() . '/ai-multilingual.php' );
+		$this->assertMatchesRegularExpression( '/Version:\\s*1\\.5\\.1/', $version );
+		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.5.1' )", $version );
+
+		$this->assertFileExists( $this->root() . '/src/Rest/TermSlugController.php' );
+		$this->assertFileExists( $this->root() . '/src/Admin/TermLocalizedSlugAdmin.php' );
+		$this->assertFileExists( $this->root() . '/docs/plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_IMPLEMENTATION_PLAN.md' );
+
+		$term_ctrl = (string) file_get_contents( $this->root() . '/src/Rest/TermSlugController.php' );
+		$this->assertStringContainsString( 'SlugCandidateService', $term_ctrl );
+		$this->assertStringContainsString( 'RoutePublicationService', $term_ctrl );
+		$this->assertStringContainsString( 'publish_term_route', $term_ctrl );
+		$this->assertStringNotContainsString( 'CompetingUrlAuthority', $term_ctrl );
+
+		$routes = (string) file_get_contents( $this->root() . '/src/Routing/RoutePublicationService.php' );
+		$this->assertStringContainsString( 'function sync_term_view', $routes );
+
+		$settings = (string) file_get_contents( $this->root() . '/src/Admin/SettingsPage.php' );
+		$this->assertStringContainsString( 'render_localized_urls_honesty', $settings );
+		$this->assertStringContainsString( 'Capability admission', $settings );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringContainsString( 'TermSlugController', $plugin );
+		$this->assertStringContainsString( 'TermLocalizedSlugAdmin', $plugin );
+		$this->assertStringNotContainsString( 'VariationRoutePublisher', $plugin );
+
+		$workspace = (string) file_get_contents( $this->root() . '/assets/translator-workspace/src/App.tsx' );
+		$this->assertStringContainsString( 'LocalizedSlugPanel', $workspace );
 	}
 }

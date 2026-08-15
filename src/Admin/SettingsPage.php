@@ -12,6 +12,9 @@ namespace AIMultilingual\Admin;
 use AIMultilingual\Block\FeatureFlags;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Routing\LocalizedUrlsActivationService;
+use AIMultilingual\Routing\ReindexFrontierRepository;
+use AIMultilingual\Routing\RoutingCapabilityAdmission;
+use AIMultilingual\Routing\WooProductPermalinkFingerprint;
 use AIMultilingual\Settings;
 use AIMultilingual\Translation\AI\CredentialVault;
 use AIMultilingual\Translation\Publication\PublicationMode;
@@ -85,23 +88,43 @@ final class SettingsPage {
 	private ?LocalizedUrlsActivationService $localized_urls;
 
 	/**
+	 * Capability admission (optional; Settings honesty).
+	 *
+	 * @var RoutingCapabilityAdmission|null
+	 */
+	private ?RoutingCapabilityAdmission $routing_admission;
+
+	/**
+	 * Reindex frontier repository (optional; Settings honesty).
+	 *
+	 * @var ReindexFrontierRepository|null
+	 */
+	private ?ReindexFrontierRepository $frontier;
+
+	/**
 	 * Builds the settings and language screens.
 	 *
-	 * @param Settings                            $settings       Plugin settings.
-	 * @param Languages                           $languages      Language configuration.
-	 * @param CredentialVault|null                $vault          Credential vault.
-	 * @param LocalizedUrlsActivationService|null $localized_urls Localized URL activation.
+	 * @param Settings                            $settings          Plugin settings.
+	 * @param Languages                           $languages         Language configuration.
+	 * @param CredentialVault|null                $vault             Credential vault.
+	 * @param LocalizedUrlsActivationService|null $localized_urls    Localized URL activation.
+	 * @param RoutingCapabilityAdmission|null     $routing_admission  Admission authority.
+	 * @param ReindexFrontierRepository|null      $frontier          Frontier repository.
 	 */
 	public function __construct(
 		Settings $settings,
 		Languages $languages,
 		?CredentialVault $vault = null,
-		?LocalizedUrlsActivationService $localized_urls = null
+		?LocalizedUrlsActivationService $localized_urls = null,
+		?RoutingCapabilityAdmission $routing_admission = null,
+		?ReindexFrontierRepository $frontier = null
 	) {
-		$this->settings       = $settings;
-		$this->languages      = $languages;
-		$this->vault          = $vault ?? new CredentialVault();
-		$this->localized_urls = $localized_urls;
+		$this->settings          = $settings;
+		$this->languages         = $languages;
+		$this->vault             = $vault ?? new CredentialVault();
+		$this->localized_urls    = $localized_urls;
+		$this->routing_admission = $routing_admission;
+		$this->frontier          = $frontier;
 	}
 
 	/**
@@ -771,6 +794,9 @@ final class SettingsPage {
 			'While Activating, inbound localized paths are recognized but visitors are redirected to source-slug URLs until verification completes.',
 			'ai-multilingual'
 		) . '</p>';
+
+		$this->render_localized_urls_honesty( $current );
+
 		echo '</div>';
 
 		if ( in_array( $state, array( LocalizedUrlsActivationService::STATE_OFF, LocalizedUrlsActivationService::STATE_FAILED ), true ) ) {
@@ -820,6 +846,119 @@ final class SettingsPage {
 		$this->render_localized_urls_confirmation_script();
 
 		echo '<hr />';
+	}
+
+	/**
+	 * Operator-readable admission + frontier honesty (P0 OC5–OC8).
+	 *
+	 * @param array<string, mixed> $current Settings.
+	 */
+	private function render_localized_urls_honesty( array $current ): void {
+		echo '<hr style="margin:1em 0;" />';
+		echo '<h3>' . esc_html__( 'Capability admission', 'ai-multilingual' ) . '</h3>';
+		echo '<p class="description">' . esc_html__(
+			'Implemented shapes are built into the plugin. Admitted shapes may be used for public localized URLs when Localized URLs are On. Unsupported means this site does not expose that shape.',
+			'ai-multilingual'
+		) . '</p>';
+
+		$labels = array(
+			RoutingCapabilityAdmission::SHAPE_TERM_ARCHIVE => __( 'Term archives', 'ai-multilingual' ),
+			RoutingCapabilityAdmission::SHAPE_PAGE_HIERARCHICAL => __( 'Hierarchical pages', 'ai-multilingual' ),
+			RoutingCapabilityAdmission::SHAPE_PRODUCT_CATEGORY_PERMALINK => __( 'Product category permalinks', 'ai-multilingual' ),
+		);
+
+		$code_epoch     = RoutingCapabilityAdmission::CODE_CAPABILITY_EPOCH;
+		$verified_epoch = (int) ( $current['localized_urls_verified_capability_epoch'] ?? 0 );
+		printf(
+			'<p><strong>%1$s</strong> %2$s · <strong>%3$s</strong> %4$s</p>',
+			esc_html__( 'Code capability epoch:', 'ai-multilingual' ),
+			esc_html( (string) (int) $code_epoch ),
+			esc_html__( 'Verified epoch:', 'ai-multilingual' ),
+			esc_html( (string) (int) $verified_epoch )
+		);
+
+		echo '<ul class="aiml-lu-capability-list">';
+		foreach ( RoutingCapabilityAdmission::CODE_SHAPES as $shape ) {
+			$label    = $labels[ $shape ] ?? $shape;
+			$admitted = false;
+			if ( null !== $this->routing_admission ) {
+				$admitted = $this->routing_admission->is_publicly_admitted( $shape );
+			} else {
+				$stored   = $current['localized_urls_admitted_capabilities'] ?? array();
+				$admitted = is_array( $stored ) && in_array( $shape, $stored, true );
+			}
+			$status = $admitted
+				? __( 'Implemented · Admitted', 'ai-multilingual' )
+				: __( 'Implemented · Not admitted yet', 'ai-multilingual' );
+			printf(
+				'<li><strong>%1$s</strong> — %2$s</li>',
+				esc_html( $label ),
+				esc_html( $status )
+			);
+		}
+		echo '</ul>';
+		echo '<p class="description">' . esc_html__(
+			'“Not admitted yet” usually means verification has not finished (not yet processed), not that the shape is unsupported.',
+			'ai-multilingual'
+		) . '</p>';
+
+		$stored_fp = (string) ( $current['localized_urls_woo_product_fingerprint'] ?? '' );
+		if ( '' !== $stored_fp ) {
+			$current_fp = ( new WooProductPermalinkFingerprint() )->hash();
+			if ( ! hash_equals( $stored_fp, $current_fp ) ) {
+				echo '<p class="notice notice-warning" style="padding:8px;"><strong>' . esc_html__( 'Woo product permalink fingerprint mismatch.', 'ai-multilingual' ) . '</strong> ';
+				echo esc_html__( 'Product category permalink capability may need re-verification after permalink setting changes.', 'ai-multilingual' ) . '</p>';
+			}
+		}
+
+		echo '<h3>' . esc_html__( 'Hierarchy reindex / frontier', 'ai-multilingual' ) . '</h3>';
+		if ( null === $this->frontier ) {
+			echo '<p class="description">' . esc_html__( 'Frontier status is unavailable in this context.', 'ai-multilingual' ) . '</p>';
+			return;
+		}
+
+		$recent = $this->frontier->list_recent( 50 );
+		$counts = array(
+			'pending'   => 0,
+			'running'   => 0,
+			'completed' => 0,
+			'degraded'  => 0,
+			'failed'    => 0,
+		);
+		foreach ( $recent as $row ) {
+			$status = is_object( $row ) ? (string) ( $row->status ?? '' ) : '';
+			if ( isset( $counts[ $status ] ) ) {
+				++$counts[ $status ];
+			}
+		}
+
+		$overall = __( 'Complete — no open frontier work in recent history', 'ai-multilingual' );
+		if ( $counts['failed'] > 0 ) {
+			$overall = __( 'Blocked / failed — review frontier failures', 'ai-multilingual' );
+		} elseif ( $counts['degraded'] > 0 ) {
+			$overall = __( 'Degraded — some children could not rematerialize (collision)', 'ai-multilingual' );
+		} elseif ( $counts['pending'] > 0 || $counts['running'] > 0 ) {
+			$overall = __( 'Pending — hierarchy rematerialization still processing', 'ai-multilingual' );
+		}
+
+		echo '<p><strong>' . esc_html__( 'Summary:', 'ai-multilingual' ) . '</strong> ' . esc_html( $overall ) . '</p>';
+		printf(
+			'<p class="description">%1$s %2$d · %3$s %4$d · %5$s %6$d · %7$s %8$d · %9$s %10$d</p>',
+			esc_html__( 'Pending:', 'ai-multilingual' ),
+			(int) $counts['pending'],
+			esc_html__( 'Running:', 'ai-multilingual' ),
+			(int) $counts['running'],
+			esc_html__( 'Completed:', 'ai-multilingual' ),
+			(int) $counts['completed'],
+			esc_html__( 'Degraded:', 'ai-multilingual' ),
+			(int) $counts['degraded'],
+			esc_html__( 'Failed:', 'ai-multilingual' ),
+			(int) $counts['failed']
+		);
+		echo '<p class="description">' . esc_html__(
+			'Distinguish: pending = not yet processed; degraded/failed = genuine processing problem; not admitted = capability verification incomplete; unsupported = shape not offered by this site.',
+			'ai-multilingual'
+		) . '</p>';
 	}
 
 	/**

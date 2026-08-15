@@ -118,11 +118,136 @@ function userMessageFromError( error: unknown ): string {
 		return 'You do not have permission to save this translation.';
 	}
 
+	if (
+		candidate?.code === 'aiml_slug_route_collision' ||
+		candidate?.code === 'aiml_slug_history_collision' ||
+		candidate?.code === 'aiml_slug_collision_exhausted' ||
+		( typeof candidate?.code === 'string' &&
+			candidate.code.indexOf( 'collision' ) !== -1 )
+	) {
+		return __(
+			'That localized path collides with another route or history entry. Edit the candidate, clear it, or choose a different slug, then publish again.',
+			'ai-multilingual'
+		);
+	}
+
+	if (
+		typeof candidate?.code === 'string' &&
+		candidate.code.indexOf( 'aiml_slug_' ) === 0 &&
+		candidate?.message
+	) {
+		return candidate.message;
+	}
+
 	if ( candidate?.message ) {
 		return 'The translation could not be saved. Please try again.';
 	}
 
 	return 'The translation could not be saved. Please try again.';
+}
+
+export interface SlugRouteView {
+	slug_candidate: string;
+	slug_origin: string;
+	slug_candidate_publish_status: string;
+	active_route_slug: string;
+	active_route_status: string;
+	localized_path?: string;
+	route_prepared: boolean;
+	route_sync_state: string;
+	collision_adjusted: boolean;
+	can_generate: boolean;
+	can_edit_slug: boolean;
+	can_publish_route: boolean;
+	route_publication_blocked_reason: string;
+	status?: string;
+	idempotent?: boolean;
+}
+
+function slugPath( postId: number, suffix = '' ): string {
+	return path( `workspace/${ postId }/slug${ suffix }` );
+}
+
+export async function fetchSlugRouteView(
+	postId: number,
+	language: string
+): Promise<SlugRouteView> {
+	try {
+		return await apiFetch<SlugRouteView>( {
+			path:
+				slugPath( postId ) +
+				`?language=${ encodeURIComponent( language ) }`,
+			method: 'GET',
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function generateSlugCandidate(
+	postId: number,
+	language: string
+): Promise<SlugRouteView> {
+	try {
+		return await apiFetch<SlugRouteView>( {
+			path:
+				slugPath( postId, '/generate' ) +
+				`?language=${ encodeURIComponent( language ) }`,
+			method: 'POST',
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function saveSlugCandidate(
+	postId: number,
+	language: string,
+	slugCandidate: string
+): Promise<SlugRouteView> {
+	try {
+		return await apiFetch<SlugRouteView>( {
+			path:
+				slugPath( postId ) +
+				`?language=${ encodeURIComponent( language ) }`,
+			method: 'POST',
+			data: { slug_candidate: slugCandidate },
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function clearSlugCandidate(
+	postId: number,
+	language: string
+): Promise<SlugRouteView> {
+	try {
+		return await apiFetch<SlugRouteView>( {
+			path:
+				slugPath( postId ) +
+				`?language=${ encodeURIComponent( language ) }`,
+			method: 'DELETE',
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
+}
+
+export async function publishSlugRoute(
+	postId: number,
+	language: string
+): Promise<SlugRouteView> {
+	try {
+		return await apiFetch<SlugRouteView>( {
+			path:
+				slugPath( postId, '/publish-route' ) +
+				`?language=${ encodeURIComponent( language ) }`,
+			method: 'POST',
+		} );
+	} catch ( error ) {
+		throw new WorkspaceRequestError( userMessageFromError( error ) );
+	}
 }
 
 function parseConflict( error: unknown ): WorkspaceConflictError | null {
