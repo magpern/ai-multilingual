@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-08-15
+
+### Multilingual SEO & Localized URLs (MSEO.0–MSEO.5)
+
+- **MSEO.0** Inert foundation: TARGET 8 tables (`aiml_slug_routes`, `aiml_route_history`, `aiml_slug_reindex_frontier`), PathCanonicalizer, EffectiveUrlService scaffold, ADR-0023.
+- **MSEO.1** Candidate vs active route lifecycle, `slug_origin`, ObjectLanguagePublicEligibility, Workspace slug field, RoutePublicationService.
+- **MSEO.2** First activatable stack: recognition, history, outbound EffectiveUrl, SEO graph (canonical/hreflang/sitemap Model A/switcher), activation state machine; flat post, top-level page, plain product.
+- **MSEO.3** Hierarchical pages/terms, HierarchyPathBuilder ancestor-leaf localization, frontier reindex ≤100/tick, capability admission epoch.
+- **MSEO.4** WooCommerce `%product_cat%` permalink hardening: Woo source authority, fingerprint gate, product_dep / woo_product_config frontiers.
+- **MSEO.5** Program hardening, acceptance harness, v1.5.0 release, DEV DOGFOOD (published asset).
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **8** (no migration in this release).
+- Localized URLs default **OFF**; PathRecognition remains always-on with 302 fallbacks when generation is off.
+- Preview remains source-slug only.
+- Translated rewrite bases, Woo endpoint names, variation routes, pretty layered-nav remain Deferred/Unsupported (Post-MSEO backlog).
+
+### Notes
+
+- Production package is `ai-multilingual-1.5.0.zip` from `bin/build-zip.sh` / GitHub Actions on `v*` tags.
+- See [docs/releases/v1.5.0.md](docs/releases/v1.5.0.md) and [docs/releases/V1_5_0_RELEASE_SCOPE.md](docs/releases/V1_5_0_RELEASE_SCOPE.md).
+
 ## [1.4.0] — 2026-08-14
 
 ### Translation Surface Coverage (TSC.0–TSC.6)
