@@ -1325,11 +1325,105 @@ final class PluginGuardTest extends AimlTestCase {
 		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
 		$this->assertStringNotContainsString( 'step_9_', $migrator );
 		$this->assertSame( 8, Migrator::TARGET );
+	}
 
-		// MSEO.5 must remain absent.
-		$this->assertFileDoesNotExist( $this->root() . '/docs/plans/MSEO5_CLOSURE.md' );
-		$roadmap = (string) file_get_contents( $this->root() . '/docs/ROADMAP.md' );
-		$this->assertStringContainsString( 'MSEO.5', $roadmap );
-		$this->assertMatchesRegularExpression( '/MSEO\.5[^\n]*NOT STARTED/i', $roadmap );
+	/**
+	 * MSEO.5 program closeout architecture guards (code/architecture only).
+	 *
+	 * Does not assert ROADMAP prose or closure-document workflow state (A10).
+	 */
+	public function test_mseo5_program_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertStringNotContainsString( 'step_9_', $migrator );
+		$this->assertStringContainsString( 'step_8_mseo_localized_url_foundation', $migrator );
+
+		foreach ( array(
+			\AIMultilingual\Routing\EffectiveUrlService::class,
+			\AIMultilingual\Routing\PathCanonicalizer::class,
+			\AIMultilingual\Routing\PathHash::class,
+			\AIMultilingual\Routing\SlugRouteRepository::class,
+			\AIMultilingual\Routing\RouteHistoryRepository::class,
+			\AIMultilingual\Routing\ReindexFrontierRepository::class,
+			\AIMultilingual\Routing\SlugCandidateService::class,
+			\AIMultilingual\Routing\RoutePublicationService::class,
+			\AIMultilingual\Routing\ObjectLanguagePublicEligibility::class,
+			\AIMultilingual\Routing\RoutingCapabilityRegistry::class,
+			\AIMultilingual\Routing\RoutingCapabilityAdmission::class,
+			\AIMultilingual\Routing\HierarchyPathBuilder::class,
+			\AIMultilingual\Routing\WooProductPathBuilder::class,
+			\AIMultilingual\Routing\Router::class,
+			\AIMultilingual\Seo\LanguageRelationshipService::class,
+			\AIMultilingual\Integration\RankMath\RankMathSitemapOverlay::class,
+		) as $class ) {
+			$this->assertTrue( class_exists( $class ), $class . ' must remain for MSEO program stack' );
+		}
+
+		$router = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
+		$this->assertStringContainsString( 'filter_home_url', $router );
+		$this->assertStringContainsString( 'filter_redirect_canonical', $router );
+		$this->assertStringContainsString( 'filter_term_link', $router );
+		$this->assertStringNotContainsString( 'add_rewrite_rule', $router );
+		$this->assertStringNotContainsString( 'flush_rewrite_rules', $router );
+
+		$eus = (string) file_get_contents( $this->root() . '/src/Routing/EffectiveUrlService.php' );
+		$this->assertStringContainsString( 'is_localized_url_generation_enabled', $eus );
+
+		$publication = (string) file_get_contents( $this->root() . '/src/Translation/Publication/PublicationService.php' );
+		$this->assertTrue(
+			false !== strpos( $publication, 'aiml_slug_publish_requires_route' )
+			|| false !== strpos( $publication, 'reject_format_slug' )
+			|| false !== strpos( $publication, 'publish_under_route_authority' ),
+			'FORMAT_SLUG standalone publish must remain fail-closed.'
+		);
+
+		$jobs_processor = (string) file_get_contents( $this->root() . '/src/Jobs/BackgroundTranslationItemProcessor.php' );
+		$this->assertStringContainsString( 'FORMAT_SLUG segments are not provider-admitted', $jobs_processor );
+
+		$eligibility = (string) file_get_contents( $this->root() . '/src/Routing/ObjectLanguagePublicEligibility.php' );
+		$this->assertStringContainsString( 'is_discoverable', $eligibility );
+
+		$admission = (string) file_get_contents( $this->root() . '/src/Routing/RoutingCapabilityAdmission.php' );
+		$this->assertStringContainsString( 'CODE_CAPABILITY_EPOCH', $admission );
+		$this->assertStringContainsString( 'is_publicly_admitted', $admission );
+
+		$history = (string) file_get_contents( $this->root() . '/src/Routing/RouteHistoryRepository.php' );
+		$this->assertStringNotContainsString( 'destination_path', $history );
+
+		$sitemap = (string) file_get_contents( $this->root() . '/src/Integration/RankMath/RankMathSitemapOverlay.php' );
+		$this->assertStringContainsString( 'xhtml:link', $sitemap );
+		$this->assertStringNotContainsString( 'replace_loc', $sitemap );
+
+		$hier_job = (string) file_get_contents( $this->root() . '/src/Jobs/HierarchyReindexJob.php' );
+		$this->assertStringContainsString( 'MAX_PER_TICK = 100', $hier_job );
+
+		$woo_job = (string) file_get_contents( $this->root() . '/src/Jobs/WooProductRouteReindexJob.php' );
+		$this->assertStringContainsString( 'MAX_PER_TICK = 100', $woo_job );
+
+		$route_pub = (string) file_get_contents( $this->root() . '/src/Routing/RoutePublicationService.php' );
+		$this->assertStringNotContainsString( 'wp_update_post', $route_pub );
+		$this->assertStringNotContainsString( 'wp_update_term', $route_pub );
+
+		$candidate = (string) file_get_contents( $this->root() . '/src/Routing/SlugCandidateService.php' );
+		$this->assertStringNotContainsString( 'AIProvider', $candidate );
+		$this->assertStringNotContainsString( 'translate(', $candidate );
+
+		// Negatives: Post-MSEO backlog must not appear as production symbols.
+		$src_files = array(
+			$this->root() . '/src/Routing/Router.php',
+			$this->root() . '/src/Routing/EffectiveUrlService.php',
+			$this->root() . '/src/Plugin.php',
+		);
+		foreach ( $src_files as $path ) {
+			$src = (string) file_get_contents( $path );
+			$this->assertStringNotContainsString( 'VariationRoute', $src );
+			$this->assertStringNotContainsString( 'LayeredNav', $src );
+			$this->assertStringNotContainsString( 'TranslatedRewriteBase', $src );
+			$this->assertStringNotContainsString( 'LocalizedCheckoutEndpoint', $src );
+		}
+
+		$this->assertFileDoesNotExist( $this->root() . '/src/Routing/CompetingSitemapGenerator.php' );
+		$this->assertFileDoesNotExist( $this->root() . '/src/Routing/VariationRoutePublisher.php' );
 	}
 }
