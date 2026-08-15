@@ -23,6 +23,7 @@ import BulkToolbar from './components/BulkToolbar';
 import LanguageSelect from './components/LanguageSelect';
 import PostSelect from './components/PostSelect';
 import PublishContext from './components/PublishContext';
+import LocalizedSlugPanel from './components/LocalizedSlugPanel';
 import ReviewDecisionDialog from './components/ReviewDecisionDialog';
 import JobsPanel from './components/JobsPanel';
 import OperationsPanel from './components/OperationsPanel';
@@ -1059,6 +1060,13 @@ export default function App() {
 							status={ status }
 							onPreview={ handlePreview }
 							previewDisabled={ ! languageCode }
+						/>
+					) }
+
+					{ postId && languageCode && (
+						<LocalizedSlugPanel
+							postId={ postId }
+							languageCode={ languageCode }
 						/>
 					) }
 

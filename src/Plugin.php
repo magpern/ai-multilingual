@@ -37,6 +37,7 @@ use AIMultilingual\Admin\GlossaryAdminPage;
 use AIMultilingual\Admin\RolloutAdminPage;
 use AIMultilingual\Admin\SeoDiagnosticsAdminPage;
 use AIMultilingual\Admin\SettingsPage;
+use AIMultilingual\Admin\TermLocalizedSlugAdmin;
 use AIMultilingual\Admin\TranslatorWorkspace;
 use AIMultilingual\Block\AdapterRegistry;
 use AIMultilingual\Block\AttributeRegistrar;
@@ -107,6 +108,7 @@ use AIMultilingual\Rest\ViewModel\WorkspacePageSummarySerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceSegmentSerializer;
 use AIMultilingual\Rest\ViewModel\WorkspaceTranslationStatusSerializer;
 use AIMultilingual\Rest\WorkspaceController;
+use AIMultilingual\Rest\TermSlugController;
 use AIMultilingual\Rollout\RolloutCapabilities;
 use AIMultilingual\Rollout\RolloutConfigurationRepository;
 use AIMultilingual\Rollout\GeneralAvailabilityCohortProvider;
@@ -888,6 +890,8 @@ final class Plugin {
 			new ReviewQueueItemSerializer()
 		) )->register();
 
+		( new TermSlugController( $slug_candidates, $route_publication, $languages ) )->register();
+
 		( new ProviderController( $provider_registry ) )->register();
 		( new GlossaryController( $glossary_service ) )->register();
 
@@ -917,12 +921,20 @@ final class Plugin {
 		);
 
 		if ( is_admin() ) {
-			( new SettingsPage( $settings, $languages, $vault, $localized_urls_activation ) )->register();
+			( new SettingsPage(
+				$settings,
+				$languages,
+				$vault,
+				$localized_urls_activation,
+				$routing_admission,
+				$frontier_repository
+			) )->register();
 			( new RolloutAdminPage() )->register();
 			( new SeoDiagnosticsAdminPage( $seo_diagnostics ) )->register();
 			( new Editor( $languages, $store, $extractor ) )->register();
 			( new TranslatorWorkspace( $languages ) )->register();
 			( new GlossaryAdminPage( $languages ) )->register();
+			( new TermLocalizedSlugAdmin( $languages ) )->register();
 
 			// Bind-mount deployments update files in place and never fire the
 			// activation hook, so schema drift has to be caught on its own.
