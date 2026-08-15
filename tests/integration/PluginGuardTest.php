@@ -1439,22 +1439,25 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$router = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
 		$this->assertStringContainsString( 'filtering_term_link', $router );
+		$this->assertStringContainsString( 'OutboundLocalizationSuspender', $router );
 		$this->assertStringContainsString( 'filter_term_link', $router );
 		$this->assertStringNotContainsString( 'add_rewrite_rule', $router );
 		$this->assertStringNotContainsString( 'CompetingUrlAuthority', $router );
 
 		$sb11 = (string) file_get_contents( $this->root() . '/src/Seo/LanguageRelationshipService.php' );
 		$this->assertStringContainsString( 'url_to_postid_unfiltered_home', $sb11 );
+		$this->assertStringContainsString( 'OutboundLocalizationSuspender', $sb11 );
 		$this->assertStringContainsString( 'EffectiveUrlService', $sb11 );
 		$this->assertStringNotContainsString( 'CompetingSeoUrlAuthority', $sb11 );
+
+		$hier = (string) file_get_contents( $this->root() . '/src/Routing/HierarchyPathBuilder.php' );
+		$this->assertStringContainsString( 'OutboundLocalizationSuspender', $hier );
+
+		$this->assertTrue( class_exists( \AIMultilingual\Routing\OutboundLocalizationSuspender::class ) );
 
 		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
 		$this->assertStringNotContainsString( 'ProgramB', $plugin );
 		$this->assertStringNotContainsString( 'VariationRoutePublisher', $plugin );
-
-		$hier = (string) file_get_contents( $this->root() . '/src/Routing/HierarchyPathBuilder.php' );
-		$this->assertStringContainsString( 'remove_all_filters( \'term_link\' )', $hier );
-		$this->assertStringContainsString( 'remove_all_filters( \'home_url\' )', $hier );
 
 		$this->assertFileExists( $this->root() . '/tests/integration/V151D1TermLinkRecursionTest.php' );
 		$this->assertFileExists( $this->root() . '/tests/integration/V151ModelAConsumerTest.php' );

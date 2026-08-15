@@ -514,6 +514,10 @@ final class Router {
 	 * @param string $url Fully qualified URL.
 	 */
 	public function filter_home_url( $url ) {
+		if ( OutboundLocalizationSuspender::is_suspended() ) {
+			return $url;
+		}
+
 		if ( ! is_string( $url ) || ! $this->context->is_translated() ) {
 			return $url;
 		}
@@ -642,7 +646,7 @@ final class Router {
 			return $url;
 		}
 
-		if ( $this->filtering_term_link ) {
+		if ( OutboundLocalizationSuspender::is_suspended() || $this->filtering_term_link ) {
 			return $url;
 		}
 

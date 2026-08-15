@@ -26,7 +26,7 @@
 
 **Rank Math role:** trigger only (breadcrumbs call `get_term_link`).
 
-**Correction:** (1) request-local re-entrancy guard in `Router::filter_term_link`; (2) `HierarchyPathBuilder::source_path_for_term` obtains WordPress source URLs with `home_url`/`term_link` filters temporarily cleared so language-prefixed homes cannot corrupt source paths.
+**Correction:** (1) request-local re-entrancy guard in `Router::filter_term_link`; (2) `OutboundLocalizationSuspender` so `HierarchyPathBuilder::source_path_for_term` and SB11 `url_to_postid` observe unprefixed WordPress URLs without removing third-party filters.
 
 Gate B GET timeout remains runtime evidence. Automated tests use capped call-count (no uncontrolled timeout). **V151AC3** (real GET completion) remains **DEV published-artifact acceptance**.
 
@@ -48,9 +48,10 @@ Gate B GET timeout remains runtime evidence. Automated tests use capped call-cou
 
 ## Production files changed
 
-- `src/Routing/Router.php` — D1 re-entrancy guard
-- `src/Routing/HierarchyPathBuilder.php` — unfiltered source term URL resolution
-- `src/Seo/LanguageRelationshipService.php` — D2/D3a unfiltered `url_to_postid`
+- `src/Routing/Router.php` — D1 re-entrancy guard + suspender hooks
+- `src/Routing/HierarchyPathBuilder.php` — suspended source term URL resolution
+- `src/Routing/OutboundLocalizationSuspender.php` — shared suspend depth
+- `src/Seo/LanguageRelationshipService.php` — D2/D3a suspended `url_to_postid`
 
 ## Tests added/updated
 

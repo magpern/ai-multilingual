@@ -285,22 +285,16 @@ final class LanguageRelationshipService {
 	}
 
 	/**
-	 * Runs url_to_postid with home_url filters temporarily removed.
+	 * Runs url_to_postid with AIML home_url localization suspended.
 	 *
 	 * @param string $url Absolute URL built from unfiltered home + path.
 	 */
 	private function url_to_postid_unfiltered_home( string $url ): int {
-		$backup = $GLOBALS['wp_filter']['home_url'] ?? null;
-		remove_all_filters( 'home_url' );
-		try {
-			return (int) url_to_postid( $url );
-		} finally {
-			if ( null !== $backup ) {
-				$GLOBALS['wp_filter']['home_url'] = $backup; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restore WP hook map after deliberate unfilter.
-			} elseif ( isset( $GLOBALS['wp_filter']['home_url'] ) ) {
-				unset( $GLOBALS['wp_filter']['home_url'] );
+		return (int) \AIMultilingual\Routing\OutboundLocalizationSuspender::run(
+			static function () use ( $url ) {
+				return url_to_postid( $url );
 			}
-		}
+		);
 	}
 
 	/**

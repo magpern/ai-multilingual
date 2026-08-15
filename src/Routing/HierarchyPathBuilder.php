@@ -72,31 +72,19 @@ final class HierarchyPathBuilder {
 	/**
 	 * Unprefixed source path for a term from WordPress/Woo get_term_link.
 	 *
-	 * Temporarily clears home_url / term_link filters so outbound localization
-	 * cannot re-enter or language-prefix the WordPress source URL (v1.5.1 D1).
+	 * Suspends AIML outbound localization so source paths are not language-
+	 * prefixed or re-entered via term_link (v1.5.1 D1). Third-party term_link
+	 * filters remain active.
 	 *
 	 * @param WP_Term $term Source term.
 	 * @return CanonicalPath|WP_Error
 	 */
 	public function source_path_for_term( WP_Term $term ) {
-		$home_backup = $GLOBALS['wp_filter']['home_url'] ?? null;
-		$term_backup = $GLOBALS['wp_filter']['term_link'] ?? null;
-		remove_all_filters( 'home_url' );
-		remove_all_filters( 'term_link' );
-		try {
-			$link = get_term_link( $term );
-		} finally {
-			if ( null !== $home_backup ) {
-				$GLOBALS['wp_filter']['home_url'] = $home_backup; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restore WP hook map after deliberate unfilter.
-			} elseif ( isset( $GLOBALS['wp_filter']['home_url'] ) ) {
-				unset( $GLOBALS['wp_filter']['home_url'] );
+		$link = OutboundLocalizationSuspender::run(
+			static function () use ( $term ) {
+				return get_term_link( $term );
 			}
-			if ( null !== $term_backup ) {
-				$GLOBALS['wp_filter']['term_link'] = $term_backup; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- restore WP hook map after deliberate unfilter.
-			} elseif ( isset( $GLOBALS['wp_filter']['term_link'] ) ) {
-				unset( $GLOBALS['wp_filter']['term_link'] );
-			}
-		}
+		);
 
 		if ( $link instanceof WP_Error ) {
 			return $link;
