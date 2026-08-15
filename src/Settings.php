@@ -66,18 +66,18 @@ final class Settings {
 	 */
 	public static function defaults(): array {
 		return array(
-			'schema_version'                       => self::SCHEMA_VERSION,
+			'schema_version'                           => self::SCHEMA_VERSION,
 
 			/*
 			 * Data retention on uninstall. Default off: translation work is
 			 * expensive to recreate and deleting it must be a deliberate act
 			 * (invariant I5).
 			 */
-			'remove_data_on_uninstall'             => false,
+			'remove_data_on_uninstall'                 => false,
 
 			// Language switcher presentation.
-			'switcher_show_native_name'            => true,
-			'switcher_hide_current'                => false,
+			'switcher_show_native_name'                => true,
+			'switcher_hide_current'                    => false,
 
 			/*
 			 * Strategy F (F1): block attribute registration.
@@ -87,7 +87,7 @@ final class Settings {
 			 * registration becomes a compatibility requirement — not a normal
 			 * post-rollout kill switch (see Strategy F plan §2.2).
 			 */
-			'block_attr_registration_enabled'      => false,
+			'block_attr_registration_enabled'          => false,
 
 			/*
 			 * Strategy F (F2): save-time UUID injection on canonical posts.
@@ -95,7 +95,7 @@ final class Settings {
 			 * Requires attribute registration. Default off so production
 			 * behavior is unchanged until deliberately enabled.
 			 */
-			'block_uuid_injection_enabled'         => false,
+			'block_uuid_injection_enabled'             => false,
 
 			/*
 			 * Strategy F (F4): block-level extraction for sync_source reconciliation.
@@ -103,7 +103,7 @@ final class Settings {
 			 * Requires attribute registration and UUID injection. Default off so
 			 * production behavior is unchanged until deliberately enabled.
 			 */
-			'block_extraction_enabled'             => false,
+			'block_extraction_enabled'                 => false,
 
 			/*
 			 * Strategy F (F6): gated frontend block rendering.
@@ -112,48 +112,51 @@ final class Settings {
 			 * extraction. Default off so production behavior is unchanged until
 			 * deliberately enabled.
 			 */
-			'block_frontend_rendering_enabled'     => false,
+			'block_frontend_rendering_enabled'         => false,
 
 			/*
 			 * A.2 Elementor Foundation: extraction of allowlisted widget controls.
 			 * Default off until deliberately enabled after validation.
 			 */
-			'elementor_extraction_enabled'         => false,
+			'elementor_extraction_enabled'             => false,
 
 			/*
 			 * A.2 Elementor Foundation: request-time frontend overlays.
 			 * Requires elementor_extraction_enabled. Default off.
 			 */
-			'elementor_frontend_rendering_enabled' => false,
+			'elementor_frontend_rendering_enabled'     => false,
 
 			/*
 			 * F11 AI provider configuration (server-side only; API key encrypted).
 			 */
-			'ai_enabled'                           => false,
-			'ai_provider'                          => '',
-			'ai_model'                             => '',
-			'ai_api_key_encrypted'                 => '',
-			'qa_block_on_error'                    => true,
+			'ai_enabled'                               => false,
+			'ai_provider'                              => '',
+			'ai_model'                                 => '',
+			'ai_api_key_encrypted'                     => '',
+			'qa_block_on_error'                        => true,
 
 			/*
 			 * TI.7 / ADR-0020: segment publication gate (rollout). Default off so
 			 * upgrades preserve pre-TI.7 overlay behavior until operators opt in.
 			 */
-			'segment_publication_gate_enabled'     => false,
+			'segment_publication_gate_enabled'         => false,
 
 			/*
 			 * TI.7 / ADR-0020: automatic publication mode. Default manual —
 			 * installing TI.7 must never begin auto-publication.
 			 */
-			'auto_publication_mode'                => 'manual',
+			'auto_publication_mode'                    => 'manual',
 
 			/*
 			 * MSEO / ADR-0023: localized URL activation state machine.
 			 * Default off — MSEO.0 exposes no administrator enable UI.
 			 */
-			'localized_urls_state'                 => 'off',
-			'localized_urls_activation_checkpoint' => null,
-			'localized_urls_activation_error'      => '',
+			'localized_urls_state'                     => 'off',
+			'localized_urls_activation_checkpoint'     => null,
+			'localized_urls_activation_error'          => '',
+			'localized_urls_verified_capability_epoch' => 0,
+			'localized_urls_admitted_capabilities'     => array(),
+			'localized_urls_capability_checkpoint'     => null,
 		);
 	}
 
@@ -215,6 +218,34 @@ final class Settings {
 
 		if ( array_key_exists( 'localized_urls_activation_error', $raw ) ) {
 			$clean['localized_urls_activation_error'] = substr( (string) $raw['localized_urls_activation_error'], 0, 500 );
+		}
+
+		if ( array_key_exists( 'localized_urls_verified_capability_epoch', $raw ) ) {
+			$clean['localized_urls_verified_capability_epoch'] = max( 0, (int) $raw['localized_urls_verified_capability_epoch'] );
+		}
+
+		if ( array_key_exists( 'localized_urls_admitted_capabilities', $raw ) ) {
+			$admitted = $raw['localized_urls_admitted_capabilities'];
+			$allowed  = array( 'term_archive', 'page_hierarchical' );
+			$out      = array();
+			if ( is_array( $admitted ) ) {
+				foreach ( $admitted as $shape ) {
+					$shape = strtolower( trim( (string) $shape ) );
+					if ( in_array( $shape, $allowed, true ) ) {
+						$out[] = $shape;
+					}
+				}
+			}
+			$clean['localized_urls_admitted_capabilities'] = array_values( array_unique( $out ) );
+		}
+
+		if ( array_key_exists( 'localized_urls_capability_checkpoint', $raw ) ) {
+			$checkpoint = $raw['localized_urls_capability_checkpoint'];
+			if ( null === $checkpoint || '' === $checkpoint ) {
+				$clean['localized_urls_capability_checkpoint'] = null;
+			} else {
+				$clean['localized_urls_capability_checkpoint'] = substr( (string) $checkpoint, 0, 4096 );
+			}
 		}
 
 		if ( array_key_exists( 'ai_model', $raw ) ) {
@@ -476,5 +507,46 @@ final class Settings {
 	 */
 	public function localized_urls_activation_error(): string {
 		return (string) ( $this->get()['localized_urls_activation_error'] ?? '' );
+	}
+
+	/**
+	 * Verified capability epoch for MSEO.3 public admission (A1).
+	 */
+	public function localized_urls_verified_capability_epoch(): int {
+		return max( 0, (int) ( $this->get()['localized_urls_verified_capability_epoch'] ?? 0 ) );
+	}
+
+	/**
+	 * Publicly admitted capability shape ids.
+	 *
+	 * @return list<string>
+	 */
+	public function localized_urls_admitted_capabilities(): array {
+		$value = $this->get()['localized_urls_admitted_capabilities'] ?? array();
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $value as $shape ) {
+			$shape = (string) $shape;
+			if ( '' !== $shape ) {
+				$out[] = $shape;
+			}
+		}
+
+		return array_values( array_unique( $out ) );
+	}
+
+	/**
+	 * Capability verification job checkpoint JSON, or null when unset.
+	 */
+	public function localized_urls_capability_checkpoint(): ?string {
+		$value = $this->get()['localized_urls_capability_checkpoint'] ?? null;
+		if ( null === $value || '' === $value ) {
+			return null;
+		}
+
+		return (string) $value;
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Prepared route publication lifecycle (MSEO.1).
+ * Prepared route publication lifecycle (MSEO.1–MSEO.3).
  *
  * @package AIMultilingual
  */
@@ -13,8 +13,10 @@ use AIMultilingual\Database\Schema;
 use AIMultilingual\Translation\Extractor;
 use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
+use AIMultilingual\Translation\TermExtractor;
 use WP_Error;
 use WP_Post;
+use WP_Term;
 
 /**
  * Sole FORMAT_SLUG publication + prepared-route authority.
@@ -34,6 +36,8 @@ final class RoutePublicationService {
 	 * @param CanonicalPathCollisionChecker   $collisions    Collisions.
 	 * @param ObjectLanguagePublicEligibility $eligibility   Eligibility.
 	 * @param RoutingCapabilityRegistry       $capabilities  Capabilities.
+	 * @param HierarchyPathBuilder|null       $hierarchy     Hierarchy path authority.
+	 * @param RoutingCapabilityAdmission|null $admission     Public admission (optional).
 	 */
 	public function __construct(
 		private Store $store,
@@ -43,7 +47,9 @@ final class RoutePublicationService {
 		private PathCanonicalizer $paths,
 		private CanonicalPathCollisionChecker $collisions,
 		private ObjectLanguagePublicEligibility $eligibility,
-		private RoutingCapabilityRegistry $capabilities
+		private RoutingCapabilityRegistry $capabilities,
+		private ?HierarchyPathBuilder $hierarchy = null,
+		private ?RoutingCapabilityAdmission $admission = null
 	) {
 	}
 
@@ -84,10 +90,11 @@ final class RoutePublicationService {
 				return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'ai-multilingual' ) );
 			}
 
-			$source_path_str = $this->unprefixed_permalink_path( $post );
-			if ( $source_path_str instanceof WP_Error ) {
-				return $source_path_str;
+			$source_path = $this->source_path_for_post( $post );
+			if ( $source_path instanceof WP_Error ) {
+				return $source_path;
 			}
+			$source_path_str = $source_path->to_string();
 
 			$publish_status = (string) ( $candidate->publish_status ?? Store::PUBLISH_UNPUBLISHED );
 			$idempotent     = Store::PUBLISH_PUBLISHED === $publish_status
@@ -110,15 +117,16 @@ final class RoutePublicationService {
 				$this->store->commit_route_boundary( $boundary );
 				$committed = true;
 
+				$this->signal_hierarchy_reindex( Store::SOURCE_POST, (int) $post->ID, $post );
+
 				return $this->result_payload( $post, $language_id, true );
 			}
 
-			$resolved = $this->collisions->resolve_effective(
+			$resolved = $this->resolve_post_effective_path(
+				$post,
+				$language_id,
 				$source_path_str,
 				$leaf,
-				$language_id,
-				Store::SOURCE_POST,
-				(int) $post->ID,
 				'' !== $origin ? $origin : 'generated'
 			);
 			if ( $resolved instanceof WP_Error ) {
@@ -155,33 +163,16 @@ final class RoutePublicationService {
 				return $pub;
 			}
 
-			if ( null !== $current ) {
-				$prior_path = (string) ( $current->localized_path ?? '' );
-				if ( '' !== $prior_path && $prior_path !== $effective_path->to_string() ) {
-					try {
-						$hist_path = $this->paths->canonicalize( $prior_path );
-					} catch ( InvalidPathException $e ) {
-						return new WP_Error( 'aiml_slug_invalid_prior_path', $e->getMessage() );
-					}
-					$inserted = $this->history->insert(
-						new HistoryRecord(
-							$language_id,
-							$hist_path,
-							Store::SOURCE_POST,
-							(int) $post->ID,
-							(string) $post->post_type
-						)
-					);
-					if ( $inserted instanceof WP_Error ) {
-						return $inserted;
-					}
-				}
-			}
-
-			try {
-				$source_path = $this->paths->canonicalize( $source_path_str );
-			} catch ( InvalidPathException $e ) {
-				return new WP_Error( 'aiml_slug_invalid_source_path', $e->getMessage() );
+			$history_err = $this->archive_prior_path_if_changed(
+				$current,
+				$effective_path,
+				$language_id,
+				Store::SOURCE_POST,
+				(int) $post->ID,
+				(string) $post->post_type
+			);
+			if ( $history_err instanceof WP_Error ) {
+				return $history_err;
 			}
 
 			$now   = current_time( 'mysql', true );
@@ -209,7 +200,322 @@ final class RoutePublicationService {
 			$this->store->commit_route_boundary( $boundary );
 			$committed = true;
 
+			$this->signal_hierarchy_reindex( Store::SOURCE_POST, (int) $post->ID, $post );
+
 			return $this->result_payload( $post, $language_id, false );
+		} finally {
+			if ( ! $committed ) {
+				$this->store->rollback_route_boundary( $boundary );
+			}
+		}
+	}
+
+	/**
+	 * Atomically publishes a term slug candidate under term-compat authority.
+	 *
+	 * @param WP_Term $term        Source term.
+	 * @param int     $language_id Language id.
+	 * @param int     $user_id     Acting user.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function publish_term_route( WP_Term $term, int $language_id, int $user_id = 0 ) {
+		$eligible = $this->eligibility->is_term_route_publishable( $term, $language_id );
+		if ( $eligible instanceof WP_Error ) {
+			return $eligible;
+		}
+
+		$ref = array(
+			'term_id'            => (int) $term->term_id,
+			'taxonomy'           => (string) $term->taxonomy,
+			'language_id'        => $language_id,
+			'native_field_key'   => TermExtractor::FIELD_SLUG,
+			'native_segment_key' => TermExtractor::FIELD_SLUG,
+		);
+
+		return $this->store->with_term_compat_authority(
+			$ref,
+			function () use ( $term, $language_id, $user_id ) {
+				$boundary  = $this->store->begin_route_boundary();
+				$committed = false;
+
+				try {
+					$candidate = $this->store->lock_segment_for_update(
+						Store::SOURCE_TERM,
+						(int) $term->term_id,
+						$language_id,
+						TermExtractor::FIELD_SLUG,
+						TermExtractor::FIELD_SLUG
+					);
+					if ( null === $candidate ) {
+						return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'ai-multilingual' ) );
+					}
+
+					$current = $this->routes->lock_by_object( Store::SOURCE_TERM, (int) $term->term_id, $language_id );
+
+					$leaf   = trim( (string) ( $candidate->translated_text ?? '' ) );
+					$origin = (string) ( $candidate->slug_origin ?? '' );
+					if ( '' === $leaf || Store::STATUS_MISSING === (string) ( $candidate->status ?? '' ) ) {
+						return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'ai-multilingual' ) );
+					}
+
+					$source_path = $this->source_path_for_term( $term );
+					if ( $source_path instanceof WP_Error ) {
+						return $source_path;
+					}
+
+					$publish_status = (string) ( $candidate->publish_status ?? Store::PUBLISH_UNPUBLISHED );
+					$idempotent     = Store::PUBLISH_PUBLISHED === $publish_status
+						&& null !== $current
+						&& 'active' === (string) ( $current->route_status ?? '' );
+
+					if ( $idempotent ) {
+						$pub = $this->publication->publish_under_route_authority(
+							Store::SOURCE_TERM,
+							(int) $term->term_id,
+							$language_id,
+							TermExtractor::FIELD_SLUG,
+							$candidate,
+							$user_id
+						);
+						if ( $pub instanceof WP_Error ) {
+							return $pub;
+						}
+
+						$this->store->commit_route_boundary( $boundary );
+						$committed = true;
+
+						return $this->term_result_payload( $term, $language_id, true );
+					}
+
+					$resolved = $this->resolve_term_effective_path(
+						$term,
+						$language_id,
+						$leaf,
+						'' !== $origin ? $origin : 'generated'
+					);
+					if ( $resolved instanceof WP_Error ) {
+						return $resolved;
+					}
+
+					$effective_leaf = $resolved['leaf'];
+					$effective_path = $resolved['path'];
+
+					$reuse = $this->reconcile_own_history( $language_id, $effective_path, Store::SOURCE_TERM, (int) $term->term_id );
+					if ( $reuse instanceof WP_Error ) {
+						return $reuse;
+					}
+
+					$check = $this->collisions->assert_available(
+						$language_id,
+						$effective_path,
+						Store::SOURCE_TERM,
+						(int) $term->term_id
+					);
+					if ( true !== $check ) {
+						return $check;
+					}
+
+					$pub = $this->publication->publish_under_route_authority(
+						Store::SOURCE_TERM,
+						(int) $term->term_id,
+						$language_id,
+						TermExtractor::FIELD_SLUG,
+						$candidate,
+						$user_id
+					);
+					if ( $pub instanceof WP_Error ) {
+						return $pub;
+					}
+
+					$history_err = $this->archive_prior_path_if_changed(
+						$current,
+						$effective_path,
+						$language_id,
+						Store::SOURCE_TERM,
+						(int) $term->term_id,
+						(string) $term->taxonomy
+					);
+					if ( $history_err instanceof WP_Error ) {
+						return $history_err;
+					}
+
+					$now   = current_time( 'mysql', true );
+					$saved = $this->routes->save(
+						new RouteRecord(
+							$language_id,
+							Store::SOURCE_TERM,
+							(int) $term->term_id,
+							(string) $term->taxonomy,
+							$source_path,
+							$effective_path,
+							$effective_leaf,
+							'',
+							'' !== $origin ? $origin : 'generated',
+							'active',
+							$now
+						)
+					);
+					if ( $saved instanceof WP_Error ) {
+						return $saved;
+					}
+
+					$this->history->delete_oldest_beyond( Store::SOURCE_TERM, (int) $term->term_id, $language_id, self::HISTORY_MAX );
+
+					$this->store->commit_route_boundary( $boundary );
+					$committed = true;
+
+					$this->signal_hierarchy_reindex( Store::SOURCE_TERM, (int) $term->term_id );
+
+					return $this->term_result_payload( $term, $language_id, false );
+				} finally {
+					if ( ! $committed ) {
+						$this->store->rollback_route_boundary( $boundary );
+					}
+				}
+			}
+		);
+	}
+
+	/**
+	 * Rematerializes an existing active route path from current hierarchy (maintenance).
+	 *
+	 * Does not mutate slug candidates. On collision, returns WP_Error without writing.
+	 *
+	 * @param string $source_type Source type.
+	 * @param int    $source_id   Source id.
+	 * @param int    $language_id Language id.
+	 * @return object|null|WP_Error Updated route, null when no active route, or error.
+	 */
+	public function rematerialize_route( string $source_type, int $source_id, int $language_id ) {
+		$boundary  = $this->store->begin_route_boundary();
+		$committed = false;
+
+		try {
+			$current = $this->routes->lock_by_object( $source_type, $source_id, $language_id );
+			if ( null === $current || 'active' !== (string) ( $current->route_status ?? '' ) ) {
+				$this->store->commit_route_boundary( $boundary );
+				$committed = true;
+
+				return null;
+			}
+
+			$leaf   = (string) ( $current->localized_slug ?? '' );
+			$origin = (string) ( $current->slug_origin ?? 'generated' );
+			if ( '' === $leaf ) {
+				$parts = array_values( array_filter( explode( '/', trim( (string) ( $current->localized_path ?? '' ), '/' ) ) ) );
+				$last  = end( $parts );
+				$leaf  = is_string( $last ) ? $last : '';
+			}
+			if ( '' === $leaf ) {
+				return new WP_Error( 'aiml_slug_empty_leaf', __( 'Active route has no localized leaf.', 'ai-multilingual' ) );
+			}
+
+			if ( Store::SOURCE_POST === $source_type ) {
+				$post = get_post( $source_id );
+				if ( ! $post instanceof WP_Post ) {
+					return new WP_Error( 'aiml_slug_source_missing', __( 'Source post is missing.', 'ai-multilingual' ) );
+				}
+				$source_path = $this->source_path_for_post( $post );
+				if ( $source_path instanceof WP_Error ) {
+					return $source_path;
+				}
+				$new_path = $this->localized_path_for_post( $post, $language_id, $leaf );
+				if ( $new_path instanceof WP_Error ) {
+					return $new_path;
+				}
+				$subtype = (string) $post->post_type;
+			} elseif ( Store::SOURCE_TERM === $source_type ) {
+				$term = get_term( $source_id );
+				if ( ! $term instanceof WP_Term || is_wp_error( $term ) ) {
+					return new WP_Error( 'aiml_slug_source_missing', __( 'Source term is missing.', 'ai-multilingual' ) );
+				}
+				$source_path = $this->source_path_for_term( $term );
+				if ( $source_path instanceof WP_Error ) {
+					return $source_path;
+				}
+				$new_path = $this->localized_path_for_term( $term, $language_id, $leaf );
+				if ( $new_path instanceof WP_Error ) {
+					return $new_path;
+				}
+				$subtype = (string) $term->taxonomy;
+			} else {
+				return new WP_Error( 'aiml_slug_unsupported_source', __( 'Unsupported source type.', 'ai-multilingual' ) );
+			}
+
+			$prior = (string) ( $current->localized_path ?? '' );
+			if ( $prior === $new_path->to_string() ) {
+				// Still refresh source_path if hierarchy moved.
+				$saved = $this->routes->save(
+					new RouteRecord(
+						$language_id,
+						$source_type,
+						$source_id,
+						$subtype,
+						$source_path,
+						$new_path,
+						$leaf,
+						(string) ( $current->route_namespace ?? '' ),
+						$origin,
+						'active',
+						isset( $current->activated_at ) ? (string) $current->activated_at : null
+					)
+				);
+				if ( $saved instanceof WP_Error ) {
+					return $saved;
+				}
+				$this->store->commit_route_boundary( $boundary );
+				$committed = true;
+
+				return $saved;
+			}
+
+			$reuse = $this->reconcile_own_history( $language_id, $new_path, $source_type, $source_id );
+			if ( $reuse instanceof WP_Error ) {
+				return $reuse;
+			}
+
+			$check = $this->collisions->assert_available( $language_id, $new_path, $source_type, $source_id );
+			if ( true !== $check ) {
+				return $check;
+			}
+
+			$history_err = $this->archive_prior_path_if_changed(
+				$current,
+				$new_path,
+				$language_id,
+				$source_type,
+				$source_id,
+				$subtype
+			);
+			if ( $history_err instanceof WP_Error ) {
+				return $history_err;
+			}
+
+			$saved = $this->routes->save(
+				new RouteRecord(
+					$language_id,
+					$source_type,
+					$source_id,
+					$subtype,
+					$source_path,
+					$new_path,
+					$leaf,
+					(string) ( $current->route_namespace ?? '' ),
+					$origin,
+					'active',
+					isset( $current->activated_at ) ? (string) $current->activated_at : null
+				)
+			);
+			if ( $saved instanceof WP_Error ) {
+				return $saved;
+			}
+
+			$this->history->delete_oldest_beyond( $source_type, $source_id, $language_id, self::HISTORY_MAX );
+
+			$this->store->commit_route_boundary( $boundary );
+			$committed = true;
+
+			return $saved;
 		} finally {
 			if ( ! $committed ) {
 				$this->store->rollback_route_boundary( $boundary );
@@ -241,15 +547,9 @@ final class RoutePublicationService {
 				return null;
 			}
 
-			$source_path_str = $this->unprefixed_permalink_path( $post );
-			if ( $source_path_str instanceof WP_Error ) {
-				return $source_path_str;
-			}
-
-			try {
-				$source_path = $this->paths->canonicalize( $source_path_str );
-			} catch ( InvalidPathException $e ) {
-				return new WP_Error( 'aiml_slug_invalid_source_path', $e->getMessage() );
+			$source_path = $this->source_path_for_post( $post );
+			if ( $source_path instanceof WP_Error ) {
+				return $source_path;
 			}
 
 			$localized = (string) ( $current->localized_path ?? '' );
@@ -321,6 +621,16 @@ final class RoutePublicationService {
 	public function purge_for_source( int $post_id ): void {
 		$this->routes->delete_by_source( Store::SOURCE_POST, $post_id );
 		$this->history->delete_by_source( Store::SOURCE_POST, $post_id );
+	}
+
+	/**
+	 * Purges term routes and history.
+	 *
+	 * @param int $term_id Term id.
+	 */
+	public function purge_for_term( int $term_id ): void {
+		$this->routes->delete_by_source( Store::SOURCE_TERM, $term_id );
+		$this->history->delete_by_source( Store::SOURCE_TERM, $term_id );
 	}
 
 	/**
@@ -403,12 +713,63 @@ final class RoutePublicationService {
 	}
 
 	/**
-	 * Helper.
+	 * Archives prior localized path into history when it changed.
+	 *
+	 * @param object|null   $current        Locked current route.
+	 * @param CanonicalPath $effective_path New path.
+	 * @param int           $language_id    Language id.
+	 * @param string        $source_type    Source type.
+	 * @param int           $source_id      Source id.
+	 * @param string        $subtype        Source subtype.
+	 * @return true|WP_Error
+	 */
+	private function archive_prior_path_if_changed(
+		?object $current,
+		CanonicalPath $effective_path,
+		int $language_id,
+		string $source_type,
+		int $source_id,
+		string $subtype
+	) {
+		if ( null === $current ) {
+			return true;
+		}
+
+		$prior_path = (string) ( $current->localized_path ?? '' );
+		if ( '' === $prior_path || $prior_path === $effective_path->to_string() ) {
+			return true;
+		}
+
+		try {
+			$hist_path = $this->paths->canonicalize( $prior_path );
+		} catch ( InvalidPathException $e ) {
+			return new WP_Error( 'aiml_slug_invalid_prior_path', $e->getMessage() );
+		}
+
+		$inserted = $this->history->insert(
+			new HistoryRecord(
+				$language_id,
+				$hist_path,
+				$source_type,
+				$source_id,
+				$subtype
+			)
+		);
+
+		return $inserted instanceof WP_Error ? $inserted : true;
+	}
+
+	/**
+	 * Source path for a post via HierarchyPathBuilder when available.
 	 *
 	 * @param WP_Post $post Post.
-	 * @return string|WP_Error
+	 * @return CanonicalPath|WP_Error
 	 */
-	private function unprefixed_permalink_path( WP_Post $post ) {
+	private function source_path_for_post( WP_Post $post ) {
+		if ( null !== $this->hierarchy ) {
+			return $this->hierarchy->source_path_for_post( $post );
+		}
+
 		$permalink = get_permalink( $post );
 		if ( ! is_string( $permalink ) || '' === $permalink ) {
 			return new WP_Error( 'aiml_slug_no_permalink', __( 'Could not resolve permalink.', 'ai-multilingual' ) );
@@ -424,10 +785,242 @@ final class RoutePublicationService {
 		}
 
 		try {
-			return $this->paths->canonicalize( $path )->to_string();
+			return $this->paths->canonicalize( $path );
 		} catch ( InvalidPathException $e ) {
 			return new WP_Error( 'aiml_slug_invalid_source_path', $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Source path for a term.
+	 *
+	 * @param WP_Term $term Term.
+	 * @return CanonicalPath|WP_Error
+	 */
+	private function source_path_for_term( WP_Term $term ) {
+		if ( null !== $this->hierarchy ) {
+			return $this->hierarchy->source_path_for_term( $term );
+		}
+
+		$link = get_term_link( $term );
+		if ( $link instanceof WP_Error ) {
+			return $link;
+		}
+
+		$path = (string) wp_parse_url( (string) $link, PHP_URL_PATH );
+		try {
+			return $this->paths->canonicalize( '/' . ltrim( $path, '/' ) );
+		} catch ( InvalidPathException $e ) {
+			return new WP_Error( 'aiml_hierarchy_invalid_term_source', $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Localized path for a post.
+	 *
+	 * @param WP_Post $post        Post.
+	 * @param int     $language_id Language id.
+	 * @param string  $leaf        Leaf slug.
+	 * @return CanonicalPath|WP_Error
+	 */
+	private function localized_path_for_post( WP_Post $post, int $language_id, string $leaf ) {
+		if ( null !== $this->hierarchy && ( (int) $post->post_parent > 0 || 'page' === $post->post_type ) ) {
+			return $this->hierarchy->localized_path_for_post( $post, $language_id, $leaf );
+		}
+
+		$source = $this->source_path_for_post( $post );
+		if ( $source instanceof WP_Error ) {
+			return $source;
+		}
+
+		return $this->collisions->replace_leaf( $source->to_string(), $leaf );
+	}
+
+	/**
+	 * Localized path for a term.
+	 *
+	 * @param WP_Term $term        Term.
+	 * @param int     $language_id Language id.
+	 * @param string  $leaf        Leaf slug.
+	 * @return CanonicalPath|WP_Error
+	 */
+	private function localized_path_for_term( WP_Term $term, int $language_id, string $leaf ) {
+		if ( null !== $this->hierarchy ) {
+			return $this->hierarchy->localized_path_for_term( $term, $language_id, $leaf );
+		}
+
+		$source = $this->source_path_for_term( $term );
+		if ( $source instanceof WP_Error ) {
+			return $source;
+		}
+
+		return $this->collisions->replace_leaf( $source->to_string(), $leaf );
+	}
+
+	/**
+	 * Resolves effective leaf/path for a post (suffixing for generated).
+	 *
+	 * @param WP_Post $post            Post.
+	 * @param int     $language_id     Language id.
+	 * @param string  $source_path_str Source path string (flat fallback).
+	 * @param string  $candidate_leaf  Candidate leaf.
+	 * @param string  $slug_origin     Origin.
+	 * @return array{leaf: string, path: CanonicalPath}|WP_Error
+	 */
+	private function resolve_post_effective_path(
+		WP_Post $post,
+		int $language_id,
+		string $source_path_str,
+		string $candidate_leaf,
+		string $slug_origin
+	) {
+		$hierarchical = (int) $post->post_parent > 0 && 'page' === $post->post_type && null !== $this->hierarchy;
+		if ( ! $hierarchical ) {
+			return $this->collisions->resolve_effective(
+				$source_path_str,
+				$candidate_leaf,
+				$language_id,
+				Store::SOURCE_POST,
+				(int) $post->ID,
+				$slug_origin
+			);
+		}
+
+		$attempt = $candidate_leaf;
+		$max     = 'manual' === $slug_origin ? 1 : CanonicalPathCollisionChecker::MAX_SUFFIX_ATTEMPTS;
+
+		for ( $i = 0; $i < $max; $i++ ) {
+			if ( $i > 0 ) {
+				$attempt = $candidate_leaf . '-' . ( $i + 1 );
+			}
+
+			$path = $this->hierarchy->localized_path_for_post( $post, $language_id, $attempt );
+			if ( $path instanceof WP_Error ) {
+				return $path;
+			}
+
+			$check = $this->collisions->assert_available(
+				$language_id,
+				$path,
+				Store::SOURCE_POST,
+				(int) $post->ID
+			);
+			if ( true === $check ) {
+				return array(
+					'leaf' => $attempt,
+					'path' => $path,
+				);
+			}
+
+			if ( 'manual' === $slug_origin ) {
+				return $check;
+			}
+		}
+
+		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'ai-multilingual' ), array( 'status' => 409 ) );
+	}
+
+	/**
+	 * Resolves effective leaf/path for a term.
+	 *
+	 * @param WP_Term $term           Term.
+	 * @param int     $language_id    Language id.
+	 * @param string  $candidate_leaf Candidate leaf.
+	 * @param string  $slug_origin    Origin.
+	 * @return array{leaf: string, path: CanonicalPath}|WP_Error
+	 */
+	private function resolve_term_effective_path(
+		WP_Term $term,
+		int $language_id,
+		string $candidate_leaf,
+		string $slug_origin
+	) {
+		$attempt = $candidate_leaf;
+		$max     = 'manual' === $slug_origin ? 1 : CanonicalPathCollisionChecker::MAX_SUFFIX_ATTEMPTS;
+
+		for ( $i = 0; $i < $max; $i++ ) {
+			if ( $i > 0 ) {
+				$attempt = $candidate_leaf . '-' . ( $i + 1 );
+			}
+
+			$path = $this->localized_path_for_term( $term, $language_id, $attempt );
+			if ( $path instanceof WP_Error ) {
+				return $path;
+			}
+
+			$check = $this->collisions->assert_available(
+				$language_id,
+				$path,
+				Store::SOURCE_TERM,
+				(int) $term->term_id
+			);
+			if ( true === $check ) {
+				return array(
+					'leaf' => $attempt,
+					'path' => $path,
+				);
+			}
+
+			if ( 'manual' === $slug_origin ) {
+				return $check;
+			}
+		}
+
+		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'ai-multilingual' ), array( 'status' => 409 ) );
+	}
+
+	/**
+	 * Requests bounded descendant rematerialization after a hierarchical publish.
+	 *
+	 * @param string       $source_type Source type.
+	 * @param int          $source_id   Source id.
+	 * @param WP_Post|null $post        Post when known.
+	 */
+	private function signal_hierarchy_reindex( string $source_type, int $source_id, ?WP_Post $post = null ): void {
+		if ( Store::SOURCE_POST === $source_type && $post instanceof WP_Post ) {
+			if ( 'page' !== $post->post_type ) {
+				return;
+			}
+			$children = get_pages(
+				array(
+					'parent'      => (int) $post->ID,
+					'number'      => 1,
+					'post_status' => array( 'publish', 'private', 'draft' ),
+				)
+			);
+			if ( ! is_array( $children ) || array() === $children ) {
+				return;
+			}
+		}
+
+		if ( Store::SOURCE_TERM === $source_type ) {
+			$term = get_term( $source_id );
+			if ( ! $term instanceof WP_Term || is_wp_error( $term ) ) {
+				return;
+			}
+			$children = get_terms(
+				array(
+					'taxonomy'   => (string) $term->taxonomy,
+					'parent'     => $source_id,
+					'hide_empty' => false,
+					'number'     => 1,
+					'fields'     => 'ids',
+				)
+			);
+			if ( ! is_array( $children ) || array() === $children ) {
+				return;
+			}
+		}
+
+		/**
+		 * Fires after a prepared route change that may require descendant rematerialization.
+		 *
+		 * @since 1.4.0
+		 *
+		 * @param string $source_type Source type.
+		 * @param int    $source_id   Source id.
+		 */
+		do_action( 'aiml_hierarchy_reindex_root', $source_type, $source_id );
 	}
 
 	/**
@@ -444,5 +1037,31 @@ final class RoutePublicationService {
 		$view['status']     = 'published';
 
 		return $view;
+	}
+
+	/**
+	 * Term publish result payload.
+	 *
+	 * @param WP_Term $term        Term.
+	 * @param int     $language_id Language.
+	 * @param bool    $idempotent  Idempotent republish.
+	 * @return array<string, mixed>
+	 */
+	private function term_result_payload( WP_Term $term, int $language_id, bool $idempotent ): array {
+		$candidate = $this->store->get( Store::SOURCE_TERM, (int) $term->term_id, $language_id, TermExtractor::FIELD_SLUG );
+		$route     = $this->routes->find_by_object( Store::SOURCE_TERM, (int) $term->term_id, $language_id );
+
+		return array(
+			'status'                        => 'published',
+			'idempotent'                    => $idempotent,
+			'slug_candidate'                => is_object( $candidate ) ? trim( (string) ( $candidate->translated_text ?? '' ) ) : '',
+			'slug_origin'                   => is_object( $candidate ) ? (string) ( $candidate->slug_origin ?? '' ) : '',
+			'slug_candidate_publish_status' => is_object( $candidate ) ? (string) ( $candidate->publish_status ?? '' ) : '',
+			'active_route_slug'             => null !== $route ? (string) ( $route->localized_slug ?? '' ) : '',
+			'active_route_status'           => null !== $route ? (string) ( $route->route_status ?? '' ) : '',
+			'route_prepared'                => null !== $route && 'active' === (string) ( $route->route_status ?? '' ),
+			'localized_path'                => null !== $route ? (string) ( $route->localized_path ?? '' ) : '',
+			'source_path'                   => null !== $route ? (string) ( $route->source_path ?? '' ) : '',
+		);
 	}
 }

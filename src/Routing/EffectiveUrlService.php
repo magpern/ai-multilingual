@@ -1,6 +1,6 @@
 <?php
 /**
- * Effective URL authority (MSEO.2).
+ * Effective URL authority (MSEO.2 + MSEO.3).
  *
  * @package AIMultilingual
  */
@@ -13,6 +13,7 @@ use AIMultilingual\Language\Languages;
 use AIMultilingual\Settings;
 use AIMultilingual\Translation\Store;
 use WP_Post;
+use WP_Term;
 
 /**
  * Sole effective URL authority (ADR-0023 §16).
@@ -29,18 +30,20 @@ final class EffectiveUrlService {
 	/**
 	 * Builds the effective URL service.
 	 *
-	 * @param Settings                  $settings     Plugin settings.
-	 * @param SlugRouteRepository       $routes       Route repository.
-	 * @param RoutingCapabilityRegistry $capabilities Capability registry.
-	 * @param PathCanonicalizer         $paths        Path canonicalizer.
-	 * @param Languages                 $languages    Language registry.
+	 * @param Settings                   $settings     Plugin settings.
+	 * @param SlugRouteRepository        $routes       Route repository.
+	 * @param RoutingCapabilityRegistry  $capabilities Capability registry.
+	 * @param PathCanonicalizer          $paths        Path canonicalizer.
+	 * @param Languages                  $languages    Language registry.
+	 * @param RoutingCapabilityAdmission $admission     Public admission authority.
 	 */
 	public function __construct(
 		private Settings $settings,
 		private SlugRouteRepository $routes,
 		private RoutingCapabilityRegistry $capabilities,
 		private PathCanonicalizer $paths,
-		private Languages $languages
+		private Languages $languages,
+		private ?RoutingCapabilityAdmission $admission = null
 	) {
 	}
 
@@ -79,14 +82,39 @@ final class EffectiveUrlService {
 			return $source_path;
 		}
 
-		if ( Store::SOURCE_POST !== (string) ( $route->source_type ?? '' ) ) {
-			$this->cache[ $cache_key ] = $source_path;
+		$source_type = (string) ( $route->source_type ?? '' );
+		$source_id   = (int) ( $route->source_id ?? 0 );
 
-			return $source_path;
-		}
+		if ( Store::SOURCE_POST === $source_type ) {
+			$post = get_post( $source_id );
+			if ( ! $post instanceof WP_Post || ! $this->capabilities->supports_post( $post ) ) {
+				$this->cache[ $cache_key ] = $source_path;
 
-		$post = get_post( (int) ( $route->source_id ?? 0 ) );
-		if ( ! $post instanceof WP_Post || ! $this->capabilities->supports_post( $post ) ) {
+				return $source_path;
+			}
+			if ( null !== $this->admission && ! $this->admission->is_post_publicly_localizable( $post ) ) {
+				$this->cache[ $cache_key ] = $source_path;
+
+				return $source_path;
+			}
+		} elseif ( Store::SOURCE_TERM === $source_type ) {
+			$term = get_term( $source_id );
+			if ( ! $term instanceof WP_Term || is_wp_error( $term ) ) {
+				$this->cache[ $cache_key ] = $source_path;
+
+				return $source_path;
+			}
+			if ( ! $this->capabilities->supports_term_object( $term ) ) {
+				$this->cache[ $cache_key ] = $source_path;
+
+				return $source_path;
+			}
+			if ( null === $this->admission || ! $this->admission->is_term_publicly_localizable( (string) $term->taxonomy ) ) {
+				$this->cache[ $cache_key ] = $source_path;
+
+				return $source_path;
+			}
+		} else {
 			$this->cache[ $cache_key ] = $source_path;
 
 			return $source_path;
@@ -102,6 +130,13 @@ final class EffectiveUrlService {
 		$this->cache[ $cache_key ] = $localized;
 
 		return $localized;
+	}
+
+	/**
+	 * Clears request-local cache (after route mutations in-request).
+	 */
+	public function clear_request_cache(): void {
+		$this->cache = array();
 	}
 
 	/**

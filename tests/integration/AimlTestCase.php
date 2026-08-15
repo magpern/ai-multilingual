@@ -188,13 +188,15 @@ abstract class AimlTestCase extends WP_UnitTestCase {
 		$paths        = new PathCanonicalizer();
 		$routes       = new SlugRouteRepository();
 		$capabilities = new RoutingCapabilityRegistry();
-		$effective    = new EffectiveUrlService( $settings, $routes, $capabilities, $paths, $this->languages );
+		$admission    = new \AIMultilingual\Routing\RoutingCapabilityAdmission( $settings, $capabilities );
+		$effective    = new EffectiveUrlService( $settings, $routes, $capabilities, $paths, $this->languages, $admission );
 		$eligibility  = new ObjectLanguagePublicEligibility(
 			$this->store,
 			$this->languages,
 			$capabilities,
 			$settings,
-			$routes
+			$routes,
+			$admission
 		);
 
 		return new LanguageRelationshipService(
@@ -216,7 +218,9 @@ abstract class AimlTestCase extends WP_UnitTestCase {
 		$routes       = new SlugRouteRepository();
 		$history      = new RouteHistoryRepository();
 		$capabilities = new RoutingCapabilityRegistry();
-		$effective    = new EffectiveUrlService( $settings, $routes, $capabilities, $paths, $this->languages );
+		$admission    = new \AIMultilingual\Routing\RoutingCapabilityAdmission( $settings, $capabilities );
+		$hierarchy    = new \AIMultilingual\Routing\HierarchyPathBuilder( $routes, $paths );
+		$effective    = new EffectiveUrlService( $settings, $routes, $capabilities, $paths, $this->languages, $admission );
 
 		return new Router(
 			$this->languages,
@@ -226,7 +230,8 @@ abstract class AimlTestCase extends WP_UnitTestCase {
 			$settings,
 			$paths,
 			$routes,
-			$history
+			$history,
+			$hierarchy
 		);
 	}
 

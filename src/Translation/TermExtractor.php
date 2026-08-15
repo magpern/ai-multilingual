@@ -16,12 +16,8 @@ use WP_Term;
 /**
  * Turns an admitted taxonomy term into its translatable source segments.
  *
- * TSC.1 admits exactly two native fields, `name` and `description`. The slug is
- * deliberately absent: translating it would change permalinks, which is a
- * routing decision rather than a content one and belongs to its own milestone.
- *
- * Empty fields are skipped so an untouched description never shows up as
- * outstanding translation work. TSC.2 may merge native registered `m:` meta.
+ * TSC.1 admits native `name` and `description`. MSEO.3 adds FORMAT_SLUG as a
+ * routing-owned candidate segment (`slug`); it is not a content-bundle field.
  */
 final class TermExtractor {
 
@@ -30,6 +26,7 @@ final class TermExtractor {
 	 */
 	public const FIELD_NAME        = 'name';
 	public const FIELD_DESCRIPTION = 'description';
+	public const FIELD_SLUG        = 'slug';
 
 	/**
 	 * Construct the term extractor.
@@ -41,7 +38,7 @@ final class TermExtractor {
 	) {
 	}
 	/**
-	 * Native fields in display order.
+	 * Native content fields in display order (slug is routing-owned via SlugCandidateService).
 	 *
 	 * @return array<string, array{format: string, order: int}>
 	 */

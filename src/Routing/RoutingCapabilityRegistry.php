@@ -1,6 +1,6 @@
 <?php
 /**
- * Inert routing capability registry (MSEO.1).
+ * Routing capability registry (MSEO.1–MSEO.3).
  *
  * @package AIMultilingual
  */
@@ -9,10 +9,14 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Routing;
 
+use AIMultilingual\Surface\AdmittedTaxonomies;
 use WP_Post;
+use WP_Term;
 
 /**
- * Model B capability facts for prepared-route publication gating.
+ * Model B capability facts for prepared-route publication gating (implemented).
+ *
+ * Public visitor use additionally requires {@see RoutingCapabilityAdmission}.
  */
 final class RoutingCapabilityRegistry {
 
@@ -24,15 +28,17 @@ final class RoutingCapabilityRegistry {
 	public const TERM_ARCHIVE               = 'term_archive';
 
 	/**
-	 * Whether route publication is supported for the object.
+	 * Whether route publication is implemented for the post shape.
 	 *
 	 * @param WP_Post $post Source post.
 	 */
 	public function supports_post( WP_Post $post ): bool {
-		return null !== $this->capability_for_post( $post )
+		$cap = $this->capability_for_post( $post );
+
+		return null !== $cap
 			&& in_array(
-				$this->capability_for_post( $post ),
-				array( self::POST_FLAT, self::PAGE_TOP_LEVEL, self::PRODUCT_PLAIN_PERMALINK ),
+				$cap,
+				array( self::POST_FLAT, self::PAGE_TOP_LEVEL, self::PAGE_HIERARCHICAL, self::PRODUCT_PLAIN_PERMALINK ),
 				true
 			);
 	}
@@ -63,10 +69,44 @@ final class RoutingCapabilityRegistry {
 	}
 
 	/**
-	 * Terms are deferred to MSEO.3.
+	 * Whether term archive routing is implemented for any admitted taxonomy.
 	 */
 	public function supports_term(): bool {
-		return false;
+		return true;
+	}
+
+	/**
+	 * Whether term archive routing is implemented for a taxonomy.
+	 *
+	 * @param string $taxonomy Taxonomy slug.
+	 */
+	public function supports_term_taxonomy( string $taxonomy ): bool {
+		$taxonomy = (string) $taxonomy;
+		if ( '' === $taxonomy ) {
+			return false;
+		}
+
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			return false;
+		}
+
+		$tax = get_taxonomy( $taxonomy );
+		if ( ! $tax || empty( $tax->public ) ) {
+			return false;
+		}
+
+		$admitted = AdmittedTaxonomies::admits( $taxonomy );
+
+		return $admitted;
+	}
+
+	/**
+	 * Whether a concrete term is implementable for routing.
+	 *
+	 * @param WP_Term $term Source term.
+	 */
+	public function supports_term_object( WP_Term $term ): bool {
+		return $this->supports_term_taxonomy( (string) $term->taxonomy );
 	}
 
 	/**
