@@ -151,9 +151,11 @@ final class Settings {
 			 * MSEO / ADR-0023: localized URL activation state machine.
 			 * Default off — MSEO.0 exposes no administrator enable UI.
 			 */
-			'localized_urls_state'                 => 'off',
-			'localized_urls_activation_checkpoint' => null,
-			'localized_urls_activation_error'      => '',
+			'localized_urls_state'                     => 'off',
+			'localized_urls_activation_checkpoint'     => null,
+			'localized_urls_activation_error'          => '',
+			'localized_urls_verified_capability_epoch' => 0,
+			'localized_urls_admitted_capabilities'     => array(),
 		);
 	}
 
@@ -215,6 +217,25 @@ final class Settings {
 
 		if ( array_key_exists( 'localized_urls_activation_error', $raw ) ) {
 			$clean['localized_urls_activation_error'] = substr( (string) $raw['localized_urls_activation_error'], 0, 500 );
+		}
+
+		if ( array_key_exists( 'localized_urls_verified_capability_epoch', $raw ) ) {
+			$clean['localized_urls_verified_capability_epoch'] = max( 0, (int) $raw['localized_urls_verified_capability_epoch'] );
+		}
+
+		if ( array_key_exists( 'localized_urls_admitted_capabilities', $raw ) ) {
+			$admitted = $raw['localized_urls_admitted_capabilities'];
+			$allowed  = array( 'term_archive', 'page_hierarchical' );
+			$out      = array();
+			if ( is_array( $admitted ) ) {
+				foreach ( $admitted as $shape ) {
+					$shape = strtolower( trim( (string) $shape ) );
+					if ( in_array( $shape, $allowed, true ) ) {
+						$out[] = $shape;
+					}
+				}
+			}
+			$clean['localized_urls_admitted_capabilities'] = array_values( array_unique( $out ) );
 		}
 
 		if ( array_key_exists( 'ai_model', $raw ) ) {
@@ -476,5 +497,34 @@ final class Settings {
 	 */
 	public function localized_urls_activation_error(): string {
 		return (string) ( $this->get()['localized_urls_activation_error'] ?? '' );
+	}
+
+	/**
+	 * Verified capability epoch for MSEO.3 public admission (A1).
+	 */
+	public function localized_urls_verified_capability_epoch(): int {
+		return max( 0, (int) ( $this->get()['localized_urls_verified_capability_epoch'] ?? 0 ) );
+	}
+
+	/**
+	 * Publicly admitted capability shape ids.
+	 *
+	 * @return list<string>
+	 */
+	public function localized_urls_admitted_capabilities(): array {
+		$value = $this->get()['localized_urls_admitted_capabilities'] ?? array();
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $value as $shape ) {
+			$shape = (string) $shape;
+			if ( '' !== $shape ) {
+				$out[] = $shape;
+			}
+		}
+
+		return array_values( array_unique( $out ) );
 	}
 }
