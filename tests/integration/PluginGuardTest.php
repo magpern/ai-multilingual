@@ -1452,6 +1452,10 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'ProgramB', $plugin );
 		$this->assertStringNotContainsString( 'VariationRoutePublisher', $plugin );
 
+		$hier = (string) file_get_contents( $this->root() . '/src/Routing/HierarchyPathBuilder.php' );
+		$this->assertStringContainsString( 'remove_all_filters( \'term_link\' )', $hier );
+		$this->assertStringContainsString( 'remove_all_filters( \'home_url\' )', $hier );
+
 		$this->assertFileExists( $this->root() . '/tests/integration/V151D1TermLinkRecursionTest.php' );
 		$this->assertFileExists( $this->root() . '/tests/integration/V151ModelAConsumerTest.php' );
 		$this->assertFileExists( $this->root() . '/docs/plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md' );
