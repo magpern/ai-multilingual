@@ -20,12 +20,13 @@ use AIMultilingual\Settings;
 final class RoutingCapabilityAdmission {
 
 	/**
-	 * Code generation that introduced MSEO.3 public-capable shapes.
+	 * Code generation that introduced MSEO.3/MSEO.4 public-capable shapes.
 	 */
-	public const CODE_CAPABILITY_EPOCH = 1;
+	public const CODE_CAPABILITY_EPOCH = 2;
 
-	public const SHAPE_TERM_ARCHIVE      = 'term_archive';
-	public const SHAPE_PAGE_HIERARCHICAL = 'page_hierarchical';
+	public const SHAPE_TERM_ARCHIVE               = 'term_archive';
+	public const SHAPE_PAGE_HIERARCHICAL          = 'page_hierarchical';
+	public const SHAPE_PRODUCT_CATEGORY_PERMALINK = 'product_category_permalink';
 
 	/**
 	 * Shapes this code generation knows how to verify/admit.
@@ -33,6 +34,7 @@ final class RoutingCapabilityAdmission {
 	public const CODE_SHAPES = array(
 		self::SHAPE_TERM_ARCHIVE,
 		self::SHAPE_PAGE_HIERARCHICAL,
+		self::SHAPE_PRODUCT_CATEGORY_PERMALINK,
 	);
 
 	/**
@@ -78,6 +80,15 @@ final class RoutingCapabilityAdmission {
 		if ( RoutingCapabilityRegistry::PAGE_HIERARCHICAL === $shape ) {
 			return $this->is_publicly_admitted( self::SHAPE_PAGE_HIERARCHICAL );
 		}
+		if ( RoutingCapabilityRegistry::PRODUCT_CATEGORY_PERMALINK === $shape ) {
+			if ( ! $this->is_publicly_admitted( self::SHAPE_PRODUCT_CATEGORY_PERMALINK ) ) {
+				return false;
+			}
+			$fp  = $this->settings->localized_urls_woo_product_fingerprint();
+			$cur = ( new WooProductPermalinkFingerprint() )->hash();
+
+			return '' !== $fp && hash_equals( $fp, $cur );
+		}
 
 		return true;
 	}
@@ -98,10 +109,11 @@ final class RoutingCapabilityAdmission {
 	/**
 	 * Persists admission only after a complete successful verification pass.
 	 *
-	 * @param array<int, string> $shapes Shape ids to admit (union with existing).
-	 * @param int                $epoch  Verified capability epoch to set.
+	 * @param array<int, string> $shapes      Shape ids to admit (union with existing).
+	 * @param int                $epoch       Verified capability epoch to set.
+	 * @param string|null        $fingerprint Optional Woo product fingerprint to persist.
 	 */
-	public function commit_admission( array $shapes, int $epoch ): void {
+	public function commit_admission( array $shapes, int $epoch, ?string $fingerprint = null ): void {
 		$allowed  = self::CODE_SHAPES;
 		$incoming = array();
 		foreach ( $shapes as $shape ) {
@@ -120,13 +132,15 @@ final class RoutingCapabilityAdmission {
 			)
 		);
 
-		$next = array_merge(
-			$this->settings->get(),
-			array(
-				'localized_urls_admitted_capabilities'     => $merged,
-				'localized_urls_verified_capability_epoch' => max( 0, $epoch ),
-			)
+		$payload = array(
+			'localized_urls_admitted_capabilities'     => $merged,
+			'localized_urls_verified_capability_epoch' => max( 0, $epoch ),
 		);
+		if ( null !== $fingerprint && '' !== $fingerprint ) {
+			$payload['localized_urls_woo_product_fingerprint'] = $fingerprint;
+		}
+
+		$next = array_merge( $this->settings->get(), $payload );
 		$this->settings->save( Settings::sanitize( $next ) );
 		$this->settings->reload();
 	}

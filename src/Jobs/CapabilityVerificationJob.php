@@ -42,13 +42,15 @@ final class CapabilityVerificationJob {
 	 * @param RoutingCapabilityRegistry  $capabilities Capability registry.
 	 * @param HierarchyPathBuilder       $hierarchy    Path builder.
 	 * @param SlugRouteRepository        $routes       Route repository.
+	 * @param WooProductPathBuilder|null $woo_products Woo product path authority (MSEO.4).
 	 */
 	public function __construct(
 		private Settings $settings,
 		private RoutingCapabilityAdmission $admission,
 		private RoutingCapabilityRegistry $capabilities,
 		private HierarchyPathBuilder $hierarchy,
-		private SlugRouteRepository $routes
+		private SlugRouteRepository $routes,
+		private ?\AIMultilingual\Routing\WooProductPathBuilder $woo_products = null
 	) {
 	}
 
@@ -136,6 +138,8 @@ final class CapabilityVerificationJob {
 			$result = $this->verify_term_archive_batch( $cursor );
 		} elseif ( RoutingCapabilityAdmission::SHAPE_PAGE_HIERARCHICAL === $shape ) {
 			$result = $this->verify_page_hierarchical_batch( $cursor );
+		} elseif ( RoutingCapabilityAdmission::SHAPE_PRODUCT_CATEGORY_PERMALINK === $shape ) {
+			$result = $this->verify_product_category_permalink_batch( $cursor );
 		} else {
 			$this->fail_pass( 'Unknown capability shape: ' . $shape );
 
@@ -166,9 +170,11 @@ final class CapabilityVerificationJob {
 			$next_shape = $this->next_shape( $shape );
 			if ( null === $next_shape ) {
 				// Full pass succeeded — admit atomically. Never touch localized_urls_state.
+				$fingerprint = ( new \AIMultilingual\Routing\WooProductPermalinkFingerprint() )->hash();
 				$this->admission->commit_admission(
 					RoutingCapabilityAdmission::CODE_SHAPES,
-					RoutingCapabilityAdmission::CODE_CAPABILITY_EPOCH
+					RoutingCapabilityAdmission::CODE_CAPABILITY_EPOCH,
+					$fingerprint
 				);
 				$this->persist_checkpoint( null );
 
@@ -312,6 +318,156 @@ final class CapabilityVerificationJob {
 			'shape_done'  => ! $more,
 			'next_cursor' => $last_id,
 		);
+	}
+
+	/**
+	 * Verifies %product_cat% product capability (admission model B).
+	 *
+	 * Ordinary per-object fallbacks do not block; systemic failures do.
+	 *
+	 * @param int $cursor After product ID.
+	 * @return array<string, mixed>
+	 */
+	private function verify_product_category_permalink_batch( int $cursor ): array {
+		if ( $this->capabilities->is_plain_product_permalink() ) {
+			// Plain product permalinks — shape not applicable; still mark done for epoch advance.
+			return array(
+				'outcome'     => SlugRouteActivationOutcome::ADMITTED,
+				'shape_done'  => true,
+				'next_cursor' => $cursor,
+			);
+		}
+
+		if ( null === $this->woo_products ) {
+			return array(
+				'outcome' => SlugRouteActivationOutcome::SYSTEM_ERROR,
+				'message' => 'Woo product path builder unavailable.',
+			);
+		}
+
+		$ids = $this->list_product_ids_after( $cursor, self::BATCH_SIZE );
+		if ( array() === $ids && 0 === $cursor ) {
+			return array(
+				'outcome'     => SlugRouteActivationOutcome::ADMITTED,
+				'shape_done'  => true,
+				'next_cursor' => 0,
+			);
+		}
+
+		if ( array() === $ids ) {
+			return array(
+				'outcome'     => SlugRouteActivationOutcome::ADMITTED,
+				'shape_done'  => true,
+				'next_cursor' => $cursor,
+			);
+		}
+
+		$last_id = $cursor;
+		foreach ( $ids as $post_id ) {
+			$last_id = $post_id;
+			$post    = get_post( $post_id );
+			if ( ! $post instanceof WP_Post ) {
+				continue;
+			}
+			$result = $this->classify_product_category_permalink( $post );
+			if ( SlugRouteActivationOutcome::is_blocking( (string) ( $result['outcome'] ?? '' ) ) ) {
+				$result['next_cursor'] = $last_id;
+
+				return $result;
+			}
+		}
+
+		$more = array() !== $this->list_product_ids_after( $last_id, 1 );
+
+		return array(
+			'outcome'     => SlugRouteActivationOutcome::ADMITTED,
+			'shape_done'  => ! $more,
+			'next_cursor' => $last_id,
+		);
+	}
+
+	/**
+	 * Classifies one product for %product_cat% verification (model B).
+	 *
+	 * @param WP_Post $post Product.
+	 * @return array<string, mixed>
+	 */
+	private function classify_product_category_permalink( WP_Post $post ): array {
+		if ( ! $this->capabilities->supports_post( $post ) ) {
+			return array( 'outcome' => SlugRouteActivationOutcome::SKIPPED_UNSUPPORTED );
+		}
+
+		$cap = $this->capabilities->capability_for_post( $post );
+		if ( RoutingCapabilityRegistry::PRODUCT_CATEGORY_PERMALINK !== $cap ) {
+			return array( 'outcome' => SlugRouteActivationOutcome::SKIPPED_UNSUPPORTED );
+		}
+
+		if ( null === $this->woo_products ) {
+			return array(
+				'outcome' => SlugRouteActivationOutcome::SYSTEM_ERROR,
+				'message' => 'Woo product path builder unavailable.',
+			);
+		}
+
+		$source = $this->woo_products->source_path( $post );
+		if ( $source instanceof WP_Error ) {
+			return array(
+				'outcome' => SlugRouteActivationOutcome::SYSTEM_ERROR,
+				'message' => sprintf( 'Product %d source path: %s', (int) $post->ID, $source->get_error_message() ),
+			);
+		}
+
+		$built = $this->woo_products->localized_path( $post, 1, (string) $post->post_name );
+		if ( $built instanceof WP_Error ) {
+			return array(
+				'outcome' => SlugRouteActivationOutcome::SYSTEM_ERROR,
+				'message' => sprintf( 'Product %d localized path: %s', (int) $post->ID, $built->get_error_message() ),
+			);
+		}
+
+		// Model B: per-object source_fallback_* outcomes do not block global admission.
+		return array( 'outcome' => SlugRouteActivationOutcome::ADMITTED );
+	}
+
+	/**
+	 * Product ids strictly after cursor.
+	 *
+	 * @param int $after_id After post id.
+	 * @param int $limit    Max ids.
+	 * @return list<int>
+	 */
+	private function list_product_ids_after( int $after_id, int $limit ): array {
+		if ( ! post_type_exists( 'product' ) ) {
+			return array();
+		}
+
+		$query = new \WP_Query(
+			array(
+				'post_type'              => 'product',
+				'post_status'            => array( 'publish', 'private' ),
+				'posts_per_page'         => max( 1, min( 50, $limit * 4 ) ),
+				'orderby'                => 'ID',
+				'order'                  => 'ASC',
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		$out = array();
+		foreach ( (array) $query->posts as $id ) {
+			$id = (int) $id;
+			if ( $id <= $after_id ) {
+				continue;
+			}
+			$out[] = $id;
+			if ( count( $out ) >= $limit ) {
+				break;
+			}
+		}
+
+		return $out;
 	}
 
 	/**

@@ -284,6 +284,12 @@ final class Mseo2PublicRoutingTest extends AimlTestCase {
 
 	public function test_plain_product_permalink_capability_detection(): void {
 		update_option(
+			'woocommerce_permalinks',
+			array(
+				'product_base' => '/shop',
+			)
+		);
+		update_option(
 			'woocommerce_permalink_structure',
 			array(
 				'product_base' => '/shop',
@@ -293,6 +299,12 @@ final class Mseo2PublicRoutingTest extends AimlTestCase {
 		$registry = new RoutingCapabilityRegistry();
 		$this->assertTrue( $registry->is_plain_product_permalink() );
 
+		update_option(
+			'woocommerce_permalinks',
+			array(
+				'product_base' => '/shop/%product_cat%',
+			)
+		);
 		update_option(
 			'woocommerce_permalink_structure',
 			array(

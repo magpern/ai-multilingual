@@ -38,7 +38,13 @@ final class RoutingCapabilityRegistry {
 		return null !== $cap
 			&& in_array(
 				$cap,
-				array( self::POST_FLAT, self::PAGE_TOP_LEVEL, self::PAGE_HIERARCHICAL, self::PRODUCT_PLAIN_PERMALINK ),
+				array(
+					self::POST_FLAT,
+					self::PAGE_TOP_LEVEL,
+					self::PAGE_HIERARCHICAL,
+					self::PRODUCT_PLAIN_PERMALINK,
+					self::PRODUCT_CATEGORY_PERMALINK,
+				),
 				true
 			);
 	}
@@ -115,18 +121,25 @@ final class RoutingCapabilityRegistry {
 	public function is_plain_product_permalink(): bool {
 		if ( function_exists( 'wc_get_permalink_structure' ) ) {
 			$structure = wc_get_permalink_structure();
+			if ( is_array( $structure ) && isset( $structure['product_base'] ) ) {
+				return ! str_contains( (string) $structure['product_base'], '%product_cat%' );
+			}
 			if ( is_object( $structure ) && isset( $structure->product_base ) ) {
 				return ! str_contains( (string) $structure->product_base, '%product_cat%' );
 			}
 		}
 
-		$permalinks = get_option( 'woocommerce_permalink_structure', array() );
-		if ( ! is_array( $permalinks ) ) {
-			return true;
+		foreach ( array( 'woocommerce_permalinks', 'woocommerce_permalink_structure' ) as $option ) {
+			$permalinks = get_option( $option, array() );
+			if ( ! is_array( $permalinks ) ) {
+				continue;
+			}
+			$base = (string) ( $permalinks['product_base'] ?? '' );
+			if ( '' !== $base ) {
+				return ! str_contains( $base, '%product_cat%' );
+			}
 		}
 
-		$base = (string) ( $permalinks['product_base'] ?? '' );
-
-		return '' === $base || ! str_contains( $base, '%product_cat%' );
+		return true;
 	}
 }

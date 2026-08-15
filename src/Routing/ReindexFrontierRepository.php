@@ -104,19 +104,50 @@ final class ReindexFrontierRepository {
 	}
 
 	/**
-	 * Oldest pending/running frontier for the worker.
+	 * Oldest pending/running frontier for allowed parent source types.
+	 *
+	 * @param list<string>|null $parent_source_types Allowlist; null = any (legacy).
 	 */
-	public function find_workable(): ?object {
+	public function find_workable( ?array $parent_source_types = null ): ?object {
 		global $wpdb;
 
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
-		$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		if ( null === $parent_source_types || array() === $parent_source_types ) {
+			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Schema table identifier only.
+			$row = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				'SELECT * FROM ' . Schema::slug_reindex_frontier() . "
+				WHERE status IN ('pending','running')
+				ORDER BY updated_at ASC
+				LIMIT 1"
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+
+			return is_object( $row ) ? $row : null;
+		}
+
+		$types = array();
+		foreach ( $parent_source_types as $type ) {
+			$type = (string) $type;
+			if ( '' !== $type ) {
+				$types[] = $type;
+			}
+		}
+		$types = array_values( array_unique( $types ) );
+		if ( array() === $types ) {
+			return null;
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $types ), '%s' ) );
+		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN list of types.
+		$sql = $wpdb->prepare(
 			'SELECT * FROM ' . Schema::slug_reindex_frontier() . "
 			WHERE status IN ('pending','running')
+			  AND parent_source_type IN ($placeholders)
 			ORDER BY updated_at ASC
-			LIMIT 1"
+			LIMIT 1",
+			...$types
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+		$row = $wpdb->get_row( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		return is_object( $row ) ? $row : null;
 	}

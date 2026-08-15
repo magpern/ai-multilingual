@@ -209,6 +209,7 @@ final class SettingsPage {
 		$clean['localized_urls_verified_capability_epoch'] = $previous['localized_urls_verified_capability_epoch'] ?? 0;
 		$clean['localized_urls_admitted_capabilities']     = $previous['localized_urls_admitted_capabilities'] ?? array();
 		$clean['localized_urls_capability_checkpoint']     = $previous['localized_urls_capability_checkpoint'] ?? null;
+		$clean['localized_urls_woo_product_fingerprint']   = $previous['localized_urls_woo_product_fingerprint'] ?? '';
 
 		return $clean;
 	}
