@@ -414,7 +414,7 @@ final class Mseo1SlugLifecycleTest extends AimlTestCase {
 		$this->assertNotNull( $blue_hist );
 	}
 
-	public function test_hierarchical_page_cannot_publish_route(): void {
+	public function test_hierarchical_page_can_publish_prepared_route(): void {
 		$parent   = $this->create_page( 'Parent Page' );
 		$child_id = self::factory()->post->create(
 			array(
@@ -435,11 +435,12 @@ final class Mseo1SlugLifecycleTest extends AimlTestCase {
 		$this->assertIsObject( $manual );
 
 		$result = $this->route_publication->publish_route( $child, (int) $language->language_id, 1 );
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'aiml_slug_capability_unsupported', $result->get_error_code() );
+		$this->assertIsArray( $result );
+		$this->assertTrue( ! empty( $result['route_prepared'] ) );
 
 		$view = $this->route_publication->sync_view( $child, (int) $language->language_id );
-		$this->assertFalse( (bool) $view['can_publish_route'] );
+		$this->assertTrue( (bool) $view['route_prepared'] );
+		$this->assertSame( 'barnsida', (string) $view['active_route_slug'] );
 	}
 
 	public function test_publish_route_does_not_mutate_canonical_post_name(): void {

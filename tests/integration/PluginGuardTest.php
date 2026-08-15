@@ -1202,4 +1202,50 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringContainsString( 'publish_under_route_authority', $route_pub );
 		$this->assertStringContainsString( 'collision_adjusted', $route_pub );
 	}
+
+	/**
+	 * MSEO.3 hierarchy/term routing structural guards.
+	 */
+	public function test_mseo3_hierarchy_term_boundaries(): void {
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$this->assertFileExists( $this->root() . '/src/Routing/RoutingCapabilityAdmission.php' );
+		$this->assertFileExists( $this->root() . '/src/Routing/HierarchyPathBuilder.php' );
+		$this->assertFileExists( $this->root() . '/src/Jobs/CapabilityVerificationJob.php' );
+		$this->assertFileExists( $this->root() . '/src/Jobs/HierarchyReindexJob.php' );
+
+		$admission = (string) file_get_contents( $this->root() . '/src/Routing/RoutingCapabilityAdmission.php' );
+		$this->assertStringContainsString( 'CODE_CAPABILITY_EPOCH', $admission );
+		$this->assertStringContainsString( 'commit_admission', $admission );
+		$this->assertStringContainsString( 'is_publicly_admitted', $admission );
+
+		$hierarchy = (string) file_get_contents( $this->root() . '/src/Routing/HierarchyPathBuilder.php' );
+		$this->assertStringContainsString( 'source_path_for_term', $hierarchy );
+		$this->assertStringContainsString( 'localized_path_for_post', $hierarchy );
+		$this->assertStringNotContainsString( 'add_rewrite_rule', $hierarchy );
+
+		$plugin = (string) file_get_contents( $this->root() . '/src/Plugin.php' );
+		$this->assertStringContainsString( 'RoutingCapabilityAdmission', $plugin );
+		$this->assertStringContainsString( 'HierarchyPathBuilder', $plugin );
+		$this->assertStringContainsString( 'CapabilityVerificationJob', $plugin );
+		$this->assertStringContainsString( 'HierarchyReindexJob', $plugin );
+
+		$migrator = (string) file_get_contents( $this->root() . '/src/Database/Migrator.php' );
+		$this->assertStringNotContainsString( 'step_9_', $migrator );
+		$this->assertSame( 8, Migrator::TARGET );
+
+		$cap_job = (string) file_get_contents( $this->root() . '/src/Jobs/CapabilityVerificationJob.php' );
+		$this->assertStringContainsString( 'commit_admission', $cap_job );
+		$this->assertStringNotContainsString( "localized_urls_state' => 'off'", $cap_job );
+		$this->assertStringNotContainsString( 'fail_activation', $cap_job );
+		$this->assertStringNotContainsString( 'request_disable', $cap_job );
+
+		$frontier = (string) file_get_contents( $this->root() . '/src/Routing/FrontierRecord.php' );
+		$this->assertStringContainsString( 'degraded', $frontier );
+
+		$router = (string) file_get_contents( $this->root() . '/src/Routing/Router.php' );
+		$this->assertStringContainsString( 'filter_term_link', $router );
+		$this->assertStringContainsString( 'SOURCE_TERM', $router );
+		$this->assertStringNotContainsString( 'add_rewrite_rule', $router );
+	}
 }
