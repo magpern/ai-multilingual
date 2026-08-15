@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1] — 2026-08-15
+
+### Fixed
+
+- Localized CURRENT_LOCALIZED render recursion/timeout from unbounded `term_link` re-entry under Localized URLs ON.
+- EffectiveUrl agreement for affected Model A consumers (hreflang, Open Graph URL, language switcher) on CURRENT_LOCALIZED requests.
+- Woo localized product URL/render health regression in the same correction family (Gate B truncated HTML disposition A).
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **8** (no migration).
+- Existing active routes and history remain valid; settings defaults unchanged.
+- Localized URLs remain controlled by existing settings/admission; no new URL capability or SEO architecture.
+- Sitemap Model A unchanged (default-language primary locs; localized XHTML alternates).
+
+### Notes
+
+- Production package is `ai-multilingual-1.5.1.zip` from `bin/build-zip.sh` / GitHub Actions on `v*` tags (tag/release separately authorized).
+- See [docs/releases/v1.5.1.md](docs/releases/v1.5.1.md) and [docs/releases/V1_5_1_RELEASE_SCOPE.md](docs/releases/V1_5_1_RELEASE_SCOPE.md).
+
 ## [1.5.0] — 2026-08-15
 
 ### Multilingual SEO & Localized URLs (MSEO.0–MSEO.5)

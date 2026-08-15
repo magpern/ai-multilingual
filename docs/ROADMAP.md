@@ -10,9 +10,9 @@
 
 **Post-v1.4.0 program:** Multilingual SEO & Localized URLs — [MSEO_PARENT_IMPLEMENTATION_PLAN.md](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md); [ADR-0023](adr/0023-localized-url-overlay-architecture.md); **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5** ([MSEO5 closure](plans/MSEO5_CLOSURE.md); [MSEO5 plan](plans/MSEO5_PROGRAM_HARDENING_ACCEPTANCE_RELEASE_DOGFOOD_IMPLEMENTATION_PLAN.md)). **No formal MSEO.6.** STATE B / `Migrator::TARGET` **8**.
 
-**Active corrective milestone (post-MSEO):** **v1.5.1 Localized URL Correctness / SEO Stabilization** — [implementation plan](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md); [closure](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_CLOSURE.md) (**corrective implementation COMPLETE**; release preparation NOT STARTED). STATE A / TARGET **8** / no migration. Program B remains demoted until after published 1.5.1 + DEV re-acceptance.
+**Active corrective milestone (post-MSEO):** **v1.5.1 Localized URL Correctness / SEO Stabilization** — [implementation plan](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md); [closure](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_CLOSURE.md) (**corrective implementation COMPLETE**); [release prep baseline](releases/V1_5_1_PREPARATION_BASELINE.md) / [scope](releases/V1_5_1_RELEASE_SCOPE.md) (**release preparation in progress**; tag/GitHub Release not started). STATE A / TARGET **8** / no migration. Program B remains demoted until after published 1.5.1 + DEV re-acceptance.
 
-**Release status:** AI Multilingual **v1.5.0** released (tag `v1.5.0` → `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5`). Prior: **v1.4.0**. **A.SEO** Complete. **TIQ** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE**. **MSEO PROGRAM COMPLETE**. Runtime `Migrator::TARGET` **8**.
+**Release status:** AI Multilingual **v1.5.1** release preparation (not yet tagged). Prior released: **v1.5.0** (tag `v1.5.0` → `03a3a09a7ee4e1a0d7624582dcfe07af90ce89d5`). **A.SEO** Complete. **TIQ** Complete. **OTL** Complete. **TSC PROGRAM COMPLETE**. **MSEO PROGRAM COMPLETE**. Runtime `Migrator::TARGET` **8**.
 
 This document retains the classic milestone table (M0–M7) and Strategy F completion status for historical orientation. One approved milestone at a time. Each is accepted before the next begins.
 
