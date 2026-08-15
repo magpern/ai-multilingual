@@ -72,11 +72,20 @@ final class HierarchyPathBuilder {
 	/**
 	 * Unprefixed source path for a term from WordPress/Woo get_term_link.
 	 *
+	 * Suspends AIML outbound localization so source paths are not language-
+	 * prefixed or re-entered via term_link (v1.5.1 D1). Third-party term_link
+	 * filters remain active.
+	 *
 	 * @param WP_Term $term Source term.
 	 * @return CanonicalPath|WP_Error
 	 */
 	public function source_path_for_term( WP_Term $term ) {
-		$link = get_term_link( $term );
+		$link = OutboundLocalizationSuspender::run(
+			static function () use ( $term ) {
+				return get_term_link( $term );
+			}
+		);
+
 		if ( $link instanceof WP_Error ) {
 			return $link;
 		}

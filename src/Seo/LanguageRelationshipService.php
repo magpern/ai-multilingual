@@ -261,8 +261,11 @@ final class LanguageRelationshipService {
 	/**
 	 * Resolves a canonical post from an unprefixed path when possible.
 	 *
-	 * Uses unfiltered home URL so localized home_url admission cannot break
-	 * source object resolution (MSEO.2 SB11).
+	 * WordPress `url_to_postid()` strips using filtered `home_url()`. Under
+	 * CURRENT_LOCALIZED, AIML prefixes home_url with the language code, so the
+	 * strip fails and identity resolution returns 0 — discoverability collapses
+	 * and EffectiveUrl is never invoked (v1.5.1 D2/D3a). Neutralize home_url
+	 * filters for the duration of the lookup only.
 	 *
 	 * @param string $path Unprefixed site path.
 	 */
@@ -271,7 +274,7 @@ final class LanguageRelationshipService {
 			return null;
 		}
 
-		$post_id = url_to_postid( $this->raw_home() . ltrim( $path, '/' ) );
+		$post_id = $this->url_to_postid_unfiltered_home( $this->raw_home() . ltrim( $path, '/' ) );
 		if ( $post_id <= 0 ) {
 			return null;
 		}
@@ -279,6 +282,19 @@ final class LanguageRelationshipService {
 		$post = get_post( $post_id );
 
 		return $post instanceof WP_Post ? $post : null;
+	}
+
+	/**
+	 * Runs url_to_postid with AIML home_url localization suspended.
+	 *
+	 * @param string $url Absolute URL built from unfiltered home + path.
+	 */
+	private function url_to_postid_unfiltered_home( string $url ): int {
+		return (int) \AIMultilingual\Routing\OutboundLocalizationSuspender::run(
+			static function () use ( $url ) {
+				return url_to_postid( $url );
+			}
+		);
 	}
 
 	/**

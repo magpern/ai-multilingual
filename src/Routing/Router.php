@@ -100,6 +100,13 @@ final class Router {
 	private RouteRecognitionContext $recognition;
 
 	/**
+	 * Guards term_link localization against nested get_term_link re-entry (v1.5.1 D1).
+	 *
+	 * @var bool
+	 */
+	private bool $filtering_term_link = false;
+
+	/**
 	 * Request URI as it arrived, before the prefix was removed.
 	 *
 	 * @var string
@@ -507,6 +514,10 @@ final class Router {
 	 * @param string $url Fully qualified URL.
 	 */
 	public function filter_home_url( $url ) {
+		if ( OutboundLocalizationSuspender::is_suspended() ) {
+			return $url;
+		}
+
 		if ( ! is_string( $url ) || ! $this->context->is_translated() ) {
 			return $url;
 		}
@@ -622,12 +633,20 @@ final class Router {
 	/**
 	 * Localizes outbound term archive URLs when generation + admission allow.
 	 *
+	 * Nested get_term_link calls (e.g. HierarchyPathBuilder::source_path_for_term)
+	 * must observe the WordPress-generated source URL without re-entering
+	 * localization — otherwise LU ON + translated context recurses unboundedly.
+	 *
 	 * @param string   $url      Term link URL.
 	 * @param \WP_Term $term    Term.
 	 * @param string   $taxonomy Taxonomy slug.
 	 */
 	public function filter_term_link( $url, $term, $taxonomy ) {
 		if ( ! is_string( $url ) || ! $this->context->is_translated() ) {
+			return $url;
+		}
+
+		if ( OutboundLocalizationSuspender::is_suspended() || $this->filtering_term_link ) {
 			return $url;
 		}
 
@@ -647,18 +666,23 @@ final class Router {
 			return $url;
 		}
 
-		$source_path = $this->source_path_for_object( Store::SOURCE_TERM, (int) $term->term_id, (int) $language->language_id );
-		if ( '/' === $source_path ) {
-			return $url;
-		}
+		$this->filtering_term_link = true;
+		try {
+			$source_path = $this->source_path_for_object( Store::SOURCE_TERM, (int) $term->term_id, (int) $language->language_id );
+			if ( '/' === $source_path ) {
+				return $url;
+			}
 
-		$effective = $this->effective_url->unprefixed_effective_path( $source_path, (int) $language->language_id );
-		if ( $effective === $source_path ) {
-			// Still prefix with language via home_url path rebuild.
-			return $this->build_prefixed_url( $language, $source_path );
-		}
+			$effective = $this->effective_url->unprefixed_effective_path( $source_path, (int) $language->language_id );
+			if ( $effective === $source_path ) {
+				// Still prefix with language via home_url path rebuild.
+				return $this->build_prefixed_url( $language, $source_path );
+			}
 
-		return $this->build_prefixed_url( $language, $effective );
+			return $this->build_prefixed_url( $language, $effective );
+		} finally {
+			$this->filtering_term_link = false;
+		}
 	}
 
 	/**
