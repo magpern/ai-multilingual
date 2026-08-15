@@ -39,6 +39,9 @@
 | 35 | Version | **1.5.0** |
 | 36 | PRODUCTION DEPLOYMENT | **not performed** |
 | 37 | Formal MSEO.6 | **none** |
+| 38 | Closure SHA | docs-only commit on `main` after tag (this file) |
+| 39 | Final main HEAD | `main` == `origin/main` after closure push |
+| 40 | Tag status | `v1.5.0` unchanged on `03a3a09a7` |
 
 ## Work packages
 
