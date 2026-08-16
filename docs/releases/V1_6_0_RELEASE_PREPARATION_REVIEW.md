@@ -1,6 +1,7 @@
 # v1.6.0 Release Preparation — Independent Review
 
 **Reviewed branch:** `release/v1.6.0-preparation`  
+**Reviewed HEAD:** `e7257e3adb8adb814bda68c080fc3df42631098a`  
 **Baseline main:** `bdf28f96cc6b74ee655a30286f722b5bd0678822`  
 **Train:** P0 Localized URL Operator Completion + P1 G4/Rank Math Model A Characterization + P2 Jobs/Stale Operator Literacy  
 **Date:** 2026-08-16

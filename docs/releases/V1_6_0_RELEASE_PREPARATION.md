@@ -42,7 +42,7 @@
 | 34 | ZIP SHA-256 | `af945dbb3bc4a9dd76ce30037cd5546542a6ef3795ca4de63ac1de3d5754ac4a` |
 | 35 | ZIP audit | PASS (`bin/audit-zip.sh`) |
 | 36–38 | Independent review | [V1_6_0_RELEASE_PREPARATION_REVIEW.md](V1_6_0_RELEASE_PREPARATION_REVIEW.md) — **PASS** |
-| 39 | Final reviewed prep HEAD | *(set after commit)* |
+| 39 | Final reviewed prep HEAD | `e7257e3adb8adb814bda68c080fc3df42631098a` |
 | 40 | PR | *(set after open)* |
 | 41 | PR CI | *(pending)* |
 | 42 | Preparation merge SHA | *(pending)* |
