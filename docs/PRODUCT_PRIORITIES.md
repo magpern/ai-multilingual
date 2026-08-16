@@ -7,7 +7,7 @@
 
 Milestone IDs and long-term program catalogs remain defined in the frozen long-term roadmap: [`plans/POST_V1_PLATFORM_ROADMAP.md`](plans/POST_V1_PLATFORM_ROADMAP.md) (Roadmap **v1.0**). **Post-v1.1 Translation Intelligence & Quality (TQ.0–TI.7)** is governed by [`plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md`](plans/TIQ_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Operator Translation Lifecycle (OTL.0–OTL.6)** is governed by [`plans/OTL_PARENT_IMPLEMENTATION_PLAN.md`](plans/OTL_PARENT_IMPLEMENTATION_PLAN.md) (**Complete**). **Translation Surface Coverage (TSC.0–TSC.6)** is governed by [`plans/TSC_PARENT_IMPLEMENTATION_PLAN.md`](plans/TSC_PARENT_IMPLEMENTATION_PLAN.md) (**Architecture Frozen** on `main`; **TSC.0–TSC.3 Complete**). This document records **which** program to pursue next when priorities conflict. It is not an implementation plan.
 
-**Current next decision:** **v1.6.0 release preparation COMPLETE** — [evidence](releases/V1_6_0_RELEASE_PREPARATION.md); [scope](releases/V1_6_0_RELEASE_SCOPE.md). Accumulated train P0 + P1 + P2 on main at release-ready `417df7a5b…`. Version **1.6.0**; TARGET **8**; migration **NONE**. **TAG / GITHUB RELEASE / DEPLOY NOT AUTHORIZED** until separately authorized. **P0/P1/P2 COMPLETE**. Historical Program B **REDEFINED** into bounded P0. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Runtime `Migrator::TARGET` **8**.
+**Current next decision:** **v1.6.0 RELEASED** — [closure](releases/V1_6_0_RELEASE_CLOSURE.md); tag `v1.6.0` → `417df7a5b…`. Accumulated train **P0 + P1 + P2**. Version **1.6.0**; TARGET **8**; migration **NONE**. **DEPLOYMENT NOT PERFORMED**. **P3 NOT AUTHORIZED**. Next: DEV product use of the combined train, then fresh roadmap prioritization. Historical Program B **REDEFINED** into bounded P0. **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5**. Runtime `Migrator::TARGET` **8**.
 
 ---
 
@@ -44,7 +44,7 @@ Remaining priority order (highest first):
 
 | Order | Program | Focus |
 |---|---|---|
-| 0 | **v1.6.0 Release Preparation** | **IN PROGRESS** — [scope](releases/V1_6_0_RELEASE_SCOPE.md). Ships P0+P1+P2. TARGET 8 / migration NONE. Tag/Release separately authorized. |
+| 0 | **v1.6.0 Release** | **RELEASED** — [closure](releases/V1_6_0_RELEASE_CLOSURE.md); tag `v1.6.0` → `417df7a5b…`. Ships P0+P1+P2. TARGET 8 / migration NONE. Deploy not performed. P3 not authorized. |
 | 0 | **Localized URL Operator Completion (P0)** | **COMPLETE** — [plan](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_IMPLEMENTATION_PLAN.md); [closure](plans/LOCALIZED_URL_OPERATOR_COMPLETION_P0_CLOSURE.md). Version stays **1.5.1**. **NO RELEASE AUTHORIZED**. |
 | 1 | **v1.5.1 Localized URL Correctness / SEO Stabilization** | **CORRECTIVE LIFECYCLE COMPLETE** — [closure](releases/V1_5_1_RELEASE_CLOSURE.md); [DEV re-acceptance](validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md). Tag `v1.5.1` → `6298df08b`. **V151AC22 PASS**. |
 | 1 | **MSEO — Multilingual SEO & Localized URLs** | **COMPLETE** (MSEO.0–MSEO.5). Parent: [`plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md`](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md). [MSEO5 closure](plans/MSEO5_CLOSURE.md). No formal MSEO.6. STATE B / TARGET **8**. Released in **v1.5.0**. |

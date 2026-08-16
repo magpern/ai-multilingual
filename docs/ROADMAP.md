@@ -10,7 +10,7 @@
 
 **Post-v1.4.0 program:** Multilingual SEO & Localized URLs — [MSEO_PARENT_IMPLEMENTATION_PLAN.md](plans/MSEO_PARENT_IMPLEMENTATION_PLAN.md); [ADR-0023](adr/0023-localized-url-overlay-architecture.md); **MSEO PROGRAM COMPLETE — MSEO.0–MSEO.5** ([MSEO5 closure](plans/MSEO5_CLOSURE.md); [MSEO5 plan](plans/MSEO5_PROGRAM_HARDENING_ACCEPTANCE_RELEASE_DOGFOOD_IMPLEMENTATION_PLAN.md)). **No formal MSEO.6.** STATE B / `Migrator::TARGET` **8**.
 
-**Active post-v1.5.1 milestone:** **v1.6.0 Release Preparation** — [evidence](releases/V1_6_0_RELEASE_PREPARATION.md); [scope](releases/V1_6_0_RELEASE_SCOPE.md) — **COMPLETE**. Accumulated train **P0 + P1 + P2**. Version **1.6.0** on main; TARGET **8** / migration **NONE**. Release-ready commit `417df7a5b…`. **TAG / GITHUB RELEASE / DEPLOY NOT AUTHORIZED** until separately authorized. **P2** COMPLETE. **P1** COMPLETE. **P0** COMPLETE.
+**Active post-v1.5.1 milestone:** **v1.6.0** — [closure](releases/V1_6_0_RELEASE_CLOSURE.md) — **RELEASED**. Tag `v1.6.0` → `417df7a5b…`. Accumulated train **P0 + P1 + P2**. Version **1.6.0**; TARGET **8** / migration **NONE**. **DEPLOYMENT NOT PERFORMED**. **P3 NOT AUTHORIZED**. Next: DEV product use + fresh prioritization. **P2** COMPLETE. **P1** COMPLETE. **P0** COMPLETE.
 
 **Prior corrective milestone:** **v1.5.1 Localized URL Correctness / SEO Stabilization** — [closure](plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_CLOSURE.md); [release closure](releases/V1_5_1_RELEASE_CLOSURE.md); [DEV runtime re-acceptance](validation/V1_5_1_DEV_RUNTIME_REACCEPTANCE.md) — **COMPLETE / V151AC22 PASS**. TARGET **8** / no migration.
 

@@ -1,6 +1,6 @@
 # AI Multilingual v1.6.0 — Release Scope Audit
 
-**Status:** RELEASE PREPARATION COMPLETE (tag / GitHub Release **not** authorized)  
+**Status:** RELEASED (tag `v1.6.0` → `417df7a5b…`; [closure](V1_6_0_RELEASE_CLOSURE.md))  
 **Date:** 2026-08-16  
 **Preparation branch:** `release/v1.6.0-preparation` (merged via PR #50)  
 **Baseline main HEAD:** `bdf28f96cc6b74ee655a30286f722b5bd0678822`  
