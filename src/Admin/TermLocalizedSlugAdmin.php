@@ -66,7 +66,7 @@ final class TermLocalizedSlugAdmin {
 
 		$handle = 'aiml-term-slug-admin';
 		$url    = plugins_url( 'assets/term-slug-admin/term-slug-admin.js', AIML_PLUGIN_FILE );
-		$ver    = defined( 'AIML_VERSION' ) ? AIML_VERSION : '1.5.1';
+		$ver    = defined( 'AIML_VERSION' ) ? AIML_VERSION : '1.6.0';
 
 		wp_enqueue_script( 'wp-api-fetch' );
 		wp_enqueue_script( $handle, $url, array( 'wp-api-fetch', 'wp-dom-ready' ), $ver, true );
