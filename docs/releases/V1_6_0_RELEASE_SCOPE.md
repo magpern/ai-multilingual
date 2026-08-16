@@ -1,9 +1,10 @@
 # AI Multilingual v1.6.0 — Release Scope Audit
 
-**Status:** PREPARATION  
+**Status:** RELEASE PREPARATION COMPLETE (tag / GitHub Release **not** authorized)  
 **Date:** 2026-08-16  
-**Preparation branch:** `release/v1.6.0-preparation`  
+**Preparation branch:** `release/v1.6.0-preparation` (merged via PR #50)  
 **Baseline main HEAD:** `bdf28f96cc6b74ee655a30286f722b5bd0678822`  
+**Release-ready commit:** `417df7a5b8df3121aedd5fff0b03ae79cc728290`  
 **Previous intentional release:** `v1.5.1` @ `6298df08b3b1456e4875ecdb860b71506d5ae313`  
 **Schema:** Migrator `TARGET = 8` (**unchanged** — no migration)  
 **Decision:** **RELEASE VERSION DECISION: 1.6.0** (minor — operator-facing capability train)

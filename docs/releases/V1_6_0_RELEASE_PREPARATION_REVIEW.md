@@ -83,4 +83,9 @@ None discovered.
 
 **V1.6.0 RELEASE PREPARATION REVIEW: PASS**
 
-(CI green on release-prep PR and fresh main still required before identifying the exact release-ready commit.)
+Post-merge confirmation:
+
+- PR CI GREEN — run `31937380082`
+- Fresh main CI GREEN — run `31937457007`
+- Release-ready commit (future tag target): `417df7a5b8df3121aedd5fff0b03ae79cc728290`
+- Tag / GitHub Release / deployment: **NOT CREATED / NOT PERFORMED**
