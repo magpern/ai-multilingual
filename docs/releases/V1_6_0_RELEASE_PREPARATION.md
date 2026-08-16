@@ -50,7 +50,7 @@
 | 42 | Preparation merge SHA | `417df7a5b8df3121aedd5fff0b03ae79cc728290` |
 | 43 | Fresh main CI | GREEN — https://github.com/magpern/ai-multilingual/actions/runs/31937457007 |
 | 44 | **Exact release-ready commit** | **`417df7a5b8df3121aedd5fff0b03ae79cc728290`** (prep merge on main; future `v1.6.0` tag target) |
-| 45 | Final main HEAD | `74609541c8c292c5537fea84df4a138de5883413` (docs-only; **do not tag** — tag `417df7a5b…`) |
+| 45 | Final main HEAD | `f4f0a330ba052b7e0eaebaa1a5292af93dcd851f` (+ optional docs SHA-tip commits; **do not tag**) |
 | 46 | Clean / main==origin | Required after push of this evidence commit |
 | 47 | Tag `v1.5.1` | Unchanged @ `6298df08b3b1456e4875ecdb860b71506d5ae313` |
 | 48 | Tag `v1.6.0` | **NOT CREATED** |
