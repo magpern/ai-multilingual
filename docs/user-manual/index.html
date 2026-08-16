@@ -94,8 +94,40 @@ a:hover { text-decoration-thickness: 2px; }
   outline: none;
 }
 .toc nav a.toc-h3 { padding-left: 1rem; font-size: .8rem; color: #b7c9c0; }
+.toc .toc-group {
+  margin: .85rem 0 .35rem;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #9fb5ab;
+  font-weight: 600;
+}
 .main {
   padding: 1.5rem 1.25rem 4rem;
+}
+.task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+  gap: .45rem .65rem;
+  margin: .85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.task-grid a {
+  display: block;
+  padding: .4rem .55rem;
+  border: 1px solid var(--border);
+  border-radius: .4rem;
+  background: #f7faf8;
+  text-decoration: none;
+  font-size: .88rem;
+  color: var(--ink);
+}
+.task-grid a:hover,
+.task-grid a:focus {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  outline: none;
 }
 .wrap { max-width: var(--max); margin: 0 auto; }
 header.doc-hero {
@@ -247,6 +279,11 @@ footer.doc-foot {
   <label for="manual-search">Filter sections</label>
   <input id="manual-search" type="search" placeholder="Filter…" autocomplete="off">
   <nav id="toc-nav">
+    <div class="toc-group">Start</div>
+    <a href="#quick-start" data-toc>Quick start</a>
+    <a href="#common-tasks" data-toc>Common tasks</a>
+    <a href="#operating-workflow" data-toc>Daily workflow</a>
+    <div class="toc-group">Sections</div>
     <a href="#introduction" data-toc>1. Introduction</a>
     <a href="#quick-start" data-toc>2. Quick start</a>
     <a href="#initial-configuration" data-toc>3. Initial configuration</a>
@@ -278,15 +315,17 @@ footer.doc-foot {
 <div class="wrap">
 
 <header class="doc-hero">
-  <h1>AI Multilingual User Manual</h1>
+  <p class="meta" style="margin:0 0 .35rem"><strong>AI Multilingual</strong> · User Manual</p>
+  <h1>How to configure and operate AI Multilingual</h1>
   <p class="meta">
     <strong>Applies to version:</strong> 1.6.0<br>
-    <strong>Schema target:</strong> 8 (no migration for this release)<br>
-    <strong>Documentation generated from repository</strong> <code>main</code> @ <code>80a29b5f9939f27f77c76e141e7aec15ebbf186a</code><br>
+    <strong>Schema TARGET:</strong> 8<br>
+    <strong>Canonical path:</strong> <code>docs/user-manual/index.html</code><br>
     <strong>Last updated:</strong> 2026-08-16<br>
     <strong>Release:</strong> <a href="https://github.com/magpern/ai-multilingual/releases/tag/v1.6.0">v1.6.0</a>
   </p>
   <p>Practical guide for WordPress / WooCommerce administrators. Ordinary operation uses the admin UI — you do not need CLI or REST for day-to-day work.</p>
+  <p class="callout"><strong class="label">Maintenance</strong> This manual describes product capabilities for <strong>v1.6.0</strong> (TARGET&nbsp;8). Review and update it when operator-facing behavior, Settings, Workspace, Jobs, Localized URLs, or Supported/Deferred contracts change. It is not an acceptance-test checklist.</p>
   <p>
     <span class="badge supported">Supported</span>
     <span class="badge optional">Optional</span>
@@ -294,6 +333,25 @@ footer.doc-foot {
     <span class="badge unsupported">Unsupported</span>
     <span class="badge advanced">Advanced</span>
   </p>
+  <h2 id="common-tasks" style="font-size:1rem;margin:1.1rem 0 .35rem;border:0;padding:0">Common tasks</h2>
+  <ul class="task-grid">
+    <li><a href="#quick-start">Start here (first setup)</a></li>
+    <li><a href="#initial-configuration">Languages &amp; Settings</a></li>
+    <li><a href="#translating-content">Translate content</a></li>
+    <li><a href="#review-publication">Review &amp; publish</a></li>
+    <li><a href="#jobs">Run &amp; monitor Jobs</a></li>
+    <li><a href="#stale">Understand stale state</a></li>
+    <li><a href="#conflicts">Recover from conflicts</a></li>
+    <li><a href="#localized-urls">Use Localized URLs</a></li>
+    <li><a href="#collisions">Fix slug collisions</a></li>
+    <li><a href="#taxonomies">Term / taxonomy slugs</a></li>
+    <li><a href="#woocommerce">WooCommerce</a></li>
+    <li><a href="#gutenberg">Gutenberg</a></li>
+    <li><a href="#elementor">Elementor</a></li>
+    <li><a href="#seo-rank-math">Rank Math / SEO</a></li>
+    <li><a href="#troubleshooting">Troubleshoot</a></li>
+    <li><a href="#operating-workflow">Daily workflow</a></li>
+  </ul>
 </header>
 
 <section id="introduction" data-section>
@@ -310,7 +368,7 @@ footer.doc-foot {
     <li>Review and publish translation segments under the publication gate model.</li>
     <li>Prepare and publish Localized URL slugs for Supported shapes (posts/pages/products and admitted terms).</li>
     <li>Coexist with Rank Math for SEO overlays and sitemap language relationships (Model A).</li>
-    <li><span class="badge optional">Optional</span> Enable Gutenberg block translation and Elementor widget translation via feature flags (defaults off).</li>
+    <li><span class="badge optional">Optional</span> Enable Gutenberg block translation via Strategy&nbsp;F Settings flags (defaults Off). Elementor support exists in product contracts but has <strong>no Settings toggles in v1.6.0</strong> — see <a href="#elementor">Elementor</a>.</li>
   </ul>
   <p class="callout"><strong class="label">Operating model</strong> Source content stays authoritative in WordPress. Translations are overlays. Visitors see overlays when eligibility rules pass (language state, publication gate, route/overlay rules). Preview languages remain source-slug for Localized URLs.</p>
   <a class="back-top" href="#content">Back to top</a>
@@ -318,17 +376,19 @@ footer.doc-foot {
 
 <section id="quick-start" data-section>
   <h2>2. Quick start</h2>
+  <p>Goal: from a fresh install to your <strong>first successful translation</strong> on the front end. Details live in later sections — follow this path first.</p>
   <h3>Recommended first 15 minutes</h3>
   <ol class="steps">
     <li>Install and activate the plugin (or confirm <code>AI Multilingual</code> is active).</li>
-    <li>Open <span class="menu-path">Multilingual → Languages</span>. Confirm the default language. Add at least one target language (state <strong>Published</strong> or <strong>Preview</strong>).</li>
-    <li>Open <span class="menu-path">Multilingual → Settings</span>. Leave publication gate off and auto-publication <strong>Manual</strong> until you understand review flow. Optionally enable AI provider if you will use machine translation.</li>
-    <li>Open <span class="menu-path">Multilingual → Workspace</span> → <strong>Operations</strong> or <strong>Translate</strong>. Select one page or post and a target language.</li>
-    <li>Create or run translation for key segments; review text; publish when ready (if gate is on).</li>
+    <li>Open <span class="menu-path">Multilingual → Languages</span>. Confirm the default language. Add at least one target language (state <strong>Published</strong> or <strong>Preview</strong>). Details: <a href="#initial-configuration">Initial configuration</a>.</li>
+    <li>Open <span class="menu-path">Multilingual → Settings</span>. Leave <strong>Segment publication gate</strong> Off and auto-publication <strong>Manual</strong> until you understand review. Optionally enable the AI provider if you will use machine translation / Jobs.</li>
+    <li>Open <span class="menu-path">Multilingual → Workspace</span> → <strong>Translate</strong> (or <strong>Operations</strong>). Select one page or post and a target language. See <a href="#translator-workspace">Translator Workspace</a>.</li>
+    <li>Create or run translation for key segments (manually or via <a href="#jobs">Jobs</a> → Create job → <strong>Translate missing</strong>, then <strong>Run now</strong> as an administrator). Review text; publish only if the gate is On (<a href="#review-publication">Review &amp; publication</a>).</li>
     <li>Visit the front end in that language and confirm overlays appear.</li>
-    <li>Only then consider enabling <strong>Localized URLs</strong> (Settings) and publishing a first route from Workspace.</li>
+    <li>Only after that first success, consider enabling <strong>Localized URLs</strong> in Settings and publishing a first route from Workspace (<a href="#localized-urls">Localized URLs</a>). Term archive slugs use the term edit screen panel (<a href="#taxonomies">Taxonomies</a>).</li>
   </ol>
   <div class="callout warn"><strong class="label">Caution</strong> Localized URLs default <strong>Off</strong>. Enabling starts background verification; while <strong>Activating</strong>, visitors may still see source-slug URLs.</div>
+  <div class="callout"><strong class="label">Normal operator path</strong> Day-to-day work uses <strong>Workspace</strong> and <strong>Settings</strong>. REST/CLI are for diagnostics or advanced use only — see <a href="#advanced">Advanced</a>.</div>
   <a class="back-top" href="#content">Back to top</a>
 </section>
 
@@ -693,22 +753,23 @@ footer.doc-foot {
 
 <section id="operating-workflow" data-section>
   <h2>19. Recommended operating workflow</h2>
+  <p>Reflects v1.6.0 operator surfaces after Localized URL completion (P0), Rank Math Model&nbsp;A documentation (P1), and Jobs / stale literacy (P2).</p>
   <ol>
-    <li>Edit source content in WordPress/Woo.</li>
-    <li>In Workspace Operations, inspect stale / attention for each target language.</li>
-    <li>Create/run a Job (Translate missing, Retranslate stale, or Bulk translate) as needed.</li>
-    <li>Inspect Completed with skips — resolve conflicts in Operations.</li>
-    <li>Review translations; publish under your gate policy.</li>
-    <li>If Localized URLs On: Generate/Save candidate → Publish route → check Effective path / Sync.</li>
-    <li>Verify front end (and Rank Math SEO if used).</li>
+    <li>Edit source content in WordPress/WooCommerce.</li>
+    <li>In <span class="menu-path">Workspace → Operations</span>, inspect stale / attention for each target language (<a href="#stale">Stale</a>).</li>
+    <li>Create a Job from <span class="menu-path">Workspace → Jobs</span> (Translate missing, Retranslate stale, or Bulk translate). Creating does not start work — an administrator uses <strong>Run now</strong> (<a href="#jobs">Jobs</a>).</li>
+    <li>If the job ends <strong>Completed with skips</strong>, expand Details. Resolve <strong>Skipped — conflict protected</strong> in Operations (<a href="#conflicts">Conflicts</a>); for <strong>Source moved during job</strong>, create a fresh job after the source is stable.</li>
+    <li>Review translations in Workspace; publish under your gate policy (<a href="#review-publication">Review &amp; publication</a>).</li>
+    <li>If Localized URLs are <strong>On</strong>: for posts/pages/products use the Workspace <strong>Localized URL slug</strong> panel (Generate / Save candidate → <strong>Publish route</strong> → check Effective path / Sync). For admitted terms, use the term edit screen <strong>Localized URLs</strong> panel the same way (<a href="#localized-urls">Localized URLs</a>, <a href="#taxonomies">Taxonomies</a>). Recover collisions with Edit / Clear / retry (<a href="#collisions">Collisions</a>).</li>
+    <li>Verify the front end (and Rank Math SEO expectations if used — <a href="#seo-rank-math">SEO / Rank Math</a>).</li>
   </ol>
   <h3>Daily / weekly checklist</h3>
   <ul>
-    <li>Jobs: any Waiting needing Run now? Failed / Completed with skips?</li>
+    <li>Jobs: any Waiting needing <strong>Run now</strong>? Failed / Completed with skips?</li>
     <li>Operations: stale published segments reviewed?</li>
-    <li>Settings: Localized URLs state On? Frontier Complete (not Failed)?</li>
+    <li>Settings: Localized URLs state On? Capability admission honest? Frontier Complete (not Failed / Degraded without review)?</li>
     <li>Provider key/model still valid?</li>
-    <li>New products/pages: translations + routes for priority languages?</li>
+    <li>New products/pages/terms: translations + Localized URL routes for priority languages?</li>
   </ul>
   <a class="back-top" href="#content">Back to top</a>
 </section>
@@ -733,10 +794,10 @@ footer.doc-foot {
   <h2>21. Advanced / developer capabilities</h2>
   <p>Administrators normally do not need these. Developers:</p>
   <ul>
-    <li><strong>Extension API v1</strong> — <code>docs/EXTENSION_API_V1.md</code> (hook <code>aiml_register_extensions</code>).</li>
-    <li><strong>Integration API v1</strong> — <code>docs/INTEGRATION_API_V1.md</code> (hook <code>aiml_register_integrations</code>).</li>
-    <li>Hooks index — <code>docs/HOOKS.md</code>.</li>
-    <li>CLI diagnostics for Localized URLs / Jobs / SEO (see ops runbooks under <code>docs/ops/</code> and <code>docs/runbooks/</code>).</li>
+    <li><strong>Extension API v1</strong> — <a href="../EXTENSION_API_V1.md"><code>docs/EXTENSION_API_V1.md</code></a> (hook <code>aiml_register_extensions</code>).</li>
+    <li><strong>Integration API v1</strong> — <a href="../INTEGRATION_API_V1.md"><code>docs/INTEGRATION_API_V1.md</code></a> (hook <code>aiml_register_integrations</code>).</li>
+    <li>Hooks index — <a href="../HOOKS.md"><code>docs/HOOKS.md</code></a>.</li>
+    <li>CLI diagnostics for Localized URLs / Jobs / SEO — see <a href="../ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md">Jobs ops runbook</a> and <a href="../runbooks/LOCALIZED_URL_OPERATOR.md">Localized URL operator runbook</a> (advanced; not required for ordinary Workspace workflows).</li>
   </ul>
   <p>Public Extension/Integration APIs are unchanged in v1.6.0.</p>
   <a class="back-top" href="#content">Back to top</a>
@@ -795,7 +856,11 @@ footer.doc-foot {
 
 <footer class="doc-foot">
   <p>Source of truth: current <code>magpern/ai-multilingual</code> repository documentation and Supported contracts for v1.6.0. This manual does not authorize deployment or product changes.</p>
-  <p>Related: <code>docs/releases/v1.6.0.md</code>, <code>docs/runbooks/LOCALIZED_URL_OPERATOR.md</code>, <code>docs/ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md</code>.</p>
+  <p>Related:
+    <a href="../releases/v1.6.0.md">Release notes v1.6.0</a>,
+    <a href="../runbooks/LOCALIZED_URL_OPERATOR.md">Localized URL operator runbook</a>,
+    <a href="../ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md">Background Jobs runbook</a>.
+  </p>
 </footer>
 
 </div>
