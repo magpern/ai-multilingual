@@ -109,4 +109,4 @@ The tag **`v1.6.0` remains on `417df7a5b8df3121aedd5fff0b03ae79cc728290`** and i
 
 ## Closure commit
 
-Docs-only closure tip: `7defc715f3c3cd8d387284d42db6b0c11a09b95b` and any subsequent SHA-recording docs tip. **Does not move tag `v1.6.0`.**
+Docs-only closure tip includes `7defc715f3c3cd8d387284d42db6b0c11a09b95b` (primary) and tip `75affc6abd9b346d6665c5b961f783c326b99a1e`. **Does not move tag `v1.6.0`.**
