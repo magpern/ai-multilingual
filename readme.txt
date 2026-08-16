@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.5.1
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Multilingual layer for WordPress: canonical content with segment translations ap
 
 == Description ==
 
-AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.5.1 is a patch corrective release for Localized URL correctness / SEO agreement under Localized URLs ON (Gate B findings). Version 1.5.0 shipped the Multilingual SEO & Localized URLs program (MSEO.0–MSEO.5). TSC, TIQ, and OTL remain complete.
+AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.6.0 is an operator-completion release for Localized URL administration and Jobs/stale/conflict literacy accumulated after 1.5.1 (P0 + P1 characterization + P2). Version 1.5.1 was a patch corrective release for Localized URL correctness / SEO agreement. Version 1.5.0 shipped MSEO.0–MSEO.5. TSC, TIQ, and OTL remain complete.
 
 == Installation ==
 
@@ -24,6 +24,12 @@ AI Multilingual stores one canonical object per content item and applies languag
 6. Localized URLs default OFF; enable only after reviewing MSEO release notes and verifying routes.
 
 == Changelog ==
+
+= 1.6.0 =
+* Operator completion: Localized URL Workspace/term slug surfaces and Settings admission/frontier honesty (P0). No new Localized URL routing capability.
+* Operator completion: Jobs multi-post create without segment keys, progress/stale/conflict literacy, capability-gated recovery (P2). No new Job type or silent overwrite.
+* Documentation: Rank Math Model A / G4 characterization (P1) — no Supported-contract defect; DEV xhtml omit under blog_public=0 is expected, not a universal absence claim.
+* Schema target remains 8 (no migration). Public Extension/Integration APIs unchanged.
 
 = 1.5.1 =
 * Patch: restore Localized URL Supported contracts from Gate B — bounded term_link re-entry (localized GET completion), EffectiveUrl agreement for hreflang/og:url/switcher, Woo render health from the same correction family.

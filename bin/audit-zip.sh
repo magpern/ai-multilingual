@@ -42,6 +42,7 @@ required = {
     "ai-multilingual/vendor/autoload.php",
     "ai-multilingual/assets/block-editor.js",
     "ai-multilingual/assets/glossary-admin/glossary-admin.js",
+    "ai-multilingual/assets/term-slug-admin/term-slug-admin.js",
     "ai-multilingual/assets/translator-workspace/build/index.js",
     "ai-multilingual/assets/translator-workspace/build/index.asset.php",
     "ai-multilingual/src/Plugin.php",

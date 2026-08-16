@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] — 2026-08-16
+
+### Added
+
+- **Localized URL operator surfaces (P0):** Workspace localized-slug panel for posts/pages/products; term/archive localized-slug admin UI; Settings Localized URLs admission and frontier honesty; thin term slug REST under `aiml/v1/workspace/terms/{id}/slug*` delegating to existing route authorities.
+- **Jobs / stale operator literacy (P2):** Multi-post Workspace Job create without manual segment keys (`bulk_translate` resolves missing segments); Run CTA and light monitoring; skipped/stale progress counts; human item labels for conflict/`stale_source`; state-accurate stale copy; Jobs→Operations source deep-link.
+
+### Changed
+
+- Operator-facing Jobs status labels (e.g. Waiting, Completed with skips) without changing Job engine semantics.
+- Release package includes `assets/term-slug-admin/` runtime assets required by P0 term UI.
+
+### Documentation
+
+- **P1 G4 / Rank Math Model A characterization:** no Supported-contract defect. Sitemap primary `<loc>` remains Rank Math default/source. AIML xhtml enrichment remains subject to public/discoverability gates; DEV omit under `blog_public=0` is **EXPECTED OMIT**, not a claim that xhtml is generally absent.
+- Jobs and Localized URL operator runbooks updated for P0/P2 terminology.
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **8** (no migration).
+- Public Extension API and Integration API unchanged.
+- Existing Localized URL settings/routes/history remain authoritative; no new URL routing capability.
+- No new Job type; concurrency/stale/conflict fail-safes and no-silent-overwrite policy unchanged; Run remains administrator-gated.
+
+### Notes
+
+- Production package is `ai-multilingual-1.6.0.zip` from `bin/build-zip.sh` / GitHub Actions on `v*` tags (tag/release separately authorized).
+- See [docs/releases/v1.6.0.md](docs/releases/v1.6.0.md) and [docs/releases/V1_6_0_RELEASE_SCOPE.md](docs/releases/V1_6_0_RELEASE_SCOPE.md).
+
 ## [1.5.1] — 2026-08-15
 
 ### Fixed
