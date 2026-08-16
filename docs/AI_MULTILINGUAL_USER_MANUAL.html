@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="ai-multilingual repository documentation">
+<title>AI Multilingual User Manual — v1.6.0</title>
+<style>
+:root {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --ink: #1a1c1e;
+  --muted: #5a6169;
+  --border: #d8dde3;
+  --accent: #0b5f4b;
+  --accent-soft: #e4f3ee;
+  --warn-bg: #fff6e8;
+  --warn-border: #c9892d;
+  --info-bg: #eef4fb;
+  --info-border: #3b6ea5;
+  --danger-bg: #fceeee;
+  --danger-border: #a33b3b;
+  --ok-bg: #eaf6ea;
+  --ok-border: #2f6b3a;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --max: 52rem;
+  --toc-w: 16.5rem;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: linear-gradient(180deg, #eef2ef 0%, var(--bg) 18%, var(--bg) 100%);
+  line-height: 1.55;
+}
+a { color: var(--accent); }
+a:hover { text-decoration-thickness: 2px; }
+.skip {
+  position: absolute; left: -9999px;
+}
+.skip:focus {
+  left: 1rem; top: 1rem; z-index: 100; background: #fff; padding: .5rem .75rem;
+}
+.layout {
+  display: grid;
+  grid-template-columns: var(--toc-w) minmax(0, 1fr);
+  gap: 0;
+  min-height: 100vh;
+}
+.toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow: auto;
+  padding: 1.25rem 1rem 2rem;
+  background: #15241f;
+  color: #e8efeb;
+  border-right: 1px solid #0f1a16;
+}
+.toc h2 {
+  margin: 0 0 .75rem;
+  font-size: .85rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #9fb5ab;
+  font-weight: 600;
+}
+.toc label { display: block; font-size: .75rem; color: #9fb5ab; margin-bottom: .35rem; }
+.toc input[type="search"] {
+  width: 100%;
+  margin-bottom: .85rem;
+  padding: .45rem .55rem;
+  border-radius: .35rem;
+  border: 1px solid #2c433a;
+  background: #0f1a16;
+  color: #e8efeb;
+}
+.toc nav a {
+  display: block;
+  color: #d5e4dc;
+  text-decoration: none;
+  font-size: .86rem;
+  padding: .28rem .4rem;
+  border-radius: .3rem;
+  margin: .05rem 0;
+}
+.toc nav a:hover,
+.toc nav a:focus {
+  background: #243a32;
+  outline: none;
+}
+.toc nav a.toc-h3 { padding-left: 1rem; font-size: .8rem; color: #b7c9c0; }
+.main {
+  padding: 1.5rem 1.25rem 4rem;
+}
+.wrap { max-width: var(--max); margin: 0 auto; }
+header.doc-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  padding: 1.5rem 1.4rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+header.doc-hero h1 {
+  margin: 0 0 .4rem;
+  font-size: clamp(1.55rem, 2.4vw, 2rem);
+  letter-spacing: -.02em;
+  color: var(--accent);
+}
+.meta {
+  color: var(--muted);
+  font-size: .92rem;
+}
+.meta code { font-family: var(--mono); font-size: .85em; }
+.badge {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 650;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  padding: .15rem .45rem;
+  border-radius: .3rem;
+  border: 1px solid var(--border);
+  background: #f0f2f4;
+  vertical-align: middle;
+}
+.badge.supported { background: var(--ok-bg); border-color: var(--ok-border); color: #1f4d28; }
+.badge.deferred { background: var(--warn-bg); border-color: #c9892d; color: #6a4308; }
+.badge.unsupported { background: var(--danger-bg); border-color: var(--danger-border); color: #6d2323; }
+.badge.optional { background: var(--info-bg); border-color: var(--info-border); color: #1f446c; }
+.badge.advanced { background: #f3eef8; border-color: #7a5ea8; color: #3d2a63; }
+section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  padding: 1.25rem 1.35rem 1.5rem;
+  margin: 0 0 1.15rem;
+}
+section > h2 {
+  margin: 0 0 .85rem;
+  padding-bottom: .55rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.35rem;
+  letter-spacing: -.015em;
+}
+h3 { margin: 1.25rem 0 .5rem; font-size: 1.08rem; }
+h4 { margin: 1rem 0 .4rem; font-size: .98rem; }
+p, li { font-size: .97rem; }
+ul, ol { padding-left: 1.25rem; }
+li { margin: .28rem 0; }
+.menu-path {
+  font-family: var(--mono);
+  font-size: .86em;
+  background: #f1f3f5;
+  padding: .1rem .35rem;
+  border-radius: .25rem;
+}
+.callout {
+  border-left: 4px solid var(--info-border);
+  background: var(--info-bg);
+  padding: .75rem .9rem;
+  margin: .9rem 0;
+  border-radius: 0 .4rem .4rem 0;
+}
+.callout.warn { border-left-color: #c9892d; background: var(--warn-bg); }
+.callout.danger { border-left-color: var(--danger-border); background: var(--danger-bg); }
+.callout.ok { border-left-color: var(--ok-border); background: var(--ok-bg); }
+.callout strong.label { display: block; margin-bottom: .2rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+.table-wrap { overflow-x: auto; margin: .85rem 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: .45rem .55rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #f3f5f7; font-weight: 650; }
+tr:nth-child(even) td { background: #fafbfc; }
+.steps { counter-reset: step; list-style: none; padding-left: 0; }
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 2.4rem;
+  margin: .65rem 0;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0; top: 0;
+  width: 1.7rem; height: 1.7rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: .85rem;
+  display: grid;
+  place-items: center;
+}
+.back-top {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: .85rem;
+}
+footer.doc-foot {
+  max-width: var(--max);
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: .88rem;
+  padding: .5rem 0 2rem;
+}
+.hidden { display: none !important; }
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; }
+  .toc {
+    position: relative;
+    height: auto;
+    max-height: none;
+  }
+}
+@media print {
+  .toc, .skip, .back-top, #manual-search { display: none !important; }
+  .layout { display: block; }
+  section, header.doc-hero {
+    break-inside: avoid;
+    box-shadow: none;
+    border-color: #bbb;
+  }
+  body { background: #fff; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="layout">
+<aside class="toc" aria-label="Table of contents">
+  <h2>Contents</h2>
+  <label for="manual-search">Filter sections</label>
+  <input id="manual-search" type="search" placeholder="Filter…" autocomplete="off">
+  <nav id="toc-nav">
+    <a href="#introduction" data-toc>1. Introduction</a>
+    <a href="#quick-start" data-toc>2. Quick start</a>
+    <a href="#initial-configuration" data-toc>3. Initial configuration</a>
+    <a href="#translator-workspace" data-toc>4. Translator Workspace</a>
+    <a href="#translating-content" data-toc>5. Translating content</a>
+    <a href="#jobs" data-toc>6. Jobs</a>
+    <a href="#stale" data-toc>7. Stale translations</a>
+    <a href="#conflicts" data-toc>8. Conflicts &amp; recovery</a>
+    <a href="#review-publication" data-toc>9. Review &amp; publication</a>
+    <a href="#localized-urls" data-toc>10. Localized URLs</a>
+    <a href="#collisions" data-toc class="toc-h3">10a. Collisions</a>
+    <a href="#seo-rank-math" data-toc>11. SEO / Rank Math</a>
+    <a href="#woocommerce" data-toc>12. WooCommerce</a>
+    <a href="#gutenberg" data-toc>13. Gutenberg</a>
+    <a href="#elementor" data-toc>14. Elementor</a>
+    <a href="#taxonomies" data-toc>15. Taxonomies / terms</a>
+    <a href="#status-diagnostics" data-toc>16. Status &amp; diagnostics</a>
+    <a href="#troubleshooting" data-toc>17. Troubleshooting</a>
+    <a href="#permissions" data-toc>18. Permissions</a>
+    <a href="#operating-workflow" data-toc>19. Recommended workflow</a>
+    <a href="#limitations" data-toc>20. Current limitations</a>
+    <a href="#advanced" data-toc>21. Advanced / developer</a>
+    <a href="#glossary" data-toc>22. Glossary</a>
+    <a href="#status-map" data-toc>Appendix A. Status map</a>
+  </nav>
+</aside>
+
+<main class="main" id="content">
+<div class="wrap">
+
+<header class="doc-hero">
+  <h1>AI Multilingual User Manual</h1>
+  <p class="meta">
+    <strong>Applies to version:</strong> 1.6.0<br>
+    <strong>Schema target:</strong> 8 (no migration for this release)<br>
+    <strong>Documentation generated from repository</strong> <code>main</code> @ <code>80a29b5f9939f27f77c76e141e7aec15ebbf186a</code><br>
+    <strong>Last updated:</strong> 2026-08-16<br>
+    <strong>Release:</strong> <a href="https://github.com/magpern/ai-multilingual/releases/tag/v1.6.0">v1.6.0</a>
+  </p>
+  <p>Practical guide for WordPress / WooCommerce administrators. Ordinary operation uses the admin UI — you do not need CLI or REST for day-to-day work.</p>
+  <p>
+    <span class="badge supported">Supported</span>
+    <span class="badge optional">Optional</span>
+    <span class="badge deferred">Deferred</span>
+    <span class="badge unsupported">Unsupported</span>
+    <span class="badge advanced">Advanced</span>
+  </p>
+</header>
+
+<section id="introduction" data-section>
+  <h2>1. Introduction</h2>
+  <p><strong>AI Multilingual</strong> is a multilingual layer for WordPress. It keeps one canonical source object per content item and applies language overlays at render time — titles, body segments, taxonomy labels, selected WooCommerce surfaces, and SEO metadata where Supported.</p>
+  <p>Version <strong>1.6.0</strong> focuses on administrator completion: Localized URL operator surfaces, Jobs / stale / conflict literacy, and documented Rank Math Model A SEO expectations. Schema target remains <strong>8</strong> with no database migration.</p>
+
+  <h3 id="what-can-i-do">What can I do with this plugin?</h3>
+  <ul>
+    <li>Configure a default (source) language and additional target languages.</li>
+    <li>Translate posts, pages, products, and admitted taxonomies via <span class="menu-path">Multilingual → Workspace</span>.</li>
+    <li>Run background translation Jobs (including multi-post “Bulk translate”) without hand-typing segment keys.</li>
+    <li>Understand stale and conflict outcomes without silent overwrites.</li>
+    <li>Review and publish translation segments under the publication gate model.</li>
+    <li>Prepare and publish Localized URL slugs for Supported shapes (posts/pages/products and admitted terms).</li>
+    <li>Coexist with Rank Math for SEO overlays and sitemap language relationships (Model A).</li>
+    <li><span class="badge optional">Optional</span> Enable Gutenberg block translation and Elementor widget translation via feature flags (defaults off).</li>
+  </ul>
+  <p class="callout"><strong class="label">Operating model</strong> Source content stays authoritative in WordPress. Translations are overlays. Visitors see overlays when eligibility rules pass (language state, publication gate, route/overlay rules). Preview languages remain source-slug for Localized URLs.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="quick-start" data-section>
+  <h2>2. Quick start</h2>
+  <h3>Recommended first 15 minutes</h3>
+  <ol class="steps">
+    <li>Install and activate the plugin (or confirm <code>AI Multilingual</code> is active).</li>
+    <li>Open <span class="menu-path">Multilingual → Languages</span>. Confirm the default language. Add at least one target language (state <strong>Published</strong> or <strong>Preview</strong>).</li>
+    <li>Open <span class="menu-path">Multilingual → Settings</span>. Leave publication gate off and auto-publication <strong>Manual</strong> until you understand review flow. Optionally enable AI provider if you will use machine translation.</li>
+    <li>Open <span class="menu-path">Multilingual → Workspace</span> → <strong>Operations</strong> or <strong>Translate</strong>. Select one page or post and a target language.</li>
+    <li>Create or run translation for key segments; review text; publish when ready (if gate is on).</li>
+    <li>Visit the front end in that language and confirm overlays appear.</li>
+    <li>Only then consider enabling <strong>Localized URLs</strong> (Settings) and publishing a first route from Workspace.</li>
+  </ol>
+  <div class="callout warn"><strong class="label">Caution</strong> Localized URLs default <strong>Off</strong>. Enabling starts background verification; while <strong>Activating</strong>, visitors may still see source-slug URLs.</div>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="initial-configuration" data-section>
+  <h2>3. Initial configuration</h2>
+  <p>Admin root menu title: <strong>Multilingual</strong>. Capability for Settings / Languages: WordPress <code>manage_options</code>.</p>
+
+  <h3>Languages</h3>
+  <p>Path: <span class="menu-path">Multilingual → Languages</span>.</p>
+  <ul>
+    <li><strong>Default language</strong> = source content. Always published and unprefixed. Cannot be treated like a normal target.</li>
+    <li><strong>Target languages</strong> = additional rows with URL code, locale, name, native name, text direction, state, sort order.</li>
+    <li><strong>State:</strong> <em>Preview</em> (translators only), <em>Published</em> (everyone), <em>Disabled</em> (not routed; returns through Preview before Published again).</li>
+  </ul>
+  <p>Languages are stored separately from the Settings option. Changing languages later is supported; disable carefully if URLs/SEO already rely on a language.</p>
+
+  <h3>Settings overview</h3>
+  <p>Path: <span class="menu-path">Multilingual → Settings</span> (page title <strong>AI Multilingual Settings</strong>). Single option group <code>aiml_settings</code>.</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Setting</th><th>Default</th><th>What it does</th><th>When / risks</th></tr></thead>
+    <tbody>
+      <tr><td>Native language names</td><td>On</td><td>Switcher shows native names</td><td>Safe to change later</td></tr>
+      <tr><td>Hide current language</td><td>Off</td><td>Hides current language in switcher</td><td>Cosmetic</td></tr>
+      <tr><td>Delete all data on uninstall</td><td>Off</td><td>Wipes plugin data when uninstalled</td><td><strong>Destructive</strong> — leave Off unless intentional</td></tr>
+      <tr><td>Block saves on QA errors</td><td>On</td><td>Blocks save when QA errors present</td><td>Loosen only if you accept lower structural safety</td></tr>
+      <tr><td>Enable AI provider</td><td>Off</td><td>Allows machine translation Jobs/actions</td><td>Requires provider + key</td></tr>
+      <tr><td>Provider / Model / API key</td><td>None / empty</td><td>OpenAI when selected; key encrypted at rest</td><td>Never share keys; keys are not sent to Workspace JS</td></tr>
+      <tr><td>Strategy F Gutenberg flags (4)</td><td>All Off</td><td>Attribute registration → UUID → extraction → frontend rendering</td><td>Enable in order; see diagnostics on Settings</td></tr>
+      <tr><td>Segment publication gate</td><td>Off</td><td>When On, public overlay requires published segments</td><td>Confirm dialog on enable; does not mass-unpublish</td></tr>
+      <tr><td>Auto-publication mode</td><td>Manual</td><td>Manual / Approved only / Controlled auto</td><td>Affects future auto-publish after machine translate</td></tr>
+      <tr><td>Localized URLs state</td><td>Off</td><td>Off / Activating / On / Failed</td><td>Machine-owned; enable only when ready</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout"><strong class="label">Elementor flags</strong> Elementor extraction/rendering options exist internally and default <strong>Off</strong>, but <strong>v1.6.0 has no merchant Settings toggles</strong> for them. Treat Elementor enablement as an advanced/site-ops concern unless your deployment documents otherwise.</div>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="translator-workspace" data-section>
+  <h2>4. Translator Workspace</h2>
+  <p>Path: <span class="menu-path">Multilingual → Workspace</span> (page title <strong>Translator workspace</strong>).</p>
+  <p>Views (tabs): <strong>Operations</strong> · <strong>Translate</strong> · <strong>Review queue</strong> · <strong>Jobs</strong>.</p>
+  <p>Related admin screens (same top-level menu): <strong>Languages</strong>, <strong>Settings</strong>, classic <strong>Translate</strong> (capability <code>aiml_translate</code>), <strong>Glossary</strong>, <strong>Limited Rollout</strong>, and <strong>SEO Diagnostics</strong>. Day-to-day operator work for v1.6.0 centers on <strong>Workspace</strong> and <strong>Settings</strong>.</p>
+  <ul>
+    <li><strong>Operations</strong> — find content needing attention (stale, conflicts, publication), open detail, edit/review, inspect Localized URL slug panel for posts/pages/products.</li>
+    <li><strong>Translate</strong> — work segments for a selected source + language.</li>
+    <li><strong>Review queue</strong> — items awaiting review (requires review capability).</li>
+    <li><strong>Jobs</strong> — create, monitor, and recover background jobs.</li>
+  </ul>
+  <p>Workspace language pickers exclude the default language and disabled languages.</p>
+  <p>Typical actions on a segment/detail: edit translated text, submit/review where available, publish/unpublish under gate rules, retranslate when admitted, open Localized URL slug tools.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="translating-content" data-section>
+  <h2>5. Translating content</h2>
+
+  <h3>Posts &amp; pages</h3>
+  <p>Use Workspace Operations/Translate. Hierarchical pages share the Localized URL panel with posts once Localized URLs are On and shapes are admitted.</p>
+
+  <h3>WooCommerce products</h3>
+  <p><span class="badge optional">Optional dependency</span> Product titles/descriptions and Supported catalog surfaces overlay when translated. Localized product URLs use the Workspace slug panel (including admitted <code>%product_cat%</code> permalink setups). See <a href="#woocommerce">WooCommerce</a>.</p>
+
+  <h3>Categories, tags, taxonomies</h3>
+  <p>Term names/descriptions translate where Supported. Localized archive slugs for admitted taxonomies use the term edit screen panel (not CLI). Unsupported taxonomies simply omit the panel.</p>
+
+  <h3>Gutenberg</h3>
+  <p>Requires Strategy F flags enabled in Settings (defaults Off). Only listed core blocks are Supported. See <a href="#gutenberg">Gutenberg</a>.</p>
+
+  <h3>Elementor</h3>
+  <p>Supported widget families exist in product contracts; flags default Off and are not exposed in Settings UI in v1.6.0. See <a href="#elementor">Elementor</a>.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="jobs" data-section>
+  <h2>6. Jobs</h2>
+  <p>A <strong>Job</strong> is a background batch that translates (or retranslates) segments for one or more posts using Action Scheduler. Ordinary create/monitor/recover is <span class="menu-path">Workspace → Jobs</span>.</p>
+
+  <h3>When to use Jobs</h3>
+  <ul>
+    <li>Translate many missing segments on one post.</li>
+    <li>Retranslate stale machine-translated content after source changes.</li>
+    <li>Bulk-translate multiple posts without listing segment keys.</li>
+  </ul>
+
+  <h3>Creating a Job</h3>
+  <ol>
+    <li>Open <strong>Jobs</strong> → <strong>Create job</strong>.</li>
+    <li>Choose <strong>Job type</strong>:
+      <ul>
+        <li><strong>Translate selected</strong> — explicit segment keys; may overwrite machine-translated when allowed.</li>
+        <li><strong>Translate missing</strong> — fills missing segments (default in UI).</li>
+        <li><strong>Retranslate stale</strong> — targets stale segments; may overwrite machine-translated when allowed.</li>
+        <li><strong>Bulk translate</strong> — post IDs only; missing segments resolved automatically (no segment keys).</li>
+      </ul>
+    </li>
+    <li>Enter post IDs (one per line) and optional segment keys / idempotency token as required.</li>
+    <li>Click <strong>Create job</strong>. Creating does <em>not</em> auto-start processing.</li>
+  </ol>
+  <p>Bulk help (UI): up to <strong>50</strong> posts per bulk request; each job may materialize up to <strong>500</strong> items; after create, use <strong>Run now</strong> (administrators).</p>
+
+  <h3>Running &amp; monitoring</h3>
+  <ul>
+    <li>Expand the job row. Administrators with run capability see <strong>Run now</strong> when Waiting.</li>
+    <li>Editors without run capability see that an administrator must run the job.</li>
+    <li>Progress example: <em>N done · N failed · N skipped/stale · N total</em>.</li>
+    <li>Other actions (capability-gated): <strong>Pause</strong>, <strong>Resume</strong>, <strong>Cancel</strong>, <strong>Retry failed</strong>.</li>
+  </ul>
+
+  <h3>Outcomes (operator labels)</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>You see</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Waiting</td><td>Queued — needs <strong>Run now</strong></td></tr>
+      <tr><td>Running</td><td>Worker processing</td></tr>
+      <tr><td>Paused / Retry wait / Cancelled</td><td>Lifecycle states as labeled</td></tr>
+      <tr><td>Completed</td><td>Finished without skip/error buckets of concern</td></tr>
+      <tr><td>Completed with skips</td><td>Finished with skipped/stale item outcomes — expand Details</td></tr>
+      <tr><td>Failed</td><td>Job failed — inspect items / provider</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>Item literacy examples: <strong>Skipped — conflict protected</strong> (internal <code>skipped_conflict</code>); <strong>Source moved during job</strong> (internal <code>stale_source</code> — create a fresh job after source stabilizes).</p>
+  <p>Navigation: <strong>Open source in Operations</strong> deep-links by source type/id/language (source-level; not translation-id enriched).</p>
+  <div class="callout ok"><strong class="label">Safety</strong> Jobs never silently overwrite protected targets. Conflict protection is intentional.</div>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="stale" data-section>
+  <h2>7. Stale translations</h2>
+  <p><strong>Stale</strong> means the source changed after the translation was produced (Store <code>is_stale</code>). It is <em>not</em> the same as a Job item labeled “Source moved during job”.</p>
+
+  <h3>Why it happens</h3>
+  <p>Editing source content marks related translation segments stale so operators know review/retranslate may be needed.</p>
+
+  <h3>Published vs unpublished</h3>
+  <ul>
+    <li><strong>Stale — still published</strong> — remains published until you edit or retranslate. Visitor display still depends on overlay and route eligibility.</li>
+    <li><strong>Stale — not published</strong> — currently unpublished; edit/retranslate before expecting public overlay; gate settings may still apply.</li>
+  </ul>
+
+  <div class="callout warn"><strong class="label">Do not assume universal source fallback</strong> Frontend behavior is path-dependent. Classic overlays may still show the existing translated text while stale; Gutenberg block lookup rejects stale segments; Extension visitor resolution may miss stale segments. Always verify the surface you care about.</div>
+
+  <h3>What to do</h3>
+  <ol>
+    <li>Open Operations for the source + language.</li>
+    <li>Review differences; edit manually or create a <strong>Retranslate stale</strong> Job when admitted.</li>
+    <li>Publish again if your gate requires it.</li>
+  </ol>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="conflicts" data-section>
+  <h2>8. Conflicts and safe recovery</h2>
+  <p>AIML prevents silent overwrites when a target is protected (for example reviewed/manual edits conflicting with a Job).</p>
+  <ul>
+    <li>Job item: <strong>Skipped — conflict protected</strong> (internal status <code>skipped_conflict</code>).</li>
+    <li>Hint: open Operations or Translate to review/edit, or use confirmed Retranslate when allowed — Jobs will not silently overwrite.</li>
+  </ul>
+  <div class="callout danger"><strong class="label">Intentional protection</strong> Do not try to bypass conflict safeguards. Resolve by human review, then retranslate or retry only through admitted actions.</div>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="review-publication" data-section>
+  <h2>9. Review and publication</h2>
+  <ul>
+    <li>New machine translations typically start unpublished when using the publication model introduced in TI.7 (gate defaults Off for safe upgrades).</li>
+    <li>With <strong>Segment publication gate</strong> Off, public overlay eligibility follows pre-gate rules (non-empty, not ignored/missing).</li>
+    <li>With gate On, segments must be <strong>published</strong> to be publicly overlay-eligible. Enabling the gate does not mass-unpublish existing content.</li>
+    <li><strong>Auto-publication mode</strong> (Manual / Approved only / Controlled auto) affects future automatic publish after machine translate — not a mass rewrite of history.</li>
+    <li>Review queue uses review statuses such as not submitted / pending / approved / rejected (Workspace types).</li>
+  </ul>
+  <p>If a translation exists but is not publicly eligible, visitors continue to see source (or prior eligible overlay) according to surface rules — treat “exists in Workspace” ≠ “visible on front end” when the gate is On.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="localized-urls" data-section>
+  <h2>10. Localized URLs</h2>
+  <p><span class="badge supported">Supported</span> Optional localized path slugs for admitted shapes. <strong>v1.6.0 does not add new routing capability</strong> — it exposes the Supported lifecycle to administrators (P0).</p>
+
+  <h3>Why use them</h3>
+  <p>Give target-language URLs human-readable slugs (for example a Swedish product path) while Rank Math / SEO Model A continue to own primary sitemap locs as documented below.</p>
+
+  <h3>Enable / disable</h3>
+  <ol>
+    <li><span class="menu-path">Multilingual → Settings</span> → <strong>Localized URLs</strong>.</li>
+    <li><strong>Enable localized URLs</strong> (or <strong>Retry activation</strong> if Failed).</li>
+    <li>Wait until State is <strong>On</strong>. While <strong>Activating</strong>, visitors may still see source-slug URLs.</li>
+    <li>Review <strong>Capability admission</strong> and <strong>Hierarchy reindex / frontier</strong> on the same screen.</li>
+    <li><strong>Disable localized URLs</strong> takes effect immediately when used.</li>
+  </ol>
+
+  <h3>Posts, pages, products (Workspace)</h3>
+  <ol>
+    <li>Open Workspace, select content + language.</li>
+    <li>Panel <strong>Localized URL slug</strong>:
+      <ul>
+        <li><strong>Generate</strong> candidate from translated title, or type and <strong>Save candidate</strong>.</li>
+        <li>Review <strong>Origin</strong>, <strong>Effective path</strong>, <strong>Sync</strong>.</li>
+        <li><strong>Publish route</strong> when ready.</li>
+        <li><strong>Clear</strong> / <strong>Refresh</strong> as needed.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h3>Terms / archives</h3>
+  <p>On term edit screens (for example <span class="menu-path">Posts → Categories</span>), use the <strong>Localized URLs</strong> panel: Generate / Save candidate / Clear / Publish route / Refresh. Same collision recovery as posts.</p>
+
+  <h3>Supported vs deferred shapes</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Shape</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Flat post / page / product localized slugs</td><td><span class="badge supported">Supported</span></td></tr>
+      <tr><td>Hierarchical pages</td><td><span class="badge supported">Supported</span> (admission shown in Settings)</td></tr>
+      <tr><td>Term archives (category, post_tag, admitted Woo taxonomies)</td><td><span class="badge supported">Supported</span> when admitted</td></tr>
+      <tr><td>Product category permalinks (<code>%product_cat%</code>)</td><td><span class="badge supported">Supported</span> when admitted</td></tr>
+      <tr><td>Translated rewrite bases / Woo endpoint names</td><td><span class="badge deferred">Deferred</span></td></tr>
+      <tr><td>Pretty layered navigation localization</td><td><span class="badge deferred">Deferred</span></td></tr>
+      <tr><td>Distinct variation routes</td><td><span class="badge unsupported">Unsupported</span> (parent EffectiveUrl only)</td></tr>
+      <tr><td>Competing / duplicate localized primary sitemap locs</td><td><span class="badge unsupported">Unsupported</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Preview language browsing remains <strong>source-slug only</strong> for Localized URLs.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="collisions" data-section>
+  <h2>10a. Localized URL collisions</h2>
+  <p>If a path is already taken (another route or reserved/history path), publication is blocked and the UI reports a collision.</p>
+  <p><strong>Recovery:</strong> edit the candidate, <strong>Clear</strong>, or try a different slug, then <strong>Publish route</strong> again. Help text: <em>“That path collides with another route. Edit the candidate, clear it, or try a different slug, then publish again.”</em></p>
+  <p>Generated candidates may be adjusted; manual candidates that collide stay blocked until you change them. Degraded frontier children often mean rematerialization hit collisions — not that the shape is unsupported.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="seo-rank-math" data-section>
+  <h2>11. SEO / Rank Math</h2>
+  <p><span class="badge supported">Supported</span> AIML overlays translated SEO metadata (titles/descriptions where integrated), emits hreflang / x-default relationships, and aligns canonical / Open Graph URL identity with <strong>EffectiveUrl</strong> on Supported Localized URL requests.</p>
+
+  <h3>Sitemap Model A (Rank Math)</h3>
+  <ul>
+    <li>Rank Math owns primary sitemap <code>&lt;loc&gt;</code> entries (default/source language).</li>
+    <li>AIML does <strong>not</strong> create duplicate localized primary <code>&lt;url&gt;</code> entries.</li>
+    <li>AIML may enrich qualifying Rank Math entries with xhtml language relationships when discoverability gates pass (site public, enough public languages, SEO set eligibility).</li>
+    <li>Non-public sites (<code>blog_public = 0</code>, “Discourage search engines”) may correctly <strong>omit</strong> xhtml advertisement — this is <strong>EXPECTED OMIT</strong> for that configuration, <em>not</em> a claim that xhtml alternates are generally absent on public sites.</li>
+    <li>v1.6.0 characterization: <strong>no Supported-contract defect</strong>; no sitemap architecture redesign.</li>
+  </ul>
+  <p>Admin tool: <span class="menu-path">Multilingual → SEO Diagnostics</span> (<code>manage_options</code>).</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="woocommerce" data-section>
+  <h2>12. WooCommerce</h2>
+  <p><span class="badge optional">Optional</span> WooCommerce is not required to run the plugin, but when present AIML covers Supported visitor/catalog/checkout chrome, email subjects/headings (bounded), attribute labels, and Localized URLs for products / admitted product taxonomies.</p>
+  <ul>
+    <li>Prices, stock, and commerce identity remain WooCommerce’s — translations overlay labels/copy, not invent pricing.</li>
+    <li><span class="badge deferred">Deferred</span> Translated rewrite bases, endpoint names, pretty layered-nav.</li>
+    <li><span class="badge unsupported">Unsupported</span> Distinct variation Localized URLs.</li>
+  </ul>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="gutenberg" data-section>
+  <h2>13. Gutenberg</h2>
+  <p>Enable Strategy F flags under Settings (all default Off). Enable prerequisites in order; check <strong>Strategy F diagnostics</strong> on the Settings page (<em>Combination valid</em>, <em>Frontend rendering active</em>).</p>
+  <p><strong>Supported blocks (examples):</strong> paragraph, heading, button, list-item, preformatted, verse, code, quote, details, pullquote, image, file, audio, video — plus structural hosts that carry children (group/columns/list, etc.).</p>
+  <p><span class="badge deferred">Deferred</span> Navigation, Query Loop, reusable/synced patterns, FSE templates, table, search, custom blocks, ambiguous Woo blocks.</p>
+  <p><span class="badge unsupported">Unsupported</span> <code>core/html</code>, <code>core/shortcode</code>, <code>core/embed</code>.</p>
+  <p>Stale Gutenberg segments are rejected by block lookup (they do not overlay) — verify after source edits.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="elementor" data-section>
+  <h2>14. Elementor</h2>
+  <p>Supported widget families in product contracts include heading, text-editor, button, accordion, toggle, image (custom caption), icon-list, call-to-action.</p>
+  <p>Flags default Off. <strong>v1.6.0 Settings UI does not expose Elementor toggles</strong> — unlike Gutenberg Strategy F.</p>
+  <p><span class="badge deferred">Deferred</span> Many additional widgets, Theme Builder templates, forms, loops, third-party widgets.</p>
+  <p><span class="badge unsupported">Unsupported</span> Dynamic tags, Woo Elementor widgets, URL/link-control objects as translation targets, raw CSS/code, direct meta-only <code>_elementor_data</code> writes.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="taxonomies" data-section>
+  <h2>15. Taxonomies / terms</h2>
+  <p>Admitted shapes include WordPress <code>category</code> / <code>post_tag</code> and WooCommerce product taxonomies when capability admission shows Implemented · Admitted.</p>
+  <ul>
+    <li>Translate term names/descriptions via Supported taxonomy surfaces / Workspace as available.</li>
+    <li>Localized archive slug: term edit → <strong>Localized URLs</strong> panel (Generate / Save / Clear / Publish / Refresh).</li>
+    <li>Hierarchy rematerialization is reflected in Settings frontier status.</li>
+    <li>Unsupported taxonomies: no panel; do not invent support.</li>
+  </ul>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="status-diagnostics" data-section>
+  <h2>16. Capability / status / diagnostics</h2>
+  <h3>Localized URLs Settings honesty</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Message</th><th>Meaning</th><th>Action?</th></tr></thead>
+    <tbody>
+      <tr><td>Implemented · Admitted</td><td>Shape ready for operator use</td><td>Use Workspace/term UI</td></tr>
+      <tr><td>Implemented · Not admitted yet</td><td>Verification not finished</td><td>Wait / recheck — not “unsupported”</td></tr>
+      <tr><td>Pending frontier</td><td>Hierarchy rematerialization running</td><td>Wait; avoid assuming failure</td></tr>
+      <tr><td>Degraded</td><td>Some children could not rematerialize (often collision)</td><td>Inspect affected routes</td></tr>
+      <tr><td>Blocked / Failed</td><td>Processing problem</td><td>Review failures; Retry activation if state Failed</td></tr>
+      <tr><td>Complete</td><td>No open frontier work in recent history</td><td>None</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3 class="advanced">Advanced CLI</h3>
+  <p><span class="badge advanced">Advanced</span> Engineers may use WP-CLI such as <code>wp aiml localized-urls status|capabilities|reindex-status</code> and Jobs diagnostics. Merchants should not need CLI for ordinary Localized URL or Jobs workflows.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="troubleshooting" data-section>
+  <h2>17. Troubleshooting</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Problem</th><th>Likely cause</th><th>Action</th><th>Type</th></tr></thead>
+    <tbody>
+      <tr><td>Translation exists but front end shows source</td><td>Gate On + unpublished; language Preview/Disabled; surface rejects stale; flag Off (Gutenberg/Elementor)</td><td>Check publication, language state, flags, surface</td><td>Config / expected</td></tr>
+      <tr><td>Badge “Stale — still published”</td><td>Source changed; overlay still published</td><td>Review/edit or Retranslate stale; verify surface</td><td>Expected</td></tr>
+      <tr><td>Job Completed with skips</td><td>Conflicts or stale_source items</td><td>Expand Details; resolve in Operations</td><td>Expected</td></tr>
+      <tr><td>Skipped — conflict protected</td><td>Protected target; no silent overwrite</td><td>Review/edit; confirmed retranslate when allowed</td><td>Expected safety</td></tr>
+      <tr><td>Job Failed / Retry wait</td><td>Provider/outage/budget</td><td>Fix provider; Resume; Retry failed; Run now</td><td>Error / config</td></tr>
+      <tr><td>Run now missing</td><td>Not administrator / lacking run capability; job not Waiting</td><td>Ask admin; check status</td><td>Permissions</td></tr>
+      <tr><td>Localized slug collision</td><td>Path reserved or taken</td><td>Edit/Clear/retry publish</td><td>Expected</td></tr>
+      <tr><td>Localized URL does not appear</td><td>LU Off/Activating; route unpublished; Preview language; shape not admitted</td><td>Check Settings state, Publish route, admission</td><td>Config</td></tr>
+      <tr><td>Frontier Pending / Degraded</td><td>Hierarchy rematerialization</td><td>Wait or inspect collisions — not “unsupported”</td><td>Expected / ops</td></tr>
+      <tr><td>Sitemap has no localized primary URLs</td><td>Model A: Rank Math owns default locs only</td><td>Expected — use xhtml relationships when eligible</td><td>Expected</td></tr>
+      <tr><td>No sitemap xhtml on non-public site</td><td><code>blog_public=0</code></td><td>EXPECTED OMIT until site is public</td><td>Expected</td></tr>
+      <tr><td>Canonical missing / disagree</td><td>Theme/SEO plugin path; LU eligibility</td><td>SEO Diagnostics; verify EffectiveUrl path</td><td>Config / integrate</td></tr>
+      <tr><td>Gutenberg/Elementor not translated</td><td>Flags Off; unsupported widget/block</td><td>Enable Supported flags; check support lists</td><td>Config / deferred</td></tr>
+      <tr><td>Buttons missing</td><td>Role lacks capability</td><td>See Permissions</td><td>Permissions</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="permissions" data-section>
+  <h2>18. Permissions</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Who</th><th>Typical access</th></tr></thead>
+    <tbody>
+      <tr><td>Administrator</td><td>Settings, Languages, SEO Diagnostics, Localized URLs enable, Run now / Retry failed Jobs, full Workspace</td></tr>
+      <tr><td>Editor (with AIML caps)</td><td>Translate, create/manage/cancel Jobs, view Jobs; <strong>cannot</strong> Run now</td></tr>
+      <tr><td>Reviewer role (aiml_review_translations)</td><td>Review queue / review actions; Workspace if granted via OR access</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Workspace menu visibility uses a virtual access check: translate OR review OR view jobs. Segment publish and post Localized URL publish require translate capability plus ability to edit that post. Term Localized URL actions require translate capability plus ability to edit that term.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="operating-workflow" data-section>
+  <h2>19. Recommended operating workflow</h2>
+  <ol>
+    <li>Edit source content in WordPress/Woo.</li>
+    <li>In Workspace Operations, inspect stale / attention for each target language.</li>
+    <li>Create/run a Job (Translate missing, Retranslate stale, or Bulk translate) as needed.</li>
+    <li>Inspect Completed with skips — resolve conflicts in Operations.</li>
+    <li>Review translations; publish under your gate policy.</li>
+    <li>If Localized URLs On: Generate/Save candidate → Publish route → check Effective path / Sync.</li>
+    <li>Verify front end (and Rank Math SEO if used).</li>
+  </ol>
+  <h3>Daily / weekly checklist</h3>
+  <ul>
+    <li>Jobs: any Waiting needing Run now? Failed / Completed with skips?</li>
+    <li>Operations: stale published segments reviewed?</li>
+    <li>Settings: Localized URLs state On? Frontier Complete (not Failed)?</li>
+    <li>Provider key/model still valid?</li>
+    <li>New products/pages: translations + routes for priority languages?</li>
+  </ul>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="limitations" data-section>
+  <h2>20. Current limitations (v1.6.0)</h2>
+  <ul>
+    <li>Bulk Job create remains post-ID oriented (no picker redesign).</li>
+    <li>Jobs → Operations linking is source-level only (no translation_id enrichment).</li>
+    <li>Richer multi-language UX polish remains backlog.</li>
+    <li>Sitemap xhtml advertisement remains subject to public/discoverability eligibility (including <code>blog_public</code>).</li>
+    <li>Translated rewrite bases, Woo endpoint names, pretty layered-nav: Deferred.</li>
+    <li>Distinct variation Localized URLs: Unsupported.</li>
+    <li>Gutenberg/Elementor flags default Off; Elementor has no Settings toggles in v1.6.0.</li>
+    <li>Provider-generated slugs, rewrite-rule ownership, competing sitemaps, fuzzy URL matching: Unsupported.</li>
+    <li>No silent conflict overwrite; Run remains administrator-gated.</li>
+  </ul>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="advanced" data-section>
+  <h2>21. Advanced / developer capabilities</h2>
+  <p>Administrators normally do not need these. Developers:</p>
+  <ul>
+    <li><strong>Extension API v1</strong> — <code>docs/EXTENSION_API_V1.md</code> (hook <code>aiml_register_extensions</code>).</li>
+    <li><strong>Integration API v1</strong> — <code>docs/INTEGRATION_API_V1.md</code> (hook <code>aiml_register_integrations</code>).</li>
+    <li>Hooks index — <code>docs/HOOKS.md</code>.</li>
+    <li>CLI diagnostics for Localized URLs / Jobs / SEO (see ops runbooks under <code>docs/ops/</code> and <code>docs/runbooks/</code>).</li>
+  </ul>
+  <p>Public Extension/Integration APIs are unchanged in v1.6.0.</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="glossary" data-section>
+  <h2>22. Glossary</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Source language</td><td>Default language; canonical content</td></tr>
+      <tr><td>Target language</td><td>Additional language receiving overlays</td></tr>
+      <tr><td>Translation segment</td><td>Unit of translated text (title, block, widget field, …)</td></tr>
+      <tr><td>Stale</td><td>Source changed after translation; review/retranslate may be needed</td></tr>
+      <tr><td>Conflict</td><td>Protected target; Job skips overwrite (<code>skipped_conflict</code>)</td></tr>
+      <tr><td>Job</td><td>Background translation batch</td></tr>
+      <tr><td>Candidate slug</td><td>Prepared Localized URL slug not yet active</td></tr>
+      <tr><td>Effective route / path</td><td>Resolved localized path visitors/SEO should use when eligible</td></tr>
+      <tr><td>Localized URL</td><td>Optional language-specific path slug feature</td></tr>
+      <tr><td>Discoverable</td><td>Eligible for public SEO advertisement (e.g. site public)</td></tr>
+      <tr><td>Admitted capability</td><td>Shape verified ready for Localized URL operation</td></tr>
+      <tr><td>Frontier / reindex</td><td>Hierarchy rematerialization work queue</td></tr>
+      <tr><td>hreflang / x-default</td><td>Language relationship link tags for SEO</td></tr>
+      <tr><td>Canonical</td><td>Preferred URL for a page variant</td></tr>
+      <tr><td>Machine translated</td><td>Produced by AI provider Job/action</td></tr>
+      <tr><td>Reviewed</td><td>Human review workflow status applied</td></tr>
+      <tr><td>Published (segment)</td><td>Publication axis status required when gate is On</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<section id="status-map" data-section>
+  <h2>Appendix A — Job status mapping (troubleshooting)</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Internal</th><th>Operator label</th></tr></thead>
+    <tbody>
+      <tr><td><code>queued</code></td><td>Waiting</td></tr>
+      <tr><td><code>running</code></td><td>Running</td></tr>
+      <tr><td><code>paused</code></td><td>Paused</td></tr>
+      <tr><td><code>retry_wait</code></td><td>Retry wait</td></tr>
+      <tr><td><code>completed</code></td><td>Completed</td></tr>
+      <tr><td><code>completed_with_errors</code></td><td>Completed with skips</td></tr>
+      <tr><td><code>failed</code></td><td>Failed</td></tr>
+      <tr><td><code>cancelled</code></td><td>Cancelled</td></tr>
+      <tr><td><code>skipped_conflict</code> (item)</td><td>Skipped — conflict protected</td></tr>
+      <tr><td><code>stale_source</code> (item)</td><td>Source moved during job</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
+<footer class="doc-foot">
+  <p>Source of truth: current <code>magpern/ai-multilingual</code> repository documentation and Supported contracts for v1.6.0. This manual does not authorize deployment or product changes.</p>
+  <p>Related: <code>docs/releases/v1.6.0.md</code>, <code>docs/runbooks/LOCALIZED_URL_OPERATOR.md</code>, <code>docs/ops/BACKGROUND_TRANSLATION_JOBS_RUNBOOK.md</code>.</p>
+</footer>
+
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var input = document.getElementById('manual-search');
+  var links = Array.prototype.slice.call(document.querySelectorAll('#toc-nav [data-toc]'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-section]'));
+  if (!input) return;
+  input.addEventListener('input', function () {
+    var q = (input.value || '').trim().toLowerCase();
+    links.forEach(function (a) {
+      var id = (a.getAttribute('href') || '').replace(/^#/, '');
+      var section = document.getElementById(id);
+      var hay = ((a.textContent || '') + ' ' + (section ? section.textContent : '')).toLowerCase();
+      var show = !q || hay.indexOf(q) !== -1;
+      a.classList.toggle('hidden', !show);
+    });
+  });
+})();
+</script>
+</body>
+</html>
