@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Multilingual v1.6.0 — Vlad Acceptance Checklist</title>
+<style>
+:root {
+  --bg: #f4f1ea;
+  --surface: #fff;
+  --ink: #1a1c1e;
+  --muted: #5a6169;
+  --border: #d5d0c6;
+  --accent: #8b2e1a;
+  --accent-soft: #f8ebe6;
+  --ok: #2f6b3a;
+  --ok-bg: #eaf6ea;
+  --fail: #a33b3b;
+  --fail-bg: #fceeee;
+  --skip: #6a5a2a;
+  --skip-bg: #fff6e8;
+  --warn-bg: #fff1e6;
+  --info-bg: #eef4fb;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --toc: 15.5rem;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: linear-gradient(180deg, #ebe4d8 0%, var(--bg) 20%);
+  line-height: 1.5;
+}
+a { color: var(--accent); }
+.layout {
+  display: grid;
+  grid-template-columns: var(--toc) minmax(0, 1fr);
+  min-height: 100vh;
+}
+.toc {
+  position: sticky; top: 0; align-self: start;
+  height: 100vh; overflow: auto;
+  background: #2a1a14; color: #f3e8e2;
+  padding: 1rem .85rem 2rem;
+}
+.toc h2 {
+  margin: 0 0 .6rem;
+  font-size: .78rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #c9b0a4;
+}
+.toc a {
+  display: block;
+  color: #f0ddd4;
+  text-decoration: none;
+  font-size: .84rem;
+  padding: .28rem .4rem;
+  border-radius: .3rem;
+}
+.toc a:hover { background: #3d2820; }
+.main { padding: 1.25rem 1.1rem 3.5rem; }
+.wrap { max-width: 54rem; margin: 0 auto; }
+.banner {
+  background: #5c1212;
+  color: #fff;
+  border-radius: .65rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 650;
+}
+.banner code { background: rgba(255,255,255,.15); padding: .05rem .35rem; border-radius: .25rem; }
+.hero, .meta-card, .summary, .group, .issue {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: .7rem;
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  margin: 0 0 .35rem;
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  color: var(--accent);
+  letter-spacing: -.02em;
+}
+.meta { color: var(--muted); font-size: .92rem; }
+.badge {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  padding: .12rem .4rem;
+  border-radius: .28rem;
+  border: 1px solid var(--border);
+  background: #f3f0ea;
+}
+.badge.accept { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.badge.blocker { background: var(--fail-bg); border-color: var(--fail); color: var(--fail); }
+.badge.major { background: #ffe8d4; border-color: #b65c16; color: #8a420a; }
+.badge.minor { background: var(--skip-bg); border-color: #c9892d; color: #6a4308; }
+.badge.cosmetic { background: #f0f2f4; color: #555; }
+.callout {
+  border-left: 4px solid #b65c16;
+  background: var(--warn-bg);
+  padding: .7rem .85rem;
+  margin: .75rem 0;
+  border-radius: 0 .4rem .4rem 0;
+}
+.callout.info { border-left-color: #3b6ea5; background: var(--info-bg); }
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: .55rem .75rem;
+}
+.meta-grid label {
+  display: block;
+  font-size: .75rem;
+  color: var(--muted);
+  margin-bottom: .15rem;
+}
+.meta-grid input, .meta-grid textarea, .scenario textarea, .issue textarea, .issue input {
+  width: 100%;
+  padding: .4rem .5rem;
+  border: 1px solid var(--border);
+  border-radius: .35rem;
+  font: inherit;
+  background: #fffcf7;
+}
+.summary {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: .5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.summary .cell {
+  background: #faf7f1;
+  border: 1px solid var(--border);
+  border-radius: .45rem;
+  padding: .45rem .55rem;
+  text-align: center;
+}
+.summary .n { font-size: 1.35rem; font-weight: 750; line-height: 1.1; }
+.summary .l { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.summary .verdict {
+  grid-column: 1 / -1;
+  font-weight: 750;
+  padding: .55rem .7rem;
+  border-radius: .45rem;
+  text-align: center;
+}
+.verdict.pass { background: var(--ok-bg); color: var(--ok); }
+.verdict.pass-minor { background: var(--skip-bg); color: var(--skip); }
+.verdict.fail { background: var(--fail-bg); color: var(--fail); }
+.verdict.pending { background: #f0f2f4; color: var(--muted); }
+.filters {
+  display: flex; flex-wrap: wrap; gap: .4rem; margin: .6rem 0 0;
+}
+.filters button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: .25rem .7rem;
+  font: inherit;
+  font-size: .82rem;
+  cursor: pointer;
+}
+.filters button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.group h2 {
+  margin: 0 0 .35rem;
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .4rem;
+}
+.group .intro { color: var(--muted); font-size: .92rem; margin: 0 0 .8rem; }
+.scenario {
+  border: 1px solid var(--border);
+  border-radius: .55rem;
+  padding: .85rem .9rem;
+  margin: 0 0 .75rem;
+  background: #fffcf8;
+}
+.scenario[data-result="pass"] { border-color: #7bb884; background: #f5fbf5; }
+.scenario[data-result="fail"] { border-color: #d47a7a; background: #fff6f6; }
+.scenario[data-result="skip"] { border-color: #d4b36a; background: #fffaf0; }
+.scenario.hidden { display: none; }
+.scenario-head {
+  display: flex; flex-wrap: wrap; gap: .4rem .65rem;
+  align-items: baseline; margin-bottom: .35rem;
+}
+.scenario-head .id {
+  font-family: var(--mono);
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.scenario h3 { margin: 0; font-size: 1.02rem; flex: 1; }
+.scenario .purpose { margin: .2rem 0 .55rem; }
+.scenario .block { margin: .45rem 0; }
+.scenario .block strong { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: .15rem; }
+.scenario ol { margin: .2rem 0; padding-left: 1.2rem; }
+.scenario li { margin: .2rem 0; }
+.menu-path {
+  font-family: var(--mono);
+  font-size: .86em;
+  background: #f1ece4;
+  padding: .05rem .3rem;
+  border-radius: .25rem;
+}
+.controls {
+  display: flex; flex-wrap: wrap; gap: .45rem;
+  align-items: center;
+  margin-top: .65rem;
+  padding-top: .55rem;
+  border-top: 1px dashed var(--border);
+}
+.controls label {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-size: .9rem; font-weight: 650;
+  padding: .2rem .45rem;
+  border-radius: .3rem;
+  cursor: pointer;
+}
+.controls label.pass { background: var(--ok-bg); }
+.controls label.fail { background: var(--fail-bg); }
+.controls label.skip { background: var(--skip-bg); }
+.evidence {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .45rem;
+  margin-top: .45rem;
+}
+@media (max-width: 720px) {
+  .layout { grid-template-columns: 1fr; }
+  .toc { position: relative; height: auto; }
+  .evidence { grid-template-columns: 1fr; }
+}
+@media print {
+  .toc, .filters, .toolbar { display: none !important; }
+  .layout { display: block; }
+  .summary { position: static; }
+  .scenario { break-inside: avoid; }
+}
+.toolbar { display: flex; flex-wrap: wrap; gap: .45rem; margin: .5rem 0 0; }
+.toolbar button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: .35rem;
+  padding: .35rem .7rem;
+  font: inherit;
+  cursor: pointer;
+}
+pre.template {
+  white-space: pre-wrap;
+  background: #1f1a17;
+  color: #f4ebe5;
+  padding: .85rem;
+  border-radius: .45rem;
+  font-size: .82rem;
+  overflow: auto;
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="toc" aria-label="Scenario groups">
+  <h2>Acceptance</h2>
+  <a href="#preflight">Preflight</a>
+  <a href="#summary">Summary</a>
+  <a href="#group-a">A Health</a>
+  <a href="#group-b">B Languages</a>
+  <a href="#group-c">C Translation</a>
+  <a href="#group-d">D Publication</a>
+  <a href="#group-e">E Jobs</a>
+  <a href="#group-f">F Stale</a>
+  <a href="#group-g">G Conflict</a>
+  <a href="#group-h">H Localized URLs</a>
+  <a href="#group-i">I Taxonomies</a>
+  <a href="#group-j">J WooCommerce</a>
+  <a href="#group-k">K Gutenberg</a>
+  <a href="#group-l">L Elementor</a>
+  <a href="#group-m">M SEO / Rank Math</a>
+  <a href="#group-n">N Permissions</a>
+  <a href="#group-o">O Troubleshooting</a>
+  <a href="#group-r">R Regression</a>
+  <a href="#issue-template">Issue template</a>
+  <a href="../user-manual/index.html">User Manual</a>
+</aside>
+
+<main class="main">
+<div class="wrap">
+
+<div class="banner" role="alert">
+  Run this checklist on <code>https://dev.biopentra.eu</code> only.<br>
+  Do <strong>not</strong> test or mutate <code>https://biopentra.eu</code> (production).
+</div>
+
+<header class="hero">
+  <p class="meta" style="margin:0"><span class="badge accept">Acceptance checklist</span> · Not the User Manual</p>
+  <h1>AI Multilingual v1.6.0 — Vlad Acceptance</h1>
+  <p class="meta">
+    <strong>Plugin under test:</strong> 1.6.0 &nbsp;·&nbsp; <strong>TARGET:</strong> 8<br>
+    <strong>Purpose:</strong> Prove Supported operator journeys work correctly on DEV.<br>
+    <strong>User Manual:</strong> <a href="../user-manual/index.html">../user-manual/index.html</a> (“How do I use it?”)<br>
+    <strong>This document:</strong> “Does it work when I use it?”
+  </p>
+  <div class="callout info">
+    Prefix created fixtures with <strong>AIML Acceptance —</strong>. Prefer controlled test content. Do not place paid orders or mutate real customer/order data. Ordinary acceptance uses admin UI only (no REST/CLI).
+  </div>
+</header>
+
+<section class="meta-card" id="preflight">
+  <h2 style="margin-top:0">Environment preflight</h2>
+  <div class="meta-grid">
+    <div><label for="m-tester">Tester</label><input id="m-tester" data-meta="tester" placeholder="Vlad"></div>
+    <div><label for="m-date">Date</label><input id="m-date" data-meta="date" type="date"></div>
+    <div><label for="m-env">Environment URL</label><input id="m-env" data-meta="env" value="https://dev.biopentra.eu"></div>
+    <div><label for="m-plugin">Plugin version (expect 1.6.0)</label><input id="m-plugin" data-meta="plugin" placeholder="1.6.0"></div>
+    <div><label for="m-wp">WordPress version</label><input id="m-wp" data-meta="wp"></div>
+    <div><label for="m-woo">WooCommerce version (if installed)</label><input id="m-woo" data-meta="woo"></div>
+    <div><label for="m-browser">Browser</label><input id="m-browser" data-meta="browser"></div>
+    <div><label for="m-role">Tester user role</label><input id="m-role" data-meta="role" placeholder="Administrator"></div>
+    <div><label for="m-source">Source language</label><input id="m-source" data-meta="source" placeholder="en / English"></div>
+    <div><label for="m-target">Target language</label><input id="m-target" data-meta="target" placeholder="sv / Swedish"></div>
+    <div><label for="m-lu">Localized URLs state</label><input id="m-lu" data-meta="lu" placeholder="On / Off / Activating"></div>
+    <div><label for="m-rm">Rank Math active?</label><input id="m-rm" data-meta="rm" placeholder="Yes / No"></div>
+    <div><label for="m-gutenberg">Gutenberg Strategy F flags</label><input id="m-gutenberg" data-meta="gutenberg" placeholder="All Off / Enabled"></div>
+    <div><label for="m-elementor">Elementor translation state</label><input id="m-elementor" data-meta="elementor" placeholder="Not enabled / Enabled"></div>
+    <div><label for="m-ai">AI provider available?</label><input id="m-ai" data-meta="ai" placeholder="Yes / No"></div>
+  </div>
+  <p style="margin:.75rem 0 0"><label for="m-notes">Preflight notes</label></p>
+  <textarea id="m-notes" data-meta="notes" rows="2" placeholder="Confirm browser URL is dev.biopentra.eu before any mutation."></textarea>
+  <div class="toolbar">
+    <button type="button" id="btn-save">Save progress (this browser)</button>
+    <button type="button" id="btn-clear">Clear saved progress</button>
+    <button type="button" onclick="window.print()">Print / PDF</button>
+  </div>
+</section>
+
+<section class="summary" id="summary" aria-live="polite">
+  <div class="cell"><div class="n" id="c-total">0</div><div class="l">Total</div></div>
+  <div class="cell"><div class="n" id="c-pass">0</div><div class="l">Pass</div></div>
+  <div class="cell"><div class="n" id="c-fail">0</div><div class="l">Fail</div></div>
+  <div class="cell"><div class="n" id="c-skip">0</div><div class="l">Skip / N/A</div></div>
+  <div class="cell"><div class="n" id="c-pending">0</div><div class="l">Pending</div></div>
+  <div class="cell"><div class="n" id="c-blocker">0</div><div class="l">Blocker fails</div></div>
+  <div class="cell"><div class="n" id="c-major">0</div><div class="l">Major fails</div></div>
+  <div class="verdict pending" id="verdict">Overall: PENDING</div>
+  <div class="filters" id="filters">
+    <button type="button" class="active" data-filter="all">All</button>
+    <button type="button" data-filter="pending">Pending</button>
+    <button type="button" data-filter="fail">Failed</button>
+    <button type="button" data-filter="pass">Passed</button>
+    <button type="button" data-filter="skip">Skipped</button>
+    <button type="button" data-filter="blocker">Blocker/Major</button>
+  </div>
+</section>
+
+<!-- ========== GROUPS ========== -->
+
+<section class="group" id="group-a">
+  <h2>Group A — Installation / basic health</h2>
+  <p class="intro">Confirm AIML admin surfaces load without fatals. Manual: Workspace / Settings.</p>
+
+  <article class="scenario" data-id="A1" data-sev="blocker" data-feature="Health">
+    <div class="scenario-head"><span class="id">A1</span><h3>Plugin active &amp; menu present</h3><span class="badge blocker">Blocker</span></div>
+    <p class="purpose"><strong>Purpose:</strong> AIML is installed and reachable.</p>
+    <div class="block"><strong>Preconditions</strong> Logged into <code>dev.biopentra.eu</code> wp-admin as an administrator (or role that can see Multilingual).</div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Confirm browser address bar host is <code>dev.biopentra.eu</code>.</li>
+      <li>Open Plugins and confirm AI Multilingual is Active; note version <strong>1.6.0</strong>.</li>
+      <li>Confirm top-level menu <strong>Multilingual</strong> appears.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Plugin Active at 1.6.0; Multilingual menu visible; no PHP fatal.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input placeholder="Evidence: plugin version / notes" data-evidence><textarea rows="2" placeholder="Notes" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="A2" data-sev="blocker" data-feature="Health">
+    <div class="scenario-head"><span class="id">A2</span><h3>Core AIML screens load</h3><span class="badge blocker">Blocker</span></div>
+    <p class="purpose"><strong>Purpose:</strong> No fatal on main operator screens.</p>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Open <span class="menu-path">Multilingual → Languages</span>.</li>
+      <li>Open <span class="menu-path">Multilingual → Settings</span>.</li>
+      <li>Open <span class="menu-path">Multilingual → Workspace</span>; confirm tabs Operations / Translate / Review queue / Jobs.</li>
+      <li>Open Jobs tab specifically.</li>
+      <li>Open <span class="menu-path">Multilingual → SEO Diagnostics</span> if visible.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Each page renders; Workspace shell shows Translator workspace heading; no white-screen/fatal.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input placeholder="Evidence / URL" data-evidence><textarea rows="2" data-notes placeholder="Notes"></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-b">
+  <h2>Group B — Languages / initial setup</h2>
+  <p class="intro">Prefer existing DEV languages; avoid destructive reconfiguration. Manual → Initial configuration.</p>
+
+  <article class="scenario" data-id="B1" data-sev="blocker" data-feature="Languages">
+    <div class="scenario-head"><span class="id">B1</span><h3>Default &amp; target languages visible</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Open Languages.</li>
+      <li>Identify default/source language (always Published / unprefixed).</li>
+      <li>Identify at least one non-default target used for acceptance.</li>
+      <li>Record codes in preflight fields.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Default and ≥1 usable target (Published or Preview) are clear.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input placeholder="Source / target codes" data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="B2" data-sev="major" data-feature="Languages">
+    <div class="scenario-head"><span class="id">B2</span><h3>Workspace language selector honesty</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>In Workspace, open language picker for Translate/Operations.</li>
+      <li>Confirm default language is not offered as a translation target.</li>
+      <li>If a Disabled language exists, confirm it is not offered for ordinary translation.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Selector matches Manual: excludes default and disabled languages.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Evidence"><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-c">
+  <h2>Group C — Basic translation</h2>
+  <p class="intro">Use a controlled page titled like <code>AIML Acceptance — Basic Page</code>.</p>
+
+  <article class="scenario" data-id="C1" data-sev="blocker" data-feature="Translation">
+    <div class="scenario-head"><span class="id">C1</span><h3>Create/edit translation for a page</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Preconditions</strong> AI provider available <em>or</em> willingness to type a manual translation. Administrator or translator role.</div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Create or open page <code>AIML Acceptance — Basic Page</code> with distinctive source text.</li>
+      <li>Workspace → Translate (or Operations detail): select page + target language.</li>
+      <li>Produce translation for title (and body if shown) via Job Translate missing + Run now, or manual edit.</li>
+      <li>Save; note review/publication state.</li>
+      <li>Open frontend in target language; confirm overlay text appears when eligible.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Translation saved; frontend shows translated title/content when publication/language rules allow. Record source URL, target language, translated URL.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Post ID / source URL / target URL"><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-d">
+  <h2>Group D — Review / publication</h2>
+  <p class="intro">Prefer gate defaults already on DEV; do not mass-reconfigure unless needed. Manual → Review &amp; publication.</p>
+
+  <article class="scenario" data-id="D1" data-sev="major" data-feature="Publication">
+    <div class="scenario-head"><span class="id">D1</span><h3>Unpublished vs published visibility</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Note Settings: Segment publication gate On or Off (record in notes).</li>
+      <li>On controlled content, ensure a translation exists that is <em>not</em> published (if gate On) or observe eligibility rules if gate Off.</li>
+      <li>Check frontend eligibility outcome.</li>
+      <li>Publish the segment (if gate On / UI offers publish) and recheck frontend.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Operator can distinguish translated-but-not-publicly-eligible vs published/eligible. Frontend matches Manual: “exists in Workspace ≠ visible” when gate On.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Gate state / URLs"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="D2" data-sev="minor" data-feature="Publication">
+    <div class="scenario-head"><span class="id">D2</span><h3>Review queue reachable</h3><span class="badge minor">Minor</span></div>
+    <div class="block"><strong>Steps</strong> Open Workspace → Review queue. If role lacks review capability, mark SKIP and note role.</div>
+    <div class="block"><strong>Expected</strong> Queue loads for permitted roles; otherwise action absent/denied without fatal.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-e">
+  <h2>Group E — Jobs (P2)</h2>
+  <p class="intro">Ordinary path: Workspace → Jobs. Creating a Job does <strong>not</strong> auto-start — administrators use <strong>Run now</strong>. Manual → Jobs.</p>
+
+  <article class="scenario" data-id="E1" data-sev="blocker" data-feature="Jobs">
+    <div class="scenario-head"><span class="id">E1</span><h3>Translate missing → Run → Completed</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Preconditions</strong> AI provider available; administrator (for Run now); controlled post with missing segments.</div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Jobs → Create job → type <strong>Translate missing</strong>.</li>
+      <li>Enter post ID; Create job.</li>
+      <li>Confirm status Waiting; expand; click <strong>Run now</strong>.</li>
+      <li>Monitor until Completed (or Completed with skips).</li>
+      <li>Verify translated result in Workspace/frontend.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Job runs; progress readable; result usable. Record Job ID.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Job ID / post ID"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="E2" data-sev="blocker" data-feature="Jobs">
+    <div class="scenario-head"><span class="id">E2</span><h3>Bulk translate without segment keys</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Prepare 2–3 controlled posts with missing translations.</li>
+      <li>Create job → <strong>Bulk translate</strong>; enter post IDs only (no segment keys).</li>
+      <li>Run now; monitor; spot-check each post has missing segments filled.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Bulk create succeeds without segment keys; items materialize; translations appear. (Limit awareness: ≤50 posts / ≤500 items — do not stress-test limits.)</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Job ID / post IDs"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="E3" data-sev="major" data-feature="Jobs">
+    <div class="scenario-head"><span class="id">E3</span><h3>Progress / status literacy</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> During E1/E2, confirm operator labels (Waiting, Running, Completed, Completed with skips) and progress counts are understandable without REST.</div>
+    <div class="block"><strong>Expected</strong> Vlad can explain job state from UI alone. Manual Appendix A mapping optional for notes.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="E4" data-sev="major" data-feature="Jobs">
+    <div class="scenario-head"><span class="id">E4</span><h3>Run now permission (if second role available)</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Preconditions</strong> Existing non-admin AIML editor/translator account. If none, mark SKIP / N/A — do not invent users solely for this.</div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>As editor: create a Waiting job (if allowed).</li>
+      <li>Confirm Run now absent or message that administrator must run.</li>
+      <li>As administrator: Run now available.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Only administrators run jobs; editors are not silently granted Run.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Roles used"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="E5" data-sev="minor" data-feature="Jobs">
+    <div class="scenario-head"><span class="id">E5</span><h3>Retry / failure path</h3><span class="badge minor">Minor</span></div>
+    <div class="block"><strong>Steps</strong> Only if a safe Failed/Retry wait job already exists. Do <strong>not</strong> break provider credentials deliberately. Otherwise SKIP.</div>
+    <div class="block"><strong>Expected</strong> Retry failed / Resume / Run now behave as labeled without silent data loss.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="E6" data-sev="minor" data-feature="Jobs">
+    <div class="scenario-head"><span class="id">E6</span><h3>Open source in Operations</h3><span class="badge minor">Minor</span></div>
+    <div class="block"><strong>Steps</strong> From a job row, use <strong>Open source in Operations</strong>.</div>
+    <div class="block"><strong>Expected</strong> Lands on source-level Operations context (source type/id/language). Not required to deep-link a specific translation_id.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-f">
+  <h2>Group F — Stale content</h2>
+  <p class="intro">Do not claim a universal “visitor always sees source.” Manual → Stale translations.</p>
+
+  <article class="scenario" data-id="F1" data-sev="blocker" data-feature="Stale">
+    <div class="scenario-head"><span class="id">F1</span><h3>Source change marks translation stale</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Use controlled translated page from C1 (prefer published translation if gate allows).</li>
+      <li>Edit source content significantly; update.</li>
+      <li>Open Workspace Operations/detail for that target language.</li>
+      <li>Confirm stale badge/copy is visible and understandable (published vs unpublished wording if applicable).</li>
+      <li>Confirm existing translation was not silently wiped.</li>
+      <li>Use Edit or Retranslate stale Job when admitted; confirm path forward.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Stale visible; no silent overwrite; recovery available; frontend behavior checked without forcing a false universal source-fallback claim.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Post ID / publish_status"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="F2" data-sev="major" data-feature="Stale">
+    <div class="scenario-head"><span class="id">F2</span><h3>Published vs unpublished stale copy</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> Where practical, observe stale UI for a published segment and (if available) an unpublished one. Compare badges/notices to Manual.</div>
+    <div class="block"><strong>Expected</strong> Wording distinguishes “still published” vs “not published”; no absolute false visitor claims.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-g">
+  <h2>Group G — Conflict protection</h2>
+  <p class="intro">Conflict protection is intentional. Manual → Conflicts.</p>
+
+  <article class="scenario" data-id="G1" data-sev="blocker" data-feature="Conflict">
+    <div class="scenario-head"><span class="id">G1</span><h3>No silent overwrite on protected target</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Preconditions</strong> Controlled content where a Job would collide with a protected/manual/reviewed translation. Typical path: manually edit/review a machine translation, then run a Job type that would overwrite (e.g. Retranslate stale / Translate selected where admitted).</div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Protect a target translation via meaningful manual edit/review per UI.</li>
+      <li>Create/run a Job that attempts overwrite.</li>
+      <li>Inspect job item outcome for conflict messaging (e.g. Skipped — conflict protected).</li>
+      <li>Confirm protected text still present.</li>
+      <li>Follow UI recovery (Operations review/edit; confirmed retranslate only when admitted).</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> No silent overwrite; understandable attention required; recovery does not bypass safeguards. Internal code <code>skipped_conflict</code> optional evidence only.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Job ID / item outcome"><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-h">
+  <h2>Group H — Localized URLs (P0)</h2>
+  <p class="intro">Prefer existing On state. Avoid Disable if it disrupts other DEV work — mark H10 optional. Manual → Localized URLs / Collisions.</p>
+
+  <article class="scenario" data-id="H1" data-sev="blocker" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H1</span><h3>Settings state &amp; admission honesty</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong> Settings → Localized URLs: record State; read Capability admission and Frontier summary. Do not confuse “Not admitted yet” / Pending / Degraded with Unsupported.</div>
+    <div class="block"><strong>Expected</strong> Status readable; matches Manual honesty table.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="State / admission notes"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H2" data-sev="blocker" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H2</span><h3>Generate candidate (post/page)</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Preconditions</strong> Localized URLs On (or Activating completed). Controlled post/page with translation.</div>
+    <div class="block"><strong>Steps</strong> Workspace → Localized URL slug → <strong>Generate</strong>; note Origin / Effective path / Sync.</div>
+    <div class="block"><strong>Expected</strong> Candidate appears; UI labels match Manual.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Post ID / candidate"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H3" data-sev="major" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H3</span><h3>Manual candidate save</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> Type a safe unique manual slug; <strong>Save candidate</strong>.</div>
+    <div class="block"><strong>Expected</strong> Candidate persists; toast/success or clear confirmation.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H4" data-sev="blocker" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H4</span><h3>Publish route</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong> <strong>Publish route</strong>; confirm Effective path / Sync after publish.</div>
+    <div class="block"><strong>Expected</strong> Route published without collision (or collision handled per H7).</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Effective path"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H5" data-sev="blocker" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H5</span><h3>Effective localized URL works</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong> Visit the effective localized path in the target language; confirm correct content (not 404 / wrong object).</div>
+    <div class="block"><strong>Expected</strong> Page loads as intended for Published language. Preview languages remain source-slug only — do not fail H5 solely for Preview browsing.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Localized URL"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H6" data-sev="major" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H6</span><h3>Clear / recovery controls</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> On a controlled candidate (prefer unpublished/safe), use Clear and/or Refresh; confirm UI recovers without fatal.</div>
+    <div class="block"><strong>Expected</strong> Clear/Refresh behave safely; no orphaned confusing state without explanation.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H7" data-sev="blocker" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H7</span><h3>Collision + safe recovery</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Create two controlled objects; attempt to publish the same localized slug for the same language.</li>
+      <li>Confirm collision messaging.</li>
+      <li>Edit candidate / Clear / choose different slug; publish successfully.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Collision blocks unsafe publish; recovery path works. Help text understandable.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Object IDs / slug"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H8" data-sev="major" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H8</span><h3>Hierarchical page path (if admitted)</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Preconditions</strong> Settings shows hierarchical pages Implemented · Admitted. Else SKIP.</div>
+    <div class="block"><strong>Steps</strong> Parent + child acceptance pages; publish localized routes; verify child path under parent as Effective path shows.</div>
+    <div class="block"><strong>Expected</strong> Hierarchy behaves per Effective path; frontier Pending/Degraded interpreted per Manual (not “unsupported”).</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H9" data-sev="major" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H9</span><h3>History redirect after slug change</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> On controlled published route, change slug and publish new route. Visit old path once.</div>
+    <div class="block"><strong>Expected</strong> Old path redirects (one hop) to current path; no loop.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Old URL → new URL"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="H10" data-sev="minor" data-feature="Localized URLs">
+    <div class="scenario-head"><span class="id">H10</span><h3>Disable Localized URLs (optional / reversible)</h3><span class="badge minor">Minor</span></div>
+    <div class="block"><strong>Steps</strong> Only if safe for shared DEV and easily reversible. Prefer SKIP if other work relies on LU On.</div>
+    <div class="block"><strong>Expected</strong> Disable immediate per Manual; re-enable restores operator path. If skipped, note reason.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-i">
+  <h2>Group I — Taxonomies / terms</h2>
+  <p class="intro">Representative admitted taxonomy (e.g. category or product_cat). Manual → Taxonomies.</p>
+
+  <article class="scenario" data-id="I1" data-sev="blocker" data-feature="Taxonomies">
+    <div class="scenario-head"><span class="id">I1</span><h3>Term Localized URLs panel (admitted)</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Create/edit term <code>AIML Acceptance — Term</code> in an admitted taxonomy.</li>
+      <li>Confirm Localized URLs panel appears.</li>
+      <li>Generate/Save candidate → Publish route.</li>
+      <li>Visit localized archive URL.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Panel present for admitted taxonomy; route works for Published language.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Term ID / taxonomy / URL"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="I2" data-sev="major" data-feature="Taxonomies">
+    <div class="scenario-head"><span class="id">I2</span><h3>Non-admitted / unsupported taxonomy honesty</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> Open a taxonomy edit screen that should not offer Localized URLs (if available on DEV). Confirm panel absent — not a fake Supported workflow.</div>
+    <div class="block"><strong>Expected</strong> No false Supported UI. If every taxonomy on site is admitted, SKIP with note.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-j">
+  <h2>Group J — WooCommerce</h2>
+  <p class="intro">Controlled product only. No paid orders. No real customer/order mutation.</p>
+
+  <article class="scenario" data-id="J1" data-sev="blocker" data-feature="WooCommerce">
+    <div class="scenario-head"><span class="id">J1</span><h3>Translated product + price/stock safety</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Preconditions</strong> WooCommerce active. Else SKIP.</div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Create product <code>AIML Acceptance — Product</code>; note price &amp; stock.</li>
+      <li>Translate title/content via Workspace/Jobs.</li>
+      <li>View frontend target language PDP.</li>
+      <li>Confirm price and stock unchanged.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Overlay text translates; commerce numbers unchanged.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Product ID / price / stock"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="J2" data-sev="major" data-feature="WooCommerce">
+    <div class="scenario-head"><span class="id">J2</span><h3>Localized product / category routes</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Preconditions</strong> LU On and product / product_cat admitted. Else SKIP.</div>
+    <div class="block"><strong>Steps</strong> Publish localized product route; if admitted, publish product category archive route; visit both.</div>
+    <div class="block"><strong>Expected</strong> Routes resolve correctly. Do not require variation-specific URLs (Unsupported).</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-k">
+  <h2>Group K — Gutenberg (conditional)</h2>
+  <p class="intro">Only if Strategy F flags intentionally enabled on DEV. Otherwise mark all K scenarios SKIP / N/A.</p>
+
+  <article class="scenario" data-id="K1" data-sev="major" data-feature="Gutenberg">
+    <div class="scenario-head"><span class="id">K1</span><h3>Representative Supported blocks overlay</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> Acceptance page with paragraph, heading, button, and one nested structure (e.g. group/columns). Translate; verify frontend overlays. Edit source; confirm stale behavior for affected segments.</div>
+    <div class="block"><strong>Expected</strong> Supported blocks overlay; do not claim unsupported blocks translated. If flags Off → SKIP.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Flag state / post ID"><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-l">
+  <h2>Group L — Elementor (conditional)</h2>
+  <p class="intro">v1.6.0 has <strong>no Settings toggles</strong> for Elementor. Do not casually flip site-ops flags. If not enabled → SKIP / ENVIRONMENT NOT ENABLED.</p>
+
+  <article class="scenario" data-id="L1" data-sev="major" data-feature="Elementor">
+    <div class="scenario-head"><span class="id">L1</span><h3>Representative Supported widgets</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> If Elementor translation enabled: acceptance template with heading, text editor, button (+ one compound if practical). Verify frontend translation.</div>
+    <div class="block"><strong>Expected</strong> Supported widgets overlay when enabled; otherwise SKIP with clear note — not a product defect by itself.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-m">
+  <h2>Group M — SEO / Rank Math</h2>
+  <p class="intro">Model A: Rank Math owns primary sitemap locs. Missing localized primary <code>&lt;loc&gt;</code> is EXPECTED. Manual → SEO / Rank Math.</p>
+
+  <article class="scenario" data-id="M1" data-sev="major" data-feature="SEO">
+    <div class="scenario-head"><span class="id">M1</span><h3>hreflang / x-default / URL identity</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> On a Published-language localized (or language-prefixed) page, view source: hreflang, x-default, canonical if present, og:url if present. Compare to EffectiveUrl expectations.</div>
+    <div class="block"><strong>Expected</strong> Relationships present when site/language eligibility allows; Localized URL identity uses EffectiveUrl where Supported. Absence of canonical solely due to theme/SEO plugin may be noted — not automatically BLOCKER without evidence.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="URL / screenshot note"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="M2" data-sev="major" data-feature="SEO">
+    <div class="scenario-head"><span class="id">M2</span><h3>Sitemap Model A primary locs</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Preconditions</strong> Rank Math active. Else SKIP.</div>
+    <div class="block"><strong>Steps</strong> Open Rank Math sitemap; confirm primary <code>&lt;loc&gt;</code> entries are default/source-oriented — <strong>not</strong> duplicate localized primary URLs.</div>
+    <div class="block"><strong>Expected</strong> Absence of localized primary locs is PASS (Model A), not FAIL.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Sitemap URL"><textarea rows="2" data-notes></textarea></div>
+  </article>
+
+  <article class="scenario" data-id="M3" data-sev="major" data-feature="SEO">
+    <div class="scenario-head"><span class="id">M3</span><h3>xhtml alternates vs blog_public</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong><ol>
+      <li>Check Settings → Reading: Search engine visibility (<code>blog_public</code>).</li>
+      <li>Inspect sitemap for xhtml language relationships.</li>
+      <li>If site discourages search engines (<code>blog_public=0</code>), expect omission (EXPECTED OMIT).</li>
+      <li>If public and eligibility applies, relationships may appear — absence then needs investigation, not automatic PASS.</li>
+    </ol></div>
+    <div class="block"><strong>Expected</strong> Vlad records public state and does <strong>not</strong> mark xhtml absence as defect under <code>blog_public=0</code>.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="blog_public value"><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-n">
+  <h2>Group N — Permissions</h2>
+  <p class="intro">Use existing accounts only. Manual → Permissions.</p>
+
+  <article class="scenario" data-id="N1" data-sev="major" data-feature="Permissions">
+    <div class="scenario-head"><span class="id">N1</span><h3>Unauthorized actions absent/denied</h3><span class="badge major">Major</span></div>
+    <div class="block"><strong>Steps</strong> With available roles (admin vs editor/translator vs reviewer if present), spot-check Settings access, Run now, Review queue, Localized URLs enable.</div>
+    <div class="block"><strong>Expected</strong> Capabilities match Manual summary. If only admin available, document limited coverage and SKIP parts that need a second role.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Roles exercised"><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-o">
+  <h2>Group O — Troubleshooting / recovery (Manual quality)</h2>
+  <p class="intro">Vlad verifies Manual diagnosis paths are usable — Manual → Troubleshooting.</p>
+
+  <article class="scenario" data-id="O1" data-sev="minor" data-feature="Troubleshooting">
+    <div class="scenario-head"><span class="id">O1</span><h3>Symptom → Manual path works</h3><span class="badge minor">Minor</span></div>
+    <div class="block"><strong>Steps</strong> Pick three symptoms from experience in this run (e.g. Waiting without Run, collision, stale, missing localized URL, missing localized sitemap primary locs). For each, confirm Manual troubleshooting table gives a reasonable next action.</div>
+    <div class="block"><strong>Expected</strong> Manual is actionable; Model A / blog_public guidance prevents false defects.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence placeholder="Symptoms checked"><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="group" id="group-r">
+  <h2>Group R — Regression / site health</h2>
+  <p class="intro">Bounded smoke after acceptance mutations.</p>
+
+  <article class="scenario" data-id="R1" data-sev="blocker" data-feature="Regression">
+    <div class="scenario-head"><span class="id">R1</span><h3>Source &amp; target site still healthy</h3><span class="badge blocker">Blocker</span></div>
+    <div class="block"><strong>Steps</strong> Spot-check source homepage/representative page; target language equivalent; one product; one category/archive; Multilingual admin screens; watch for redirect loops / PHP fatals.</div>
+    <div class="block"><strong>Expected</strong> No obvious breakage introduced by acceptance fixtures.</div>
+    <div class="controls" data-controls></div>
+    <div class="evidence"><input data-evidence><textarea rows="2" data-notes></textarea></div>
+  </article>
+</section>
+
+<section class="issue" id="issue-template">
+  <h2 style="margin-top:0">Issue report template (copy for FAIL)</h2>
+  <pre class="template">Test ID:
+Feature:
+Severity: BLOCKER | MAJOR | MINOR | COSMETIC
+Environment: https://dev.biopentra.eu
+Plugin version: 1.6.0
+User role:
+Preconditions:
+Steps:
+Expected:
+Actual:
+URL:
+Object/Post/Term/Job ID:
+Screenshot:
+Browser console error:
+Relevant WordPress/AIML error:
+Notes:</pre>
+  <p class="meta"><strong>Overall verdict rules:</strong> PASS = no BLOCKER/MAJOR fail in Supported workflows. PASS WITH MINOR ISSUES = only MINOR/COSMETIC or documented environmental skips. FAIL = any BLOCKER or material MAJOR Supported failure.</p>
+</section>
+
+<footer class="meta" style="padding:0 0 2rem">
+  <p>Acceptance for AI Multilingual <strong>v1.6.0</strong> · TARGET 8 · Docs-only artifact · Does not change the published GitHub Release ZIP.</p>
+  <p>User Manual: <a href="../user-manual/index.html">../user-manual/index.html</a></p>
+</footer>
+
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'aiml-v160-vlad-acceptance-v1';
+  function controlsHtml() {
+    return '' +
+      '<label class="pass"><input type="radio" name="__N__" value="pass"> PASS</label>' +
+      '<label class="fail"><input type="radio" name="__N__" value="fail"> FAIL</label>' +
+      '<label class="skip"><input type="radio" name="__N__" value="skip"> SKIP / N/A</label>';
+  }
+  document.querySelectorAll('.scenario').forEach(function (sc, i) {
+    var box = sc.querySelector('[data-controls]');
+    if (!box) return;
+    box.innerHTML = controlsHtml().replace(/__N__/g, 'r' + i);
+    box.querySelectorAll('input[type=radio]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        sc.dataset.result = inp.value;
+        update();
+        persist();
+      });
+    });
+    sc.querySelectorAll('[data-notes],[data-evidence]').forEach(function (el) {
+      el.addEventListener('change', persist);
+      el.addEventListener('input', persist);
+    });
+  });
+  document.querySelectorAll('[data-meta]').forEach(function (el) {
+    el.addEventListener('change', persist);
+    el.addEventListener('input', persist);
+  });
+
+  function update() {
+    var all = Array.prototype.slice.call(document.querySelectorAll('.scenario'));
+    var pass = 0, fail = 0, skip = 0, pending = 0, blocker = 0, major = 0;
+    all.forEach(function (sc) {
+      var r = sc.dataset.result || '';
+      if (r === 'pass') pass++;
+      else if (r === 'fail') {
+        fail++;
+        if (sc.dataset.sev === 'blocker') blocker++;
+        if (sc.dataset.sev === 'major') major++;
+      } else if (r === 'skip') skip++;
+      else pending++;
+    });
+    document.getElementById('c-total').textContent = all.length;
+    document.getElementById('c-pass').textContent = pass;
+    document.getElementById('c-fail').textContent = fail;
+    document.getElementById('c-skip').textContent = skip;
+    document.getElementById('c-pending').textContent = pending;
+    document.getElementById('c-blocker').textContent = blocker;
+    document.getElementById('c-major').textContent = major;
+    var v = document.getElementById('verdict');
+    v.className = 'verdict';
+    if (pending === all.length) {
+      v.classList.add('pending');
+      v.textContent = 'Overall: PENDING';
+    } else if (blocker > 0 || major > 0) {
+      v.classList.add('fail');
+      v.textContent = 'Overall: FAIL';
+    } else if (fail > 0) {
+      v.classList.add('pass-minor');
+      v.textContent = 'Overall: PASS WITH MINOR ISSUES';
+    } else if (pending > 0) {
+      v.classList.add('pending');
+      v.textContent = 'Overall: IN PROGRESS (no blocker/major fails so far)';
+    } else {
+      v.classList.add('pass');
+      v.textContent = 'Overall: PASS';
+    }
+  }
+
+  document.getElementById('filters').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-filter]');
+    if (!btn) return;
+    document.querySelectorAll('#filters button').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var f = btn.dataset.filter;
+    document.querySelectorAll('.scenario').forEach(function (sc) {
+      var r = sc.dataset.result || 'pending';
+      var show = f === 'all' ||
+        (f === 'pending' && !sc.dataset.result) ||
+        (f === 'pass' && r === 'pass') ||
+        (f === 'fail' && r === 'fail') ||
+        (f === 'skip' && r === 'skip') ||
+        (f === 'blocker' && r === 'fail' && (sc.dataset.sev === 'blocker' || sc.dataset.sev === 'major'));
+      sc.classList.toggle('hidden', !show);
+    });
+  });
+
+  function persist() {
+    var data = { meta: {}, scenarios: {} };
+    document.querySelectorAll('[data-meta]').forEach(function (el) {
+      data.meta[el.dataset.meta] = el.value;
+    });
+    document.querySelectorAll('.scenario').forEach(function (sc) {
+      data.scenarios[sc.dataset.id] = {
+        result: sc.dataset.result || '',
+        notes: (sc.querySelector('[data-notes]') || {}).value || '',
+        evidence: (sc.querySelector('[data-evidence]') || {}).value || ''
+      };
+    });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function restore() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      Object.keys(data.meta || {}).forEach(function (k) {
+        var el = document.querySelector('[data-meta="' + k + '"]');
+        if (el) el.value = data.meta[k];
+      });
+      Object.keys(data.scenarios || {}).forEach(function (id) {
+        var sc = document.querySelector('.scenario[data-id="' + id + '"]');
+        if (!sc) return;
+        var s = data.scenarios[id];
+        if (s.notes) sc.querySelector('[data-notes]').value = s.notes;
+        if (s.evidence) sc.querySelector('[data-evidence]').value = s.evidence;
+        if (s.result) {
+          sc.dataset.result = s.result;
+          var inp = sc.querySelector('input[value="' + s.result + '"]');
+          if (inp) inp.checked = true;
+        }
+      });
+    } catch (e) {}
+  }
+
+  document.getElementById('btn-save').addEventListener('click', function () {
+    persist();
+    alert('Progress saved in this browser (localStorage).');
+  });
+  document.getElementById('btn-clear').addEventListener('click', function () {
+    if (!confirm('Clear saved acceptance progress in this browser?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+
+  restore();
+  update();
+})();
+</script>
+</body>
+</html>
