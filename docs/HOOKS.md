@@ -197,6 +197,7 @@ CLI: `wp aiml jobs {list\|show\|run\|pause\|resume\|cancel\|retry-failed\|cleanu
   there is no rewrite state to manage.
 - **No cookie.** The URL is the only language authority in this milestone, so
   front-end responses carry no `Set-Cookie` and stay cacheable at the edge.
+  This is a standing contract, not just a Milestone 1 default — see ADR-0024.
 - **REST under `aiml/v1` only.** Allowed controllers: `WorkspaceController`,
   `ProviderController`, `GlossaryController`, and `JobsController`.
 - **No deactivation hook.** Deactivation must remove nothing, so there is
