@@ -117,6 +117,10 @@ per-object counter to the same key shape.
 Nothing containing cart state, nonces, prices, stock or per-user data is ever
 cached — only pure functions of source content, translations and language.
 
+That internal object cache is separate from whatever reverse-proxy / full-page
+cache sits in front of the site. For anonymous requests, `host + request_uri`
+alone must be sufficient to determine the rendered language — see ADR-0024.
+
 ## Component map
 
 ```

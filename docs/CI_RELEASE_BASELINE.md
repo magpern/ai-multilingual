@@ -136,6 +136,12 @@ A future release is **not** release-ready unless all are green:
 4. Build ZIP
 5. ZIP audit (`bin/audit-zip.sh`)
 6. `git diff --check`
+7. Anonymous-language cache contract (ADR-0024): if anonymous language
+   resolution changed in this release, confirm `host + request_uri` still
+   uniquely determines the rendered language. Any language cookie,
+   `Accept-Language` selection, geo/location-based language selection, or
+   other same-URL visitor-specific language rendering requires explicit cache
+   compatibility review before the release proceeds.
 
 ## Diagnosing Action Scheduler bootstrap failures
 

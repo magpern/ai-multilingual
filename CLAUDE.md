@@ -5,9 +5,10 @@ prefix `aiml_`, tables `{$wpdb->prefix}aiml_*`, text domain `ai-multilingual`.
 
 ## Invariants
 
-These are enforced by `tests/integration/PluginGuardTest.php`. If a change
-requires breaking one, that is an architecture decision, not an implementation
-detail — write an ADR first.
+These are enforced by integration tests — mostly `PluginGuardTest.php`, noted
+per item where a different test owns it. If a change requires breaking one,
+that is an architecture decision, not an implementation detail — write an ADR
+first.
 
 1. **One canonical object.** There is exactly one WordPress object per piece of
    content. Never duplicate posts, products, variations, inventory, stock,
@@ -35,6 +36,13 @@ detail — write an ADR first.
    through `src/Cache/Cache.php`.
 10. **No coupling to another translation plugin.** No `trp_`, `icl_` or
     Polylang references anywhere.
+11. **Anonymous language resolution is URL-authoritative** (enforced by
+    `tests/integration/RoutingTest.php` alongside PluginGuardTest's no-cookie
+    check). `host + request_uri` alone must determine an anonymous visitor's
+    rendered language — no cookie, `Accept-Language`, or geo/location signal
+    may change it for the same URL. This is a cache contract with the
+    deployment's reverse-proxy cache, not just a routing default — see
+    ADR-0024 before changing it.
 
 ## Code rules
 

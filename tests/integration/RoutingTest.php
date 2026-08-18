@@ -255,6 +255,53 @@ final class RoutingTest extends AimlTestCase {
 		$this->assertArrayNotHasKey( 'aiml_lang', $_COOKIE );
 	}
 
+	/**
+	 * The URL is the only anonymous language authority (ADR-0024): for a
+	 * cacheable request, host + request URI alone must determine the
+	 * rendered language. A cookie, an Accept-Language header or a geo-style
+	 * header naming a real, configured language must not change resolution
+	 * for the same URL — otherwise a shared full-page cache keyed on the URL
+	 * could serve one visitor's language to another.
+	 */
+	public function test_visitor_state_does_not_change_anonymous_resolution_for_the_same_url(): void {
+		$this->add_language(); // 'sv', published.
+		$post = $this->create_page( 'About Us' );
+		$uri  = '/' . $post->post_name . '/';
+
+		$this->route( $uri );
+		$baseline_code    = $this->context->current()->code;
+		$baseline_default = $this->context->is_default();
+
+		$_COOKIE['aiml_lang']            = 'sv';
+		$_COOKIE['language']             = 'sv';
+		$_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'sv-SE,sv;q=0.9';
+		$_SERVER['HTTP_CF_IPCOUNTRY']    = 'SE';
+		$_SERVER['HTTP_X_GEOIP_COUNTRY'] = 'SE';
+
+		try {
+			$router = $this->route( $uri );
+
+			$this->assertFalse(
+				$router->is_prefixed(),
+				'A cookie/header naming a configured language must not turn an unprefixed URL into a prefixed one.'
+			);
+			$this->assertSame( $baseline_default, $this->context->is_default() );
+			$this->assertSame(
+				$baseline_code,
+				$this->context->current()->code,
+				'Resolved language must not change for the same URL based on cookie/Accept-Language/geo state.'
+			);
+		} finally {
+			unset(
+				$_COOKIE['aiml_lang'],
+				$_COOKIE['language'],
+				$_SERVER['HTTP_ACCEPT_LANGUAGE'],
+				$_SERVER['HTTP_CF_IPCOUNTRY'],
+				$_SERVER['HTTP_X_GEOIP_COUNTRY']
+			);
+		}
+	}
+
 	public function test_admin_requests_are_not_routed(): void {
 		$this->add_language();
 
