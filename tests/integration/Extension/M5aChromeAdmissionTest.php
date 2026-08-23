@@ -369,6 +369,29 @@ final class M5aChromeAdmissionTest extends AimlTestCase {
 		$this->assertFalse( (bool) $obj->show_in_rest );
 	}
 
+	/**
+	 * Snapshot and restore ExtensionServices so plugin bootstrap bindings survive.
+	 *
+	 * @param callable():void $callback Work that may rebind ExtensionServices.
+	 */
+	private function with_isolated_extension_services( callable $callback ): void {
+		$ref    = new \ReflectionClass( ExtensionServices::class );
+		$backup = array();
+		foreach ( $ref->getProperties( \ReflectionProperty::IS_STATIC ) as $property ) {
+			$property->setAccessible( true );
+			$backup[ $property->getName() ] = $property->getValue();
+		}
+
+		try {
+			$callback();
+		} finally {
+			foreach ( $ref->getProperties( \ReflectionProperty::IS_STATIC ) as $property ) {
+				$property->setAccessible( true );
+				$property->setValue( null, $backup[ $property->getName() ] );
+			}
+		}
+	}
+
 	private function bind_extension_services(): void {
 		$meta      = new \AIMultilingual\Surface\Meta\RegisteredMetaRegistry();
 		$resolver  = new VisitorTranslationResolver(
@@ -401,27 +424,29 @@ final class M5aChromeAdmissionTest extends AimlTestCase {
 	}
 
 	public function test_aiml_visitor_language_contract(): void {
-		ExtensionServices::reset_for_tests();
-		$this->assertNull( aiml_visitor_language() );
+		$this->with_isolated_extension_services(
+			function (): void {
+				ExtensionServices::reset_for_tests();
+				$this->assertNull( aiml_visitor_language() );
 
-		$default = $this->languages->default();
-		$target  = $this->add_language( 'sv' );
-		$this->context->set_default( $default );
-		$this->context->set_current( $target );
+				$default = $this->languages->default();
+				$target  = $this->add_language( 'sv' );
+				$this->context->set_default( $default );
+				$this->context->set_current( $target );
 
-		$this->bind_extension_services();
+				$this->bind_extension_services();
 
-		$lang = aiml_visitor_language();
-		$this->assertInstanceOf( VisitorLanguageContext::class, $lang );
-		$this->assertSame( 'sv', $lang->code );
-		$this->assertFalse( $lang->is_default );
+				$lang = aiml_visitor_language();
+				$this->assertInstanceOf( VisitorLanguageContext::class, $lang );
+				$this->assertSame( 'sv', $lang->code );
+				$this->assertFalse( $lang->is_default );
 
-		$this->context->set_current( $default );
-		$lang_default = aiml_visitor_language();
-		$this->assertNotNull( $lang_default );
-		$this->assertTrue( $lang_default->is_default );
-
-		ExtensionServices::reset_for_tests();
+				$this->context->set_current( $default );
+				$lang_default = aiml_visitor_language();
+				$this->assertNotNull( $lang_default );
+				$this->assertTrue( $lang_default->is_default );
+			}
+		);
 	}
 
 	public function test_dirty_helper_admits_chrome_source(): void {
@@ -432,11 +457,13 @@ final class M5aChromeAdmissionTest extends AimlTestCase {
 			)
 		);
 
-		$this->bind_extension_services();
+		$this->with_isolated_extension_services(
+			function () use ( $chrome_id ): void {
+				$this->bind_extension_services();
 
-		$this->assertTrue( aiml_mark_source_dirty( Store::SOURCE_POST, $chrome_id ) );
-		$this->assertFalse( aiml_mark_source_dirty( Store::SOURCE_POST, 999999 ) );
-
-		ExtensionServices::reset_for_tests();
+				$this->assertTrue( aiml_mark_source_dirty( Store::SOURCE_POST, $chrome_id ) );
+				$this->assertFalse( aiml_mark_source_dirty( Store::SOURCE_POST, 999999 ) );
+			}
+		);
 	}
 }
