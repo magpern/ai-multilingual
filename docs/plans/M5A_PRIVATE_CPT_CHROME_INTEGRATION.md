@@ -1,6 +1,6 @@
 # M5-A — Private CPT Chrome Integration
 
-**Status:** DRAFT — pending PO approval  
+**Status:** FROZEN — PO APPROVED  
 **Repository:** [magpern/ai-multilingual](https://github.com/magpern/ai-multilingual)  
 **Plugin:** AI Multilingual (`ai-multilingual`)  
 **Namespace:** `AIMultilingual\`  
@@ -8,7 +8,8 @@
 **Planning baseline `main` SHA:** `740ccd93a7634d1dcb77a735a39e9f06181df001`  
 **Baseline version:** 1.6.0  
 **Recommended implementation release:** **1.7.0**  
-**Drafted:** 2026-08-23
+**Drafted:** 2026-08-23  
+**Frozen:** 2026-08-23
 
 ---
 
