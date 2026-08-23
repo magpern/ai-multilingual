@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace AIMultilingual\Surface;
 
+use AIMultilingual\Integration\IntegrationAdmission;
 use AIMultilingual\Integration\RankMath\RankMathIntegration;
 use AIMultilingual\Settings;
 use AIMultilingual\Surface\Meta\RankMathMetaDefinitions;
@@ -296,8 +297,12 @@ final class PostSurfaceAdapter implements SurfaceCapability {
 	 * @param string $post_type Post type.
 	 */
 	public function is_admitted_post_type( string $post_type ): bool {
-		return AdmittedPostTypes::admits( $post_type, AdmittedPostTypes::CONTEXT_WORKSPACE )
-			|| AdmittedPostTypes::admits( $post_type, AdmittedPostTypes::CONTEXT_FRONTEND_OVERLAY );
+		if ( AdmittedPostTypes::admits( $post_type, AdmittedPostTypes::CONTEXT_WORKSPACE )
+			|| AdmittedPostTypes::admits( $post_type, AdmittedPostTypes::CONTEXT_FRONTEND_OVERLAY ) ) {
+			return true;
+		}
+		$admission = IntegrationAdmission::registry();
+		return null !== $admission && $admission->admits_post_type( $post_type );
 	}
 
 	/**

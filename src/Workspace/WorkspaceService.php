@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace AIMultilingual\Workspace;
 
+use AIMultilingual\Integration\IntegrationAdmission;
 use AIMultilingual\Language\Languages;
 use AIMultilingual\Plugin;
 use AIMultilingual\Routing\RoutePublicationService;
@@ -415,7 +416,7 @@ final class WorkspaceService {
 
 		$query = new WP_Query(
 			array(
-				'post_type'              => self::SUPPORTED_POST_TYPES,
+				'post_type'              => $this->workspace_post_types(),
 				'post_status'            => array( 'publish', 'draft', 'pending', 'private' ),
 				'posts_per_page'         => $per_page,
 				'paged'                  => $page,
@@ -1262,7 +1263,7 @@ final class WorkspaceService {
 			);
 		}
 
-		if ( ! in_array( $post->post_type, self::SUPPORTED_POST_TYPES, true ) ) {
+		if ( ! in_array( $post->post_type, $this->workspace_post_types(), true ) ) {
 			return new WP_Error(
 				'aiml_post_type_unsupported',
 				__( 'This post type is not supported in the workspace.', 'ai-multilingual' ),
@@ -1756,9 +1757,28 @@ final class WorkspaceService {
 	 * @throws \InvalidArgumentException When the post type is unsupported.
 	 */
 	private function assert_supported_post( WP_Post $post ): void {
-		if ( ! in_array( $post->post_type, self::SUPPORTED_POST_TYPES, true ) ) {
+		if ( ! in_array( $post->post_type, $this->workspace_post_types(), true ) ) {
 			throw new \InvalidArgumentException( 'This post type is not supported in the workspace.' );
 		}
+	}
+
+	/**
+	 * Core workspace types plus activated M5-A chrome CPT slugs.
+	 *
+	 * @return list<string>
+	 */
+	private function workspace_post_types(): array {
+		$types     = self::SUPPORTED_POST_TYPES;
+		$admission = IntegrationAdmission::registry();
+		if ( null === $admission ) {
+			return $types;
+		}
+		foreach ( $admission->activated_post_types() as $post_type ) {
+			if ( ! in_array( $post_type, $types, true ) ) {
+				$types[] = $post_type;
+			}
+		}
+		return $types;
 	}
 
 	/**

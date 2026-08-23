@@ -87,6 +87,8 @@ use AIMultilingual\Integration\WooCommerce\CustomerEmailBridge;
 use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\IntegrationDiagnostics;
 use AIMultilingual\Integration\IntegrationFrontendBridge;
+use AIMultilingual\Integration\IntegrationAdmission;
+use AIMultilingual\Integration\IntegrationAdmissionRegistry;
 use AIMultilingual\Integration\IntegrationRegistry;
 use AIMultilingual\Integration\TermVisitorOverlay;
 use AIMultilingual\Surface\Meta\RankMathMetaDefinitions;
@@ -357,6 +359,18 @@ final class Plugin {
 		 */
 		do_action( 'aiml_register_integrations', $integration_registry );
 
+		$chrome_admission = new IntegrationAdmissionRegistry( $integration_diagnostics, $plugin_identity );
+		$chrome_admission->collect_from_registry( $integration_registry );
+		IntegrationAdmission::bind( $chrome_admission );
+		$activate_chrome = static function () use ( $chrome_admission ): void {
+			$chrome_admission->validate_and_activate();
+		};
+		if ( did_action( 'init' ) ) {
+			$activate_chrome();
+		} else {
+			add_action( 'init', $activate_chrome, 20 );
+		}
+
 		$order_transactional_language = new OrderTransactionalLanguage(
 			$context,
 			$languages,
@@ -386,7 +400,7 @@ final class Plugin {
 		$registered_meta_reader  = new RegisteredMetaReader();
 		$registered_meta_extract = new RegisteredMetaExtractor( $meta_registry, $registered_meta_reader );
 
-		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor, $integration_registry, $registered_meta_extract );
+		$extractor           = new Extractor( $settings, $block_extractor, $elementor_extractor, $integration_registry, $registered_meta_extract, $chrome_admission );
 		$block_renderer      = new BlockRenderer( $adapter_registry, new BlockRenderLogger() );
 		$config_repo         = new RolloutConfigurationRepository();
 		$rollout_bridge      = new RolloutRenderGateBridge(
@@ -507,13 +521,15 @@ final class Plugin {
 			$meta_registry,
 			$integration_registry,
 			$plugin_identity,
-			$extension_diagnostics
+			$extension_diagnostics,
+			$chrome_admission
 		);
 		ExtensionServices::bind(
 			$invalidation_coordinator,
 			$visitor_resolver,
 			$extension_registrar,
-			$extension_diagnostics
+			$extension_diagnostics,
+			$context
 		);
 		$post_surface->register_invalidation_events( $invalidation_coordinator );
 		$term_surface->register_invalidation_events( $invalidation_coordinator );

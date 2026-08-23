@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Multilingual layer for WordPress: canonical content with segment translations ap
 
 == Description ==
 
-AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.6.0 is an operator-completion release for Localized URL administration and Jobs/stale/conflict literacy accumulated after 1.5.1 (P0 + P1 characterization + P2). Version 1.5.1 was a patch corrective release for Localized URL correctness / SEO agreement. Version 1.5.0 shipped MSEO.0–MSEO.5. TSC, TIQ, and OTL remain complete.
+AI Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.7.0 adds M5-A private CPT chrome integration (companion declaration, host-independent Extension resolve, `aiml_visitor_language`). Version 1.6.0 is an operator-completion release for Localized URL administration and Jobs/stale/conflict literacy. Version 1.5.1 was a patch corrective release for Localized URL correctness / SEO agreement. Version 1.5.0 shipped MSEO.0–MSEO.5. TSC, TIQ, and OTL remain complete.
 
 == Installation ==
 
@@ -24,6 +24,11 @@ AI Multilingual stores one canonical object per content item and applies languag
 6. Localized URLs default OFF; enable only after reviewing MSEO release notes and verifying routes.
 
 == Changelog ==
+
+= 1.7.0 =
+* M5-A: integration-owned private CPT chrome admission (`DeclaresChromeOwnedSurfaces`), host-independent Extension `p:` resolve, `aiml_visitor_language()`, Extension-strict chrome eligibility (stale→null; source must be publish).
+* Invalid chrome declarations disable only that surface; existing Integration API implementors and FrontendBridge I7 unchanged.
+* Schema target remains 8 (no migration). Tag/ZIP/deploy separately authorized.
 
 = 1.6.0 =
 * Operator completion: Localized URL Workspace/term slug surfaces and Settings admission/frontier honesty (P0). No new Localized URL routing capability.
