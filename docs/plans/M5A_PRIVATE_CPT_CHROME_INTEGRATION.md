@@ -48,6 +48,7 @@ M5-A must support that pattern without:
 | 3 | Future additive public API release target **1.7.0** | Approved |
 | 4 | **Declaration-validation lifecycle** after CPTs exist (normally post-`init`) | Approved |
 | 5 | **Source visitor-eligibility gate:** require source `post_status=publish` for chrome resolve | Approved |
+| 6 | **Invalid declaration rule:** disable **that individual chrome-surface declaration** only; authorized diagnostic; continue all other valid declarations/integrations | Approved |
 
 These are **not** open PO questions.
 
@@ -130,8 +131,8 @@ Integrations commonly register CPTs on `init`. AIML must **not** seal admission 
    - owner-type tokens match identity grammar constraints;
    - field allowlist is non-empty and grammatically valid;
    - declaration does not claim another integration’s `integration_id` / surfaces.
-4. If validation fails: **reject or deactivate** that declaration (fail closed). Log/diagnose for operators; do not partially admit undeclared fields.
-5. A deactivated/invalid declaration must not participate in Workspace extract, dirty admission, or visitor resolve.
+4. **Invalid declaration → deterministic disable (single rule):** disable **that individual chrome-surface declaration**, record an **authorized diagnostic**, and **continue** registering all other valid declarations and integrations. It must **not** fail the overall AIML registry or block unrelated integrations. Do not partially admit undeclared fields from the disabled declaration.
+5. A disabled/invalid declaration must not participate in Workspace extract, dirty admission, or visitor resolve.
 6. Re-validation rules for request lifecycle: once activated for the request/bootstrap, treat as sealed for that request; do not silently revive invalid declarations.
 
 **Anti-pattern:** Treating “integration registered at `plugins_loaded`” as proof that `post_type_exists( $cpt )` is already true.
@@ -241,6 +242,7 @@ Returns `null` when context is unavailable (AIML inactive, too early in bootstra
 | Undeclared title/meta leakage | `integration_units_only` + field allowlist; natives not extracted |
 | Broad CPT admission via filter | Forbidden; companion declaration only |
 | Premature admission before CPT exists | Declaration-validation lifecycle (post-`init`) |
+| Invalid declaration fails whole registry | Forbidden — disable only that declaration; continue others |
 | Overlay on draft/trash source | Source `post_status=publish` gate |
 | Store abuse | No public Store API; chrome uses Extension resolver only |
 
@@ -278,7 +280,7 @@ Stop implementation if the approach would:
 |----|--------|
 | **M5A.0** | ADR (or ADR amendment) + public contract docs (`INTEGRATION_API_V1`, `EXTENSION_API_V1`, HOOKS) |
 | **M5A.1** | Companion interface + declaration DTO + `IntegrationAdmissionRegistry` collection |
-| **M5A.2** | Post-`init` declaration validation / activate-or-deactivate lifecycle |
+| **M5A.2** | Post-`init` declaration validation; invalid → disable that declaration + diagnostic; continue others |
 | **M5A.3** | Extractor + Workspace/Jobs discovery for activated chrome CPTs (`integration_units_only`) |
 | **M5A.4** | `VisitorTranslationResolver` admission + ownership checks + source `publish` gate + eligibility docs |
 | **M5A.5** | `aiml_visitor_language()` + `VisitorLanguageContext` |
@@ -298,14 +300,14 @@ Suggested WP order may merge M5A.1–M5A.2 and M5A.4–M5A.6 during implementati
 | T2 | Published translation resolves on a front page **unrelated** to the CPT source ID |
 | T3 | Resolver cannot access undeclared fields, another integration’s source, arbitrary private posts, titles, meta |
 | T4 | AIML does not create public REST/archives/permalinks for the CPT as a side effect of admission |
-| T5 | Missing / stale / unpublished / invalid-identity / no-longer-admitted / deactivated declaration → `null` |
+| T5 | Missing / stale / unpublished / invalid-identity / no-longer-admitted / disabled declaration → `null` |
 | T6 | Source draft or trash → `null` even if a translation row exists |
 | T7 | Existing host-bound FrontendBridge consumers unchanged (including I7 stale behaviour) |
 | T8 | `aiml_visitor_language()` reflects URL/host configuration; default and unavailable contexts documented |
 | T9 | No cookie / geo / `Accept-Language` language decision introduced |
 | T10 | Dirty invalidation updates freshness for the declared source |
 | T11 | Degraded / inactive / unsupported integration remains safe (source fallback / no fatal) |
-| T12 | Declaration invalid before CPT registration does not admit; activates after valid CPT registration path |
+| T12 | Invalid declaration disables only that chrome-surface declaration (authorized diagnostic); other declarations/integrations continue; activates after valid CPT registration path |
 | T13 | Compatibility scenarios remain fail-closed for overlay when compatibility disallows overlay |
 
 Black-box tests against public APIs only. Include a generic fixture integration in AIML tests — not a USA dependency.
