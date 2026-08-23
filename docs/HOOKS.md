@@ -219,11 +219,14 @@ See [INTEGRATION_API_V1.md](INTEGRATION_API_V1.md).
 | Hook / function | Priority | Purpose |
 |---|---|---|
 | `aiml_register_extensions` | default | Receives `ExtensionRegistrar`; root extension ownership + nested meta/block registration; registries seal after hook |
-| `aiml_mark_source_dirty( $source_type, $source_id )` | — | Request-local invalidation mark only; no immediate sync |
+| `aiml_mark_source_dirty( $source_type, $source_id )` | — | Request-local invalidation mark only; no immediate sync; M5-A also admits activated chrome CPT sources |
+| `aiml_visitor_language(): ?VisitorLanguageContext` | — | Public URL/host visitor language (`code`, `is_default`); null when unavailable/too early (1.7.0) |
 | WP-CLI `aiml extensions list` | — | Read-only extension diagnostics |
 | WP-CLI `aiml extensions status <extension_id>` | — | Read-only extension status |
 
 Rank Math visitor overlays remain on Integration API v1 output hooks and official Rank Math filter seams (`rank_math/frontend/*`, Open Graph, sitemap). Extension API v1 does not replace Rank Math `p:rankmath:*` identities.
+
+**M5-A dual path:** host-bound `IntegrationFrontendBridge` keeps I7; host-independent chrome resolve uses Extension resolver (stale → `null`, source must be `publish`). See ADR-0025.
 
 See [EXTENSION_API_V1.md](EXTENSION_API_V1.md) and ADR-0022.
 

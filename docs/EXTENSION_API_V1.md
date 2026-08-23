@@ -111,6 +111,23 @@ $resolver->resolve(
 
 Resolver enforces TI.7 internally. Source/default language → `null`. No `force` option.
 
+### Chrome / host-independent `p:` resolve (M5-A / 1.7.0)
+
+For integration-owned private CPT chrome (see Integration API companion `DeclaresChromeOwnedSurfaces`):
+
+- Resolve by explicit `SourceSegmentReference` source post ID — **independent of the queried page/shop host**.
+- Eligibility is **Extension-strict**: stale → `null`; missing/unpublished/ineligible/invalid identity/unsupported → `null`.
+- Private-CPT source must have `post_status=publish` or resolve returns `null`.
+- Do **not** use `IntegrationFrontendBridge` / `register_output_hooks` for site-wide chrome. FrontendBridge remains host-bound and keeps **I7** (stale may overlay when publication-eligible) for existing page-anchored consumers.
+
+### Public visitor language context
+
+```php
+aiml_visitor_language(): ?\AIMultilingual\Extension\VisitorLanguageContext
+```
+
+Returns `{ code, is_default }` from AIML URL/host resolution (ADR-0024). Returns `null` when unavailable or too early (before request language context is established). Does not read cookies, geo, or `Accept-Language`.
+
 Visitor overlay pattern for meta:
 
 1. Register meta via public API.

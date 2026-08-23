@@ -13,6 +13,7 @@ use AIMultilingual\Block\Contract as BlockContract;
 use AIMultilingual\Block\SegmentKey;
 use AIMultilingual\Integration\Contract as IntegrationContract;
 use AIMultilingual\Integration\Identity\PluginIdentity;
+use AIMultilingual\Integration\IntegrationAdmissionRegistry;
 use AIMultilingual\Integration\IntegrationRegistry;
 use AIMultilingual\Language\LanguageContext;
 use AIMultilingual\Language\Languages;
@@ -41,13 +42,14 @@ final class VisitorTranslationResolver {
 	/**
 	 * Builds the public visitor translation resolver.
 	 *
-	 * @param Store                  $store                Segment store (internal).
-	 * @param Languages              $languages            Language catalog.
-	 * @param LanguageContext        $context              Request language state.
-	 * @param RegisteredMetaRegistry $meta_registry        Meta catalog.
-	 * @param IntegrationRegistry    $integration_registry Integration catalog.
-	 * @param PluginIdentity         $identity             p: key parser.
-	 * @param ExtensionDiagnostics   $diagnostics          Diagnostics sink.
+	 * @param Store                             $store                Segment store (internal).
+	 * @param Languages                         $languages            Language catalog.
+	 * @param LanguageContext                   $context              Request language state.
+	 * @param RegisteredMetaRegistry            $meta_registry        Meta catalog.
+	 * @param IntegrationRegistry               $integration_registry Integration catalog.
+	 * @param PluginIdentity                    $identity             p: key parser.
+	 * @param ExtensionDiagnostics              $diagnostics          Diagnostics sink.
+	 * @param IntegrationAdmissionRegistry|null $chrome_admission     Optional M5-A chrome admission.
 	 */
 	public function __construct(
 		private Store $store,
@@ -57,6 +59,7 @@ final class VisitorTranslationResolver {
 		private IntegrationRegistry $integration_registry,
 		private PluginIdentity $identity,
 		private ExtensionDiagnostics $diagnostics,
+		private ?IntegrationAdmissionRegistry $chrome_admission = null,
 	) {
 	}
 
@@ -188,8 +191,18 @@ final class VisitorTranslationResolver {
 			if ( ! $post instanceof \WP_Post ) {
 				return false;
 			}
-			return AdmittedPostTypes::admits( (string) $post->post_type, AdmittedPostTypes::CONTEXT_FRONTEND_OVERLAY )
-				|| AdmittedPostTypes::admits( (string) $post->post_type, AdmittedPostTypes::CONTEXT_WORKSPACE );
+			$post_type = (string) $post->post_type;
+			$core      = AdmittedPostTypes::admits( $post_type, AdmittedPostTypes::CONTEXT_FRONTEND_OVERLAY )
+				|| AdmittedPostTypes::admits( $post_type, AdmittedPostTypes::CONTEXT_WORKSPACE );
+			$chrome    = null !== $this->chrome_admission && $this->chrome_admission->admits_post_type( $post_type );
+			if ( ! $core && ! $chrome ) {
+				return false;
+			}
+			// M5-A chrome sources must be visitor-eligible (publish only).
+			if ( $chrome && ! $core && 'publish' !== (string) $post->post_status ) {
+				return false;
+			}
+			return true;
 		}
 
 		$term = get_term( $source->source_id );
@@ -227,7 +240,21 @@ final class VisitorTranslationResolver {
 			if ( null === $integration ) {
 				return false;
 			}
-			return $integration->get_compatibility()->allows_overlay();
+			if ( ! $integration->get_compatibility()->allows_overlay() ) {
+				return false;
+			}
+			// Chrome CPT `p:` keys require activated declaration ownership match.
+			if ( Store::SOURCE_POST === $source->source_type && null !== $this->chrome_admission ) {
+				$post = get_post( $source->source_id );
+				if ( $post instanceof \WP_Post && $this->chrome_admission->admits_post_type( (string) $post->post_type ) ) {
+					return $this->chrome_admission->admits_chrome_segment(
+						$key,
+						$source->source_id,
+						(string) $post->post_type
+					);
+				}
+			}
+			return true;
 		}
 
 		if ( str_starts_with( $key, BlockContract::SEGMENT_KEY_PREFIX . ':' ) ) {

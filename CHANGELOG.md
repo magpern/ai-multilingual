@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] — 2026-08-23
+
+### Added
+
+- **M5-A Private CPT chrome integration:** optional companion interface `DeclaresChromeOwnedSurfaces` + `ChromeOwnedSurfaceDeclaration` for integration-owned administrative/private CPT fields.
+- Host-independent public `p:` resolve via Extension `VisitorTranslationResolver` for activated chrome surfaces (source-id explicit; Extension-strict stale → `null`; source `post_status=publish` required).
+- Public `aiml_visitor_language(): ?VisitorLanguageContext` (URL/host language code + `is_default`).
+- Post-`init` declaration validation: invalid chrome-surface declarations disable only that surface with an authorized diagnostic and never fail the integration registry.
+- Workspace/Jobs discovery for activated chrome CPT sources with `integration_units_only` extraction (declared `p:` fields only).
+- `aiml_mark_source_dirty` admits activated chrome CPT sources under the same ownership/admission checks.
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **8** (no migration).
+- Existing `PluginIntegrationInterface` implementors unchanged without the companion interface.
+- Host-bound `IntegrationFrontendBridge` I7 stale behaviour unchanged.
+- No public `aiml_admitted_post_types` filter; AIML does not flip CPT REST/archive/permalink visibility.
+- No cookie / geo / `Accept-Language` language decision path.
+
+### Documentation
+
+- ADR-0025 (private CPT chrome admission); Integration API v1 / Extension API v1 / HOOKS updates; M5-A plan frozen; closure under `docs/plans/`.
+
+### Notes
+
+- Production package / tag / deploy for 1.7.0 remain separately authorized after M5-A closure.
+- USA M5-B remains blocked until this release is authorized and deployed to the USA target environment.
+
 ## [1.6.0] — 2026-08-16
 
 ### Added

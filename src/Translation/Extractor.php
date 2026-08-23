@@ -11,6 +11,8 @@ namespace AIMultilingual\Translation;
 
 use AIMultilingual\Elementor\Contract as ElementorContract;
 use AIMultilingual\Elementor\ElementorExtractor;
+use AIMultilingual\Integration\IntegrationAdmission;
+use AIMultilingual\Integration\IntegrationAdmissionRegistry;
 use AIMultilingual\Integration\IntegrationRegistry;
 use AIMultilingual\Settings;
 use AIMultilingual\Surface\Meta\RegisteredMetaExtractor;
@@ -42,11 +44,12 @@ final class Extractor {
 	/**
 	 * Builds the extractor.
 	 *
-	 * @param Settings|null                $settings               Plugin settings.
-	 * @param BlockExtractor|null          $block_extractor        Block segment extractor.
-	 * @param ElementorExtractor|null      $elementor_extractor    Elementor segment extractor.
-	 * @param IntegrationRegistry|null     $integration_registry   Integration API v1 registry.
-	 * @param RegisteredMetaExtractor|null $registered_meta        Optional registered-meta extractor.
+	 * @param Settings|null                     $settings               Plugin settings.
+	 * @param BlockExtractor|null               $block_extractor        Block segment extractor.
+	 * @param ElementorExtractor|null           $elementor_extractor    Elementor segment extractor.
+	 * @param IntegrationRegistry|null          $integration_registry   Integration API v1 registry.
+	 * @param RegisteredMetaExtractor|null      $registered_meta        Optional registered-meta extractor.
+	 * @param IntegrationAdmissionRegistry|null $chrome_admission       Optional M5-A chrome admission.
 	 */
 	public function __construct(
 		private ?Settings $settings = null,
@@ -54,6 +57,7 @@ final class Extractor {
 		private ?ElementorExtractor $elementor_extractor = null,
 		private ?IntegrationRegistry $integration_registry = null,
 		private ?RegisteredMetaExtractor $registered_meta = null,
+		private ?IntegrationAdmissionRegistry $chrome_admission = null,
 	) {
 	}
 
@@ -188,6 +192,14 @@ final class Extractor {
 			return $this->extract_nav_menu_item_title( $post );
 		}
 
+		// M5-A: integration-owned chrome CPT — declared `p:` units only.
+		$admission = $this->chrome_admission ?? IntegrationAdmission::registry();
+		if ( null !== $admission
+			&& $admission->admits_post_type( (string) $post->post_type )
+			&& $admission->is_integration_units_only( (string) $post->post_type ) ) {
+			return $this->extract_chrome_integration_units( $post, $admission );
+		}
+
 		$segments = array();
 
 		foreach ( self::fields() as $field_key => $spec ) {
@@ -249,6 +261,30 @@ final class Extractor {
 			foreach ( $this->registered_meta->extract_for_post( (int) $post->ID ) as $key => $unit ) {
 				$segments[ $key ] = $unit;
 			}
+		}
+
+		return $segments;
+	}
+
+	/**
+	 * Extracts only declared chrome `p:` units for an admitted private CPT (M5-A).
+	 *
+	 * @param WP_Post                      $post      Canonical chrome CPT post.
+	 * @param IntegrationAdmissionRegistry $admission Admission registry.
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function extract_chrome_integration_units( WP_Post $post, IntegrationAdmissionRegistry $admission ): array {
+		if ( null === $this->integration_registry || $this->integration_registry->is_empty() ) {
+			return array();
+		}
+
+		$segments = array();
+		$order    = 2000;
+		foreach ( $this->integration_registry->extract_for_post( $post ) as $unit ) {
+			if ( ! $admission->admits_chrome_segment( $unit->segment_key, (int) $post->ID, (string) $post->post_type ) ) {
+				continue;
+			}
+			$segments[ $unit->segment_key ] = $unit->to_segment_array( $order++ );
 		}
 
 		return $segments;
