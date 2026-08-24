@@ -31,6 +31,60 @@ p:<integration_id>:<owner_type>:<owner_id>:<field>[:<nested>...]
 
 Integrations must call `PluginIdentity::build()` — never concatenate arbitrary keys.
 
+## Descriptor creation (M5-A.1 / 1.8.0)
+
+Public descriptor text formats:
+
+- `\AIMultilingual\Integration\Contract::FORMAT_PLAIN`
+- `\AIMultilingual\Integration\Contract::FORMAT_HTML`
+
+Public factory:
+
+```php
+\AIMultilingual\Integration\TranslationUnitDescriptor::from_source(
+	$segment_key,
+	$source_text,
+	$text_format,
+	$ownership_class,
+	$owner_type,
+	$owner_id,
+	$field,
+	$field_label,
+	$integration_id,
+	$parent_context
+);
+```
+
+Example:
+
+```php
+$key = $identity->build( 'my_integration', 'record', (string) $post->ID, 'body' );
+
+$unit = \AIMultilingual\Integration\TranslationUnitDescriptor::from_source(
+	$key,
+	(string) get_post_meta( $post->ID, '_my_body', true ),
+	\AIMultilingual\Integration\Contract::FORMAT_HTML,
+	\AIMultilingual\Integration\Contract::OWNERSHIP_RECORD,
+	'record',
+	(string) $post->ID,
+	'body',
+	'Body',
+	'my_integration'
+);
+```
+
+Validation / failure contract:
+
+- `text_format` must be one of the documented public Integration constants above.
+- Invalid required arguments or unsupported formats fail closed with `InvalidArgumentException`.
+- The factory computes the canonical source hash internally and returns an immutable descriptor.
+
+Backwards compatibility:
+
+- The existing `TranslationUnitDescriptor` constructor remains available and unchanged.
+
+Third-party integrations must use public format constants and `from_source(...)`. Do **not** import internal `Store` symbols in public integration code or examples.
+
 ## Lifecycle
 
 Compatibility states: `available`, `unavailable`, `compatible`, `unsupported_version`, `missing_required_hook`, `disabled`, `degraded`.

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] — 2026-08-24
+
+### Added
+
+- **M5-A.1 Public Integration descriptor factory:** `AIMultilingual\Integration\Contract::FORMAT_PLAIN`, `Contract::FORMAT_HTML`, and immutable `TranslationUnitDescriptor::from_source(...)` for public descriptor creation without third-party `Store` imports.
+
+### Compatibility / infrastructure
+
+- Existing `TranslationUnitDescriptor` constructor remains unchanged.
+- Canonical source-hash implementation remains internal; no public Store API or arbitrary hash callback/filter added.
+- Translation storage semantics, M5-A chrome admission, host-independent resolver, stale eligibility, and visitor-language context remain unchanged.
+
+### Documentation
+
+- Integration API v1 docs now document public descriptor creation through `from_source(...)` and public format constants.
+- M5-A.1 plan and closure added under `docs/plans/`.
+
+### Notes
+
+- DEV installation of 1.8.0 can unblock downstream implementation once merged and feature-probe verified.
+- Formal production package / tag / deploy remain separately authorized.
+
 ## [1.7.0] — 2026-08-23
 
 ### Added

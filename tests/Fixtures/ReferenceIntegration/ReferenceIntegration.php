@@ -17,7 +17,6 @@ use AIMultilingual\Integration\Contract;
 use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\PluginIntegrationInterface;
 use AIMultilingual\Integration\TranslationUnitDescriptor;
-use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
@@ -98,11 +97,10 @@ final class ReferenceIntegration implements PluginIntegrationInterface {
 		$title = (string) get_post_meta( (int) $post->ID, self::META_TITLE, true );
 		if ( '' !== trim( $title ) ) {
 			$key     = $this->identity->build( self::ID, 'record', $owner_id, 'title' );
-			$units[] = new TranslationUnitDescriptor(
+			$units[] = TranslationUnitDescriptor::from_source(
 				$key,
 				$title,
-				Store::source_hash( $title, Store::FORMAT_PLAIN ),
-				Store::FORMAT_PLAIN,
+				Contract::FORMAT_PLAIN,
 				Contract::OWNERSHIP_RECORD,
 				'record',
 				$owner_id,
@@ -116,11 +114,10 @@ final class ReferenceIntegration implements PluginIntegrationInterface {
 		$nested = (string) get_post_meta( (int) $post->ID, self::META_NESTED, true );
 		if ( '' !== trim( $nested ) ) {
 			$key     = $this->identity->build( self::ID, 'record', $owner_id, 'label', 'primary' );
-			$units[] = new TranslationUnitDescriptor(
+			$units[] = TranslationUnitDescriptor::from_source(
 				$key,
 				$nested,
-				Store::source_hash( $nested, Store::FORMAT_PLAIN ),
-				Store::FORMAT_PLAIN,
+				Contract::FORMAT_PLAIN,
 				Contract::OWNERSHIP_RECORD,
 				'record',
 				$owner_id,

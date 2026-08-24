@@ -18,7 +18,6 @@ use AIMultilingual\Integration\DeclaresChromeOwnedSurfaces;
 use AIMultilingual\Integration\Identity\PluginIdentity;
 use AIMultilingual\Integration\PluginIntegrationInterface;
 use AIMultilingual\Integration\TranslationUnitDescriptor;
-use AIMultilingual\Translation\Store;
 use WP_Post;
 
 /**
@@ -135,11 +134,10 @@ final class ChromeReferenceIntegration implements PluginIntegrationInterface, De
 		$key      = $this->identity->build( self::ID, self::OWNER_TYPE, $owner_id, self::FIELD_BODY );
 
 		return array(
-			new TranslationUnitDescriptor(
+			TranslationUnitDescriptor::from_source(
 				$key,
 				$body,
-				Store::source_hash( $body, Store::FORMAT_HTML ),
-				Store::FORMAT_HTML,
+				Contract::FORMAT_HTML,
 				Contract::OWNERSHIP_RECORD,
 				self::OWNER_TYPE,
 				$owner_id,
