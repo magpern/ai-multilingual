@@ -85,6 +85,12 @@ final class Contract {
 	public const STATE_DEGRADED              = 'degraded';
 
 	/**
+	 * Public Integration text formats for descriptor creation.
+	 */
+	public const FORMAT_PLAIN = 'plain';
+	public const FORMAT_HTML  = 'html';
+
+	/**
 	 * Frozen ownership classification vocabulary.
 	 *
 	 * @return list<string>
@@ -113,6 +119,18 @@ final class Contract {
 			self::STATE_MISSING_REQUIRED_HOOK,
 			self::STATE_DISABLED,
 			self::STATE_DEGRADED,
+		);
+	}
+
+	/**
+	 * Public descriptor text-format vocabulary.
+	 *
+	 * @return list<string>
+	 */
+	public static function text_formats(): array {
+		return array(
+			self::FORMAT_PLAIN,
+			self::FORMAT_HTML,
 		);
 	}
 }
