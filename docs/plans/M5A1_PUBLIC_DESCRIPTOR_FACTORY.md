@@ -1,6 +1,6 @@
 # M5-A.1 — Public Integration Descriptor Factory
 
-**Status:** DRAFT — pending PO approval  
+**Status:** FROZEN — PO APPROVED  
 **Repository:** [magpern/ai-multilingual](https://github.com/magpern/ai-multilingual)  
 **Plugin:** AI Multilingual (`ai-multilingual`)  
 **Namespace:** `AIMultilingual\`  
@@ -8,7 +8,8 @@
 **Planning baseline `main` SHA:** `8955a1b5f55ec77675715fc93eddf8de5ffc6933`  
 **Baseline version:** 1.7.0  
 **Recommended implementation release:** **1.8.0**  
-**Drafted:** 2026-08-24
+**Drafted:** 2026-08-24  
+**Frozen:** 2026-08-24
 
 ---
 
