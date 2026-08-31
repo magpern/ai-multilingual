@@ -103,53 +103,38 @@ final class SiteTranslateRestTest extends AimlTestCase {
 
 		wp_set_current_user( $this->create_translator() );
 
-		$blocked = rest_do_request(
-			new WP_REST_Request(
-				'POST',
-				'/aiml/v1/site-translate/admission'
+		$blocked = new WP_REST_Request( 'POST', '/aiml/v1/site-translate/admission' );
+		$blocked->set_body_params(
+			array(
+				'post_ids' => array( (int) $block_page->ID ),
 			)
 		);
-		$blocked->set_header( 'Content-Type', 'application/json' );
-		$blocked->set_body(
-			wp_json_encode(
-				array(
-					'post_ids' => array( (int) $block_page->ID ),
-				)
-			)
-		);
-		$response = rest_get_server()->dispatch( $blocked );
+		$response = rest_do_request( $blocked );
 		$this->assertSame( 422, $response->get_status() );
 		$this->assertSame( 'aiml_site_translate_strategy_f_required', $response->as_error()->get_error_code() );
 
-		$allowed = rest_do_request(
-			new WP_REST_Request(
-				'POST',
-				'/aiml/v1/site-translate/admission'
+		$allowed = new WP_REST_Request( 'POST', '/aiml/v1/site-translate/admission' );
+		$allowed->set_body_params(
+			array(
+				'post_ids' => array( (int) $classic->ID ),
 			)
 		);
-		$allowed->set_header( 'Content-Type', 'application/json' );
-		$allowed->set_body(
-			wp_json_encode(
-				array(
-					'post_ids' => array( (int) $classic->ID ),
-				)
-			)
-		);
-		$ok = rest_get_server()->dispatch( $allowed );
+		$ok = rest_do_request( $allowed );
 		$this->assertSame( 200, $ok->get_status() );
 		$this->assertTrue( $ok->get_data()['allowed'] );
 	}
 
 	public function test_coverage_zero_eligible_is_not_complete(): void {
-		$post = $this->create_page( 'Empty coverage', '' );
+		$language = $this->add_language();
+		$post     = $this->create_page( 'Empty coverage', '' );
 		wp_set_current_user( $this->create_translator() );
 
 		$request = new WP_REST_Request( 'GET', '/aiml/v1/site-translate/coverage' );
-		$request->set_param( 'language_id', 2 );
+		$request->set_param( 'language_id', (int) $language->language_id );
 		$request->set_param( 'post_ids', array( (int) $post->ID ) );
 
 		$response = rest_do_request( $request );
-		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
 
 		$item     = $response->get_data()['items'][0];
 		$coverage = $item['coverage'];
@@ -160,7 +145,7 @@ final class SiteTranslateRestTest extends AimlTestCase {
 	}
 
 	public function test_chunked_create_shares_batch_id_and_run_batch_enqueues_waiting_only(): void {
-		$this->enable_strategy_f_flags();
+		$language = $this->add_language();
 		wp_set_current_user( $this->create_translator() );
 
 		$post_ids = array();
@@ -169,22 +154,18 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		}
 
 		$request = new WP_REST_Request( 'POST', '/aiml/v1/site-translate/jobs' );
-		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body(
-			wp_json_encode(
-				array(
-					'post_ids'       => $post_ids,
-					'language_id'    => 2,
-					'client_token'   => 'site-translate-test-token',
-					'provider_id'    => 'openai',
-					'prompt_profile' => 'default',
-					'prompt_version' => '1',
-				)
+		$request->set_body_params(
+			array(
+				'post_ids'       => $post_ids,
+				'language_id'    => (int) $language->language_id,
+				'client_token'   => 'site-translate-test-token',
+				'prompt_profile' => 'default',
+				'prompt_version' => '1',
 			)
 		);
 
-		$create = rest_get_server()->dispatch( $request );
-		$this->assertContains( $create->get_status(), array( 201, 207 ) );
+		$create = rest_do_request( $request );
+		$this->assertContains( $create->get_status(), array( 201, 207 ), wp_json_encode( $create->get_data() ) );
 
 		$data     = $create->get_data();
 		$batch_id = (string) $data['batch_id'];
@@ -205,34 +186,33 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		$this->assertCount( 1, $batch_ids );
 
 		wp_set_current_user( 1 );
-		$run = rest_do_request(
-			new WP_REST_Request(
-				'POST',
-				'/aiml/v1/site-translate/jobs/run'
+		$run = new WP_REST_Request( 'POST', '/aiml/v1/site-translate/jobs/run' );
+		$run->set_body_params(
+			array(
+				'batch_id' => $batch_id,
 			)
 		);
-		$run->set_header( 'Content-Type', 'application/json' );
-		$run->set_body( wp_json_encode( array( 'batch_id' => $batch_id ) ) );
-		$run_response = rest_get_server()->dispatch( $run );
+		$run_response = rest_do_request( $run );
 		$this->assertSame( 202, $run_response->get_status() );
 		$this->assertSame( 51, count( $run_response->get_data()['enqueued_job_ids'] ) );
 	}
 
 	public function test_localized_url_batch_reports_title_stale_without_generating(): void {
-		$post = $this->create_page( 'Stale title route', 'Body' );
+		$language = $this->add_language();
+		$post     = $this->create_page( 'Stale title route', 'Body' );
 
 		$this->store->save_translation(
 			array(
 				'source_type'     => Store::SOURCE_POST,
 				'source_id'       => (int) $post->ID,
 				'source_subtype'  => 'page',
-				'language_id'     => 2,
+				'language_id'     => (int) $language->language_id,
 				'field_key'       => Extractor::FIELD_TITLE,
 				'segment_key'     => Extractor::FIELD_TITLE,
 				'source_text'     => 'Stale title route',
 				'translated_text' => 'Stale title sv',
 				'text_format'     => Store::FORMAT_PLAIN,
-				'status'          => Store::STATUS_TRANSLATED,
+				'status'          => Store::STATUS_MACHINE_TRANSLATED,
 				'publish_status'  => Store::PUBLISH_PUBLISHED,
 				'is_stale'        => 1,
 			)
@@ -241,18 +221,15 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		wp_set_current_user( $this->create_translator() );
 
 		$request = new WP_REST_Request( 'POST', '/aiml/v1/site-translate/routes' );
-		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body(
-			wp_json_encode(
-				array(
-					'post_ids'    => array( (int) $post->ID ),
-					'language_id' => 2,
-				)
+		$request->set_body_params(
+			array(
+				'post_ids'    => array( (int) $post->ID ),
+				'language_id' => (int) $language->language_id,
 			)
 		);
 
-		$response = rest_get_server()->dispatch( $request );
-		$this->assertSame( 200, $response->get_status() );
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
 
 		$outcome = $response->get_data()['outcomes'][0];
 		$this->assertSame( SiteTranslateLocalizedUrlBatchService::OUTCOME_TITLE_STALE, $outcome['outcome'] );

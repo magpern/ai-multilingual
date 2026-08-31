@@ -525,8 +525,12 @@ final class SiteTranslateController {
 	 * @return array<string, mixed>
 	 */
 	private function body_params( WP_REST_Request $request ): array {
-		$params = $request->get_json_params();
-		return is_array( $params ) ? $params : array();
+		$params = (array) $request->get_json_params();
+		if ( array() === $params ) {
+			$params = (array) $request->get_body_params();
+		}
+
+		return $params;
 	}
 
 	/**
