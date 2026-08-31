@@ -149,6 +149,34 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		$this->assertFalse( $coverage['no_extractable_work'] );
 	}
 
+	public function test_coverage_zero_eligible_reports_no_extractable_work(): void {
+		$language = $this->add_language();
+		$post_id  = self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_title'   => '',
+				'post_content' => '',
+				'post_excerpt' => '',
+				'post_name'    => 'zero-eligible-coverage',
+				'post_status'  => 'publish',
+			)
+		);
+		wp_set_current_user( $this->create_translator() );
+
+		$request = new WP_REST_Request( 'GET', '/aiml/v1/site-translate/coverage' );
+		$request->set_param( 'language_id', (int) $language->language_id );
+		$request->set_param( 'post_ids', array( (int) $post_id ) );
+
+		$response = rest_do_request( $request );
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
+
+		$coverage = $response->get_data()['items'][0]['coverage'];
+		$this->assertSame( 0, $coverage['eligible_total'] );
+		$this->assertTrue( $coverage['no_extractable_work'] );
+		$this->assertContains( 'zero_eligible', $coverage['blocked_or_unsupported'] );
+		$this->assertFalse( $coverage['translation_complete'] );
+	}
+
 	public function test_chunked_create_shares_batch_id_and_run_batch_enqueues_waiting_only(): void {
 		$language = $this->add_language();
 		wp_set_current_user( $this->create_translator() );
