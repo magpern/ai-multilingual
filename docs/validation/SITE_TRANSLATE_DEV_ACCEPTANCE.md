@@ -2,9 +2,10 @@
 
 **Environment:** https://dev.biopentra.eu (DEV only — production untouched)  
 **Date:** 2026-08-31  
-**Branch:** `feature/site-translate-full-path`  
-**Implementation commit:** `ff0434323`  
-**Verdict:** **PASS (bounded automated smoke + route registration)**
+**Branch:** `main` (merged)  
+**Merge commit:** `4d581a21f`  
+**Implementation range:** `ff0434323` … `4fe809957`  
+**Verdict:** **PASS (bounded automated smoke + route registration + PR CI)**
 
 ## Automated smoke
 
