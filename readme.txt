@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.10.0
+Stable tag: 1.11.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Multilingual layer for WordPress: canonical content with segment translations ap
 
 == Description ==
 
-Universal Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.10.0 adds the DeepSeek AI provider and per-provider generation settings (key, model, temperature, max tokens). Version 1.9.0 rebranded to Universal Multilingual. Version 1.8.0 adds M5-A.1 public Integration descriptor creation via `Contract::FORMAT_PLAIN`, `Contract::FORMAT_HTML`, and `TranslationUnitDescriptor::from_source(...)`. Version 1.7.0 adds M5-A private CPT chrome integration. Version 1.6.0 is an operator-completion release for Localized URL administration and Jobs/stale/conflict literacy. TSC, TIQ, and OTL remain complete.
+Universal Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.11.0 adds Site Translate (coverage-aware picker, chunked Jobs, Run batch now, Localized URL batch). Version 1.10.0 adds the DeepSeek AI provider and per-provider generation settings. Version 1.9.0 rebranded to Universal Multilingual. Version 1.8.0 adds M5-A.1 public Integration descriptor creation via `Contract::FORMAT_PLAIN`, `Contract::FORMAT_HTML`, and `TranslationUnitDescriptor::from_source(...)`. Version 1.7.0 adds M5-A private CPT chrome integration. Version 1.6.0 is an operator-completion release for Localized URL administration and Jobs/stale/conflict literacy. TSC, TIQ, and OTL remain complete.
 
 == Installation ==
 
@@ -24,6 +24,12 @@ Universal Multilingual stores one canonical object per content item and applies 
 6. Localized URLs default OFF; enable only after reviewing MSEO release notes and verifying routes.
 
 == Changelog ==
+
+= 1.11.0 =
+* Site Translate workspace: coverage-aware picker for pages, posts, and products.
+* Chunked translation Jobs (50 per job) with shared batch_id, Run batch now, and partial-create retry via client_token.
+* Localized URL batch generate/publish with title_stale and collision outcomes via existing routing authorities.
+* Selection-scoped Strategy F gate for Gutenberg bodies.
 
 = 1.10.0 =
 * DeepSeek AI provider alongside OpenAI.

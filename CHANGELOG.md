@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] — 2026-08-31
+
+### Added
+
+- **Site Translate:** Workspace operator surface for pages, posts, and products with coverage read model (eligible/missing/translated/unpublished/published/stale/blocked), filtering, and multi-select.
+- **Chunked Jobs:** Site Translate creates translation Jobs in chunks of `JobBounds::MAX_POSTS_PER_BULK` (50) with shared `batch_id`; Jobs tab focuses the batch group.
+- **Run batch now:** thin orchestration enqueue for all waiting Jobs in a batch (async; not synchronous HTTP execution).
+- **Partial create retry:** preserves successful chunks; retries failed creation only via existing `client_token` / idempotency.
+- **Localized URL batch:** generate/publish routes through `SlugCandidateService` / `RoutePublicationService`; `title_stale`, collision, and eligibility outcomes surfaced per object.
+- **Strategy F selection gate:** hard-blocks Gutenberg (`BODY_BLOCKS`) selections when Strategy F is incomplete; classic-only selections allowed.
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **8** (no migration).
+- Publication gate / manual publish axis unchanged; review and publication remain separate.
+- Rank Math Model A and anonymous URL/host language resolution unchanged.
+- Includes all **1.10.0** changes (DeepSeek provider, per-provider AI settings) — `v1.10.0` was prepared on main but never tagged.
+
+### Documentation
+
+- User manual updated for Site Translate operator workflow.
+- Release notes: `docs/releases/v1.11.0.md`.
+
+### Notes
+
+- **DEV / pre-production release** — production deployment separately authorized.
+- Full operator-led Swedish workflow acceptance remains pending before release-readiness.
+
 ## [1.10.0] — 2026-08-31
 
 ### Added
