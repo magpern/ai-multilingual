@@ -252,7 +252,7 @@ final class JobsController {
 
 		return new WP_Error(
 			'aiml_forbidden',
-			__( 'You do not have permission to view translation jobs.', 'ai-multilingual' ),
+			__( 'You do not have permission to view translation jobs.', 'universal-multilingual' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -269,7 +269,7 @@ final class JobsController {
 
 		return new WP_Error(
 			'aiml_forbidden',
-			__( 'You do not have permission to manage translation jobs.', 'ai-multilingual' ),
+			__( 'You do not have permission to manage translation jobs.', 'universal-multilingual' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -306,7 +306,7 @@ final class JobsController {
 		if ( ! current_user_can( $cap ) ) {
 			return new WP_Error(
 				'aiml_forbidden',
-				__( 'You do not have permission to perform this job action.', 'ai-multilingual' ),
+				__( 'You do not have permission to perform this job action.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -810,7 +810,7 @@ final class JobsController {
 			if ( $source_id <= 0 ) {
 				return new WP_Error(
 					'aiml_forbidden',
-					__( 'You do not have permission to create jobs for one or more requested sources.', 'ai-multilingual' ),
+					__( 'You do not have permission to create jobs for one or more requested sources.', 'universal-multilingual' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -819,7 +819,7 @@ final class JobsController {
 				if ( ! current_user_can( 'edit_post', $source_id ) ) {
 					return new WP_Error(
 						'aiml_forbidden',
-						__( 'You do not have permission to create jobs for one or more requested posts.', 'ai-multilingual' ),
+						__( 'You do not have permission to create jobs for one or more requested posts.', 'universal-multilingual' ),
 						array( 'status' => 403 )
 					);
 				}
@@ -834,7 +834,7 @@ final class JobsController {
 			) {
 				return new WP_Error(
 					'aiml_forbidden',
-					__( 'You do not have permission to create jobs for one or more requested sources.', 'ai-multilingual' ),
+					__( 'You do not have permission to create jobs for one or more requested sources.', 'universal-multilingual' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -862,7 +862,7 @@ final class JobsController {
 			if ( ! current_user_can( 'edit_post', $source_id ) ) {
 				return new WP_Error(
 					'aiml_forbidden',
-					__( 'You do not have permission to access this translation job.', 'ai-multilingual' ),
+					__( 'You do not have permission to access this translation job.', 'universal-multilingual' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -878,7 +878,7 @@ final class JobsController {
 		) {
 			return new WP_Error(
 				'aiml_forbidden',
-				__( 'You do not have permission to access this translation job.', 'ai-multilingual' ),
+				__( 'You do not have permission to access this translation job.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -896,7 +896,7 @@ final class JobsController {
 		if ( $language_id <= 0 ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language.', 'ai-multilingual' ),
+				__( 'Unknown language.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -905,7 +905,7 @@ final class JobsController {
 		if ( null === $language ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language.', 'ai-multilingual' ),
+				__( 'Unknown language.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -914,7 +914,7 @@ final class JobsController {
 		if ( null !== $default && (int) $default->language_id === $language_id ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'The default language is the source; it is not translated.', 'ai-multilingual' ),
+				__( 'The default language is the source; it is not translated.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}

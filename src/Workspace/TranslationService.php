@@ -263,7 +263,7 @@ final class TranslationService {
 		if ( null === $current ) {
 			return new WP_Error(
 				'aiml_invalid_segment',
-				__( 'Unknown segment key for this post.', 'ai-multilingual' ),
+				__( 'Unknown segment key for this post.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -273,7 +273,7 @@ final class TranslationService {
 			if ( $assembled_hash !== $this->expected_translation_hash ) {
 				return new WP_Error(
 					'aiml_translation_hash_mismatch',
-					__( 'The translation changed since this request was started.', 'ai-multilingual' ),
+					__( 'The translation changed since this request was started.', 'universal-multilingual' ),
 					array( 'status' => 409 )
 				);
 			}
@@ -282,7 +282,7 @@ final class TranslationService {
 		if ( ! (bool) ( $current['can_edit'] ?? false ) ) {
 			return new WP_Error(
 				'aiml_invalid_segment',
-				__( 'This segment is not editable.', 'ai-multilingual' ),
+				__( 'This segment is not editable.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -292,7 +292,7 @@ final class TranslationService {
 		if ( null === $target || null === $source ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language code.', 'ai-multilingual' ),
+				__( 'Unknown language code.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -404,7 +404,7 @@ final class TranslationService {
 
 			return new WP_Error(
 				'aiml_provider_budget_exhausted',
-				__( 'Provider budget exhausted; provider call forbidden for this attempt.', 'ai-multilingual' ),
+				__( 'Provider budget exhausted; provider call forbidden for this attempt.', 'universal-multilingual' ),
 				array(
 					'status'                => 409,
 					'provider_request_made' => false,
@@ -501,7 +501,7 @@ final class TranslationService {
 		if ( null === $profile ) {
 			return new WP_Error(
 				'aiml_invalid_profile',
-				__( 'Unknown prompt profile.', 'ai-multilingual' ),
+				__( 'Unknown prompt profile.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -509,7 +509,7 @@ final class TranslationService {
 		if ( ! $this->provider->get_capabilities()->supports_profile( $prompt_profile ) ) {
 			return new WP_Error(
 				'aiml_provider_unavailable',
-				__( 'The active provider does not support this profile.', 'ai-multilingual' ),
+				__( 'The active provider does not support this profile.', 'universal-multilingual' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -518,7 +518,7 @@ final class TranslationService {
 		if ( null === $current ) {
 			return new WP_Error(
 				'aiml_invalid_segment',
-				__( 'Unknown segment key for this post.', 'ai-multilingual' ),
+				__( 'Unknown segment key for this post.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -528,7 +528,7 @@ final class TranslationService {
 		if ( null === $target || null === $source ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language code.', 'ai-multilingual' ),
+				__( 'Unknown language code.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -580,7 +580,7 @@ final class TranslationService {
 		if ( ! $validation->valid ) {
 			return new WP_Error(
 				(string) ( $validation->code ?? ResponseValidator::CODE_EMPTY_TARGET ),
-				'' !== $validation->message ? $validation->message : __( 'Provider response failed structural validation.', 'ai-multilingual' ),
+				'' !== $validation->message ? $validation->message : __( 'Provider response failed structural validation.', 'universal-multilingual' ),
 				array(
 					'status' => 422,
 					'data'   => $validation->data,
@@ -634,7 +634,7 @@ final class TranslationService {
 			if ( ! array_key_exists( 'translated_text', $segment ) || ! is_string( $segment['translated_text'] ) ) {
 				return new WP_Error(
 					'aiml_ai_invalid_response',
-					__( 'Provider response could not be mapped to the requested segment.', 'ai-multilingual' ),
+					__( 'Provider response could not be mapped to the requested segment.', 'universal-multilingual' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -644,7 +644,7 @@ final class TranslationService {
 		if ( 0 === $matches || null === $translated ) {
 			return new WP_Error(
 				'aiml_ai_invalid_response',
-				__( 'Provider response is missing the requested segment.', 'ai-multilingual' ),
+				__( 'Provider response is missing the requested segment.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -652,7 +652,7 @@ final class TranslationService {
 		if ( $matches > 1 ) {
 			return new WP_Error(
 				'aiml_ai_invalid_response',
-				__( 'Provider response contains duplicate segment keys.', 'ai-multilingual' ),
+				__( 'Provider response contains duplicate segment keys.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -668,7 +668,7 @@ final class TranslationService {
 				(string) ( $validation->code ?? ResponseValidator::CODE_EMPTY_TARGET ),
 				'' !== $validation->message
 					? $validation->message
-					: __( 'Provider response failed structural validation.', 'ai-multilingual' ),
+					: __( 'Provider response failed structural validation.', 'universal-multilingual' ),
 				array(
 					'status' => 422,
 					'data'   => $validation->data,
@@ -704,7 +704,7 @@ final class TranslationService {
 		if ( null === $this->term_adoption ) {
 			return new WP_Error(
 				'aiml_term_adoption_unavailable',
-				__( 'Term adoption is not available.', 'ai-multilingual' ),
+				__( 'Term adoption is not available.', 'universal-multilingual' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -725,7 +725,7 @@ final class TranslationService {
 		if ( ! is_array( $unit ) ) {
 			return new WP_Error(
 				'aiml_invalid_segment',
-				__( 'Unknown segment key for this term.', 'ai-multilingual' ),
+				__( 'Unknown segment key for this term.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -755,7 +755,7 @@ final class TranslationService {
 		if ( null === $target || null === $source ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language code.', 'ai-multilingual' ),
+				__( 'Unknown language code.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -766,7 +766,7 @@ final class TranslationService {
 		if ( ! $allow_provider ) {
 			return new WP_Error(
 				'aiml_provider_disabled',
-				__( 'Provider calls are not allowed in this wake.', 'ai-multilingual' ),
+				__( 'Provider calls are not allowed in this wake.', 'universal-multilingual' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -798,7 +798,7 @@ final class TranslationService {
 				(string) ( $validation->code ?? ResponseValidator::CODE_EMPTY_TARGET ),
 				'' !== $validation->message
 					? $validation->message
-					: __( 'Provider response failed structural validation.', 'ai-multilingual' ),
+					: __( 'Provider response failed structural validation.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -899,7 +899,7 @@ final class TranslationService {
 			if ( '' === trim( $translated ) ) {
 				return new WP_Error(
 					'aiml_empty_translation',
-					__( 'Provider returned an empty translation.', 'ai-multilingual' ),
+					__( 'Provider returned an empty translation.', 'universal-multilingual' ),
 					array( 'status' => 422 )
 				);
 			}
@@ -909,7 +909,7 @@ final class TranslationService {
 
 		return new WP_Error(
 			'aiml_ai_invalid_response',
-			__( 'Provider response is missing the requested segment.', 'ai-multilingual' ),
+			__( 'Provider response is missing the requested segment.', 'universal-multilingual' ),
 			array( 'status' => 422 )
 		);
 	}
@@ -980,7 +980,7 @@ final class TranslationService {
 		if ( null === $refreshed ) {
 			return new WP_Error(
 				'aiml_invalid_segment',
-				__( 'Translated segment could not be reloaded.', 'ai-multilingual' ),
+				__( 'Translated segment could not be reloaded.', 'universal-multilingual' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -1043,7 +1043,7 @@ final class TranslationService {
 		if ( $current_hash !== $this->expected_translation_hash ) {
 			return new WP_Error(
 				'aiml_translation_hash_mismatch',
-				__( 'The translation changed since this request was started.', 'ai-multilingual' ),
+				__( 'The translation changed since this request was started.', 'universal-multilingual' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -1075,7 +1075,7 @@ final class TranslationService {
 		);
 		return new WP_Error(
 			'aiml_registered_meta_provider_denied',
-			__( 'This registered meta segment is not admitted for AI provider generation.', 'ai-multilingual' ),
+			__( 'This registered meta segment is not admitted for AI provider generation.', 'universal-multilingual' ),
 			array(
 				'status'                => 422,
 				'provider_request_made' => false,

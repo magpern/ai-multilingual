@@ -46,7 +46,7 @@ final class PublicationService {
 		int $user_id = 0
 	) {
 		if ( Store::FORMAT_SLUG !== (string) ( $row->text_format ?? '' ) ) {
-			return new WP_Error( 'aiml_slug_not_slug_format', __( 'Under-route publication requires FORMAT_SLUG.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_not_slug_format', __( 'Under-route publication requires FORMAT_SLUG.', 'universal-multilingual' ) );
 		}
 
 		return $this->publish_authoritative_row(
@@ -74,7 +74,7 @@ final class PublicationService {
 		if ( Store::FORMAT_SLUG === (string) ( $row->text_format ?? '' ) ) {
 			return new WP_Error(
 				'aiml_slug_publish_requires_route',
-				__( 'Localized slug candidates must be published via Publish prepared route.', 'ai-multilingual' )
+				__( 'Localized slug candidates must be published via Publish prepared route.', 'universal-multilingual' )
 			);
 		}
 
@@ -134,7 +134,7 @@ final class PublicationService {
 
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
-			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'universal-multilingual' ) );
 		}
 
 		return $this->evaluate_row( $row, $for_automatic, $scaffolding_markers, $markers_applicable );
@@ -309,7 +309,7 @@ final class PublicationService {
 
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
-			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'universal-multilingual' ) );
 		}
 
 		$blocked = $this->reject_format_slug_standalone( $row );
@@ -373,7 +373,7 @@ final class PublicationService {
 		if ( null !== $expected_status && $expected_status !== $current ) {
 			return new WP_Error(
 				'aiml_publish_conflict',
-				__( 'Publish status changed; refresh and retry.', 'ai-multilingual' ),
+				__( 'Publish status changed; refresh and retry.', 'universal-multilingual' ),
 				array( 'reason_codes' => array( PublicationReasonCodes::EXPECTED_STATUS_MISMATCH ) )
 			);
 		}
@@ -459,7 +459,7 @@ final class PublicationService {
 
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
-			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'universal-multilingual' ) );
 		}
 
 		$result = $this->unpublish_authoritative_row( $source_type, $source_id, $language_id, $segment_key, $row );
@@ -622,7 +622,7 @@ final class PublicationService {
 		// concurrent edit / visibility / review change cannot apply a stale decision.
 		$row = $this->store->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $row ) {
-			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'universal-multilingual' ) );
 		}
 
 		$decision = $this->evaluate_publish_attempt(

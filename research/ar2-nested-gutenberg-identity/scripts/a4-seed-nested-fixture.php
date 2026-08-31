@@ -6,7 +6,7 @@
  * deterministic aimlBlockId UUIDs and SV Store overlays.
  *
  * Usage:
- *   wp eval-file wp-content/plugins/ai-multilingual/research/ar2-nested-gutenberg-identity/scripts/a4-seed-nested-fixture.php
+ *   wp eval-file wp-content/plugins/universal-multilingual/research/ar2-nested-gutenberg-identity/scripts/a4-seed-nested-fixture.php
  *
  * @package AIMultilingual
  */

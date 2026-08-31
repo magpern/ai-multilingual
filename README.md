@@ -1,10 +1,19 @@
-# AI Multilingual
+# Universal Multilingual
 
-**Version:** 1.0.0
+**Version:** 1.9.0
 
 A multilingual layer for WordPress and WooCommerce. One canonical object per
 piece of content; translations are stored as stable segments and applied as
 presentation overlays at render time.
+
+| Item | Value |
+|------|-------|
+| Plugin name | Universal Multilingual |
+| Slug / text domain | `universal-multilingual` |
+| Namespace | `AIMultilingual\` |
+| Runtime prefix | `aiml_` / `AIML_*` |
+| Composer | `magpern/universal-multilingual` |
+| Current version | `1.9.0` |
 
 Documentation lives in [`docs/`](docs/).
 

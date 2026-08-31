@@ -53,8 +53,8 @@ final class GlossaryAdminPage {
 	public function add_menu(): void {
 		add_submenu_page(
 			SettingsPage::MENU_SLUG,
-			__( 'Glossary', 'ai-multilingual' ),
-			__( 'Glossary', 'ai-multilingual' ),
+			__( 'Glossary', 'universal-multilingual' ),
+			__( 'Glossary', 'universal-multilingual' ),
 			GlossaryCapabilities::MANAGE_GLOSSARY,
 			self::MENU_SLUG,
 			array( $this, 'render' )
@@ -96,10 +96,10 @@ final class GlossaryAdminPage {
 				'nonce'         => wp_create_nonce( 'wp_rest' ),
 				'languages'     => $this->language_bootstrap(),
 				'i18n'          => array(
-					'loadError'   => __( 'Failed to load glossary terms.', 'ai-multilingual' ),
-					'saveError'   => __( 'Failed to save glossary term.', 'ai-multilingual' ),
-					'deleteError' => __( 'Failed to delete glossary term.', 'ai-multilingual' ),
-					'empty'       => __( 'No glossary terms yet.', 'ai-multilingual' ),
+					'loadError'   => __( 'Failed to load glossary terms.', 'universal-multilingual' ),
+					'saveError'   => __( 'Failed to save glossary term.', 'universal-multilingual' ),
+					'deleteError' => __( 'Failed to delete glossary term.', 'universal-multilingual' ),
+					'empty'       => __( 'No glossary terms yet.', 'universal-multilingual' ),
 				),
 			)
 		);
@@ -110,12 +110,12 @@ final class GlossaryAdminPage {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( GlossaryCapabilities::MANAGE_GLOSSARY ) ) {
-			wp_die( esc_html__( 'Unauthorized.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'Unauthorized.', 'universal-multilingual' ) );
 		}
 
 		echo '<div class="wrap aiml-glossary-admin">';
-		echo '<h1>' . esc_html__( 'Glossary', 'ai-multilingual' ) . '</h1>';
-		echo '<p>' . esc_html__( 'Curated platform terminology for translation suggestions, AI context, and QA warnings.', 'ai-multilingual' ) . '</p>';
+		echo '<h1>' . esc_html__( 'Glossary', 'universal-multilingual' ) . '</h1>';
+		echo '<p>' . esc_html__( 'Curated platform terminology for translation suggestions, AI context, and QA warnings.', 'universal-multilingual' ) . '</p>';
 		echo '<div id="aiml-glossary-admin-root"></div>';
 		echo '</div>';
 	}

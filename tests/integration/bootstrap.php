@@ -35,7 +35,7 @@ tests_add_filter(
 		\AIMultilingual\Tests\Fixtures\ReferenceExtension\ReferenceExtensionBootstrap::register_hooks();
 
 		require WP_PLUGIN_DIR . '/woocommerce/woocommerce.php';
-		require WP_PLUGIN_DIR . '/ai-multilingual/ai-multilingual.php';
+		require WP_PLUGIN_DIR . '/universal-multilingual/universal-multilingual.php';
 
 		// Create this plugin's tables here rather than alongside the rest of
 		// the fixture setup below. Two things read them earlier than

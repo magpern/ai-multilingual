@@ -123,7 +123,7 @@ final class TermSlugController {
 	 */
 	public function can_edit_term( WP_REST_Request $request ) {
 		if ( ! current_user_can( Plugin::CAP_TRANSLATE ) ) {
-			return new WP_Error( 'aiml_forbidden', __( 'You cannot manage translations.', 'ai-multilingual' ), array( 'status' => 403 ) );
+			return new WP_Error( 'aiml_forbidden', __( 'You cannot manage translations.', 'universal-multilingual' ), array( 'status' => 403 ) );
 		}
 
 		$term = $this->resolve_term( $request );
@@ -132,7 +132,7 @@ final class TermSlugController {
 		}
 
 		if ( ! current_user_can( 'edit_term', (int) $term->term_id ) ) {
-			return new WP_Error( 'aiml_forbidden', __( 'You cannot edit this term.', 'ai-multilingual' ), array( 'status' => 403 ) );
+			return new WP_Error( 'aiml_forbidden', __( 'You cannot edit this term.', 'universal-multilingual' ), array( 'status' => 403 ) );
 		}
 
 		return true;
@@ -271,12 +271,12 @@ final class TermSlugController {
 		$term_id = (int) $request['term_id'];
 		$term    = get_term( $term_id );
 		if ( ! $term instanceof WP_Term || is_wp_error( $term ) ) {
-			return new WP_Error( 'aiml_term_not_found', __( 'Term not found.', 'ai-multilingual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'aiml_term_not_found', __( 'Term not found.', 'universal-multilingual' ), array( 'status' => 404 ) );
 		}
 		if ( ! AdmittedTaxonomies::admits( (string) $term->taxonomy ) ) {
 			return new WP_Error(
 				'aiml_term_taxonomy_unsupported',
-				__( 'This taxonomy is not supported for localized URL routes.', 'ai-multilingual' ),
+				__( 'This taxonomy is not supported for localized URL routes.', 'universal-multilingual' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -294,7 +294,7 @@ final class TermSlugController {
 		$code = (string) $request->get_param( 'language' );
 		$row  = $this->languages->find_by_code( $code );
 		if ( null === $row ) {
-			return new WP_Error( 'aiml_language_not_found', __( 'Language not found.', 'ai-multilingual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'aiml_language_not_found', __( 'Language not found.', 'universal-multilingual' ), array( 'status' => 404 ) );
 		}
 
 		return $row;

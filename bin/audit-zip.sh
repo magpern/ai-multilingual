@@ -3,14 +3,14 @@
 # Audits a release ZIP produced by bin/build-zip.sh.
 #
 # Usage: bin/audit-zip.sh [path-to-zip]
-# Default: newest dist/ai-multilingual-*.zip
+# Default: newest dist/universal-multilingual-*.zip
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ZIP="${1:-}"
 
 if [ -z "$ZIP" ]; then
-    ZIP="$(ls -1t "$ROOT"/dist/ai-multilingual-*.zip 2>/dev/null | head -n1 || true)"
+    ZIP="$(ls -1t "$ROOT"/dist/universal-multilingual-*.zip 2>/dev/null | head -n1 || true)"
 fi
 
 if [ -z "$ZIP" ] || [ ! -f "$ZIP" ]; then
@@ -18,9 +18,9 @@ if [ -z "$ZIP" ] || [ ! -f "$ZIP" ]; then
     exit 1
 fi
 
-HEADER_VER="$(sed -n 's/^ \* Version: //p' "$ROOT/ai-multilingual.php" | tr -d '[:space:]')"
+HEADER_VER="$(sed -n 's/^ \* Version: //p' "$ROOT/universal-multilingual.php" | tr -d '[:space:]')"
 ZIP_BASENAME="$(basename "$ZIP")"
-EXPECTED_NAME="ai-multilingual-${HEADER_VER}.zip"
+EXPECTED_NAME="universal-multilingual-${HEADER_VER}.zip"
 
 python3 - "$ZIP" "$HEADER_VER" "$EXPECTED_NAME" <<'PY'
 import sys
@@ -36,16 +36,16 @@ if zip_path.name != expected_name:
     sys.exit(1)
 
 required = {
-    "ai-multilingual/ai-multilingual.php",
-    "ai-multilingual/uninstall.php",
-    "ai-multilingual/readme.txt",
-    "ai-multilingual/vendor/autoload.php",
-    "ai-multilingual/assets/block-editor.js",
-    "ai-multilingual/assets/glossary-admin/glossary-admin.js",
-    "ai-multilingual/assets/term-slug-admin/term-slug-admin.js",
-    "ai-multilingual/assets/translator-workspace/build/index.js",
-    "ai-multilingual/assets/translator-workspace/build/index.asset.php",
-    "ai-multilingual/src/Plugin.php",
+    "universal-multilingual/universal-multilingual.php",
+    "universal-multilingual/uninstall.php",
+    "universal-multilingual/readme.txt",
+    "universal-multilingual/vendor/autoload.php",
+    "universal-multilingual/assets/block-editor.js",
+    "universal-multilingual/assets/glossary-admin/glossary-admin.js",
+    "universal-multilingual/assets/term-slug-admin/term-slug-admin.js",
+    "universal-multilingual/assets/translator-workspace/build/index.js",
+    "universal-multilingual/assets/translator-workspace/build/index.asset.php",
+    "universal-multilingual/src/Plugin.php",
 }
 
 forbidden_substrings = (
@@ -71,18 +71,18 @@ forbidden_suffixes = (
 )
 
 dev_workspace_markers = (
-    "ai-multilingual/assets/translator-workspace/src/",
-    "ai-multilingual/assets/translator-workspace/package.json",
-    "ai-multilingual/assets/translator-workspace/package-lock.json",
-    "ai-multilingual/assets/translator-workspace/tsconfig.json",
+    "universal-multilingual/assets/translator-workspace/src/",
+    "universal-multilingual/assets/translator-workspace/package.json",
+    "universal-multilingual/assets/translator-workspace/package-lock.json",
+    "universal-multilingual/assets/translator-workspace/tsconfig.json",
 )
 
 with zipfile.ZipFile(zip_path) as zf:
     names = zf.namelist()
 
 tops = {n.split("/", 1)[0] for n in names if n}
-if tops != {"ai-multilingual"}:
-    print(f"FAIL: expected single top-level directory 'ai-multilingual', found {sorted(tops)}.", file=sys.stderr)
+if tops != {"universal-multilingual"}:
+    print(f"FAIL: expected single top-level directory 'universal-multilingual', found {sorted(tops)}.", file=sys.stderr)
     sys.exit(1)
 
 missing = sorted(required - set(names))
@@ -93,7 +93,7 @@ if missing:
     sys.exit(1)
 
 # Nested duplicate plugin directory.
-if any(n.startswith("ai-multilingual/ai-multilingual/") for n in names):
+if any(n.startswith("universal-multilingual/universal-multilingual/") for n in names):
     print("FAIL: nested duplicate plugin directory detected.", file=sys.stderr)
     sys.exit(1)
 
@@ -125,7 +125,7 @@ if violations:
 
 # Confirm plugin header version inside the zip matches the filename / source.
 with zipfile.ZipFile(zip_path) as zf:
-    bootstrap = zf.read("ai-multilingual/ai-multilingual.php").decode("utf-8", errors="replace")
+    bootstrap = zf.read("universal-multilingual/universal-multilingual.php").decode("utf-8", errors="replace")
 if f"* Version: {header_ver}" not in bootstrap and f"* Version: {header_ver}\n" not in bootstrap:
     # Allow flexible whitespace after Version:
     import re
@@ -138,6 +138,6 @@ if f"* Version: {header_ver}" not in bootstrap and f"* Version: {header_ver}\n" 
 size = zip_path.stat().st_size
 print(f"PASS: {zip_path.name} ({size} bytes, {len(names)} entries)")
 print(f"  version: {header_ver}")
-print(f"  top-level: ai-multilingual/")
+print(f"  top-level: universal-multilingual/")
 print("  required runtime paths present; no tests/docs/node_modules/dev workspace sources")
 PY

@@ -1146,7 +1146,7 @@ final class Store {
 		$segment_key = (string) ( $args['segment_key'] ?? $field_key );
 
 		if ( $source_id <= 0 || $language_id <= 0 || '' === $field_key ) {
-			return new WP_Error( 'aiml_invalid_segment', __( 'Incomplete segment reference.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_segment', __( 'Incomplete segment reference.', 'universal-multilingual' ) );
 		}
 
 		$format = (string) ( $args['text_format'] ?? self::FORMAT_PLAIN );
@@ -1291,7 +1291,7 @@ final class Store {
 	public function save_slug_candidate( array $args ) {
 		$origin = (string) ( $args['slug_origin'] ?? '' );
 		if ( ! in_array( $origin, array( '', 'generated', 'manual' ), true ) ) {
-			return new WP_Error( 'aiml_invalid_slug_origin', __( 'Invalid slug origin.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_slug_origin', __( 'Invalid slug origin.', 'universal-multilingual' ) );
 		}
 
 		$args['text_format'] = self::FORMAT_SLUG;
@@ -1305,7 +1305,7 @@ final class Store {
 		$segment_key = (string) $args['segment_key'];
 
 		if ( $source_id <= 0 || $language_id <= 0 || '' === $field_key ) {
-			return new WP_Error( 'aiml_invalid_segment', __( 'Incomplete segment reference.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_segment', __( 'Incomplete segment reference.', 'universal-multilingual' ) );
 		}
 
 		$status = (string) ( $args['status'] ?? self::STATUS_MANUALLY_EDITED );
@@ -1524,16 +1524,16 @@ final class Store {
 		}
 
 		if ( array() === $data ) {
-			return new WP_Error( 'aiml_invalid_review_fields', __( 'No review metadata fields provided.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_review_fields', __( 'No review metadata fields provided.', 'universal-multilingual' ) );
 		}
 
 		if ( isset( $data['review_status'] ) && ! in_array( (string) $data['review_status'], self::review_statuses(), true ) ) {
-			return new WP_Error( 'aiml_invalid_review_status', __( 'Unknown review status.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_review_status', __( 'Unknown review status.', 'universal-multilingual' ) );
 		}
 
 		$existing = $this->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $existing ) {
-			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'universal-multilingual' ) );
 		}
 
 		$data['updated_at'] = current_time( 'mysql', true );
@@ -1560,7 +1560,7 @@ final class Store {
 		);
 
 		if ( false === $result ) {
-			return new WP_Error( 'aiml_review_update_failed', __( 'Could not update review metadata.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_review_update_failed', __( 'Could not update review metadata.', 'universal-multilingual' ) );
 		}
 
 		$this->invalidate( $source_type, $source_id, $language_id );
@@ -1597,16 +1597,16 @@ final class Store {
 		}
 
 		if ( array() === $data ) {
-			return new WP_Error( 'aiml_invalid_publish_fields', __( 'No publication metadata fields provided.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_publish_fields', __( 'No publication metadata fields provided.', 'universal-multilingual' ) );
 		}
 
 		if ( isset( $data['publish_status'] ) && ! in_array( (string) $data['publish_status'], self::publish_statuses(), true ) ) {
-			return new WP_Error( 'aiml_invalid_publish_status', __( 'Unknown publish status.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_publish_status', __( 'Unknown publish status.', 'universal-multilingual' ) );
 		}
 
 		$existing = $this->get( $source_type, $source_id, $language_id, $segment_key );
 		if ( null === $existing ) {
-			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_segment_missing', __( 'Translation segment not found.', 'universal-multilingual' ) );
 		}
 
 		$data['updated_at'] = current_time( 'mysql', true );
@@ -1633,7 +1633,7 @@ final class Store {
 		);
 
 		if ( false === $result ) {
-			return new WP_Error( 'aiml_publish_update_failed', __( 'Could not update publication metadata.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_publish_update_failed', __( 'Could not update publication metadata.', 'universal-multilingual' ) );
 		}
 
 		$this->invalidate( $source_type, $source_id, $language_id );
@@ -2086,7 +2086,7 @@ final class Store {
 				} else {
 					return new WP_Error(
 						'aiml_term_authority_missing',
-						__( 'No translation row holds authority for this term field.', 'ai-multilingual' )
+						__( 'No translation row holds authority for this term field.', 'universal-multilingual' )
 					);
 				}
 
@@ -2129,11 +2129,11 @@ final class Store {
 		$language_id = (int) ( $hosted_row->language_id ?? 0 );
 
 		if ( self::SOURCE_TERM !== $target_type ) {
-			return new WP_Error( 'aiml_adopt_unsupported_identity', __( 'Only term identities can be adopted.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_adopt_unsupported_identity', __( 'Only term identities can be adopted.', 'universal-multilingual' ) );
 		}
 
 		if ( $target_id <= 0 || $language_id <= 0 || '' === $segment_key ) {
-			return new WP_Error( 'aiml_adopt_invalid_identity', __( 'Incomplete adoption identity.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_adopt_invalid_identity', __( 'Incomplete adoption identity.', 'universal-multilingual' ) );
 		}
 
 		$ref = array(
@@ -2164,7 +2164,7 @@ final class Store {
 				}
 
 				if ( null === $hosted ) {
-					return new WP_Error( 'aiml_adopt_hosted_missing', __( 'The hosted translation row no longer exists.', 'ai-multilingual' ) );
+					return new WP_Error( 'aiml_adopt_hosted_missing', __( 'The hosted translation row no longer exists.', 'universal-multilingual' ) );
 				}
 
 				$this->insert_raw( $this->adopt_column_map( $hosted, $native_identity, $source_text_resolver ) );
@@ -2179,7 +2179,7 @@ final class Store {
 				);
 
 				if ( null === $adopted ) {
-					return new WP_Error( 'aiml_adopt_insert_failed', __( 'Could not create the term translation row.', 'ai-multilingual' ) );
+					return new WP_Error( 'aiml_adopt_insert_failed', __( 'Could not create the term translation row.', 'universal-multilingual' ) );
 				}
 
 				$this->retire_hosted_compat_row( $hosted );
@@ -2210,7 +2210,7 @@ final class Store {
 		$native_segment_key = (string) ( $ref['native_segment_key'] ?? '' );
 
 		if ( $term_id <= 0 || $language_id <= 0 || '' === $native_segment_key ) {
-			return new WP_Error( 'aiml_invalid_term_ref', __( 'Incomplete term identity reference.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_term_ref', __( 'Incomplete term identity reference.', 'universal-multilingual' ) );
 		}
 
 		$hosted_segment_key = (string) ( $ref['hosted_segment_key'] ?? '' );

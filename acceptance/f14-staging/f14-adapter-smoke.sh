@@ -6,7 +6,7 @@ set -euo pipefail
 
 ROOT="/opt/biopentra/dev/ai-multilingual"
 WP="/opt/biopentra/apps/wordpress"
-HELPER="wp-content/plugins/ai-multilingual/acceptance/f14-staging/f14-helper.php"
+HELPER="wp-content/plugins/universal-multilingual/acceptance/f14-staging/f14-helper.php"
 BASE_URL="https://dev.biopentra.eu"
 KEY="${1:?block_key required}"
 EVIDENCE="${ROOT}/docs/plans/F14_ADMISSION_${KEY//-/_}_EVIDENCE.json"

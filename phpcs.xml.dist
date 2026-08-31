@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <ruleset name="AIMultilingual">
-	<description>Coding standards for the AI Multilingual plugin.</description>
+	<description>Coding standards for the Universal Multilingual plugin.</description>
 
-	<file>ai-multilingual.php</file>
+	<file>universal-multilingual.php</file>
 	<file>uninstall.php</file>
 	<file>src</file>
 	<file>tests</file>
@@ -33,7 +33,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="ai-multilingual"/>
+				<element value="universal-multilingual"/>
 			</property>
 		</properties>
 	</rule>

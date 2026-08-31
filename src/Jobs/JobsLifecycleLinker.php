@@ -145,7 +145,7 @@ final class JobsLifecycleLinker {
 				'code'    => 'ti6_no_exactly_once_claim',
 				'message' => __(
 					'Background Jobs do not claim exactly-once provider execution. Some retry or recovery paths may repeat a provider request even though translation persistence remains safe. This does not prove a duplicate charge occurred for this item.',
-					'ai-multilingual'
+					'universal-multilingual'
 				),
 			);
 		}

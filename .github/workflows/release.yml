@@ -22,7 +22,7 @@ jobs:
       - name: Verify tag matches plugin version
         run: |
           TAG="${GITHUB_REF_NAME#v}"
-          VER="$(sed -n 's/^ \* Version: //p' ai-multilingual.php | tr -d '[:space:]')"
+          VER="$(sed -n 's/^ \* Version: //p' universal-multilingual.php | tr -d '[:space:]')"
           if [ "$TAG" != "$VER" ]; then
             echo "Tag ${TAG} does not match plugin header version ${VER}." >&2
             exit 1
@@ -40,5 +40,5 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v3
         with:
-          files: dist/ai-multilingual-*.zip
+          files: dist/universal-multilingual-*.zip
           generate_release_notes: true

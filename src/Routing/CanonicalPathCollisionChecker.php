@@ -48,7 +48,7 @@ final class CanonicalPathCollisionChecker {
 			$same = (string) ( $route->source_type ?? '' ) === $source_type
 				&& (int) ( $route->source_id ?? 0 ) === $source_id;
 			if ( ! $same ) {
-				return new WP_Error( 'aiml_slug_route_collision', __( 'Localized path collides with another route.', 'ai-multilingual' ), array( 'status' => 409 ) );
+				return new WP_Error( 'aiml_slug_route_collision', __( 'Localized path collides with another route.', 'universal-multilingual' ), array( 'status' => 409 ) );
 			}
 		}
 
@@ -57,7 +57,7 @@ final class CanonicalPathCollisionChecker {
 			$same = (string) ( $hist->source_type ?? '' ) === $source_type
 				&& (int) ( $hist->source_id ?? 0 ) === $source_id;
 			if ( ! $same ) {
-				return new WP_Error( 'aiml_slug_history_collision', __( 'Localized path is reserved in history by another object.', 'ai-multilingual' ), array( 'status' => 409 ) );
+				return new WP_Error( 'aiml_slug_history_collision', __( 'Localized path is reserved in history by another object.', 'universal-multilingual' ), array( 'status' => 409 ) );
 			}
 		}
 
@@ -114,7 +114,7 @@ final class CanonicalPathCollisionChecker {
 			}
 		}
 
-		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'ai-multilingual' ), array( 'status' => 409 ) );
+		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'universal-multilingual' ), array( 'status' => 409 ) );
 	}
 
 	/**
@@ -167,6 +167,6 @@ final class CanonicalPathCollisionChecker {
 			return true;
 		}
 
-		return new WP_Error( 'aiml_slug_wp_collision', __( 'Localized path collides with a WordPress object.', 'ai-multilingual' ), array( 'status' => 409 ) );
+		return new WP_Error( 'aiml_slug_wp_collision', __( 'Localized path collides with a WordPress object.', 'universal-multilingual' ), array( 'status' => 409 ) );
 	}
 }

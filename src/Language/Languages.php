@@ -271,7 +271,7 @@ final class Languages {
 		if ( null !== $this->find_by_code( $clean['code'] ) ) {
 			return new WP_Error(
 				'aiml_duplicate_code',
-				__( 'A language with that code already exists.', 'ai-multilingual' )
+				__( 'A language with that code already exists.', 'universal-multilingual' )
 			);
 		}
 
@@ -297,7 +297,7 @@ final class Languages {
 		);
 
 		if ( ! $inserted ) {
-			return new WP_Error( 'aiml_insert_failed', __( 'Could not save the language.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_insert_failed', __( 'Could not save the language.', 'universal-multilingual' ) );
 		}
 
 		// Read the new id before flushing. Flushing writes a cache-version
@@ -320,7 +320,7 @@ final class Languages {
 	public function update( int $language_id, array $data ) {
 		$existing = $this->find( $language_id );
 		if ( null === $existing ) {
-			return new WP_Error( 'aiml_unknown_language', __( 'That language does not exist.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_unknown_language', __( 'That language does not exist.', 'universal-multilingual' ) );
 		}
 
 		$merged = array(
@@ -342,7 +342,7 @@ final class Languages {
 		if ( null !== $duplicate && (int) $duplicate->language_id !== $language_id ) {
 			return new WP_Error(
 				'aiml_duplicate_code',
-				__( 'A language with that code already exists.', 'ai-multilingual' )
+				__( 'A language with that code already exists.', 'universal-multilingual' )
 			);
 		}
 
@@ -355,7 +355,7 @@ final class Languages {
 				'aiml_invalid_transition',
 				sprintf(
 					/* translators: 1: current status, 2: requested status. */
-					__( 'A language cannot move directly from %1$s to %2$s.', 'ai-multilingual' ),
+					__( 'A language cannot move directly from %1$s to %2$s.', 'universal-multilingual' ),
 					(string) $existing->status,
 					$clean['status']
 				)
@@ -399,13 +399,13 @@ final class Languages {
 	public function delete( int $language_id ) {
 		$existing = $this->find( $language_id );
 		if ( null === $existing ) {
-			return new WP_Error( 'aiml_unknown_language', __( 'That language does not exist.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_unknown_language', __( 'That language does not exist.', 'universal-multilingual' ) );
 		}
 
 		if ( ! empty( $existing->is_default ) ) {
 			return new WP_Error(
 				'aiml_default_language',
-				__( 'The default language cannot be deleted.', 'ai-multilingual' )
+				__( 'The default language cannot be deleted.', 'universal-multilingual' )
 			);
 		}
 
@@ -493,7 +493,7 @@ final class Languages {
 		if ( ! self::is_valid_code( $code ) ) {
 			return new WP_Error(
 				'aiml_invalid_code',
-				__( 'Language code must be two lowercase letters, optionally followed by a region (for example sv or pt-br).', 'ai-multilingual' )
+				__( 'Language code must be two lowercase letters, optionally followed by a region (for example sv or pt-br).', 'universal-multilingual' )
 			);
 		}
 
@@ -501,18 +501,18 @@ final class Languages {
 		if ( ! self::is_valid_locale( $locale ) ) {
 			return new WP_Error(
 				'aiml_invalid_locale',
-				__( 'Locale must look like sv_SE.', 'ai-multilingual' )
+				__( 'Locale must look like sv_SE.', 'universal-multilingual' )
 			);
 		}
 
 		$name = trim( (string) ( $data['name'] ?? '' ) );
 		if ( '' === $name ) {
-			return new WP_Error( 'aiml_missing_name', __( 'Language name is required.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_missing_name', __( 'Language name is required.', 'universal-multilingual' ) );
 		}
 
 		$status = (string) ( $data['status'] ?? self::STATUS_PREVIEW );
 		if ( ! self::is_valid_status( $status ) ) {
-			return new WP_Error( 'aiml_invalid_status', __( 'Unknown language state.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_invalid_status', __( 'Unknown language state.', 'universal-multilingual' ) );
 		}
 
 		$direction = (string) ( $data['direction'] ?? 'ltr' );

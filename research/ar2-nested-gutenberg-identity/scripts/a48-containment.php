@@ -10,7 +10,7 @@
 require_once __DIR__ . '/lib-ar2.php';
 
 $plugin_main_candidates = array(
-	dirname( ar2_root(), 2 ) . '/ai-multilingual.php',
+	dirname( ar2_root(), 2 ) . '/universal-multilingual.php',
 	dirname( ar2_root(), 2 ) . '/plugin.php',
 	dirname( ar2_root(), 2 ) . '/src/Plugin.php',
 );

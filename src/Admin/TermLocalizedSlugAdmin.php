@@ -90,20 +90,20 @@ final class TermLocalizedSlugAdmin {
 				'taxonomy'      => (string) $screen->taxonomy,
 				'languages'     => $langs,
 				'i18n'          => array(
-					'title'         => __( 'Localized URL slug', 'ai-multilingual' ),
-					'language'      => __( 'Language', 'ai-multilingual' ),
-					'candidate'     => __( 'Slug candidate', 'ai-multilingual' ),
-					'origin'        => __( 'Origin', 'ai-multilingual' ),
-					'effective'     => __( 'Effective localized path', 'ai-multilingual' ),
-					'sync'          => __( 'Sync state', 'ai-multilingual' ),
-					'generate'      => __( 'Generate', 'ai-multilingual' ),
-					'save'          => __( 'Save candidate', 'ai-multilingual' ),
-					'clear'         => __( 'Clear', 'ai-multilingual' ),
-					'publish'       => __( 'Publish route', 'ai-multilingual' ),
-					'refresh'       => __( 'Refresh', 'ai-multilingual' ),
-					'collisionHelp' => __( 'That path collides with another route. Edit the candidate, clear it, or try a different slug, then publish again.', 'ai-multilingual' ),
-					'loadError'     => __( 'Could not load localized slug state.', 'ai-multilingual' ),
-					'blocked'       => __( 'Publication blocked', 'ai-multilingual' ),
+					'title'         => __( 'Localized URL slug', 'universal-multilingual' ),
+					'language'      => __( 'Language', 'universal-multilingual' ),
+					'candidate'     => __( 'Slug candidate', 'universal-multilingual' ),
+					'origin'        => __( 'Origin', 'universal-multilingual' ),
+					'effective'     => __( 'Effective localized path', 'universal-multilingual' ),
+					'sync'          => __( 'Sync state', 'universal-multilingual' ),
+					'generate'      => __( 'Generate', 'universal-multilingual' ),
+					'save'          => __( 'Save candidate', 'universal-multilingual' ),
+					'clear'         => __( 'Clear', 'universal-multilingual' ),
+					'publish'       => __( 'Publish route', 'universal-multilingual' ),
+					'refresh'       => __( 'Refresh', 'universal-multilingual' ),
+					'collisionHelp' => __( 'That path collides with another route. Edit the candidate, clear it, or try a different slug, then publish again.', 'universal-multilingual' ),
+					'loadError'     => __( 'Could not load localized slug state.', 'universal-multilingual' ),
+					'blocked'       => __( 'Publication blocked', 'universal-multilingual' ),
 				),
 			)
 		);
@@ -118,8 +118,8 @@ final class TermLocalizedSlugAdmin {
 		if ( ! current_user_can( Plugin::CAP_TRANSLATE ) ) {
 			return;
 		}
-		echo '<tr class="form-field aiml-term-slug-row"><th scope="row"><label>' . esc_html__( 'Localized URLs', 'ai-multilingual' ) . '</label></th>';
+		echo '<tr class="form-field aiml-term-slug-row"><th scope="row"><label>' . esc_html__( 'Localized URLs', 'universal-multilingual' ) . '</label></th>';
 		echo '<td><div id="aiml-term-slug-panel" data-term-id="' . esc_attr( (string) (int) $term->term_id ) . '"></div>';
-		echo '<p class="description">' . esc_html__( 'Prepare and publish a localized archive slug for this term without using REST tools.', 'ai-multilingual' ) . '</p></td></tr>';
+		echo '<p class="description">' . esc_html__( 'Prepare and publish a localized archive slug for this term without using REST tools.', 'universal-multilingual' ) . '</p></td></tr>';
 	}
 }

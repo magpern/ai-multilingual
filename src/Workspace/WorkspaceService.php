@@ -359,7 +359,7 @@ final class WorkspaceService {
 	public function get_operation( int $translation_id ) {
 		$row = $this->store->get_by_translation_id( $translation_id );
 		if ( null === $row ) {
-			return new WP_Error( 'aiml_translation_missing', __( 'Translation not found.', 'ai-multilingual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'aiml_translation_missing', __( 'Translation not found.', 'universal-multilingual' ), array( 'status' => 404 ) );
 		}
 
 		return $this->operator()->assemble_detail( $row );
@@ -954,7 +954,7 @@ final class WorkspaceService {
 		if ( null === $this->publication ) {
 			return new WP_Error(
 				'aiml_publication_unavailable',
-				__( 'Publication service is not available.', 'ai-multilingual' ),
+				__( 'Publication service is not available.', 'universal-multilingual' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -990,7 +990,7 @@ final class WorkspaceService {
 	public function generate_slug_candidate( WP_Post $post, int $language_id ) {
 		$this->assert_supported_post( $post );
 		if ( null === $this->slug_candidates || null === $this->route_publication ) {
-			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'universal-multilingual' ), array( 'status' => 503 ) );
 		}
 		$row = $this->slug_candidates->generate( $post, $language_id );
 		if ( $row instanceof WP_Error ) {
@@ -1011,7 +1011,7 @@ final class WorkspaceService {
 	public function save_slug_candidate( WP_Post $post, int $language_id, string $candidate ) {
 		$this->assert_supported_post( $post );
 		if ( null === $this->slug_candidates || null === $this->route_publication ) {
-			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'universal-multilingual' ), array( 'status' => 503 ) );
 		}
 		$row = $this->slug_candidates->save_manual( $post, $language_id, $candidate );
 		if ( $row instanceof WP_Error ) {
@@ -1031,7 +1031,7 @@ final class WorkspaceService {
 	public function clear_slug_candidate( WP_Post $post, int $language_id ) {
 		$this->assert_supported_post( $post );
 		if ( null === $this->slug_candidates || null === $this->route_publication ) {
-			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'universal-multilingual' ), array( 'status' => 503 ) );
 		}
 		$row = $this->slug_candidates->clear( $post, $language_id );
 		if ( $row instanceof WP_Error ) {
@@ -1052,7 +1052,7 @@ final class WorkspaceService {
 	public function publish_prepared_route( WP_Post $post, int $language_id, int $user_id = 0 ) {
 		$this->assert_supported_post( $post );
 		if ( null === $this->route_publication ) {
-			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'universal-multilingual' ), array( 'status' => 503 ) );
 		}
 
 		return $this->route_publication->publish_route( $post, $language_id, $user_id );
@@ -1068,7 +1068,7 @@ final class WorkspaceService {
 	public function slug_route_view( WP_Post $post, int $language_id ) {
 		$this->assert_supported_post( $post );
 		if ( null === $this->route_publication ) {
-			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'ai-multilingual' ), array( 'status' => 503 ) );
+			return new WP_Error( 'aiml_slug_unavailable', __( 'Slug services are not available.', 'universal-multilingual' ), array( 'status' => 503 ) );
 		}
 
 		return $this->route_publication->sync_view( $post, $language_id );
@@ -1094,7 +1094,7 @@ final class WorkspaceService {
 		if ( null === $this->publication ) {
 			return new WP_Error(
 				'aiml_publication_unavailable',
-				__( 'Publication service is not available.', 'ai-multilingual' ),
+				__( 'Publication service is not available.', 'universal-multilingual' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -1137,7 +1137,7 @@ final class WorkspaceService {
 		if ( null === $this->publication ) {
 			return new WP_Error(
 				'aiml_publication_unavailable',
-				__( 'Publication service is not available.', 'ai-multilingual' ),
+				__( 'Publication service is not available.', 'universal-multilingual' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -1195,7 +1195,7 @@ final class WorkspaceService {
 			if ( null === $language ) {
 				return new WP_Error(
 					'aiml_invalid_language',
-					__( 'Unknown language code.', 'ai-multilingual' ),
+					__( 'Unknown language code.', 'universal-multilingual' ),
 					array( 'status' => 404 )
 				);
 			}
@@ -1225,7 +1225,7 @@ final class WorkspaceService {
 		if ( null === $language ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language code.', 'ai-multilingual' ),
+				__( 'Unknown language code.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -1258,7 +1258,7 @@ final class WorkspaceService {
 		if ( ! $post instanceof WP_Post ) {
 			return new WP_Error(
 				'aiml_post_not_found',
-				__( 'Post not found.', 'ai-multilingual' ),
+				__( 'Post not found.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -1266,7 +1266,7 @@ final class WorkspaceService {
 		if ( ! in_array( $post->post_type, $this->workspace_post_types(), true ) ) {
 			return new WP_Error(
 				'aiml_post_type_unsupported',
-				__( 'This post type is not supported in the workspace.', 'ai-multilingual' ),
+				__( 'This post type is not supported in the workspace.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -1740,12 +1740,12 @@ final class WorkspaceService {
 		}
 
 		if ( '' === trim( $title ) ) {
-			$title = __( '(untitled menu item)', 'ai-multilingual' );
+			$title = __( '(untitled menu item)', 'universal-multilingual' );
 		}
 
 		return sprintf(
 			/* translators: %s: navigation menu item title */
-			__( 'Menu item: %s', 'ai-multilingual' ),
+			__( 'Menu item: %s', 'universal-multilingual' ),
 			$title
 		);
 	}

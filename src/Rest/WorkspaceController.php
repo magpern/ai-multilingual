@@ -824,7 +824,7 @@ final class WorkspaceController {
 		if ( ! array_key_exists( 'expected_translation_hash', $params ) ) {
 			return new WP_Error(
 				'aiml_invalid_segment',
-				__( 'expected_translation_hash is required.', 'ai-multilingual' ),
+				__( 'expected_translation_hash is required.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -1479,7 +1479,7 @@ final class WorkspaceController {
 		if ( '' === $language ) {
 			return new WP_Error(
 				'aiml_missing_language',
-				__( 'language is required.', 'ai-multilingual' ),
+				__( 'language is required.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -1568,7 +1568,7 @@ final class WorkspaceController {
 		if ( '' === $language ) {
 			return new WP_Error(
 				'aiml_missing_language',
-				__( 'language is required.', 'ai-multilingual' ),
+				__( 'language is required.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -1717,7 +1717,7 @@ final class WorkspaceController {
 		if ( ! current_user_can( Plugin::CAPABILITY ) ) {
 			return new WP_Error(
 				'aiml_forbidden',
-				__( 'You do not have permission to access the translator workspace.', 'ai-multilingual' ),
+				__( 'You do not have permission to access the translator workspace.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -1741,7 +1741,7 @@ final class WorkspaceController {
 		if ( $post_id <= 0 ) {
 			return new WP_Error(
 				'aiml_invalid_post',
-				__( 'Invalid post id.', 'ai-multilingual' ),
+				__( 'Invalid post id.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -1749,7 +1749,7 @@ final class WorkspaceController {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error(
 				'aiml_forbidden',
-				__( 'You do not have permission to edit this post.', 'ai-multilingual' ),
+				__( 'You do not have permission to edit this post.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -1767,7 +1767,7 @@ final class WorkspaceController {
 		if ( ! current_user_can( ReviewCapabilities::REVIEW_TRANSLATIONS ) ) {
 			return new WP_Error(
 				'aiml_forbidden',
-				__( 'You do not have permission to review translations.', 'ai-multilingual' ),
+				__( 'You do not have permission to review translations.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -1776,7 +1776,7 @@ final class WorkspaceController {
 		if ( $post_id <= 0 ) {
 			return new WP_Error(
 				'aiml_invalid_post',
-				__( 'Invalid post id.', 'ai-multilingual' ),
+				__( 'Invalid post id.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -1784,7 +1784,7 @@ final class WorkspaceController {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error(
 				'aiml_forbidden',
-				__( 'You do not have permission to edit this post.', 'ai-multilingual' ),
+				__( 'You do not have permission to edit this post.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -1804,7 +1804,7 @@ final class WorkspaceController {
 
 		return new WP_Error(
 			'aiml_forbidden',
-			__( 'You do not have permission to view the review queue.', 'ai-multilingual' ),
+			__( 'You do not have permission to view the review queue.', 'universal-multilingual' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -1821,7 +1821,7 @@ final class WorkspaceController {
 
 		return new WP_Error(
 			'aiml_forbidden',
-			__( 'You do not have permission to access translation operations.', 'ai-multilingual' ),
+			__( 'You do not have permission to access translation operations.', 'universal-multilingual' ),
 			array( 'status' => 403 )
 		);
 	}
@@ -1851,7 +1851,7 @@ final class WorkspaceController {
 
 		return new WP_Error(
 			'aiml_invalid_review_action',
-			__( 'Unknown batch review action.', 'ai-multilingual' ),
+			__( 'Unknown batch review action.', 'universal-multilingual' ),
 			array( 'status' => 422 )
 		);
 	}
@@ -1955,7 +1955,7 @@ final class WorkspaceController {
 		if ( null === $language ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language code.', 'ai-multilingual' ),
+				__( 'Unknown language code.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}

@@ -86,7 +86,7 @@ final class ReviewBatchCoordinator {
 		if ( ! in_array( $action, self::actions(), true ) ) {
 			return new WP_Error(
 				'aiml_invalid_review_action',
-				__( 'Unknown batch review action.', 'ai-multilingual' ),
+				__( 'Unknown batch review action.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -96,7 +96,7 @@ final class ReviewBatchCoordinator {
 				'aiml_batch_too_large',
 				sprintf(
 					/* translators: %d: maximum batch size */
-					__( 'Batch size exceeds the limit of %d segments.', 'ai-multilingual' ),
+					__( 'Batch size exceeds the limit of %d segments.', 'universal-multilingual' ),
 					self::BATCH_LIMIT
 				),
 				array( 'status' => 422 )
@@ -114,7 +114,7 @@ final class ReviewBatchCoordinator {
 				$failed[] = array(
 					'segment_key' => '',
 					'code'        => 'aiml_invalid_segment',
-					'message'     => __( 'Segment key is required.', 'ai-multilingual' ),
+					'message'     => __( 'Segment key is required.', 'universal-multilingual' ),
 				);
 				continue;
 			}

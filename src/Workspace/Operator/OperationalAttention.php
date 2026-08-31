@@ -78,7 +78,7 @@ final class OperationalAttention {
 		if ( ! self::is_reason_id( $preset ) ) {
 			return new WP_Error(
 				'aiml_invalid_attention',
-				__( 'Invalid attention preset.', 'ai-multilingual' ),
+				__( 'Invalid attention preset.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -91,7 +91,7 @@ final class OperationalAttention {
 			self::ID_TRANSLATION_FAILED => array( 'status' => Store::STATUS_FAILED ),
 			default => new WP_Error(
 				'aiml_invalid_attention',
-				__( 'Invalid attention preset.', 'ai-multilingual' ),
+				__( 'Invalid attention preset.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			),
 		};

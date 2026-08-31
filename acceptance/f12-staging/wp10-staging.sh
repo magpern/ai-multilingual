@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="/opt/biopentra/dev/ai-multilingual"
 WP="/opt/biopentra/apps/wordpress"
 EVIDENCE="${ROOT}/docs/plans/F12_WP10_STAGING_EVIDENCE.json"
-HELPER="wp-content/plugins/ai-multilingual/acceptance/f12-staging/wp10-helper.php"
+HELPER="wp-content/plugins/universal-multilingual/acceptance/f12-staging/wp10-helper.php"
 BASE_URL="https://dev.biopentra.eu"
 SLUG="f12-staging-rollout-test"
 SOURCE_TEXT="F12 Source Hello"

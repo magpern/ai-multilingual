@@ -51,7 +51,7 @@ final class TermAdoptionService {
 		if ( ! AdmittedTaxonomies::admits( $taxonomy ) ) {
 			return new WP_Error(
 				'aiml_term_not_admitted',
-				__( 'This taxonomy does not carry term translations.', 'ai-multilingual' )
+				__( 'This taxonomy does not carry term translations.', 'universal-multilingual' )
 			);
 		}
 
@@ -60,7 +60,7 @@ final class TermAdoptionService {
 		if ( null === $ref ) {
 			return new WP_Error(
 				'aiml_term_adopt_unsupported_field',
-				__( 'This term field cannot be translated.', 'ai-multilingual' )
+				__( 'This term field cannot be translated.', 'universal-multilingual' )
 			);
 		}
 
@@ -87,7 +87,7 @@ final class TermAdoptionService {
 
 		return new WP_Error(
 			'aiml_term_adopt_nothing_to_adopt',
-			__( 'This term field has no stored translation yet.', 'ai-multilingual' )
+			__( 'This term field has no stored translation yet.', 'universal-multilingual' )
 		);
 	}
 

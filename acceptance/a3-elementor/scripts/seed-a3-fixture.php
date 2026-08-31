@@ -2,7 +2,7 @@
 /**
  * A.3 acceptance fixture: Accordion/Toggle/Image/Icon List/CTA + A.2 controls + SV overlays.
  *
- * Usage: wp eval-file wp-content/plugins/ai-multilingual/acceptance/a3-elementor/scripts/seed-a3-fixture.php
+ * Usage: wp eval-file wp-content/plugins/universal-multilingual/acceptance/a3-elementor/scripts/seed-a3-fixture.php
  *
  * @package AIMultilingual
  */

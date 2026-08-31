@@ -65,6 +65,6 @@ if [ ! -d "$PLUGINS_DIR/woocommerce" ]; then
     rm -f "$tmpzip"
 fi
 
-ln -sfn "$ROOT" "$PLUGINS_DIR/ai-multilingual"
+ln -sfn "$ROOT" "$PLUGINS_DIR/universal-multilingual"
 
 echo "WordPress core ready: $CORE_DIR"

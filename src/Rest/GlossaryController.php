@@ -161,7 +161,7 @@ final class GlossaryController {
 
 		return new WP_Error(
 			'aiml_forbidden',
-			__( 'You do not have permission to manage the glossary.', 'ai-multilingual' ),
+			__( 'You do not have permission to manage the glossary.', 'universal-multilingual' ),
 			array( 'status' => 403 )
 		);
 	}

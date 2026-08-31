@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: AI Multilingual
- * Plugin URI: https://github.com/magpern/ai-multilingual
+ * Plugin Name: Universal Multilingual
+ * Plugin URI: https://github.com/magpern/universal-multilingual
  * Description: Multilingual layer for WordPress and WooCommerce. One canonical object per content item; translations are stored as stable segments and applied as presentation overlays at render time.
- * Version: 1.8.0
+ * Version: 1.9.0
  * Author: magpern
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: ai-multilingual
+ * Text Domain: universal-multilingual
  * Requires at least: 6.5
  * Requires PHP: 8.1
  *
@@ -20,7 +20,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AIML_VERSION', '1.8.0' );
+define( 'AIML_VERSION', '1.9.0' );
 define( 'AIML_PLUGIN_FILE', __FILE__ );
 
 // PHP version guard. The "Requires PHP" header stops activation on WP 5.1+,
@@ -31,7 +31,7 @@ if ( version_compare( PHP_VERSION, '8.1', '<' ) ) {
 		function () {
 			printf(
 				'<div class="notice notice-error"><p>%s</p></div>',
-				esc_html__( 'AI Multilingual requires PHP 8.1 or newer and is inactive.', 'ai-multilingual' )
+				esc_html__( 'Universal Multilingual requires PHP 8.1 or newer and is inactive.', 'universal-multilingual' )
 			);
 		}
 	);

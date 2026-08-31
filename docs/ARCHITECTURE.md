@@ -124,7 +124,7 @@ alone must be sufficient to determine the rendered language — see ADR-0024.
 ## Component map
 
 ```
-ai-multilingual.php     Loader: guards, constants, activation hook, boot
+universal-multilingual.php  Loader: guards, constants, activation hook, boot
 uninstall.php           No-op unless retention is switched off
 src/
   Plugin.php            Composition root; also wires stale detection

@@ -2,7 +2,7 @@
 /**
  * F13 performance baseline capture (policy + GA path) — staging evidence only.
  *
- * Run: wp --user=1 eval-file wp-content/plugins/ai-multilingual/acceptance/f13-staging/f13-performance.php
+ * Run: wp --user=1 eval-file wp-content/plugins/universal-multilingual/acceptance/f13-staging/f13-performance.php
  *
  * @package AIMultilingual
  */

@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 WP="/opt/biopentra/apps/wordpress"
-SCRIPT_REL="wp-content/plugins/ai-multilingual/research/ar1-elementor-identity/scripts"
+SCRIPT_REL="wp-content/plugins/universal-multilingual/research/ar1-elementor-identity/scripts"
 
 run() {
   local name="$1"

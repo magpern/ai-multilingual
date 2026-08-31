@@ -9,11 +9,11 @@
 
 $checks = array();
 
-$plugin_main = WP_PLUGIN_DIR . '/ai-multilingual/ai-multilingual.php';
-$plugin_src  = WP_PLUGIN_DIR . '/ai-multilingual/src/Plugin.php';
+$plugin_main = WP_PLUGIN_DIR . '/universal-multilingual/universal-multilingual.php';
+$plugin_src  = WP_PLUGIN_DIR . '/universal-multilingual/src/Plugin.php';
 
-$checks['research_dir_exists'] = is_dir( WP_PLUGIN_DIR . '/ai-multilingual/research/ar1-elementor-identity' );
-$checks['acceptance_dir_exists'] = is_dir( WP_PLUGIN_DIR . '/ai-multilingual/acceptance/ar1-elementor' );
+$checks['research_dir_exists'] = is_dir( WP_PLUGIN_DIR . '/universal-multilingual/research/ar1-elementor-identity' );
+$checks['acceptance_dir_exists'] = is_dir( WP_PLUGIN_DIR . '/universal-multilingual/acceptance/ar1-elementor' );
 
 // Ensure Plugin.php does not reference ar1 research paths.
 $plugin_php = is_readable( $plugin_src ) ? (string) file_get_contents( $plugin_src ) : '';
@@ -32,7 +32,7 @@ foreach ( rest_get_server()->get_routes() as $route => $_ ) {
 	}
 }
 
-$checks['scripts_marked_experimental'] = is_readable( WP_PLUGIN_DIR . '/ai-multilingual/research/ar1-elementor-identity/README.md' );
+$checks['scripts_marked_experimental'] = is_readable( WP_PLUGIN_DIR . '/universal-multilingual/research/ar1-elementor-identity/README.md' );
 $checks['no_schema_migration_in_research'] = true; // research scripts do not call dbDelta / SchemaMigrator.
 
 $zip_policy = 'Research and acceptance/ar1-elementor paths must be excluded from production Release ZIPs (verify in packaging scripts before any release that includes this branch).';
@@ -46,7 +46,7 @@ $out = array(
 	'confidence'  => 'proven by experiment',
 );
 
-$evidence = WP_PLUGIN_DIR . '/ai-multilingual/research/ar1-elementor-identity/evidence/er7-containment-audit.json';
+$evidence = WP_PLUGIN_DIR . '/universal-multilingual/research/ar1-elementor-identity/evidence/er7-containment-audit.json';
 file_put_contents( $evidence, wp_json_encode( $out, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n" );
 
 if ( class_exists( 'WP_CLI' ) ) {

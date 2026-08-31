@@ -145,12 +145,12 @@ final class OperatorTranslationAssembler {
 	public function assemble_detail( object $row ) {
 		$post = $this->post_for_row( $row );
 		if ( Store::SOURCE_POST === (string) $row->source_type && ! ( $post instanceof WP_Post ) ) {
-			return new WP_Error( 'aiml_source_missing', __( 'Source object not found.', 'ai-multilingual' ), array( 'status' => 404 ) );
+			return new WP_Error( 'aiml_source_missing', __( 'Source object not found.', 'universal-multilingual' ), array( 'status' => 404 ) );
 		}
 
 		$caps = AllowedActionsResolver::capability_flags( null, $post, $row );
 		if ( empty( $caps['can_edit_source'] ) ) {
-			return new WP_Error( 'aiml_forbidden', __( 'You cannot access this translation.', 'ai-multilingual' ), array( 'status' => 403 ) );
+			return new WP_Error( 'aiml_forbidden', __( 'You cannot access this translation.', 'universal-multilingual' ), array( 'status' => 403 ) );
 		}
 
 		$links   = $this->links_for_row( $row, $post, true );

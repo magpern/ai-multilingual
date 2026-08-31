@@ -1,5 +1,5 @@
 {
-    "name": "magpern/ai-multilingual",
+    "name": "magpern/universal-multilingual",
     "description": "Multilingual translation layer for WordPress and WooCommerce. One canonical object per content item; translations are presentation overlays stored as stable segments.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",

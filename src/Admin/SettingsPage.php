@@ -147,8 +147,8 @@ final class SettingsPage {
 	 */
 	public function add_menus(): void {
 		add_menu_page(
-			__( 'AI Multilingual', 'ai-multilingual' ),
-			__( 'Multilingual', 'ai-multilingual' ),
+			__( 'Universal Multilingual', 'universal-multilingual' ),
+			__( 'Multilingual', 'universal-multilingual' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render_languages' ),
@@ -158,8 +158,8 @@ final class SettingsPage {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Languages', 'ai-multilingual' ),
-			__( 'Languages', 'ai-multilingual' ),
+			__( 'Languages', 'universal-multilingual' ),
+			__( 'Languages', 'universal-multilingual' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render_languages' )
@@ -167,8 +167,8 @@ final class SettingsPage {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Settings', 'ai-multilingual' ),
-			__( 'Settings', 'ai-multilingual' ),
+			__( 'Settings', 'universal-multilingual' ),
+			__( 'Settings', 'universal-multilingual' ),
 			'manage_options',
 			self::SETTINGS_SLUG,
 			array( $this, 'render_settings' )
@@ -269,7 +269,7 @@ final class SettingsPage {
 	 */
 	public function render_languages(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage languages.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to manage languages.', 'universal-multilingual' ) );
 		}
 
 		$languages = $this->languages->all();
@@ -282,18 +282,18 @@ final class SettingsPage {
 		}
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'Languages', 'ai-multilingual' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Languages', 'universal-multilingual' ) . '</h1>';
 
 		$this->render_notice();
 
 		echo '<table class="widefat striped" style="margin-bottom:2em;">';
 		echo '<thead><tr>';
-		echo '<th>' . esc_html__( 'Code', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Locale', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Name', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'State', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Default', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Actions', 'ai-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Code', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Locale', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Name', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'State', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Default', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Actions', 'universal-multilingual' ) . '</th>';
 		echo '</tr></thead><tbody>';
 
 		foreach ( $languages as $language ) {
@@ -316,7 +316,7 @@ final class SettingsPage {
 						admin_url( 'admin.php' )
 					)
 				),
-				esc_html__( 'Edit', 'ai-multilingual' )
+				esc_html__( 'Edit', 'universal-multilingual' )
 			);
 
 			if ( ! $language->is_default ) {
@@ -335,8 +335,8 @@ final class SettingsPage {
 							'aiml_delete_language_' . (int) $language->language_id
 						)
 					),
-					esc_js( __( 'Delete this language? Its translations are kept.', 'ai-multilingual' ) ),
-					esc_html__( 'Delete', 'ai-multilingual' )
+					esc_js( __( 'Delete this language? Its translations are kept.', 'universal-multilingual' ) ),
+					esc_html__( 'Delete', 'universal-multilingual' )
 				);
 			}
 
@@ -355,13 +355,13 @@ final class SettingsPage {
 	 */
 	public function render_settings(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to change these settings.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'universal-multilingual' ) );
 		}
 
 		$current = $this->settings->get();
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'AI Multilingual Settings', 'ai-multilingual' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Universal Multilingual Settings', 'universal-multilingual' ) . '</h1>';
 		$this->render_notice();
 		echo '<form method="post" action="' . esc_url( admin_url( 'options.php' ) ) . '">';
 
@@ -371,29 +371,29 @@ final class SettingsPage {
 
 		$this->checkbox_row(
 			'switcher_show_native_name',
-			__( 'Native language names', 'ai-multilingual' ),
-			__( 'Show each language in its own name (Svenska) rather than in English (Swedish).', 'ai-multilingual' ),
+			__( 'Native language names', 'universal-multilingual' ),
+			__( 'Show each language in its own name (Svenska) rather than in English (Swedish).', 'universal-multilingual' ),
 			(bool) $current['switcher_show_native_name']
 		);
 
 		$this->checkbox_row(
 			'switcher_hide_current',
-			__( 'Hide current language', 'ai-multilingual' ),
-			__( 'Omit the language being viewed from the switcher.', 'ai-multilingual' ),
+			__( 'Hide current language', 'universal-multilingual' ),
+			__( 'Omit the language being viewed from the switcher.', 'universal-multilingual' ),
 			(bool) $current['switcher_hide_current']
 		);
 
 		$this->checkbox_row(
 			'remove_data_on_uninstall',
-			__( 'Delete all data on uninstall', 'ai-multilingual' ),
-			__( 'When the plugin is deleted, drop its tables and remove every translation. Off by default: deactivating or deleting the plugin keeps all translation work so a reinstall resumes where it left off.', 'ai-multilingual' ),
+			__( 'Delete all data on uninstall', 'universal-multilingual' ),
+			__( 'When the plugin is deleted, drop its tables and remove every translation. Off by default: deactivating or deleting the plugin keeps all translation work so a reinstall resumes where it left off.', 'universal-multilingual' ),
 			(bool) $current['remove_data_on_uninstall']
 		);
 
 		$this->checkbox_row(
 			'qa_block_on_error',
-			__( 'Block saves on QA errors', 'ai-multilingual' ),
-			__( 'When enabled, workspace saves that fail structural quality checks (placeholders, empty translation, HTML tags) are rejected. Warnings never block saves.', 'ai-multilingual' ),
+			__( 'Block saves on QA errors', 'universal-multilingual' ),
+			__( 'When enabled, workspace saves that fail structural quality checks (placeholders, empty translation, HTML tags) are rejected. Warnings never block saves.', 'universal-multilingual' ),
 			(bool) ( $current['qa_block_on_error'] ?? true )
 		);
 
@@ -420,34 +420,34 @@ final class SettingsPage {
 	private function render_ai_provider_settings( array $current ): void {
 		$has_key = '' !== (string) ( $current['ai_api_key_encrypted'] ?? '' );
 
-		echo '<h2>' . esc_html__( 'Automatic translation', 'ai-multilingual' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Configure a provider for automatic translation and AI suggestions. API keys are encrypted at rest and never sent to the browser or translator workspace JavaScript.', 'ai-multilingual' ) . '</p>';
+		echo '<h2>' . esc_html__( 'Automatic translation', 'universal-multilingual' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Configure a provider for automatic translation and AI suggestions. API keys are encrypted at rest and never sent to the browser or translator workspace JavaScript.', 'universal-multilingual' ) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
 
 		$this->checkbox_row(
 			'ai_enabled',
-			__( 'Enable AI provider', 'ai-multilingual' ),
-			__( 'When enabled and a provider is selected with a valid API key, workspace auto-translate and AI suggest use that provider.', 'ai-multilingual' ),
+			__( 'Enable AI provider', 'universal-multilingual' ),
+			__( 'When enabled and a provider is selected with a valid API key, workspace auto-translate and AI suggest use that provider.', 'universal-multilingual' ),
 			(bool) ( $current['ai_enabled'] ?? false )
 		);
 
 		$provider = (string) ( $current['ai_provider'] ?? '' );
-		echo '<tr><th scope="row"><label for="aiml_ai_provider">' . esc_html__( 'Provider', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml_ai_provider">' . esc_html__( 'Provider', 'universal-multilingual' ) . '</label></th><td>';
 		echo '<select name="' . esc_attr( Settings::OPTION . '[ai_provider]' ) . '" id="aiml_ai_provider">';
-		echo '<option value=""' . selected( $provider, '', false ) . '>' . esc_html__( 'None', 'ai-multilingual' ) . '</option>';
-		echo '<option value="openai"' . selected( $provider, 'openai', false ) . '>' . esc_html__( 'OpenAI', 'ai-multilingual' ) . '</option>';
+		echo '<option value=""' . selected( $provider, '', false ) . '>' . esc_html__( 'None', 'universal-multilingual' ) . '</option>';
+		echo '<option value="openai"' . selected( $provider, 'openai', false ) . '>' . esc_html__( 'OpenAI', 'universal-multilingual' ) . '</option>';
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Additional providers can be registered without changing workspace services.', 'ai-multilingual' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Additional providers can be registered without changing workspace services.', 'universal-multilingual' ) . '</p>';
 		echo '</td></tr>';
 
-		echo '<tr><th scope="row"><label for="aiml_ai_model">' . esc_html__( 'Model', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml_ai_model">' . esc_html__( 'Model', 'universal-multilingual' ) . '</label></th><td>';
 		echo '<input name="' . esc_attr( Settings::OPTION . '[ai_model]' ) . '" type="text" id="aiml_ai_model" value="' . esc_attr( (string) ( $current['ai_model'] ?? '' ) ) . '" class="regular-text" />';
-		echo '<p class="description">' . esc_html__( 'Optional model id (for example gpt-4o-mini). Leave blank for the provider default.', 'ai-multilingual' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Optional model id (for example gpt-4o-mini). Leave blank for the provider default.', 'universal-multilingual' ) . '</p>';
 		echo '</td></tr>';
 
-		echo '<tr><th scope="row"><label for="aiml_ai_api_key">' . esc_html__( 'API key', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml_ai_api_key">' . esc_html__( 'API key', 'universal-multilingual' ) . '</label></th><td>';
 		echo '<input name="' . esc_attr( Settings::OPTION . '[ai_api_key]' ) . '" type="password" id="aiml_ai_api_key" value="' . esc_attr( $has_key ? '********' : '' ) . '" class="regular-text" autocomplete="new-password" />';
-		echo '<p class="description">' . esc_html__( 'Leave as dots to keep the existing key. Clear and save to remove. Never exposed to JavaScript.', 'ai-multilingual' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Leave as dots to keep the existing key. Clear and save to remove. Never exposed to JavaScript.', 'universal-multilingual' ) . '</p>';
 		echo '</td></tr>';
 
 		echo '</tbody></table>';
@@ -460,7 +460,7 @@ final class SettingsPage {
 	 */
 	public function handle_save_language(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage languages.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to manage languages.', 'universal-multilingual' ) );
 		}
 
 		check_admin_referer( 'aiml_save_language' );
@@ -489,7 +489,7 @@ final class SettingsPage {
 	 */
 	public function handle_delete_language(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to manage languages.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to manage languages.', 'universal-multilingual' ) );
 		}
 
 		$language_id = isset( $_GET['language_id'] ) ? (int) $_GET['language_id'] : 0;
@@ -504,7 +504,7 @@ final class SettingsPage {
 	 */
 	public function handle_localized_urls_enable(): void {
 		if ( null === $this->localized_urls || ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to change these settings.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'universal-multilingual' ) );
 		}
 
 		check_admin_referer( 'aiml_localized_urls_enable' );
@@ -518,7 +518,7 @@ final class SettingsPage {
 	 */
 	public function handle_localized_urls_disable(): void {
 		if ( null === $this->localized_urls || ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to change these settings.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'universal-multilingual' ) );
 		}
 
 		check_admin_referer( 'aiml_localized_urls_disable' );
@@ -532,7 +532,7 @@ final class SettingsPage {
 	 */
 	public function handle_localized_urls_retry(): void {
 		if ( null === $this->localized_urls || ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to change these settings.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to change these settings.', 'universal-multilingual' ) );
 		}
 
 		check_admin_referer( 'aiml_localized_urls_retry' );
@@ -552,7 +552,7 @@ final class SettingsPage {
 		$is_edit    = null !== $editing;
 		$is_default = $is_edit && ! empty( $editing->is_default );
 
-		echo '<h2>' . esc_html( $is_edit ? __( 'Edit language', 'ai-multilingual' ) : __( 'Add a language', 'ai-multilingual' ) ) . '</h2>';
+		echo '<h2>' . esc_html( $is_edit ? __( 'Edit language', 'universal-multilingual' ) : __( 'Add a language', 'universal-multilingual' ) ) . '</h2>';
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		echo '<input type="hidden" name="action" value="aiml_save_language" />';
 
@@ -564,13 +564,13 @@ final class SettingsPage {
 
 		echo '<table class="form-table" role="presentation"><tbody>';
 
-		$this->text_row( 'code', __( 'URL code', 'ai-multilingual' ), $is_edit ? (string) $editing->code : '', __( 'Two lowercase letters, optionally with a region: sv, pt-br. Appears in the URL as /sv/.', 'ai-multilingual' ) );
-		$this->text_row( 'locale', __( 'Locale', 'ai-multilingual' ), $is_edit ? (string) $editing->locale : '', __( 'WordPress locale, for example sv_SE.', 'ai-multilingual' ) );
-		$this->text_row( 'name', __( 'Name', 'ai-multilingual' ), $is_edit ? (string) $editing->name : '', __( 'English name, for example Swedish.', 'ai-multilingual' ) );
-		$this->text_row( 'native_name', __( 'Native name', 'ai-multilingual' ), $is_edit ? (string) $editing->native_name : '', __( 'The language in its own words, for example Svenska.', 'ai-multilingual' ) );
+		$this->text_row( 'code', __( 'URL code', 'universal-multilingual' ), $is_edit ? (string) $editing->code : '', __( 'Two lowercase letters, optionally with a region: sv, pt-br. Appears in the URL as /sv/.', 'universal-multilingual' ) );
+		$this->text_row( 'locale', __( 'Locale', 'universal-multilingual' ), $is_edit ? (string) $editing->locale : '', __( 'WordPress locale, for example sv_SE.', 'universal-multilingual' ) );
+		$this->text_row( 'name', __( 'Name', 'universal-multilingual' ), $is_edit ? (string) $editing->name : '', __( 'English name, for example Swedish.', 'universal-multilingual' ) );
+		$this->text_row( 'native_name', __( 'Native name', 'universal-multilingual' ), $is_edit ? (string) $editing->native_name : '', __( 'The language in its own words, for example Svenska.', 'universal-multilingual' ) );
 
 		// Direction.
-		echo '<tr><th scope="row"><label for="aiml-direction">' . esc_html__( 'Text direction', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml-direction">' . esc_html__( 'Text direction', 'universal-multilingual' ) . '</label></th><td>';
 		echo '<select name="direction" id="aiml-direction">';
 		foreach ( Languages::DIRECTIONS as $direction ) {
 			printf(
@@ -582,11 +582,11 @@ final class SettingsPage {
 		echo '</select></td></tr>';
 
 		// State.
-		echo '<tr><th scope="row"><label for="aiml-status">' . esc_html__( 'State', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml-status">' . esc_html__( 'State', 'universal-multilingual' ) . '</label></th><td>';
 
 		if ( $is_default ) {
-			echo '<p><strong>' . esc_html__( 'Published', 'ai-multilingual' ) . '</strong><br />';
-			echo '<span class="description">' . esc_html__( 'The default language is the source content, so it is always published and always unprefixed.', 'ai-multilingual' ) . '</span></p>';
+			echo '<p><strong>' . esc_html__( 'Published', 'universal-multilingual' ) . '</strong><br />';
+			echo '<span class="description">' . esc_html__( 'The default language is the source content, so it is always published and always unprefixed.', 'universal-multilingual' ) . '</span></p>';
 		} else {
 			echo '<select name="status" id="aiml-status">';
 			foreach ( Languages::statuses() as $status ) {
@@ -598,16 +598,16 @@ final class SettingsPage {
 				);
 			}
 			echo '</select>';
-			echo '<p class="description">' . esc_html__( 'Preview: visible only to users who can translate. Published: visible to everyone. Disabled: not routed at all. A disabled language returns through preview before it can be published again.', 'ai-multilingual' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'Preview: visible only to users who can translate. Published: visible to everyone. Disabled: not routed at all. A disabled language returns through preview before it can be published again.', 'universal-multilingual' ) . '</p>';
 		}
 
 		echo '</td></tr>';
 
-		$this->text_row( 'sort_order', __( 'Sort order', 'ai-multilingual' ), $is_edit ? (string) (int) $editing->sort_order : '0', __( 'Order in the language switcher.', 'ai-multilingual' ) );
+		$this->text_row( 'sort_order', __( 'Sort order', 'universal-multilingual' ), $is_edit ? (string) (int) $editing->sort_order : '0', __( 'Order in the language switcher.', 'universal-multilingual' ) );
 
 		echo '</tbody></table>';
 
-		submit_button( $is_edit ? __( 'Save language', 'ai-multilingual' ) : __( 'Add language', 'ai-multilingual' ) );
+		submit_button( $is_edit ? __( 'Save language', 'universal-multilingual' ) : __( 'Add language', 'universal-multilingual' ) );
 
 		echo '</form>';
 	}
@@ -662,15 +662,15 @@ final class SettingsPage {
 		$effective = FeatureFlags::validate_dependencies( $current );
 		$valid     = ! FeatureFlags::has_prohibited_combination( $current );
 
-		echo '<h2>' . esc_html__( 'Strategy F — Gutenberg block translation', 'ai-multilingual' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Pre-rollout controls for persistent block identity and gated frontend rendering. All flags default to off.', 'ai-multilingual' ) . '</p>';
+		echo '<h2>' . esc_html__( 'Strategy F — Gutenberg block translation', 'universal-multilingual' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Pre-rollout controls for persistent block identity and gated frontend rendering. All flags default to off.', 'universal-multilingual' ) . '</p>';
 
 		echo '<table class="form-table" role="presentation"><tbody>';
 
 		$this->strategy_f_checkbox_row(
 			FeatureFlags::REGISTRATION,
-			__( 'Attribute registration', 'ai-multilingual' ),
-			__( 'Registers aimlBlockId in block metadata so Gutenberg preserves UUIDs on edit. Required before any other Strategy F behavior.', 'ai-multilingual' ),
+			__( 'Attribute registration', 'universal-multilingual' ),
+			__( 'Registers aimlBlockId in block metadata so Gutenberg preserves UUIDs on edit. Required before any other Strategy F behavior.', 'universal-multilingual' ),
 			(bool) $current[ FeatureFlags::REGISTRATION ],
 			true,
 			''
@@ -678,8 +678,8 @@ final class SettingsPage {
 
 		$this->strategy_f_checkbox_row(
 			FeatureFlags::INJECTION,
-			__( 'UUID injection', 'ai-multilingual' ),
-			__( 'Assigns and repairs block UUIDs on canonical post saves.', 'ai-multilingual' ),
+			__( 'UUID injection', 'universal-multilingual' ),
+			__( 'Assigns and repairs block UUIDs on canonical post saves.', 'universal-multilingual' ),
 			(bool) $current[ FeatureFlags::INJECTION ],
 			! empty( $effective[ FeatureFlags::REGISTRATION ] ),
 			FeatureFlags::REGISTRATION
@@ -687,8 +687,8 @@ final class SettingsPage {
 
 		$this->strategy_f_checkbox_row(
 			FeatureFlags::EXTRACTION,
-			__( 'Block extraction', 'ai-multilingual' ),
-			__( 'Extracts block segments and reconciles the translation store on canonical saves.', 'ai-multilingual' ),
+			__( 'Block extraction', 'universal-multilingual' ),
+			__( 'Extracts block segments and reconciles the translation store on canonical saves.', 'universal-multilingual' ),
 			(bool) $current[ FeatureFlags::EXTRACTION ],
 			! empty( $effective[ FeatureFlags::REGISTRATION ] ) && ! empty( $effective[ FeatureFlags::INJECTION ] ),
 			FeatureFlags::INJECTION
@@ -696,8 +696,8 @@ final class SettingsPage {
 
 		$this->strategy_f_checkbox_row(
 			FeatureFlags::FRONTEND_RENDER,
-			__( 'Frontend rendering', 'ai-multilingual' ),
-			__( 'Overlays translated block content on public pages. Disabling this flag is the immediate kill switch.', 'ai-multilingual' ),
+			__( 'Frontend rendering', 'universal-multilingual' ),
+			__( 'Overlays translated block content on public pages. Disabling this flag is the immediate kill switch.', 'universal-multilingual' ),
 			(bool) $current[ FeatureFlags::FRONTEND_RENDER ],
 			! empty( $effective[ FeatureFlags::REGISTRATION ] )
 				&& ! empty( $effective[ FeatureFlags::INJECTION ] )
@@ -710,18 +710,18 @@ final class SettingsPage {
 
 		$this->render_strategy_f_diagnostics( $current, $effective, $valid );
 
-		echo '<h2>' . esc_html__( 'Segment publication', 'ai-multilingual' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Segment publication', 'universal-multilingual' ) . '</h2>';
 		echo '<p class="description">' . esc_html__(
 			'Controls whether published status gates frontend overlay eligibility, and whether successful auto-translate may attempt auto-publication.',
-			'ai-multilingual'
+			'universal-multilingual'
 		) . '</p>';
 
 		echo '<table class="form-table" role="presentation"><tbody>';
 
 		$this->checkbox_row(
 			'segment_publication_gate_enabled',
-			__( 'Segment publication gate', 'ai-multilingual' ),
-			__( 'When enabled, only segments with publish_status published are overlay-eligible. Enabling does not delete data or mass-unpublish.', 'ai-multilingual' ),
+			__( 'Segment publication gate', 'universal-multilingual' ),
+			__( 'When enabled, only segments with publish_status published are overlay-eligible. Enabling does not delete data or mass-unpublish.', 'universal-multilingual' ),
 			! empty( $current['segment_publication_gate_enabled'] )
 		);
 
@@ -730,15 +730,15 @@ final class SettingsPage {
 			$mode = PublicationMode::MANUAL;
 		}
 
-		echo '<tr><th scope="row"><label for="aiml-auto_publication_mode">' . esc_html__( 'Auto-publication mode', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml-auto_publication_mode">' . esc_html__( 'Auto-publication mode', 'universal-multilingual' ) . '</label></th><td>';
 		printf(
 			'<select id="aiml-auto_publication_mode" name="%1$s[auto_publication_mode]" data-aiml-publication-mode-confirm="1">',
 			esc_attr( Settings::OPTION )
 		);
 		$mode_labels = array(
-			PublicationMode::MANUAL          => __( 'Manual', 'ai-multilingual' ),
-			PublicationMode::APPROVED_ONLY   => __( 'Approved only', 'ai-multilingual' ),
-			PublicationMode::CONTROLLED_AUTO => __( 'Controlled auto', 'ai-multilingual' ),
+			PublicationMode::MANUAL          => __( 'Manual', 'universal-multilingual' ),
+			PublicationMode::APPROVED_ONLY   => __( 'Approved only', 'universal-multilingual' ),
+			PublicationMode::CONTROLLED_AUTO => __( 'Controlled auto', 'universal-multilingual' ),
 		);
 		foreach ( $mode_labels as $value => $label ) {
 			printf(
@@ -751,7 +751,7 @@ final class SettingsPage {
 		echo '</select>';
 		echo '<p class="description">' . esc_html__(
 			'Affects future maybe_auto_publish after auto-translate only. Changing mode does not reconcile existing rows; manual does not mass-unpublish.',
-			'ai-multilingual'
+			'universal-multilingual'
 		) . '</p>';
 		echo '</td></tr>';
 
@@ -772,27 +772,27 @@ final class SettingsPage {
 		$state = (string) ( $current['localized_urls_state'] ?? LocalizedUrlsActivationService::STATE_OFF );
 		$error = (string) ( $current['localized_urls_activation_error'] ?? '' );
 
-		echo '<h2>' . esc_html__( 'Localized URLs', 'ai-multilingual' ) . '</h2>';
+		echo '<h2>' . esc_html__( 'Localized URLs', 'universal-multilingual' ) . '</h2>';
 		echo '<p class="description">' . esc_html__(
 			'Enabling verifies prepared active routes in the background before public localized URLs are advertised. Disabling is immediate.',
-			'ai-multilingual'
+			'universal-multilingual'
 		) . '</p>';
 
 		echo '<div class="aiml-localized-urls-diagnostics" style="margin:1.5em 0;padding:1em;border:1px solid #ccd0d4;background:#fff;">';
-		echo '<p><strong>' . esc_html__( 'State:', 'ai-multilingual' ) . '</strong> ';
+		echo '<p><strong>' . esc_html__( 'State:', 'universal-multilingual' ) . '</strong> ';
 		echo esc_html( $this->localized_urls_state_label( $state ) ) . '</p>';
 
 		if ( LocalizedUrlsActivationService::STATE_FAILED === $state && '' !== $error ) {
 			printf(
 				'<p><strong>%1$s</strong> %2$s</p>',
-				esc_html__( 'Error:', 'ai-multilingual' ),
+				esc_html__( 'Error:', 'universal-multilingual' ),
 				esc_html( $error )
 			);
 		}
 
 		echo '<p class="description">' . esc_html__(
 			'While Activating, inbound localized paths are recognized but visitors are redirected to source-slug URLs until verification completes.',
-			'ai-multilingual'
+			'universal-multilingual'
 		) . '</p>';
 
 		$this->render_localized_urls_honesty( $current );
@@ -801,8 +801,8 @@ final class SettingsPage {
 
 		if ( in_array( $state, array( LocalizedUrlsActivationService::STATE_OFF, LocalizedUrlsActivationService::STATE_FAILED ), true ) ) {
 			$enable_label  = LocalizedUrlsActivationService::STATE_FAILED === $state
-				? __( 'Retry activation', 'ai-multilingual' )
-				: __( 'Enable localized URLs', 'ai-multilingual' );
+				? __( 'Retry activation', 'universal-multilingual' )
+				: __( 'Enable localized URLs', 'universal-multilingual' );
 			$enable_action = LocalizedUrlsActivationService::STATE_FAILED === $state
 				? 'aiml_localized_urls_retry'
 				: 'aiml_localized_urls_enable';
@@ -839,7 +839,7 @@ final class SettingsPage {
 						'aiml_localized_urls_disable'
 					)
 				),
-				esc_html__( 'Disable localized URLs', 'ai-multilingual' )
+				esc_html__( 'Disable localized URLs', 'universal-multilingual' )
 			);
 		}
 
@@ -855,25 +855,25 @@ final class SettingsPage {
 	 */
 	private function render_localized_urls_honesty( array $current ): void {
 		echo '<hr style="margin:1em 0;" />';
-		echo '<h3>' . esc_html__( 'Capability admission', 'ai-multilingual' ) . '</h3>';
+		echo '<h3>' . esc_html__( 'Capability admission', 'universal-multilingual' ) . '</h3>';
 		echo '<p class="description">' . esc_html__(
 			'Implemented shapes are built into the plugin. Admitted shapes may be used for public localized URLs when Localized URLs are On. Unsupported means this site does not expose that shape.',
-			'ai-multilingual'
+			'universal-multilingual'
 		) . '</p>';
 
 		$labels = array(
-			RoutingCapabilityAdmission::SHAPE_TERM_ARCHIVE => __( 'Term archives', 'ai-multilingual' ),
-			RoutingCapabilityAdmission::SHAPE_PAGE_HIERARCHICAL => __( 'Hierarchical pages', 'ai-multilingual' ),
-			RoutingCapabilityAdmission::SHAPE_PRODUCT_CATEGORY_PERMALINK => __( 'Product category permalinks', 'ai-multilingual' ),
+			RoutingCapabilityAdmission::SHAPE_TERM_ARCHIVE => __( 'Term archives', 'universal-multilingual' ),
+			RoutingCapabilityAdmission::SHAPE_PAGE_HIERARCHICAL => __( 'Hierarchical pages', 'universal-multilingual' ),
+			RoutingCapabilityAdmission::SHAPE_PRODUCT_CATEGORY_PERMALINK => __( 'Product category permalinks', 'universal-multilingual' ),
 		);
 
 		$code_epoch     = RoutingCapabilityAdmission::CODE_CAPABILITY_EPOCH;
 		$verified_epoch = (int) ( $current['localized_urls_verified_capability_epoch'] ?? 0 );
 		printf(
 			'<p><strong>%1$s</strong> %2$s · <strong>%3$s</strong> %4$s</p>',
-			esc_html__( 'Code capability epoch:', 'ai-multilingual' ),
+			esc_html__( 'Code capability epoch:', 'universal-multilingual' ),
 			esc_html( (string) (int) $code_epoch ),
-			esc_html__( 'Verified epoch:', 'ai-multilingual' ),
+			esc_html__( 'Verified epoch:', 'universal-multilingual' ),
 			esc_html( (string) (int) $verified_epoch )
 		);
 
@@ -888,8 +888,8 @@ final class SettingsPage {
 				$admitted = is_array( $stored ) && in_array( $shape, $stored, true );
 			}
 			$status = $admitted
-				? __( 'Implemented · Admitted', 'ai-multilingual' )
-				: __( 'Implemented · Not admitted yet', 'ai-multilingual' );
+				? __( 'Implemented · Admitted', 'universal-multilingual' )
+				: __( 'Implemented · Not admitted yet', 'universal-multilingual' );
 			printf(
 				'<li><strong>%1$s</strong> — %2$s</li>',
 				esc_html( $label ),
@@ -899,21 +899,21 @@ final class SettingsPage {
 		echo '</ul>';
 		echo '<p class="description">' . esc_html__(
 			'“Not admitted yet” usually means verification has not finished (not yet processed), not that the shape is unsupported.',
-			'ai-multilingual'
+			'universal-multilingual'
 		) . '</p>';
 
 		$stored_fp = (string) ( $current['localized_urls_woo_product_fingerprint'] ?? '' );
 		if ( '' !== $stored_fp ) {
 			$current_fp = ( new WooProductPermalinkFingerprint() )->hash();
 			if ( ! hash_equals( $stored_fp, $current_fp ) ) {
-				echo '<p class="notice notice-warning" style="padding:8px;"><strong>' . esc_html__( 'Woo product permalink fingerprint mismatch.', 'ai-multilingual' ) . '</strong> ';
-				echo esc_html__( 'Product category permalink capability may need re-verification after permalink setting changes.', 'ai-multilingual' ) . '</p>';
+				echo '<p class="notice notice-warning" style="padding:8px;"><strong>' . esc_html__( 'Woo product permalink fingerprint mismatch.', 'universal-multilingual' ) . '</strong> ';
+				echo esc_html__( 'Product category permalink capability may need re-verification after permalink setting changes.', 'universal-multilingual' ) . '</p>';
 			}
 		}
 
-		echo '<h3>' . esc_html__( 'Hierarchy reindex / frontier', 'ai-multilingual' ) . '</h3>';
+		echo '<h3>' . esc_html__( 'Hierarchy reindex / frontier', 'universal-multilingual' ) . '</h3>';
 		if ( null === $this->frontier ) {
-			echo '<p class="description">' . esc_html__( 'Frontier status is unavailable in this context.', 'ai-multilingual' ) . '</p>';
+			echo '<p class="description">' . esc_html__( 'Frontier status is unavailable in this context.', 'universal-multilingual' ) . '</p>';
 			return;
 		}
 
@@ -932,32 +932,32 @@ final class SettingsPage {
 			}
 		}
 
-		$overall = __( 'Complete — no open frontier work in recent history', 'ai-multilingual' );
+		$overall = __( 'Complete — no open frontier work in recent history', 'universal-multilingual' );
 		if ( $counts['failed'] > 0 ) {
-			$overall = __( 'Blocked / failed — review frontier failures', 'ai-multilingual' );
+			$overall = __( 'Blocked / failed — review frontier failures', 'universal-multilingual' );
 		} elseif ( $counts['degraded'] > 0 ) {
-			$overall = __( 'Degraded — some children could not rematerialize (collision)', 'ai-multilingual' );
+			$overall = __( 'Degraded — some children could not rematerialize (collision)', 'universal-multilingual' );
 		} elseif ( $counts['pending'] > 0 || $counts['running'] > 0 ) {
-			$overall = __( 'Pending — hierarchy rematerialization still processing', 'ai-multilingual' );
+			$overall = __( 'Pending — hierarchy rematerialization still processing', 'universal-multilingual' );
 		}
 
-		echo '<p><strong>' . esc_html__( 'Summary:', 'ai-multilingual' ) . '</strong> ' . esc_html( $overall ) . '</p>';
+		echo '<p><strong>' . esc_html__( 'Summary:', 'universal-multilingual' ) . '</strong> ' . esc_html( $overall ) . '</p>';
 		printf(
 			'<p class="description">%1$s %2$d · %3$s %4$d · %5$s %6$d · %7$s %8$d · %9$s %10$d</p>',
-			esc_html__( 'Pending:', 'ai-multilingual' ),
+			esc_html__( 'Pending:', 'universal-multilingual' ),
 			(int) $counts['pending'],
-			esc_html__( 'Running:', 'ai-multilingual' ),
+			esc_html__( 'Running:', 'universal-multilingual' ),
 			(int) $counts['running'],
-			esc_html__( 'Completed:', 'ai-multilingual' ),
+			esc_html__( 'Completed:', 'universal-multilingual' ),
 			(int) $counts['completed'],
-			esc_html__( 'Degraded:', 'ai-multilingual' ),
+			esc_html__( 'Degraded:', 'universal-multilingual' ),
 			(int) $counts['degraded'],
-			esc_html__( 'Failed:', 'ai-multilingual' ),
+			esc_html__( 'Failed:', 'universal-multilingual' ),
 			(int) $counts['failed']
 		);
 		echo '<p class="description">' . esc_html__(
 			'Distinguish: pending = not yet processed; degraded/failed = genuine processing problem; not admitted = capability verification incomplete; unsupported = shape not offered by this site.',
-			'ai-multilingual'
+			'universal-multilingual'
 		) . '</p>';
 	}
 
@@ -969,13 +969,13 @@ final class SettingsPage {
 	private function localized_urls_state_label( string $state ): string {
 		switch ( $state ) {
 			case LocalizedUrlsActivationService::STATE_ON:
-				return __( 'On', 'ai-multilingual' );
+				return __( 'On', 'universal-multilingual' );
 			case LocalizedUrlsActivationService::STATE_ACTIVATING:
-				return __( 'Activating', 'ai-multilingual' );
+				return __( 'Activating', 'universal-multilingual' );
 			case LocalizedUrlsActivationService::STATE_FAILED:
-				return __( 'Failed', 'ai-multilingual' );
+				return __( 'Failed', 'universal-multilingual' );
 			default:
-				return __( 'Off', 'ai-multilingual' );
+				return __( 'Off', 'universal-multilingual' );
 		}
 	}
 
@@ -985,7 +985,7 @@ final class SettingsPage {
 	private function render_localized_urls_confirmation_script(): void {
 		$message = __(
 			'Enabling localized URLs starts a background verification of all prepared active routes. Visitors may see source-slug URLs until activation completes. Continue?',
-			'ai-multilingual'
+			'universal-multilingual'
 		);
 
 		printf(
@@ -1060,7 +1060,7 @@ final class SettingsPage {
 			echo '<p class="description">' . esc_html(
 				sprintf(
 					/* translators: %s: prerequisite flag key(s) */
-					__( 'Requires: %s', 'ai-multilingual' ),
+					__( 'Requires: %s', 'universal-multilingual' ),
 					$deps
 				)
 			) . '</p>';
@@ -1070,7 +1070,7 @@ final class SettingsPage {
 			echo '<p class="description">' . esc_html(
 				sprintf(
 					/* translators: %s: prerequisite flag key */
-					__( 'Enable %s first.', 'ai-multilingual' ),
+					__( 'Enable %s first.', 'universal-multilingual' ),
 					$missing_prerequisite
 				)
 			) . '</p>';
@@ -1088,11 +1088,11 @@ final class SettingsPage {
 	 */
 	private function render_strategy_f_diagnostics( array $saved, array $effective, bool $valid ): void {
 		echo '<div class="aiml-strategy-f-diagnostics" style="margin:1.5em 0;padding:1em;border:1px solid #ccd0d4;background:#fff;">';
-		echo '<h3 style="margin-top:0;">' . esc_html__( 'Strategy F diagnostics (settings state only)', 'ai-multilingual' ) . '</h3>';
+		echo '<h3 style="margin-top:0;">' . esc_html__( 'Strategy F diagnostics (settings state only)', 'universal-multilingual' ) . '</h3>';
 		echo '<table class="widefat striped"><thead><tr>';
-		echo '<th>' . esc_html__( 'Flag', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Saved', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Effective', 'ai-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Flag', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Saved', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Effective', 'universal-multilingual' ) . '</th>';
 		echo '</tr></thead><tbody>';
 
 		foreach ( FeatureFlags::PRODUCTION_FLAGS as $flag ) {
@@ -1107,9 +1107,9 @@ final class SettingsPage {
 		echo '</tbody></table>';
 		printf(
 			'<p><strong>%1$s</strong> %2$s<br /><strong>%3$s</strong> %4$s</p>',
-			esc_html__( 'Combination valid:', 'ai-multilingual' ),
-			esc_html( $valid ? __( 'Yes', 'ai-multilingual' ) : __( 'No', 'ai-multilingual' ) ),
-			esc_html__( 'Frontend rendering active:', 'ai-multilingual' ),
+			esc_html__( 'Combination valid:', 'universal-multilingual' ),
+			esc_html( $valid ? __( 'Yes', 'universal-multilingual' ) : __( 'No', 'universal-multilingual' ) ),
+			esc_html__( 'Frontend rendering active:', 'universal-multilingual' ),
 			esc_html( $this->flag_state_label( ! empty( $effective[ FeatureFlags::FRONTEND_RENDER ] ) ) )
 		);
 		echo '</div>';
@@ -1131,11 +1131,11 @@ final class SettingsPage {
 		}
 
 		echo '<div class="aiml-publication-diagnostics" style="margin:1.5em 0;padding:1em;border:1px solid #ccd0d4;background:#fff;">';
-		echo '<h3 style="margin-top:0;">' . esc_html__( 'Publication diagnostics (settings state only)', 'ai-multilingual' ) . '</h3>';
+		echo '<h3 style="margin-top:0;">' . esc_html__( 'Publication diagnostics (settings state only)', 'universal-multilingual' ) . '</h3>';
 		echo '<table class="widefat striped"><thead><tr>';
-		echo '<th>' . esc_html__( 'Setting', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Saved', 'ai-multilingual' ) . '</th>';
-		echo '<th>' . esc_html__( 'Effective', 'ai-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Setting', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Saved', 'universal-multilingual' ) . '</th>';
+		echo '<th>' . esc_html__( 'Effective', 'universal-multilingual' ) . '</th>';
 		echo '</tr></thead><tbody>';
 
 		printf(
@@ -1152,7 +1152,7 @@ final class SettingsPage {
 		);
 
 		echo '</tbody></table>';
-		echo '<p class="description">' . esc_html__( 'Gate defaults off; mode defaults to manual. Setting mode to manual disables future automation without mass-unpublish.', 'ai-multilingual' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Gate defaults off; mode defaults to manual. Setting mode to manual disables future automation without mass-unpublish.', 'universal-multilingual' ) . '</p>';
 		echo '</div>';
 	}
 
@@ -1162,11 +1162,11 @@ final class SettingsPage {
 	private function render_publication_confirmation_script(): void {
 		$gate_message = __(
 			'Enabling the publication gate immediately enforces overlay eligibility based on each segment\'s existing publish_status. It does not delete translations or mass-unpublish. Continue?',
-			'ai-multilingual'
+			'universal-multilingual'
 		);
 		$mode_message = __(
 			'Changing auto-publication mode only affects future maybe_auto_publish attempts after auto-translate. It does not reconcile inventory or mass-publish. Returning to manual stops future automation and does not mass-unpublish. Continue?',
-			'ai-multilingual'
+			'universal-multilingual'
 		);
 
 		printf(
@@ -1205,7 +1205,7 @@ final class SettingsPage {
 	private function render_strategy_f_confirmation_script(): void {
 		$message = __(
 			'Enabling frontend rendering may show translated block content to site visitors. Prerequisites must already be enabled. Disabling this flag is the immediate kill switch. Continue?',
-			'ai-multilingual'
+			'universal-multilingual'
 		);
 
 		printf(
@@ -1230,7 +1230,7 @@ final class SettingsPage {
 	 * @param bool $enabled Flag state.
 	 */
 	private function flag_state_label( bool $enabled ): string {
-		return $enabled ? __( 'On', 'ai-multilingual' ) : __( 'Off', 'ai-multilingual' );
+		return $enabled ? __( 'On', 'universal-multilingual' ) : __( 'Off', 'universal-multilingual' );
 	}
 
 	/**
@@ -1311,7 +1311,7 @@ final class SettingsPage {
 			$prerequisite = FeatureFlags::prerequisite_label( $flag );
 			$messages[]   = sprintf(
 				/* translators: 1: flag key, 2: prerequisite flag key(s) */
-				__( '%1$s could not be enabled because prerequisite %2$s is off.', 'ai-multilingual' ),
+				__( '%1$s could not be enabled because prerequisite %2$s is off.', 'universal-multilingual' ),
 				$flag,
 				$prerequisite
 			);
@@ -1320,7 +1320,7 @@ final class SettingsPage {
 		printf(
 			'<div class="notice notice-warning is-dismissible" data-notice-id="%1$s"><p><strong>%2$s</strong> %3$s</p></div>',
 			esc_attr( self::FLAG_NOTICE_ID ),
-			esc_html__( 'Strategy F flag combination adjusted.', 'ai-multilingual' ),
+			esc_html__( 'Strategy F flag combination adjusted.', 'universal-multilingual' ),
 			esc_html( implode( ' ', $messages ) )
 		);
 	}
@@ -1333,14 +1333,14 @@ final class SettingsPage {
 	private function status_label( string $status ): string {
 		switch ( $status ) {
 			case Languages::STATUS_PUBLISHED:
-				return __( 'Published', 'ai-multilingual' );
+				return __( 'Published', 'universal-multilingual' );
 
 			case Languages::STATUS_DISABLED:
-				return __( 'Disabled', 'ai-multilingual' );
+				return __( 'Disabled', 'universal-multilingual' );
 
 			case Languages::STATUS_PREVIEW:
 			default:
-				return __( 'Preview', 'ai-multilingual' );
+				return __( 'Preview', 'universal-multilingual' );
 		}
 	}
 
@@ -1382,7 +1382,7 @@ final class SettingsPage {
 		if ( isset( $_GET['aiml_updated'] ) ) {
 			printf(
 				'<div class="notice notice-success"><p>%s</p></div>',
-				esc_html__( 'Saved.', 'ai-multilingual' )
+				esc_html__( 'Saved.', 'universal-multilingual' )
 			);
 		}
 	}

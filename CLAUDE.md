@@ -1,7 +1,9 @@
-# AI Multilingual — working agreement
+# Universal Multilingual — working agreement
 
-Multilingual layer for WordPress and WooCommerce. Namespace `AIMultilingual\`,
-prefix `aiml_`, tables `{$wpdb->prefix}aiml_*`, text domain `ai-multilingual`.
+Multilingual layer for WordPress and WooCommerce. Display name Universal
+Multilingual; slug/text domain `universal-multilingual`. Namespace
+`AIMultilingual\`, prefix `aiml_`, tables `{$wpdb->prefix}aiml_*` (runtime
+identity unchanged).
 
 ## Invariants
 

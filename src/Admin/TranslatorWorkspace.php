@@ -64,8 +64,8 @@ final class TranslatorWorkspace {
 	public function add_menu(): void {
 		add_submenu_page(
 			SettingsPage::MENU_SLUG,
-			__( 'Translator workspace', 'ai-multilingual' ),
-			__( 'Workspace', 'ai-multilingual' ),
+			__( 'Translator workspace', 'universal-multilingual' ),
+			__( 'Workspace', 'universal-multilingual' ),
 			self::ACCESS_CAP,
 			self::MENU_SLUG,
 			array( $this, 'render' )
@@ -154,7 +154,7 @@ final class TranslatorWorkspace {
 			)
 		);
 
-		wp_set_script_translations( self::SCRIPT_HANDLE, 'ai-multilingual' );
+		wp_set_script_translations( self::SCRIPT_HANDLE, 'universal-multilingual' );
 	}
 
 	/**
@@ -162,17 +162,17 @@ final class TranslatorWorkspace {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( self::ACCESS_CAP ) ) {
-			wp_die( esc_html__( 'You do not have permission to access the translator workspace.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to access the translator workspace.', 'universal-multilingual' ) );
 		}
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'Translator workspace', 'ai-multilingual' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Translator workspace', 'universal-multilingual' ) . '</h1>';
 
 		if ( ! is_readable( plugin_dir_path( AIML_PLUGIN_FILE ) . 'assets/translator-workspace/build/index.js' ) ) {
 			echo '<div class="notice notice-error"><p>';
 			esc_html_e(
 				'The workspace bundle is not built. Run npm run build in assets/translator-workspace/.',
-				'ai-multilingual'
+				'universal-multilingual'
 			);
 			echo '</p></div>';
 		}

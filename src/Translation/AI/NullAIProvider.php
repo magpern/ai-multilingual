@@ -46,7 +46,7 @@ final class NullAIProvider implements AIProviderInterface {
 	public function test_connection() {
 		return new WP_Error(
 			self::ERROR_CODE,
-			__( 'Automatic translation is not configured.', 'ai-multilingual' ),
+			__( 'Automatic translation is not configured.', 'universal-multilingual' ),
 			array( 'status' => 503 )
 		);
 	}
@@ -59,7 +59,7 @@ final class NullAIProvider implements AIProviderInterface {
 	public function list_models() {
 		return new WP_Error(
 			self::ERROR_CODE,
-			__( 'Automatic translation is not configured.', 'ai-multilingual' ),
+			__( 'Automatic translation is not configured.', 'universal-multilingual' ),
 			array( 'status' => 503 )
 		);
 	}
@@ -75,7 +75,7 @@ final class NullAIProvider implements AIProviderInterface {
 
 		return new WP_Error(
 			self::ERROR_CODE,
-			__( 'Automatic translation is not configured.', 'ai-multilingual' ),
+			__( 'Automatic translation is not configured.', 'universal-multilingual' ),
 			array( 'status' => 503 )
 		);
 	}

@@ -49,7 +49,7 @@ final class HierarchyPathBuilder {
 
 		$permalink = get_permalink( $post );
 		if ( ! is_string( $permalink ) || '' === $permalink ) {
-			return new WP_Error( 'aiml_hierarchy_no_permalink', __( 'Source permalink is unavailable.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_hierarchy_no_permalink', __( 'Source permalink is unavailable.', 'universal-multilingual' ) );
 		}
 
 		$path = (string) wp_parse_url( $permalink, PHP_URL_PATH );
@@ -222,7 +222,7 @@ final class HierarchyPathBuilder {
 	private function replace_leaf( CanonicalPath $source, string $leaf ) {
 		$leaf = sanitize_title( $leaf );
 		if ( '' === $leaf ) {
-			return new WP_Error( 'aiml_hierarchy_empty_leaf', __( 'Localized leaf is empty.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_hierarchy_empty_leaf', __( 'Localized leaf is empty.', 'universal-multilingual' ) );
 		}
 
 		$parts = array_values( array_filter( explode( '/', trim( $source->to_string(), '/' ) ) ) );

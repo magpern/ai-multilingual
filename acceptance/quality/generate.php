@@ -6,7 +6,7 @@
  * Never prints secrets, prompts, or Authorization headers. No Store writes.
  *
  * Usage:
- *   wp eval-file wp-content/plugins/ai-multilingual/acceptance/quality/generate.php
+ *   wp eval-file wp-content/plugins/universal-multilingual/acceptance/quality/generate.php
  * Optional first positional arg: output pack directory.
  *
  * @package AIMultilingual

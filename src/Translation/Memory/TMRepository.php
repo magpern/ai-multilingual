@@ -186,7 +186,7 @@ final class TMRepository {
 		if ( $source_lang_id <= 0 || $target_lang_id <= 0 || '' === $source_hash ) {
 			return new WP_Error(
 				'aiml_tm_invalid_entry',
-				__( 'Translation memory entry is incomplete.', 'ai-multilingual' ),
+				__( 'Translation memory entry is incomplete.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -194,7 +194,7 @@ final class TMRepository {
 		if ( ! in_array( $origin, self::origins(), true ) ) {
 			return new WP_Error(
 				'aiml_tm_invalid_origin',
-				__( 'Unknown translation memory origin.', 'ai-multilingual' ),
+				__( 'Unknown translation memory origin.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -241,7 +241,7 @@ final class TMRepository {
 		if ( false === $result ) {
 			return new WP_Error(
 				'aiml_tm_write_failed',
-				__( 'Could not write translation memory entry.', 'ai-multilingual' ),
+				__( 'Could not write translation memory entry.', 'universal-multilingual' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -250,7 +250,7 @@ final class TMRepository {
 		if ( null === $row ) {
 			return new WP_Error(
 				'aiml_tm_write_failed',
-				__( 'Could not reload translation memory entry after write.', 'ai-multilingual' ),
+				__( 'Could not reload translation memory entry after write.', 'universal-multilingual' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -271,7 +271,7 @@ final class TMRepository {
 		if ( null === $row ) {
 			return new WP_Error(
 				'aiml_tm_not_found',
-				__( 'Translation memory entry was not found.', 'ai-multilingual' ),
+				__( 'Translation memory entry was not found.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -291,7 +291,7 @@ final class TMRepository {
 		if ( false === $updated ) {
 			return new WP_Error(
 				'aiml_tm_write_failed',
-				__( 'Could not update translation memory usage.', 'ai-multilingual' ),
+				__( 'Could not update translation memory usage.', 'universal-multilingual' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -300,7 +300,7 @@ final class TMRepository {
 		if ( null === $refreshed ) {
 			return new WP_Error(
 				'aiml_tm_write_failed',
-				__( 'Could not reload translation memory entry after usage update.', 'ai-multilingual' ),
+				__( 'Could not reload translation memory entry after usage update.', 'universal-multilingual' ),
 				array( 'status' => 500 )
 			);
 		}

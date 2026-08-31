@@ -138,7 +138,7 @@ final class OperationsBulkCoordinator {
 		if ( ! in_array( $action, self::actions(), true ) ) {
 			return new WP_Error(
 				'aiml_invalid_bulk_action',
-				__( 'Unknown operations bulk action.', 'ai-multilingual' ),
+				__( 'Unknown operations bulk action.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -148,7 +148,7 @@ final class OperationsBulkCoordinator {
 				'aiml_batch_too_large',
 				sprintf(
 					/* translators: %d: maximum batch size */
-					__( 'Batch size exceeds the limit of %d translations.', 'ai-multilingual' ),
+					__( 'Batch size exceeds the limit of %d translations.', 'universal-multilingual' ),
 					self::BATCH_LIMIT
 				),
 				array( 'status' => 422 )
@@ -158,7 +158,7 @@ final class OperationsBulkCoordinator {
 		if ( array() === $items ) {
 			return new WP_Error(
 				'aiml_bulk_empty',
-				__( 'No translations were selected.', 'ai-multilingual' ),
+				__( 'No translations were selected.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -169,7 +169,7 @@ final class OperationsBulkCoordinator {
 			self::ACTION_ENQUEUE_RETRANSLATE => $this->run_enqueue_retranslate( $items, $user_id ),
 			default                          => new WP_Error(
 				'aiml_invalid_bulk_action',
-				__( 'Unknown operations bulk action.', 'ai-multilingual' ),
+				__( 'Unknown operations bulk action.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			),
 		};
@@ -225,7 +225,7 @@ final class OperationsBulkCoordinator {
 					$tid,
 					self::OUTCOME_FAILED,
 					'aiml_jobs_unavailable',
-					__( 'Jobs service is not available.', 'ai-multilingual' )
+					__( 'Jobs service is not available.', 'universal-multilingual' )
 				);
 			}
 
@@ -256,7 +256,7 @@ final class OperationsBulkCoordinator {
 					$tid,
 					self::OUTCOME_BLOCKED,
 					'aiml_mutation_unsupported_type',
-					__( 'This translation source cannot be retranslated in the background.', 'ai-multilingual' )
+					__( 'This translation source cannot be retranslated in the background.', 'universal-multilingual' )
 				);
 				continue;
 			}
@@ -266,7 +266,7 @@ final class OperationsBulkCoordinator {
 					$tid,
 					self::OUTCOME_BLOCKED,
 					'aiml_not_stale',
-					__( 'Translation is not stale.', 'ai-multilingual' )
+					__( 'Translation is not stale.', 'universal-multilingual' )
 				);
 				continue;
 			}
@@ -342,7 +342,7 @@ final class OperationsBulkCoordinator {
 					(int) $tid,
 					self::OUTCOME_ENQUEUED,
 					null,
-					__( 'Accepted for asynchronous Jobs processing.', 'ai-multilingual' ),
+					__( 'Accepted for asynchronous Jobs processing.', 'universal-multilingual' ),
 					$job_id
 				);
 			}
@@ -384,7 +384,7 @@ final class OperationsBulkCoordinator {
 				$tid,
 				self::OUTCOME_FAILED,
 				'aiml_publication_unavailable',
-				__( 'Publication service is not available.', 'ai-multilingual' )
+				__( 'Publication service is not available.', 'universal-multilingual' )
 			);
 		}
 
@@ -430,7 +430,7 @@ final class OperationsBulkCoordinator {
 				$tid,
 				self::OUTCOME_FAILED,
 				'aiml_publication_unavailable',
-				__( 'Publication service is not available.', 'ai-multilingual' )
+				__( 'Publication service is not available.', 'universal-multilingual' )
 			);
 		}
 
@@ -497,7 +497,7 @@ final class OperationsBulkCoordinator {
 			$tid,
 			self::OUTCOME_FAILED,
 			'aiml_bulk_unexpected_result',
-			__( 'Unexpected publication result.', 'ai-multilingual' ),
+			__( 'Unexpected publication result.', 'universal-multilingual' ),
 			null,
 			$codes
 		);
@@ -513,7 +513,7 @@ final class OperationsBulkCoordinator {
 		if ( $translation_id <= 0 ) {
 			return new WP_Error(
 				'aiml_invalid_translation_id',
-				__( 'translation_id is required.', 'ai-multilingual' ),
+				__( 'translation_id is required.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -522,7 +522,7 @@ final class OperationsBulkCoordinator {
 		if ( null === $row ) {
 			return new WP_Error(
 				'aiml_translation_missing',
-				__( 'Translation not found.', 'ai-multilingual' ),
+				__( 'Translation not found.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -544,7 +544,7 @@ final class OperationsBulkCoordinator {
 		if ( ! current_user_can( Plugin::CAPABILITY ) ) {
 			return new WP_Error(
 				'aiml_capability_denied',
-				__( 'You do not have permission to mutate translations.', 'ai-multilingual' ),
+				__( 'You do not have permission to mutate translations.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -552,7 +552,7 @@ final class OperationsBulkCoordinator {
 		if ( AllowedActionsResolver::denies_row_write( $row ) ) {
 			return new WP_Error(
 				'aiml_segment_write_denied',
-				__( 'This translation segment is not independently writable.', 'ai-multilingual' ),
+				__( 'This translation segment is not independently writable.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -568,7 +568,7 @@ final class OperationsBulkCoordinator {
 		if ( ! $surface->exists( $source_id ) ) {
 			return new WP_Error(
 				'aiml_source_missing',
-				__( 'Source object not found.', 'ai-multilingual' ),
+				__( 'Source object not found.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -576,7 +576,7 @@ final class OperationsBulkCoordinator {
 		if ( ! $surface->user_can_edit_source( 0, $source_id ) ) {
 			return new WP_Error(
 				'aiml_source_access_denied',
-				__( 'You cannot edit this source object.', 'ai-multilingual' ),
+				__( 'You cannot edit this source object.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -626,7 +626,7 @@ final class OperationsBulkCoordinator {
 		if ( Store::SOURCE_POST !== $source_type ) {
 			return new WP_Error(
 				'aiml_mutation_unsupported_type',
-				__( 'This translation source does not support this mutation.', 'ai-multilingual' ),
+				__( 'This translation source does not support this mutation.', 'universal-multilingual' ),
 				array( 'status' => 422 )
 			);
 		}
@@ -634,7 +634,7 @@ final class OperationsBulkCoordinator {
 		if ( ! get_post( $source_id ) instanceof WP_Post ) {
 			return new WP_Error(
 				'aiml_source_missing',
-				__( 'Source post not found.', 'ai-multilingual' ),
+				__( 'Source post not found.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -642,7 +642,7 @@ final class OperationsBulkCoordinator {
 		if ( ! current_user_can( 'edit_post', $source_id ) ) {
 			return new WP_Error(
 				'aiml_source_access_denied',
-				__( 'You cannot edit this source post.', 'ai-multilingual' ),
+				__( 'You cannot edit this source post.', 'universal-multilingual' ),
 				array( 'status' => 403 )
 			);
 		}

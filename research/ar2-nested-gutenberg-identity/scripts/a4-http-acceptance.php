@@ -3,7 +3,7 @@
  * A.4 nested Gutenberg HTTP/browser acceptance (scenarios 1–18).
  *
  * Usage (after seed):
- *   wp eval-file wp-content/plugins/ai-multilingual/research/ar2-nested-gutenberg-identity/scripts/a4-http-acceptance.php
+ *   wp eval-file wp-content/plugins/universal-multilingual/research/ar2-nested-gutenberg-identity/scripts/a4-http-acceptance.php
  *
  * Writes evidence JSON under docs/plans/a4-evidence/.
  *

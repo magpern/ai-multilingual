@@ -14,7 +14,7 @@ Prefer `wp eval-file` via WP-CLI. Never commit secrets or capture cleartext keys
 
 ```bash
 cd /opt/biopentra/apps/wordpress && docker compose run --rm -T wpcli \
-  wp eval-file wp-content/plugins/ai-multilingual/acceptance/p1/deploy-verify.php
+  wp eval-file wp-content/plugins/universal-multilingual/acceptance/p1/deploy-verify.php
 ```
 
 ## Canonical provider validation baseline (Platform v1.x) — frozen

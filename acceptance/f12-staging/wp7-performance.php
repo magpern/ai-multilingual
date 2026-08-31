@@ -1,7 +1,7 @@
 <?php
 /**
  * F12 WP7 performance baseline capture for dev.biopentra.eu
- * Run: wp eval-file wp-content/plugins/ai-multilingual/acceptance/f12-staging/wp7-performance.php
+ * Run: wp eval-file wp-content/plugins/universal-multilingual/acceptance/f12-staging/wp7-performance.php
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

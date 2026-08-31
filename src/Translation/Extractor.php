@@ -164,10 +164,10 @@ final class Extractor {
 	public static function body_notice( string $status ): string {
 		switch ( $status ) {
 			case self::BODY_BLOCKS:
-				return __( 'This page is built with the block editor. Block-level translation arrives in a later milestone; translating the body as one field would corrupt the block markup, so it is disabled here. The title and excerpt can still be translated.', 'ai-multilingual' );
+				return __( 'This page is built with the block editor. Block-level translation arrives in a later milestone; translating the body as one field would corrupt the block markup, so it is disabled here. The title and excerpt can still be translated.', 'universal-multilingual' );
 
 			case self::BODY_ELEMENTOR:
-				return __( 'This page is built with Elementor. The post body field is not translated as a whole string; allowlisted Elementor widget controls are translated as separate segments when Elementor extraction is enabled. The title and excerpt can still be translated.', 'ai-multilingual' );
+				return __( 'This page is built with Elementor. The post body field is not translated as a whole string; allowlisted Elementor widget controls are translated as separate segments when Elementor extraction is enabled. The title and excerpt can still be translated.', 'universal-multilingual' );
 
 			default:
 				return '';

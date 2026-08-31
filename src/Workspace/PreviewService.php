@@ -66,7 +66,7 @@ final class PreviewService {
 		if ( null === $language ) {
 			return new WP_Error(
 				'aiml_invalid_language',
-				__( 'Unknown language code.', 'ai-multilingual' ),
+				__( 'Unknown language code.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -75,7 +75,7 @@ final class PreviewService {
 		if ( ! is_string( $permalink ) || '' === $permalink ) {
 			return new WP_Error(
 				'aiml_preview_unavailable',
-				__( 'Preview URL is unavailable for this post.', 'ai-multilingual' ),
+				__( 'Preview URL is unavailable for this post.', 'universal-multilingual' ),
 				array( 'status' => 404 )
 			);
 		}

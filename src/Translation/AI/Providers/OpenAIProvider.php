@@ -100,7 +100,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		if ( '' === $this->api_key ) {
 			return new WP_Error(
 				'aiml_ai_missing_key',
-				__( 'API key is not configured.', 'ai-multilingual' ),
+				__( 'API key is not configured.', 'universal-multilingual' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -122,7 +122,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		if ( '' === $this->api_key ) {
 			return new WP_Error(
 				'aiml_ai_missing_key',
-				__( 'API key is not configured.', 'ai-multilingual' ),
+				__( 'API key is not configured.', 'universal-multilingual' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -141,7 +141,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		if ( ! is_array( $data ) ) {
 			return new WP_Error(
 				'aiml_ai_invalid_response',
-				__( 'Provider returned an unexpected model list.', 'ai-multilingual' ),
+				__( 'Provider returned an unexpected model list.', 'universal-multilingual' ),
 				array( 'status' => 502 )
 			);
 		}
@@ -168,7 +168,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		if ( '' === $this->api_key ) {
 			return new WP_Error(
 				'aiml_ai_missing_key',
-				__( 'API key is not configured.', 'ai-multilingual' ),
+				__( 'API key is not configured.', 'universal-multilingual' ),
 				array( 'status' => 503 )
 			);
 		}
@@ -215,7 +215,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 			if ( null === $text ) {
 				return new WP_Error(
 					'aiml_ai_invalid_response',
-					__( 'Provider returned an unexpected completion.', 'ai-multilingual' ),
+					__( 'Provider returned an unexpected completion.', 'universal-multilingual' ),
 					array( 'status' => 502 )
 				);
 			}
@@ -441,7 +441,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		if ( ! is_array( $response ) ) {
 			return new WP_Error(
 				'aiml_ai_http_error',
-				__( 'Provider HTTP request failed.', 'ai-multilingual' ),
+				__( 'Provider HTTP request failed.', 'universal-multilingual' ),
 				array(
 					'status'                => 502,
 					'provider_request_made' => true,
@@ -457,7 +457,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		if ( $code < 200 || $code >= 300 ) {
 			$message     = is_array( $data ) && isset( $data['error']['message'] )
 				? (string) $data['error']['message']
-				: __( 'Provider request failed.', 'ai-multilingual' );
+				: __( 'Provider request failed.', 'universal-multilingual' );
 			$error_data  = array(
 				'status'                => $code > 0 ? $code : 502,
 				'provider_request_made' => true,
@@ -478,7 +478,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		if ( ! is_array( $data ) ) {
 			return new WP_Error(
 				'aiml_ai_invalid_response',
-				__( 'Provider returned non-JSON content.', 'ai-multilingual' ),
+				__( 'Provider returned non-JSON content.', 'universal-multilingual' ),
 				array(
 					'status'                => 502,
 					'provider_request_made' => true,

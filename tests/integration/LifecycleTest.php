@@ -30,7 +30,7 @@ use AIMultilingual\Translation\Extractor;
 final class LifecycleTest extends AimlTestCase {
 
 	public function test_no_deactivation_hook_is_registered(): void {
-		$plugin = plugin_basename( dirname( __DIR__, 2 ) . '/ai-multilingual.php' );
+		$plugin = plugin_basename( dirname( __DIR__, 2 ) . '/universal-multilingual.php' );
 
 		$this->assertFalse(
 			has_action( 'deactivate_' . $plugin ),
@@ -110,7 +110,7 @@ final class LifecycleTest extends AimlTestCase {
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			// WordPress defines this before including uninstall.php; the name is
 			// its contract, not ours to prefix.
-			define( 'WP_UNINSTALL_PLUGIN', 'ai-multilingual/ai-multilingual.php' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
+			define( 'WP_UNINSTALL_PLUGIN', 'universal-multilingual/universal-multilingual.php' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 		}
 
 		require dirname( __DIR__, 2 ) . '/uninstall.php';

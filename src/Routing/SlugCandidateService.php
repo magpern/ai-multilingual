@@ -42,18 +42,18 @@ final class SlugCandidateService {
 		$title_row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, Extractor::FIELD_TITLE );
 		$title     = is_object( $title_row ) ? trim( (string) ( $title_row->translated_text ?? '' ) ) : '';
 		if ( '' === $title || ( is_object( $title_row ) && Store::STATUS_MISSING === (string) ( $title_row->status ?? '' ) ) ) {
-			return new WP_Error( 'aiml_slug_missing_title', __( 'Translated title is required to generate a slug.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_missing_title', __( 'Translated title is required to generate a slug.', 'universal-multilingual' ) );
 		}
 
 		$existing = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, Extractor::FIELD_SLUG );
 		$origin   = is_object( $existing ) ? (string) ( $existing->slug_origin ?? '' ) : '';
 		if ( 'manual' === $origin ) {
-			return new WP_Error( 'aiml_slug_manual_locked', __( 'Cannot generate over a manual slug candidate.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_manual_locked', __( 'Cannot generate over a manual slug candidate.', 'universal-multilingual' ) );
 		}
 
 		$candidate = $this->normalize_generated( $title );
 		if ( '' === $candidate ) {
-			return new WP_Error( 'aiml_slug_empty_after_sanitize', __( 'Generated slug is empty.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_empty_after_sanitize', __( 'Generated slug is empty.', 'universal-multilingual' ) );
 		}
 
 		$saved = $this->store->save_slug_candidate(
@@ -79,7 +79,7 @@ final class SlugCandidateService {
 
 		$row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, Extractor::FIELD_SLUG );
 
-		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'ai-multilingual' ) );
+		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'universal-multilingual' ) );
 	}
 
 	/**
@@ -93,20 +93,20 @@ final class SlugCandidateService {
 	public function save_manual( WP_Post $post, int $language_id, string $candidate ) {
 		$normalized = $this->normalize_generated( $candidate );
 		if ( '' === $normalized ) {
-			return new WP_Error( 'aiml_slug_invalid', __( 'Slug candidate is empty after normalization.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_invalid', __( 'Slug candidate is empty after normalization.', 'universal-multilingual' ) );
 		}
 
 		$input = strtolower( trim( $candidate ) );
 		if ( $input !== $normalized ) {
 			return new WP_Error(
 				'aiml_slug_sanitize_drift',
-				__( 'Slug must match WordPress sanitize_title output.', 'ai-multilingual' ),
+				__( 'Slug must match WordPress sanitize_title output.', 'universal-multilingual' ),
 				array( 'normalized' => $normalized )
 			);
 		}
 
 		if ( $this->contains_forbidden_chars( $normalized ) ) {
-			return new WP_Error( 'aiml_slug_invalid_chars', __( 'Slug contains forbidden characters.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_invalid_chars', __( 'Slug contains forbidden characters.', 'universal-multilingual' ) );
 		}
 
 		$saved = $this->store->save_slug_candidate(
@@ -132,7 +132,7 @@ final class SlugCandidateService {
 
 		$row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, Extractor::FIELD_SLUG );
 
-		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'ai-multilingual' ) );
+		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'universal-multilingual' ) );
 	}
 
 	/**
@@ -166,7 +166,7 @@ final class SlugCandidateService {
 
 		$row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, Extractor::FIELD_SLUG );
 
-		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load cleared slug candidate.', 'ai-multilingual' ) );
+		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load cleared slug candidate.', 'universal-multilingual' ) );
 	}
 
 	/**
@@ -180,18 +180,18 @@ final class SlugCandidateService {
 		$name_row = $this->store->get( Store::SOURCE_TERM, (int) $term->term_id, $language_id, TermExtractor::FIELD_NAME );
 		$name     = is_object( $name_row ) ? trim( (string) ( $name_row->translated_text ?? '' ) ) : '';
 		if ( '' === $name || ( is_object( $name_row ) && Store::STATUS_MISSING === (string) ( $name_row->status ?? '' ) ) ) {
-			return new WP_Error( 'aiml_slug_missing_title', __( 'Translated term name is required to generate a slug.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_missing_title', __( 'Translated term name is required to generate a slug.', 'universal-multilingual' ) );
 		}
 
 		$existing = $this->store->get( Store::SOURCE_TERM, (int) $term->term_id, $language_id, TermExtractor::FIELD_SLUG );
 		$origin   = is_object( $existing ) ? (string) ( $existing->slug_origin ?? '' ) : '';
 		if ( 'manual' === $origin ) {
-			return new WP_Error( 'aiml_slug_manual_locked', __( 'Cannot generate over a manual slug candidate.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_manual_locked', __( 'Cannot generate over a manual slug candidate.', 'universal-multilingual' ) );
 		}
 
 		$candidate = $this->normalize_generated( $name );
 		if ( '' === $candidate ) {
-			return new WP_Error( 'aiml_slug_empty_after_sanitize', __( 'Generated slug is empty.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_empty_after_sanitize', __( 'Generated slug is empty.', 'universal-multilingual' ) );
 		}
 
 		$saved = $this->store->save_slug_candidate(
@@ -217,7 +217,7 @@ final class SlugCandidateService {
 
 		$row = $this->store->get( Store::SOURCE_TERM, (int) $term->term_id, $language_id, TermExtractor::FIELD_SLUG );
 
-		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'ai-multilingual' ) );
+		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'universal-multilingual' ) );
 	}
 
 	/**
@@ -231,20 +231,20 @@ final class SlugCandidateService {
 	public function save_manual_for_term( WP_Term $term, int $language_id, string $candidate ) {
 		$normalized = $this->normalize_generated( $candidate );
 		if ( '' === $normalized ) {
-			return new WP_Error( 'aiml_slug_invalid', __( 'Slug candidate is empty after normalization.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_invalid', __( 'Slug candidate is empty after normalization.', 'universal-multilingual' ) );
 		}
 
 		$input = strtolower( trim( $candidate ) );
 		if ( $input !== $normalized ) {
 			return new WP_Error(
 				'aiml_slug_sanitize_drift',
-				__( 'Slug must match WordPress sanitize_title output.', 'ai-multilingual' ),
+				__( 'Slug must match WordPress sanitize_title output.', 'universal-multilingual' ),
 				array( 'normalized' => $normalized )
 			);
 		}
 
 		if ( $this->contains_forbidden_chars( $normalized ) ) {
-			return new WP_Error( 'aiml_slug_invalid_chars', __( 'Slug contains forbidden characters.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_invalid_chars', __( 'Slug contains forbidden characters.', 'universal-multilingual' ) );
 		}
 
 		$saved = $this->store->save_slug_candidate(
@@ -270,7 +270,7 @@ final class SlugCandidateService {
 
 		$row = $this->store->get( Store::SOURCE_TERM, (int) $term->term_id, $language_id, TermExtractor::FIELD_SLUG );
 
-		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'ai-multilingual' ) );
+		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load saved slug candidate.', 'universal-multilingual' ) );
 	}
 
 	/**
@@ -304,7 +304,7 @@ final class SlugCandidateService {
 
 		$row = $this->store->get( Store::SOURCE_TERM, (int) $term->term_id, $language_id, TermExtractor::FIELD_SLUG );
 
-		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load cleared slug candidate.', 'ai-multilingual' ) );
+		return $row ?? new WP_Error( 'aiml_slug_save_failed', __( 'Failed to load cleared slug candidate.', 'universal-multilingual' ) );
 	}
 
 	/**

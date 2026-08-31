@@ -91,8 +91,8 @@ final class Editor {
 	public function add_menu(): void {
 		add_submenu_page(
 			SettingsPage::MENU_SLUG,
-			__( 'Translate', 'ai-multilingual' ),
-			__( 'Translate', 'ai-multilingual' ),
+			__( 'Translate', 'universal-multilingual' ),
+			__( 'Translate', 'universal-multilingual' ),
 			Plugin::CAPABILITY,
 			self::MENU_SLUG,
 			array( $this, 'render' )
@@ -104,7 +104,7 @@ final class Editor {
 	 */
 	public function render(): void {
 		if ( ! current_user_can( Plugin::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to translate content.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to translate content.', 'universal-multilingual' ) );
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only screen state.
@@ -115,7 +115,7 @@ final class Editor {
 		$targets = $this->target_languages();
 
 		echo '<div class="wrap">';
-		echo '<h1>' . esc_html__( 'Translate', 'ai-multilingual' ) . '</h1>';
+		echo '<h1>' . esc_html__( 'Translate', 'universal-multilingual' ) . '</h1>';
 
 		$this->render_notice();
 
@@ -123,9 +123,9 @@ final class Editor {
 			echo '<div class="notice notice-warning"><p>';
 			printf(
 				/* translators: %s: link to the Languages screen. */
-				esc_html__( 'No target languages yet. Add one on the %s screen.', 'ai-multilingual' ),
+				esc_html__( 'No target languages yet. Add one on the %s screen.', 'universal-multilingual' ),
 				'<a href="' . esc_url( admin_url( 'admin.php?page=' . SettingsPage::MENU_SLUG ) ) . '">'
-					. esc_html__( 'Languages', 'ai-multilingual' ) . '</a>'
+					. esc_html__( 'Languages', 'universal-multilingual' ) . '</a>'
 			);
 			echo '</p></div></div>';
 
@@ -148,7 +148,7 @@ final class Editor {
 	 */
 	public function handle_save(): void {
 		if ( ! current_user_can( Plugin::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You do not have permission to translate content.', 'ai-multilingual' ) );
+			wp_die( esc_html__( 'You do not have permission to translate content.', 'universal-multilingual' ) );
 		}
 
 		check_admin_referer( 'aiml_save_translation' );
@@ -159,7 +159,7 @@ final class Editor {
 		$post = get_post( $post_id );
 
 		if ( ! $post instanceof WP_Post || null === $this->languages->find( $language_id ) ) {
-			$this->redirect( $post_id, $language_id, new WP_Error( 'aiml_bad_request', __( 'Unknown post or language.', 'ai-multilingual' ) ) );
+			$this->redirect( $post_id, $language_id, new WP_Error( 'aiml_bad_request', __( 'Unknown post or language.', 'universal-multilingual' ) ) );
 		}
 
 		$sources    = $this->extractor->extract( $post );
@@ -211,7 +211,7 @@ final class Editor {
 			++$saved;
 		}
 
-		$this->redirect( $post_id, $language_id, $saved > 0 ? true : new WP_Error( 'aiml_nothing_saved', __( 'Nothing to save.', 'ai-multilingual' ) ) );
+		$this->redirect( $post_id, $language_id, $saved > 0 ? true : new WP_Error( 'aiml_nothing_saved', __( 'Nothing to save.', 'universal-multilingual' ) ) );
 	}
 
 	// -- Rendering --
@@ -243,9 +243,9 @@ final class Editor {
 		echo '<input type="hidden" name="page" value="' . esc_attr( self::MENU_SLUG ) . '" />';
 		echo '<table class="form-table" role="presentation"><tbody>';
 
-		echo '<tr><th scope="row"><label for="aiml-post">' . esc_html__( 'Content', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml-post">' . esc_html__( 'Content', 'universal-multilingual' ) . '</label></th><td>';
 		echo '<select name="post_id" id="aiml-post">';
-		echo '<option value="0">' . esc_html__( '— Select —', 'ai-multilingual' ) . '</option>';
+		echo '<option value="0">' . esc_html__( '— Select —', 'universal-multilingual' ) . '</option>';
 		foreach ( $posts as $candidate ) {
 			printf(
 				'<option value="%1$d"%2$s>%3$s (%4$s)</option>',
@@ -257,9 +257,9 @@ final class Editor {
 		}
 		echo '</select></td></tr>';
 
-		echo '<tr><th scope="row"><label for="aiml-language">' . esc_html__( 'Language', 'ai-multilingual' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="aiml-language">' . esc_html__( 'Language', 'universal-multilingual' ) . '</label></th><td>';
 		echo '<select name="language_id" id="aiml-language">';
-		echo '<option value="0">' . esc_html__( '— Select —', 'ai-multilingual' ) . '</option>';
+		echo '<option value="0">' . esc_html__( '— Select —', 'universal-multilingual' ) . '</option>';
 		foreach ( $targets as $language ) {
 			printf(
 				'<option value="%1$d"%2$s>%3$s (%4$s)</option>',
@@ -273,7 +273,7 @@ final class Editor {
 
 		echo '</tbody></table>';
 
-		submit_button( __( 'Load', 'ai-multilingual' ), 'secondary', '', false );
+		submit_button( __( 'Load', 'universal-multilingual' ), 'secondary', '', false );
 
 		echo '</form><hr />';
 	}
@@ -322,15 +322,15 @@ final class Editor {
 			echo '<h3>' . esc_html( $this->field_label( $field_key ) ) . ' ' . $this->status_badge( $segment ) . '</h3>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Badge is escaped at construction.
 
 			echo '<table class="form-table" role="presentation"><tbody><tr>';
-			echo '<th scope="row">' . esc_html__( 'Source', 'ai-multilingual' ) . '</th>';
+			echo '<th scope="row">' . esc_html__( 'Source', 'universal-multilingual' ) . '</th>';
 			echo '<td><textarea readonly rows="' . ( $is_body ? 10 : 2 ) . '" class="large-text code">' . esc_textarea( $source ) . '</textarea></td>';
 			echo '</tr><tr>';
-			echo '<th scope="row"><label for="aiml-field-' . esc_attr( $field_key ) . '">' . esc_html__( 'Translation', 'ai-multilingual' ) . '</label></th>';
+			echo '<th scope="row"><label for="aiml-field-' . esc_attr( $field_key ) . '">' . esc_html__( 'Translation', 'universal-multilingual' ) . '</label></th>';
 			echo '<td>';
 
 			if ( $is_body && Extractor::BODY_OK !== $body_state ) {
 				echo '<textarea rows="10" class="large-text" disabled></textarea>';
-				echo '<p class="description">' . esc_html__( 'Body translation is unavailable for this content type in this version.', 'ai-multilingual' ) . '</p>';
+				echo '<p class="description">' . esc_html__( 'Body translation is unavailable for this content type in this version.', 'universal-multilingual' ) . '</p>';
 			} else {
 				printf(
 					'<textarea id="aiml-field-%1$s" name="%1$s" rows="%2$d" class="large-text">%3$s</textarea>',
@@ -343,7 +343,7 @@ final class Editor {
 			echo '</td></tr></tbody></table>';
 		}
 
-		submit_button( __( 'Save translation', 'ai-multilingual' ) );
+		submit_button( __( 'Save translation', 'universal-multilingual' ) );
 
 		echo '</form>';
 	}
@@ -371,15 +371,15 @@ final class Editor {
 	 */
 	private function status_badge( ?object $segment ): string {
 		if ( null === $segment || Store::STATUS_MISSING === $segment->status ) {
-			return '<span class="dashicons dashicons-minus" title="' . esc_attr__( 'Not translated', 'ai-multilingual' ) . '"></span>';
+			return '<span class="dashicons dashicons-minus" title="' . esc_attr__( 'Not translated', 'universal-multilingual' ) . '"></span>';
 		}
 
 		$label = Store::STATUS_REVIEWED === $segment->status
-			? __( 'Reviewed', 'ai-multilingual' )
-			: __( 'Translated', 'ai-multilingual' );
+			? __( 'Reviewed', 'universal-multilingual' )
+			: __( 'Translated', 'universal-multilingual' );
 
 		if ( ! empty( $segment->is_stale ) ) {
-			$label .= ' · ' . __( 'source changed', 'ai-multilingual' );
+			$label .= ' · ' . __( 'source changed', 'universal-multilingual' );
 		}
 
 		return '<em style="font-weight:normal;font-size:13px;">(' . esc_html( $label ) . ')</em>';
@@ -393,14 +393,14 @@ final class Editor {
 	private function field_label( string $field_key ): string {
 		switch ( $field_key ) {
 			case Extractor::FIELD_TITLE:
-				return __( 'Title', 'ai-multilingual' );
+				return __( 'Title', 'universal-multilingual' );
 
 			case Extractor::FIELD_EXCERPT:
-				return __( 'Excerpt', 'ai-multilingual' );
+				return __( 'Excerpt', 'universal-multilingual' );
 
 			case Extractor::FIELD_CONTENT:
 			default:
-				return __( 'Body', 'ai-multilingual' );
+				return __( 'Body', 'universal-multilingual' );
 		}
 	}
 
@@ -452,13 +452,13 @@ final class Editor {
 		echo '<div class="notice notice-warning"><p>';
 		echo esc_html__(
 			'Block translations for this post are managed in the Translator Workspace. Use the workspace to edit block segments so changes stay aligned with Strategy F extraction.',
-			'ai-multilingual'
+			'universal-multilingual'
 		);
 		echo '</p><p>';
 		printf(
 			'<a class="button button-primary" href="%1$s">%2$s</a>',
 			esc_url( $workspace_url ),
-			esc_html__( 'Open Translator Workspace', 'ai-multilingual' )
+			esc_html__( 'Open Translator Workspace', 'universal-multilingual' )
 		);
 		echo '</p></div>';
 	}
@@ -480,7 +480,7 @@ final class Editor {
 		if ( isset( $_GET['aiml_updated'] ) ) {
 			printf(
 				'<div class="notice notice-success"><p>%s</p></div>',
-				esc_html__( 'Translation saved.', 'ai-multilingual' )
+				esc_html__( 'Translation saved.', 'universal-multilingual' )
 			);
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended

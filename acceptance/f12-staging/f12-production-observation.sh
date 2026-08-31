@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="/opt/biopentra/dev/ai-multilingual"
 WP="/opt/biopentra/apps/wordpress"
 EVIDENCE="${ROOT}/docs/plans/F12_PRODUCTION_OBSERVATION_EVIDENCE.json"
-HELPER="wp-content/plugins/ai-multilingual/acceptance/f12-staging/wp10-helper.php"
+HELPER="wp-content/plugins/universal-multilingual/acceptance/f12-staging/wp10-helper.php"
 BASE_URL="https://dev.biopentra.eu"
 
 # PO-approved production parameters (2026-08-05)

@@ -24,7 +24,7 @@ $table_prefix = 'wptests_'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride
 
 define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );
-define( 'WP_TESTS_TITLE', 'AI Multilingual Test Site' );
+define( 'WP_TESTS_TITLE', 'Universal Multilingual Test Site' );
 define( 'WP_PHP_BINARY', 'php' );
 define( 'WPLANG', '' );
 

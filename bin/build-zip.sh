@@ -7,7 +7,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="${1:-$(sed -n 's/^ \* Version: //p' "$ROOT/ai-multilingual.php" | tr -d '[:space:]')}"
+VERSION="${1:-$(sed -n 's/^ \* Version: //p' "$ROOT/universal-multilingual.php" | tr -d '[:space:]')}"
 
 if [ -z "$VERSION" ]; then
     echo "Could not determine plugin version." >&2
@@ -20,12 +20,12 @@ if [ -d "$ROOT/vendor/phpunit" ]; then
 fi
 
 DIST="$ROOT/dist"
-BUILD="$DIST/ai-multilingual"
+BUILD="$DIST/universal-multilingual"
 
 rm -rf "$DIST"
 mkdir -p "$BUILD"
 
-cp "$ROOT/ai-multilingual.php" "$ROOT/uninstall.php" "$BUILD/"
+cp "$ROOT/universal-multilingual.php" "$ROOT/uninstall.php" "$BUILD/"
 [ -f "$ROOT/readme.txt" ] && cp "$ROOT/readme.txt" "$BUILD/"
 [ -f "$ROOT/LICENSE" ] && cp "$ROOT/LICENSE" "$BUILD/"
 cp -R "$ROOT/src" "$BUILD/src"
@@ -47,15 +47,15 @@ if ! [ -f "$BUILD/assets/translator-workspace/build/index.js" ]; then
     exit 1
 fi
 
-ZIP_PATH="$DIST/ai-multilingual-${VERSION}.zip"
+ZIP_PATH="$DIST/universal-multilingual-${VERSION}.zip"
 if command -v zip >/dev/null 2>&1; then
-    ( cd "$DIST" && zip -rq "ai-multilingual-${VERSION}.zip" ai-multilingual )
+    ( cd "$DIST" && zip -rq "universal-multilingual-${VERSION}.zip" universal-multilingual )
 else
     python3 - "$DIST" "$ZIP_PATH" <<'PY'
 import sys, zipfile
 from pathlib import Path
 dist, zip_path = Path(sys.argv[1]), Path(sys.argv[2])
-root = dist / "ai-multilingual"
+root = dist / "universal-multilingual"
 with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
     for path in sorted(root.rglob("*")):
         if path.is_file():
@@ -63,4 +63,4 @@ with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
 PY
 fi
 
-echo "dist/ai-multilingual-${VERSION}.zip"
+echo "dist/universal-multilingual-${VERSION}.zip"

@@ -2,7 +2,7 @@
 /**
  * A.2 acceptance fixture: create/update disposable Elementor page + seed SV overlays.
  *
- * Usage (wpcli): wp eval-file wp-content/plugins/ai-multilingual/acceptance/a2-elementor/scripts/seed-a2-fixture.php
+ * Usage (wpcli): wp eval-file wp-content/plugins/universal-multilingual/acceptance/a2-elementor/scripts/seed-a2-fixture.php
  *
  * @package AIMultilingual
  */

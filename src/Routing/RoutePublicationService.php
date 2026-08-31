@@ -81,7 +81,7 @@ final class RoutePublicationService {
 				Extractor::FIELD_SLUG
 			);
 			if ( null === $candidate ) {
-				return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'ai-multilingual' ) );
+				return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'universal-multilingual' ) );
 			}
 
 			$current = $this->routes->lock_by_object( Store::SOURCE_POST, (int) $post->ID, $language_id );
@@ -89,7 +89,7 @@ final class RoutePublicationService {
 			$leaf   = trim( (string) ( $candidate->translated_text ?? '' ) );
 			$origin = (string) ( $candidate->slug_origin ?? '' );
 			if ( '' === $leaf || Store::STATUS_MISSING === (string) ( $candidate->status ?? '' ) ) {
-				return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'ai-multilingual' ) );
+				return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'universal-multilingual' ) );
 			}
 
 			$source_path = $this->source_path_for_post( $post );
@@ -249,7 +249,7 @@ final class RoutePublicationService {
 						TermExtractor::FIELD_SLUG
 					);
 					if ( null === $candidate ) {
-						return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'ai-multilingual' ) );
+						return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'universal-multilingual' ) );
 					}
 
 					$current = $this->routes->lock_by_object( Store::SOURCE_TERM, (int) $term->term_id, $language_id );
@@ -257,7 +257,7 @@ final class RoutePublicationService {
 					$leaf   = trim( (string) ( $candidate->translated_text ?? '' ) );
 					$origin = (string) ( $candidate->slug_origin ?? '' );
 					if ( '' === $leaf || Store::STATUS_MISSING === (string) ( $candidate->status ?? '' ) ) {
-						return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'ai-multilingual' ) );
+						return new WP_Error( 'aiml_slug_candidate_missing', __( 'Slug candidate is missing.', 'universal-multilingual' ) );
 					}
 
 					$source_path = $this->source_path_for_term( $term );
@@ -409,13 +409,13 @@ final class RoutePublicationService {
 				$leaf  = is_string( $last ) ? $last : '';
 			}
 			if ( '' === $leaf ) {
-				return new WP_Error( 'aiml_slug_empty_leaf', __( 'Active route has no localized leaf.', 'ai-multilingual' ) );
+				return new WP_Error( 'aiml_slug_empty_leaf', __( 'Active route has no localized leaf.', 'universal-multilingual' ) );
 			}
 
 			if ( Store::SOURCE_POST === $source_type ) {
 				$post = get_post( $source_id );
 				if ( ! $post instanceof WP_Post ) {
-					return new WP_Error( 'aiml_slug_source_missing', __( 'Source post is missing.', 'ai-multilingual' ) );
+					return new WP_Error( 'aiml_slug_source_missing', __( 'Source post is missing.', 'universal-multilingual' ) );
 				}
 				$source_path = $this->source_path_for_post( $post );
 				if ( $source_path instanceof WP_Error ) {
@@ -429,7 +429,7 @@ final class RoutePublicationService {
 			} elseif ( Store::SOURCE_TERM === $source_type ) {
 				$term = get_term( $source_id );
 				if ( ! $term instanceof WP_Term || is_wp_error( $term ) ) {
-					return new WP_Error( 'aiml_slug_source_missing', __( 'Source term is missing.', 'ai-multilingual' ) );
+					return new WP_Error( 'aiml_slug_source_missing', __( 'Source term is missing.', 'universal-multilingual' ) );
 				}
 				$source_path = $this->source_path_for_term( $term );
 				if ( $source_path instanceof WP_Error ) {
@@ -441,7 +441,7 @@ final class RoutePublicationService {
 				}
 				$subtype = (string) $term->taxonomy;
 			} else {
-				return new WP_Error( 'aiml_slug_unsupported_source', __( 'Unsupported source type.', 'ai-multilingual' ) );
+				return new WP_Error( 'aiml_slug_unsupported_source', __( 'Unsupported source type.', 'universal-multilingual' ) );
 			}
 
 			$prior = (string) ( $current->localized_path ?? '' );
@@ -773,7 +773,7 @@ final class RoutePublicationService {
 		$same = (string) ( $hist->source_type ?? '' ) === $source_type
 			&& (int) ( $hist->source_id ?? 0 ) === $source_id;
 		if ( ! $same ) {
-			return new WP_Error( 'aiml_slug_history_collision', __( 'Localized path is reserved in history by another object.', 'ai-multilingual' ), array( 'status' => 409 ) );
+			return new WP_Error( 'aiml_slug_history_collision', __( 'Localized path is reserved in history by another object.', 'universal-multilingual' ), array( 'status' => 409 ) );
 		}
 
 		$this->history->delete_by_id( (int) $hist->history_id );
@@ -848,7 +848,7 @@ final class RoutePublicationService {
 
 		$permalink = get_permalink( $post );
 		if ( ! is_string( $permalink ) || '' === $permalink ) {
-			return new WP_Error( 'aiml_slug_no_permalink', __( 'Could not resolve permalink.', 'ai-multilingual' ) );
+			return new WP_Error( 'aiml_slug_no_permalink', __( 'Could not resolve permalink.', 'universal-multilingual' ) );
 		}
 
 		$path = (string) wp_parse_url( $permalink, PHP_URL_PATH );
@@ -1022,7 +1022,7 @@ final class RoutePublicationService {
 			}
 		}
 
-		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'ai-multilingual' ), array( 'status' => 409 ) );
+		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'universal-multilingual' ), array( 'status' => 409 ) );
 	}
 
 	/**
@@ -1071,7 +1071,7 @@ final class RoutePublicationService {
 			}
 		}
 
-		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'ai-multilingual' ), array( 'status' => 409 ) );
+		return new WP_Error( 'aiml_slug_collision_exhausted', __( 'Could not resolve a free localized slug.', 'universal-multilingual' ), array( 'status' => 409 ) );
 	}
 
 	/**

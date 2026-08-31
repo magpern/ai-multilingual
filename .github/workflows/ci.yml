@@ -80,8 +80,8 @@ jobs:
       - run: bash bin/audit-zip.sh
       - uses: actions/upload-artifact@v7
         with:
-          name: ai-multilingual
-          path: dist/ai-multilingual-*.zip
+          name: universal-multilingual
+          path: dist/universal-multilingual-*.zip
 
   quality:
     runs-on: ubuntu-latest

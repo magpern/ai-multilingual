@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="/opt/biopentra/dev/ai-multilingual"
 WP="/opt/biopentra/apps/wordpress"
 EVIDENCE="${ROOT}/docs/plans/F13_TIER3_BROWSER_SMOKE_EVIDENCE.json"
-HELPER="wp-content/plugins/ai-multilingual/acceptance/f13-staging/f13-helper.php"
+HELPER="wp-content/plugins/universal-multilingual/acceptance/f13-staging/f13-helper.php"
 BASE_URL="https://dev.biopentra.eu"
 RESTORE_JSON='{"rollout_render_enabled":true,"rollout_stage":2,"allowed_post_ids":[6321],"allowed_language_codes":["sv"],"general_rollout_enabled":false,"render_cache_enabled":false}'
 

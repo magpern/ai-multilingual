@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="/opt/biopentra/dev/ai-multilingual"
 WP="/opt/biopentra/apps/wordpress"
 EVIDENCE="${ROOT}/docs/plans/F13_GA_STAGING_EVIDENCE.json"
-HELPER="wp-content/plugins/ai-multilingual/acceptance/f13-staging/f13-helper.php"
+HELPER="wp-content/plugins/universal-multilingual/acceptance/f13-staging/f13-helper.php"
 BASE_URL="https://dev.biopentra.eu"
 
 # Restore to F12 observation defaults after run

@@ -2,7 +2,7 @@
 # A.R2 research runner — EXPERIMENTAL
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-SCRIPT_REL="wp-content/plugins/ai-multilingual/research/ar2-nested-gutenberg-identity/scripts"
+SCRIPT_REL="wp-content/plugins/universal-multilingual/research/ar2-nested-gutenberg-identity/scripts"
 COMPOSE_DIR="/opt/biopentra/apps/wordpress"
 
 chmod 777 "$ROOT/research/ar2-nested-gutenberg-identity/evidence" 2>/dev/null || true

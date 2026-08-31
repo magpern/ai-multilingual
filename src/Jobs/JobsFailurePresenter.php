@@ -125,15 +125,15 @@ final class JobsFailurePresenter {
 	 */
 	private function default_message( string $category ): string {
 		return match ( $category ) {
-			self::CATEGORY_STALE_SOURCE => __( 'Source changed while the job item was running.', 'ai-multilingual' ),
-			self::CATEGORY_CONFLICT => __( 'A target conflict prevented this job item from completing.', 'ai-multilingual' ),
-			self::CATEGORY_BUDGET => __( 'The job reached its provider budget limit.', 'ai-multilingual' ),
-			self::CATEGORY_CONCURRENCY => __( 'The job could not start because the concurrency limit was reached.', 'ai-multilingual' ),
-			self::CATEGORY_RATE_LIMIT => __( 'The provider asked the job to wait before retrying.', 'ai-multilingual' ),
-			self::CATEGORY_STRUCTURAL_SAFETY => __( 'A structural safety check blocked this job item.', 'ai-multilingual' ),
-			self::CATEGORY_TERMINAL_PROVIDER => __( 'A permanent provider error stopped this job item.', 'ai-multilingual' ),
-			self::CATEGORY_PROVIDER_TRANSPORT => __( 'A provider or transport error interrupted this job item.', 'ai-multilingual' ),
-			default => __( 'The job item failed. Open Jobs for details.', 'ai-multilingual' ),
+			self::CATEGORY_STALE_SOURCE => __( 'Source changed while the job item was running.', 'universal-multilingual' ),
+			self::CATEGORY_CONFLICT => __( 'A target conflict prevented this job item from completing.', 'universal-multilingual' ),
+			self::CATEGORY_BUDGET => __( 'The job reached its provider budget limit.', 'universal-multilingual' ),
+			self::CATEGORY_CONCURRENCY => __( 'The job could not start because the concurrency limit was reached.', 'universal-multilingual' ),
+			self::CATEGORY_RATE_LIMIT => __( 'The provider asked the job to wait before retrying.', 'universal-multilingual' ),
+			self::CATEGORY_STRUCTURAL_SAFETY => __( 'A structural safety check blocked this job item.', 'universal-multilingual' ),
+			self::CATEGORY_TERMINAL_PROVIDER => __( 'A permanent provider error stopped this job item.', 'universal-multilingual' ),
+			self::CATEGORY_PROVIDER_TRANSPORT => __( 'A provider or transport error interrupted this job item.', 'universal-multilingual' ),
+			default => __( 'The job item failed. Open Jobs for details.', 'universal-multilingual' ),
 		};
 	}
 }
