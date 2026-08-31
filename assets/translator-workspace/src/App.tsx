@@ -27,6 +27,7 @@ import LocalizedSlugPanel from './components/LocalizedSlugPanel';
 import ReviewDecisionDialog from './components/ReviewDecisionDialog';
 import JobsPanel from './components/JobsPanel';
 import OperationsPanel from './components/OperationsPanel';
+import SiteTranslatePanel from './components/SiteTranslatePanel';
 import ReviewQueuePanel from './components/ReviewQueuePanel';
 import SegmentFilterBar from './components/SegmentFilterBar';
 import SegmentTable from './components/SegmentTable';
@@ -87,7 +88,7 @@ import {
 	toggleSelection,
 } from './utils/row-selection';
 
-type WorkspaceViewMode = 'editor' | 'queue' | 'jobs' | 'operations';
+type WorkspaceViewMode = 'editor' | 'queue' | 'jobs' | 'operations' | 'site-translate';
 
 interface ReviewDialogState {
 	action: 'approve' | 'reject';
@@ -165,6 +166,9 @@ export default function App() {
 	);
 	const [ focusedJobItemId, setFocusedJobItemId ] = useState< number | null >(
 		() => initialJobsUrl.itemId
+	);
+	const [ focusedBatchId, setFocusedBatchId ] = useState< string | null >(
+		() => initialJobsUrl.batchId
 	);
 	const [ reviewJump, setReviewJump ] = useState( {
 		language: '',
@@ -355,9 +359,10 @@ export default function App() {
 			writeJobsUrlState( {
 				jobId: focusedJobId,
 				itemId: focusedJobItemId,
+				batchId: focusedBatchId,
 			} );
 		}
-	}, [ viewMode, focusedJobId, focusedJobItemId ] );
+	}, [ viewMode, focusedJobId, focusedJobItemId, focusedBatchId ] );
 
 	const handleDraftChange = ( segmentKey: string, value: string ) => {
 		setRows( ( current ) => updateDraftText( current, segmentKey, value ) );
@@ -926,6 +931,20 @@ export default function App() {
 					) }
 					{ canTranslate && (
 						<Button
+							variant={
+								viewMode === 'site-translate' ? 'primary' : 'secondary'
+							}
+							role="tab"
+							aria-selected={ viewMode === 'site-translate' }
+							onClick={ () => {
+								void requestViewChange( 'site-translate' );
+							} }
+						>
+							{ __( 'Site Translate', 'ai-multilingual' ) }
+						</Button>
+					) }
+					{ canTranslate && (
+						<Button
 							variant={ viewMode === 'editor' ? 'primary' : 'secondary' }
 							role="tab"
 							aria-selected={ viewMode === 'editor' }
@@ -1215,6 +1234,24 @@ export default function App() {
 				/>
 			) }
 
+			{ canTranslate && 'site-translate' === viewMode && (
+				<SiteTranslatePanel
+					languages={ languages }
+					canManageJobs={ canManageJobs }
+					canRunJobs={ canRunJobs }
+					onOpenJobsBatch={ ( openBatchId ) => {
+						if ( ! canViewJobs ) {
+							return;
+						}
+						setFocusedJobId( null );
+						setFocusedJobItemId( null );
+						setFocusedBatchId( openBatchId );
+						setViewMode( 'jobs' );
+						writeJobsUrlState( { batchId: openBatchId } );
+					} }
+				/>
+			) }
+
 			{ canViewJobs && 'jobs' === viewMode && (
 				<JobsPanel
 					languages={ languages }
@@ -1223,6 +1260,7 @@ export default function App() {
 					canRun={ canRunJobs }
 					focusedJobId={ focusedJobId }
 					focusedItemId={ focusedJobItemId }
+					focusedBatchId={ focusedBatchId }
 					onOpenOperations={
 						canAccessOperations
 							? ( { sourceType, sourceId, languageId } ) => {

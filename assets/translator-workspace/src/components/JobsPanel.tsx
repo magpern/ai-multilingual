@@ -36,6 +36,7 @@ interface JobsPanelProps {
 	canRun: boolean;
 	focusedJobId?: number | null;
 	focusedItemId?: number | null;
+	focusedBatchId?: string | null;
 	onOpenOperations?: ( args: {
 		sourceType: string;
 		sourceId: number;
@@ -63,6 +64,7 @@ export default function JobsPanel( {
 	canRun,
 	focusedJobId = null,
 	focusedItemId = null,
+	focusedBatchId = null,
 	onOpenOperations,
 }: JobsPanelProps ) {
 	const [ statusFilter, setStatusFilter ] = useState< JobStatus | 'all' >(
@@ -179,6 +181,12 @@ export default function JobsPanel( {
 			window.clearInterval( timer );
 		};
 	}, [ jobs, loadJobs, loadHealth ] );
+
+	useEffect( () => {
+		if ( focusedBatchId && focusedBatchId.trim() ) {
+			setBatchIdFilter( focusedBatchId.trim() );
+		}
+	}, [ focusedBatchId ] );
 
 	useEffect( () => {
 		if ( null === focusedJobId || focusedJobId <= 0 ) {

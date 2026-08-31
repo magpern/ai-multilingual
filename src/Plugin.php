@@ -28,6 +28,11 @@ use AIMultilingual\Jobs\JobProgressReconciler;
 use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Jobs\JobsCli;
 use AIMultilingual\Jobs\JobsController;
+use AIMultilingual\Rest\SiteTranslateController;
+use AIMultilingual\SiteTranslate\SiteTranslateAdmissionService;
+use AIMultilingual\SiteTranslate\SiteTranslateBatchService;
+use AIMultilingual\SiteTranslate\SiteTranslateCoverageService;
+use AIMultilingual\SiteTranslate\SiteTranslateLocalizedUrlBatchService;
 use AIMultilingual\Jobs\JobsViewModelSerializer;
 use AIMultilingual\Jobs\SlugRouteActivationJob;
 use AIMultilingual\Jobs\CapabilityVerificationJob;
@@ -907,6 +912,34 @@ final class Plugin {
 			new WorkspacePageSummarySerializer(),
 			new WorkspaceTranslationStatusSerializer(),
 			new ReviewQueueItemSerializer()
+		) )->register();
+
+		$site_translate_admission = new SiteTranslateAdmissionService( $extractor, $settings );
+		$site_translate_coverage  = new SiteTranslateCoverageService(
+			$assembler,
+			$extractor,
+			$site_translate_admission,
+			$meta_registry
+		);
+		$site_translate_batches   = new SiteTranslateBatchService(
+			$job_batches,
+			$job_repo,
+			$site_translate_admission
+		);
+		$site_translate_routes    = new SiteTranslateLocalizedUrlBatchService(
+			$store,
+			$slug_candidates,
+			$route_publication,
+			$routing_capabilities
+		);
+
+		( new SiteTranslateController(
+			$site_translate_coverage,
+			$site_translate_admission,
+			$site_translate_batches,
+			$site_translate_routes,
+			$languages,
+			new JobsViewModelSerializer()
 		) )->register();
 
 		( new TermSlugController( $slug_candidates, $route_publication, $languages ) )->register();

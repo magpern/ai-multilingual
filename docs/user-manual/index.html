@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="ai-multilingual repository documentation">
-<title>AI Multilingual User Manual — v1.6.0</title>
+<title>Universal Multilingual User Manual — v1.10.0</title>
 <style>
 :root {
   --bg: #f7f6f2;
@@ -315,18 +315,18 @@ footer.doc-foot {
 <div class="wrap">
 
 <header class="doc-hero">
-  <p class="meta" style="margin:0 0 .35rem"><strong>AI Multilingual</strong> · User Manual</p>
-  <h1>How to configure and operate AI Multilingual</h1>
+  <p class="meta" style="margin:0 0 .35rem"><strong>Universal Multilingual</strong> · User Manual</p>
+  <h1>How to configure and operate Universal Multilingual</h1>
   <p class="meta">
-    <strong>Applies to version:</strong> 1.6.0<br>
+    <strong>Applies to version:</strong> 1.10.0<br>
     <strong>Schema TARGET:</strong> 8<br>
     <strong>Canonical path:</strong> <code>docs/user-manual/index.html</code><br>
-    <strong>Last updated:</strong> 2026-08-16<br>
-    <strong>Release:</strong> <a href="https://github.com/magpern/ai-multilingual/releases/tag/v1.6.0">v1.6.0</a><br>
-    <strong>Acceptance testing:</strong> <a href="../acceptance/v1.6.0-vlad-acceptance.html">v1.6.0 Vlad checklist</a>
+    <strong>Last updated:</strong> 2026-08-31<br>
+    <strong>Release:</strong> <a href="https://github.com/magpern/universal-multilingual/releases/tag/v1.10.0">v1.10.0</a><br>
+    <strong>Historical acceptance:</strong> <a href="../acceptance/v1.6.0-vlad-acceptance.html">v1.6.0 Vlad checklist</a> (not current-version evidence)
   </p>
   <p>Practical guide for WordPress / WooCommerce administrators. Ordinary operation uses the admin UI — you do not need CLI or REST for day-to-day work.</p>
-  <p class="callout"><strong class="label">Maintenance</strong> This manual describes product capabilities for <strong>v1.6.0</strong> (TARGET&nbsp;8). Review and update it when operator-facing behavior, Settings, Workspace, Jobs, Localized URLs, or Supported/Deferred contracts change. It is not an acceptance-test checklist.</p>
+  <p class="callout"><strong class="label">Maintenance</strong> This manual describes product capabilities for <strong>v1.10.0</strong> (TARGET&nbsp;8). Review and update it when operator-facing behavior, Settings, Workspace, Jobs, Localized URLs, or Supported/Deferred contracts change. It is not an acceptance-test checklist.</p>
   <p>
     <span class="badge supported">Supported</span>
     <span class="badge optional">Optional</span>
@@ -340,6 +340,7 @@ footer.doc-foot {
     <li><a href="#initial-configuration">Languages &amp; Settings</a></li>
     <li><a href="#translating-content">Translate content</a></li>
     <li><a href="#review-publication">Review &amp; publish</a></li>
+    <li><a href="#site-translate">Site Translate (multi-page workflow)</a></li>
     <li><a href="#jobs">Run &amp; monitor Jobs</a></li>
     <li><a href="#stale">Understand stale state</a></li>
     <li><a href="#conflicts">Recover from conflicts</a></li>
@@ -752,9 +753,33 @@ footer.doc-foot {
   <a class="back-top" href="#content">Back to top</a>
 </section>
 
+<section id="site-translate" data-section>
+  <h2>19a. Site Translate (pages, posts, products)</h2>
+  <p><span class="badge supported">Supported</span> Multi-object translation workflow in <span class="menu-path">Workspace → Site Translate</span> for admitted visitor-facing types: pages, posts, and products.</p>
+  <h3>Prerequisites</h3>
+  <ul>
+    <li>Target language configured (Preview while preparing; promote to <strong>Published</strong> before anonymous/public acceptance).</li>
+    <li>AI provider configured; segment publication gate <strong>On</strong>; auto publication <strong>Manual</strong> (AI output lands unpublished until you Publish).</li>
+    <li>Gutenberg block bodies: Strategy F must be fully valid when the selection includes block-dependent objects. Classic-only selections may run even when Strategy F is Off.</li>
+  </ul>
+  <h3>Coverage meanings</h3>
+  <p>Coverage is per object × language from current extraction ∩ provider-admitted segments (slug candidates excluded). <strong>No extractable work</strong> means <code>eligible_total=0</code> — not “100% translated.” Translation completeness for publish intent requires <code>missing=0</code> and <code>stale=0</code>; unpublished translated segments may remain.</p>
+  <h3>Jobs batching</h3>
+  <p>Selections chunk at 50 objects per Job; one Site Translate operation shares one <code>batch_id</code>. After create, Workspace focuses the Jobs tab on that batch. <strong>Run batch now</strong> enqueues waiting jobs asynchronously (does not run the whole site synchronously in one request).</p>
+  <h3>Localized URLs sequencing</h3>
+  <ol>
+    <li>Finish translation Jobs; segments remain unpublished until you Publish.</li>
+    <li>Promote language Published; keep Localized URLs Off; verify anonymous gate holdback on language-prefixed source slugs.</li>
+    <li>Publish segments in Operations.</li>
+    <li>Enable Localized URLs; use <strong>Generate &amp; publish routes</strong> for the selection.</li>
+  </ol>
+  <p>Automatic slug generation requires a published, non-stale translated title. Outcomes include <code>title_not_published</code>, <code>title_stale</code>, and collision (edit / clear / retry per item — no automatic <code>slug-2</code> suffixes).</p>
+  <a class="back-top" href="#content">Back to top</a>
+</section>
+
 <section id="operating-workflow" data-section>
   <h2>19. Recommended operating workflow</h2>
-  <p>Reflects v1.6.0 operator surfaces after Localized URL completion (P0), Rank Math Model&nbsp;A documentation (P1), and Jobs / stale literacy (P2).</p>
+  <p>Reflects v1.10.0 operator surfaces including Site Translate, Localized URL completion, Rank Math Model&nbsp;A documentation, and Jobs / stale literacy.</p>
   <ol>
     <li>Edit source content in WordPress/WooCommerce.</li>
     <li>In <span class="menu-path">Workspace → Operations</span>, inspect stale / attention for each target language (<a href="#stale">Stale</a>).</li>
@@ -776,9 +801,9 @@ footer.doc-foot {
 </section>
 
 <section id="limitations" data-section>
-  <h2>20. Current limitations (v1.6.0)</h2>
+  <h2>20. Current limitations (v1.10.0)</h2>
   <ul>
-    <li>Bulk Job create remains post-ID oriented (no picker redesign).</li>
+    <li>Site Translate covers pages/posts/products only (not menus/terms one-click).</li>
     <li>Jobs → Operations linking is source-level only (no translation_id enrichment).</li>
     <li>Richer multi-language UX polish remains backlog.</li>
     <li>Sitemap xhtml advertisement remains subject to public/discoverability eligibility (including <code>blog_public</code>).</li>

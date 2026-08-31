@@ -60,9 +60,51 @@ final class BackgroundTranslationBatchCoordinator {
 	 * @param list<array<string, mixed>> $posts       Per-post create arg sets (source_id + segment_keys, etc.).
 	 * @param int                        $language_id Shared language id applied when missing per post.
 	 * @param array<string, mixed>       $shared_args Shared create args (provider, prompt, created_by, ...).
+	 * @param string|null                $batch_id    Optional existing batch id for chunked Site Translate create.
 	 * @return array{batch_id: string, jobs: list<object>}|WP_Error
 	 */
-	public function create_bulk( array $posts, int $language_id, array $shared_args = array() ) {
+	public function create_bulk( array $posts, int $language_id, array $shared_args = array(), ?string $batch_id = null ) {
+		$result = $this->create_bulk_resilient( $posts, $language_id, $shared_args, $batch_id, false );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( ! empty( $result['failed'] ) ) {
+			$first = $result['failed'][0];
+
+			return new WP_Error(
+				(string) ( $first['code'] ?? 'job_create_failed' ),
+				(string) ( $first['message'] ?? 'Bulk job creation failed.' ),
+				array(
+					'status'   => (int) ( $first['status'] ?? 422 ),
+					'batch_id' => $result['batch_id'],
+				)
+			);
+		}
+
+		return array(
+			'batch_id' => $result['batch_id'],
+			'jobs'     => $result['jobs'],
+		);
+	}
+
+	/**
+	 * Create bulk jobs with optional partial-success semantics for Site Translate.
+	 *
+	 * @param list<array<string, mixed>> $posts            Per-post create arg sets.
+	 * @param int                        $language_id      Shared language id.
+	 * @param array<string, mixed>       $shared_args      Shared create args.
+	 * @param string|null                $batch_id         Existing batch id or null to generate.
+	 * @param bool                       $continue_on_error When true, preserve successful jobs on per-post failure.
+	 * @return array{batch_id: string, jobs: list<object>, failed: list<array<string, mixed>>, complete: bool}|WP_Error
+	 */
+	public function create_bulk_resilient(
+		array $posts,
+		int $language_id,
+		array $shared_args = array(),
+		?string $batch_id = null,
+		bool $continue_on_error = true
+	) {
 		if ( count( $posts ) > JobBounds::MAX_POSTS_PER_BULK ) {
 			return new WP_Error( 'workload_limit_exceeded', 'Bulk request exceeds max posts per bulk.' );
 		}
@@ -81,8 +123,9 @@ final class BackgroundTranslationBatchCoordinator {
 			}
 		}
 
-		$batch_id = $this->generate_batch_id();
+		$batch_id = null !== $batch_id && '' !== $batch_id ? $batch_id : $this->generate_batch_id();
 		$created  = array();
+		$failed   = array();
 
 		foreach ( $posts as $post_args ) {
 			$args = array_merge(
@@ -97,7 +140,16 @@ final class BackgroundTranslationBatchCoordinator {
 
 			$result = $this->jobs->create_job( $args );
 			if ( is_wp_error( $result ) ) {
-				return $result;
+				$failed[] = array(
+					'source_id' => (int) ( $post_args['source_id'] ?? 0 ),
+					'code'      => $result->get_error_code(),
+					'message'   => $result->get_error_message(),
+					'status'    => (int) ( $result->get_error_data()['status'] ?? 422 ),
+				);
+				if ( ! $continue_on_error ) {
+					break;
+				}
+				continue;
 			}
 
 			$created[] = $result;
@@ -106,6 +158,52 @@ final class BackgroundTranslationBatchCoordinator {
 		return array(
 			'batch_id' => $batch_id,
 			'jobs'     => $created,
+			'failed'   => $failed,
+			'complete' => array() === $failed,
+		);
+	}
+
+	/**
+	 * Enqueue all waiting jobs in a batch via Action Scheduler.
+	 *
+	 * @param string $batch_id Batch identifier.
+	 * @return array{batch_id: string, enqueued_job_ids: list<int>, skipped_job_ids: list<int>}|WP_Error
+	 */
+	public function run_batch( string $batch_id ) {
+		if ( null === $this->scheduler ) {
+			return new WP_Error( 'scheduler_unavailable', 'Action Scheduler is not available.' );
+		}
+
+		$health = $this->scheduler->health();
+		if ( empty( $health['available'] ) ) {
+			return new WP_Error(
+				'action_scheduler_unavailable',
+				(string) ( $health['message'] ?? 'Action Scheduler is not available.' )
+			);
+		}
+
+		$enqueued = array();
+		$skipped  = array();
+
+		foreach ( $this->job_repo->list_by_batch_id( $batch_id ) as $job ) {
+			$job_id = (int) $job->job_id;
+			if ( JobStatuses::QUEUED !== (string) $job->status ) {
+				$skipped[] = $job_id;
+				continue;
+			}
+
+			$wake = $this->scheduler->enqueue_job( $job_id );
+			if ( is_wp_error( $wake ) ) {
+				return $wake;
+			}
+
+			$enqueued[] = $job_id;
+		}
+
+		return array(
+			'batch_id'         => $batch_id,
+			'enqueued_job_ids' => $enqueued,
+			'skipped_job_ids'  => $skipped,
 		);
 	}
 
