@@ -31,7 +31,9 @@ segments, token counts, the model actually used, and an error classified as
 retryable, permanent or a validation failure.
 
 Nothing OpenAI-shaped appears in the interface. Adding Anthropic, Gemini,
-OpenRouter or a local model is a new class plus a settings entry.
+OpenRouter, DeepSeek, or a local model is a new class plus a settings entry.
+As of v1.10.0 the product ships OpenAI and DeepSeek with per-provider
+encrypted keys and generation settings (model, temperature, max_tokens).
 
 Settings, jobs, segments and usage rows all record `provider`, `model`,
 `prompt_profile` and `prompt_version`, so a history mixing providers stays

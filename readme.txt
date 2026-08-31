@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.9.0
+Stable tag: 1.10.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Multilingual layer for WordPress: canonical content with segment translations ap
 
 == Description ==
 
-Universal Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.8.0 adds M5-A.1 public Integration descriptor creation via `Contract::FORMAT_PLAIN`, `Contract::FORMAT_HTML`, and `TranslationUnitDescriptor::from_source(...)`. Version 1.7.0 adds M5-A private CPT chrome integration (companion declaration, host-independent Extension resolve, `aiml_visitor_language`). Version 1.6.0 is an operator-completion release for Localized URL administration and Jobs/stale/conflict literacy. Version 1.5.1 was a patch corrective release for Localized URL correctness / SEO agreement. Version 1.5.0 shipped MSEO.0–MSEO.5. TSC, TIQ, and OTL remain complete.
+Universal Multilingual stores one canonical object per content item and applies language overlays at render time. Version 1.10.0 adds the DeepSeek AI provider and per-provider generation settings (key, model, temperature, max tokens). Version 1.9.0 rebranded to Universal Multilingual. Version 1.8.0 adds M5-A.1 public Integration descriptor creation via `Contract::FORMAT_PLAIN`, `Contract::FORMAT_HTML`, and `TranslationUnitDescriptor::from_source(...)`. Version 1.7.0 adds M5-A private CPT chrome integration. Version 1.6.0 is an operator-completion release for Localized URL administration and Jobs/stale/conflict literacy. TSC, TIQ, and OTL remain complete.
 
 == Installation ==
 
@@ -24,6 +24,11 @@ Universal Multilingual stores one canonical object per content item and applies 
 6. Localized URLs default OFF; enable only after reviewing MSEO release notes and verifying routes.
 
 == Changelog ==
+
+= 1.10.0 =
+* DeepSeek AI provider alongside OpenAI.
+* Per-provider settings: API key, model, temperature, max tokens (OpenAI and DeepSeek keep separate configs).
+* Legacy shared AI key/model migrate into the OpenAI settings slot. Schema target remains 8.
 
 = 1.9.0 =
 * Identity rebrand to Universal Multilingual (`universal-multilingual`). Runtime APIs remain AIML/`aiml_*`.

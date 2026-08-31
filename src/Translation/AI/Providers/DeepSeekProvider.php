@@ -1,6 +1,6 @@
 <?php
 /**
- * OpenAI Chat Completions provider (first ADR-0010 implementation).
+ * DeepSeek Chat Completions provider (OpenAI-compatible HTTP).
  *
  * @package AIMultilingual
  */
@@ -19,13 +19,15 @@ use AIMultilingual\Translation\QA\ScaffoldingMarkerSource;
 use WP_Error;
 
 /**
- * Maps domain batches to OpenAI HTTP calls. Vendor shapes stay inside this class.
+ * Maps domain batches to DeepSeek HTTP calls. Vendor shapes stay inside this class.
+ *
+ * Translation requests force thinking mode off so temperature/max_tokens apply.
  */
-final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSource {
+final class DeepSeekProvider implements AIProviderInterface, ScaffoldingMarkerSource {
 
-	public const ID = 'openai';
+	public const ID = 'deepseek';
 
-	private const API_BASE = 'https://api.openai.com/v1';
+	private const API_BASE = 'https://api.deepseek.com';
 
 	/**
 	 * API key (decrypted).
@@ -42,7 +44,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 	private string $model;
 
 	/**
-	 * Sampling temperature (0–2). Omitted for models that reject custom values.
+	 * Sampling temperature (0–2). Effective when thinking is disabled.
 	 *
 	 * @var float
 	 */
@@ -81,14 +83,14 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 	 */
 	public function __construct(
 		string $api_key,
-		string $model = 'gpt-4o-mini',
+		string $model = 'deepseek-chat',
 		?PromptProfileRegistry $profiles = null,
 		?callable $http = null,
-		float $temperature = 0.2,
+		float $temperature = 1.0,
 		int $max_tokens = 0
 	) {
 		$this->api_key     = trim( $api_key );
-		$this->model       = '' !== trim( $model ) ? trim( $model ) : 'gpt-4o-mini';
+		$this->model       = '' !== trim( $model ) ? trim( $model ) : 'deepseek-chat';
 		$this->profiles    = $profiles ?? new PromptProfileRegistry();
 		$this->http        = $http;
 		$this->temperature = max( 0.0, min( 2.0, $temperature ) );
@@ -205,8 +207,8 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 		foreach ( $batch->segments as $segment ) {
 			$user = $this->build_user_prompt( $batch, $segment->source_text, $segment->existing_target );
 			$body = array(
-				'model'    => $this->model,
-				'messages' => array(
+				'model'       => $this->model,
+				'messages'    => array(
 					array(
 						'role'    => 'system',
 						'content' => $system,
@@ -216,11 +218,12 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 						'content' => $user,
 					),
 				),
+				// Non-thinking so temperature / max_tokens take effect for translation.
+				'thinking'    => array(
+					'type' => 'disabled',
+				),
+				'temperature' => $this->temperature,
 			);
-
-			if ( $this->supports_temperature( $this->model ) ) {
-				$body['temperature'] = $this->temperature;
-			}
 
 			if ( $this->max_tokens > 0 ) {
 				$body['max_tokens'] = $this->max_tokens;
@@ -380,26 +383,6 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 	}
 
 	/**
-	 * Whether the model accepts a non-default temperature parameter.
-	 *
-	 * GPT-5* and o-series chat models reject custom temperature values.
-	 *
-	 * @param string $model Model id.
-	 */
-	private function supports_temperature( string $model ): bool {
-		$id = strtolower( trim( $model ) );
-		if ( '' === $id ) {
-			return true;
-		}
-
-		if ( str_starts_with( $id, 'gpt-5' ) || preg_match( '/^o[0-9]/', $id ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * Extracts assistant message text from a chat completion payload.
 	 *
 	 * @param array<string, mixed> $response Decoded JSON.
@@ -426,7 +409,7 @@ final class OpenAIProvider implements AIProviderInterface, ScaffoldingMarkerSour
 	}
 
 	/**
-	 * Performs an authenticated OpenAI HTTP call.
+	 * Performs an authenticated DeepSeek HTTP call.
 	 *
 	 * @param string               $method GET|POST.
 	 * @param string               $url    Absolute URL.

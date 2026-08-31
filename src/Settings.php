@@ -128,11 +128,18 @@ final class Settings {
 
 			/*
 			 * F11 AI provider configuration (server-side only; API key encrypted).
+			 * Per-provider generation settings live under ai_providers[{id}].
+			 * Legacy ai_model / ai_api_key_encrypted remain for one-time migration
+			 * into ai_providers.openai during sanitize().
 			 */
 			'ai_enabled'                               => false,
 			'ai_provider'                              => '',
 			'ai_model'                                 => '',
 			'ai_api_key_encrypted'                     => '',
+			'ai_providers'                             => array(
+				'openai'   => self::default_provider_settings( 'openai' ),
+				'deepseek' => self::default_provider_settings( 'deepseek' ),
+			),
 			'qa_block_on_error'                        => true,
 
 			/*
@@ -192,7 +199,7 @@ final class Settings {
 		if ( array_key_exists( 'ai_provider', $raw ) ) {
 			$provider             = strtolower( trim( (string) $raw['ai_provider'] ) );
 			$provider             = preg_replace( '/[^a-z0-9_\-]/', '', $provider ) ?? '';
-			$allowed              = array( '', 'openai' );
+			$allowed              = array( '', 'openai', 'deepseek' );
 			$clean['ai_provider'] = in_array( $provider, $allowed, true ) ? $provider : '';
 		}
 
@@ -268,6 +275,11 @@ final class Settings {
 			}
 		}
 
+		$clean['ai_providers'] = self::sanitize_ai_providers(
+			$raw['ai_providers'] ?? null,
+			$clean
+		);
+
 		$flag_keys  = FeatureFlags::PRODUCTION_FLAGS;
 		$flag_slice = array();
 		foreach ( $flag_keys as $flag_key ) {
@@ -281,6 +293,107 @@ final class Settings {
 		$clean['schema_version'] = self::SCHEMA_VERSION;
 
 		return $clean;
+	}
+
+	/**
+	 * Default generation settings for one registered AI provider id.
+	 *
+	 * @param string $provider_id openai|deepseek.
+	 * @return array{model: string, api_key_encrypted: string, temperature: float, max_tokens: int}
+	 */
+	public static function default_provider_settings( string $provider_id ): array {
+		$temperature = 'deepseek' === $provider_id ? 1.0 : 0.2;
+
+		return array(
+			'model'             => '',
+			'api_key_encrypted' => '',
+			'temperature'       => $temperature,
+			'max_tokens'        => 0,
+		);
+	}
+
+	/**
+	 * Sanitizes the per-provider AI map and migrates legacy shared key/model into openai.
+	 *
+	 * @param mixed                $raw_providers Raw ai_providers value.
+	 * @param array<string, mixed> $clean         Partially sanitized settings (legacy keys).
+	 * @return array<string, array{model: string, api_key_encrypted: string, temperature: float, max_tokens: int}>
+	 */
+	private static function sanitize_ai_providers( $raw_providers, array $clean ): array {
+		$providers = array(
+			'openai'   => self::default_provider_settings( 'openai' ),
+			'deepseek' => self::default_provider_settings( 'deepseek' ),
+		);
+
+		if ( is_array( $raw_providers ) ) {
+			foreach ( array( 'openai', 'deepseek' ) as $id ) {
+				$row = $raw_providers[ $id ] ?? null;
+				if ( ! is_array( $row ) ) {
+					continue;
+				}
+				$providers[ $id ] = self::sanitize_one_provider( $id, $row );
+			}
+		}
+
+		// Migrate pre-1.10.0 shared fields into the OpenAI slot when that slot is empty.
+		$legacy_model = (string) ( $clean['ai_model'] ?? '' );
+		$legacy_key   = (string) ( $clean['ai_api_key_encrypted'] ?? '' );
+		if ( '' === $providers['openai']['model'] && '' !== $legacy_model ) {
+			$providers['openai']['model'] = $legacy_model;
+		}
+		if ( '' === $providers['openai']['api_key_encrypted'] && '' !== $legacy_key ) {
+			$providers['openai']['api_key_encrypted'] = $legacy_key;
+		}
+
+		return $providers;
+	}
+
+	/**
+	 * Sanitizes one provider settings row.
+	 *
+	 * @param string               $provider_id Provider id.
+	 * @param array<string, mixed> $row         Raw row.
+	 * @return array{model: string, api_key_encrypted: string, temperature: float, max_tokens: int}
+	 */
+	private static function sanitize_one_provider( string $provider_id, array $row ): array {
+		$out = self::default_provider_settings( $provider_id );
+
+		if ( array_key_exists( 'model', $row ) ) {
+			$model        = trim( (string) $row['model'] );
+			$model        = preg_replace( '/[^\w.\-\/: ]/', '', $model ) ?? '';
+			$out['model'] = substr( $model, 0, 191 );
+		}
+
+		if ( array_key_exists( 'api_key_encrypted', $row ) ) {
+			$key = (string) $row['api_key_encrypted'];
+			if ( '' === $key || str_starts_with( $key, 'aiml1:' ) ) {
+				$out['api_key_encrypted'] = substr( $key, 0, 4096 );
+			}
+		}
+
+		if ( array_key_exists( 'temperature', $row ) ) {
+			$temp = is_numeric( $row['temperature'] ) ? (float) $row['temperature'] : $out['temperature'];
+			if ( $temp < 0.0 ) {
+				$temp = 0.0;
+			}
+			if ( $temp > 2.0 ) {
+				$temp = 2.0;
+			}
+			$out['temperature'] = round( $temp, 2 );
+		}
+
+		if ( array_key_exists( 'max_tokens', $row ) ) {
+			$tokens = is_numeric( $row['max_tokens'] ) ? (int) $row['max_tokens'] : 0;
+			if ( $tokens < 0 ) {
+				$tokens = 0;
+			}
+			if ( $tokens > 393216 ) {
+				$tokens = 393216;
+			}
+			$out['max_tokens'] = $tokens;
+		}
+
+		return $out;
 	}
 
 	/**

@@ -494,6 +494,9 @@ final class Plugin {
 		$provider_registry->register(
 			ProviderFactory::openai_from_settings( $this->settings, $vault, $profiles )
 		);
+		$provider_registry->register(
+			ProviderFactory::deepseek_from_settings( $this->settings, $vault, $profiles )
+		);
 		$glossary_service     = new GlossaryService(
 			new GlossaryRepository(),
 			new GlossaryNormalizer(),
