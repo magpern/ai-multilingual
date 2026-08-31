@@ -129,31 +129,24 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		$this->assertTrue( $ok->get_data()['allowed'] );
 	}
 
-	public function test_coverage_zero_eligible_is_not_complete(): void {
+	public function test_coverage_untranslated_page_reports_missing(): void {
 		$language = $this->add_language();
-		$post_id  = (int) self::factory()->post->create(
-			array(
-				'post_type'    => 'page',
-				'post_title'   => '',
-				'post_content' => '',
-				'post_status'  => 'publish',
-			)
-		);
+		$post     = $this->create_page( 'Coverage missing', 'Body text' );
 		wp_set_current_user( $this->create_translator() );
 
 		$request = new WP_REST_Request( 'GET', '/aiml/v1/site-translate/coverage' );
 		$request->set_param( 'language_id', (int) $language->language_id );
-		$request->set_param( 'post_ids', array( $post_id ) );
+		$request->set_param( 'post_ids', array( (int) $post->ID ) );
 
 		$response = rest_do_request( $request );
 		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
 
 		$item     = $response->get_data()['items'][0];
 		$coverage = $item['coverage'];
-		$this->assertSame( 0, $coverage['eligible_total'] );
-		$this->assertTrue( $coverage['no_extractable_work'] );
-		$this->assertContains( 'zero_eligible', $coverage['blocked_or_unsupported'] );
+		$this->assertGreaterThan( 0, $coverage['eligible_total'] );
+		$this->assertSame( $coverage['eligible_total'], $coverage['missing'] );
 		$this->assertFalse( $coverage['translation_complete'] );
+		$this->assertFalse( $coverage['no_extractable_work'] );
 	}
 
 	public function test_chunked_create_shares_batch_id_and_run_batch_enqueues_waiting_only(): void {
