@@ -10,12 +10,17 @@ declare( strict_types=1 );
 namespace AIMultilingual\Tests\Integration;
 
 use AIMultilingual\Block\FeatureFlags;
+use AIMultilingual\Database\Schema;
 use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
 use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Plugin;
 use AIMultilingual\Settings;
 use AIMultilingual\SiteTranslate\SiteTranslateLocalizedUrlBatchService;
+use AIMultilingual\Translation\Assessment\AssessmentAssembler;
 use AIMultilingual\Translation\Extractor;
+use AIMultilingual\Translation\Publication\PublicationAuditLogger;
+use AIMultilingual\Translation\Publication\PublicationPolicy;
+use AIMultilingual\Translation\Publication\PublicationService;
 use AIMultilingual\Translation\Store;
 use WP_REST_Request;
 
@@ -126,12 +131,19 @@ final class SiteTranslateRestTest extends AimlTestCase {
 
 	public function test_coverage_zero_eligible_is_not_complete(): void {
 		$language = $this->add_language();
-		$post     = $this->create_page( 'Empty coverage', '' );
+		$post_id  = (int) self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_title'   => '',
+				'post_content' => '',
+				'post_status'  => 'publish',
+			)
+		);
 		wp_set_current_user( $this->create_translator() );
 
 		$request = new WP_REST_Request( 'GET', '/aiml/v1/site-translate/coverage' );
 		$request->set_param( 'language_id', (int) $language->language_id );
-		$request->set_param( 'post_ids', array( (int) $post->ID ) );
+		$request->set_param( 'post_ids', array( $post_id ) );
 
 		$response = rest_do_request( $request );
 		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data() ) );
@@ -201,20 +213,34 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		$language = $this->add_language();
 		$post     = $this->create_page( 'Stale title route', 'Body' );
 
-		$this->store->save_translation(
+		$this->translate( $post, $language, Extractor::FIELD_TITLE, 'Stale title sv' );
+
+		$publication = new PublicationService(
+			$this->store,
+			new AssessmentAssembler(),
+			new PublicationPolicy(),
+			new PublicationAuditLogger(),
+			new Settings()
+		);
+		$publication->publish(
+			Store::SOURCE_POST,
+			(int) $post->ID,
+			(int) $language->language_id,
+			Extractor::FIELD_TITLE,
+			false,
+			1,
+			'manual'
+		);
+
+		global $wpdb;
+		$wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			Schema::translations(),
+			array( 'is_stale' => 1 ),
 			array(
-				'source_type'     => Store::SOURCE_POST,
-				'source_id'       => (int) $post->ID,
-				'source_subtype'  => 'page',
-				'language_id'     => (int) $language->language_id,
-				'field_key'       => Extractor::FIELD_TITLE,
-				'segment_key'     => Extractor::FIELD_TITLE,
-				'source_text'     => 'Stale title route',
-				'translated_text' => 'Stale title sv',
-				'text_format'     => Store::FORMAT_PLAIN,
-				'status'          => Store::STATUS_MACHINE_TRANSLATED,
-				'publish_status'  => Store::PUBLISH_PUBLISHED,
-				'is_stale'        => 1,
+				'source_type' => Store::SOURCE_POST,
+				'source_id'   => (int) $post->ID,
+				'language_id' => (int) $language->language_id,
+				'segment_key' => Extractor::FIELD_TITLE,
 			)
 		);
 
