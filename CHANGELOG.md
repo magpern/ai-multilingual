@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] — 2026-08-31
+
+### Added
+
+- **DeepSeek AI provider:** second Chat Completions provider (`deepseek`) registered beside OpenAI for workspace auto-translate and AI suggest.
+- **Per-provider generation settings:** each provider stores its own encrypted API key, model, temperature (0–2), and max tokens (0 = omit). Settings UI exposes separate OpenAI and DeepSeek fieldsets.
+- DeepSeek translation requests send `thinking: { type: disabled }` so temperature/max_tokens take effect.
+
+### Changed
+
+- OpenAI temperature is no longer hardcoded to `0.2`; it comes from the OpenAI settings row (default `0.2`). Optional `max_tokens` is sent when greater than zero.
+- Legacy shared `ai_model` / `ai_api_key_encrypted` migrate into `ai_providers.openai` on sanitize for upgrades from ≤1.9.0.
+
+### Compatibility / infrastructure
+
+- Schema TARGET remains **8** (no migration).
+- `AIProviderInterface` / workspace / jobs / REST consumers unchanged (provider-agnostic).
+- Public Extension / Integration APIs unchanged.
+
+### Documentation
+
+- Release notes and scope audit under `docs/releases/` for v1.10.0.
+
+### Notes
+
+- Formal production package / tag / deploy remain separately authorized.
+
 ## [1.9.0] — 2026-08-31
 
 ### Changed

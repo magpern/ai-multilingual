@@ -200,7 +200,41 @@ final class SettingsPage {
 		$raw      = is_array( $input ) ? $input : array();
 		$previous = Settings::sanitize( get_option( Settings::OPTION, Settings::defaults() ) );
 
-		// Map plaintext API key field into encrypted storage before sanitize.
+		// Map plaintext per-provider API key fields into encrypted storage before sanitize.
+		$raw_providers  = isset( $raw['ai_providers'] ) && is_array( $raw['ai_providers'] )
+			? $raw['ai_providers']
+			: array();
+		$prev_providers = isset( $previous['ai_providers'] ) && is_array( $previous['ai_providers'] )
+			? $previous['ai_providers']
+			: array();
+
+		foreach ( array( 'openai', 'deepseek' ) as $provider_id ) {
+			$row      = isset( $raw_providers[ $provider_id ] ) && is_array( $raw_providers[ $provider_id ] )
+				? $raw_providers[ $provider_id ]
+				: array();
+			$prev_row = isset( $prev_providers[ $provider_id ] ) && is_array( $prev_providers[ $provider_id ] )
+				? $prev_providers[ $provider_id ]
+				: array();
+
+			if ( isset( $row['api_key'] ) ) {
+				$submitted = trim( (string) wp_unslash( $row['api_key'] ) );
+				if ( '********' === $submitted ) {
+					$row['api_key_encrypted'] = (string) ( $prev_row['api_key_encrypted'] ?? '' );
+				} elseif ( '' === $submitted ) {
+					$row['api_key_encrypted'] = '';
+				} else {
+					$row['api_key_encrypted'] = $this->vault->encrypt( $submitted );
+				}
+				unset( $row['api_key'] );
+			} elseif ( ! isset( $row['api_key_encrypted'] ) ) {
+				$row['api_key_encrypted'] = (string) ( $prev_row['api_key_encrypted'] ?? '' );
+			}
+
+			$raw_providers[ $provider_id ] = $row;
+		}
+		$raw['ai_providers'] = $raw_providers;
+
+		// Legacy single-key field (pre-1.10.0 forms / options): keep encrypt path for migration.
 		if ( isset( $raw['ai_api_key'] ) ) {
 			$submitted = trim( (string) wp_unslash( $raw['ai_api_key'] ) );
 			if ( '********' === $submitted ) {
@@ -418,10 +452,12 @@ final class SettingsPage {
 	 * @param array<string, mixed> $current Current settings.
 	 */
 	private function render_ai_provider_settings( array $current ): void {
-		$has_key = '' !== (string) ( $current['ai_api_key_encrypted'] ?? '' );
+		$providers = isset( $current['ai_providers'] ) && is_array( $current['ai_providers'] )
+			? $current['ai_providers']
+			: array();
 
 		echo '<h2>' . esc_html__( 'Automatic translation', 'universal-multilingual' ) . '</h2>';
-		echo '<p class="description">' . esc_html__( 'Configure a provider for automatic translation and AI suggestions. API keys are encrypted at rest and never sent to the browser or translator workspace JavaScript.', 'universal-multilingual' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Configure a provider for automatic translation and AI suggestions. API keys are encrypted at rest and never sent to the browser or translator workspace JavaScript. Each provider keeps its own key, model, temperature, and max tokens.', 'universal-multilingual' ) . '</p>';
 		echo '<table class="form-table" role="presentation"><tbody>';
 
 		$this->checkbox_row(
@@ -436,18 +472,65 @@ final class SettingsPage {
 		echo '<select name="' . esc_attr( Settings::OPTION . '[ai_provider]' ) . '" id="aiml_ai_provider">';
 		echo '<option value=""' . selected( $provider, '', false ) . '>' . esc_html__( 'None', 'universal-multilingual' ) . '</option>';
 		echo '<option value="openai"' . selected( $provider, 'openai', false ) . '>' . esc_html__( 'OpenAI', 'universal-multilingual' ) . '</option>';
+		echo '<option value="deepseek"' . selected( $provider, 'deepseek', false ) . '>' . esc_html__( 'DeepSeek', 'universal-multilingual' ) . '</option>';
 		echo '</select>';
-		echo '<p class="description">' . esc_html__( 'Additional providers can be registered without changing workspace services.', 'universal-multilingual' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Only the selected provider is used for translation. Settings for other providers are kept when you switch.', 'universal-multilingual' ) . '</p>';
 		echo '</td></tr>';
 
-		echo '<tr><th scope="row"><label for="aiml_ai_model">' . esc_html__( 'Model', 'universal-multilingual' ) . '</label></th><td>';
-		echo '<input name="' . esc_attr( Settings::OPTION . '[ai_model]' ) . '" type="text" id="aiml_ai_model" value="' . esc_attr( (string) ( $current['ai_model'] ?? '' ) ) . '" class="regular-text" />';
-		echo '<p class="description">' . esc_html__( 'Optional model id (for example gpt-4o-mini). Leave blank for the provider default.', 'universal-multilingual' ) . '</p>';
+		echo '</tbody></table>';
+
+		$this->render_one_ai_provider_fieldset(
+			'openai',
+			__( 'OpenAI', 'universal-multilingual' ),
+			__( 'Optional model id (for example gpt-4o-mini). Leave blank for gpt-4o-mini. Some models (gpt-5*, o*) ignore custom temperature.', 'universal-multilingual' ),
+			isset( $providers['openai'] ) && is_array( $providers['openai'] ) ? $providers['openai'] : Settings::default_provider_settings( 'openai' )
+		);
+
+		$this->render_one_ai_provider_fieldset(
+			'deepseek',
+			__( 'DeepSeek', 'universal-multilingual' ),
+			__( 'Optional model id (for example deepseek-chat or deepseek-v4-flash). Leave blank for deepseek-chat. Translation requests disable thinking mode so temperature applies.', 'universal-multilingual' ),
+			isset( $providers['deepseek'] ) && is_array( $providers['deepseek'] ) ? $providers['deepseek'] : Settings::default_provider_settings( 'deepseek' )
+		);
+	}
+
+	/**
+	 * Renders one provider's model / key / temperature / max_tokens fields.
+	 *
+	 * @param string               $provider_id Provider id.
+	 * @param string               $title       Fieldset title.
+	 * @param string               $model_help  Model field description.
+	 * @param array<string, mixed> $row         Provider settings row.
+	 */
+	private function render_one_ai_provider_fieldset( string $provider_id, string $title, string $model_help, array $row ): void {
+		$prefix  = Settings::OPTION . '[ai_providers][' . $provider_id . ']';
+		$has_key = '' !== (string) ( $row['api_key_encrypted'] ?? '' );
+		$temp    = isset( $row['temperature'] ) && is_numeric( $row['temperature'] )
+			? (float) $row['temperature']
+			: (float) Settings::default_provider_settings( $provider_id )['temperature'];
+		$max     = isset( $row['max_tokens'] ) ? (int) $row['max_tokens'] : 0;
+
+		echo '<h3>' . esc_html( $title ) . '</h3>';
+		echo '<table class="form-table" role="presentation"><tbody>';
+
+		echo '<tr><th scope="row"><label for="aiml_ai_' . esc_attr( $provider_id ) . '_model">' . esc_html__( 'Model', 'universal-multilingual' ) . '</label></th><td>';
+		echo '<input name="' . esc_attr( $prefix . '[model]' ) . '" type="text" id="aiml_ai_' . esc_attr( $provider_id ) . '_model" value="' . esc_attr( (string) ( $row['model'] ?? '' ) ) . '" class="regular-text" />';
+		echo '<p class="description">' . esc_html( $model_help ) . '</p>';
 		echo '</td></tr>';
 
-		echo '<tr><th scope="row"><label for="aiml_ai_api_key">' . esc_html__( 'API key', 'universal-multilingual' ) . '</label></th><td>';
-		echo '<input name="' . esc_attr( Settings::OPTION . '[ai_api_key]' ) . '" type="password" id="aiml_ai_api_key" value="' . esc_attr( $has_key ? '********' : '' ) . '" class="regular-text" autocomplete="new-password" />';
+		echo '<tr><th scope="row"><label for="aiml_ai_' . esc_attr( $provider_id ) . '_api_key">' . esc_html__( 'API key', 'universal-multilingual' ) . '</label></th><td>';
+		echo '<input name="' . esc_attr( $prefix . '[api_key]' ) . '" type="password" id="aiml_ai_' . esc_attr( $provider_id ) . '_api_key" value="' . esc_attr( $has_key ? '********' : '' ) . '" class="regular-text" autocomplete="new-password" />';
 		echo '<p class="description">' . esc_html__( 'Leave as dots to keep the existing key. Clear and save to remove. Never exposed to JavaScript.', 'universal-multilingual' ) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="aiml_ai_' . esc_attr( $provider_id ) . '_temperature">' . esc_html__( 'Temperature', 'universal-multilingual' ) . '</label></th><td>';
+		echo '<input name="' . esc_attr( $prefix . '[temperature]' ) . '" type="number" id="aiml_ai_' . esc_attr( $provider_id ) . '_temperature" value="' . esc_attr( (string) $temp ) . '" class="small-text" min="0" max="2" step="0.1" />';
+		echo '<p class="description">' . esc_html__( 'Sampling temperature from 0 (focused) to 2 (creative).', 'universal-multilingual' ) . '</p>';
+		echo '</td></tr>';
+
+		echo '<tr><th scope="row"><label for="aiml_ai_' . esc_attr( $provider_id ) . '_max_tokens">' . esc_html__( 'Max tokens', 'universal-multilingual' ) . '</label></th><td>';
+		echo '<input name="' . esc_attr( $prefix . '[max_tokens]' ) . '" type="number" id="aiml_ai_' . esc_attr( $provider_id ) . '_max_tokens" value="' . esc_attr( (string) $max ) . '" class="small-text" min="0" max="393216" step="1" />';
+		echo '<p class="description">' . esc_html__( 'Maximum completion tokens. Use 0 to omit and let the provider use its default.', 'universal-multilingual' ) . '</p>';
 		echo '</td></tr>';
 
 		echo '</tbody></table>';

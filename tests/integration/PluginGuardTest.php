@@ -1465,8 +1465,8 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertFileExists( $this->root() . '/docs/plans/V151_LOCALIZED_URL_CORRECTNESS_STABILIZATION_IMPLEMENTATION_PLAN.md' );
 
 		$version = (string) file_get_contents( $this->root() . '/universal-multilingual.php' );
-		$this->assertMatchesRegularExpression( '/Version:\s*1\.9\.0/', $version );
-		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.9.0' )", $version );
+		$this->assertMatchesRegularExpression( '/Version:\s*1\.10\.0/', $version );
+		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.10.0' )", $version );
 	}
 
 	/**
@@ -1480,8 +1480,8 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertStringNotContainsString( 'step_9_', $migrator );
 
 		$version = (string) file_get_contents( $this->root() . '/universal-multilingual.php' );
-		$this->assertMatchesRegularExpression( '/Version:\s*1\.9\.0/', $version );
-		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.9.0' )", $version );
+		$this->assertMatchesRegularExpression( '/Version:\s*1\.10\.0/', $version );
+		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.10.0' )", $version );
 
 		$this->assertFileExists( $this->root() . '/src/Rest/TermSlugController.php' );
 		$this->assertFileExists( $this->root() . '/src/Admin/TermLocalizedSlugAdmin.php' );
@@ -1516,7 +1516,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertSame( 8, Migrator::TARGET );
 
 		$version = (string) file_get_contents( $this->root() . '/universal-multilingual.php' );
-		$this->assertMatchesRegularExpression( '/Version:\s*1\.9\.0/', $version );
+		$this->assertMatchesRegularExpression( '/Version:\s*1\.10\.0/', $version );
 
 		$service = (string) file_get_contents( $this->root() . '/src/Jobs/BackgroundTranslationJobService.php' );
 		$this->assertStringContainsString( 'job_type_resolves_missing', $service );

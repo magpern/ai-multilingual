@@ -17,6 +17,7 @@ use AIMultilingual\Translation\AI\ProviderCapabilities;
 use AIMultilingual\Translation\AI\ProviderRegistry;
 use AIMultilingual\Translation\AI\ProviderResult;
 use AIMultilingual\Translation\AI\ProviderSegment;
+use AIMultilingual\Translation\AI\Providers\DeepSeekProvider;
 use AIMultilingual\Translation\AI\Providers\OpenAIProvider;
 use AIMultilingual\Translation\AI\TranslationBatch;
 use PHPUnit\Framework\TestCase;
@@ -142,7 +143,7 @@ final class ProviderFrameworkTest extends TestCase {
 			);
 		};
 
-		$provider = new OpenAIProvider( 'sk-test', 'gpt-4o-mini', null, $http );
+		$provider = new OpenAIProvider( 'sk-test', 'gpt-4o-mini', null, $http, 0.4, 512 );
 		$result   = $provider->translate_batch(
 			new TranslationBatch(
 				'en',
@@ -155,7 +156,8 @@ final class ProviderFrameworkTest extends TestCase {
 		);
 
 		$this->assertInstanceOf( ProviderResult::class, $result );
-		$this->assertSame( 0.2, $seen['temperature'] ?? null );
+		$this->assertSame( 0.4, $seen['temperature'] ?? null );
+		$this->assertSame( 512, $seen['max_tokens'] ?? null );
 	}
 
 	public function test_settings_sanitize_keeps_encrypted_key_shape(): void {
@@ -174,5 +176,77 @@ final class ProviderFrameworkTest extends TestCase {
 		$this->assertSame( 'gpt-4o-mini', $clean['ai_model'] );
 		$this->assertSame( 'aiml1:abc', $clean['ai_api_key_encrypted'] );
 		$this->assertArrayNotHasKey( 'ai_api_key', $clean );
+		$this->assertSame( 'gpt-4o-mini', $clean['ai_providers']['openai']['model'] );
+		$this->assertSame( 'aiml1:abc', $clean['ai_providers']['openai']['api_key_encrypted'] );
+	}
+
+	public function test_settings_sanitize_allows_deepseek_and_provider_params(): void {
+		$clean = Settings::sanitize(
+			array(
+				'ai_enabled'   => true,
+				'ai_provider'  => 'deepseek',
+				'ai_providers' => array(
+					'deepseek' => array(
+						'model'             => 'deepseek-v4-flash',
+						'api_key_encrypted' => 'aiml1:ds',
+						'temperature'       => 1.3,
+						'max_tokens'        => 2048,
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 'deepseek', $clean['ai_provider'] );
+		$this->assertSame( 'deepseek-v4-flash', $clean['ai_providers']['deepseek']['model'] );
+		$this->assertSame( 1.3, $clean['ai_providers']['deepseek']['temperature'] );
+		$this->assertSame( 2048, $clean['ai_providers']['deepseek']['max_tokens'] );
+	}
+
+	public function test_registry_resolves_active_deepseek(): void {
+		$settings = new Settings(
+			array(
+				'ai_enabled'  => true,
+				'ai_provider' => 'deepseek',
+			)
+		);
+		$registry = new ProviderRegistry( $settings );
+		$registry->register( new DeepSeekProvider( 'sk-test' ) );
+
+		$this->assertSame( DeepSeekProvider::ID, $registry->active()->get_id() );
+	}
+
+	public function test_deepseek_translate_disables_thinking_and_sends_params(): void {
+		$seen = array();
+		$http = static function ( string $method, string $url, array $args ) use ( &$seen ) {
+			unset( $method );
+			$body = json_decode( (string) ( $args['body'] ?? '' ), true );
+			$seen = array(
+				'url'  => $url,
+				'body' => is_array( $body ) ? $body : array(),
+			);
+
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"choices":[{"message":{"content":"Hej"}}],"usage":{"prompt_tokens":3,"completion_tokens":1}}',
+			);
+		};
+
+		$provider = new DeepSeekProvider( 'sk-test', 'deepseek-chat', null, $http, 0.8, 256 );
+		$result   = $provider->translate_batch(
+			new TranslationBatch(
+				'en',
+				'sv',
+				'default',
+				'1',
+				'',
+				array( new ProviderSegment( 'title', 'Hello', 'plain' ) )
+			)
+		);
+
+		$this->assertInstanceOf( ProviderResult::class, $result );
+		$this->assertSame( 'https://api.deepseek.com/chat/completions', $seen['url'] ?? '' );
+		$this->assertSame( 0.8, $seen['body']['temperature'] ?? null );
+		$this->assertSame( 256, $seen['body']['max_tokens'] ?? null );
+		$this->assertSame( 'disabled', $seen['body']['thinking']['type'] ?? null );
 	}
 }
