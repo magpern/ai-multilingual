@@ -10,11 +10,6 @@ declare( strict_types=1 );
 namespace AIMultilingual\Tests\Integration;
 
 use AIMultilingual\Block\FeatureFlags;
-use AIMultilingual\Jobs\BackgroundTranslationBatchCoordinator;
-use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
-use AIMultilingual\Jobs\BackgroundTranslationJobService;
-use AIMultilingual\Jobs\BackgroundTranslationScheduler;
-use AIMultilingual\Jobs\JobStatuses;
 use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Plugin;
 use AIMultilingual\Settings;
