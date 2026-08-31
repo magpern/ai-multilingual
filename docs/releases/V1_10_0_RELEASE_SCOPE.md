@@ -1,9 +1,11 @@
 # Universal Multilingual v1.10.0 — Release Scope Audit
 
-**Status:** IN PREPARATION (feature branch)  
+**Status:** RELEASE READY ON MAIN (PR #59 merged; tag not created)  
 **Date:** 2026-08-31  
-**Feature branch:** `feature/add-deepseek-provider`  
-**Baseline main:** 1.9.0 identity rebrand  
+**Feature branch:** `feature/add-deepseek-provider` (merged)  
+**Release-ready commit:** `c8ce49f6ec2010fb9503b01aaf6cfe9cab1e03c0`  
+**Baseline main HEAD:** `6462deeb427da56ac9bc975a50f3fca924f370dc`  
+**Previous intentional release:** `v1.9.0` @ `48f018d6ce10758b72b0203165231c740eb0e6de`  
 **Schema:** Migrator `TARGET = 8` (**unchanged** — no migration)  
 **Decision:** **RELEASE VERSION DECISION: 1.10.0** (minor — operator-facing AI provider capability)
 
@@ -44,13 +46,14 @@
 | Artifact name | `universal-multilingual-1.10.0.zip` |
 | Build | `bin/build-zip.sh` |
 | Audit | `bin/audit-zip.sh` |
+| Prep ZIP SHA-256 | `fc758a8c254fb4e620f215202641da0d2c258c161cfda68ab885e1b3943a21cb` |
 
 ## E. Tag / release boundary
 
 ```
-feature implementation (this branch)
-≠
-release preparation merge
+feature merge on main (complete — c8ce49f6e)
 ≠
 tag / GitHub Release / deployment
 ```
+
+Future `v1.10.0` tag must target **`c8ce49f6ec2010fb9503b01aaf6cfe9cab1e03c0`**.
