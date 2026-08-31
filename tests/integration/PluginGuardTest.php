@@ -1516,7 +1516,7 @@ final class PluginGuardTest extends AimlTestCase {
 		$this->assertSame( 8, Migrator::TARGET );
 
 		$version = (string) file_get_contents( $this->root() . '/universal-multilingual.php' );
-		$this->assertMatchesRegularExpression( '/Version:\s*1\.9\.0/', $version );
+		$this->assertMatchesRegularExpression( '/Version:\s*1\.10\.0/', $version );
 
 		$service = (string) file_get_contents( $this->root() . '/src/Jobs/BackgroundTranslationJobService.php' );
 		$this->assertStringContainsString( 'job_type_resolves_missing', $service );
