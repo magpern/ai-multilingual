@@ -1,7 +1,8 @@
 # Site Translate — Full Path — Milestone Closure
 
-**Status:** **CLOSED — PASS**  
+**Status:** **IMPLEMENTATION CLOSED — PASS**  
 **Closed:** 2026-08-31  
+**Acceptance note:** Bounded automated DEV verification passed; **full operator-led Swedish workflow acceptance is still pending** ([`../validation/SITE_TRANSLATE_DEV_OPERATOR_ACCEPTANCE_PENDING.md`](../validation/SITE_TRANSLATE_DEV_OPERATOR_ACCEPTANCE_PENDING.md)). Release readiness waits until that walkthrough passes.
 **Version:** **1.10.0** (unchanged) · **TARGET:** **8** · **Migration:** **NONE**  
 **Authoritative plan:** [`SITE_TRANSLATE_FULL_PATH_IMPLEMENTATION_PLAN.md`](SITE_TRANSLATE_FULL_PATH_IMPLEMENTATION_PLAN.md)  
 **Independent review:** [`SITE_TRANSLATE_FULL_PATH_IMPLEMENTATION_REVIEW.md`](SITE_TRANSLATE_FULL_PATH_IMPLEMENTATION_REVIEW.md)  
@@ -58,7 +59,8 @@
 | Collision recovery | **PASS** (per-item; no slug auto-increment) |
 | SEO regression | **PASS** (no Model A / overlay changes) |
 | Anonymous cache contract | **PASS** (no new language selection) |
-| DEV Swedish dogfood | **PASS (bounded)** — smoke + CI; full UI sequencing operator-scheduled |
+| Bounded DEV verification | **PASS** — smoke + CI + route registration |
+| Full operator-led Swedish workflow | **PENDING** — not equivalent to bounded acceptance |
 
 ## Validation (PR CI run `33434670279`)
 
@@ -78,13 +80,20 @@ Fresh main CI: see run triggered by merge commit `4d581a21f`.
 |---|---|
 | Production (`biopentra.eu`) | **UNTOUCHED** |
 | Release tag / GitHub Release | **NOT PERFORMED** |
+| Release readiness | **NOT AUTHORIZED** — wait for full operator acceptance |
 | Version bump | **NONE** (remains 1.10.0) |
 
 ## Residual / deferred
 
-- Operator-led full DEV walkthrough of all 22 frozen sequencing steps (Preview → Publish → LU → collision recovery UI).
-- Release-readiness assessment requires separate explicit authorization.
+- **Next task:** small operator-acceptance walkthrough on DEV only ([`../validation/SITE_TRANSLATE_DEV_OPERATOR_ACCEPTANCE_PENDING.md`](../validation/SITE_TRANSLATE_DEV_OPERATOR_ACCEPTANCE_PENDING.md)) — no implementation unless a defect is found.
+- Release-readiness assessment requires that walkthrough **and** separate explicit authorization.
 
-## Final milestone verdict
+## Final verdicts
 
-**SITE TRANSLATE FULL PATH: CLOSED — PASS**
+| Verdict | Status |
+|---|---|
+| Site Translate full path **implementation** | **CLOSED — PASS** |
+| Automated + bounded DEV verification | **PASS** |
+| Full operator-led Swedish workflow acceptance | **NOT YET COMPLETE** |
+| Release readiness | **WAIT** |
+| Production | **UNTOUCHED** |

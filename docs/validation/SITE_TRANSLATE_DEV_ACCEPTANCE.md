@@ -5,7 +5,9 @@
 **Branch:** `main` (merged)  
 **Merge commit:** `4d581a21f`  
 **Implementation range:** `ff0434323` … `4fe809957`  
-**Verdict:** **PASS (bounded automated smoke + route registration + PR CI)**
+**Verdict:** **PASS — bounded implementation acceptance only**
+
+This record is **not** full end-to-end operator dogfood. See [`SITE_TRANSLATE_DEV_OPERATOR_ACCEPTANCE_PENDING.md`](SITE_TRANSLATE_DEV_OPERATOR_ACCEPTANCE_PENDING.md) for the pending 22-step Swedish workflow walkthrough.
 
 ## Automated smoke
 
@@ -23,7 +25,7 @@ Full Swedish dogfood per frozen plan §10 requires controlled fixtures across Pr
 2. **REST surface** registered and callable for authenticated operators.
 3. **Integration tests** in PR CI cover Strategy F gate, coverage zero-eligible, 51-object chunking, Run batch enqueue, and `title_stale` LU outcome.
 
-Manual UI walkthrough of all 22 sequencing steps remains operator-scheduled; no production data modified.
+Manual UI walkthrough of all 22 sequencing steps is **still pending** — tracked separately; no production data modified.
 
 ## Explicit non-actions
 
