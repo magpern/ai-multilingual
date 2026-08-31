@@ -7,6 +7,7 @@ export interface JobsUrlState {
 	view: 'jobs' | null;
 	jobId: number | null;
 	itemId: number | null;
+	batchId: string | null;
 }
 
 function parsePositiveInt( raw: string | null ): number | null {
@@ -22,12 +23,14 @@ export function readJobsUrlState(
 		view: 'jobs' === params.get( 'view' ) ? 'jobs' : null,
 		jobId: parsePositiveInt( params.get( 'job_id' ) ),
 		itemId: parsePositiveInt( params.get( 'item_id' ) ),
+		batchId: params.get( 'batch_id' ) || null,
 	};
 }
 
 export function writeJobsUrlState( state: {
 	jobId?: number | null;
 	itemId?: number | null;
+	batchId?: string | null;
 } ): void {
 	if ( typeof window === 'undefined' ) {
 		return;
@@ -49,6 +52,12 @@ export function writeJobsUrlState( state: {
 		params.delete( 'item_id' );
 	}
 
+	if ( state.batchId && state.batchId.trim() ) {
+		params.set( 'batch_id', state.batchId.trim() );
+	} else {
+		params.delete( 'batch_id' );
+	}
+
 	const next = `${ window.location.pathname }?${ params.toString() }`;
 	window.history.replaceState( {}, '', next );
 }
@@ -64,6 +73,7 @@ export function clearJobsViewFromUrl(): void {
 	}
 	params.delete( 'job_id' );
 	params.delete( 'item_id' );
+	params.delete( 'batch_id' );
 	const qs = params.toString();
 	window.history.replaceState(
 		{},

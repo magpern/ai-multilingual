@@ -193,6 +193,7 @@ final class PluginGuardTest extends AimlTestCase {
 				'src/Rest/GlossaryController.php',
 				'src/Rest/TermSlugController.php',
 				'src/Jobs/JobsController.php',
+				'src/Rest/SiteTranslateController.php',
 			)
 		);
 	}

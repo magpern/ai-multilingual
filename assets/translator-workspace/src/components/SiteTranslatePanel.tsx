@@ -1,0 +1,535 @@
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	Button,
+	CheckboxControl,
+	Notice,
+	SelectControl,
+	Spinner,
+	TextControl,
+} from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
+
+import {
+	checkSiteTranslateAdmission,
+	createSiteTranslateJobs,
+	fetchSiteTranslateObjects,
+	publishSiteTranslateRoutes,
+	runSiteTranslateBatch,
+} from '../api/site-translate-api';
+import LanguageSelect from './LanguageSelect';
+import type { LanguageOption } from '../types/view-models';
+import type {
+	SiteTranslateObjectRow,
+	SiteTranslateRouteOutcome,
+} from '../types/site-translate';
+import {
+	blockedReasonLabel,
+	coverageFilterOptions,
+	coverageSummaryLabel,
+	matchesCoverageFilter,
+	routeOutcomeLabel,
+	siteTranslateChunkMessage,
+	type SiteTranslateCoverageFilter,
+} from '../utils/site-translate';
+
+interface SiteTranslatePanelProps {
+	languages: LanguageOption[];
+	canManageJobs: boolean;
+	canRunJobs: boolean;
+	onOpenJobsBatch: ( batchId: string ) => void;
+}
+
+const PER_PAGE = 20;
+
+function newClientToken(): string {
+	if ( typeof crypto !== 'undefined' && 'randomUUID' in crypto ) {
+		return crypto.randomUUID();
+	}
+	return `st-${ Date.now() }`;
+}
+
+export default function SiteTranslatePanel( {
+	languages,
+	canManageJobs,
+	canRunJobs,
+	onOpenJobsBatch,
+}: SiteTranslatePanelProps ) {
+	const [ languageCode, setLanguageCode ] = useState(
+		languages[ 0 ]?.code ?? ''
+	);
+	const [ search, setSearch ] = useState( '' );
+	const [ postType, setPostType ] = useState( '' );
+	const [ coverageFilter, setCoverageFilter ] =
+		useState< SiteTranslateCoverageFilter >( 'all' );
+	const [ page, setPage ] = useState( 1 );
+	const [ rows, setRows ] = useState< SiteTranslateObjectRow[] >( [] );
+	const [ total, setTotal ] = useState( 0 );
+	const [ strategyFValid, setStrategyFValid ] = useState( true );
+	const [ loading, setLoading ] = useState( false );
+	const [ error, setError ] = useState( '' );
+	const [ message, setMessage ] = useState( '' );
+	const [ selected, setSelected ] = useState< Set< number > >( () => new Set() );
+	const [ batchId, setBatchId ] = useState( '' );
+	const [ clientToken, setClientToken ] = useState( () => newClientToken() );
+	const [ batchIncomplete, setBatchIncomplete ] = useState( false );
+	const [ createBusy, setCreateBusy ] = useState( false );
+	const [ runBusy, setRunBusy ] = useState( false );
+	const [ routesBusy, setRoutesBusy ] = useState( false );
+	const [ routeOutcomes, setRouteOutcomes ] = useState<
+		SiteTranslateRouteOutcome[]
+	>( [] );
+
+	const language = useMemo(
+		() => languages.find( ( candidate ) => candidate.code === languageCode ),
+		[ languageCode, languages ]
+	);
+	const languageId = language?.language_id ?? 0;
+
+	const filteredRows = useMemo(
+		() =>
+			rows.filter( ( row ) =>
+				matchesCoverageFilter( row.coverage, coverageFilter )
+			),
+		[ coverageFilter, rows ]
+	);
+
+	const selectedIds = useMemo(
+		() => Array.from( selected ).filter( ( id ) => id > 0 ),
+		[ selected ]
+	);
+
+	const allVisibleSelected = useMemo(
+		() =>
+			filteredRows.length > 0 &&
+			filteredRows.every( ( row ) => selected.has( row.post_id ) ),
+		[ filteredRows, selected ]
+	);
+
+	const loadObjects = useCallback( async () => {
+		if ( languageId <= 0 ) {
+			return;
+		}
+
+		setLoading( true );
+		setError( '' );
+
+		try {
+			const response = await fetchSiteTranslateObjects( {
+				languageId,
+				page,
+				perPage: PER_PAGE,
+				search: search.trim(),
+				postType: postType || undefined,
+			} );
+			setRows( response.items );
+			setTotal( response.total );
+			setStrategyFValid( response.strategy_f_valid );
+		} catch ( unknownError ) {
+			setRows( [] );
+			setTotal( 0 );
+			setError(
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not load Site Translate objects.',
+							'ai-multilingual'
+					  )
+			);
+		} finally {
+			setLoading( false );
+		}
+	}, [ languageId, page, postType, search ] );
+
+	useEffect( () => {
+		void loadObjects();
+	}, [ loadObjects ] );
+
+	useEffect( () => {
+		setPage( 1 );
+	}, [ coverageFilter, languageCode, postType, search ] );
+
+	const toggleRow = ( postId: number, checked: boolean ) => {
+		setSelected( ( current ) => {
+			const next = new Set( current );
+			if ( checked ) {
+				next.add( postId );
+			} else {
+				next.delete( postId );
+			}
+			return next;
+		} );
+	};
+
+	const toggleAllVisible = ( checked: boolean ) => {
+		setSelected( ( current ) => {
+			const next = new Set( current );
+			for ( const row of filteredRows ) {
+				if ( checked ) {
+					next.add( row.post_id );
+				} else {
+					next.delete( row.post_id );
+				}
+			}
+			return next;
+		} );
+	};
+
+	const handleCreateJobs = async () => {
+		if ( ! canManageJobs || languageId <= 0 || 0 === selectedIds.length ) {
+			return;
+		}
+
+		setCreateBusy( true );
+		setError( '' );
+		setMessage( '' );
+
+		try {
+			await checkSiteTranslateAdmission( selectedIds );
+			const response = await createSiteTranslateJobs( {
+				postIds: selectedIds,
+				languageId,
+				clientToken,
+				batchId: batchIncomplete ? batchId : undefined,
+			} );
+
+			setBatchId( response.batch_id );
+			setBatchIncomplete( ! response.complete );
+			setMessage(
+				response.complete
+					? sprintf(
+							/* translators: 1: created jobs, 2: batch id */
+							__(
+								'Created %1$d jobs in batch %2$s.',
+								'ai-multilingual'
+							),
+							response.created_count,
+							response.batch_id
+					  )
+					: sprintf(
+							/* translators: 1: created jobs, 2: failed count */
+							__(
+								'Batch incomplete: %1$d jobs created, %2$d failures. Retry preserves successful jobs.',
+								'ai-multilingual'
+							),
+							response.created_count,
+							response.failed.length
+					  )
+			);
+
+			if ( response.complete ) {
+				setClientToken( newClientToken() );
+			}
+
+			onOpenJobsBatch( response.batch_id );
+			void loadObjects();
+		} catch ( unknownError ) {
+			setError(
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not create Site Translate jobs.',
+							'ai-multilingual'
+					  )
+			);
+		} finally {
+			setCreateBusy( false );
+		}
+	};
+
+	const handleRunBatch = async () => {
+		if ( ! canRunJobs || ! batchId ) {
+			return;
+		}
+
+		setRunBusy( true );
+		setError( '' );
+		setMessage( '' );
+
+		try {
+			const response = await runSiteTranslateBatch( batchId );
+			setMessage(
+				sprintf(
+					/* translators: 1: enqueued count, 2: skipped count */
+					__(
+						'Enqueued %1$d waiting jobs (%2$d skipped — not waiting).',
+						'ai-multilingual'
+					),
+					response.enqueued_job_ids.length,
+					response.skipped_job_ids.length
+				)
+			);
+			onOpenJobsBatch( batchId );
+		} catch ( unknownError ) {
+			setError(
+				unknownError instanceof Error
+					? unknownError.message
+					: __( 'Could not run batch.', 'ai-multilingual' )
+			);
+		} finally {
+			setRunBusy( false );
+		}
+	};
+
+	const handlePublishRoutes = async () => {
+		if ( languageId <= 0 || 0 === selectedIds.length ) {
+			return;
+		}
+
+		setRoutesBusy( true );
+		setError( '' );
+		setMessage( '' );
+
+		try {
+			const response = await publishSiteTranslateRoutes( {
+				postIds: selectedIds,
+				languageId,
+			} );
+			setRouteOutcomes( response.outcomes );
+			setMessage(
+				sprintf(
+					/* translators: 1: success count, 2: total count */
+					__(
+						'Localized routes: %1$d succeeded of %2$d objects.',
+						'ai-multilingual'
+					),
+					response.success_count,
+					response.total
+				)
+			);
+		} catch ( unknownError ) {
+			setError(
+				unknownError instanceof Error
+					? unknownError.message
+					: __(
+							'Could not generate or publish localized routes.',
+							'ai-multilingual'
+					  )
+			);
+		} finally {
+			setRoutesBusy( false );
+		}
+	};
+
+	const totalPages = Math.max( 1, Math.ceil( total / PER_PAGE ) );
+
+	return (
+		<div className="aiml-site-translate-panel">
+			<p className="description">
+				{ __(
+					'Select visitor-facing pages, posts, or products, review translation coverage, create chunked background jobs, then publish segments and localized routes in the recommended language order.',
+					'ai-multilingual'
+				) }
+			</p>
+
+			{ ! strategyFValid && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'Strategy F is incomplete. Classic-only selections can still run; Gutenberg block bodies require full Strategy F configuration (Settings → Strategy F diagnostics).',
+						'ai-multilingual'
+					) }
+				</Notice>
+			) }
+
+			{ error && (
+				<Notice status="error" onDismiss={ () => setError( '' ) }>
+					{ error }
+				</Notice>
+			) }
+			{ message && (
+				<Notice status="success" onDismiss={ () => setMessage( '' ) }>
+					{ message }
+				</Notice>
+			) }
+
+			<div className="aiml-site-translate-toolbar">
+				<LanguageSelect
+					languages={ languages }
+					value={ languageCode }
+					onChange={ setLanguageCode }
+				/>
+				<TextControl
+					label={ __( 'Search', 'ai-multilingual' ) }
+					value={ search }
+					onChange={ setSearch }
+				/>
+				<SelectControl
+					label={ __( 'Post type', 'ai-multilingual' ) }
+					value={ postType }
+					options={ [
+						{ label: __( 'All types', 'ai-multilingual' ), value: '' },
+						{ label: __( 'Pages', 'ai-multilingual' ), value: 'page' },
+						{ label: __( 'Posts', 'ai-multilingual' ), value: 'post' },
+						{
+							label: __( 'Products', 'ai-multilingual' ),
+							value: 'product',
+						},
+					] }
+					onChange={ setPostType }
+				/>
+				<SelectControl
+					label={ __( 'Coverage filter', 'ai-multilingual' ) }
+					value={ coverageFilter }
+					options={ coverageFilterOptions() }
+					onChange={ ( value ) =>
+						setCoverageFilter( value as SiteTranslateCoverageFilter )
+					}
+				/>
+			</div>
+
+			<div className="aiml-site-translate-actions">
+				<p className="description">
+					{ siteTranslateChunkMessage( selectedIds.length ) }
+				</p>
+				<Button
+					variant="primary"
+					disabled={
+						! canManageJobs || createBusy || 0 === selectedIds.length
+					}
+					isBusy={ createBusy }
+					onClick={ () => void handleCreateJobs() }
+				>
+					{ batchIncomplete
+						? __( 'Retry failed creation', 'ai-multilingual' )
+						: __( 'Create translation jobs', 'ai-multilingual' ) }
+				</Button>
+				<Button
+					variant="secondary"
+					disabled={ ! canRunJobs || runBusy || ! batchId }
+					isBusy={ runBusy }
+					onClick={ () => void handleRunBatch() }
+				>
+					{ __( 'Run batch now', 'ai-multilingual' ) }
+				</Button>
+				<Button
+					variant="secondary"
+					disabled={ routesBusy || 0 === selectedIds.length }
+					isBusy={ routesBusy }
+					onClick={ () => void handlePublishRoutes() }
+				>
+					{ __( 'Generate & publish routes', 'ai-multilingual' ) }
+				</Button>
+				{ batchId && (
+					<Button
+						variant="link"
+						onClick={ () => onOpenJobsBatch( batchId ) }
+					>
+						{ sprintf(
+							/* translators: %s: batch id */
+							__( 'View batch %s in Jobs', 'ai-multilingual' ),
+							batchId
+						) }
+					</Button>
+				) }
+			</div>
+
+			{ loading ? (
+				<Spinner />
+			) : (
+				<table className="widefat striped aiml-site-translate-table">
+					<thead>
+						<tr>
+							<th>
+								<CheckboxControl
+									label={ __( 'Select all visible', 'ai-multilingual' ) }
+									checked={ allVisibleSelected }
+									onChange={ toggleAllVisible }
+								/>
+							</th>
+							<th>{ __( 'Title', 'ai-multilingual' ) }</th>
+							<th>{ __( 'Type', 'ai-multilingual' ) }</th>
+							<th>{ __( 'Coverage', 'ai-multilingual' ) }</th>
+							<th>{ __( 'Notes', 'ai-multilingual' ) }</th>
+						</tr>
+					</thead>
+					<tbody>
+						{ 0 === filteredRows.length && (
+							<tr>
+								<td colSpan={ 5 }>
+									{ __(
+										'No objects match the current filters.',
+										'ai-multilingual'
+									) }
+								</td>
+							</tr>
+						) }
+						{ filteredRows.map( ( row ) => (
+							<tr key={ row.post_id }>
+								<td>
+									<CheckboxControl
+										label={ sprintf(
+											/* translators: %s: post title */
+											__( 'Select %s', 'ai-multilingual' ),
+											row.post_title
+										) }
+										checked={ selected.has( row.post_id ) }
+										onChange={ ( checked ) =>
+											toggleRow( row.post_id, checked )
+										}
+									/>
+								</td>
+								<td>{ row.post_title }</td>
+								<td>{ row.post_type }</td>
+								<td>{ coverageSummaryLabel( row.coverage ) }</td>
+								<td>
+									{ row.coverage.blocked_or_unsupported.map(
+										( reason ) => (
+											<span
+												key={ `${ row.post_id }-${ reason }` }
+												className="aiml-site-translate-note"
+											>
+												{ blockedReasonLabel( reason ) }
+											</span>
+										)
+									) }
+								</td>
+							</tr>
+						) ) }
+					</tbody>
+				</table>
+			) }
+
+			<div className="aiml-site-translate-pagination">
+				<Button
+					variant="secondary"
+					disabled={ page <= 1 || loading }
+					onClick={ () => setPage( ( current ) => Math.max( 1, current - 1 ) ) }
+				>
+					{ __( 'Previous', 'ai-multilingual' ) }
+				</Button>
+				<span>
+					{ sprintf(
+						/* translators: 1: current page, 2: total pages */
+						__( 'Page %1$d of %2$d', 'ai-multilingual' ),
+						page,
+						totalPages
+					) }
+				</span>
+				<Button
+					variant="secondary"
+					disabled={ page >= totalPages || loading }
+					onClick={ () =>
+						setPage( ( current ) => Math.min( totalPages, current + 1 ) )
+					}
+				>
+					{ __( 'Next', 'ai-multilingual' ) }
+				</Button>
+			</div>
+
+			{ routeOutcomes.length > 0 && (
+				<div className="aiml-site-translate-routes">
+					<h3>{ __( 'Localized URL outcomes', 'ai-multilingual' ) }</h3>
+					<ul>
+						{ routeOutcomes.map( ( outcome ) => (
+							<li key={ `${ outcome.post_id }-${ outcome.outcome }` }>
+								<strong>{ routeOutcomeLabel( outcome.outcome ) }</strong>
+								{ ': ' }
+								{ outcome.message }
+								{ ' (#'.concat( String( outcome.post_id ), ')' ) }
+							</li>
+						) ) }
+					</ul>
+				</div>
+			) }
+		</div>
+	);
+}
