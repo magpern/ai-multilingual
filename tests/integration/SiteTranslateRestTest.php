@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace AIMultilingual\Tests\Integration;
 
 use AIMultilingual\Block\FeatureFlags;
+use AIMultilingual\Jobs\BackgroundTranslationJobRepository;
 use AIMultilingual\Jobs\JobsCapabilities;
 use AIMultilingual\Plugin;
 use AIMultilingual\Settings;
@@ -32,6 +33,47 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		JobsCapabilities::grant_default_roles();
 	}
 
+	/**
+	 * Defines minimal Action Scheduler stubs for REST create tests.
+	 */
+	private function define_action_scheduler_stubs(): void {
+		if ( ! function_exists( 'as_enqueue_async_action' ) ) {
+			/**
+			 * @param mixed ...$args Unused Action Scheduler args.
+			 */
+			function as_enqueue_async_action( ...$args ): int { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return 1;
+			}
+		}
+
+		if ( ! function_exists( 'as_schedule_single_action' ) ) {
+			/**
+			 * @param mixed ...$args Unused Action Scheduler args.
+			 */
+			function as_schedule_single_action( ...$args ): int { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return 1;
+			}
+		}
+
+		if ( ! function_exists( 'as_has_scheduled_action' ) ) {
+			/**
+			 * @param mixed ...$args Unused Action Scheduler args.
+			 */
+			function as_has_scheduled_action( ...$args ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return false;
+			}
+		}
+
+		if ( ! function_exists( 'as_schedule_recurring_action' ) ) {
+			/**
+			 * @param mixed ...$args Unused Action Scheduler args.
+			 */
+			function as_schedule_recurring_action( ...$args ): int { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+				return 1;
+			}
+		}
+	}
+
 	public function test_site_translate_routes_are_registered(): void {
 		$routes = rest_get_server()->get_routes();
 		$this->assertArrayHasKey( '/aiml/v1/site-translate/objects', $routes );
@@ -47,10 +89,10 @@ final class SiteTranslateRestTest extends AimlTestCase {
 			Settings::OPTION,
 			Settings::sanitize(
 				array(
-					FeatureFlags::REGISTRATION      => false,
-					FeatureFlags::INJECTION         => false,
-					FeatureFlags::EXTRACTION        => false,
-					FeatureFlags::FRONTEND_RENDER   => false,
+					FeatureFlags::REGISTRATION    => false,
+					FeatureFlags::INJECTION       => false,
+					FeatureFlags::EXTRACTION      => false,
+					FeatureFlags::FRONTEND_RENDER => false,
 				)
 			)
 		);
@@ -131,12 +173,12 @@ final class SiteTranslateRestTest extends AimlTestCase {
 		$request->set_body(
 			wp_json_encode(
 				array(
-					'post_ids'      => $post_ids,
-					'language_id'   => 2,
-					'client_token'  => 'site-translate-test-token',
-					'provider_id'   => 'openai',
-					'prompt_profile'=> 'default',
-					'prompt_version'=> '1',
+					'post_ids'       => $post_ids,
+					'language_id'    => 2,
+					'client_token'   => 'site-translate-test-token',
+					'provider_id'    => 'openai',
+					'prompt_profile' => 'default',
+					'prompt_version' => '1',
 				)
 			)
 		);
@@ -177,7 +219,7 @@ final class SiteTranslateRestTest extends AimlTestCase {
 	}
 
 	public function test_localized_url_batch_reports_title_stale_without_generating(): void {
-		$post  = $this->create_page( 'Stale title route', 'Body' );
+		$post = $this->create_page( 'Stale title route', 'Body' );
 
 		$this->store->save_translation(
 			array(

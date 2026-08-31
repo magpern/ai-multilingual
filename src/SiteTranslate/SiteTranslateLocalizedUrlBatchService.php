@@ -22,16 +22,16 @@ use WP_Post;
  */
 final class SiteTranslateLocalizedUrlBatchService {
 
-	public const OUTCOME_ELIGIBLE_SUCCESS       = 'eligible_success';
-	public const OUTCOME_NOT_ADMITTED           = 'not_admitted';
+	public const OUTCOME_ELIGIBLE_SUCCESS         = 'eligible_success';
+	public const OUTCOME_NOT_ADMITTED             = 'not_admitted';
 	public const OUTCOME_MISSING_TRANSLATED_TITLE = 'missing_translated_title';
-	public const OUTCOME_TITLE_NOT_PUBLISHED    = 'title_not_published';
-	public const OUTCOME_TITLE_STALE            = 'title_stale';
-	public const OUTCOME_MANUAL_SLUG_LOCKED     = 'manual_slug_locked';
-	public const OUTCOME_COLLISION              = 'collision';
-	public const OUTCOME_PUBLICATION_INELIGIBLE = 'publication_ineligible';
-	public const OUTCOME_LANGUAGE_NOT_PUBLISHED = 'language_not_published';
-	public const OUTCOME_OTHER_ERROR            = 'other_error';
+	public const OUTCOME_TITLE_NOT_PUBLISHED      = 'title_not_published';
+	public const OUTCOME_TITLE_STALE              = 'title_stale';
+	public const OUTCOME_MANUAL_SLUG_LOCKED       = 'manual_slug_locked';
+	public const OUTCOME_COLLISION                = 'collision';
+	public const OUTCOME_PUBLICATION_INELIGIBLE   = 'publication_ineligible';
+	public const OUTCOME_LANGUAGE_NOT_PUBLISHED   = 'language_not_published';
+	public const OUTCOME_OTHER_ERROR              = 'other_error';
 
 	/**
 	 * Translation store.
@@ -64,10 +64,10 @@ final class SiteTranslateLocalizedUrlBatchService {
 	/**
 	 * Builds the LU batch service.
 	 *
-	 * @param Store                       $store              Translation store.
-	 * @param SlugCandidateService        $slug_candidates    Slug candidate service.
-	 * @param RoutePublicationService     $route_publication  Route publication service.
-	 * @param RoutingCapabilityRegistry   $capabilities       Capability registry.
+	 * @param Store                     $store              Translation store.
+	 * @param SlugCandidateService      $slug_candidates    Slug candidate service.
+	 * @param RoutePublicationService   $route_publication  Route publication service.
+	 * @param RoutingCapabilityRegistry $capabilities       Capability registry.
 	 */
 	public function __construct(
 		Store $store,
@@ -84,9 +84,9 @@ final class SiteTranslateLocalizedUrlBatchService {
 	/**
 	 * Generates slug candidates and publishes routes for a selection.
 	 *
-	 * @param list<int> $post_ids    Selected post ids.
-	 * @param int       $language_id Target language id.
-	 * @param int       $user_id     Acting user id.
+	 * @param int[] $post_ids    Selected post ids.
+	 * @param int   $language_id Target language id.
+	 * @param int   $user_id     Acting user id.
 	 * @return array<string, mixed>
 	 */
 	public function generate_and_publish( array $post_ids, int $language_id, int $user_id = 0 ): array {
@@ -158,10 +158,10 @@ final class SiteTranslateLocalizedUrlBatchService {
 		);
 
 		return array(
-			'language_id'    => $language_id,
-			'total'          => count( $outcomes ),
-			'success_count'  => $success,
-			'outcomes'       => $outcomes,
+			'language_id'   => $language_id,
+			'total'         => count( $outcomes ),
+			'success_count' => $success,
+			'outcomes'      => $outcomes,
 		);
 	}
 
@@ -173,7 +173,7 @@ final class SiteTranslateLocalizedUrlBatchService {
 	 * @return true|array{outcome: string, message: string}
 	 */
 	private function automatic_title_eligibility( WP_Post $post, int $language_id ) {
-		$row = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, Extractor::FIELD_TITLE );
+		$row  = $this->store->get( Store::SOURCE_POST, (int) $post->ID, $language_id, Extractor::FIELD_TITLE );
 		$text = is_object( $row ) ? trim( (string) ( $row->translated_text ?? '' ) ) : '';
 
 		if ( '' === $text || ( is_object( $row ) && Store::STATUS_MISSING === (string) ( $row->status ?? '' ) ) ) {
@@ -233,11 +233,11 @@ final class SiteTranslateLocalizedUrlBatchService {
 	/**
 	 * Builds one outcome row.
 	 *
-	 * @param int                   $post_id   Post id.
-	 * @param string                $post_type Post type.
-	 * @param string                $outcome   Outcome code.
-	 * @param string                $message   Operator message.
-	 * @param array<string, mixed>  $details   Optional route payload.
+	 * @param int                  $post_id   Post id.
+	 * @param string               $post_type Post type.
+	 * @param string               $outcome   Outcome code.
+	 * @param string               $message   Operator message.
+	 * @param array<string, mixed> $details   Optional route payload.
 	 * @return array<string, mixed>
 	 */
 	private function outcome_row( int $post_id, string $post_type, string $outcome, string $message, array $details = array() ): array {

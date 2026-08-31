@@ -88,7 +88,7 @@ final class SiteTranslateAdmissionService {
 	/**
 	 * Validates a Site Translate selection for job creation.
 	 *
-	 * @param list<int> $post_ids Post ids.
+	 * @param int[] $post_ids Post ids.
 	 * @return true|WP_Error
 	 */
 	public function validate_selection( array $post_ids ) {
@@ -115,10 +115,10 @@ final class SiteTranslateAdmissionService {
 					'aiml_site_translate_strategy_f_required',
 					__( 'One or more selected objects require Strategy F (Gutenberg block translation) to be fully configured before Site Translate can run.', 'universal-multilingual' ),
 					array(
-						'status'            => 422,
-						'blocking_objects'  => $blocking,
-						'strategy_f_valid'  => false,
-						'settings_path'     => admin_url( 'admin.php?page=ai-multilingual#aiml-strategy-f' ),
+						'status'           => 422,
+						'blocking_objects' => $blocking,
+						'strategy_f_valid' => false,
+						'settings_path'    => admin_url( 'admin.php?page=ai-multilingual#aiml-strategy-f' ),
 					)
 				);
 			}

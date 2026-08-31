@@ -75,12 +75,12 @@ final class SiteTranslateController {
 	/**
 	 * Builds the controller.
 	 *
-	 * @param SiteTranslateCoverageService            $coverage       Coverage service.
-	 * @param SiteTranslateAdmissionService           $admission      Admission service.
-	 * @param SiteTranslateBatchService               $batches        Batch service.
-	 * @param SiteTranslateLocalizedUrlBatchService   $localized_urls LU batch service.
-	 * @param Languages                               $languages      Languages.
-	 * @param JobsViewModelSerializer                 $job_serializer Job serializer.
+	 * @param SiteTranslateCoverageService          $coverage       Coverage service.
+	 * @param SiteTranslateAdmissionService         $admission      Admission service.
+	 * @param SiteTranslateBatchService             $batches        Batch service.
+	 * @param SiteTranslateLocalizedUrlBatchService $localized_urls LU batch service.
+	 * @param Languages                             $languages      Languages.
+	 * @param JobsViewModelSerializer               $job_serializer Job serializer.
 	 */
 	public function __construct(
 		SiteTranslateCoverageService $coverage,
@@ -465,7 +465,7 @@ final class SiteTranslateController {
 	/**
 	 * Ensures the current user may edit all selected posts.
 	 *
-	 * @param list<int> $post_ids Post ids.
+	 * @param int[] $post_ids Post ids.
 	 * @return true|WP_Error
 	 */
 	private function assert_edit_posts( array $post_ids ) {

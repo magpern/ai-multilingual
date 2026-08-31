@@ -82,11 +82,11 @@ final class SiteTranslateCoverageService {
 	 * @return array<string, mixed>
 	 */
 	public function list_objects( array $args ): array {
-		$page            = max( 1, (int) ( $args['page'] ?? 1 ) );
-		$per_page        = min( 50, max( 1, (int) ( $args['per_page'] ?? 20 ) ) );
-		$search          = sanitize_text_field( (string) ( $args['search'] ?? '' ) );
-		$language_id     = (int) ( $args['language_id'] ?? 0 );
-		$post_type = sanitize_key( (string) ( $args['post_type'] ?? '' ) );
+		$page        = max( 1, (int) ( $args['page'] ?? 1 ) );
+		$per_page    = min( 50, max( 1, (int) ( $args['per_page'] ?? 20 ) ) );
+		$search      = sanitize_text_field( (string) ( $args['search'] ?? '' ) );
+		$language_id = (int) ( $args['language_id'] ?? 0 );
+		$post_type   = sanitize_key( (string) ( $args['post_type'] ?? '' ) );
 
 		$post_types = array( 'page', 'post', 'product' );
 		if ( '' !== $post_type && in_array( $post_type, $post_types, true ) ) {
@@ -120,9 +120,10 @@ final class SiteTranslateCoverageService {
 
 			$coverage = $language_id > 0 ? $this->coverage_for_post( $post, $language_id ) : $this->empty_coverage( $post );
 
+			$title   = get_the_title( $post );
 			$items[] = array(
 				'post_id'      => (int) $post->ID,
-				'post_title'   => get_the_title( $post ) ?: __( '(no title)', 'universal-multilingual' ),
+				'post_title'   => '' !== $title ? $title : __( '(no title)', 'universal-multilingual' ),
 				'post_type'    => (string) $post->post_type,
 				'post_status'  => (string) $post->post_status,
 				'modified_gmt' => (string) $post->post_modified_gmt,
@@ -144,8 +145,8 @@ final class SiteTranslateCoverageService {
 	/**
 	 * Coverage for explicit post ids.
 	 *
-	 * @param list<int> $post_ids    Post ids.
-	 * @param int       $language_id Target language id.
+	 * @param int[] $post_ids    Post ids.
+	 * @param int   $language_id Target language id.
 	 * @return list<array<string, mixed>>
 	 */
 	public function coverage_for_ids( array $post_ids, int $language_id ): array {
@@ -155,9 +156,10 @@ final class SiteTranslateCoverageService {
 			if ( ! $post instanceof WP_Post ) {
 				continue;
 			}
+			$title  = get_the_title( $post );
 			$rows[] = array(
 				'post_id'      => (int) $post->ID,
-				'post_title'   => get_the_title( $post ) ?: __( '(no title)', 'universal-multilingual' ),
+				'post_title'   => '' !== $title ? $title : __( '(no title)', 'universal-multilingual' ),
 				'post_type'    => (string) $post->post_type,
 				'body_surface' => $this->admission->body_surface( $post ),
 				'coverage'     => $this->coverage_for_post( $post, $language_id ),
@@ -191,8 +193,8 @@ final class SiteTranslateCoverageService {
 
 			++$eligible_total;
 
-			$text           = trim( (string) ( $segment['translated_text'] ?? '' ) );
-			$status         = (string) ( $segment['status'] ?? Store::STATUS_MISSING );
+			$text            = trim( (string) ( $segment['translated_text'] ?? '' ) );
+			$status          = (string) ( $segment['status'] ?? Store::STATUS_MISSING );
 			$has_translation = Store::STATUS_MISSING !== $status && '' !== $text;
 
 			if ( ! $has_translation ) {

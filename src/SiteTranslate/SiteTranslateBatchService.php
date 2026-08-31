@@ -61,7 +61,7 @@ final class SiteTranslateBatchService {
 	/**
 	 * Creates chunked Site Translate Jobs for a selection.
 	 *
-	 * @param list<int>            $post_ids    Selected post ids.
+	 * @param int[]                $post_ids    Selected post ids.
 	 * @param int                  $language_id Target language id.
 	 * @param array<string, mixed> $shared_args Provider/prompt/created_by/client_token args.
 	 * @param string|null          $batch_id    Existing batch id for partial retry.
@@ -102,14 +102,14 @@ final class SiteTranslateBatchService {
 
 		if ( array() === $pending && null !== $batch_id && '' !== $batch_id ) {
 			return array(
-				'batch_id'       => $batch_id,
-				'jobs'           => array(),
-				'failed'         => array(),
-				'complete'       => true,
-				'created_count'  => 0,
-				'attempted_count'=> 0,
-				'skipped_count'  => count( $post_ids ),
-				'chunk_count'    => 0,
+				'batch_id'        => $batch_id,
+				'jobs'            => array(),
+				'failed'          => array(),
+				'complete'        => true,
+				'created_count'   => 0,
+				'attempted_count' => 0,
+				'skipped_count'   => count( $post_ids ),
+				'chunk_count'     => 0,
 			);
 		}
 
