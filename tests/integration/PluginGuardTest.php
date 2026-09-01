@@ -1467,7 +1467,7 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$version = (string) file_get_contents( $this->root() . '/universal-multilingual.php' );
 		$this->assertMatchesRegularExpression( '/Version:\s*1\.11\.0/', $version );
-		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.11.0' )", $version );
+		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.11.1' )", $version );
 	}
 
 	/**
@@ -1482,7 +1482,7 @@ final class PluginGuardTest extends AimlTestCase {
 
 		$version = (string) file_get_contents( $this->root() . '/universal-multilingual.php' );
 		$this->assertMatchesRegularExpression( '/Version:\s*1\.11\.0/', $version );
-		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.11.0' )", $version );
+		$this->assertStringContainsString( "define( 'AIML_VERSION', '1.11.1' )", $version );
 
 		$this->assertFileExists( $this->root() . '/src/Rest/TermSlugController.php' );
 		$this->assertFileExists( $this->root() . '/src/Admin/TermLocalizedSlugAdmin.php' );

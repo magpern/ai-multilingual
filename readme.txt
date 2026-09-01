@@ -4,7 +4,7 @@ Tags: multilingual, translation, woocommerce, gutenberg, ai
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 8.1
-Stable tag: 1.11.0
+Stable tag: 1.11.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,9 @@ Universal Multilingual stores one canonical object per content item and applies 
 6. Localized URLs default OFF; enable only after reviewing MSEO release notes and verifying routes.
 
 == Changelog ==
+
+= 1.11.1 =
+* Automatic updates from a private update server (bundled Plugin Update Checker v5); base URL read from the PRIVATE_UPDATE_SERVER constant, inert when it is not defined.
 
 = 1.11.0 =
 * Site Translate workspace: coverage-aware picker for pages, posts, and products.
